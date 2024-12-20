@@ -24,11 +24,11 @@ set -e
 source scripts/common.sh
 source scripts/externalTests/common.sh
 
-SOLJSON="$1"
+HYPJSON="$1"
 VERSION="$2"
 HYPCJS_CHECKOUT="$3" # optional
 
-[[ $SOLJSON != "" && -f "$SOLJSON" && $VERSION != "" ]] || fail "Usage: $0 <path to hypjson.js> <version> [<path to hypc-js>]"
+[[ $HYPJSON != "" && -f "$HYPJSON" && $VERSION != "" ]] || fail "Usage: $0 <path to hypjson.js> <version> [<path to hypc-js>]"
 
 # TODO(rgeraldes24)
 function hypcjs_test
@@ -37,7 +37,7 @@ function hypcjs_test
     HYPCJS_INPUT_DIR="$TEST_DIR"/test/externalTests/hypc-js
 
     # set up hypc-js on the branch specified
-    setup_hypc "$DIR" hypcjs "$SOLJSON" master hypc/ "$HYPCJS_CHECKOUT"
+    setup_hypc "$DIR" hypcjs "$HYPJSON" master hypc/ "$HYPCJS_CHECKOUT"
     cd hypc/
 
     printLog "Updating index.js file..."

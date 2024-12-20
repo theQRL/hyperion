@@ -5,4 +5,4 @@
 #
 # This script gets the following parameters:
 # - TAG
-# - SOLJSON_JS
+# - HYPJSON_JS

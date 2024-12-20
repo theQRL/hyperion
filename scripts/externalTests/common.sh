@@ -568,7 +568,7 @@ function gas_report_path
 
 function gas_report_to_json
 {
-    cat - | "${REPO_ROOT}/scripts/externalTests/parse_eth_gas_report.py" | jq '{gas: .}'
+    cat - | "${REPO_ROOT}/scripts/externalTests/parse_zond_gas_report.py" | jq '{gas: .}'
 }
 
 function detect_hardhat_artifact_dir

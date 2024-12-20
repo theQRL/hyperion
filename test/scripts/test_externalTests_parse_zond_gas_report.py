@@ -9,7 +9,7 @@ from unittest_helpers import FIXTURE_DIR, load_fixture
 
 # NOTE: This test file file only works with scripts/ added to PYTHONPATH so pylint can't find the imports
 # pragma pylint: disable=import-error
-from externalTests.parse_eth_gas_report import parse_report, ReportParsingError, ReportValidationError
+from externalTests.parse_zond_gas_report import parse_report, ReportParsingError, ReportValidationError
 # pragma pylint: enable=import-error
 
 ETH_GAS_REPORT_GNOSIS_RST_PATH = FIXTURE_DIR / 'eth_gas_report_gnosis.rst'

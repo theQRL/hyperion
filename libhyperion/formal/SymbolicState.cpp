@@ -211,16 +211,10 @@ smtutil::Expression SymbolicState::txMember(std::string const& _member) const
 	return m_tx.member(_member);
 }
 
-smtutil::Expression SymbolicState::zvmParisConstraints() const
-{
-	// Ensure prevrandao range as defined by EIP-4399.
-	return txMember("block.prevrandao") > (u256(1) << 64);
-}
-
 smtutil::Expression SymbolicState::txTypeConstraints() const
 {
 	return
-		zvmParisConstraints() &&
+		txMember("block.prevrandao") > (u256(1) << 64) &&
 		smt::symbolicUnknownConstraints(m_tx.member("block.basefee"), TypeProvider::uint256()) &&
 		smt::symbolicUnknownConstraints(m_tx.member("block.chainid"), TypeProvider::uint256()) &&
 		smt::symbolicUnknownConstraints(m_tx.member("block.coinbase"), TypeProvider::address()) &&
