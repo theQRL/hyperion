@@ -1,0 +1,46 @@
+set(sources
+	AbstractAssemblyStack.h
+	Assembly.cpp
+	Assembly.h
+	AssemblyItem.cpp
+	AssemblyItem.h
+	ZVMAssemblyStack.cpp
+	ZVMAssemblyStack.h
+	BlockDeduplicator.cpp
+	BlockDeduplicator.h
+	CommonSubexpressionEliminator.cpp
+	CommonSubexpressionEliminator.h
+	ConstantOptimiser.cpp
+	ConstantOptimiser.h
+	ControlFlowGraph.cpp
+	ControlFlowGraph.h
+	Disassemble.cpp
+	Disassemble.h
+	Exceptions.h
+	ExpressionClasses.cpp
+	ExpressionClasses.h
+	GasMeter.cpp
+	GasMeter.h
+	Inliner.cpp
+	Inliner.h
+	Instruction.cpp
+	Instruction.h
+	JumpdestRemover.cpp
+	JumpdestRemover.h
+	KnownState.cpp
+	KnownState.h
+	LinkerObject.cpp
+	LinkerObject.h
+	PathGasMeter.cpp
+	PathGasMeter.h
+	PeepholeOptimiser.cpp
+	PeepholeOptimiser.h
+	SemanticInformation.cpp
+	SemanticInformation.h
+	SimplificationRule.h
+	SimplificationRules.cpp
+	SimplificationRules.h
+)
+
+add_library(zvmasm ${sources})
+target_link_libraries(zvmasm PUBLIC hyputil fmt::fmt-header-only)
