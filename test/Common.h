@@ -33,13 +33,13 @@ namespace hyperion::test
 
 #ifdef _WIN32
 static constexpr auto zvmoneFilename = "zvmone.dll";
-static constexpr auto zvmoneDownloadLink = "https://github.com/ethereum/zvmone/releases/download/v0.10.0/zvmone-0.10.0-windows-amd64.zip";
+static constexpr auto zvmoneDownloadLink = "https://github.com/theQRL/zvmone/releases/download/v0.1.0/zvmone-0.1.0-windows-amd64.zip";
 #elif defined(__APPLE__)
 static constexpr auto zvmoneFilename = "libzvmone.dylib";
-static constexpr auto zvmoneDownloadLink = "https://github.com/ethereum/zvmone/releases/download/v0.10.0/zvmone-0.10.0-darwin-x86_64.tar.gz";
+static constexpr auto zvmoneDownloadLink = "https://github.com/theQRL/zvmone/releases/download/v0.1.0/zvmone-0.1.0-darwin-x86_64.tar.gz";
 #else
 static constexpr auto zvmoneFilename = "libzvmone.so";
-static constexpr auto zvmoneDownloadLink = "https://github.com/ethereum/zvmone/releases/download/v0.10.0/zvmone-0.10.0-linux-x86_64.tar.gz";
+static constexpr auto zvmoneDownloadLink = "https://github.com/theQRL/zvmone/releases/download/v0.1.0/zvmone-0.1.0-linux-x86_64.tar.gz";
 #endif
 
 struct ConfigException: public util::Exception {};
