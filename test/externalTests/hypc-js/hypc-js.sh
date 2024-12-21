@@ -30,7 +30,6 @@ HYPCJS_CHECKOUT="$3" # optional
 
 [[ $HYPJSON != "" && -f "$HYPJSON" && $VERSION != "" ]] || fail "Usage: $0 <path to hypjson.js> <version> [<path to hypc-js>]"
 
-# TODO(rgeraldes24)
 function hypcjs_test
 {
     TEST_DIR=$(pwd)

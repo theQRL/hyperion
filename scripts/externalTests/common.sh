@@ -83,8 +83,7 @@ function setup_hypc
         printLog "Setting up hypc-js..."
         if [[ $hypcjs_dir == "" ]]; then
             printLog "Cloning branch ${hypcjs_branch}..."
-            # TODO(rgeraldes24)
-            git clone --depth 1 -b "$hypcjs_branch" https://github.com/ethereum/hypc-js.git "$install_dir"
+            git clone --depth 1 -b "$hypcjs_branch" https://github.com/theQRL/hypc-js.git "$install_dir"
         else
             printLog "Using local hypc-js from ${hypcjs_dir}..."
             cp -ra "$hypcjs_dir" hypc

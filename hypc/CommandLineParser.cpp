@@ -529,7 +529,6 @@ void CommandLineParser::parseOutputSelection()
 
 po::options_description CommandLineParser::optionsDescription()
 {
-	// TODO(rgeraldes24)
 	// Declare the supported options.
 	po::options_description desc((R"(hypc, the Hyperion commandline compiler.
 
