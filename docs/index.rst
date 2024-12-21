@@ -70,7 +70,7 @@ simply choose your preferred option and follow the steps outlined on the :ref:`i
 **4. Learn More**
 
 If you want to learn more about building decentralized applications on Zond,
-the `Zond Developer Resources <https://ethereum.org/en/developers/>`_ can help you with further general documentation around Zond,
+the `Zond Developer Resources <https://theqrl.org/en/developers/>`_ can help you with further general documentation around Zond,
 and a wide selection of tutorials, tools, and development frameworks.
 
 If you have any questions, you can try searching for answers or asking on the

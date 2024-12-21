@@ -5,7 +5,7 @@ Resources
 General Resources
 =================
 
-* `Ethereum.org Developer Portal <https://ethereum.org/en/developers/>`_
+* `Ethereum.org Developer Portal <https://theqrl.org/en/developers/>`_
 * `Ethereum StackExchange <https://ethereum.stackexchange.com/>`_
 * `Hyperion Portal <https://soliditylang.org/>`_
 * `Hyperion Changelog <https://github.com/theQRL/hyperion/blob/develop/Changelog.md>`_
