@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # Dockerfile for building and testing Hyperion Compiler on CI
 # Target: Ubuntu ossfuzz Clang variant
-# URL: https://hub.docker.com/r/ethereum/solidity-buildpack-deps
+# URL: https://hub.docker.com/r/theQRL/solidity-buildpack-deps
 #
 # This file is part of hyperion.
 #
@@ -93,7 +93,7 @@ RUN set -ex; \
 # ZVMONE
 RUN set -ex; \
 	cd /usr/src; \
-	git clone --branch="v0.10.0" --recurse-submodules https://github.com/ethereum/zvmone.git; \
+	git clone --branch="v0.10.0" --recurse-submodules https://github.com/theQRL/zvmone.git; \
 	cd zvmone; \
 	mkdir build; \
 	cd build; \

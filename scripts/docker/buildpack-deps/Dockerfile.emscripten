@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # Dockerfile for building and testing Hyperion Compiler on CI
 # Target: Emscripten
-# URL: https://hub.docker.com/r/ethereum/solidity-buildpack-deps
+# URL: https://hub.docker.com/r/theQRL/solidity-buildpack-deps
 #
 # This file is part of hyperion.
 #

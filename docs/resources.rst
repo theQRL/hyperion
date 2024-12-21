@@ -7,14 +7,14 @@ General Resources
 
 * `Ethereum.org Developer Portal <https://ethereum.org/en/developers/>`_
 * `Ethereum StackExchange <https://ethereum.stackexchange.com/>`_
-* `Solidity Portal <https://soliditylang.org/>`_
-* `Solidity Changelog <https://github.com/ethereum/solidity/blob/develop/Changelog.md>`_
-* `Solidity Source Code on GitHub <https://github.com/ethereum/solidity/>`_
-* `Solidity Language Users Chat <https://matrix.to/#/#ethereum_solidity:gitter.im>`_
-* `Solidity Compiler Developers Chat <https://matrix.to/#/#ethereum_solidity-dev:gitter.im>`_
-* `Awesome Hyperion <https://github.com/bkrem/awesome-solidity>`_
-* `Solidity by Example <https://solidity-by-example.org/>`_
-* `Solidity Documentation Community Translations <https://github.com/solidity-docs>`_
+* `Hyperion Portal <https://soliditylang.org/>`_
+* `Hyperion Changelog <https://github.com/theQRL/hyperion/blob/develop/Changelog.md>`_
+* `Hyperion Source Code on GitHub <https://github.com/theQRL/hyperion/>`_
+* `Hyperion Language Users Chat <https://matrix.to/#/#theqrl_hyperion:gitter.im>`_
+* `Hyperion Compiler Developers Chat <https://matrix.to/#/#theqrl_hyperion-dev:gitter.im>`_
+* `Awesome Hyperion <https://github.com/bkrem/awesome-hyperion>`_
+* `Hyperion by Example <https://hyperion-by-example.org/>`_
+* `Hyperion Documentation Community Translations <https://github.com/hyperion-docs>`_
 
 Integrated (Ethereum) Development Environments
 ==============================================
@@ -104,7 +104,7 @@ Solidity Tools
 * `evmdis <https://github.com/Arachnid/evmdis>`_
     ZVM Disassembler that performs static analysis on the bytecode to provide a higher level of abstraction than raw ZVM operations.
 
-* `EVM Lab <https://github.com/ethereum/evmlab/>`_
+* `EVM Lab <https://github.com/theQRL/evmlab/>`_
     Rich tool package to interact with the EVM. Includes a VM, Etherchain API, and a trace-viewer with gas cost display.
 
 * `hevm <https://github.com/dapphub/dapptools/tree/master/src/hevm#readme>`_

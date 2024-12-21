@@ -679,7 +679,7 @@ BOOST_AUTO_TEST_CASE(filename_with_colon)
 		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
-				"http://github.com/ethereum/solidity/std/StandardToken.hyp": {
+				"http://github.com/theQRL/hyperion/std/StandardToken.hyp": {
 					"A": [
 						"abi"
 					]
@@ -687,7 +687,7 @@ BOOST_AUTO_TEST_CASE(filename_with_colon)
 			}
 		},
 		"sources": {
-			"http://github.com/ethereum/solidity/std/StandardToken.hyp": {
+			"http://github.com/theQRL/hyperion/std/StandardToken.hyp": {
 				"content": "contract A { }"
 			}
 		}
@@ -695,7 +695,7 @@ BOOST_AUTO_TEST_CASE(filename_with_colon)
 	)";
 	Json::Value result = compile(input);
 	BOOST_CHECK(containsAtMostWarnings(result));
-	Json::Value contract = getContractResult(result, "http://github.com/ethereum/solidity/std/StandardToken.hyp", "A");
+	Json::Value contract = getContractResult(result, "http://github.com/theQRL/hyperion/std/StandardToken.hyp", "A");
 	BOOST_CHECK(contract.isObject());
 	BOOST_CHECK(contract["abi"].isArray());
 	BOOST_CHECK_EQUAL(util::jsonCompactPrint(contract["abi"]), "[]");

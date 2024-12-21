@@ -67,7 +67,7 @@ enum zvmc_loader_error_code
  * After the DLL is successfully loaded the function tries to find the ZVM create function in the
  * library. The `filename` is used to guess the ZVM name and the name of the create function.
  * The create function name is constructed by the following rules. Consider example path:
- * "/ethereum/libexample-interpreter.so.1.0".
+ * "/zond/libexample-interpreter.so.1.0".
  * - the filename is taken from the path:
  *   "libexample-interpreter.so.1.0",
  * - the "lib" prefix and all file extensions are stripped from the name:

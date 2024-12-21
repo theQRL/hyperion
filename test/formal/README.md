@@ -1,4 +1,4 @@
-The Hyperion compiler implements several [optimization rules](https://github.com/ethereum/solidity/blob/develop/libzvmasm/RuleList.h).
+The Hyperion compiler implements several [optimization rules](https://github.com/theQRL/hyperion/blob/develop/libzvmasm/RuleList.h).
 
 This directory contains an effort to formally prove the correctness of those rules in:
 

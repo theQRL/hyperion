@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Script used for cross-platform comparison as part of the travis automation.
 # Splits all test source code into multiple files, generates bytecode and
-# uploads the bytecode into github.com/ethereum/solidity-test-bytecode where
+# uploads the bytecode into github.com/theQRL/hyperion-test-bytecode where
 # another travis job is triggered to do the actual comparison.
 #
 # ------------------------------------------------------------------------------

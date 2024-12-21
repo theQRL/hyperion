@@ -76,7 +76,7 @@ async function checkJSONPath(name, buggy, fine)
 	var jsonPath = bugsByName[name].check['ast-compact-json-path']
 	if (jsonPath !== undefined)
 	{
-		var url = "http://github.com/ethereum/solidity/releases/download/v" + bugsByName[name].introduced + "/hypc-static-linux"
+		var url = "http://github.com/theQRL/hyperion/releases/download/v" + bugsByName[name].introduced + "/hypc-static-linux"
 		try {
 			var tmpdir = await mktemp.createDir('XXXXX')
 			var binary = tmpdir + "/hypc-static-linux"

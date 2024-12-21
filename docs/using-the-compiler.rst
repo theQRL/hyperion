@@ -43,10 +43,10 @@ it is also possible to provide :ref:`path redirects <import-remapping>` using ``
 
 .. code-block:: bash
 
-    hypc github.com/ethereum/dapp-bin/=/usr/local/lib/dapp-bin/ file.hyp
+    hypc github.com/theQRL/dapp-bin/=/usr/local/lib/dapp-bin/ file.hyp
 
 This essentially instructs the compiler to search for anything starting with
-``github.com/ethereum/dapp-bin/`` under ``/usr/local/lib/dapp-bin``.
+``github.com/theQRL/dapp-bin/`` under ``/usr/local/lib/dapp-bin``.
 
 When accessing the filesystem to search for imports, :ref:`paths that do not start with ./
 or ../ <direct-imports>` are treated as relative to the directories specified using

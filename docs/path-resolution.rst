@@ -488,7 +488,7 @@ Import Remapping
 Import remapping allows you to redirect imports to a different location in the virtual filesystem.
 The mechanism works by changing the translation between import paths and source unit names.
 For example you can set up a remapping so that any import from the virtual directory
-``github.com/ethereum/dapp-bin/library/`` would be seen as an import from ``dapp-bin/library/`` instead.
+``github.com/theQRL/dapp-bin/library/`` would be seen as an import from ``dapp-bin/library/`` instead.
 
 You can limit the scope of a remapping by specifying a *context*.
 This allows creating remappings that apply only to imports located in a specific library or a specific file.
@@ -501,18 +501,18 @@ Import remappings have the form of ``context:prefix=target``:
 - ``prefix`` must match the beginning of the source unit name resulting from the import.
 - ``target`` is the value the prefix is replaced with.
 
-For example, if you clone https://github.com/ethereum/dapp-bin/ locally to ``/project/dapp-bin``
+For example, if you clone https://github.com/theQRL/dapp-bin/ locally to ``/project/dapp-bin``
 and run the compiler with:
 
 .. code-block:: bash
 
-    hypc github.com/ethereum/dapp-bin/=dapp-bin/ --base-path /project source.hyp
+    hypc github.com/theQRL/dapp-bin/=dapp-bin/ --base-path /project source.hyp
 
 you can use the following in your source file:
 
 .. code-block:: hyperion
 
-    import "github.com/ethereum/dapp-bin/library/math.hyp"; // source unit name: dapp-bin/library/math.hyp
+    import "github.com/theQRL/dapp-bin/library/math.hyp"; // source unit name: dapp-bin/library/math.hyp
 
 The compiler will look for the file in the VFS under ``dapp-bin/library/math.hyp``.
 If the file is not available there, the source unit name will be passed to the Host Filesystem
@@ -544,8 +544,8 @@ you checked out to ``/project/dapp-bin_old``, then you can run:
 
 .. code-block:: bash
 
-    hypc module1:github.com/ethereum/dapp-bin/=dapp-bin/ \
-         module2:github.com/ethereum/dapp-bin/=dapp-bin_old/ \
+    hypc module1:github.com/theQRL/dapp-bin/=dapp-bin/ \
+         module2:github.com/theQRL/dapp-bin/=dapp-bin_old/ \
          --base-path /project \
          source.hyp
 
@@ -654,7 +654,7 @@ local path:
 
 .. code-block:: bash
 
-    hypc :https://github.com/ethereum/dapp-bin=/usr/local/dapp-bin contract.hyp
+    hypc :https://github.com/theQRL/dapp-bin=/usr/local/dapp-bin contract.hyp
 
 Note the leading ``:``, which is necessary when the remapping context is empty.
 Otherwise the ``https:`` part would be interpreted by the compiler as the context.

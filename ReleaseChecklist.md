@@ -1,15 +1,15 @@
 ## Checklist for making a release:
 
 ### Requirements
- - [ ] GitHub account with access to [solidity](https://github.com/ethereum/solidity), [hypc-js](https://github.com/theQRL/hypc-js),
-       [hypc-bin](https://github.com/ethereum/hypc-bin), [solidity-website](https://github.com/ethereum/solidity-website).
- - [ ] DockerHub account with push rights to the [``hypc`` image](https://hub.docker.com/r/ethereum/hypc).
- - [ ] Launchpad (Ubuntu One) account with a membership in the ["QRL" team](https://launchpad.net/~ethereum) and
-       a gnupg key for your email in the ``ethereum.org`` domain (has to be version 1, gpg2 won't work).
+ - [ ] GitHub account with access to [hyperion](https://github.com/theQRL/hyperion), [hypc-js](https://github.com/theQRL/hypc-js),
+       [hypc-bin](https://github.com/theQRL/hypc-bin), [hyperion-website](https://github.com/theQRL/hyperion-website).
+ - [ ] DockerHub account with push rights to the [``hypc`` image](https://hub.docker.com/r/theQRL/hypc).
+ - [ ] Launchpad (Ubuntu One) account with a membership in the ["QRL" team](https://launchpad.net/~theqrl) and
+       a gnupg key for your email in the ``theqrl.org`` domain (has to be version 1, gpg2 won't work).
  - [ ] Ubuntu/Debian dependencies of the PPA scripts: ``devscripts``, ``debhelper``, ``dput``, ``git``, ``wget``, ``ca-certificates``.
  - [ ] [npm Registry](https://www.npmjs.com) account added as a collaborator for the [``hypc`` package](https://www.npmjs.com/package/hypc).
- - [ ] Access to the [solidity_lang Twitter account](https://twitter.com/solidity_lang).
- - [ ] [Reddit](https://www.reddit.com) account that is at least 10 days old with a minimum of 20 comment karma (``/r/ethereum`` requirements).
+ - [ ] Access to the [hyperion_lang Twitter account](https://twitter.com/hyperion_lang).
+ - [ ] [Reddit](https://www.reddit.com) account that is at least 10 days old with a minimum of 20 comment karma (``/r/QRL`` requirements).
 
 ### Pre-flight checks
 At least a day before the release:
@@ -35,8 +35,8 @@ At least a day before the release:
  - [ ] Prepare drafts of Twitter, Reddit and Hyperion Forum announcements.
 
 ### Blog Post
- - [ ] Create a post on [solidity-website](https://github.com/ethereum/solidity-website/tree/main/src/posts) in the ``Releases`` category and explain some of the new features or concepts.
- - [ ] Create a post on [solidity-website](https://github.com/ethereum/solidity-website/tree/main/src/posts) in the ``Security Alerts`` category in case of important bug(s).
+ - [ ] Create a post on [solidity-website](https://github.com/theQRL/hyperion-website/tree/main/src/posts) in the ``Releases`` category and explain some of the new features or concepts.
+ - [ ] Create a post on [solidity-website](https://github.com/theQRL/hyperion-website/tree/main/src/posts) in the ``Security Alerts`` category in case of important bug(s).
 
 ### Changelog
  - [ ] Sort the changelog entries alphabetically and correct any errors you notice. Commit it.
@@ -47,7 +47,7 @@ At least a day before the release:
  - [ ] Copy the changelog into the release blog post.
 
 ### Create the Release
- - [ ] Create a [release on GitHub](https://github.com/ethereum/solidity/releases/new).
+ - [ ] Create a [release on GitHub](https://github.com/theQRL/hyperion/releases/new).
        Set the target to the ``develop`` branch and the tag to the new version, e.g. ``v0.8.5``.
        Include the following warning: ``**The release is still in progress and the binaries may not yet be available from all sources.**``.
        Do not publish it yet - click the ``Save draft`` button instead.
@@ -79,7 +79,7 @@ At least a day before the release:
 ### PPA
  - [ ] Create ``.release_ppa_auth`` at the root of your local Hyperion checkout and set ``LAUNCHPAD_EMAIL`` and ``LAUNCHPAD_KEYID`` to your key's email and key id.
  - [ ] Double-check that the ``DISTRIBUTIONS`` list in ``scripts/release_ppa.sh`` and ``scripts/deps-ppa/static_z3.sh`` contains the most recent versions of Ubuntu.
- - [ ] Make sure the [``~ethereum/cpp-build-deps`` PPA repository](https://launchpad.net/~ethereum/+archive/ubuntu/cpp-build-deps) contains ``libz3-static-dev builds`` for all current versions of Ubuntu.
+ - [ ] Make sure the [``~theqrl/cpp-build-deps`` PPA repository](https://launchpad.net/~ethereum/+archive/ubuntu/cpp-build-deps) contains ``libz3-static-dev builds`` for all current versions of Ubuntu.
        Note that it may be included in the ``z3-static`` multipackage (follow the ``View package details`` link to check).
        If not present, run ``scripts/deps-ppa/static_z3.sh`` and wait for the builds to succeed before continuing.
  - [ ] Run ``scripts/release_ppa.sh v$VERSION`` to create the PPA release.
@@ -101,13 +101,13 @@ At least a day before the release:
 ### Post-release
  - [ ] Make sure the documentation for the new release has been published successfully.
        Go to the [documentation status page at ReadTheDocs](https://readthedocs.org/projects/solidity/) and verify that the new version is listed, works and is marked as default.
- - [ ] Remove "still in progress" warning from the [release notes](https://github.com/ethereum/solidity/releases).
- - [ ] Merge the [blog posts](https://github.com/ethereum/solidity-website/pulls) related to the release.
+ - [ ] Remove "still in progress" warning from the [release notes](https://github.com/theQRL/hyperion/releases).
+ - [ ] Merge the [blog posts](https://github.com/theQRL/hyperion-website/pulls) related to the release.
  - [ ] Create a commit to increase the version number on ``develop`` in ``CMakeLists.txt`` and add a new skeleton changelog entry.
- - [ ] Update the release information section [in the source of soliditylang.org](https://github.com/ethereum/solidity-website/blob/main/src/pages/index.tsx).
+ - [ ] Update the release information section [in the source of soliditylang.org](https://github.com/theQRL/hyperion-website/blob/main/src/pages/index.tsx).
  - [ ] Announce on [Twitter](https://twitter.com/solidity_lang), including links to the release and the blog post.
  - [ ] Announce on [Fosstodon](https://fosstodon.org/@solidity/), including links to the release and the blog post.
- - [ ] Share the announcement on Reddit in [``/r/ethdev``](https://reddit.com/r/ethdev/), cross-posted to [``/r/ethereum``](https://reddit.com/r/ethereum/).
+ - [ ] Share the announcement on Reddit in [``/r/ethdev``](https://reddit.com/r/ethdev/), cross-posted to [``/r/ethereum``](https://reddit.com/r/QRL/).
  - [ ] Share the announcement on the [Solidity forum](https://forum.soliditylang.org) in the ``Announcements`` category.
  - [ ] Share the announcement on [Project Updates](https://discord.com/channels/420394352083337236/798974456704925696)
  - [ ] Share the announcement on [`#solidity` channel on Matrix](https://matrix.to/#/#ethereum_solidity:gitter.im)

@@ -14,7 +14,7 @@ With Hyperion, you can create contracts for uses such as voting, crowdfunding, b
 
 When deploying contracts, you should use the latest released version of Hyperion.
 Apart from exceptional cases, only the latest version receives
-`security fixes <https://github.com/ethereum/solidity/security/policy#supported-versions>`_.
+`security fixes <https://github.com/theQRL/hyperion/security/policy#supported-versions>`_.
 Furthermore, breaking changes, as well as new features, are introduced regularly.
 We currently use a 0.y.z version number `to indicate this fast pace of change <https://semver.org/#spec-item-4>`_.
 
@@ -69,13 +69,13 @@ simply choose your preferred option and follow the steps outlined on the :ref:`i
 
 **4. Learn More**
 
-If you want to learn more about building decentralized applications on Ethereum,
-the `Ethereum Developer Resources <https://ethereum.org/en/developers/>`_ can help you with further general documentation around Ethereum,
+If you want to learn more about building decentralized applications on Zond,
+the `Zond Developer Resources <https://ethereum.org/en/developers/>`_ can help you with further general documentation around Zond,
 and a wide selection of tutorials, tools, and development frameworks.
 
 If you have any questions, you can try searching for answers or asking on the
-`Ethereum StackExchange <https://ethereum.stackexchange.com/>`_,
-or our `Gitter channel <https://gitter.im/ethereum/solidity>`_.
+`QRL StackExchange <https://theqrl.stackexchange.com/>`_,
+or our `Gitter channel <https://gitter.im/theQRL/hyperion>`_.
 
 .. _translations:
 

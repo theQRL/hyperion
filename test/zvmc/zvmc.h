@@ -253,7 +253,7 @@ typedef zvmc_bytes32 (*zvmc_get_block_hash_fn)(struct zvmc_host_context* context
  *
  * @note
  * In case new status codes are needed, please create an issue or pull request
- * in the ZVMC repository (https://github.com/ethereum/zvmc).
+ * in the ZVMC repository (https://github.com/theQRL/zvmc).
  */
 enum zvmc_status_code
 {

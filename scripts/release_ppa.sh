@@ -117,10 +117,10 @@ else
     fi
     CMAKE_OPTIONS=""
 fi
-ppafilesurl=https://launchpad.net/~ethereum/+archive/ubuntu/${pparepo}/+files
+ppafilesurl=https://launchpad.net/~theqrl/+archive/ubuntu/${pparepo}/+files
 
 # Fetch source
-git clone --depth 2 --recursive https://github.com/ethereum/hyperion.git -b "$branch"
+git clone --depth 2 --recursive https://github.com/theQRL/hyperion.git -b "$branch"
 mv hyperion hypc
 
 # Fetch dependencies
@@ -172,9 +172,9 @@ Build-Depends: ${SMTDEPENDENCY}debhelper (>= 9.0.0),
                libtool,
                scons
 Standards-Version: 3.9.5
-Homepage: https://ethereum.org
-Vcs-Git: https://github.com/ethereum/hyperion.git
-Vcs-Browser: https://github.com/ethereum/solidity
+Homepage: https://theqrl.org
+Vcs-Git: https://github.com/theQRL/hyperion.git
+Vcs-Browser: https://github.com/theQRL/hyperion
 
 Package: hypc
 Architecture: any-amd64
@@ -222,7 +222,7 @@ EOF
 cat <<EOF > debian/copyright
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: hypc
-Source: https://github.com/ethereum/solidity
+Source: https://github.com/theQRL/solidity
 
 Files: *
 Copyright: 2014-2016 Ethereum

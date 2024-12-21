@@ -103,20 +103,20 @@ self-contained (i.e. it does not refer to any external files that would have to 
 
 .. code-block:: bash
 
-    docker run ethereum/hypc:stable --standard-json < input.json > output.json
+    docker run theqrl/hypc:stable --standard-json < input.json > output.json
 
 Linux Packages
 ==============
 
 Binary packages of Hyperion are available at
-`hyperion/releases <https://github.com/ethereum/solidity/releases>`_.
+`hyperion/releases <https://github.com/theQRL/hyperion/releases>`_.
 
 We also have PPAs for Ubuntu, you can get the latest stable
 version using the following commands:
 
 .. code-block:: bash
 
-    sudo add-apt-repository ppa:ethereum/ethereum
+    sudo add-apt-repository ppa:theqrl/zond
     sudo apt-get update
     sudo apt-get install hypc
 
@@ -183,14 +183,14 @@ If you need a specific version of Hyperion you can install a
 Homebrew formula directly from Github.
 
 View
-`hyperion.rb commits on Github <https://github.com/ethereum/homebrew-ethereum/commits/master/hyperion.rb>`_.
+`hyperion.rb commits on Github <https://github.com/theQRL/homebrew-zond/commits/master/hyperion.rb>`_.
 
 Copy the commit hash of the version you want and check it out on your machine.
 
 .. code-block:: bash
 
-    git clone https://github.com/ethereum/homebrew-ethereum.git
-    cd homebrew-ethereum
+    git clone https://github.com/theQRL/homebrew-zond.git
+    cd homebrew-zond
     git checkout <your-hash-goes-here>
 
 Install it using ``brew``:
@@ -251,7 +251,7 @@ Each one includes a ``list.json`` file listing the available binaries. For examp
 This means that:
 
 - You can find the binary in the same directory under the name
-  `hypc-emscripten-wasm32-v0.7.4+commit.3f05b770.js <https://github.com/ethereum/hypc-bin/blob/gh-pages/emscripten-wasm32/hypc-emscripten-wasm32-v0.7.4+commit.3f05b770.js>`_.
+  `hypc-emscripten-wasm32-v0.7.4+commit.3f05b770.js <https://github.com/theQRL/hypc-bin/blob/gh-pages/emscripten-wasm32/hypc-emscripten-wasm32-v0.7.4+commit.3f05b770.js>`_.
   Note that the file might be a symlink, and you will need to resolve it yourself if you are not using
   git to download it or your file system does not support symlinks.
 - The binary is also mirrored at https://binaries.soliditylang.org/emscripten-wasm32/hypc-emscripten-wasm32-v0.7.4+commit.3f05b770.js.
@@ -300,8 +300,8 @@ This means that:
 
 .. _IPFS: https://ipfs.io
 .. _Swarm: https://swarm-gateways.net/bzz:/swarm.eth
-.. _hypc-bin: https://github.com/ethereum/hypc-bin/
-.. _Hyperion release page on github: https://github.com/ethereum/solidity/releases
+.. _hypc-bin: https://github.com/theQRL/hypc-bin/
+.. _Hyperion release page on github: https://github.com/theQRL/hyperion/releases
 .. _sha3sum: https://github.com/maandree/sha3sum
 .. _keccak256() function from ethereumjs-util: https://github.com/ethereumjs/ethereumjs-util/blob/master/docs/modules/_hash_.md#const-keccak256
 .. _WebAssembly builds: https://emscripten.org/docs/compiling/WebAssembly.html
@@ -365,7 +365,7 @@ The following are dependencies for all builds of Hyperion:
     Doing this is not recommended for general use but may be necessary when using a toolchain we are
     not testing with or trying to build an older version with newer tools.
     If you encounter such warnings, please consider
-    `reporting them <https://github.com/ethereum/solidity/issues/new>`_.
+    `reporting them <https://github.com/theQRL/hyperion/issues/new>`_.
 
 Minimum Compiler Versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -447,7 +447,7 @@ To clone the source code, execute the following command:
 
 .. code-block:: bash
 
-    git clone --recursive https://github.com/ethereum/hyperion.git
+    git clone --recursive https://github.com/theQRL/hyperion.git
     cd solidity
 
 If you want to help develop Hyperion,
@@ -463,7 +463,7 @@ you should fork Hyperion and add your personal fork as a second remote:
     If you want to re-build a released Hyperion compiler, then
     please use the source tarball on the github release page:
 
-    https://github.com/ethereum/solidity/releases/download/v0.X.Y/solidity_0.X.Y.tar.gz
+    https://github.com/theQRL/solidity/releases/download/v0.X.Y/solidity_0.X.Y.tar.gz
 
     (not the "Source code" provided by github).
 

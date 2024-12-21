@@ -180,7 +180,7 @@ HYPTMPDIR=$(mktemp -d)
         if [[ ! -f "$hypc_bin" ]]
         then
             echo "Downloading release from github..."
-            if wget -q "https://github.com/ethereum/solidity/releases/download/v$version/hypc-static-linux" >/dev/null
+            if wget -q "https://github.com/theQRL/hyperion/releases/download/v$version/hypc-static-linux" >/dev/null
             then
                 mv hypc-static-linux "$hypc_bin"
             else

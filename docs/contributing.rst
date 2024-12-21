@@ -8,21 +8,21 @@ In particular, we appreciate support in the following areas:
 
 * Reporting issues.
 * Fixing and responding to `Hyperion's GitHub issues
-  <https://github.com/ethereum/solidity/issues>`_, especially those tagged as
-  `"good first issue" <https://github.com/ethereum/solidity/labels/good%20first%20issue>`_ which are
+  <https://github.com/theQRL/hyperion/issues>`_, especially those tagged as
+  `"good first issue" <https://github.com/theQRL/hyperion/labels/good%20first%20issue>`_ which are
   meant as introductory issues for external contributors.
 * Improving the documentation.
-* `Translating <https://github.com/solidity-docs>`_ the documentation into more languages.
+* `Translating <https://github.com/hyperion-docs>`_ the documentation into more languages.
 * Responding to questions from other users on `StackExchange
   <https://ethereum.stackexchange.com>`_ and the `Hyperion Gitter Chat
-  <https://gitter.im/ethereum/solidity>`_.
+  <https://gitter.im/theQRL/hyperion>`_.
 * Getting involved in the language design process by proposing language changes or new features in the `Hyperion forum <https://forum.soliditylang.org/>`_ and providing feedback.
 
 To get started, you can try :ref:`building-from-source` in order to familiarize
 yourself with the components of Hyperion and the build process. Also, it may be
 useful to become well-versed at writing smart-contracts in Hyperion.
 
-Please note that this project is released with a `Contributor Code of Conduct <https://raw.githubusercontent.com/ethereum/solidity/develop/CODE_OF_CONDUCT.md>`_. By participating in this project — in the issues, pull requests, or Gitter channels — you agree to abide by its terms.
+Please note that this project is released with a `Contributor Code of Conduct <https://raw.githubusercontent.com/theQRL/hyperion/develop/CODE_OF_CONDUCT.md>`_. By participating in this project — in the issues, pull requests, or Gitter channels — you agree to abide by its terms.
 
 Team Calls
 ==========
@@ -38,7 +38,7 @@ How to Report Issues
 ====================
 
 To report an issue, please use the
-`GitHub issues tracker <https://github.com/ethereum/solidity/issues>`_. When
+`GitHub issues tracker <https://github.com/theQRL/hyperion/issues>`_. When
 reporting issues, please mention the following details:
 
 * Hyperion version.
@@ -69,18 +69,18 @@ Additionally, if you are writing a new feature, please ensure you add appropriat
 test cases under ``test/`` (see below).
 
 However, if you are making a larger change, please consult with the `Hyperion Development Gitter channel
-<https://gitter.im/ethereum/solidity-dev>`_ (different from the one mentioned above — this one is
+<https://gitter.im/theqrl/hyperion-dev>`_ (different from the one mentioned above — this one is
 focused on compiler and language development instead of language usage) first.
 
 New features and bugfixes should be added to the ``Changelog.md`` file: please
 follow the style of previous entries, when applicable.
 
 Finally, please make sure you respect the `coding style
-<https://github.com/ethereum/solidity/blob/develop/CODING_STYLE.md>`_
+<https://github.com/theQRL/hyperion/blob/develop/CODING_STYLE.md>`_
 for this project. Also, even though we do CI testing, please test your code and
 ensure that it builds locally before submitting a pull request.
 
-We highly recommend going through our `review checklist <https://github.com/ethereum/solidity/blob/develop/ReviewChecklist.md>`_ before submitting the pull request.
+We highly recommend going through our `review checklist <https://github.com/theQRL/hyperion/blob/develop/ReviewChecklist.md>`_ before submitting the pull request.
 We thoroughly review every PR and will help you get it right, but there are many common problems that can be easily avoided, making the review much smoother.
 
 Thank you for your help!
@@ -92,7 +92,7 @@ Prerequisites
 -------------
 
 For running all compiler tests you may want to optionally install a few
-dependencies (`zvmone <https://github.com/ethereum/zvmone/releases>`_,
+dependencies (`zvmone <https://github.com/theQRL/zvmone/releases>`_,
 `libz3 <https://github.com/Z3Prover/z3>`_).
 
 On macOS systems, some of the testing scripts expect GNU coreutils to be installed.
@@ -118,7 +118,7 @@ application ``hyptest`` (or its wrapper ``scripts/hyptest.sh``), as well as comm
 compilation tests.
 
 The test system automatically tries to discover the location of
-the `zvmone <https://github.com/ethereum/zvmone/releases>`_ for running the semantic tests.
+the `zvmone <https://github.com/theQRL/zvmone/releases>`_ for running the semantic tests.
 
 The ``zvmone`` library must be located in the ``deps`` or ``deps/lib`` directory relative to the
 current working directory, to its parent or its parent's parent. Alternatively, an explicit location
@@ -274,7 +274,7 @@ Command-line Tests
 
 Our suite of end-to-end command-line tests checks the behaviour of the compiler binary as a whole
 in various scenarios.
-These tests are located in `test/cmdlineTests/ <https://github.com/ethereum/solidity/tree/develop/test/cmdlineTests>`_,
+These tests are located in `test/cmdlineTests/ <https://github.com/theQRL/hyperion/tree/develop/test/cmdlineTests>`_,
 one per subdirectory, and can be executed using the ``cmdlineTests.sh`` script.
 
 By default the script runs all available tests.
@@ -544,7 +544,7 @@ The Hyperion forum serves as the place to propose and discuss new language featu
 the early stages of ideation or modifications of existing features.
 
 As soon as proposals get more tangible, their
-implementation will also be discussed in the `Hyperion GitHub repository <https://github.com/ethereum/solidity>`_
+implementation will also be discussed in the `Hyperion GitHub repository <https://github.com/theQRL/hyperion>`_
 in the form of issues.
 
 In addition to the forum and issue discussions, we regularly host language design discussion calls in which selected
@@ -552,11 +552,11 @@ topics, issues or feature implementations are debated in detail. The invitation 
 
 We are also sharing feedback surveys and other content that is relevant to language design in the forum.
 
-If you want to know where the team is standing in terms or implementing new features, you can follow the implementation status in the `Hyperion Github project <https://github.com/ethereum/solidity/projects/43>`_.
+If you want to know where the team is standing in terms or implementing new features, you can follow the implementation status in the `Hyperion Github project <https://github.com/theQRL/hyperion/projects/43>`_.
 Issues in the design backlog need further specification and will either be discussed in a language design call or in a regular team call. You can
-see the upcoming changes for the next breaking release by changing from the default branch (`develop`) to the `breaking branch <https://github.com/ethereum/solidity/tree/breaking>`_.
+see the upcoming changes for the next breaking release by changing from the default branch (`develop`) to the `breaking branch <https://github.com/theQRL/hyperion/tree/breaking>`_.
 
-For ad-hoc cases and questions, you can reach out to us via the `Hyperion-dev Gitter channel <https://gitter.im/ethereum/solidity-dev>`_ — a
+For ad-hoc cases and questions, you can reach out to us via the `Hyperion-dev Gitter channel <https://gitter.im/theQRL/hyperion-dev>`_ — a
 dedicated chatroom for conversations around the Hyperion compiler and language development.
 
 We are happy to hear your thoughts on how we can improve the language design process to be even more collaborative and transparent.

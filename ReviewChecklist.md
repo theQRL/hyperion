@@ -10,7 +10,7 @@ It is also meant to serve as a final checklist for reviewers to go through befor
 - [ ] **Do you have any other open PRs?**
     Work on a PR is not done until it is merged or closed.
     Our reviewing capacity is limited, so we require that external contributors work on **no more than one PR at a time**.
-    - If your PR is not getting reviewed, feel free to bring it to our attention on the [#solidity-dev](https://gitter.im/ethereum/solidity-dev) channel.
+    - If your PR is not getting reviewed, feel free to bring it to our attention on the [#hyperion-dev](https://gitter.im/theqrl/hyperion-dev) channel.
     - Unless they were requested, we are going to close any excess PRs, leaving only the earliest one open.
         You may reopen them, one at a time, when your current PR is done.
 - [ ] **Is the issue ready to be worked on?**

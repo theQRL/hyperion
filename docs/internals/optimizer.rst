@@ -8,7 +8,7 @@ The Optimizer
 The Hyperion compiler uses two different optimizer modules: The "old" optimizer
 that operates at the opcode level and the "new" optimizer that operates on Yul IR code.
 
-The opcode-based optimizer applies a set of `simplification rules <https://github.com/ethereum/solidity/blob/develop/libzvmasm/RuleList.h>`_
+The opcode-based optimizer applies a set of `simplification rules <https://github.com/theQRL/hyperion/blob/develop/libzvmasm/RuleList.h>`_
 to opcodes. It also combines equal code sets and removes unused code.
 
 The Yul-based optimizer is much more powerful, because it can work across function

@@ -368,7 +368,7 @@ After deleting ``array``, calling ``allocate(5)`` allows us to access ``array[4]
 and calling ``readMap(4, 128)`` returns 256 even without another call to ``writeMap``.
 
 If your ``mapping`` information must be deleted, consider using a library similar to
-`iterable mapping <https://github.com/ethereum/dapp-bin/blob/master/library/iterable_mapping.hyp>`_,
+`iterable mapping <https://github.com/theQRL/dapp-bin/blob/master/library/iterable_mapping.hyp>`_,
 allowing you to traverse the keys and delete their values in the appropriate ``mapping``.
 
 Minor Details

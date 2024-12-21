@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # Dockerfile for building and testing Hyperion Compiler on CI
 # Target: Ubuntu 19.04 (Disco Dingo)
-# URL: https://hub.docker.com/r/ethereum/solidity-buildpack-deps
+# URL: https://hub.docker.com/r/theQRL/solidity-buildpack-deps
 #
 # This file is part of hyperion.
 #
@@ -28,7 +28,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN set -ex; \
         dist=$(grep DISTRIB_CODENAME /etc/lsb-release | cut -d= -f2); \
-        echo "deb http://ppa.launchpad.net/ethereum/cpp-build-deps/ubuntu $dist main" >> /etc/apt/sources.list ; \
+        echo "deb http://ppa.launchpad.net/theQRL/cpp-build-deps/ubuntu $dist main" >> /etc/apt/sources.list ; \
         apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 1c52189c923f6ca9 ; \
 	apt-get update; \
 	apt-get install -qqy --no-install-recommends \
@@ -47,7 +47,7 @@ FROM base AS libraries
 
 # ZVMONE
 RUN set -ex; \
-	wget -O /usr/src/zvmone.tar.gz https://github.com/ethereum/zvmone/releases/download/v0.10.0/zvmone-0.10.0-linux-x86_64.tar.gz; \
+	wget -O /usr/src/zvmone.tar.gz https://github.com/theQRL/zvmone/releases/download/v0.10.0/zvmone-0.10.0-linux-x86_64.tar.gz; \
 	test "$(sha256sum /usr/src/zvmone.tar.gz)" = "6052b6a4eba6e81bb1bccfa9fec2caf220a25f5ff5c32c544984883ed95e6552  /usr/src/zvmone.tar.gz"; \
 	cd /usr; \
 	tar -xf /usr/src/zvmone.tar.gz; \
