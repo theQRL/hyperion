@@ -220,7 +220,7 @@ function force_truffle_compiler_settings
 
     local compiler_settings gas_reporter_settings
     compiler_settings=$(truffle_compiler_settings "$hypc_path" "$preset" "$zvm_version" "$extra_settings" "$extra_optimizer_settings")
-    gas_reporter_settings=$(eth_gas_reporter_settings "$preset")
+    gas_reporter_settings=$(zond_gas_reporter_settings "$preset")
 
     {
         echo "require('eth-gas-reporter');"
@@ -324,7 +324,7 @@ function force_hardhat_compiler_settings
 
     local compiler_settings gas_reporter_settings
     compiler_settings=$(hardhat_compiler_settings "$HYPCVERSION_SHORT" "$preset" "$zvm_version" "$extra_settings" "$extra_optimizer_settings")
-    gas_reporter_settings=$(eth_gas_reporter_settings "$preset")
+    gas_reporter_settings=$(zond_gas_reporter_settings "$preset")
     if [[ $config_file == *\.js ]]; then
         [[ $config_var_name == "" ]] || assertFail
         echo "require('hardhat-gas-reporter');"
@@ -408,7 +408,7 @@ function replace_global_hypc
     export PATH="$PWD:$PATH"
 }
 
-function eth_gas_reporter_settings
+function zond_gas_reporter_settings
 {
     local preset="$1"
 

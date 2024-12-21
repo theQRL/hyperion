@@ -40,7 +40,7 @@ namespace hyperion::test
 namespace
 {
 
-/// If non-empty returns the value of the env. variable ETH_TEST_PATH, otherwise
+/// If non-empty returns the value of the env. variable ZOND_TEST_PATH, otherwise
 /// it tries to find a path that contains the directories "libhyperion/syntaxTests"
 /// and returns it if found.
 /// The routine searches in the current directory, and inside the "test" directory
@@ -48,7 +48,7 @@ namespace
 /// @returns the path of the first match or an empty path if not found.
 boost::filesystem::path testPath()
 {
-	if (auto path = getenv("ETH_TEST_PATH"))
+	if (auto path = getenv("ZOND_TEST_PATH"))
 		return path;
 
 	auto const searchPath =
@@ -191,7 +191,7 @@ bool CommonOptions::parse(int argc, char const* const* argv)
 
 	if (vmPaths.empty())
 	{
-		if (auto envPath = getenv("ETH_ZVMONE"))
+		if (auto envPath = getenv("ZOND_ZVMONE"))
 			vmPaths.emplace_back(envPath);
 		else if (auto repoPath = findInDefaultPath(zvmoneFilename))
 			vmPaths.emplace_back(*repoPath);

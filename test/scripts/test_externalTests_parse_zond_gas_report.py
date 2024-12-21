@@ -12,8 +12,8 @@ from unittest_helpers import FIXTURE_DIR, load_fixture
 from externalTests.parse_zond_gas_report import parse_report, ReportParsingError, ReportValidationError
 # pragma pylint: enable=import-error
 
-ETH_GAS_REPORT_GNOSIS_RST_PATH = FIXTURE_DIR / 'eth_gas_report_gnosis.rst'
-ETH_GAS_REPORT_GNOSIS_RST_CONTENT = load_fixture(ETH_GAS_REPORT_GNOSIS_RST_PATH)
+ZOND_GAS_REPORT_GNOSIS_RST_PATH = FIXTURE_DIR / 'zond_gas_report_gnosis.rst'
+ZOND_GAS_REPORT_GNOSIS_RST_CONTENT = load_fixture(ZOND_GAS_REPORT_GNOSIS_RST_PATH)
 
 
 class TestEthGasReport(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestEthGasReport(unittest.TestCase):
         self.maxDiff = 10000
 
     def test_parse_report(self):
-        parsed_report = parse_report(ETH_GAS_REPORT_GNOSIS_RST_CONTENT)
+        parsed_report = parse_report(ZOND_GAS_REPORT_GNOSIS_RST_CONTENT)
 
         expected_report = {
             'hypc_version': '0.8.10',

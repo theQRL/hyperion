@@ -33,11 +33,11 @@ namespace hyperion::util
 {
 
 #if defined(_MSC_VER)
-#define ETH_FUNC __FUNCSIG__
+#define ZOND_FUNC __FUNCSIG__
 #elif defined(__GNUC__)
-#define ETH_FUNC __PRETTY_FUNCTION__
+#define ZOND_FUNC __PRETTY_FUNCTION__
 #else
-#define ETH_FUNC __func__
+#define ZOND_FUNC __func__
 #endif
 
 #if defined(__GNUC__)

@@ -122,7 +122,7 @@ the `zvmone <https://github.com/ethereum/zvmone/releases>`_ for running the sema
 
 The ``zvmone`` library must be located in the ``deps`` or ``deps/lib`` directory relative to the
 current working directory, to its parent or its parent's parent. Alternatively, an explicit location
-for the ``zvmone`` shared object can be specified via the ``ETH_ZVMONE`` environment variable.
+for the ``zvmone`` shared object can be specified via the ``ZOND_ZVMONE`` environment variable.
 
 ``zvmone`` is needed mainly for running semantic and gas tests.
 If you do not have it installed, you can skip these tests by passing the ``--no-semantic-tests``
