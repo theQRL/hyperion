@@ -109,7 +109,7 @@ export LC_ALL=C
 
 cd "$tmp_dir"
 
-git clone https://github.com/ethereum/hypc-js.git "$hypcjs_dir"
+git clone https://github.com/theQRL/hypc-js.git "$hypcjs_dir"
 cd "$hypcjs_dir"
 npm install
 npm run build

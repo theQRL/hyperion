@@ -51,7 +51,7 @@ Use ``npm`` for a convenient and portable way to install ``hypcjs``, a Hyperion 
 further down this page. The
 :ref:`commandline-compiler` documentation assumes you are using
 the full-featured compiler, ``hypc``. The usage of ``hypcjs`` is documented inside its own
-`repository <https://github.com/ethereum/hypc-js>`_.
+`repository <https://github.com/theQRL/hypc-js>`_.
 
 Note: The hypc-js project is derived from the C++
 `hypc` by using Emscripten, which means that both use the same compiler source code.

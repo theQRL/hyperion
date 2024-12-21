@@ -1,7 +1,7 @@
 ## Checklist for making a release:
 
 ### Requirements
- - [ ] GitHub account with access to [solidity](https://github.com/ethereum/solidity), [hypc-js](https://github.com/ethereum/hypc-js),
+ - [ ] GitHub account with access to [solidity](https://github.com/ethereum/solidity), [hypc-js](https://github.com/theQRL/hypc-js),
        [hypc-bin](https://github.com/ethereum/hypc-bin), [solidity-website](https://github.com/ethereum/solidity-website).
  - [ ] DockerHub account with push rights to the [``hypc`` image](https://hub.docker.com/r/ethereum/hypc).
  - [ ] Launchpad (Ubuntu One) account with a membership in the ["QRL" team](https://launchpad.net/~ethereum) and
