@@ -1,5 +1,5 @@
 /**
- * Hyperion is a statically typed, contract-oriented, high-level language for implementing smart contracts on the Ethereum platform.
+ * Hyperion is a statically typed, contract-oriented, high-level language for implementing smart contracts on the Zond platform.
  */
 parser grammar HyperionParser;
 
