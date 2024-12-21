@@ -5,7 +5,7 @@ REPO_ROOT="$(dirname "$0")"/..
 USE_DEBUGGER=0
 DEBUGGER="gdb --args"
 BOOST_OPTIONS=()
-SOLTEST_OPTIONS=()
+HYPTEST_OPTIONS=()
 HYPERION_BUILD_DIR=${HYPERION_BUILD_DIR:-${REPO_ROOT}/build}
 
 function usage
@@ -56,17 +56,17 @@ do
 			BOOST_OPTIONS+=("$1")
 			;;
 		*)
-			SOLTEST_OPTIONS+=("$1")
+			HYPTEST_OPTIONS+=("$1")
 			;;
 	esac
 	shift
 done
 
-SOLTEST_COMMAND=("${HYPERION_BUILD_DIR}/test/hyptest" "${BOOST_OPTIONS[@]}" -- --testpath "${REPO_ROOT}/test" "${SOLTEST_OPTIONS[@]}")
+HYPTEST_COMMAND=("${HYPERION_BUILD_DIR}/test/hyptest" "${BOOST_OPTIONS[@]}" -- --testpath "${REPO_ROOT}/test" "${HYPTEST_OPTIONS[@]}")
 
 if [ "$USE_DEBUGGER" -ne "0" ]; then
 	# shellcheck disable=SC2086
-	exec ${DEBUGGER} "${SOLTEST_COMMAND[@]}"
+	exec ${DEBUGGER} "${HYPTEST_COMMAND[@]}"
 else
-	exec "${SOLTEST_COMMAND[@]}"
+	exec "${HYPTEST_COMMAND[@]}"
 fi

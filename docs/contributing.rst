@@ -141,7 +141,7 @@ These tests are ``libhyperion/smtCheckerTests`` and ``libhyperion/smtCheckerTest
 
 .. note::
 
-    To get a list of all unit tests run by Soltest, run ``./build/test/hyptest --list_content=HRF``.
+    To get a list of all unit tests run by Hyptest, run ``./build/test/hyptest --list_content=HRF``.
 
 For quicker results you can run a subset of, or specific tests.
 

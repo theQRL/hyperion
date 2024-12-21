@@ -32,7 +32,7 @@
 
 #include <range/v3/view/reverse.hpp>
 
-#ifdef ISOLTEST
+#ifdef IHYPTEST
 #include <boost/process.hpp>
 #endif
 
@@ -239,12 +239,12 @@ TestCase::TestResult StackLayoutGeneratorTest::run(ostream& _stream, string cons
 
 	auto result = checkResult(_stream, _linePrefix, _formatted);
 
-#ifdef ISOLTEST
+#ifdef IHYPTEST
 	char* graphDisplayer = nullptr;
 	if (result == TestResult::Failure)
-		graphDisplayer = getenv("ISOLTEST_DISPLAY_GRAPHS_FAILURE");
+		graphDisplayer = getenv("IHYPTEST_DISPLAY_GRAPHS_FAILURE");
 	else if (result == TestResult::Success)
-		graphDisplayer = getenv("ISOLTEST_DISPLAY_GRAPHS_SUCCESS");
+		graphDisplayer = getenv("IHYPTEST_DISPLAY_GRAPHS_SUCCESS");
 
 	if (graphDisplayer)
 	{

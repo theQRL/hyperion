@@ -28,7 +28,7 @@
 #include <libhyputil/AnsiColorized.h>
 #include <libhyputil/Visitor.h>
 
-#ifdef ISOLTEST
+#ifdef IHYPTEST
 #include <boost/process.hpp>
 #endif
 
@@ -220,16 +220,16 @@ TestCase::TestResult ControlFlowGraphTest::run(ostream& _stream, string const& _
 
 	auto result = checkResult(_stream, _linePrefix, _formatted);
 
-#ifdef ISOLTEST
+#ifdef IHYPTEST
 	char* graphDisplayer = nullptr;
 	// The environment variables specify an optional command that will receive the graph encoded in DOT through stdin.
 	// Examples for suitable commands are ``dot -Tx11:cairo`` or ``xdot -``.
 	if (result == TestResult::Failure)
-		// ISOLTEST_DISPLAY_GRAPHS_ON_FAILURE_COMMAND will run on all failing tests (intended for use during modifications).
-		graphDisplayer = getenv("ISOLTEST_DISPLAY_GRAPHS_ON_FAILURE_COMMAND");
+		// IHYPTEST_DISPLAY_GRAPHS_ON_FAILURE_COMMAND will run on all failing tests (intended for use during modifications).
+		graphDisplayer = getenv("IHYPTEST_DISPLAY_GRAPHS_ON_FAILURE_COMMAND");
 	else if (result == TestResult::Success)
-		// ISOLTEST_DISPLAY_GRAPHS_ON_FAILURE_COMMAND will run on all succeeding tests (intended for use during reviews).
-		graphDisplayer = getenv("ISOLTEST_DISPLAY_GRAPHS_ON_SUCCESS_COMMAND");
+		// IHYPTEST_DISPLAY_GRAPHS_ON_FAILURE_COMMAND will run on all succeeding tests (intended for use during reviews).
+		graphDisplayer = getenv("IHYPTEST_DISPLAY_GRAPHS_ON_SUCCESS_COMMAND");
 
 	if (graphDisplayer)
 	{

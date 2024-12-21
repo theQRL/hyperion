@@ -48,5 +48,5 @@ add_executable(ihyptest
 	../libyul/YulOptimizerTestCommon.cpp
 	../libyul/YulInterpreterTest.cpp
 )
-target_compile_definitions(ihyptest PRIVATE ISOLTEST)
+target_compile_definitions(ihyptest PRIVATE IHYPTEST)
 target_link_libraries(ihyptest PRIVATE zvmc libhypc hyperion yulInterpreter zvmasm Boost::boost Boost::program_options Boost::unit_test_framework Threads::Threads)
