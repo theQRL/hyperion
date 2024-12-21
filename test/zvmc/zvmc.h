@@ -1,5 +1,5 @@
 /**
- * ZVMC: Ethereum Client-VM Connector API
+ * ZVMC: Zond Client-VM Connector API
  *
  * @copyright
  * Copyright 2016 The ZVMC Authors.
