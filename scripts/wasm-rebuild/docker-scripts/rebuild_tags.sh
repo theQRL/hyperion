@@ -24,8 +24,8 @@ while (( "$#" )); do
   shift
 done
 
-HYPERION_REPO_URL="https://github.com/ethereum/solidity"
-HYPC_JS_REPO_URL="https://github.com/ethereum/hypc-js"
+HYPERION_REPO_URL="https://github.com/theQRL/hyperion"
+HYPC_JS_REPO_URL="https://github.com/theQRL/hypc-js"
 HYPC_JS_BRANCH=wasmRebuildTests
 RELEASE_URL="https://binaries.soliditylang.org/bin"
 RELEASE_COMMIT_LIST_URL="$RELEASE_URL/list.txt"
