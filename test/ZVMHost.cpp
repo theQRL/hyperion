@@ -47,7 +47,7 @@ zvmc::VM& ZVMHost::getVM(string const& _path)
 		auto vm = zvmc::VM{zvmc_load_and_configure(_path.c_str(), &errorCode)};
 		if (vm && errorCode == ZVMC_LOADER_SUCCESS)
 		{
-			if (vm.get_capabilities() & (ZVMC_CAPABILITY_ZOND1))
+			if (vm.get_capabilities() & (ZVMC_CAPABILITY_ZVM1))
 				vms[_path] = make_unique<zvmc::VM>(zvmc::VM(std::move(vm)));
 			else
 				cerr << "VM loaded does not support ZVM1" << endl;
@@ -76,7 +76,7 @@ bool ZVMHost::checkVmPaths(vector<boost::filesystem::path> const& _vmPaths)
 		if (!vm)
 			continue;
 
-		if (vm.has_capability(ZVMC_CAPABILITY_ZOND1))
+		if (vm.has_capability(ZVMC_CAPABILITY_ZVM1))
 		{
 			if (zvmVmFound)
 				BOOST_THROW_EXCEPTION(runtime_error("Multiple zvm1 zvmc vms defined. Please only define one zvm1 zvmc vm."));

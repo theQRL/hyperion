@@ -274,7 +274,7 @@ private:
 protected:
 	u256 const InitialGas = 100000000;
 
-	void selectVM(zvmc_capabilities _cap = zvmc_capabilities::ZVMC_CAPABILITY_ZOND1);
+	void selectVM(zvmc_capabilities _cap = zvmc_capabilities::ZVMC_CAPABILITY_ZVM1);
 	void reset();
 
 	void sendMessage(bytes const& _data, bool _isCreation, u256 const& _value = 0);

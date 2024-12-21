@@ -346,7 +346,7 @@ TestCase::TestResult SemanticTest::runTest(
 	bool success = true;
 	m_gasCostFailure = false;
 
-	selectVM(zvmc_capabilities::ZVMC_CAPABILITY_ZOND1);
+	selectVM(zvmc_capabilities::ZVMC_CAPABILITY_ZVM1);
 
 	reset();
 

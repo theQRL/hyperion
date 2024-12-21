@@ -60,7 +60,7 @@ ExecutionFramework::ExecutionFramework(langutil::ZVMVersion _zvmVersion, vector<
 {
 	if (hyperion::test::CommonOptions::get().optimize)
 		m_optimiserSettings = hyperion::frontend::OptimiserSettings::standard();
-	selectVM(zvmc_capabilities::ZVMC_CAPABILITY_ZOND1);
+	selectVM(zvmc_capabilities::ZVMC_CAPABILITY_ZVM1);
 }
 
 void ExecutionFramework::selectVM(zvmc_capabilities _cap)
