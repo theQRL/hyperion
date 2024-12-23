@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -20,21 +20,21 @@
  * checks at contract or function level.
  */
 
-#include <libsolidity/analysis/ContractLevelChecker.h>
+#include <libhyperion/analysis/ContractLevelChecker.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/TypeProvider.h>
-#include <libsolidity/analysis/TypeChecker.h>
-#include <libsolutil/FunctionSelector.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/TypeProvider.h>
+#include <libhyperion/analysis/TypeChecker.h>
+#include <libhyputil/FunctionSelector.h>
 #include <liblangutil/ErrorReporter.h>
 
 #include <fmt/format.h>
 
 #include <range/v3/view/reverse.hpp>
 
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
 namespace
 {
@@ -68,7 +68,7 @@ bool ContractLevelChecker::check(SourceUnit const& _sourceUnit)
 		filterDeclarations<FunctionDefinition>(*_sourceUnit.annotation().exportedSymbols)
 	);
 	// This check flags duplicate free events when free events become
-	// a Solidity feature
+	// a Hyperion feature
 	findDuplicateDefinitions(
 		filterDeclarations<EventDefinition>(*_sourceUnit.annotation().exportedSymbols)
 	);
@@ -145,7 +145,7 @@ void ContractLevelChecker::checkDuplicateFunctions(ContractDefinition const& _co
 		}
 		else
 		{
-			solAssert(!function->name().empty(), "");
+			hypAssert(!function->name().empty(), "");
 			functions[function->name()].push_back(function);
 		}
 
@@ -168,7 +168,7 @@ void ContractLevelChecker::checkReceiveFunction(ContractDefinition const& _contr
 {
 	for (FunctionDefinition const* function: _contract.definedFunctions())
 	{
-		solAssert(function, "");
+		hypAssert(function, "");
 		if (function->isReceive())
 		{
 			if (function->libraryFunction())
@@ -207,7 +207,7 @@ void ContractLevelChecker::findDuplicateDefinitions(std::map<std::string, std::v
 			for (size_t j = i + 1; j < overloads.size(); ++j)
 				if (hasEqualExternalCallableParameters(*overloads[i], *overloads[j]))
 				{
-					solAssert(
+					hypAssert(
 						(
 							dynamic_cast<ContractDefinition const*>(overloads[i]->scope()) &&
 							dynamic_cast<ContractDefinition const*>(overloads[j]->scope()) &&
@@ -296,7 +296,7 @@ void ContractLevelChecker::checkAbstractDefinitions(ContractDefinition const& _c
 		else if (_contract.contractKind() == ContractKind::Library)
 			m_errorReporter.typeError(9571_error, _contract.location(), "Libraries cannot be abstract.");
 		else
-			solAssert(_contract.contractKind() == ContractKind::Contract, "");
+			hypAssert(_contract.contractKind() == ContractKind::Contract, "");
 	}
 
 	// For libraries, we emit errors on function-level, so this is fine as long as we do
@@ -351,7 +351,7 @@ void ContractLevelChecker::checkBaseConstructorArguments(ContractDefinition cons
 			ContractDefinition const* baseContract = dynamic_cast<ContractDefinition const*>(
 				base->name().annotation().referencedDeclaration
 			);
-			solAssert(baseContract, "");
+			hypAssert(baseContract, "");
 
 			if (baseContract->constructor() && base->arguments() && !base->arguments()->empty())
 				annotateBaseConstructorArguments(_contract, baseContract->constructor(), base.get());
@@ -389,8 +389,8 @@ void ContractLevelChecker::annotateBaseConstructorArguments(
 	ASTNode const* _argumentNode
 )
 {
-	solAssert(_baseConstructor, "");
-	solAssert(_argumentNode, "");
+	hypAssert(_baseConstructor, "");
+	hypAssert(_argumentNode, "");
 
 	auto insertionResult = _currentContract.annotation().baseConstructorArguments.insert(
 		std::make_pair(_baseConstructor, _argumentNode)
@@ -500,7 +500,7 @@ void ContractLevelChecker::checkBaseABICompatibility(ContractDefinition const& _
 
 	if (_contract.isLibrary())
 	{
-		solAssert(
+		hypAssert(
 			_contract.baseContracts().empty() || m_errorReporter.hasErrors(),
 			"Library is not allowed to inherit"
 		);
@@ -512,7 +512,7 @@ void ContractLevelChecker::checkBaseABICompatibility(ContractDefinition const& _
 	// interfaceFunctionList contains all inherited functions as well
 	for (auto const& func: _contract.interfaceFunctionList())
 	{
-		solAssert(func.second->hasDeclaration(), "Function has no declaration?!");
+		hypAssert(func.second->hasDeclaration(), "Function has no declaration?!");
 
 		if (!*func.second->declaration().sourceUnit().annotation().useABICoderV2)
 			continue;

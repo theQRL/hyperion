@@ -2,9 +2,9 @@
 #
 # This script reads C++ or RST source files and writes all
 # multi-line strings into individual files.
-# This can be used to extract the Solidity test cases
+# This can be used to extract the Hyperion test cases
 # into files for e.g. fuzz testing as
-# scripts/isolate_tests.py test/libsolidity/*
+# scripts/isolate_tests.py test/libhyperion/*
 
 import sys
 import re
@@ -23,7 +23,7 @@ def extract_test_cases(_path):
     for l in lines:
         if inside:
             if l.strip().endswith(')' + delimiter + '";'):
-                with open(f'{ctr:03d}_{test_name}.sol', mode='wb', encoding='utf8') as f:
+                with open(f'{ctr:03d}_{test_name}.hyp', mode='wb', encoding='utf8') as f:
                     f.write(test)
                 ctr += 1
                 inside = False

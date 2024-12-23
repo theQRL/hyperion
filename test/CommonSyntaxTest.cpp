@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
@@ -22,8 +22,8 @@
 
 #include <liblangutil/SourceReferenceFormatter.h>
 
-#include <libsolutil/CommonIO.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/CommonIO.h>
+#include <libhyputil/StringUtils.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -35,13 +35,13 @@
 #include <stdexcept>
 
 using namespace std;
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::util::formatting;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
-using namespace solidity::frontend::test;
-using namespace solidity::test;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::util::formatting;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::test;
+using namespace hyperion::test;
 using namespace boost::unit_test;
 namespace fs = boost::filesystem;
 
@@ -64,11 +64,11 @@ int parseUnsignedInteger(string::iterator& _it, string::iterator _end)
 
 }
 
-CommonSyntaxTest::CommonSyntaxTest(string const& _filename, langutil::EVMVersion _evmVersion):
-	EVMVersionRestrictedTestCase(_filename),
+CommonSyntaxTest::CommonSyntaxTest(string const& _filename, langutil::ZVMVersion _zvmVersion):
+	ZVMVersionRestrictedTestCase(_filename),
 	m_sources(m_reader.sources()),
 	m_expectations(parseExpectations(m_reader.stream())),
-	m_evmVersion(_evmVersion)
+	m_zvmVersion(_zvmVersion)
 {
 }
 
@@ -161,7 +161,7 @@ void CommonSyntaxTest::printSource(ostream& _stream, string const& _linePrefix, 
 void CommonSyntaxTest::parseCustomExpectations(istream& _stream)
 {
 	string remainingExpectations = boost::trim_copy(readUntilEnd(_stream));
-	soltestAssert(
+	hyptestAssert(
 		remainingExpectations.empty(),
 		"Found custom expectations not supported by the test case:\n" + remainingExpectations
 	);

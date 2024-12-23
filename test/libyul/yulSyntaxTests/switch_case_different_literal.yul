@@ -4,5 +4,5 @@
 	case "2":u256 {}
 }
 // ====
-// dialect: evmTyped
+// dialect: zvmTyped
 // ----

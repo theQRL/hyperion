@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,17 +21,17 @@
  */
 #pragma once
 
-#include <libsolutil/Common.h>
-#include <libevmasm/Assembly.h>
-#include <libevmasm/AssemblyItem.h>
-#include <liblangutil/EVMVersion.h>
+#include <libhyputil/Common.h>
+#include <libzvmasm/Assembly.h>
+#include <libzvmasm/AssemblyItem.h>
+#include <liblangutil/ZVMVersion.h>
 
 #include <range/v3/view/span.hpp>
 #include <map>
 #include <set>
 #include <vector>
 
-namespace solidity::evmasm
+namespace hyperion::zvmasm
 {
 
 class Inliner
@@ -42,13 +42,13 @@ public:
 		std::set<size_t> const& _tagsReferencedFromOutside,
 		size_t _runs,
 		bool _isCreation,
-		langutil::EVMVersion _evmVersion
+		langutil::ZVMVersion _zvmVersion
 	):
 	m_items(_items),
 	m_tagsReferencedFromOutside(_tagsReferencedFromOutside),
 	m_runs(_runs),
 	m_isCreation(_isCreation),
-	m_evmVersion(_evmVersion)
+	m_zvmVersion(_zvmVersion)
 	{
 	}
 	virtual ~Inliner() = default;
@@ -78,7 +78,7 @@ private:
 	std::set<size_t> const& m_tagsReferencedFromOutside;
 	size_t const m_runs = Assembly::OptimiserSettings{}.expectedExecutionsPerDeployment;
 	bool const m_isCreation = false;
-	langutil::EVMVersion const m_evmVersion;
+	langutil::ZVMVersion const m_zvmVersion;
 };
 
 }

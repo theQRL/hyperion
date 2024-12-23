@@ -1,28 +1,28 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/StringUtils.h>
 
-#include <test/libsolidity/util/TestFileParser.h>
+#include <test/libhyperion/util/TestFileParser.h>
 
-#include <test/libsolidity/util/BytesUtils.h>
-#include <test/libsolidity/util/SoltestErrors.h>
+#include <test/libhyperion/util/BytesUtils.h>
+#include <test/libhyperion/util/HyptestErrors.h>
 #include <test/Common.h>
 
 #include <liblangutil/Common.h>
@@ -36,12 +36,12 @@
 #include <optional>
 #include <stdexcept>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::frontend;
-using namespace solidity::frontend::test;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::test;
 
-using Token = soltest::Token;
+using Token = hyptest::Token;
 
 char TestFileParser::Scanner::peek() const noexcept
 {
@@ -53,12 +53,12 @@ char TestFileParser::Scanner::peek() const noexcept
 	return *next;
 }
 
-std::vector<solidity::frontend::test::FunctionCall> TestFileParser::parseFunctionCalls(size_t _lineOffset)
+std::vector<hyperion::frontend::test::FunctionCall> TestFileParser::parseFunctionCalls(size_t _lineOffset)
 {
 	std::vector<FunctionCall> calls;
 	if (!accept(Token::EOS))
 	{
-		soltestAssert(m_scanner.currentToken() == Token::Unknown, "");
+		hyptestAssert(m_scanner.currentToken() == Token::Unknown, "");
 		m_scanner.scanNextToken();
 
 		while (!accept(Token::EOS))
@@ -199,7 +199,7 @@ std::vector<std::string> TestFileParser::parseFunctionCallSideEffects()
 	{
 		std::string effect = m_scanner.currentLiteral();
 		result.emplace_back(effect);
-		soltestAssert(m_scanner.currentToken() == Token::Tilde, "");
+		hyptestAssert(m_scanner.currentToken() == Token::Tilde, "");
 		m_scanner.scanNextToken();
 		if (m_scanner.currentToken() == Token::Newline)
 			m_scanner.scanNextToken();
@@ -546,7 +546,7 @@ void TestFileParser::Scanner::readStream(std::istream& _stream)
 void TestFileParser::Scanner::scanNextToken()
 {
 	// Make code coverage happy.
-	soltestAssert(formatToken(Token::NUM_TOKENS).empty(), "");
+	hyptestAssert(formatToken(Token::NUM_TOKENS).empty(), "");
 
 	auto detectKeyword = [](std::string const& _literal = "") -> std::pair<Token, std::string> {
 		if (_literal == "true") return {Token::Boolean, "true"};

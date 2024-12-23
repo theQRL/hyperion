@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -28,7 +28,7 @@
 #include <string_view>
 #include <vector>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 
 /**
@@ -78,7 +78,7 @@ struct DebugInfoSelection
 
 	bool location = false; ///< Include source location. E.g. `@src 3:50:100`
 	bool snippet = false;  ///< Include source code snippet next to location. E.g. `@src 3:50:100 "contract C {..."`
-	bool astID = false;    ///< Include ID of the Solidity AST node. E.g. `@ast-id 15`
+	bool astID = false;    ///< Include ID of the Hyperion AST node. E.g. `@ast-id 15`
 };
 
 std::ostream& operator<<(std::ostream& _stream, DebugInfoSelection const& _selection);

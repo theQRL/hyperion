@@ -1,7 +1,7 @@
-==== ExternalSource: _prbmath/PRBMathCommon.sol ====
-==== ExternalSource: _prbmath/PRBMathSD59x18.sol ====
-==== Source: prbmath.sol ====
-import "_prbmath/PRBMathSD59x18.sol";
+==== ExternalSource: _prbmath/PRBMathCommon.hyp ====
+==== ExternalSource: _prbmath/PRBMathSD59x18.hyp ====
+==== Source: prbmath.hyp ====
+import "_prbmath/PRBMathSD59x18.hyp";
 
 contract test {
     using PRBMathSD59x18 for int256;

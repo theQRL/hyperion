@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,18 +21,18 @@
  * Routines that generate Yul code related to ABI encoding, decoding and type conversions.
  */
 
-#include <libsolidity/codegen/ABIFunctions.h>
+#include <libhyperion/codegen/ABIFunctions.h>
 
-#include <libsolidity/codegen/CompilerUtils.h>
-#include <libsolutil/CommonData.h>
-#include <libsolutil/Whiskers.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyperion/codegen/CompilerUtils.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/Whiskers.h>
+#include <libhyputil/StringUtils.h>
 
 #include <boost/algorithm/string/join.hpp>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::frontend;
 
 std::string ABIFunctions::tupleEncoder(
 	TypePointers const& _givenTypes,
@@ -41,7 +41,7 @@ std::string ABIFunctions::tupleEncoder(
 	bool _reversed
 )
 {
-	solAssert(_givenTypes.size() == _targetTypes.size(), "");
+	hypAssert(_givenTypes.size() == _targetTypes.size(), "");
 	EncodingOptions options;
 	options.encodeAsLibraryTypes = _encodeAsLibraryTypes;
 	options.encodeFunctionFromStack = true;
@@ -50,9 +50,9 @@ std::string ABIFunctions::tupleEncoder(
 
 	for (Type const*& t: _targetTypes)
 	{
-		solAssert(t, "");
+		hypAssert(t, "");
 		t = t->fullEncodingType(options.encodeAsLibraryTypes, true, !options.padded);
-		solAssert(t, "");
+		hypAssert(t, "");
 	}
 
 	std::string functionName = std::string("abi_encode_tuple_");
@@ -81,8 +81,8 @@ std::string ABIFunctions::tupleEncoder(
 		size_t stackPos = 0;
 		for (size_t i = 0; i < _givenTypes.size(); ++i)
 		{
-			solAssert(_givenTypes[i], "");
-			solAssert(_targetTypes[i], "");
+			hypAssert(_givenTypes[i], "");
+			hypAssert(_targetTypes[i], "");
 			size_t sizeOnStack = _givenTypes[i]->sizeOnStack();
 			bool dynamic = _targetTypes[i]->isDynamicallyEncoded();
 			Whiskers elementTempl(
@@ -103,7 +103,7 @@ std::string ABIFunctions::tupleEncoder(
 			headPos += _targetTypes[i]->calldataHeadSize();
 			stackPos += sizeOnStack;
 		}
-		solAssert(headPos == headSize_, "");
+		hypAssert(headPos == headSize_, "");
 		std::string valueParams =
 			_reversed ?
 			suffixedVariableNameList("value", stackPos, 0) :
@@ -129,9 +129,9 @@ std::string ABIFunctions::tupleEncoderPacked(
 
 	for (Type const*& t: _targetTypes)
 	{
-		solAssert(t, "");
+		hypAssert(t, "");
 		t = t->fullEncodingType(options.encodeAsLibraryTypes, true, !options.padded);
-		solAssert(t, "");
+		hypAssert(t, "");
 	}
 
 	std::string functionName = std::string("abi_encode_tuple_packed_");
@@ -157,8 +157,8 @@ std::string ABIFunctions::tupleEncoderPacked(
 		size_t stackPos = 0;
 		for (size_t i = 0; i < _givenTypes.size(); ++i)
 		{
-			solAssert(_givenTypes[i], "");
-			solAssert(_targetTypes[i], "");
+			hypAssert(_givenTypes[i], "");
+			hypAssert(_targetTypes[i], "");
 			size_t sizeOnStack = _givenTypes[i]->sizeOnStack();
 			bool dynamic = _targetTypes[i]->isDynamicallyEncoded();
 			Whiskers elementTempl(
@@ -218,11 +218,11 @@ std::string ABIFunctions::tupleDecoder(TypePointers const& _types, bool _fromMem
 		size_t stackPos = 0;
 		for (size_t i = 0; i < _types.size(); ++i)
 		{
-			solAssert(_types[i], "");
-			solAssert(decodingTypes[i], "");
+			hypAssert(_types[i], "");
+			hypAssert(decodingTypes[i], "");
 			size_t sizeOnStack = _types[i]->sizeOnStack();
-			solAssert(sizeOnStack == decodingTypes[i]->sizeOnStack(), "");
-			solAssert(sizeOnStack > 0, "");
+			hypAssert(sizeOnStack == decodingTypes[i]->sizeOnStack(), "");
+			hypAssert(sizeOnStack > 0, "");
 			std::vector<std::string> valueNamesLocal;
 			for (size_t j = 0; j < sizeOnStack; j++)
 			{
@@ -280,7 +280,7 @@ std::string ABIFunctions::abiEncodingFunction(
 )
 {
 	Type const* toInterface = _to.fullEncodingType(_options.encodeAsLibraryTypes, true, false);
-	solUnimplementedAssert(toInterface, "Encoding type \"" + _to.toString() + "\" not yet implemented.");
+	hypUnimplementedAssert(toInterface, "Encoding type \"" + _to.toString() + "\" not yet implemented.");
 	Type const& to = *toInterface;
 
 	if (_from.category() == Type::Category::StringLiteral)
@@ -295,7 +295,7 @@ std::string ABIFunctions::abiEncodingFunction(
 				break;
 			case Type::Category::ArraySlice:
 				fromArray = &dynamic_cast<ArraySliceType const*>(&_from)->arrayType();
-				solAssert(
+				hypAssert(
 					fromArray->dataStoredIn(DataLocation::CallData) &&
 					fromArray->isDynamicallySized() &&
 					!fromArray->baseType()->isDynamicallyEncoded(),
@@ -303,7 +303,7 @@ std::string ABIFunctions::abiEncodingFunction(
 				);
 				break;
 			default:
-				solAssert(false, "");
+				hypAssert(false, "");
 				break;
 		}
 
@@ -329,13 +329,13 @@ std::string ABIFunctions::abiEncodingFunction(
 				else
 					return abiEncodingFunctionSimpleArray(*fromArray, *toArray, _options);
 			default:
-				solAssert(false, "");
+				hypAssert(false, "");
 		}
 	}
 	else if (auto const* toStruct = dynamic_cast<StructType const*>(&to))
 	{
 		StructType const* fromStruct = dynamic_cast<StructType const*>(&_from);
-		solAssert(fromStruct, "");
+		hypAssert(fromStruct, "");
 		return abiEncodingFunctionStruct(*fromStruct, *toStruct, _options);
 	}
 	else if (_from.category() == Type::Category::Function)
@@ -345,9 +345,9 @@ std::string ABIFunctions::abiEncodingFunction(
 			_options
 		);
 
-	solAssert(_from.sizeOnStack() == 1, "");
-	solAssert(to.isValueType(), "");
-	solAssert(to.calldataEncodedSize() == 32, "");
+	hypAssert(_from.sizeOnStack() == 1, "");
+	hypAssert(to.isValueType(), "");
+	hypAssert(to.calldataEncodedSize() == 32, "");
 	std::string functionName =
 		"abi_encode_" +
 		_from.identifier() +
@@ -355,7 +355,7 @@ std::string ABIFunctions::abiEncodingFunction(
 		to.identifier() +
 		_options.toFunctionNameSuffix();
 	return createFunction(functionName, [&]() {
-		solAssert(!to.isDynamicallyEncoded(), "");
+		hypAssert(!to.isDynamicallyEncoded(), "");
 
 		Whiskers templ(R"(
 			function <functionName>(value, pos) {
@@ -368,9 +368,9 @@ std::string ABIFunctions::abiEncodingFunction(
 		{
 			// special case: convert storage reference type to value type - this is only
 			// possible for library calls where we just forward the storage reference
-			solAssert(_options.encodeAsLibraryTypes, "");
-			solAssert(_options.padded && !_options.dynamicInplace, "Non-padded / inplace encoding for library call requested.");
-			solAssert(to == *TypeProvider::uint256(), "");
+			hypAssert(_options.encodeAsLibraryTypes, "");
+			hypAssert(_options.padded && !_options.dynamicInplace, "Non-padded / inplace encoding for library call requested.");
+			hypAssert(to == *TypeProvider::uint256(), "");
 			templ("cleanupConvert", "value");
 		}
 		else
@@ -404,7 +404,7 @@ std::string ABIFunctions::abiEncodeAndReturnUpdatedPosFunction(
 		std::string values = suffixedVariableNameList("value", 0, numVariablesForType(_givenType, _options));
 		std::string encoder = abiEncodingFunction(_givenType, _targetType, _options);
 		Type const* targetEncoding = _targetType.fullEncodingType(_options.encodeAsLibraryTypes, true, false);
-		solAssert(targetEncoding, "");
+		hypAssert(targetEncoding, "");
 		if (targetEncoding->isDynamicallyEncoded())
 			return Whiskers(R"(
 				function <functionName>(<values>, pos) -> updatedPos {
@@ -418,7 +418,7 @@ std::string ABIFunctions::abiEncodeAndReturnUpdatedPosFunction(
 		else
 		{
 			unsigned encodedSize = targetEncoding->calldataEncodedSize(_options.padded);
-			solAssert(encodedSize != 0, "Invalid encoded size.");
+			hypAssert(encodedSize != 0, "Invalid encoded size.");
 			return Whiskers(R"(
 				function <functionName>(<values>, pos) -> updatedPos {
 					<encode>(<values>, pos)
@@ -440,21 +440,21 @@ std::string ABIFunctions::abiEncodingFunctionCalldataArrayWithoutCleanup(
 	EncodingOptions const& _options
 )
 {
-	solAssert(_from.category() == Type::Category::Array, "Unknown dynamic type.");
-	solAssert(_to.category() == Type::Category::Array, "Unknown dynamic type.");
+	hypAssert(_from.category() == Type::Category::Array, "Unknown dynamic type.");
+	hypAssert(_to.category() == Type::Category::Array, "Unknown dynamic type.");
 	auto const& fromArrayType = dynamic_cast<ArrayType const&>(_from);
 	auto const& toArrayType = dynamic_cast<ArrayType const&>(_to);
 
-	solAssert(fromArrayType.location() == DataLocation::CallData, "");
-	solAssert(
+	hypAssert(fromArrayType.location() == DataLocation::CallData, "");
+	hypAssert(
 		fromArrayType.isByteArrayOrString() ||
 		*fromArrayType.baseType() == *TypeProvider::uint256() ||
 		*fromArrayType.baseType() == FixedBytesType(32),
 		""
 	);
-	solAssert(fromArrayType.calldataStride() == toArrayType.memoryStride(), "");
+	hypAssert(fromArrayType.calldataStride() == toArrayType.memoryStride(), "");
 
-	solAssert(
+	hypAssert(
 		*fromArrayType.copyForLocation(DataLocation::Memory, true) ==
 		*toArrayType.copyForLocation(DataLocation::Memory, true),
 		""
@@ -504,7 +504,7 @@ std::string ABIFunctions::abiEncodingFunctionCalldataArrayWithoutCleanup(
 		}
 		else
 		{
-			solAssert(fromArrayType.calldataStride() == 32, "");
+			hypAssert(fromArrayType.calldataStride() == 32, "");
 			Whiskers templ(R"(
 				// <readableTypeNameFrom> -> <readableTypeNameTo>
 				function <functionName>(start, pos) {
@@ -534,11 +534,11 @@ std::string ABIFunctions::abiEncodingFunctionSimpleArray(
 		_to.identifier() +
 		_options.toFunctionNameSuffix();
 
-	solAssert(_from.isDynamicallySized() == _to.isDynamicallySized(), "");
-	solAssert(_from.length() == _to.length(), "");
-	solAssert(!_from.isByteArrayOrString(), "");
+	hypAssert(_from.isDynamicallySized() == _to.isDynamicallySized(), "");
+	hypAssert(_from.length() == _to.length(), "");
+	hypAssert(!_from.isByteArrayOrString(), "");
 	if (_from.dataStoredIn(DataLocation::Storage))
-		solAssert(_from.baseType()->storageBytes() > 16, "");
+		hypAssert(_from.baseType()->storageBytes() > 16, "");
 
 	return createFunction(functionName, [&]() {
 		bool dynamic = _to.isDynamicallyEncoded();
@@ -624,7 +624,7 @@ std::string ABIFunctions::abiEncodingFunctionSimpleArray(
 				templ("arrayElementAccess", calldataAccessFunction(*_from.baseType()) + "(baseRef, srcPtr)");
 				break;
 			default:
-				solAssert(false, "");
+				hypAssert(false, "");
 		}
 		templ("nextArrayElement", m_utils.nextArrayElementFunction(_from));
 		return templ.render();
@@ -644,13 +644,13 @@ std::string ABIFunctions::abiEncodingFunctionMemoryByteArray(
 		_to.identifier() +
 		_options.toFunctionNameSuffix();
 
-	solAssert(_from.isDynamicallySized() == _to.isDynamicallySized(), "");
-	solAssert(_from.length() == _to.length(), "");
-	solAssert(_from.dataStoredIn(DataLocation::Memory), "");
-	solAssert(_from.isByteArrayOrString(), "");
+	hypAssert(_from.isDynamicallySized() == _to.isDynamicallySized(), "");
+	hypAssert(_from.length() == _to.length(), "");
+	hypAssert(_from.dataStoredIn(DataLocation::Memory), "");
+	hypAssert(_from.isByteArrayOrString(), "");
 
 	return createFunction(functionName, [&]() {
-		solAssert(_to.isByteArrayOrString(), "");
+		hypAssert(_to.isByteArrayOrString(), "");
 		Whiskers templ(R"(
 			function <functionName>(value, pos) -> end {
 				let length := <lengthFun>(value)
@@ -681,14 +681,14 @@ std::string ABIFunctions::abiEncodingFunctionCompactStorageArray(
 		_to.identifier() +
 		_options.toFunctionNameSuffix();
 
-	solAssert(_from.isDynamicallySized() == _to.isDynamicallySized(), "");
-	solAssert(_from.length() == _to.length(), "");
-	solAssert(_from.dataStoredIn(DataLocation::Storage), "");
+	hypAssert(_from.isDynamicallySized() == _to.isDynamicallySized(), "");
+	hypAssert(_from.length() == _to.length(), "");
+	hypAssert(_from.dataStoredIn(DataLocation::Storage), "");
 
 	return createFunction(functionName, [&]() {
 		if (_from.isByteArrayOrString())
 		{
-			solAssert(_to.isByteArrayOrString(), "");
+			hypAssert(_to.isByteArrayOrString(), "");
 			Whiskers templ(R"(
 				// <readableTypeNameFrom> -> <readableTypeNameTo>
 				function <functionName>(value, pos) -> ret {
@@ -726,14 +726,14 @@ std::string ABIFunctions::abiEncodingFunctionCompactStorageArray(
 		else
 		{
 			// Multiple items per slot
-			solAssert(_from.baseType()->storageBytes() <= 16, "");
-			solAssert(!_from.baseType()->isDynamicallyEncoded(), "");
-			solAssert(!_to.baseType()->isDynamicallyEncoded(), "");
-			solAssert(_from.baseType()->isValueType(), "");
+			hypAssert(_from.baseType()->storageBytes() <= 16, "");
+			hypAssert(!_from.baseType()->isDynamicallyEncoded(), "");
+			hypAssert(!_to.baseType()->isDynamicallyEncoded(), "");
+			hypAssert(_from.baseType()->isValueType(), "");
 			bool dynamic = _to.isDynamicallyEncoded();
 			size_t storageBytes = _from.baseType()->storageBytes();
 			size_t itemsPerSlot = 32 / storageBytes;
-			solAssert(itemsPerSlot > 0, "");
+			hypAssert(itemsPerSlot > 0, "");
 			// The number of elements we need to handle manually after the loop.
 			size_t spill = static_cast<size_t>(_from.length() % itemsPerSlot);
 			Whiskers templ(
@@ -832,7 +832,7 @@ std::string ABIFunctions::abiEncodingFunctionStruct(
 		_to.identifier() +
 		_options.toFunctionNameSuffix();
 
-	solAssert(&_from.structDefinition() == &_to.structDefinition(), "");
+	hypAssert(&_from.structDefinition() == &_to.structDefinition(), "");
 
 	return createFunction(functionName, [&]() {
 		bool dynamic = _to.isDynamicallyEncoded();
@@ -869,15 +869,15 @@ std::string ABIFunctions::abiEncodingFunctionStruct(
 		std::vector<std::map<std::string, std::string>> members;
 		for (auto const& member: _to.members(nullptr))
 		{
-			solAssert(member.type, "");
-			solAssert(!member.type->containsNestedMapping(), "");
+			hypAssert(member.type, "");
+			hypAssert(!member.type->containsNestedMapping(), "");
 			Type const* memberTypeTo = member.type->fullEncodingType(_options.encodeAsLibraryTypes, true, false);
-			solUnimplementedAssert(memberTypeTo, "Encoding type \"" + member.type->toString() + "\" not yet implemented.");
+			hypUnimplementedAssert(memberTypeTo, "Encoding type \"" + member.type->toString() + "\" not yet implemented.");
 			auto memberTypeFrom = _from.memberType(member.name);
-			solAssert(memberTypeFrom, "");
+			hypAssert(memberTypeFrom, "");
 			bool dynamicMember = memberTypeTo->isDynamicallyEncoded();
 			if (dynamicMember)
-				solAssert(dynamic, "");
+				hypAssert(dynamic, "");
 
 			members.emplace_back();
 			members.back()["preprocess"] = "";
@@ -886,7 +886,7 @@ std::string ABIFunctions::abiEncodingFunctionStruct(
 			{
 				case DataLocation::Storage:
 				{
-					solAssert(memberTypeFrom->isValueType() == memberTypeTo->isValueType(), "");
+					hypAssert(memberTypeFrom->isValueType() == memberTypeTo->isValueType(), "");
 					u256 storageSlotOffset;
 					size_t intraSlotOffset;
 					std::tie(storageSlotOffset, intraSlotOffset) = _from.storageOffsetsOfMember(member.name);
@@ -901,8 +901,8 @@ std::string ABIFunctions::abiEncodingFunctionStruct(
 					}
 					else
 					{
-						solAssert(memberTypeFrom->dataStoredIn(DataLocation::Storage), "");
-						solAssert(intraSlotOffset == 0, "");
+						hypAssert(memberTypeFrom->dataStoredIn(DataLocation::Storage), "");
+						hypAssert(intraSlotOffset == 0, "");
 						members.back()["retrieveValue"] = "add(value, " + toCompactHexWithPrefix(storageSlotOffset) + ")";
 					}
 					break;
@@ -920,7 +920,7 @@ std::string ABIFunctions::abiEncodingFunctionStruct(
 					break;
 				}
 				default:
-					solAssert(false, "");
+					hypAssert(false, "");
 			}
 
 			EncodingOptions subOptions(_options);
@@ -959,7 +959,7 @@ std::string ABIFunctions::abiEncodingFunctionStruct(
 		}
 		templ("members", members);
 		if (_options.dynamicInplace)
-			solAssert(encodingOffset == 0, "In-place encoding should enforce zero head size.");
+			hypAssert(encodingOffset == 0, "In-place encoding should enforce zero head size.");
 		templ("headSize", toCompactHexWithPrefix(encodingOffset));
 		return templ.render();
 	});
@@ -971,7 +971,7 @@ std::string ABIFunctions::abiEncodingFunctionStringLiteral(
 	EncodingOptions const& _options
 )
 {
-	solAssert(_from.category() == Type::Category::StringLiteral, "");
+	hypAssert(_from.category() == Type::Category::StringLiteral, "");
 
 	std::string functionName =
 		"abi_encode_" +
@@ -982,11 +982,11 @@ std::string ABIFunctions::abiEncodingFunctionStringLiteral(
 	return createFunction(functionName, [&]() {
 		auto const& strType = dynamic_cast<StringLiteralType const&>(_from);
 		std::string const& value = strType.value();
-		solAssert(_from.sizeOnStack() == 0, "");
+		hypAssert(_from.sizeOnStack() == 0, "");
 
 		if (_to.isDynamicallySized())
 		{
-			solAssert(_to.category() == Type::Category::Array, "");
+			hypAssert(_to.category() == Type::Category::Array, "");
 			Whiskers templ(R"(
 				function <functionName>(pos) -> end {
 					pos := <storeLength>(pos, <length>)
@@ -1008,8 +1008,8 @@ std::string ABIFunctions::abiEncodingFunctionStringLiteral(
 		}
 		else
 		{
-			solAssert(_to.category() == Type::Category::FixedBytes, "");
-			solAssert(value.size() <= 32, "");
+			hypAssert(_to.category() == Type::Category::FixedBytes, "");
+			hypAssert(value.size() <= 32, "");
 			Whiskers templ(R"(
 				function <functionName>(pos) {
 					mstore(pos, <wordValue>)
@@ -1028,7 +1028,7 @@ std::string ABIFunctions::abiEncodingFunctionFunctionType(
 	EncodingOptions const& _options
 )
 {
-	solAssert(
+	hypAssert(
 		_from.kind() == FunctionType::Kind::External &&
 		_from.isImplicitlyConvertibleTo(_to) &&
 		_from.sizeOnStack() == _to.sizeOnStack(),
@@ -1075,13 +1075,13 @@ std::string ABIFunctions::abiDecodingFunction(Type const& _type, bool _fromMemor
 	// of a value type is called.
 
 	Type const* decodingType = _type.decodingType();
-	solAssert(decodingType, "");
+	hypAssert(decodingType, "");
 
 	if (auto arrayType = dynamic_cast<ArrayType const*>(decodingType))
 	{
 		if (arrayType->dataStoredIn(DataLocation::CallData))
 		{
-			solAssert(!_fromMemory, "");
+			hypAssert(!_fromMemory, "");
 			return abiDecodingFunctionCalldataArray(*arrayType);
 		}
 		else
@@ -1091,7 +1091,7 @@ std::string ABIFunctions::abiDecodingFunction(Type const& _type, bool _fromMemor
 	{
 		if (structType->dataStoredIn(DataLocation::CallData))
 		{
-			solAssert(!_fromMemory, "");
+			hypAssert(!_fromMemory, "");
 			return abiDecodingFunctionCalldataStruct(*structType);
 		}
 		else
@@ -1106,11 +1106,11 @@ std::string ABIFunctions::abiDecodingFunction(Type const& _type, bool _fromMemor
 std::string ABIFunctions::abiDecodingFunctionValueType(Type const& _type, bool _fromMemory)
 {
 	Type const* decodingType = _type.decodingType();
-	solAssert(decodingType, "");
-	solAssert(decodingType->sizeOnStack() == 1, "");
-	solAssert(decodingType->isValueType(), "");
-	solAssert(!decodingType->isDynamicallyEncoded(), "");
-	solAssert(decodingType->calldataEncodedSize() == 32, "");
+	hypAssert(decodingType, "");
+	hypAssert(decodingType->sizeOnStack() == 1, "");
+	hypAssert(decodingType->isValueType(), "");
+	hypAssert(!decodingType->isDynamicallyEncoded(), "");
+	hypAssert(decodingType->calldataEncodedSize() == 32, "");
 
 	std::string functionName =
 		"abi_decode_" +
@@ -1135,7 +1135,7 @@ std::string ABIFunctions::abiDecodingFunctionValueType(Type const& _type, bool _
 
 std::string ABIFunctions::abiDecodingFunctionArray(ArrayType const& _type, bool _fromMemory)
 {
-	solAssert(_type.dataStoredIn(DataLocation::Memory), "");
+	hypAssert(_type.dataStoredIn(DataLocation::Memory), "");
 
 	std::string functionName =
 		"abi_decode_" +
@@ -1167,10 +1167,10 @@ std::string ABIFunctions::abiDecodingFunctionArray(ArrayType const& _type, bool 
 
 std::string ABIFunctions::abiDecodingFunctionArrayAvailableLength(ArrayType const& _type, bool _fromMemory)
 {
-	solAssert(_type.dataStoredIn(DataLocation::Memory), "");
+	hypAssert(_type.dataStoredIn(DataLocation::Memory), "");
 	if (_type.isByteArrayOrString())
 		return abiDecodingFunctionByteArrayAvailableLength(_type, _fromMemory);
-	solAssert(_type.calldataStride() > 0, "");
+	hypAssert(_type.calldataStride() > 0, "");
 
 	std::string functionName =
 		"abi_decode_available_length_" +
@@ -1225,11 +1225,11 @@ std::string ABIFunctions::abiDecodingFunctionArrayAvailableLength(ArrayType cons
 
 std::string ABIFunctions::abiDecodingFunctionCalldataArray(ArrayType const& _type)
 {
-	solAssert(_type.dataStoredIn(DataLocation::CallData), "");
+	hypAssert(_type.dataStoredIn(DataLocation::CallData), "");
 	if (!_type.isDynamicallySized())
-		solAssert(_type.length() < u256("0xffffffffffffffff"), "");
-	solAssert(_type.calldataStride() > 0, "");
-	solAssert(_type.calldataStride() < u256("0xffffffffffffffff"), "");
+		hypAssert(_type.length() < u256("0xffffffffffffffff"), "");
+	hypAssert(_type.calldataStride() > 0, "");
+	hypAssert(_type.calldataStride() < u256("0xffffffffffffffff"), "");
 
 	std::string functionName =
 		"abi_decode_" +
@@ -1274,8 +1274,8 @@ std::string ABIFunctions::abiDecodingFunctionCalldataArray(ArrayType const& _typ
 
 std::string ABIFunctions::abiDecodingFunctionByteArrayAvailableLength(ArrayType const& _type, bool _fromMemory)
 {
-	solAssert(_type.dataStoredIn(DataLocation::Memory), "");
-	solAssert(_type.isByteArrayOrString(), "");
+	hypAssert(_type.dataStoredIn(DataLocation::Memory), "");
+	hypAssert(_type.isByteArrayOrString(), "");
 
 	std::string functionName =
 		"abi_decode_available_length_" +
@@ -1303,7 +1303,7 @@ std::string ABIFunctions::abiDecodingFunctionByteArrayAvailableLength(ArrayType 
 
 std::string ABIFunctions::abiDecodingFunctionCalldataStruct(StructType const& _type)
 {
-	solAssert(_type.dataStoredIn(DataLocation::CallData), "");
+	hypAssert(_type.dataStoredIn(DataLocation::CallData), "");
 	std::string functionName =
 		"abi_decode_" +
 		_type.identifier();
@@ -1327,7 +1327,7 @@ std::string ABIFunctions::abiDecodingFunctionCalldataStruct(StructType const& _t
 
 std::string ABIFunctions::abiDecodingFunctionStruct(StructType const& _type, bool _fromMemory)
 {
-	solAssert(!_type.dataStoredIn(DataLocation::CallData), "");
+	hypAssert(!_type.dataStoredIn(DataLocation::CallData), "");
 	std::string functionName =
 		"abi_decode_" +
 		_type.identifier() +
@@ -1352,16 +1352,16 @@ std::string ABIFunctions::abiDecodingFunctionStruct(StructType const& _type, boo
 		templ("functionName", functionName);
 		templ("readableTypeName", _type.toString(true));
 		templ("allocate", m_utils.allocationFunction());
-		solAssert(_type.memoryDataSize() < u256("0xffffffffffffffff"), "");
+		hypAssert(_type.memoryDataSize() < u256("0xffffffffffffffff"), "");
 		templ("memorySize", toCompactHexWithPrefix(_type.memoryDataSize()));
 		size_t headPos = 0;
 		std::vector<std::map<std::string, std::string>> members;
 		for (auto const& member: _type.members(nullptr))
 		{
-			solAssert(member.type, "");
-			solAssert(!member.type->containsNestedMapping(), "");
+			hypAssert(member.type, "");
+			hypAssert(!member.type->containsNestedMapping(), "");
 			auto decodingType = member.type->decodingType();
-			solAssert(decodingType, "");
+			hypAssert(decodingType, "");
 			Whiskers memberTempl(R"(
 				<?dynamic>
 					let offset := <load>(add(headStart, <pos>))
@@ -1392,7 +1392,7 @@ std::string ABIFunctions::abiDecodingFunctionStruct(StructType const& _type, boo
 
 std::string ABIFunctions::abiDecodingFunctionFunctionType(FunctionType const& _type, bool _fromMemory, bool _forUseOnStack)
 {
-	solAssert(_type.kind() == FunctionType::Kind::External, "");
+	hypAssert(_type.kind() == FunctionType::Kind::External, "");
 
 	std::string functionName =
 		"abi_decode_" +
@@ -1431,13 +1431,13 @@ std::string ABIFunctions::abiDecodingFunctionFunctionType(FunctionType const& _t
 
 std::string ABIFunctions::calldataAccessFunction(Type const& _type)
 {
-	solAssert(_type.isValueType() || _type.dataStoredIn(DataLocation::CallData), "");
+	hypAssert(_type.isValueType() || _type.dataStoredIn(DataLocation::CallData), "");
 	std::string functionName = "calldata_access_" + _type.identifier();
 	return createFunction(functionName, [&]() {
 		if (_type.isDynamicallyEncoded())
 		{
 			unsigned int tailSize = _type.calldataEncodedTailSize();
-			solAssert(tailSize > 1, "");
+			hypAssert(tailSize > 1, "");
 			Whiskers w(R"(
 				function <functionName>(base_ref, ptr) -> <return> {
 					let rel_offset_of_tail := calldataload(ptr)
@@ -1449,7 +1449,7 @@ std::string ABIFunctions::calldataAccessFunction(Type const& _type)
 			if (_type.isDynamicallySized())
 			{
 				auto const* arrayType = dynamic_cast<ArrayType const*>(&_type);
-				solAssert(!!arrayType, "");
+				hypAssert(!!arrayType, "");
 				w("handleLength", Whiskers(R"(
 					length := calldataload(value)
 					value := add(value, 0x20)
@@ -1493,7 +1493,7 @@ std::string ABIFunctions::calldataAccessFunction(Type const& _type)
 		}
 		else
 		{
-			solAssert(
+			hypAssert(
 				_type.category() == Type::Category::Array ||
 				_type.category() == Type::Category::Struct,
 				""

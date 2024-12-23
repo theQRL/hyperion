@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -24,14 +24,14 @@
  * Can generally deal with JSON files
  */
 
-#include <libsolidity/interface/Natspec.h>
+#include <libhyperion/interface/Natspec.h>
 
-#include <libsolidity/ast/AST.h>
+#include <libhyperion/ast/AST.h>
 
 #include <boost/algorithm/string.hpp>
 
-using namespace solidity;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::frontend;
 
 Json::Value Natspec::userDocumentation(ContractDefinition const& _contractDef)
 {
@@ -67,7 +67,7 @@ Json::Value Natspec::userDocumentation(ContractDefinition const& _contractDef)
 				value = extractDoc(f->annotation().docTags, "notice");
 			else if (auto var = dynamic_cast<VariableDeclaration const*>(&it.second->declaration()))
 			{
-				solAssert(var->isStateVariable() && var->isPublic(), "");
+				hypAssert(var->isStateVariable() && var->isPublic(), "");
 				value = extractDoc(var->annotation().docTags, "notice");
 			}
 
@@ -195,7 +195,7 @@ Json::Value Natspec::extractReturnParameterDocs(std::multimap<std::string, DocTa
 			{
 				//check to make sure the first word of the doc str is the same as the return name
 				auto nameEndPos = content.find_first_of(" \t");
-				solAssert(content.substr(0, nameEndPos) == paramName, "No return param name given: " + paramName);
+				hypAssert(content.substr(0, nameEndPos) == paramName, "No return param name given: " + paramName);
 				content = content.substr(nameEndPos+1);
 			}
 
@@ -257,7 +257,7 @@ std::vector<EventDefinition const*>  Natspec::uniqueInterfaceEvents(ContractDefi
 {
 	auto eventSignature = [](EventDefinition const* _event) -> std::string {
 		FunctionType const* functionType = _event->functionType(true);
-		solAssert(functionType, "");
+		hypAssert(functionType, "");
 		return functionType->externalSignature();
 	};
 	auto compareBySignature =

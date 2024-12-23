@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -23,21 +23,21 @@
 #pragma once
 
 
-#include <libevmasm/Instruction.h>
-#include <libevmasm/SimplificationRule.h>
+#include <libzvmasm/Instruction.h>
+#include <libzvmasm/SimplificationRule.h>
 
-#include <libsolutil/CommonData.h>
+#include <libhyputil/CommonData.h>
 
 #include <boost/multiprecision/detail/min_max.hpp>
 
 #include <libyul/Dialect.h>
-#include <libyul/backends/evm/EVMDialect.h>
-#include <liblangutil/EVMVersion.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
+#include <liblangutil/ZVMVersion.h>
 
 #include <vector>
 #include <functional>
 
-namespace solidity::evmasm
+namespace hyperion::zvmasm
 {
 
 template <class S> S divWorkaround(S const& _a, S const& _b)
@@ -288,7 +288,7 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleListPart5(
 
 	std::vector<SimplificationRule<Pattern>> rules;
 
-	// The libevmasm optimizer does not support rules resulting in opcodes with more than two arguments.
+	// The libzvmasm optimizer does not support rules resulting in opcodes with more than two arguments.
 	if (_forYulOptimizer)
 	{
 		// Replace MOD(MUL(X, Y), A) with MULMOD(X, Y, A) iff A=2**N
@@ -733,7 +733,7 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleListPart8(
 }
 
 template<class Pattern>
-std::vector<SimplificationRule<Pattern>> evmRuleList(
+std::vector<SimplificationRule<Pattern>> zvmRuleList(
 	Pattern A,
 	Pattern,
 	Pattern,
@@ -798,7 +798,7 @@ std::vector<SimplificationRule<Pattern>> evmRuleList(
 /// arbitrary operations.
 template <class Pattern>
 std::vector<SimplificationRule<Pattern>> simplificationRuleList(
-	std::optional<langutil::EVMVersion> _evmVersion,
+	std::optional<langutil::ZVMVersion> _zvmVersion,
 	Pattern A,
 	Pattern B,
 	Pattern C,
@@ -822,13 +822,13 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleList(
 	rules += simplificationRuleListPart3(A, B, C, W, X);
 	rules += simplificationRuleListPart4(A, B, C, W, X);
 	rules += simplificationRuleListPart4_5(A, B, C, W, X);
-	rules += simplificationRuleListPart5(_evmVersion.has_value(), A, B, C, W, X);
+	rules += simplificationRuleListPart5(_zvmVersion.has_value(), A, B, C, W, X);
 	rules += simplificationRuleListPart6(A, B, C, W, X);
 	rules += simplificationRuleListPart7(A, B, C, W, X, Y);
 	rules += simplificationRuleListPart8(A, B, C, W, X);
 
-	if (_evmVersion.has_value())
-		rules += evmRuleList(A, B, C, W, X, Y, Z);
+	if (_zvmVersion.has_value())
+		rules += zvmRuleList(A, B, C, W, X, Y, Z);
 
 	return rules;
 }

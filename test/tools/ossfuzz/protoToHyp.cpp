@@ -1,38 +1,38 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <test/tools/ossfuzz/protoToSol.h>
+#include <test/tools/ossfuzz/protoToHyp.h>
 
 #include <liblangutil/Exceptions.h>
 
-#include <libsolutil/Whiskers.h>
+#include <libhyputil/Whiskers.h>
 
 #include <sstream>
 
-using namespace solidity::test::solprotofuzzer;
-using namespace solidity::util;
+using namespace hyperion::test::hypprotofuzzer;
+using namespace hyperion::util;
 using namespace std;
 
-string ProtoConverter::protoToSolidity(Program const& _p)
+string ProtoConverter::protoToHyperion(Program const& _p)
 {
 	// Create random number generator with fuzzer supplied
 	// seed.
-	m_randomGen = make_shared<SolRandomNumGenerator>(_p.seed());
+	m_randomGen = make_shared<HypRandomNumGenerator>(_p.seed());
 	return visit(_p);
 }
 
@@ -156,7 +156,7 @@ string ProtoConverter::visit(Program const& _p)
 	for (auto &contract: _p.contracts())
 		contracts << visit(contract);
 
-	Whiskers p(R"(<endl>pragma solidity >=0.0;<endl><contracts><endl><test>)");
+	Whiskers p(R"(<endl>pragma hyperion >=0.0;<endl><contracts><endl><test>)");
 	p("endl", "\n");
 	p("contracts", contracts.str());
 	p("test", visit(_p.test()));
@@ -198,7 +198,7 @@ string ProtoConverter::visit(Library const& _library)
 
 tuple<string, string, string> ProtoConverter::pseudoRandomLibraryTest()
 {
-	solAssert(m_libraryTests.size() > 0, "Sol proto fuzzer: No library tests found");
+	hypAssert(m_libraryTests.size() > 0, "Hyp proto fuzzer: No library tests found");
 	unsigned index = randomNumber() % m_libraryTests.size();
 	return m_libraryTests[index];
 }
@@ -218,12 +218,12 @@ void ProtoConverter::openProgramScope(CIL _program)
 
 string ProtoConverter::programName(CIL _program)
 {
-	solAssert(m_programNameMap.count(_program), "Sol proto fuzzer: Unregistered program");
+	hypAssert(m_programNameMap.count(_program), "Hyp proto fuzzer: Unregistered program");
 	return m_programNameMap[_program];
 }
 
 unsigned ProtoConverter::randomNumber()
 {
-	solAssert(m_randomGen, "Sol proto fuzzer: Uninitialized random number generator");
+	hypAssert(m_randomGen, "Hyp proto fuzzer: Uninitialized random number generator");
 	return m_randomGen->operator()();
 }

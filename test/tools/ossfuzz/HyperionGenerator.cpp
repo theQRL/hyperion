@@ -1,31 +1,31 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <test/tools/ossfuzz/SolidityGenerator.h>
+#include <test/tools/ossfuzz/HyperionGenerator.h>
 
-#include <libsolutil/Whiskers.h>
-#include <libsolutil/Visitor.h>
+#include <libhyputil/Whiskers.h>
+#include <libhyputil/Visitor.h>
 
-using namespace solidity::test::fuzzer::mutator;
-using namespace solidity::util;
+using namespace hyperion::test::fuzzer::mutator;
+using namespace hyperion::util;
 using namespace std;
 
-GeneratorBase::GeneratorBase(std::shared_ptr<SolidityGenerator> _mutator)
+GeneratorBase::GeneratorBase(std::shared_ptr<HyperionGenerator> _mutator)
 {
 	mutator = std::move(_mutator);
 	state = mutator->testState();
@@ -52,9 +52,9 @@ string TestState::randomPath(set<string> const& _sourceUnitPaths) const
 	auto it = _sourceUnitPaths.begin();
 	/// Advance iterator by n where 0 <= n <= sourceUnitPaths.size() - 1
 	size_t increment = uRandDist->distributionOneToN(_sourceUnitPaths.size()) - 1;
-	solAssert(
+	hypAssert(
 		increment >= 0 && increment < _sourceUnitPaths.size(),
-		"Solc custom mutator: Invalid increment"
+		"Hypc custom mutator: Invalid increment"
 	);
 	advance(it, increment);
 	return *it;
@@ -62,7 +62,7 @@ string TestState::randomPath(set<string> const& _sourceUnitPaths) const
 
 string TestState::randomPath() const
 {
-	solAssert(!empty(), "Solc custom mutator: Null test state");
+	hypAssert(!empty(), "Hypc custom mutator: Null test state");
 	return randomPath(sourceUnitPaths);
 }
 
@@ -78,7 +78,7 @@ string TestState::randomNonCurrentPath() const
 	/// To obtain a source path that is not the currently visited
 	/// source unit itself, we require at least one other source
 	/// unit to be previously visited.
-	solAssert(size() >= 2, "Solc custom mutator: Invalid test state");
+	hypAssert(size() >= 2, "Hypc custom mutator: Invalid test state");
 
 	set<string> filteredSourcePaths;
 	string currentPath = currentSourceUnitPath;
@@ -134,7 +134,7 @@ string SourceUnitGenerator::visit()
 string PragmaGenerator::visit()
 {
 	static constexpr const char* preamble = R"(
-		pragma solidity >= 0.0.0;
+		pragma hyperion >= 0.0.0;
 		pragma experimental SMTChecker;
 	)";
 	// Choose equally at random from coder v1 and v2
@@ -175,15 +175,15 @@ string ImportGenerator::visit()
 }
 
 template <typename T>
-shared_ptr<T> SolidityGenerator::generator()
+shared_ptr<T> HyperionGenerator::generator()
 {
 	for (auto& g: m_generators)
 		if (holds_alternative<shared_ptr<T>>(g))
 			return get<shared_ptr<T>>(g);
-	solAssert(false, "");
+	hypAssert(false, "");
 }
 
-SolidityGenerator::SolidityGenerator(unsigned _seed)
+HyperionGenerator::HyperionGenerator(unsigned _seed)
 {
 	m_generators = {};
 	m_urd = make_shared<UniformRandomDistribution>(make_unique<RandomEngine>(_seed));
@@ -191,7 +191,7 @@ SolidityGenerator::SolidityGenerator(unsigned _seed)
 }
 
 template <size_t I>
-void SolidityGenerator::createGenerators()
+void HyperionGenerator::createGenerators()
 {
 	if constexpr (I < std::variant_size_v<Generator>)
 	{
@@ -200,7 +200,7 @@ void SolidityGenerator::createGenerators()
 	}
 }
 
-string SolidityGenerator::generateTestProgram()
+string HyperionGenerator::generateTestProgram()
 {
 	createGenerators();
 	for (auto& g: m_generators)

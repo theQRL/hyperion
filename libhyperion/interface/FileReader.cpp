@@ -1,27 +1,27 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
-#include <libsolidity/interface/FileReader.h>
+#include <libhyperion/interface/FileReader.h>
 
 #include <liblangutil/Exceptions.h>
 
-#include <libsolutil/CommonIO.h>
-#include <libsolutil/Exceptions.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/CommonIO.h>
+#include <libhyputil/Exceptions.h>
+#include <libhyputil/StringUtils.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <range/v3/view/transform.hpp>
@@ -30,13 +30,13 @@
 
 #include <functional>
 
-using solidity::frontend::ReadCallback;
-using solidity::langutil::InternalCompilerError;
-using solidity::util::errinfo_comment;
-using solidity::util::readFileAsString;
-using solidity::util::joinHumanReadable;
+using hyperion::frontend::ReadCallback;
+using hyperion::langutil::InternalCompilerError;
+using hyperion::util::errinfo_comment;
+using hyperion::util::readFileAsString;
+using hyperion::util::joinHumanReadable;
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 FileReader::FileReader(
@@ -52,7 +52,7 @@ FileReader::FileReader(
 		addIncludePath(includePath);
 
 	for (boost::filesystem::path const& allowedDir: m_allowedDirectories)
-		solAssert(!allowedDir.empty(), "");
+		hypAssert(!allowedDir.empty(), "");
 }
 
 void FileReader::setBasePath(boost::filesystem::path const& _path)
@@ -60,7 +60,7 @@ void FileReader::setBasePath(boost::filesystem::path const& _path)
 	if (_path.empty())
 	{
 		// Empty base path is a special case that does not make sense when include paths are used.
-		solAssert(m_includePaths.empty(), "");
+		hypAssert(m_includePaths.empty(), "");
 		m_basePath = "";
 	}
 	else
@@ -69,14 +69,14 @@ void FileReader::setBasePath(boost::filesystem::path const& _path)
 
 void FileReader::addIncludePath(boost::filesystem::path const& _path)
 {
-	solAssert(!m_basePath.empty(), "");
-	solAssert(!_path.empty(), "");
+	hypAssert(!m_basePath.empty(), "");
+	hypAssert(!_path.empty(), "");
 	m_includePaths.push_back(normalizeCLIPathForVFS(_path));
 }
 
 void FileReader::allowDirectory(boost::filesystem::path _path)
 {
-	solAssert(!_path.empty(), "");
+	hypAssert(!_path.empty(), "");
 	m_allowedDirectories.insert(std::move(_path));
 }
 
@@ -100,7 +100,7 @@ ReadCallback::Result FileReader::readFile(std::string const& _kind, std::string 
 	try
 	{
 		if (_kind != ReadCallback::kindString(ReadCallback::Kind::ReadFile))
-			solAssert(false, "ReadFile callback used as callback kind " + _kind);
+			hypAssert(false, "ReadFile callback used as callback kind " + _kind);
 		std::string strippedSourceUnitName = _sourceUnitName;
 		if (strippedSourceUnitName.find("file://") == 0)
 			strippedSourceUnitName.erase(0, 7);
@@ -161,7 +161,7 @@ ReadCallback::Result FileReader::readFile(std::string const& _kind, std::string 
 
 		// NOTE: we ignore the FileNotFound exception as we manually check above
 		auto contents = readFileAsString(candidates[0]);
-		solAssert(m_sourceCodes.count(_sourceUnitName) == 0, "");
+		hypAssert(m_sourceCodes.count(_sourceUnitName) == 0, "");
 		m_sourceCodes[_sourceUnitName] = contents;
 		return ReadCallback::Result{true, contents};
 	}
@@ -261,13 +261,13 @@ boost::filesystem::path FileReader::normalizeCLIPathForVFS(
 	}
 	else
 	{
-		solAssert(_symlinkResolution == SymlinkResolution::Disabled, "");
+		hypAssert(_symlinkResolution == SymlinkResolution::Disabled, "");
 
 		// NOTE: boost path preserves certain differences that are ignored by its operator ==.
 		// E.g. "a//b" vs "a/b" or "a/b/" vs "a/b/.". lexically_normal() does remove these differences.
 		normalizedPath = absolutePath.lexically_normal();
 	}
-	solAssert(normalizedPath.is_absolute() || normalizedPath.root_path() == "/", "");
+	hypAssert(normalizedPath.is_absolute() || normalizedPath.root_path() == "/", "");
 
 	// If the path is on the same drive as the working dir, for portability we prefer not to
 	// include the root name. Do this only for non-UNC paths - my experiments show that on Windows
@@ -283,7 +283,7 @@ boost::filesystem::path FileReader::normalizeCLIPathForVFS(
 		normalizedPathNoDotDot = normalizedRootPath / normalizedPath.relative_path();
 	else
 		normalizedPathNoDotDot = normalizedRootPath / normalizedPath.lexically_relative(normalizedPath.root_path() / dotDotPrefix);
-	solAssert(!hasDotDotSegments(normalizedPathNoDotDot), "");
+	hypAssert(!hasDotDotSegments(normalizedPathNoDotDot), "");
 
 	// NOTE: On Windows lexically_normal() converts all separators to forward slashes. Convert them back.
 	// Separators do not affect path comparison but remain in internal representation returned by native().
@@ -303,7 +303,7 @@ boost::filesystem::path FileReader::normalizeCLIRootPathForVFS(
 	boost::filesystem::path const& _workDir
 )
 {
-	solAssert(_workDir.is_absolute(), "");
+	hypAssert(_workDir.is_absolute(), "");
 
 	boost::filesystem::path absolutePath = boost::filesystem::absolute(_path, _workDir);
 	boost::filesystem::path rootPath = absolutePath.root_path();
@@ -321,15 +321,15 @@ boost::filesystem::path FileReader::normalizeCLIRootPathForVFS(
 
 bool FileReader::isPathPrefix(boost::filesystem::path const& _prefix, boost::filesystem::path const& _path)
 {
-	solAssert(!_prefix.empty() && !_path.empty(), "");
+	hypAssert(!_prefix.empty() && !_path.empty(), "");
 	// NOTE: On Windows paths starting with a slash (rather than a drive letter) are considered relative by boost.
-	solAssert(_prefix.is_absolute() || isUNCPath(_prefix) || _prefix.root_path() == "/", "");
-	solAssert(_path.is_absolute() || isUNCPath(_path) || _path.root_path() == "/", "");
+	hypAssert(_prefix.is_absolute() || isUNCPath(_prefix) || _prefix.root_path() == "/", "");
+	hypAssert(_path.is_absolute() || isUNCPath(_path) || _path.root_path() == "/", "");
 	// NOTE: On Windows before Boost 1.78 lexically_normal() would not replace the `//` UNC prefix with `\\\\`.
 	// Later versions do. Use generic_path() to normalize all slashes to `/` and ignore that difference.
 	// This does not make the assert weaker because == ignores slash type anyway.
-	solAssert(_prefix == _prefix.lexically_normal().generic_string() && _path == _path.lexically_normal().generic_string(), "");
-	solAssert(!hasDotDotSegments(_prefix) && !hasDotDotSegments(_path), "");
+	hypAssert(_prefix == _prefix.lexically_normal().generic_string() && _path == _path.lexically_normal().generic_string(), "");
+	hypAssert(!hasDotDotSegments(_prefix) && !hasDotDotSegments(_path), "");
 
 	boost::filesystem::path strippedPath = _path.lexically_relative(
 		// Before 1.72.0 lexically_relative() was not handling paths with empty, dot and dot dot segments
@@ -348,13 +348,13 @@ boost::filesystem::path FileReader::stripPrefixIfPresent(boost::filesystem::path
 	boost::filesystem::path strippedPath = _path.lexically_relative(
 		_prefix.filename_is_dot() ? _prefix.parent_path() : _prefix
 	);
-	solAssert(strippedPath.empty() || *strippedPath.begin() != "..", "");
+	hypAssert(strippedPath.empty() || *strippedPath.begin() != "..", "");
 	return strippedPath;
 }
 
 boost::filesystem::path FileReader::absoluteDotDotPrefix(boost::filesystem::path const& _path)
 {
-	solAssert(_path.is_absolute() || _path.root_path() == "/", "");
+	hypAssert(_path.is_absolute() || _path.root_path() == "/", "");
 
 	boost::filesystem::path _pathWithoutRoot = _path.relative_path();
 	boost::filesystem::path prefix;

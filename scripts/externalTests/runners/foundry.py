@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2023 solidity contributors.
+# (c) 2023 hyperion contributors.
 # ------------------------------------------------------------------------------
 
 import os
@@ -59,9 +59,9 @@ class FoundryRunner(BaseRunner):
         return dedent("""\
             [profile.{name}]
             gas_reports = ["*"]
-            auto_detect_solc = false
-            solc = "{solc}"
-            evm_version = "{evm_version}"
+            auto_detect_hypc = false
+            hypc = "{hypc}"
+            zvm_version = "{zvm_version}"
             optimizer = {optimizer}
             via_ir = {via_ir}
 
@@ -75,11 +75,11 @@ class FoundryRunner(BaseRunner):
 
         profiles = []
         for preset in self.presets:
-            settings = settings_from_preset(preset, self.config.evm_version)
+            settings = settings_from_preset(preset, self.config.zvm_version)
             profiles.append(self.profile_section({
                 "name": self.profile_name(preset),
-                "solc": self.solc_binary_path,
-                "evm_version": self.config.evm_version,
+                "hypc": self.hypc_binary_path,
+                "zvm_version": self.config.zvm_version,
                 "optimizer": str(settings["optimizer"]["enabled"]).lower(),
                 "via_ir": str(settings["viaIR"]).lower(),
                 "yul": str(settings["optimizer"]["details"]["yul"]).lower(),

@@ -5,19 +5,19 @@ macro(configure_project)
 	set(NAME ${PROJECT_NAME})
 
 	# features
-	eth_default_option(COVERAGE OFF)
-	eth_default_option(OSSFUZZ OFF)
+	zond_default_option(COVERAGE OFF)
+	zond_default_option(OSSFUZZ OFF)
 
 	# components
-	eth_default_option(TESTS ON)
-	eth_default_option(TOOLS ON)
+	zond_default_option(TESTS ON)
+	zond_default_option(TOOLS ON)
 
 	# Define a matching property name of each of the "features".
 	foreach(FEATURE ${ARGN})
 		set(SUPPORT_${FEATURE} TRUE)
 	endforeach()
 
-	include(EthBuildInfo)
+	include(ZondBuildInfo)
 	create_build_info(${NAME})
 	print_config(${NAME})
 endmacro()

@@ -1,1 +1,1 @@
-import "subdir/import.sol";
+import "subdir/import.hyp";

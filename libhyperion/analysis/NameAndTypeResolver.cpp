@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,33 +21,33 @@
  * Parser part that determines the declarations corresponding to names and the types of expressions.
  */
 
-#include <libsolidity/analysis/NameAndTypeResolver.h>
+#include <libhyperion/analysis/NameAndTypeResolver.h>
 
-#include <libsolidity/analysis/TypeChecker.h>
-#include <libsolidity/ast/AST.h>
+#include <libhyperion/analysis/TypeChecker.h>
+#include <libhyperion/ast/AST.h>
 #include <liblangutil/ErrorReporter.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/StringUtils.h>
 #include <boost/algorithm/string.hpp>
 #include <unordered_set>
 
-using namespace solidity::langutil;
+using namespace hyperion::langutil;
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 NameAndTypeResolver::NameAndTypeResolver(
 	GlobalContext& _globalContext,
-	langutil::EVMVersion _evmVersion,
+	langutil::ZVMVersion _zvmVersion,
 	ErrorReporter& _errorReporter
 ):
-	m_evmVersion(_evmVersion),
+	m_zvmVersion(_zvmVersion),
 	m_errorReporter(_errorReporter),
 	m_globalContext(_globalContext)
 {
 	m_scopes[nullptr] = std::make_shared<DeclarationContainer>();
 	for (Declaration const* declaration: _globalContext.declarations())
 	{
-		solAssert(m_scopes[nullptr]->registerDeclaration(*declaration, false, false), "Unable to register global declaration.");
+		hypAssert(m_scopes[nullptr]->registerDeclaration(*declaration, false, false), "Unable to register global declaration.");
 	}
 }
 
@@ -76,9 +76,9 @@ bool NameAndTypeResolver::performImports(SourceUnit& _sourceUnit, std::map<std::
 		{
 			std::string const& path = *imp->annotation().absolutePath;
 			// The import resolution in CompilerStack enforces this.
-			solAssert(_sourceUnits.count(path), "");
+			hypAssert(_sourceUnits.count(path), "");
 			auto scope = m_scopes.find(_sourceUnits.at(path));
-			solAssert(scope != end(m_scopes), "");
+			hypAssert(scope != end(m_scopes), "");
 			if (!imp->symbolAliases().empty())
 				for (auto const& alias: imp->symbolAliases())
 				{
@@ -147,7 +147,7 @@ bool NameAndTypeResolver::updateDeclaration(Declaration const& _declaration)
 	try
 	{
 		m_scopes[nullptr]->registerDeclaration(_declaration, false, true);
-		solAssert(_declaration.scope() == nullptr, "Updated declaration outside global scope.");
+		hypAssert(_declaration.scope() == nullptr, "Updated declaration outside global scope.");
 	}
 	catch (langutil::FatalError const&)
 	{
@@ -160,7 +160,7 @@ bool NameAndTypeResolver::updateDeclaration(Declaration const& _declaration)
 
 void NameAndTypeResolver::activateVariable(std::string const& _name)
 {
-	solAssert(m_currentScope, "");
+	hypAssert(m_currentScope, "");
 	// Scoped local variables are invisible before activation.
 	// When a local variable is activated, its name is removed
 	// from a scope's invisible variables.
@@ -199,7 +199,7 @@ std::vector<Declaration const*> NameAndTypeResolver::pathFromCurrentScopeWithAll
 	bool _includeInvisibles
 ) const
 {
-	solAssert(!_path.empty(), "");
+	hypAssert(!_path.empty(), "");
 	std::vector<Declaration const*> pathDeclarations;
 
 	ResolvingSettings settings;
@@ -237,14 +237,14 @@ void NameAndTypeResolver::warnHomonymDeclarations() const
 
 	for (auto [innerLocation, outerDeclarations]: homonyms)
 	{
-		solAssert(innerLocation && !outerDeclarations.empty(), "");
+		hypAssert(innerLocation && !outerDeclarations.empty(), "");
 
 		bool magicShadowed = false;
 		SecondarySourceLocation homonymousLocations;
 		SecondarySourceLocation shadowedLocations;
 		for (Declaration const* outerDeclaration: outerDeclarations)
 		{
-			solAssert(outerDeclaration, "");
+			hypAssert(outerDeclaration, "");
 			if (dynamic_cast<MagicVariableDeclaration const*>(outerDeclaration))
 				magicShadowed = true;
 			else if (!outerDeclaration->isVisibleInContract())
@@ -287,8 +287,8 @@ bool NameAndTypeResolver::resolveNamesAndTypesInternal(ASTNode& _node, bool _res
 	{
 		bool success = true;
 		setScope(contract->scope());
-		solAssert(!!m_currentScope, "");
-		solAssert(_resolveInsideCode, "");
+		hypAssert(!!m_currentScope, "");
+		hypAssert(_resolveInsideCode, "");
 
 		m_globalContext.setCurrentContract(*contract);
 		if (!contract->isLibrary())
@@ -345,14 +345,14 @@ bool NameAndTypeResolver::resolveNamesAndTypesInternal(ASTNode& _node, bool _res
 	{
 		if (m_scopes.count(&_node))
 			setScope(&_node);
-		return ReferencesResolver(m_errorReporter, *this, m_evmVersion, _resolveInsideCode).resolve(_node);
+		return ReferencesResolver(m_errorReporter, *this, m_zvmVersion, _resolveInsideCode).resolve(_node);
 	}
 }
 
 void NameAndTypeResolver::importInheritedScope(ContractDefinition const& _base)
 {
 	auto iterator = m_scopes.find(&_base);
-	solAssert(iterator != end(m_scopes), "");
+	hypAssert(iterator != end(m_scopes), "");
 	for (auto const& nameAndDeclaration: iterator->second->declarations())
 		for (auto const& declaration: nameAndDeclaration.second)
 			// Import if it was declared in the base, is not the constructor and is visible in derived classes
@@ -362,7 +362,7 @@ void NameAndTypeResolver::importInheritedScope(ContractDefinition const& _base)
 					SourceLocation firstDeclarationLocation;
 					SourceLocation secondDeclarationLocation;
 					Declaration const* conflictingDeclaration = m_currentScope->conflictingDeclaration(*declaration);
-					solAssert(conflictingDeclaration, "");
+					hypAssert(conflictingDeclaration, "");
 
 					// Usual shadowing is not an error
 					if (
@@ -434,7 +434,7 @@ std::vector<T const*> NameAndTypeResolver::cThreeMerge(std::list<std::list<T con
 	{
 		for (std::list<T const*> const& bases: _toMerge)
 		{
-			solAssert(!bases.empty(), "");
+			hypAssert(!bases.empty(), "");
 			if (find(++bases.begin(), bases.end(), _candidate) != bases.end())
 				return false;
 		}
@@ -445,7 +445,7 @@ std::vector<T const*> NameAndTypeResolver::cThreeMerge(std::list<std::list<T con
 	{
 		for (std::list<T const*> const& bases: _toMerge)
 		{
-			solAssert(!bases.empty(), "");
+			hypAssert(!bases.empty(), "");
 			if (appearsOnlyAtHead(bases.front()))
 				return bases.front();
 		}
@@ -495,7 +495,7 @@ DeclarationRegistrationHelper::DeclarationRegistrationHelper(
 	m_globalContext(_globalContext)
 {
 	_astRoot.accept(*this);
-	solAssert(m_currentScope == _currentScope, "Scopes not correctly closed.");
+	hypAssert(m_currentScope == _currentScope, "Scopes not correctly closed.");
 }
 
 bool DeclarationRegistrationHelper::registerDeclaration(
@@ -514,7 +514,7 @@ bool DeclarationRegistrationHelper::registerDeclaration(
 
 	// We use "invisible" for both inactive variables in blocks and for members invisible in contracts.
 	// They cannot both be true at the same time.
-	solAssert(!(_inactive && !_declaration.isVisibleInContract()), "");
+	hypAssert(!(_inactive && !_declaration.isVisibleInContract()), "");
 
 	static std::set<std::string> illegalNames{"_", "super", "this"};
 
@@ -547,7 +547,7 @@ bool DeclarationRegistrationHelper::registerDeclaration(
 		SourceLocation firstDeclarationLocation;
 		SourceLocation secondDeclarationLocation;
 		Declaration const* conflictingDeclaration = _container.conflictingDeclaration(_declaration, _name);
-		solAssert(conflictingDeclaration, "");
+		hypAssert(conflictingDeclaration, "");
 		bool const comparable =
 			_errorLocation->sourceName &&
 			conflictingDeclaration->location().sourceName &&
@@ -591,7 +591,7 @@ void DeclarationRegistrationHelper::endVisit(SourceUnit& _sourceUnit)
 bool DeclarationRegistrationHelper::visit(ImportDirective& _import)
 {
 	SourceUnit const* importee = _import.annotation().sourceUnit;
-	solAssert(!!importee, "");
+	hypAssert(!!importee, "");
 	if (!m_scopes[importee])
 		m_scopes[importee] = std::make_shared<DeclarationContainer>(nullptr, m_scopes[nullptr].get());
 	m_scopes[&_import] = m_scopes[importee];
@@ -623,7 +623,7 @@ void DeclarationRegistrationHelper::endVisit(VariableDeclarationStatement& _vari
 {
 	// Register the local variables with the function
 	// This does not fit here perfectly, but it saves us another AST visit.
-	solAssert(m_currentFunction, "Variable declaration without function.");
+	hypAssert(m_currentFunction, "Variable declaration without function.");
 	for (ASTPointer<VariableDeclaration> const& var: _variableDeclarationStatement.declarations())
 		if (var)
 			m_currentFunction->addLocalVariable(*var);
@@ -633,7 +633,7 @@ void DeclarationRegistrationHelper::endVisit(VariableDeclarationStatement& _vari
 bool DeclarationRegistrationHelper::visitNode(ASTNode& _node)
 {
 	if (auto const* scopable = dynamic_cast<Scopable const*>(&_node))
-		solAssert(scopable->annotation().scope == m_currentScope, "");
+		hypAssert(scopable->annotation().scope == m_currentScope, "");
 
 	if (auto* declaration = dynamic_cast<Declaration*>(&_node))
 		registerDeclaration(*declaration);
@@ -641,7 +641,7 @@ bool DeclarationRegistrationHelper::visitNode(ASTNode& _node)
 	if (auto* annotation = dynamic_cast<TypeDeclarationAnnotation*>(&_node.annotation()))
 	{
 		std::string canonicalName = dynamic_cast<Declaration const&>(_node).name();
-		solAssert(!canonicalName.empty(), "");
+		hypAssert(!canonicalName.empty(), "");
 
 		for (
 			ASTNode const* scope = m_currentScope;
@@ -650,7 +650,7 @@ bool DeclarationRegistrationHelper::visitNode(ASTNode& _node)
 		)
 			if (auto decl = dynamic_cast<Declaration const*>(scope))
 			{
-				solAssert(!decl->name().empty(), "");
+				hypAssert(!decl->name().empty(), "");
 				canonicalName = decl->name() + "." + canonicalName;
 			}
 
@@ -678,28 +678,28 @@ void DeclarationRegistrationHelper::enterNewSubScope(ASTNode& _subScope)
 {
 	if (m_scopes.count(&_subScope))
 		// Source units are the only AST nodes for which containers can be created from multiple places due to imports.
-		solAssert(dynamic_cast<SourceUnit const*>(&_subScope), "Unexpected scope type.");
+		hypAssert(dynamic_cast<SourceUnit const*>(&_subScope), "Unexpected scope type.");
 	else
 	{
 		bool newlyAdded = m_scopes.emplace(
 			&_subScope,
 			std::make_shared<DeclarationContainer>(m_currentScope, m_scopes[m_currentScope].get())
 		).second;
-		solAssert(newlyAdded, "Unable to add new scope.");
+		hypAssert(newlyAdded, "Unable to add new scope.");
 	}
 	m_currentScope = &_subScope;
 }
 
 void DeclarationRegistrationHelper::closeCurrentScope()
 {
-	solAssert(m_currentScope && m_scopes.count(m_currentScope), "Closed non-existing scope.");
+	hypAssert(m_currentScope && m_scopes.count(m_currentScope), "Closed non-existing scope.");
 	m_currentScope = m_scopes[m_currentScope]->enclosingNode();
 }
 
 void DeclarationRegistrationHelper::registerDeclaration(Declaration& _declaration)
 {
-	solAssert(m_currentScope && m_scopes.count(m_currentScope), "No current scope.");
-	solAssert(m_currentScope == _declaration.scope(), "Unexpected current scope.");
+	hypAssert(m_currentScope && m_scopes.count(m_currentScope), "No current scope.");
+	hypAssert(m_currentScope == _declaration.scope(), "Unexpected current scope.");
 
 	// Register declaration as inactive if we are in block scope.
 	bool inactive =
@@ -707,8 +707,8 @@ void DeclarationRegistrationHelper::registerDeclaration(Declaration& _declaratio
 
 	registerDeclaration(*m_scopes[m_currentScope], _declaration, nullptr, nullptr, inactive, m_errorReporter);
 
-	solAssert(_declaration.annotation().scope == m_currentScope, "");
-	solAssert(_declaration.annotation().contract == m_currentContract, "");
+	hypAssert(_declaration.annotation().scope == m_currentScope, "");
+	hypAssert(_declaration.annotation().contract == m_currentContract, "");
 }
 
 }

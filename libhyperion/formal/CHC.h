@@ -1,25 +1,25 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 /**
  * Model checker based on Constrained Horn Clauses.
  *
- * A Solidity contract's CFG is encoded into a system of Horn clauses where
+ * A Hyperion contract's CFG is encoded into a system of Horn clauses where
  * each block has a predicate and edges are rules.
  *
  * The entry block is the constructor which has no in-edges.
@@ -31,11 +31,11 @@
 
 #pragma once
 
-#include <libsolidity/formal/ModelCheckerSettings.h>
-#include <libsolidity/formal/Predicate.h>
-#include <libsolidity/formal/SMTEncoder.h>
+#include <libhyperion/formal/ModelCheckerSettings.h>
+#include <libhyperion/formal/Predicate.h>
+#include <libhyperion/formal/SMTEncoder.h>
 
-#include <libsolidity/interface/ReadFile.h>
+#include <libhyperion/interface/ReadFile.h>
 
 #include <libsmtutil/CHCSolverInterface.h>
 
@@ -48,7 +48,7 @@
 #include <optional>
 #include <set>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 class CHC: public SMTEncoder
@@ -316,7 +316,7 @@ private:
 	template <typename T>
 	std::string formatVariableModel(std::vector<T> const& _variables, std::vector<std::optional<std::string>> const& _values, std::string const& _separator) const
 	{
-		solAssert(_variables.size() == _values.size(), "");
+		hypAssert(_variables.size() == _values.size(), "");
 
 		std::vector<std::string> assignments;
 		for (unsigned i = 0; i < _values.size(); ++i)

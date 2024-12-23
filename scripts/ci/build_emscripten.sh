@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #------------------------------------------------------------------------------
-# This script builds the solidity binary using Emscripten.
+# This script builds the hyperion binary using Emscripten.
 # Emscripten is a way to compile C/C++ to JavaScript.
 #
 # http://kripken.github.io/emscripten-site/
@@ -9,27 +9,27 @@
 # First run install_dep.sh OUTSIDE of docker and then
 # run this script inside a docker image trzeci/emscripten
 #
-# The documentation for solidity is hosted at:
+# The documentation for hyperion is hosted at:
 #
 # https://docs.soliditylang.org
 #
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2016 solidity contributors.
+# (c) 2016 hyperion contributors.
 #------------------------------------------------------------------------------
 
 set -ev
@@ -75,14 +75,14 @@ function build() {
         -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
         -DTESTS=0 \
     ..
-    make soljson
+    make hypjson
 
     cd ..
     mkdir -p upload
-    scripts/ci/pack_soljson.sh "$build_dir/libsolc/soljson.js" "$build_dir/libsolc/soljson.wasm" upload/soljson.js
-    cp upload/soljson.js ./
+    scripts/ci/pack_hypjson.sh "$build_dir/libhypc/hypjson.js" "$build_dir/libhypc/hypjson.wasm" upload/hypjson.js
+    cp upload/hypjson.js ./
 
-    OUTPUT_SIZE=$(ls -la soljson.js)
+    OUTPUT_SIZE=$(ls -la hypjson.js)
 
     echo "Emscripten output size: $OUTPUT_SIZE"
 }
@@ -90,7 +90,7 @@ function build() {
 function show_help() {
 cat << EOF
 Usage: ${0##*/} [-h|--help] [--build-dir DIR] [--prerelease-source prerelease_source]
-Build Solidity emscripten binary
+Build Hyperion emscripten binary
     -h | --help          Display this help message
     --build-dir          The emscripten build directory
     --prerelease-source  The prerelease source string. E.g. 'nightly' or 'ci'.

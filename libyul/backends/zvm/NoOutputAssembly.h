@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,20 +21,20 @@
 
 #pragma once
 
-#include <libyul/backends/evm/AbstractAssembly.h>
+#include <libyul/backends/zvm/AbstractAssembly.h>
 
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 
-#include <libevmasm/LinkerObject.h>
+#include <libzvmasm/LinkerObject.h>
 
 #include <map>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 struct SourceLocation;
 }
 
-namespace solidity::yul
+namespace hyperion::yul
 {
 
 
@@ -45,13 +45,13 @@ namespace solidity::yul
 class NoOutputAssembly: public AbstractAssembly
 {
 public:
-	explicit NoOutputAssembly(langutil::EVMVersion _evmVersion): m_evmVersion(_evmVersion) { }
+	explicit NoOutputAssembly(langutil::ZVMVersion _zvmVersion): m_zvmVersion(_zvmVersion) { }
 	~NoOutputAssembly() override = default;
 
 	void setSourceLocation(langutil::SourceLocation const&) override {}
 	int stackHeight() const override { return m_stackHeight; }
 	void setStackHeight(int height) override { m_stackHeight = height; }
-	void appendInstruction(evmasm::Instruction _instruction) override;
+	void appendInstruction(zvmasm::Instruction _instruction) override;
 	void appendConstant(u256 const& _constant) override;
 	void appendLabel(LabelID _labelId) override;
 	void appendLabelReference(LabelID _labelId) override;
@@ -77,20 +77,20 @@ public:
 
 	void markAsInvalid() override {}
 
-	langutil::EVMVersion evmVersion() const override { return m_evmVersion; }
+	langutil::ZVMVersion zvmVersion() const override { return m_zvmVersion; }
 
 private:
 	int m_stackHeight = 0;
-	langutil::EVMVersion m_evmVersion;
+	langutil::ZVMVersion m_zvmVersion;
 };
 
 
 /**
- * EVM dialect that does not generate any code.
+ * ZVM dialect that does not generate any code.
  */
-struct NoOutputEVMDialect: public EVMDialect
+struct NoOutputZVMDialect: public ZVMDialect
 {
-	explicit NoOutputEVMDialect(EVMDialect const& _copyFrom);
+	explicit NoOutputZVMDialect(ZVMDialect const& _copyFrom);
 };
 
 

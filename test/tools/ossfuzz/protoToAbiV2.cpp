@@ -4,10 +4,10 @@
 #include <regex>
 
 /// Convenience macros
-/// Returns a valid Solidity integer width w such that 8 <= w <= 256.
+/// Returns a valid Hyperion integer width w such that 8 <= w <= 256.
 #define INTWIDTH(z, n, _ununsed) BOOST_PP_MUL(BOOST_PP_ADD(n, 1), 8)
 /// Using declaration that aliases long boost multiprecision types with
-/// s(u)<width> where <width> is a valid Solidity integer width and "s"
+/// s(u)<width> where <width> is a valid Hyperion integer width and "s"
 /// stands for "signed" and "u" for "unsigned".
 #define USINGDECL(z, n, sign) \
 	using BOOST_PP_CAT(BOOST_PP_IF(sign, s, u), INTWIDTH(z, n,)) =             \
@@ -29,8 +29,8 @@ BOOST_PP_REPEAT(32, USINGDECL, 1)
 BOOST_PP_REPEAT(32, USINGDECL, 0)
 /// Case implementation that returns an integer value of the specified type.
 /// For signed integers, we divide by two because the range for boost multiprecision
-/// types is double that of Solidity integer types. Example, 8-bit signed boost
-/// number range is [-255, 255] but Solidity `int8` range is [-128, 127]
+/// types is double that of Hyperion integer types. Example, 8-bit signed boost
+/// number range is [-255, 255] but Hyperion `int8` range is [-128, 127]
 #define CASEIMPL(z, n, sign)                                                   \
 	case INTWIDTH(z, n,):                                                      \
 		stream << BOOST_PP_IF(                                                 \
@@ -48,7 +48,7 @@ BOOST_PP_REPEAT(32, USINGDECL, 0)
         );                                                                     \
 		break;
 /// Switch implementation that instantiates case statements for (un)signed
-/// Solidity integer types.
+/// Hyperion integer types.
 #define SWITCHIMPL(sign)                                                       \
 	ostringstream stream;                                                      \
 	switch (_intWidth)                                                         \
@@ -58,8 +58,8 @@ BOOST_PP_REPEAT(32, USINGDECL, 0)
 	return stream.str();
 
 using namespace std;
-using namespace solidity::util;
-using namespace solidity::test::abiv2fuzzer;
+using namespace hyperion::util;
+using namespace hyperion::test::abiv2fuzzer;
 
 namespace
 {
@@ -67,7 +67,7 @@ template <typename V>
 static V integerValue(unsigned _counter)
 {
 	V value = V(
-		u256(solidity::util::keccak256(solidity::util::h256(_counter))) % u256(boost::math::tools::max_value<V>())
+		u256(hyperion::util::keccak256(hyperion::util::h256(_counter))) % u256(boost::math::tools::max_value<V>())
 	);
 	if (boost::multiprecision::is_signed_number<V>::value && value % 2 == 0)
 		return value * (-1);
@@ -746,7 +746,7 @@ string ProtoConverter::commonHelperFunctions()
 
 void ProtoConverter::visit(Contract const& _x)
 {
-	string pragmas = R"(pragma solidity >=0.0;
+	string pragmas = R"(pragma hyperion >=0.0;
 pragma experimental ABIEncoderV2;)";
 
 	// Record test spec
@@ -854,7 +854,7 @@ string TypeVisitor::visit(ArrayType const& _type)
 		return "";
 
 	string baseType = visit(_type.t());
-	solAssert(!baseType.empty(), "");
+	hypAssert(!baseType.empty(), "");
 	string arrayBracket = _type.is_static() ?
 	                     string("[") +
 	                     to_string(getStaticArrayLengthFromFuzz(_type.length())) +
@@ -883,7 +883,7 @@ string TypeVisitor::visit(DynamicByteArrayType const&)
 void TypeVisitor::structDefinition(StructType const& _type)
 {
 	// Return an empty string if struct is empty
-	solAssert(ValidityVisitor().visit(_type), "");
+	hypAssert(ValidityVisitor().visit(_type), "");
 
 	// Reset field counter and indentation
 	unsigned wasFieldCounter = m_structFieldCounter;
@@ -915,7 +915,7 @@ void TypeVisitor::structDefinition(StructType const& _type)
 		m_structCounter += tVisitor.numStructs();
 		m_structDef << tVisitor.structDef();
 
-		solAssert(!type.empty(), "");
+		hypAssert(!type.empty(), "");
 
 		structDef += lineString(
 			Whiskers(R"(<type> <member>;)")
@@ -956,7 +956,7 @@ string TypeVisitor::visit(StructType const& _type)
 /// AssignCheckVisitor implementation
 void AssignCheckVisitor::ValueStream::appendValue(string& _value)
 {
-	solAssert(!_value.empty(), "Abiv2 fuzzer: Empty value");
+	hypAssert(!_value.empty(), "Abiv2 fuzzer: Empty value");
 	index++;
 	if (index > 1)
 		stream << ",";
@@ -1182,7 +1182,7 @@ string AssignCheckVisitor::checkString(string const& _ref, string const& _value,
 			.render();
 		break;
 	case DataType::ARRAY:
-		solUnimplemented("Proto ABIv2 fuzzer: Invalid data type.");
+		hypUnimplemented("Proto ABIv2 fuzzer: Invalid data type.");
 	}
 	string checkStmt = Whiskers(R"(if (<checkPred>) return <errCode>;)")
 		("checkPred", checkPred)
@@ -1229,7 +1229,7 @@ std::string ValueGetterVisitor::croppedString(
 	bool _isHexLiteral
 )
 {
-	solAssert(
+	hypAssert(
 		_numBytes > 0 && _numBytes <= 32,
 		"Proto ABIv2 fuzzer: Too short or too long a cropped string"
 	);
@@ -1262,7 +1262,7 @@ std::string ValueGetterVisitor::hexValueAsString(
 	bool _decorate
 )
 {
-	solAssert(_numBytes > 0 && _numBytes <= 32,
+	hypAssert(_numBytes > 0 && _numBytes <= 32,
 	          "Proto ABIv2 fuzzer: Invalid hex length"
 	);
 
@@ -1273,7 +1273,7 @@ std::string ValueGetterVisitor::hexValueAsString(
 			("isHex", _isHexLiteral)
 			.render();
 
-	// This is needed because solidity interprets a 20-byte 0x prefixed hex literal as an address
+	// This is needed because hyperion interprets a 20-byte 0x prefixed hex literal as an address
 	// payable type.
 	return Whiskers(R"(<?decorate><?isHex>hex</isHex>"</decorate><value><?decorate>"</decorate>)")
 		("decorate", _decorate)
@@ -1284,7 +1284,7 @@ std::string ValueGetterVisitor::hexValueAsString(
 
 std::string ValueGetterVisitor::fixedByteValueAsString(unsigned _width, unsigned _counter)
 {
-	solAssert(
+	hypAssert(
 		(_width >= 1 && _width <= 32),
 		"Proto ABIv2 Fuzzer: Fixed byte width is not between 1--32"
 	);
@@ -1296,24 +1296,24 @@ std::string ValueGetterVisitor::addressValueAsString(unsigned _counter)
 	return "address(" + maskUnsignedIntToHex(_counter, 40) + ")";
 }
 
-std::string ValueGetterVisitor::isabelleAddressValueAsString(std::string& _solAddressString)
+std::string ValueGetterVisitor::isabelleAddressValueAsString(std::string& _hypAddressString)
 {
 	// Isabelle encoder expects address literal to be exactly
 	// 20 bytes and a hex string.
 	// Example: 0x0102030405060708090a0102030405060708090a
 	std::regex const addressPattern("address\\((.*)\\)");
 	std::smatch match;
-	solAssert(std::regex_match(_solAddressString, match, addressPattern), "Abiv2 fuzzer: Invalid address string");
+	hypAssert(std::regex_match(_hypAddressString, match, addressPattern), "Abiv2 fuzzer: Invalid address string");
 	std::string addressHex = match[1].str();
 	addressHex.erase(2, 24);
 	return addressHex;
 }
 
-std::string ValueGetterVisitor::isabelleBytesValueAsString(std::string& _solBytesString)
+std::string ValueGetterVisitor::isabelleBytesValueAsString(std::string& _hypBytesString)
 {
 	std::regex const bytesPattern("hex\"(.*)\"");
 	std::smatch match;
-	solAssert(std::regex_match(_solBytesString, match, bytesPattern), "Abiv2 fuzzer: Invalid bytes string");
+	hypAssert(std::regex_match(_hypBytesString, match, bytesPattern), "Abiv2 fuzzer: Invalid bytes string");
 	std::string bytesHex = match[1].str();
 	return "0x" + bytesHex;
 }
@@ -1374,19 +1374,19 @@ std::string ValueGetterVisitor::variableLengthValueAsString(
 			);
 			numBytesRemaining -= numAppendedBytes;
 		}
-		solAssert(
+		hypAssert(
 			numBytesRemaining == 0,
 			"Proto ABIv2 fuzzer: Logic flaw in variable literal creation"
 		);
 	}
 
 	if (_isHexLiteral)
-		solAssert(
+		hypAssert(
 			output.size() == 2 * _numBytes,
 			"Proto ABIv2 fuzzer: Generated hex literal is of incorrect length"
 		);
 	else
-		solAssert(
+		hypAssert(
 			output.size() == _numBytes,
 			"Proto ABIv2 fuzzer: Generated string literal is of incorrect length"
 		);

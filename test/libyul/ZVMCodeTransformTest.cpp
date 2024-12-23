@@ -1,60 +1,60 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <test/libyul/EVMCodeTransformTest.h>
+#include <test/libyul/ZVMCodeTransformTest.h>
 #include <test/libyul/Common.h>
 
 #include <test/Common.h>
 
 #include <libyul/YulStack.h>
-#include <libyul/backends/evm/EthAssemblyAdapter.h>
-#include <libyul/backends/evm/EVMObjectCompiler.h>
+#include <libyul/backends/zvm/ZondAssemblyAdapter.h>
+#include <libyul/backends/zvm/ZVMObjectCompiler.h>
 
-#include <libevmasm/Assembly.h>
+#include <libzvmasm/Assembly.h>
 
 #include <liblangutil/SourceReferenceFormatter.h>
 
-#include <libsolutil/AnsiColorized.h>
+#include <libhyputil/AnsiColorized.h>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::langutil;
-using namespace solidity::yul;
-using namespace solidity::yul::test;
-using namespace solidity::frontend;
-using namespace solidity::frontend::test;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::langutil;
+using namespace hyperion::yul;
+using namespace hyperion::yul::test;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::test;
 using namespace std;
 
-EVMCodeTransformTest::EVMCodeTransformTest(string const& _filename):
-	EVMVersionRestrictedTestCase(_filename)
+ZVMCodeTransformTest::ZVMCodeTransformTest(string const& _filename):
+	ZVMVersionRestrictedTestCase(_filename)
 {
 	m_source = m_reader.source();
 	m_stackOpt = m_reader.boolSetting("stackOptimization", false);
 	m_expectation = m_reader.simpleExpectations();
 }
 
-TestCase::TestResult EVMCodeTransformTest::run(ostream& _stream, string const& _linePrefix, bool const _formatted)
+TestCase::TestResult ZVMCodeTransformTest::run(ostream& _stream, string const& _linePrefix, bool const _formatted)
 {
-	solidity::frontend::OptimiserSettings settings = solidity::frontend::OptimiserSettings::none();
+	hyperion::frontend::OptimiserSettings settings = hyperion::frontend::OptimiserSettings::none();
 	settings.runYulOptimiser = false;
 	settings.optimizeStackAllocation = m_stackOpt;
 	YulStack stack(
-		EVMVersion{},
+		ZVMVersion{},
 		YulStack::Language::StrictAssembly,
 		settings,
 		DebugInfoSelection::All()
@@ -67,12 +67,12 @@ TestCase::TestResult EVMCodeTransformTest::run(ostream& _stream, string const& _
 		return TestResult::FatalError;
 	}
 
-	evmasm::Assembly assembly{solidity::test::CommonOptions::get().evmVersion(), false, {}};
-	EthAssemblyAdapter adapter(assembly);
-	EVMObjectCompiler::compile(
+	zvmasm::Assembly assembly{hyperion::test::CommonOptions::get().zvmVersion(), false, {}};
+	ZondAssemblyAdapter adapter(assembly);
+	ZVMObjectCompiler::compile(
 		*stack.parserResult(),
 		adapter,
-		EVMDialect::strictAssemblyForEVMObjects(EVMVersion{}),
+		ZVMDialect::strictAssemblyForZVMObjects(ZVMVersion{}),
 		m_stackOpt
 	);
 

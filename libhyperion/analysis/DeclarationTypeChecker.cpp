@@ -1,36 +1,36 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/analysis/DeclarationTypeChecker.h>
+#include <libhyperion/analysis/DeclarationTypeChecker.h>
 
-#include <libsolidity/analysis/ConstantEvaluator.h>
+#include <libhyperion/analysis/ConstantEvaluator.h>
 
-#include <libsolidity/ast/TypeProvider.h>
+#include <libhyperion/ast/TypeProvider.h>
 
 #include <liblangutil/ErrorReporter.h>
 
-#include <libsolutil/Algorithms.h>
-#include <libsolutil/Visitor.h>
+#include <libhyputil/Algorithms.h>
+#include <libhyputil/Visitor.h>
 
 #include <range/v3/view/transform.hpp>
 
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
 bool DeclarationTypeChecker::visit(ElementaryTypeName const& _typeName)
 {
@@ -41,7 +41,7 @@ bool DeclarationTypeChecker::visit(ElementaryTypeName const& _typeName)
 	if (_typeName.stateMutability().has_value())
 	{
 		// for non-address types this was already caught by the parser
-		solAssert(_typeName.annotation().type->category() == Type::Category::Address, "");
+		hypAssert(_typeName.annotation().type->category() == Type::Category::Address, "");
 		switch (*_typeName.stateMutability())
 		{
 			case StateMutability::Payable:
@@ -99,7 +99,7 @@ bool DeclarationTypeChecker::visit(StructDefinition const& _struct)
 	{
 		m_recursiveStructSeen = false;
 		member->accept(*this);
-		solAssert(member->annotation().type, "");
+		hypAssert(member->annotation().type, "");
 		if (m_recursiveStructSeen)
 			hasRecursiveChild = true;
 	}
@@ -142,7 +142,7 @@ bool DeclarationTypeChecker::visit(StructDefinition const& _struct)
 void DeclarationTypeChecker::endVisit(UserDefinedValueTypeDefinition const& _userDefined)
 {
 	TypeName const* typeName = _userDefined.underlyingType();
-	solAssert(typeName, "");
+	hypAssert(typeName, "");
 	if (!dynamic_cast<ElementaryTypeName const*>(typeName))
 		m_errorReporter.fatalTypeError(
 			8657_error,
@@ -151,8 +151,8 @@ void DeclarationTypeChecker::endVisit(UserDefinedValueTypeDefinition const& _use
 		);
 
 	Type const* type = typeName->annotation().type;
-	solAssert(type, "");
-	solAssert(!dynamic_cast<UserDefinedValueType const*>(type), "");
+	hypAssert(type, "");
+	hypAssert(!dynamic_cast<UserDefinedValueType const*>(type), "");
 	if (!type->isValueType())
 		m_errorReporter.typeError(
 			8129_error,
@@ -169,7 +169,7 @@ void DeclarationTypeChecker::endVisit(UserDefinedTypeName const& _typeName)
 		return;
 
 	Declaration const* declaration = _typeName.pathNode().annotation().referencedDeclaration;
-	solAssert(declaration, "");
+	hypAssert(declaration, "");
 
 	if (StructDefinition const* structDef = dynamic_cast<StructDefinition const*>(declaration))
 	{
@@ -197,7 +197,7 @@ void DeclarationTypeChecker::endVisit(UserDefinedTypeName const& _typeName)
 void DeclarationTypeChecker::endVisit(IdentifierPath const& _path)
 {
 	Declaration const* declaration = _path.annotation().referencedDeclaration;
-	solAssert(declaration, "");
+	hypAssert(declaration, "");
 
 	if (ContractDefinition const* contract = dynamic_cast<ContractDefinition const*>(declaration))
 		if (contract->isLibrary())
@@ -263,7 +263,7 @@ void DeclarationTypeChecker::endVisit(Mapping const& _mapping)
 				break;
 		}
 	else
-		solAssert(dynamic_cast<ElementaryTypeName const*>(&_mapping.keyType()), "");
+		hypAssert(dynamic_cast<ElementaryTypeName const*>(&_mapping.keyType()), "");
 
 	Type const* keyType = _mapping.keyType().annotation().type;
 	ASTString keyName = _mapping.keyName();
@@ -329,7 +329,7 @@ void DeclarationTypeChecker::endVisit(ArrayTypeName const& _typeName)
 	Type const* baseType = _typeName.baseType().annotation().type;
 	if (!baseType)
 	{
-		solAssert(!m_errorReporter.errors().empty(), "");
+		hypAssert(!m_errorReporter.errors().empty(), "");
 		return;
 	}
 
@@ -439,24 +439,24 @@ void DeclarationTypeChecker::endVisit(VariableDeclaration const& _variable)
 		errorString += ", but " + locationToString(varLoc) + " was given.";
 		m_errorReporter.typeError(6651_error, _variable.location(), errorString);
 
-		solAssert(!allowedDataLocations.empty(), "");
+		hypAssert(!allowedDataLocations.empty(), "");
 		varLoc = *allowedDataLocations.begin();
 	}
 
 	// Find correct data location.
 	if (_variable.isEventOrErrorParameter())
 	{
-		solAssert(varLoc == Location::Unspecified, "");
+		hypAssert(varLoc == Location::Unspecified, "");
 		typeLoc = DataLocation::Memory;
 	}
 	else if (_variable.isFileLevelVariable())
 	{
-		solAssert(varLoc == Location::Unspecified, "");
+		hypAssert(varLoc == Location::Unspecified, "");
 		typeLoc = DataLocation::Memory;
 	}
 	else if (_variable.isStateVariable())
 	{
-		solAssert(varLoc == Location::Unspecified, "");
+		hypAssert(varLoc == Location::Unspecified, "");
 		typeLoc = (_variable.isConstant() || _variable.immutable()) ? DataLocation::Memory : DataLocation::Storage;
 	}
 	else if (
@@ -478,7 +478,7 @@ void DeclarationTypeChecker::endVisit(VariableDeclaration const& _variable)
 				typeLoc = DataLocation::CallData;
 				break;
 			case Location::Unspecified:
-				solAssert(!_variable.hasReferenceOrMappingType(), "Data location not properly set.");
+				hypAssert(!_variable.hasReferenceOrMappingType(), "Data location not properly set.");
 		}
 
 	Type const* type = _variable.typeName().annotation().type;
@@ -545,7 +545,7 @@ bool DeclarationTypeChecker::visit(UsingForDirective const& _usingFor)
 bool DeclarationTypeChecker::visit(InheritanceSpecifier const& _inheritanceSpecifier)
 {
 	auto const* contract = dynamic_cast<ContractDefinition const*>(_inheritanceSpecifier.name().annotation().referencedDeclaration);
-	solAssert(contract, "");
+	hypAssert(contract, "");
 	if (contract->isLibrary())
 	{
 		m_errorReporter.typeError(

@@ -1,35 +1,35 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/analysis/ViewPureChecker.h>
-#include <libsolidity/ast/ExperimentalFeatures.h>
+#include <libhyperion/analysis/ViewPureChecker.h>
+#include <libhyperion/ast/ExperimentalFeatures.h>
 #include <libyul/AST.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 #include <liblangutil/ErrorReporter.h>
-#include <libevmasm/SemanticInformation.h>
+#include <libzvmasm/SemanticInformation.h>
 
 #include <functional>
 #include <utility>
 #include <variant>
 
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
 namespace
 {
@@ -65,8 +65,8 @@ public:
 	}
 	void operator()(yul::FunctionCall const& _funCall)
 	{
-		if (yul::EVMDialect const* dialect = dynamic_cast<decltype(dialect)>(&m_dialect))
-			if (yul::BuiltinFunctionForEVM const* fun = dialect->builtin(_funCall.functionName.name))
+		if (yul::ZVMDialect const* dialect = dynamic_cast<decltype(dialect)>(&m_dialect))
+			if (yul::BuiltinFunctionForZVM const* fun = dialect->builtin(_funCall.functionName.name))
 				if (fun->instruction)
 					checkInstruction(nativeLocationOf(_funCall), *fun->instruction);
 
@@ -111,11 +111,11 @@ public:
 	}
 
 private:
-	void checkInstruction(SourceLocation _location, evmasm::Instruction _instruction)
+	void checkInstruction(SourceLocation _location, zvmasm::Instruction _instruction)
 	{
-		if (evmasm::SemanticInformation::invalidInViewFunctions(_instruction))
+		if (zvmasm::SemanticInformation::invalidInViewFunctions(_instruction))
 			m_reportMutability(StateMutability::NonPayable, _location);
-		else if (evmasm::SemanticInformation::invalidInPureFunctions(_instruction))
+		else if (zvmasm::SemanticInformation::invalidInPureFunctions(_instruction))
 			m_reportMutability(StateMutability::View, _location);
 	}
 
@@ -140,7 +140,7 @@ bool ViewPureChecker::visit(ImportDirective const&)
 
 bool ViewPureChecker::visit(FunctionDefinition const& _funDef)
 {
-	solAssert(!m_currentFunction, "");
+	hypAssert(!m_currentFunction, "");
 	m_currentFunction = &_funDef;
 	m_bestMutabilityAndLocation = {StateMutability::Pure, _funDef.location()};
 	return true;
@@ -148,7 +148,7 @@ bool ViewPureChecker::visit(FunctionDefinition const& _funDef)
 
 void ViewPureChecker::endVisit(FunctionDefinition const& _funDef)
 {
-	solAssert(m_currentFunction == &_funDef, "");
+	hypAssert(m_currentFunction == &_funDef, "");
 	if (
 		m_bestMutabilityAndLocation.mutability < _funDef.stateMutability() &&
 		_funDef.stateMutability() != StateMutability::Payable &&
@@ -169,21 +169,21 @@ void ViewPureChecker::endVisit(FunctionDefinition const& _funDef)
 
 bool ViewPureChecker::visit(ModifierDefinition const& _modifier)
 {
-	solAssert(m_currentFunction == nullptr, "");
+	hypAssert(m_currentFunction == nullptr, "");
 	m_bestMutabilityAndLocation = {StateMutability::Pure, _modifier.location()};
 	return true;
 }
 
 void ViewPureChecker::endVisit(ModifierDefinition const& _modifierDef)
 {
-	solAssert(m_currentFunction == nullptr, "");
+	hypAssert(m_currentFunction == nullptr, "");
 	m_inferredMutability[&_modifierDef] = std::move(m_bestMutabilityAndLocation);
 }
 
 void ViewPureChecker::endVisit(Identifier const& _identifier)
 {
 	Declaration const* declaration = _identifier.annotation().referencedDeclaration;
-	solAssert(declaration, "");
+	hypAssert(declaration, "");
 
 	StateMutability mutability = StateMutability::Pure;
 
@@ -204,7 +204,7 @@ void ViewPureChecker::endVisit(Identifier const& _identifier)
 		switch (magicVar->type()->category())
 		{
 		case Type::Category::Contract:
-			solAssert(_identifier.name() == "this", "");
+			hypAssert(_identifier.name() == "this", "");
 			if (dynamic_cast<ContractType const*>(magicVar->type()))
 				// reads the address
 				mutability = StateMutability::View;
@@ -289,9 +289,9 @@ void ViewPureChecker::reportMutability(
 		}
 	}
 	else
-		solAssert(false, "");
+		hypAssert(false, "");
 
-	solAssert(
+	hypAssert(
 		m_currentFunction->stateMutability() == StateMutability::View ||
 		m_currentFunction->stateMutability() == StateMutability::Pure ||
 		m_currentFunction->stateMutability() == StateMutability::NonPayable,
@@ -438,7 +438,7 @@ void ViewPureChecker::endVisit(MemberAccess const& _memberAccess)
 void ViewPureChecker::endVisit(IndexAccess const& _indexAccess)
 {
 	if (!_indexAccess.indexExpression())
-		solAssert(_indexAccess.annotation().type->category() == Type::Category::TypeType, "");
+		hypAssert(_indexAccess.annotation().type->category() == Type::Category::TypeType, "");
 	else
 	{
 		bool writes = _indexAccess.annotation().willBeWrittenTo;
@@ -462,5 +462,5 @@ void ViewPureChecker::endVisit(ModifierInvocation const& _modifier)
 		reportMutability(mutAndLocation.mutability, _modifier.location(), mutAndLocation.location);
 	}
 	else
-		solAssert(dynamic_cast<ContractDefinition const*>(_modifier.name().annotation().referencedDeclaration), "");
+		hypAssert(dynamic_cast<ContractDefinition const*>(_modifier.name().annotation().referencedDeclaration), "");
 }

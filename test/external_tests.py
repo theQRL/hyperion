@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2023 solidity contributors.
+# (c) 2023 hyperion contributors.
 # ------------------------------------------------------------------------------
 
 from argparse import ArgumentParser, Namespace
@@ -45,24 +45,24 @@ def display_available_external_tests(_):
     print(*detect_external_tests().keys())
 
 
-def run_test_scripts(solc_binary_type: str, solc_binary_path: Path, tests: dict):
+def run_test_scripts(hypc_binary_type: str, hypc_binary_path: Path, tests: dict):
     for test_name, test_script_path in tests.items():
         print(f"Running {test_name} external test...")
         subprocess.run(
-            [test_script_path, solc_binary_type, solc_binary_path],
+            [test_script_path, hypc_binary_type, hypc_binary_path],
             check=True
         )
 
 
 def run_external_tests(args: dict):
-    solc_binary_type = args["solc_binary_type"]
-    solc_binary_path = args["solc_binary_path"]
+    hypc_binary_type = args["hypc_binary_type"]
+    hypc_binary_path = args["hypc_binary_path"]
 
     all_test_scripts = detect_external_tests()
     selected_tests = args["selected_tests"]
     if args["run_all"]:
         assert len(selected_tests) == 0
-        run_test_scripts(solc_binary_type, solc_binary_path, all_test_scripts)
+        run_test_scripts(hypc_binary_type, hypc_binary_path, all_test_scripts)
         return
 
     if len(selected_tests) == 0:
@@ -76,14 +76,14 @@ def run_external_tests(args: dict):
             f"External test(s) not found: {', '.join(unrecognized_tests)}"
         )
     run_test_scripts(
-        solc_binary_type,
-        solc_binary_path,
+        hypc_binary_type,
+        hypc_binary_path,
         {k: all_test_scripts[k] for k in selected_tests},
     )
 
 
 def parse_commandline() -> Namespace:
-    script_description = "Script to run external Solidity tests."
+    script_description = "Script to run external Hyperion tests."
 
     parser = ArgumentParser(description=script_description)
     subparser = parser.add_subparsers()
@@ -100,19 +100,19 @@ def parse_commandline() -> Namespace:
     run_command.set_defaults(cmd=run_external_tests)
 
     run_command.add_argument(
-        "--solc-binary-type",
-        dest="solc_binary_type",
+        "--hypc-binary-type",
+        dest="hypc_binary_type",
         type=str,
         required=True,
-        choices=["native", "solcjs"],
-        help="Type of the solidity compiler binary to be used.",
+        choices=["native", "hypcjs"],
+        help="Type of the hyperion compiler binary to be used.",
     )
     run_command.add_argument(
-        "--solc-binary-path",
-        dest="solc_binary_path",
+        "--hypc-binary-path",
+        dest="hypc_binary_path",
         type=Path,
         required=True,
-        help="Path to the solidity compiler binary.",
+        help="Path to the hyperion compiler binary.",
     )
 
     running_mode = run_command.add_mutually_exclusive_group()

@@ -1,18 +1,18 @@
 /*
-    This file is part of solidity.
+    This file is part of hyperion.
 
-    solidity is free software: you can redistribute it and/or modify
+    hyperion is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    solidity is distributed in the hope that it will be useful,
+    hyperion is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+    along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
  * @date 2017
@@ -28,7 +28,7 @@
 #include <libyul/AsmPrinter.h>
 #include <libyul/YulStack.h>
 #include <libyul/AST.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 
 #include <liblangutil/DebugInfoSelection.h>
 #include <liblangutil/ErrorReporter.h>
@@ -39,26 +39,26 @@
 #include <variant>
 
 using namespace std;
-using namespace solidity;
-using namespace solidity::yul;
-using namespace solidity::langutil;
+using namespace hyperion;
+using namespace hyperion::yul;
+using namespace hyperion::langutil;
 
 namespace
 {
 Dialect const& defaultDialect(bool _yul)
 {
-	return _yul ? yul::Dialect::yulDeprecated() : yul::EVMDialect::strictAssemblyForEVM(solidity::test::CommonOptions::get().evmVersion());
+	return _yul ? yul::Dialect::yulDeprecated() : yul::ZVMDialect::strictAssemblyForZVM(hyperion::test::CommonOptions::get().zvmVersion());
 }
 }
 
 pair<shared_ptr<Block>, shared_ptr<yul::AsmAnalysisInfo>> yul::test::parse(string const& _source, bool _yul)
 {
 	YulStack stack(
-		solidity::test::CommonOptions::get().evmVersion(),
+		hyperion::test::CommonOptions::get().zvmVersion(),
 		_yul ? YulStack::Language::Yul : YulStack::Language::StrictAssembly,
-		solidity::test::CommonOptions::get().optimize ?
-			solidity::frontend::OptimiserSettings::standard() :
-			solidity::frontend::OptimiserSettings::minimal(),
+		hyperion::test::CommonOptions::get().optimize ?
+			hyperion::frontend::OptimiserSettings::standard() :
+			hyperion::frontend::OptimiserSettings::minimal(),
 		DebugInfoSelection::All()
 	);
 	if (!stack.parseAndAnalyze("", _source) || !stack.errors().empty())
@@ -101,20 +101,20 @@ string yul::test::format(string const& _source, bool _yul)
 
 namespace
 {
-std::map<string const, yul::Dialect const& (*)(langutil::EVMVersion)> const validDialects = {
+std::map<string const, yul::Dialect const& (*)(langutil::ZVMVersion)> const validDialects = {
 	{
-		"evm",
-		[](langutil::EVMVersion _evmVersion) -> yul::Dialect const&
-		{ return yul::EVMDialect::strictAssemblyForEVMObjects(_evmVersion); }
+		"zvm",
+		[](langutil::ZVMVersion _zvmVersion) -> yul::Dialect const&
+		{ return yul::ZVMDialect::strictAssemblyForZVMObjects(_zvmVersion); }
 	},
 	{
-		"evmTyped",
-		[](langutil::EVMVersion _evmVersion) -> yul::Dialect const&
-		{ return yul::EVMDialectTyped::instance(_evmVersion); }
+		"zvmTyped",
+		[](langutil::ZVMVersion _zvmVersion) -> yul::Dialect const&
+		{ return yul::ZVMDialectTyped::instance(_zvmVersion); }
 	},
 	{
 		"yul",
-		[](langutil::EVMVersion) -> yul::Dialect const&
+		[](langutil::ZVMVersion) -> yul::Dialect const&
 		{ return yul::Dialect::yulDeprecated(); }
 	}
 };
@@ -128,7 +128,7 @@ vector<string> validDialectNames()
 }
 }
 
-yul::Dialect const& yul::test::dialect(std::string const& _name, langutil::EVMVersion _evmVersion)
+yul::Dialect const& yul::test::dialect(std::string const& _name, langutil::ZVMVersion _zvmVersion)
 {
 	if (!validDialects.count(_name))
 		BOOST_THROW_EXCEPTION(runtime_error{
@@ -139,5 +139,5 @@ yul::Dialect const& yul::test::dialect(std::string const& _name, langutil::EVMVe
 			"."
 		});
 
-	return validDialects.at(_name)(_evmVersion);
+	return validDialects.at(_name)(_zvmVersion);
 }

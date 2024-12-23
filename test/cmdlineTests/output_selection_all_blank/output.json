@@ -1,11 +1,11 @@
 {
     "sources":
     {
-        "a.sol":
+        "a.hyp":
         {
             "id": 0
         },
-        "b.sol":
+        "b.hyp":
         {
             "id": 1
         }

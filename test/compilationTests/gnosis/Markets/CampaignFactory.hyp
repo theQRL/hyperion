@@ -1,5 +1,5 @@
-pragma solidity >=0.0;
-import "../Markets/Campaign.sol";
+pragma hyperion >=0.0;
+import "../Markets/Campaign.hyp";
 
 
 /// @title Campaign factory contract - Allows to create campaign contracts

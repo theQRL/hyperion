@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -23,13 +23,13 @@
 
 #include <test/ExecutionFramework.h>
 
-#include <test/EVMHost.h>
+#include <test/ZVMHost.h>
 
-#include <test/evmc/evmc.hpp>
+#include <test/zvmc/zvmc.hpp>
 
-#include <test/libsolidity/util/SoltestTypes.h>
+#include <test/libhyperion/util/HyptestTypes.h>
 
-#include <libsolutil/CommonIO.h>
+#include <libhyputil/CommonIO.h>
 
 #include <liblangutil/Exceptions.h>
 
@@ -42,49 +42,49 @@
 #include <limits>
 
 using namespace std;
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::test;
-using namespace solidity::frontend::test;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::test;
+using namespace hyperion::frontend::test;
 
 ExecutionFramework::ExecutionFramework():
-	ExecutionFramework(solidity::test::CommonOptions::get().evmVersion(), solidity::test::CommonOptions::get().vmPaths)
+	ExecutionFramework(hyperion::test::CommonOptions::get().zvmVersion(), hyperion::test::CommonOptions::get().vmPaths)
 {
 }
 
-ExecutionFramework::ExecutionFramework(langutil::EVMVersion _evmVersion, vector<boost::filesystem::path> const& _vmPaths):
-	m_evmVersion(_evmVersion),
-	m_optimiserSettings(solidity::frontend::OptimiserSettings::minimal()),
-	m_showMessages(solidity::test::CommonOptions::get().showMessages),
+ExecutionFramework::ExecutionFramework(langutil::ZVMVersion _zvmVersion, vector<boost::filesystem::path> const& _vmPaths):
+	m_zvmVersion(_zvmVersion),
+	m_optimiserSettings(hyperion::frontend::OptimiserSettings::minimal()),
+	m_showMessages(hyperion::test::CommonOptions::get().showMessages),
 	m_vmPaths(_vmPaths)
 {
-	if (solidity::test::CommonOptions::get().optimize)
-		m_optimiserSettings = solidity::frontend::OptimiserSettings::standard();
-	selectVM(evmc_capabilities::EVMC_CAPABILITY_EVM1);
+	if (hyperion::test::CommonOptions::get().optimize)
+		m_optimiserSettings = hyperion::frontend::OptimiserSettings::standard();
+	selectVM(zvmc_capabilities::ZVMC_CAPABILITY_ZVM1);
 }
 
-void ExecutionFramework::selectVM(evmc_capabilities _cap)
+void ExecutionFramework::selectVM(zvmc_capabilities _cap)
 {
-	m_evmcHost.reset();
+	m_zvmcHost.reset();
 	for (auto const& path: m_vmPaths)
 	{
-		evmc::VM& vm = EVMHost::getVM(path.string());
+		zvmc::VM& vm = ZVMHost::getVM(path.string());
 		if (vm.has_capability(_cap))
 		{
-			m_evmcHost = make_unique<EVMHost>(m_evmVersion, vm);
+			m_zvmcHost = make_unique<ZVMHost>(m_zvmVersion, vm);
 			break;
 		}
 	}
-	solAssert(m_evmcHost != nullptr, "");
+	hypAssert(m_zvmcHost != nullptr, "");
 	reset();
 }
 
 void ExecutionFramework::reset()
 {
-	m_evmcHost->reset();
+	m_zvmcHost->reset();
 	for (size_t i = 0; i < 10; i++)
-		m_evmcHost->accounts[EVMHost::convertToEVMC(account(i))].balance =
-			EVMHost::convertToEVMC(u256(1) << 100);
+		m_zvmcHost->accounts[ZVMHost::convertToZVMC(account(i))].balance =
+			ZVMHost::convertToZVMC(u256(1) << 100);
 }
 
 std::pair<bool, string> ExecutionFramework::compareAndCreateMessage(
@@ -120,7 +120,7 @@ bytes ExecutionFramework::panicData(util::PanicCode _code)
 
 u256 ExecutionFramework::gasLimit() const
 {
-	return {m_evmcHost->tx_context.block_gas_limit};
+	return {m_zvmcHost->tx_context.block_gas_limit};
 }
 
 u256 ExecutionFramework::gasPrice() const
@@ -128,24 +128,24 @@ u256 ExecutionFramework::gasPrice() const
 	// here and below we use "return u256{....}" instead of just "return {....}"
 	// to please MSVC and avoid unexpected
 	// warning C4927 : illegal conversion; more than one user - defined conversion has been implicitly applied
-	return u256{EVMHost::convertFromEVMC(m_evmcHost->tx_context.tx_gas_price)};
+	return u256{ZVMHost::convertFromZVMC(m_zvmcHost->tx_context.tx_gas_price)};
 }
 
 u256 ExecutionFramework::blockHash(u256 const& _number) const
 {
-	return u256{EVMHost::convertFromEVMC(
-		m_evmcHost->get_block_hash(static_cast<int64_t>(_number & numeric_limits<uint64_t>::max()))
+	return u256{ZVMHost::convertFromZVMC(
+		m_zvmcHost->get_block_hash(static_cast<int64_t>(_number & numeric_limits<uint64_t>::max()))
 	)};
 }
 
 u256 ExecutionFramework::blockNumber() const
 {
-	return m_evmcHost->tx_context.block_number;
+	return m_zvmcHost->tx_context.block_number;
 }
 
 void ExecutionFramework::sendMessage(bytes const& _data, bool _isCreation, u256 const& _value)
 {
-	m_evmcHost->newBlock();
+	m_zvmcHost->newBlock();
 
 	if (m_showMessages)
 	{
@@ -157,39 +157,39 @@ void ExecutionFramework::sendMessage(bytes const& _data, bool _isCreation, u256 
 			cout << " value: " << _value << endl;
 		cout << " in:      " << util::toHex(_data) << endl;
 	}
-	evmc_message message{};
+	zvmc_message message{};
 	message.input_data = _data.data();
 	message.input_size = _data.size();
-	message.sender = EVMHost::convertToEVMC(m_sender);
-	message.value = EVMHost::convertToEVMC(_value);
+	message.sender = ZVMHost::convertToZVMC(m_sender);
+	message.value = ZVMHost::convertToZVMC(_value);
 
 	if (_isCreation)
 	{
-		message.kind = EVMC_CREATE;
+		message.kind = ZVMC_CREATE;
 		message.recipient = {};
 		message.code_address = {};
 	}
 	else
 	{
-		message.kind = EVMC_CALL;
-		message.recipient = EVMHost::convertToEVMC(m_contractAddress);
+		message.kind = ZVMC_CALL;
+		message.recipient = ZVMHost::convertToZVMC(m_contractAddress);
 		message.code_address = message.recipient;
 	}
 
 	message.gas = InitialGas.convert_to<int64_t>();
 
-	evmc::Result result = m_evmcHost->call(message);
+	zvmc::Result result = m_zvmcHost->call(message);
 
 	m_output = bytes(result.output_data, result.output_data + result.output_size);
 	if (_isCreation)
-		m_contractAddress = EVMHost::convertFromEVMC(result.create_address);
+		m_contractAddress = ZVMHost::convertFromZVMC(result.create_address);
 
 	unsigned const refundRatio = 5;
 	auto const totalGasUsed = InitialGas - result.gas_left;
 	auto const gasRefund = min(u256(result.gas_refund), totalGasUsed / refundRatio);
 
 	m_gasUsed = totalGasUsed - gasRefund;
-	m_transactionSuccessful = (result.status_code == EVMC_SUCCESS);
+	m_transactionSuccessful = (result.status_code == ZVMC_SUCCESS);
 
 	if (m_showMessages)
 	{
@@ -204,7 +204,7 @@ void ExecutionFramework::sendMessage(bytes const& _data, bool _isCreation, u256 
 
 void ExecutionFramework::sendEther(h160 const& _addr, u256 const& _amount)
 {
-	m_evmcHost->newBlock();
+	m_zvmcHost->newBlock();
 
 	if (m_showMessages)
 	{
@@ -212,20 +212,20 @@ void ExecutionFramework::sendEther(h160 const& _addr, u256 const& _amount)
 		if (_amount > 0)
 			cout << " value: " << _amount << endl;
 	}
-	evmc_message message{};
-	message.sender = EVMHost::convertToEVMC(m_sender);
-	message.value = EVMHost::convertToEVMC(_amount);
-	message.kind = EVMC_CALL;
-	message.recipient = EVMHost::convertToEVMC(_addr);
+	zvmc_message message{};
+	message.sender = ZVMHost::convertToZVMC(m_sender);
+	message.value = ZVMHost::convertToZVMC(_amount);
+	message.kind = ZVMC_CALL;
+	message.recipient = ZVMHost::convertToZVMC(_addr);
 	message.code_address = message.recipient;
 	message.gas = InitialGas.convert_to<int64_t>();
 
-	m_evmcHost->call(message);
+	m_zvmcHost->call(message);
 }
 
 size_t ExecutionFramework::currentTimestamp()
 {
-	return static_cast<size_t>(m_evmcHost->tx_context.block_timestamp);
+	return static_cast<size_t>(m_zvmcHost->tx_context.block_timestamp);
 }
 
 size_t ExecutionFramework::blockTimestamp(u256 _block)
@@ -243,32 +243,32 @@ h160 ExecutionFramework::account(size_t _idx)
 
 bool ExecutionFramework::addressHasCode(h160 const& _addr) const
 {
-	return m_evmcHost->get_code_size(EVMHost::convertToEVMC(_addr)) != 0;
+	return m_zvmcHost->get_code_size(ZVMHost::convertToZVMC(_addr)) != 0;
 }
 
 size_t ExecutionFramework::numLogs() const
 {
-	return m_evmcHost->recorded_logs.size();
+	return m_zvmcHost->recorded_logs.size();
 }
 
 size_t ExecutionFramework::numLogTopics(size_t _logIdx) const
 {
-	return m_evmcHost->recorded_logs.at(_logIdx).topics.size();
+	return m_zvmcHost->recorded_logs.at(_logIdx).topics.size();
 }
 
 h256 ExecutionFramework::logTopic(size_t _logIdx, size_t _topicIdx) const
 {
-	return EVMHost::convertFromEVMC(m_evmcHost->recorded_logs.at(_logIdx).topics.at(_topicIdx));
+	return ZVMHost::convertFromZVMC(m_zvmcHost->recorded_logs.at(_logIdx).topics.at(_topicIdx));
 }
 
 h160 ExecutionFramework::logAddress(size_t _logIdx) const
 {
-	return EVMHost::convertFromEVMC(m_evmcHost->recorded_logs.at(_logIdx).creator);
+	return ZVMHost::convertFromZVMC(m_zvmcHost->recorded_logs.at(_logIdx).creator);
 }
 
 bytes ExecutionFramework::logData(size_t _logIdx) const
 {
-	auto const& data = m_evmcHost->recorded_logs.at(_logIdx).data;
+	auto const& data = m_zvmcHost->recorded_logs.at(_logIdx).data;
 	// TODO: Return a copy of log data, because this is expected from REQUIRE_LOG_DATA(),
 	//       but reference type like string_view would be preferable.
 	return {data.begin(), data.end()};
@@ -276,29 +276,29 @@ bytes ExecutionFramework::logData(size_t _logIdx) const
 
 u256 ExecutionFramework::balanceAt(h160 const& _addr) const
 {
-	return u256(EVMHost::convertFromEVMC(m_evmcHost->get_balance(EVMHost::convertToEVMC(_addr))));
+	return u256(ZVMHost::convertFromZVMC(m_zvmcHost->get_balance(ZVMHost::convertToZVMC(_addr))));
 }
 
 bool ExecutionFramework::storageEmpty(h160 const& _addr) const
 {
-	const auto it = m_evmcHost->accounts.find(EVMHost::convertToEVMC(_addr));
-	if (it != m_evmcHost->accounts.end())
+	const auto it = m_zvmcHost->accounts.find(ZVMHost::convertToZVMC(_addr));
+	if (it != m_zvmcHost->accounts.end())
 	{
 		for (auto const& entry: it->second.storage)
-			if (entry.second.current != evmc::bytes32{})
+			if (entry.second.current != zvmc::bytes32{})
 				return false;
 	}
 	return true;
 }
 
-vector<solidity::frontend::test::LogRecord> ExecutionFramework::recordedLogs() const
+vector<hyperion::frontend::test::LogRecord> ExecutionFramework::recordedLogs() const
 {
 	vector<LogRecord> logs;
-	for (evmc::MockedHost::log_record const& logRecord: m_evmcHost->recorded_logs)
+	for (zvmc::MockedHost::log_record const& logRecord: m_zvmcHost->recorded_logs)
 		logs.emplace_back(
-			EVMHost::convertFromEVMC(logRecord.creator),
+			ZVMHost::convertFromZVMC(logRecord.creator),
 			bytes{logRecord.data.begin(), logRecord.data.end()},
-			logRecord.topics | ranges::views::transform([](evmc::bytes32 _bytes) { return EVMHost::convertFromEVMC(_bytes); }) | ranges::to<vector>
+			logRecord.topics | ranges::views::transform([](zvmc::bytes32 _bytes) { return ZVMHost::convertFromZVMC(_bytes); }) | ranges::to<vector>
 		);
 	return logs;
 }

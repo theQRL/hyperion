@@ -1,24 +1,24 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
-#include <libsolidity/ast/Types.h>
+#include <libhyperion/ast/Types.h>
 
 #include <array>
 #include <map>
@@ -26,13 +26,13 @@
 #include <optional>
 #include <utility>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 /**
- * API for accessing the Solidity Type System.
+ * API for accessing the Hyperion Type System.
  *
- * This is the Solidity Compiler's type provider. Use it to request for types. The caller does
+ * This is the Hyperion Compiler's type provider. Use it to request for types. The caller does
  * <b>not</b> own the types.
  *
  * It is not recommended to explicitly instantiate types unless you really know what and why
@@ -88,7 +88,7 @@ public:
 
 	static IntegerType const* integer(unsigned _bits, IntegerType::Modifier _modifier)
 	{
-		solAssert((_bits % 8) == 0, "");
+		hypAssert((_bits % 8) == 0, "");
 		if (_modifier == IntegerType::Modifier::Unsigned)
 			return m_uintM.at(_bits / 8 - 1).get();
 		else

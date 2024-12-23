@@ -12,6 +12,6 @@ do
     echo "    - $dir"
     cd "$dir"
     # shellcheck disable=SC2046 # These file names are not supposed to contain spaces.
-    compileFull --expect-warnings $(find . -name '*.sol')
+    compileFull --expect-warnings $(find . -name '*.hyp')
     cd ..
 done

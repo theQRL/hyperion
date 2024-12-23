@@ -1,10 +1,10 @@
-==== Source: A.sol ====
+==== Source: A.hyp ====
 event EA();
-==== Source: B.sol ====
+==== Source: B.hyp ====
 event EB();
-==== Source: C.sol ====
-import "A.sol";
-import {EB} from "B.sol";
+==== Source: C.hyp ====
+import "A.hyp";
+import {EB} from "B.hyp";
 
 function f() {
     emit EA();

@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2019 solidity contributors.
+# (c) 2019 hyperion contributors.
 #------------------------------------------------------------------------------
 
 set -e
@@ -47,16 +47,16 @@ function ens_test
     )
     local settings_presets=(
         "${compile_only_presets[@]}"
-        ir-optimize-evm-only
-        ir-optimize-evm+yul       # Needs memory-safe inline assembly patch
-        legacy-optimize-evm-only
-        legacy-optimize-evm+yul
+        ir-optimize-zvm-only
+        ir-optimize-zvm+yul       # Needs memory-safe inline assembly patch
+        legacy-optimize-zvm-only
+        legacy-optimize-zvm+yul
     )
 
     [[ $SELECTED_PRESETS != "" ]] || SELECTED_PRESETS=$(circleci_select_steps_multiarg "${settings_presets[@]}")
     print_presets_or_exit "$SELECTED_PRESETS"
 
-    setup_solc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"
+    setup_hypc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"
     download_project "$repo" "$ref_type" "$ref" "$DIR"
 
     neutralize_package_lock
@@ -81,7 +81,7 @@ function ens_test
     sed -i "s|it\(('Cannot be called if CANNOT_CREATE_SUBDOMAIN is burned and is a new subdomain',\)|it.skip\1|g" test/wrapper/NameWrapper.js
     sed -i "s|it\(('Cannot be called if PARENT_CANNOT_CONTROL is burned and is an existing subdomain',\)|it.skip\1|g" test/wrapper/NameWrapper.js
 
-    find . -name "*.sol" -exec sed -i -e 's/^\(\s*\)\(assembly\)/\1\/\/\/ @solidity memory-safe-assembly\n\1\2/' '{}' \;
+    find . -name "*.hyp" -exec sed -i -e 's/^\(\s*\)\(assembly\)/\1\/\/\/ @hyperion memory-safe-assembly\n\1\2/' '{}' \;
 
     for preset in $SELECTED_PRESETS; do
         hardhat_run_test "$config_file" "$preset" "${compile_only_presets[*]}" compile_fn test_fn

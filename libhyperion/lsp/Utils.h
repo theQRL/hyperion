@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
@@ -20,26 +20,26 @@
 
 #include <liblangutil/SourceLocation.h>
 
-#include <libsolidity/ast/ASTForward.h>
+#include <libhyperion/ast/ASTForward.h>
 
-#include <libsolutil/JSON.h>
+#include <libhyputil/JSON.h>
 
 #include <optional>
 #include <vector>
 
 #if !defined(NDEBUG)
 #include <fstream>
-#define lspDebug(message) (std::ofstream("/tmp/solc.log", std::ios::app) << (message) << std::endl)
+#define lspDebug(message) (std::ofstream("/tmp/hypc.log", std::ios::app) << (message) << std::endl)
 #else
 #define lspDebug(message) do {} while (0)
 #endif
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 class CharStreamProvider;
 }
 
-namespace solidity::lsp
+namespace hyperion::lsp
 {
 
 class FileRepository;

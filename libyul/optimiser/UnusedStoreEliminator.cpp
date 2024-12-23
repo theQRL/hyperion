@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -31,17 +31,17 @@
 #include <libyul/ControlFlowSideEffectsCollector.h>
 #include <libyul/AST.h>
 
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 
-#include <libsolutil/CommonData.h>
+#include <libhyputil/CommonData.h>
 
-#include <libevmasm/Instruction.h>
-#include <libevmasm/SemanticInformation.h>
+#include <libzvmasm/Instruction.h>
+#include <libzvmasm/SemanticInformation.h>
 
 #include <range/v3/algorithm/all_of.hpp>
 
-using namespace solidity;
-using namespace solidity::yul;
+using namespace hyperion;
+using namespace hyperion::yul;
 
 /// Variable names for special constants that can never appear in actual Yul code.
 static std::string const zero{"@ 0"};
@@ -78,8 +78,8 @@ void UnusedStoreEliminator::run(OptimiserStepContext& _context, Block& _ast)
 	};
 	rse(_ast);
 
-	auto evmDialect = dynamic_cast<EVMDialect const*>(&_context.dialect);
-	if (evmDialect && evmDialect->providesObjectAccess())
+	auto zvmDialect = dynamic_cast<ZVMDialect const*>(&_context.dialect);
+	if (zvmDialect && zvmDialect->providesObjectAccess())
 		rse.clearActive(Location::Memory);
 	else
 		rse.markActiveAsUsed(Location::Memory);
@@ -143,7 +143,7 @@ void UnusedStoreEliminator::operator()(Leave const&)
 
 void UnusedStoreEliminator::visit(Statement const& _statement)
 {
-	using evmasm::Instruction;
+	using zvmasm::Instruction;
 
 	UnusedStoreBase::visit(_statement);
 
@@ -153,7 +153,7 @@ void UnusedStoreEliminator::visit(Statement const& _statement)
 
 	FunctionCall const* funCall = std::get_if<FunctionCall>(&exprStatement->expression);
 	yulAssert(funCall);
-	std::optional<Instruction> instruction = toEVMInstruction(m_dialect, funCall->functionName.name);
+	std::optional<Instruction> instruction = toZVMInstruction(m_dialect, funCall->functionName.name);
 	if (!instruction)
 		return;
 
@@ -165,7 +165,7 @@ void UnusedStoreEliminator::visit(Statement const& _statement)
 	// We determine if this is a store instruction without additional side-effects
 	// both by querying a combination of semantic information and by listing the instructions.
 	// This way the assert below should be triggered on any change.
-	using evmasm::SemanticInformation;
+	using zvmasm::SemanticInformation;
 	bool isStorageWrite = (*instruction == Instruction::SSTORE);
 	bool isMemoryWrite =
 		*instruction == Instruction::EXTCODECOPY ||
@@ -186,7 +186,7 @@ void UnusedStoreEliminator::visit(Statement const& _statement)
 		{
 			// Out-of-bounds access to the returndata buffer results in a revert,
 			// so we are careful not to remove a potentially reverting call to a builtin.
-			// The only way the Solidity compiler uses `returndatacopy` is
+			// The only way the Hyperion compiler uses `returndatacopy` is
 			// `returndatacopy(X, 0, returndatasize())`, so we only allow to remove this pattern
 			// (which is guaranteed to never cause an out-of-bounds revert).
 			bool allowReturndatacopyToBeRemoved = false;
@@ -198,7 +198,7 @@ void UnusedStoreEliminator::visit(Statement const& _statement)
 				if (
 					m_knowledgeBase.knownToBeZero(*startOffset) &&
 					lengthCall &&
-					toEVMInstruction(m_dialect, lengthCall->functionName.name) == Instruction::RETURNDATASIZE
+					toZVMInstruction(m_dialect, lengthCall->functionName.name) == Instruction::RETURNDATASIZE
 				)
 					allowReturndatacopyToBeRemoved = true;
 			}
@@ -220,7 +220,7 @@ std::vector<UnusedStoreEliminator::Operation> UnusedStoreEliminator::operationsF
 	FunctionCall const& _functionCall
 ) const
 {
-	using evmasm::Instruction;
+	using zvmasm::Instruction;
 
 	YulString functionName = _functionCall.functionName.name;
 	SideEffects sideEffects;
@@ -229,7 +229,7 @@ std::vector<UnusedStoreEliminator::Operation> UnusedStoreEliminator::operationsF
 	else
 		sideEffects = m_functionSideEffects.at(functionName);
 
-	std::optional<Instruction> instruction = toEVMInstruction(m_dialect, functionName);
+	std::optional<Instruction> instruction = toZVMInstruction(m_dialect, functionName);
 	if (!instruction)
 	{
 		std::vector<Operation> result;
@@ -241,7 +241,7 @@ std::vector<UnusedStoreEliminator::Operation> UnusedStoreEliminator::operationsF
 		return result;
 	}
 
-	using evmasm::SemanticInformation;
+	using zvmasm::SemanticInformation;
 
 	return util::applyMap(
 		SemanticInformation::readWriteOperations(*instruction),

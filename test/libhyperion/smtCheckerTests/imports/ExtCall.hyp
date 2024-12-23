@@ -1,4 +1,4 @@
-==== Source: ExtCall.sol ====
+==== Source: ExtCall.hyp ====
 interface Unknown {
     function callme() external;
 }
@@ -24,8 +24,8 @@ contract ExtCall {
         assert(x_prev == x);
     }
 }
-==== Source: ExtCall.t.sol ====
-import "ExtCall.sol";
+==== Source: ExtCall.t.hyp ====
+import "ExtCall.hyp";
 
 contract ExtCallTest {
     ExtCall call;
@@ -38,5 +38,5 @@ contract ExtCallTest {
 // SMTEngine: all
 // SMTIgnoreCex: yes
 // ----
-// Warning 6328: (ExtCall.sol:362-381): CHC: Assertion violation happens here.
-// Warning 8729: (ExtCall.t.sol:110-123): Contract deployment is only supported in the trusted mode for external calls with the CHC engine.
+// Warning 6328: (ExtCall.hyp:362-381): CHC: Assertion violation happens here.
+// Warning 8729: (ExtCall.t.hyp:110-123): Contract deployment is only supported in the trusted mode for external calls with the CHC engine.

@@ -1,57 +1,57 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * Assembly interface that ignores everything. Can be used as a backend for a compilation dry-run.
  */
 
-#include <libyul/backends/evm/NoOutputAssembly.h>
+#include <libyul/backends/zvm/NoOutputAssembly.h>
 
 #include <libyul/AST.h>
 #include <libyul/Exceptions.h>
 
-#include <libevmasm/Instruction.h>
+#include <libzvmasm/Instruction.h>
 
 #include <range/v3/view/iota.hpp>
 
-using namespace solidity;
-using namespace solidity::yul;
-using namespace solidity::util;
-using namespace solidity::langutil;
+using namespace hyperion;
+using namespace hyperion::yul;
+using namespace hyperion::util;
+using namespace hyperion::langutil;
 
 
-void NoOutputAssembly::appendInstruction(evmasm::Instruction _instr)
+void NoOutputAssembly::appendInstruction(zvmasm::Instruction _instr)
 {
 	m_stackHeight += instructionInfo(_instr).ret - instructionInfo(_instr).args;
 }
 
 void NoOutputAssembly::appendConstant(u256 const&)
 {
-	appendInstruction(evmasm::pushInstruction(1));
+	appendInstruction(zvmasm::pushInstruction(1));
 }
 
 void NoOutputAssembly::appendLabel(LabelID)
 {
-	appendInstruction(evmasm::Instruction::JUMPDEST);
+	appendInstruction(zvmasm::Instruction::JUMPDEST);
 }
 
 void NoOutputAssembly::appendLabelReference(LabelID)
 {
-	appendInstruction(evmasm::pushInstruction(1));
+	appendInstruction(zvmasm::pushInstruction(1));
 }
 
 NoOutputAssembly::LabelID NoOutputAssembly::newLabelId()
@@ -76,7 +76,7 @@ void NoOutputAssembly::appendVerbatim(bytes, size_t _arguments, size_t _returnVa
 
 void NoOutputAssembly::appendJump(int _stackDiffAfter, JumpType)
 {
-	appendInstruction(evmasm::Instruction::JUMP);
+	appendInstruction(zvmasm::Instruction::JUMP);
 	m_stackHeight += _stackDiffAfter;
 }
 
@@ -89,12 +89,12 @@ void NoOutputAssembly::appendJumpTo(LabelID _labelId, int _stackDiffAfter, JumpT
 void NoOutputAssembly::appendJumpToIf(LabelID _labelId, JumpType)
 {
 	appendLabelReference(_labelId);
-	appendInstruction(evmasm::Instruction::JUMPI);
+	appendInstruction(zvmasm::Instruction::JUMPI);
 }
 
 void NoOutputAssembly::appendAssemblySize()
 {
-	appendInstruction(evmasm::Instruction::PUSH1);
+	appendInstruction(zvmasm::Instruction::PUSH1);
 }
 
 std::pair<std::shared_ptr<AbstractAssembly>, AbstractAssembly::SubID> NoOutputAssembly::createSubAssembly(bool, std::string)
@@ -105,12 +105,12 @@ std::pair<std::shared_ptr<AbstractAssembly>, AbstractAssembly::SubID> NoOutputAs
 
 void NoOutputAssembly::appendDataOffset(std::vector<AbstractAssembly::SubID> const&)
 {
-	appendInstruction(evmasm::Instruction::PUSH1);
+	appendInstruction(zvmasm::Instruction::PUSH1);
 }
 
 void NoOutputAssembly::appendDataSize(std::vector<AbstractAssembly::SubID> const&)
 {
-	appendInstruction(evmasm::Instruction::PUSH1);
+	appendInstruction(zvmasm::Instruction::PUSH1);
 }
 
 AbstractAssembly::SubID NoOutputAssembly::appendData(bytes const&)
@@ -129,8 +129,8 @@ void NoOutputAssembly::appendImmutableAssignment(std::string const&)
 	yulAssert(false, "setimmutable not implemented.");
 }
 
-NoOutputEVMDialect::NoOutputEVMDialect(EVMDialect const& _copyFrom):
-	EVMDialect(_copyFrom.evmVersion(), _copyFrom.providesObjectAccess())
+NoOutputZVMDialect::NoOutputZVMDialect(ZVMDialect const& _copyFrom):
+	ZVMDialect(_copyFrom.zvmVersion(), _copyFrom.providesObjectAccess())
 {
 	for (auto& fun: m_functions)
 	{
@@ -139,7 +139,7 @@ NoOutputEVMDialect::NoOutputEVMDialect(EVMDialect const& _copyFrom):
 		{
 			for (size_t i: ranges::views::iota(0u, _call.arguments.size()))
 				if (!fun.second.literalArgument(i))
-					_assembly.appendInstruction(evmasm::Instruction::POP);
+					_assembly.appendInstruction(zvmasm::Instruction::POP);
 
 			for (size_t i = 0; i < returns; i++)
 				_assembly.appendConstant(u256(0));

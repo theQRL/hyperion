@@ -22,7 +22,7 @@ macro(replace_if_different SOURCE DST)
 	endif()
 endmacro()
 
-macro(eth_default_option O DEF)
+macro(zond_default_option O DEF)
 	if (DEFINED ${O})
 		if (${${O}})
 			set(${O} ON)

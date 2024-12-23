@@ -1,6 +1,6 @@
 set(sources
-	EVMInstructionInterpreter.h
-	EVMInstructionInterpreter.cpp
+	ZVMInstructionInterpreter.h
+	ZVMInstructionInterpreter.cpp
 	Interpreter.h
 	Interpreter.cpp
 	Inspector.h
@@ -8,4 +8,4 @@ set(sources
 )
 
 add_library(yulInterpreter ${sources})
-target_link_libraries(yulInterpreter PUBLIC yul solidity solutil)
+target_link_libraries(yulInterpreter PUBLIC yul hyperion hyputil)

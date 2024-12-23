@@ -186,5 +186,5 @@ set(sources
 	parsing/Token.h
 )
 
-add_library(solidity ${sources})
-target_link_libraries(solidity PUBLIC yul evmasm langutil smtutil solutil Boost::boost fmt::fmt-header-only Threads::Threads)
+add_library(hyperion ${sources})
+target_link_libraries(hyperion PUBLIC yul zvmasm langutil smtutil hyputil Boost::boost fmt::fmt-header-only Threads::Threads)

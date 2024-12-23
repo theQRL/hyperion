@@ -1,34 +1,34 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Solidity abstract syntax tree.
+ * Hyperion abstract syntax tree.
  */
 
-#include <libsolidity/ast/AST.h>
+#include <libhyperion/ast/AST.h>
 
-#include <libsolidity/ast/CallGraph.h>
-#include <libsolidity/ast/ASTVisitor.h>
-#include <libsolidity/ast/AST_accept.h>
-#include <libsolidity/ast/TypeProvider.h>
-#include <libsolutil/FunctionSelector.h>
-#include <libsolutil/Keccak256.h>
+#include <libhyperion/ast/CallGraph.h>
+#include <libhyperion/ast/ASTVisitor.h>
+#include <libhyperion/ast/AST_accept.h>
+#include <libhyperion/ast/TypeProvider.h>
+#include <libhyputil/FunctionSelector.h>
+#include <libhyputil/Keccak256.h>
 
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/tail.hpp>
@@ -39,8 +39,8 @@
 #include <functional>
 #include <utility>
 
-using namespace solidity;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::frontend;
 
 namespace
 {
@@ -87,8 +87,8 @@ FunctionDefinition const* ASTNode::resolveFunctionCall(FunctionCall const& _func
 			if (auto const typeType = dynamic_cast<TypeType const*>(memberAccess->expression().annotation().type))
 				if (auto const contractType = dynamic_cast<ContractType const*>(typeType->actualType()))
 				{
-					solAssert(_mostDerivedContract, "");
-					solAssert(contractType->isSuper(), "");
+					hypAssert(_mostDerivedContract, "");
+					hypAssert(contractType->isSuper(), "");
 					ContractDefinition const* superContract = contractType->contractDefinition().superContract(*_mostDerivedContract);
 
 					return &functionDef->resolveVirtual(
@@ -98,19 +98,19 @@ FunctionDefinition const* ASTNode::resolveFunctionCall(FunctionCall const& _func
 				}
 		}
 		else
-			solAssert(*memberAccess->annotation().requiredLookup == VirtualLookup::Static, "");
+			hypAssert(*memberAccess->annotation().requiredLookup == VirtualLookup::Static, "");
 	}
 	else if (auto const* identifier = dynamic_cast<Identifier const*>(&_functionCall.expression()))
 	{
-		solAssert(*identifier->annotation().requiredLookup == VirtualLookup::Virtual, "");
+		hypAssert(*identifier->annotation().requiredLookup == VirtualLookup::Virtual, "");
 		if (functionDef->virtualSemantics())
 		{
-			solAssert(_mostDerivedContract, "");
+			hypAssert(_mostDerivedContract, "");
 			return &functionDef->resolveVirtual(*_mostDerivedContract);
 		}
 	}
 	else
-		solAssert(false, "");
+		hypAssert(false, "");
 
 	return functionDef;
 }
@@ -151,7 +151,7 @@ ImportAnnotation& ImportDirective::annotation() const
 
 Type const* ImportDirective::type() const
 {
-	solAssert(!!annotation().sourceUnit, "");
+	hypAssert(!!annotation().sourceUnit, "");
 	return TypeProvider::module(*annotation().sourceUnit);
 }
 
@@ -168,7 +168,7 @@ std::map<util::FixedHash<4>, FunctionTypePointer> ContractDefinition::interfaceF
 	for (auto const& it: exportedFunctionList)
 		exportedFunctions.insert(it);
 
-	solAssert(
+	hypAssert(
 		exportedFunctionList.size() == exportedFunctions.size(),
 		"Hash collision at Function Definition Hash calculation"
 	);
@@ -220,7 +220,7 @@ std::vector<EventDefinition const*> const& ContractDefinition::definedInterfaceE
 				///       though here internal strictly refers to visibility,
 				///       and not to function encoding (jump vs. call)
 				FunctionType const* functionType = e->functionType(true);
-				solAssert(functionType, "");
+				hypAssert(functionType, "");
 				std::string eventSignature = functionType->externalSignature();
 				if (eventsSeen.count(eventSignature) == 0)
 				{
@@ -234,7 +234,7 @@ std::vector<EventDefinition const*> const& ContractDefinition::definedInterfaceE
 
 std::vector<EventDefinition const*> const ContractDefinition::usedInterfaceEvents() const
 {
-	solAssert(annotation().creationCallGraph.set(), "");
+	hypAssert(annotation().creationCallGraph.set(), "");
 
 	return util::convertContainer<std::vector<EventDefinition const*>>(
 		(*annotation().creationCallGraph)->emittedEvents +
@@ -247,9 +247,9 @@ std::vector<EventDefinition const*> ContractDefinition::interfaceEvents(bool _re
 	std::set<EventDefinition const*, CompareByID> result;
 	for (ContractDefinition const* contract: annotation().linearizedBaseContracts)
 		result += contract->events();
-	solAssert(annotation().creationCallGraph.set() == annotation().deployedCallGraph.set());
+	hypAssert(annotation().creationCallGraph.set() == annotation().deployedCallGraph.set());
 	if (_requireCallGraph)
-		solAssert(annotation().creationCallGraph.set());
+		hypAssert(annotation().creationCallGraph.set());
 	if (annotation().creationCallGraph.set())
 		result += usedInterfaceEvents();
 	// We could filter out all events that do not have an external interface
@@ -262,9 +262,9 @@ std::vector<ErrorDefinition const*> ContractDefinition::interfaceErrors(bool _re
 	std::set<ErrorDefinition const*, CompareByID> result;
 	for (ContractDefinition const* contract: annotation().linearizedBaseContracts)
 		result += filteredNodes<ErrorDefinition>(contract->m_subNodes);
-	solAssert(annotation().creationCallGraph.set() == annotation().deployedCallGraph.set(), "");
+	hypAssert(annotation().creationCallGraph.set() == annotation().deployedCallGraph.set(), "");
 	if (_requireCallGraph)
-		solAssert(annotation().creationCallGraph.set(), "");
+		hypAssert(annotation().creationCallGraph.set(), "");
 	if (annotation().creationCallGraph.set())
 		result +=
 			(*annotation().creationCallGraph)->usedErrors +
@@ -329,13 +329,13 @@ ContractDefinition const* ContractDefinition::superContract(ContractDefinition c
 {
 	auto const& hierarchy = _mostDerivedContract.annotation().linearizedBaseContracts;
 	auto it = find(hierarchy.begin(), hierarchy.end(), this);
-	solAssert(it != hierarchy.end(), "Base not found in inheritance hierarchy.");
+	hypAssert(it != hierarchy.end(), "Base not found in inheritance hierarchy.");
 	++it;
 	if (it == hierarchy.end())
 		return nullptr;
 	else
 	{
-		solAssert(*it != this, "");
+		hypAssert(*it != this, "");
 		return *it;
 	}
 }
@@ -374,7 +374,7 @@ TypeNameAnnotation& TypeName::annotation() const
 
 Type const* UserDefinedValueTypeDefinition::type() const
 {
-	solAssert(m_underlyingType->annotation().type, "");
+	hypAssert(m_underlyingType->annotation().type, "");
 	return TypeProvider::typeType(TypeProvider::userDefinedValueType(*this));
 }
 
@@ -390,7 +390,7 @@ std::vector<std::pair<ASTPointer<IdentifierPath>, std::optional<Token>>> UsingFo
 
 Type const* StructDefinition::type() const
 {
-	solAssert(annotation().recursive.has_value(), "Requested struct type before DeclarationTypeChecker.");
+	hypAssert(annotation().recursive.has_value(), "Requested struct type before DeclarationTypeChecker.");
 	return TypeProvider::typeType(TypeProvider::structType(*this, DataLocation::Storage));
 }
 
@@ -402,7 +402,7 @@ StructDeclarationAnnotation& StructDefinition::annotation() const
 Type const* EnumValue::type() const
 {
 	auto parentDef = dynamic_cast<EnumDefinition const*>(scope());
-	solAssert(parentDef, "Enclosing Scope of EnumValue was not set");
+	hypAssert(parentDef, "Enclosing Scope of EnumValue was not set");
 	return TypeProvider::enumType(*parentDef);
 }
 
@@ -425,7 +425,7 @@ bool FunctionDefinition::libraryFunction() const
 
 Visibility FunctionDefinition::defaultVisibility() const
 {
-	solAssert(!isConstructor(), "");
+	hypAssert(!isConstructor(), "");
 	return isFree() ? Visibility::Internal : Declaration::defaultVisibility();
 }
 
@@ -436,7 +436,7 @@ FunctionTypePointer FunctionDefinition::functionType(bool _internal) const
 		switch (visibility())
 		{
 		case Visibility::Default:
-			solAssert(false, "visibility() should not return Default");
+			hypAssert(false, "visibility() should not return Default");
 		case Visibility::Private:
 		case Visibility::Internal:
 		case Visibility::Public:
@@ -450,7 +450,7 @@ FunctionTypePointer FunctionDefinition::functionType(bool _internal) const
 		switch (visibility())
 		{
 		case Visibility::Default:
-			solAssert(false, "visibility() should not return Default");
+			hypAssert(false, "visibility() should not return Default");
 		case Visibility::Private:
 		case Visibility::Internal:
 			return {};
@@ -466,7 +466,7 @@ FunctionTypePointer FunctionDefinition::functionType(bool _internal) const
 
 Type const* FunctionDefinition::type() const
 {
-	solAssert(visibility() != Visibility::External, "");
+	hypAssert(visibility() != Visibility::External, "");
 	return TypeProvider::function(*this, FunctionType::Kind::Internal);
 }
 
@@ -503,16 +503,16 @@ FunctionDefinition const& FunctionDefinition::resolveVirtual(
 	ContractDefinition const* _searchStart
 ) const
 {
-	solAssert(!isConstructor(), "");
-	solAssert(!name().empty(), "");
+	hypAssert(!isConstructor(), "");
+	hypAssert(!name().empty(), "");
 
 	// If we are not doing super-lookup and the function is not virtual, we can stop here.
 	if (_searchStart == nullptr && !virtualSemantics())
 		return *this;
 
-	solAssert(!isFree(), "");
-	solAssert(isOrdinary(), "");
-	solAssert(!libraryFunction(), "");
+	hypAssert(!isFree(), "");
+	hypAssert(isOrdinary(), "");
+	hypAssert(!libraryFunction(), "");
 
 	// We actually do not want the externally callable function here.
 	// This is just to add an assertion since the comparison used to be less strict.
@@ -534,12 +534,12 @@ FunctionDefinition const& FunctionDefinition::resolveVirtual(
 				FunctionType(*function).asExternallyCallableFunction(false)->hasEqualParameterTypes(*externalFunctionType)
 			)
 			{
-				solAssert(FunctionType(*function).hasEqualParameterTypes(*TypeProvider::function(*this)));
+				hypAssert(FunctionType(*function).hasEqualParameterTypes(*TypeProvider::function(*this)));
 				return *function;
 			}
 	}
 
-	solAssert(false, "Virtual function " + name() + " not found.");
+	hypAssert(false, "Virtual function " + name() + " not found.");
 	return *this; // not reached
 }
 
@@ -559,20 +559,20 @@ ModifierDefinition const& ModifierDefinition::resolveVirtual(
 ) const
 {
 	// Super is not possible with modifiers
-	solAssert(_searchStart == nullptr, "Used super in connection with modifiers.");
+	hypAssert(_searchStart == nullptr, "Used super in connection with modifiers.");
 
 	// The modifier is not virtual, we can stop here.
 	if (!virtualSemantics())
 		return *this;
 
-	solAssert(!dynamic_cast<ContractDefinition const&>(*scope()).isLibrary(), "");
+	hypAssert(!dynamic_cast<ContractDefinition const&>(*scope()).isLibrary(), "");
 
 	for (ContractDefinition const* c: _mostDerivedContract.annotation().linearizedBaseContracts)
 		for (ModifierDefinition const* modifier: c->functionModifiers())
 			if (modifier->name() == name())
 				return *modifier;
 
-	solAssert(false, "Virtual modifier " + name() + " not found.");
+	hypAssert(false, "Virtual modifier " + name() + " not found.");
 	return *this; // not reached
 }
 
@@ -616,7 +616,7 @@ ErrorDefinitionAnnotation& ErrorDefinition::annotation() const
 SourceUnit const& Scopable::sourceUnit() const
 {
 	ASTNode const* s = scope();
-	solAssert(s, "");
+	hypAssert(s, "");
 	// will not always be a declaration
 	while (dynamic_cast<Scopable const*>(s) && dynamic_cast<Scopable const*>(s)->scope())
 		s = dynamic_cast<Scopable const*>(s)->scope();
@@ -626,7 +626,7 @@ SourceUnit const& Scopable::sourceUnit() const
 CallableDeclaration const* Scopable::functionOrModifierDefinition() const
 {
 	ASTNode const* s = scope();
-	solAssert(s, "");
+	hypAssert(s, "");
 	while (dynamic_cast<Scopable const*>(s))
 	{
 		if (auto funDef = dynamic_cast<FunctionDefinition const*>(s))
@@ -645,19 +645,19 @@ std::string Scopable::sourceUnitName() const
 
 bool Declaration::isEnumValue() const
 {
-	solAssert(scope(), "");
+	hypAssert(scope(), "");
 	return dynamic_cast<EnumDefinition const*>(scope());
 }
 
 bool Declaration::isStructMember() const
 {
-	solAssert(scope(), "");
+	hypAssert(scope(), "");
 	return dynamic_cast<StructDefinition const*>(scope());
 }
 
 bool Declaration::isEventOrErrorParameter() const
 {
-	solAssert(scope(), "");
+	hypAssert(scope(), "");
 	return dynamic_cast<EventDefinition const*>(scope()) || dynamic_cast<ErrorDefinition const*>(scope());
 }
 
@@ -797,7 +797,7 @@ bool VariableDeclaration::isLibraryFunctionParameter() const
 
 bool VariableDeclaration::hasReferenceOrMappingType() const
 {
-	solAssert(typeName().annotation().type, "Can only be called after reference resolution");
+	hypAssert(typeName().annotation().type, "Can only be called after reference resolution");
 	Type const* type = typeName().annotation().type;
 	return type->category() == Type::Category::Mapping || dynamic_cast<ReferenceType const*>(type);
 }
@@ -842,7 +842,7 @@ std::set<VariableDeclaration::Location> VariableDeclaration::allowedDataLocation
 
 std::string VariableDeclaration::externalIdentifierHex() const
 {
-	solAssert(isStateVariable() && isPublic(), "Can only be called for public state variables");
+	hypAssert(isStateVariable() && isPublic(), "Can only be called for public state variables");
 	return TypeProvider::function(*this)->externalIdentifierHex();
 }
 
@@ -858,7 +858,7 @@ FunctionTypePointer VariableDeclaration::functionType(bool _internal) const
 	switch (visibility())
 	{
 	case Visibility::Default:
-		solAssert(false, "visibility() should not return Default");
+		hypAssert(false, "visibility() should not return Default");
 	case Visibility::Private:
 	case Visibility::Internal:
 		return nullptr;
@@ -982,14 +982,14 @@ std::vector<ASTPointer<Expression const>> FunctionCall::sortedArguments() const
 			if ((found = (parameterName == *m_names.at(j))))
 				// we found the actual parameter position
 				sorted.push_back(m_arguments.at(j));
-		solAssert(found, "");
+		hypAssert(found, "");
 	}
 
 	if (!functionType->takesArbitraryParameters())
 	{
-		solAssert(m_arguments.size() == functionType->parameterTypes().size(), "");
-		solAssert(m_arguments.size() == m_names.size(), "");
-		solAssert(m_arguments.size() == sorted.size(), "");
+		hypAssert(m_arguments.size() == functionType->parameterTypes().size(), "");
+		hypAssert(m_arguments.size() == m_names.size(), "");
+		hypAssert(m_arguments.size() == sorted.size(), "");
 	}
 
 	return sorted;
@@ -1025,13 +1025,13 @@ bool Literal::looksLikeAddress() const
 
 bool Literal::passesAddressChecksum() const
 {
-	solAssert(isHexNumber(), "Expected hex number");
+	hypAssert(isHexNumber(), "Expected hex number");
 	return util::passesAddressChecksum(valueWithoutUnderscores(), true);
 }
 
 std::string Literal::getChecksummedAddress() const
 {
-	solAssert(isHexNumber(), "Expected hex number");
+	hypAssert(isHexNumber(), "Expected hex number");
 	/// Pad literal to be a proper hex address.
 	std::string address = valueWithoutUnderscores().substr(2);
 	if (address.length() > 40)
@@ -1042,7 +1042,7 @@ std::string Literal::getChecksummedAddress() const
 
 TryCatchClause const* TryStatement::successClause() const
 {
-	solAssert(m_clauses.size() > 0, "");
+	hypAssert(m_clauses.size() > 0, "");
 	return m_clauses[0].get();
 }
 

@@ -1,24 +1,24 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolutil/TemporaryDirectory.h>
+#include <libhyputil/TemporaryDirectory.h>
 
-#include <libsolidity/util/SoltestErrors.h>
+#include <libhyperion/util/HyptestErrors.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
@@ -27,7 +27,7 @@
 
 using namespace boost::test_tools;
 
-namespace solidity::util::test
+namespace hyperion::util::test
 {
 
 BOOST_AUTO_TEST_SUITE(TemporaryDirectoryTest)
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(TemporaryDirectory_should_delete_its_directory_even_if_not_
 			std::ofstream tmpFile((dirPath / "test-file.txt").string());
 			tmpFile << "Delete me!" << std::endl;
 		}
-		soltestAssert(boost::filesystem::is_regular_file(dirPath / "test-file.txt"), "");
+		hyptestAssert(boost::filesystem::is_regular_file(dirPath / "test-file.txt"), "");
 	}
 	BOOST_TEST(!boost::filesystem::exists(dirPath / "test-file.txt"));
 }
@@ -86,8 +86,8 @@ BOOST_AUTO_TEST_CASE(TemporaryWorkingDirectory_should_change_and_restore_working
 	{
 		{
 			TemporaryDirectory tempDir("temporary-directory-test");
-			soltestAssert(boost::filesystem::equivalent(boost::filesystem::current_path(), originalWorkingDirectory), "");
-			soltestAssert(!boost::filesystem::equivalent(tempDir.path(), originalWorkingDirectory), "");
+			hyptestAssert(boost::filesystem::equivalent(boost::filesystem::current_path(), originalWorkingDirectory), "");
+			hyptestAssert(!boost::filesystem::equivalent(tempDir.path(), originalWorkingDirectory), "");
 
 			TemporaryWorkingDirectory tempWorkDir(tempDir.path());
 

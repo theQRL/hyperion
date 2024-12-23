@@ -1,41 +1,41 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Lefteris Karapetsas <lefteris@ethdev.com>
  * @date 2015
- * Unit tests for Assembly Items from evmasm/Assembly.h
+ * Unit tests for Assembly Items from zvmasm/Assembly.h
  */
 
 #include <test/Common.h>
 
 #include <liblangutil/SourceLocation.h>
-#include <libevmasm/Assembly.h>
+#include <libzvmasm/Assembly.h>
 
 #include <liblangutil/CharStream.h>
 
-#include <libsolidity/parsing/Parser.h>
-#include <libsolidity/analysis/DeclarationTypeChecker.h>
-#include <libsolidity/analysis/NameAndTypeResolver.h>
-#include <libsolidity/analysis/Scoper.h>
-#include <libsolidity/codegen/Compiler.h>
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/analysis/TypeChecker.h>
-#include <libsolidity/analysis/SyntaxChecker.h>
+#include <libhyperion/parsing/Parser.h>
+#include <libhyperion/analysis/DeclarationTypeChecker.h>
+#include <libhyperion/analysis/NameAndTypeResolver.h>
+#include <libhyperion/analysis/Scoper.h>
+#include <libhyperion/codegen/Compiler.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/analysis/TypeChecker.h>
+#include <libhyperion/analysis/SyntaxChecker.h>
 #include <liblangutil/ErrorReporter.h>
 
 #include <boost/test/unit_test.hpp>
@@ -43,20 +43,20 @@
 #include <string>
 #include <iostream>
 
-using namespace solidity::langutil;
-using namespace solidity::evmasm;
+using namespace hyperion::langutil;
+using namespace hyperion::zvmasm;
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 namespace
 {
 
-evmasm::AssemblyItems compileContract(std::shared_ptr<CharStream> _sourceCode)
+zvmasm::AssemblyItems compileContract(std::shared_ptr<CharStream> _sourceCode)
 {
 	ErrorList errors;
 	ErrorReporter errorReporter(errors);
-	Parser parser(errorReporter, solidity::test::CommonOptions::get().evmVersion());
+	Parser parser(errorReporter, hyperion::test::CommonOptions::get().zvmVersion());
 	ASTPointer<SourceUnit> sourceUnit;
 	BOOST_REQUIRE_NO_THROW(sourceUnit = parser.parse(*_sourceCode));
 	BOOST_CHECK(!!sourceUnit);
@@ -64,9 +64,9 @@ evmasm::AssemblyItems compileContract(std::shared_ptr<CharStream> _sourceCode)
 	Scoper::assignScopes(*sourceUnit);
 	BOOST_REQUIRE(SyntaxChecker(errorReporter, false).checkSyntax(*sourceUnit));
 	GlobalContext globalContext;
-	NameAndTypeResolver resolver(globalContext, solidity::test::CommonOptions::get().evmVersion(), errorReporter);
-	DeclarationTypeChecker declarationTypeChecker(errorReporter, solidity::test::CommonOptions::get().evmVersion());
-	solAssert(!Error::containsErrors(errorReporter.errors()), "");
+	NameAndTypeResolver resolver(globalContext, hyperion::test::CommonOptions::get().zvmVersion(), errorReporter);
+	DeclarationTypeChecker declarationTypeChecker(errorReporter, hyperion::test::CommonOptions::get().zvmVersion());
+	hypAssert(!Error::containsErrors(errorReporter.errors()), "");
 	resolver.registerDeclarations(*sourceUnit);
 	BOOST_REQUIRE_NO_THROW(resolver.resolveNamesAndTypes(*sourceUnit));
 	if (Error::containsErrors(errorReporter.errors()))
@@ -77,7 +77,7 @@ evmasm::AssemblyItems compileContract(std::shared_ptr<CharStream> _sourceCode)
 		if (Error::containsErrors(errorReporter.errors()))
 			return AssemblyItems();
 	}
-	TypeChecker checker(solidity::test::CommonOptions::get().evmVersion(), errorReporter);
+	TypeChecker checker(hyperion::test::CommonOptions::get().zvmVersion(), errorReporter);
 	BOOST_REQUIRE_NO_THROW(checker.checkTypeRequirements(*sourceUnit));
 	if (Error::containsErrors(errorReporter.errors()))
 		return AssemblyItems();
@@ -85,9 +85,9 @@ evmasm::AssemblyItems compileContract(std::shared_ptr<CharStream> _sourceCode)
 		if (ContractDefinition* contract = dynamic_cast<ContractDefinition*>(node.get()))
 		{
 			Compiler compiler(
-				solidity::test::CommonOptions::get().evmVersion(),
+				hyperion::test::CommonOptions::get().zvmVersion(),
 				RevertStrings::Default,
-				solidity::test::CommonOptions::get().optimize ? OptimiserSettings::standard() : OptimiserSettings::minimal()
+				hyperion::test::CommonOptions::get().optimize ? OptimiserSettings::standard() : OptimiserSettings::minimal()
 			);
 			compiler.compileContract(*contract, std::map<ContractDefinition const*, std::shared_ptr<Compiler const>>{}, bytes());
 
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(location_test)
 	auto codegenCharStream = std::make_shared<CharStream>("", "--CODEGEN--");
 
 	std::vector<SourceLocation> locations;
-	if (solidity::test::CommonOptions::get().optimize)
+	if (hyperion::test::CommonOptions::get().optimize)
 		locations =
 			std::vector<SourceLocation>(31, SourceLocation{23, 103, sourceName}) +
 			std::vector<SourceLocation>(1, SourceLocation{41, 100, sourceName}) +
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE(jump_type)
 		if (item.getJumpType() != AssemblyItem::JumpType::Ordinary)
 			jumpTypes += item.getJumpTypeAsString() + "\n";
 
-	if (solidity::test::CommonOptions::get().optimize)
+	if (hyperion::test::CommonOptions::get().optimize)
 		BOOST_CHECK_EQUAL(jumpTypes, "[in]\n[out]\n[out]\n[in]\n[out]\n");
 	else
 		BOOST_CHECK_EQUAL(jumpTypes, "[in]\n[out]\n[in]\n[out]\n");

@@ -1,31 +1,31 @@
 /*
-	This file is part of solidity.
-	solidity is free software: you can redistribute it and/or modify
+	This file is part of hyperion.
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
 
-#include <libsolutil/AnsiColorized.h>
-#include <libsolutil/CommonData.h>
+#include <libhyputil/AnsiColorized.h>
+#include <libhyputil/CommonData.h>
 
 #include <test/ExecutionFramework.h>
 
 #include <utility>
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 /**
- * All soltest tokens.
+ * All hyptest tokens.
  */
 #define SOLT_TOKEN_LIST(T, K)          \
 	T(Unknown, "unknown", 0)           \
@@ -64,7 +64,7 @@ namespace solidity::frontend::test
 	K(Failure, "FAILURE", 0)           \
 	K(Gas, "gas", 0)                   \
 
-namespace soltest
+namespace hyptest
 {
 	enum class Token : unsigned int {
 	#define T(name, string, precedence) name,
@@ -94,7 +94,7 @@ namespace soltest
  * return values to `bytes` and vice-versa.
  * Defaults to None, a 0-byte representation. 0-bytes
  * can also be interpreted as Failure, which means
- * either a REVERT or another EVM failure.
+ * either a REVERT or another ZVM failure.
  */
 struct ABIType
 {
@@ -135,7 +135,7 @@ struct ABIType
 
 /**
  * Helper that can hold format information retrieved
- * while scanning through a parameter list in soltest.
+ * while scanning through a parameter list in hyptest.
  */
 struct FormatInfo
 {
@@ -200,7 +200,7 @@ struct FunctionCallExpectations
 	/// a function call when used in test framework.
 	ParameterList result;
 	/// Expected status of the transaction. It can be either
-	/// a REVERT or a different EVM failure (e.g. out-of-gas).
+	/// a REVERT or a different ZVM failure (e.g. out-of-gas).
 	bool failure = true;
 	/// A Comment that can be attached to the expectations,
 	/// that is retained and can be displayed.

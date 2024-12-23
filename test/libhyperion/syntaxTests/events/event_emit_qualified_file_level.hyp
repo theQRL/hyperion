@@ -1,7 +1,7 @@
-==== Source: M.sol ====
+==== Source: M.hyp ====
 event E();
-==== Source: A.sol ====
-import "M.sol" as M;
+==== Source: A.hyp ====
+import "M.hyp" as M;
 
 function f() {
     emit M.E();

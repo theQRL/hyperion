@@ -1,64 +1,64 @@
 /*
-    This file is part of solidity.
+    This file is part of hyperion.
 
-    solidity is free software: you can redistribute it and/or modify
+    hyperion is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    solidity is distributed in the hope that it will be useful,
+    hyperion is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+    along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
 
-#include <test/EVMHost.h>
+#include <test/ZVMHost.h>
 
 #include <libyul/YulStack.h>
 
-#include <libsolidity/interface/OptimiserSettings.h>
+#include <libhyperion/interface/OptimiserSettings.h>
 
 #include <liblangutil/DebugInfoSelection.h>
 
-namespace solidity::test::fuzzer
+namespace hyperion::test::fuzzer
 {
 class YulAssembler
 {
 public:
 	YulAssembler(
-		langutil::EVMVersion _evmVersion,
-		solidity::frontend::OptimiserSettings _optSettings,
+		langutil::ZVMVersion _zvmVersion,
+		hyperion::frontend::OptimiserSettings _optSettings,
 		std::string const& _yulSource
 	):
 		m_stack(
-			_evmVersion,
-			solidity::yul::YulStack::Language::StrictAssembly,
+			_zvmVersion,
+			hyperion::yul::YulStack::Language::StrictAssembly,
 			_optSettings,
 			langutil::DebugInfoSelection::All()
 		),
 		m_yulProgram(_yulSource),
 		m_optimiseYul(_optSettings.runYulOptimiser)
 	{}
-	solidity::bytes assemble();
+	hyperion::bytes assemble();
 	std::shared_ptr<yul::Object> object();
 private:
-	solidity::yul::YulStack m_stack;
+	hyperion::yul::YulStack m_stack;
 	std::string m_yulProgram;
 	bool m_optimiseYul;
 };
 
-struct YulEvmoneUtility
+struct YulZvmoneUtility
 {
 	/// @returns the result of deploying bytecode @param _input on @param _host.
-	static evmc::Result deployCode(solidity::bytes const& _input, EVMHost& _host);
+	static zvmc::Result deployCode(hyperion::bytes const& _input, ZVMHost& _host);
 	/// @returns call message to be sent to @param _address.
-	static evmc_message callMessage(evmc_address _address);
+	static zvmc_message callMessage(zvmc_address _address);
 	/// @returns true if call result indicates a serious error, false otherwise.
-	static bool seriousCallError(evmc_status_code _code);
+	static bool seriousCallError(zvmc_status_code _code);
 };
 }

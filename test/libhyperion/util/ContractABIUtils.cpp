@@ -1,29 +1,29 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <test/libsolidity/util/ContractABIUtils.h>
+#include <test/libhyperion/util/ContractABIUtils.h>
 
-#include <test/libsolidity/util/SoltestErrors.h>
+#include <test/libhyperion/util/HyptestErrors.h>
 
-#include <libsolidity/ast/Types.h>
-#include <libsolidity/ast/TypeProvider.h>
-#include <libsolutil/FunctionSelector.h>
-#include <libsolutil/CommonData.h>
+#include <libhyperion/ast/Types.h>
+#include <libhyperion/ast/TypeProvider.h>
+#include <libhyputil/FunctionSelector.h>
+#include <libhyputil/CommonData.h>
 
 #include <liblangutil/Common.h>
 
@@ -37,22 +37,22 @@
 #include <regex>
 #include <stdexcept>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::langutil;
-using namespace solidity::frontend::test;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend::test;
 
 namespace
 {
 
-using ParameterList = solidity::frontend::test::ParameterList;
+using ParameterList = hyperion::frontend::test::ParameterList;
 
 size_t arraySize(std::string const& _arrayType)
 {
 	auto leftBrack = _arrayType.find("[");
 	auto rightBrack = _arrayType.rfind("]");
 
-	soltestAssert(
+	hyptestAssert(
 		leftBrack != std::string::npos &&
 		rightBrack != std::string::npos &&
 		rightBrack == _arrayType.size() - 1 &&
@@ -159,7 +159,7 @@ std::string functionSignatureFromABI(Json::Value const& _functionABI)
 
 }
 
-std::optional<solidity::frontend::test::ParameterList> ContractABIUtils::parametersFromJsonOutputs(
+std::optional<hyperion::frontend::test::ParameterList> ContractABIUtils::parametersFromJsonOutputs(
 	ErrorReporter& _errorReporter,
 	Json::Value const& _contractABI,
 	std::string const& _functionSignature
@@ -275,8 +275,8 @@ bool ContractABIUtils::appendTypesFromName(
 
 void ContractABIUtils::overwriteParameters(
 	ErrorReporter& _errorReporter,
-	solidity::frontend::test::ParameterList& _targetParameters,
-	solidity::frontend::test::ParameterList const& _sourceParameters
+	hyperion::frontend::test::ParameterList& _targetParameters,
+	hyperion::frontend::test::ParameterList const& _sourceParameters
 )
 {
 	using namespace std::placeholders;
@@ -292,10 +292,10 @@ void ContractABIUtils::overwriteParameters(
 			}
 }
 
-solidity::frontend::test::ParameterList ContractABIUtils::preferredParameters(
+hyperion::frontend::test::ParameterList ContractABIUtils::preferredParameters(
 	ErrorReporter& _errorReporter,
-	solidity::frontend::test::ParameterList const& _targetParameters,
-	solidity::frontend::test::ParameterList const& _sourceParameters,
+	hyperion::frontend::test::ParameterList const& _targetParameters,
+	hyperion::frontend::test::ParameterList const& _sourceParameters,
 	bytes const& _bytes
 )
 {
@@ -312,7 +312,7 @@ solidity::frontend::test::ParameterList ContractABIUtils::preferredParameters(
 		return _targetParameters;
 }
 
-solidity::frontend::test::ParameterList ContractABIUtils::defaultParameters(size_t count)
+hyperion::frontend::test::ParameterList ContractABIUtils::defaultParameters(size_t count)
 {
 	ParameterList parameters;
 
@@ -325,7 +325,7 @@ solidity::frontend::test::ParameterList ContractABIUtils::defaultParameters(size
 	return parameters;
 }
 
-solidity::frontend::test::ParameterList ContractABIUtils::failureParameters(bytes const& _bytes)
+hyperion::frontend::test::ParameterList ContractABIUtils::failureParameters(bytes const& _bytes)
 {
 	if (_bytes.empty())
 		return {};
@@ -356,7 +356,7 @@ solidity::frontend::test::ParameterList ContractABIUtils::failureParameters(byte
 }
 
 size_t ContractABIUtils::encodingSize(
-	solidity::frontend::test::ParameterList const& _parameters
+	hyperion::frontend::test::ParameterList const& _parameters
 )
 {
 	auto sizeFold = [](size_t const _a, Parameter const& _b) { return _a + _b.abiType.size; };

@@ -4,11 +4,11 @@ set -euo pipefail
 # shellcheck source=scripts/common.sh
 source "${REPO_ROOT}/scripts/common.sh"
 
-SOLTMPDIR=$(mktemp -d -t "cmdline-test-evmasm-import-export-XXXXXX")
-cd "$SOLTMPDIR"
-if ! "$REPO_ROOT/scripts/ASTImportTest.sh" evm-assembly
+HYPTMPDIR=$(mktemp -d -t "cmdline-test-zvmasm-import-export-XXXXXX")
+cd "$HYPTMPDIR"
+if ! "$REPO_ROOT/scripts/ASTImportTest.sh" zvm-assembly
 then
-    rm -r "$SOLTMPDIR"
+    rm -r "$HYPTMPDIR"
     fail
 fi
-rm -r "$SOLTMPDIR"
+rm -r "$HYPTMPDIR"

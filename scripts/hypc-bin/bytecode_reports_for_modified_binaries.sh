@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # ------------------------------------------------------------------------------
-# Determines versions of all release binaries from solc-bin repo modified in the
+# Determines versions of all release binaries from hypc-bin repo modified in the
 # specified commit range, finds all release binaries from one, selected platform
 # that match these versions and uses them to produce bytecode reports.
 #
@@ -14,37 +14,37 @@
 # 'report-<binary name>.txt'.
 #
 # Usage:
-#    <script name>.sh <PLATFORM> <BASE_REF> <TOP_REF> <SOLC_BIN_DIR> <SOLIDITY_DIR>
+#    <script name>.sh <PLATFORM> <BASE_REF> <TOP_REF> <HYPC_BIN_DIR> <HYPERION_DIR>
 #
 # PLATFORM: Platform name, corresponding the one of the top-level directories
-#     in solc-bin.
-# BASE_REF..TOP_REF: Commit range in the solc-bin repository to search for
+#     in hypc-bin.
+# BASE_REF..TOP_REF: Commit range in the hypc-bin repository to search for
 #     modified binaries.
-# SOLC_BIN_DIR: Directory containing a checkout of the ethereum/solc-bin
+# HYPC_BIN_DIR: Directory containing a checkout of the ethereum/hypc-bin
 #    repository with full history. Must be an absolute path.
-# SOLIDITY_DIR: Directory containing a checkout of the ethereum/solidity
+# HYPERION_DIR: Directory containing a checkout of the ethereum/hyperion
 #    repository with full history. Bytecode report will be generated using
 #    scripts from the currently checked out revision. Must be an absolute path.
 #
 # Example:
-#    <script name>.sh linux-amd64 gh-pages pr-branch "$PWD/solc-bin" "$PWD/solidity"
+#    <script name>.sh linux-amd64 gh-pages pr-branch "$PWD/hypc-bin" "$PWD/hyperion"
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2020 solidity contributors.
+# (c) 2020 hyperion contributors.
 #------------------------------------------------------------------------------
 
 # FIXME: Can't use set -u because the old Bash on macOS treats empty arrays as unbound variables
@@ -57,13 +57,13 @@ function die
     exit 1
 }
 
-function get_reported_solc_version
+function get_reported_hypc_version
 {
-    local solc_binary="$1"
+    local hypc_binary="$1"
 
-    local version_banner; version_banner=$("$solc_binary" --version)
+    local version_banner; version_banner=$("$hypc_binary" --version)
 
-    if [[ ! $(echo "$version_banner" | head -n 1) =~ ^solc,.*$ ]]; then
+    if [[ ! $(echo "$version_banner" | head -n 1) =~ ^hypc,.*$ ]]; then
         die "%s\nFULL OUTPUT:\n" "Invalid format of --version output" "$version_banner"
     fi
 
@@ -96,91 +96,91 @@ function validate_reported_version
 platform="$1"
 base_ref="$2"
 top_ref="$3"
-solc_bin_dir="$4"
-solidity_dir="$5"
+hypc_bin_dir="$4"
+hyperion_dir="$5"
 
 report_dir="$PWD"
 tmp_dir=$(mktemp -d -t bytecode-reports-XXXXXX)
-solcjs_dir="$tmp_dir/solcjs"
-script_dir="$solidity_dir/scripts"
+hypcjs_dir="$tmp_dir/hypcjs"
+script_dir="$hyperion_dir/scripts"
 
 # Set locale to C to prevent it from affecting glob sort order.
 export LC_ALL=C
 
 cd "$tmp_dir"
 
-git clone https://github.com/ethereum/solc-js.git "$solcjs_dir"
-cd "$solcjs_dir"
+git clone https://github.com/theQRL/hypc-js.git "$hypcjs_dir"
+cd "$hypcjs_dir"
 npm install
 npm run build
 
-cd "${solc_bin_dir}/${platform}/"
+cd "${hypc_bin_dir}/${platform}/"
 echo "Commit range: ${base_ref}..${top_ref}"
 
 modified_release_versions=$(
     git diff --name-only "${base_ref}" "${top_ref}" |
-    sed -n -E 's/^[^\/]+\/(solc|soljson)-[0-9a-zA-Z-]+-v([0-9.]+)\+commit\.[0-9a-f]+(.[^.]+)?$/\2/p' |
+    sed -n -E 's/^[^\/]+\/(hypc|hypjson)-[0-9a-zA-Z-]+-v([0-9.]+)\+commit\.[0-9a-f]+(.[^.]+)?$/\2/p' |
     sort -V |
     uniq
 )
 echo "Release versions modified in the commit range:"
 echo "$modified_release_versions"
 
-# NOTE: We want perform the check when the soljson-* files in bin/ and wasm/ are modified too
+# NOTE: We want perform the check when the hypjson-* files in bin/ and wasm/ are modified too
 # because in that case the symlinks in emscripten-wasm32/ and emscripten-asmjs/ might remain
 # unchanged but were're assuming that these directories are never directly used as a platform name.
 [[ $platform != bin && $platform != wasm ]] || die "Invalid platform name."
 
-platform_binaries="$(git ls-files "solc-${platform}-v*+commit.*" | sort -V)"
+platform_binaries="$(git ls-files "hypc-${platform}-v*+commit.*" | sort -V)"
 
 for binary_name in $platform_binaries; do
-    solidity_version_and_commit=$(echo "$binary_name" | sed -n -E 's/^solc-'"${platform}"'-v([0-9.]+\+commit\.[0-9a-f]+).*$/\1/p')
-    solidity_version=$(echo "$solidity_version_and_commit" | sed -n -E 's/^([0-9.]+).*$/\1/p')
+    hyperion_version_and_commit=$(echo "$binary_name" | sed -n -E 's/^hypc-'"${platform}"'-v([0-9.]+\+commit\.[0-9a-f]+).*$/\1/p')
+    hyperion_version=$(echo "$hyperion_version_and_commit" | sed -n -E 's/^([0-9.]+).*$/\1/p')
 
-    if echo "$modified_release_versions" | grep -x "$solidity_version"; then
-        echo "Binary ${binary_name} (version ${solidity_version}) matches one of the modified versions."
+    if echo "$modified_release_versions" | grep -x "$hyperion_version"; then
+        echo "Binary ${binary_name} (version ${hyperion_version}) matches one of the modified versions."
 
         work_dir="${tmp_dir}/${binary_name}"
         mkdir "$work_dir"
         cd "$work_dir"
 
         # While bytecode scripts come from the latest compiler, the test files should come from
-        # the Solidity version we're running them against to avoid errors due to breaking syntax changes.
-        git clone --branch "v${solidity_version}" "$solidity_dir" "${work_dir}/solidity/"
-        "${script_dir}/isolate_tests.py" "${work_dir}/solidity/test/"
+        # the Hyperion version we're running them against to avoid errors due to breaking syntax changes.
+        git clone --branch "v${hyperion_version}" "$hyperion_dir" "${work_dir}/hyperion/"
+        "${script_dir}/isolate_tests.py" "${work_dir}/hyperion/test/"
 
         if [[ $platform == emscripten-wasm32 ]] || [[ $platform == emscripten-asmjs ]]; then
-            ln -sf "${solc_bin_dir}/${platform}/${binary_name}" "${solcjs_dir}/soljson.js"
-            ln -sf "${solc_bin_dir}/${platform}/${binary_name}" "${solcjs_dir}/dist/soljson.js"
-            npm install "${solcjs_dir}/dist"
+            ln -sf "${hypc_bin_dir}/${platform}/${binary_name}" "${hypcjs_dir}/hypjson.js"
+            ln -sf "${hypc_bin_dir}/${platform}/${binary_name}" "${hypcjs_dir}/dist/hypjson.js"
+            npm install "${hypcjs_dir}/dist"
             cp "${script_dir}/bytecodecompare/prepare_report.js" prepare_report.js
 
             validate_reported_version \
-                "$(node_modules/solc/solc.js --version)" \
-                "$solidity_version_and_commit"
+                "$(node_modules/hypc/hypc.js --version)" \
+                "$hyperion_version_and_commit"
 
             # shellcheck disable=SC2035
-            ./prepare_report.js --strip-smt-pragmas *.sol > "${report_dir}/report-${binary_name}.txt"
+            ./prepare_report.js --strip-smt-pragmas *.hyp > "${report_dir}/report-${binary_name}.txt"
         else
             yul_optimizer_flags=()
-            if [[ $solidity_version == 0.6.0 ]] || [[ $solidity_version == 0.6.1 ]]; then
+            if [[ $hyperion_version == 0.6.0 ]] || [[ $hyperion_version == 0.6.1 ]]; then
                 yul_optimizer_flags+=(--force-no-optimize-yul)
             fi
 
             validate_reported_version \
-                "$(get_reported_solc_version "${solc_bin_dir}/${platform}/${binary_name}")" \
-                "$solidity_version_and_commit"
+                "$(get_reported_hypc_version "${hypc_bin_dir}/${platform}/${binary_name}")" \
+                "$hyperion_version_and_commit"
 
-            "${script_dir}/bytecodecompare/prepare_report.py" "${solc_bin_dir}/${platform}/${binary_name}" \
+            "${script_dir}/bytecodecompare/prepare_report.py" "${hypc_bin_dir}/${platform}/${binary_name}" \
                 --interface cli \
                 --smt-use strip-pragmas \
                 --report-file "${report_dir}/report-${binary_name}.txt" \
                 "${yul_optimizer_flags[@]}"
         fi
 
-        rm -r "${work_dir}/solidity/"
+        rm -r "${work_dir}/hyperion/"
     else
-        echo "Binary ${binary_name} (version ${solidity_version}) does not match any modified version. Skipping."
+        echo "Binary ${binary_name} (version ${hyperion_version}) does not match any modified version. Skipping."
     fi
 done
 

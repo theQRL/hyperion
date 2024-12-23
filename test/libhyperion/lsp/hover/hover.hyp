@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.0;
+pragma hyperion >=0.8.0;
 
 /// Documenting another contract here.
 contract AnotherContract {}
@@ -48,7 +48,7 @@ contract User
 // <- {
 //     "contents": {
 //         "kind": "markdown",
-//         "value": "```solidity\ntype(enum User.SomeEnum)\n```\n\nSome enum value.\n\n"
+//         "value": "```hyperion\ntype(enum User.SomeEnum)\n```\n\nSome enum value.\n\n"
 //     },
 //     "range": {
 //         "end": {
@@ -67,7 +67,7 @@ contract User
 // <- {
 //     "contents": {
 //         "kind": "markdown",
-//         "value": "```solidity\ntype(enum User.SomeEnum)\n```\n\nSome enum value.\n\n"
+//         "value": "```hyperion\ntype(enum User.SomeEnum)\n```\n\nSome enum value.\n\n"
 //     },
 //     "range": {
 //         "end": {
@@ -86,7 +86,7 @@ contract User
 // <- {
 //     "contents": {
 //         "kind": "markdown",
-//         "value": "```solidity\ntype(contract User)\n```\n\nUser being documented.\n\n"
+//         "value": "```hyperion\ntype(contract User)\n```\n\nUser being documented.\n\n"
 //     },
 //     "range": @Cursor3Range
 // }
@@ -96,7 +96,7 @@ contract User
 // <- {
 //     "contents": {
 //         "kind": "markdown",
-//         "value": "```solidity\nenum User.SomeEnum\n```\n\n"
+//         "value": "```hyperion\nenum User.SomeEnum\n```\n\n"
 //     },
 //     "range": @Cursor4Range
 // }
@@ -106,7 +106,7 @@ contract User
 // <- {
 //     "contents": {
 //         "kind": "markdown",
-//         "value": "```solidity\ntype(contract AnotherContract)\n```\n\nDocumenting another contract here.\n\n"
+//         "value": "```hyperion\ntype(contract AnotherContract)\n```\n\nDocumenting another contract here.\n\n"
 //     },
 //     "range": @Cursor5Range
 // }

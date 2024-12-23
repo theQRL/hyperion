@@ -1,6 +1,6 @@
-pragma solidity >=0.0;
-import "Factory.sol";
-import "MultiSigWalletWithDailyLimit.sol";
+pragma hyperion >=0.0;
+import "Factory.hyp";
+import "MultiSigWalletWithDailyLimit.hyp";
 
 
 /// @title Multisignature wallet factory for daily limit version - Allows creation of multisig wallet.

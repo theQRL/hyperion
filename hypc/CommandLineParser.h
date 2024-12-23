@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -20,17 +20,17 @@
  */
 #pragma once
 
-#include <libsolidity/interface/CompilerStack.h>
-#include <libsolidity/interface/DebugSettings.h>
-#include <libsolidity/interface/FileReader.h>
-#include <libsolidity/interface/ImportRemapper.h>
+#include <libhyperion/interface/CompilerStack.h>
+#include <libhyperion/interface/DebugSettings.h>
+#include <libhyperion/interface/FileReader.h>
+#include <libhyperion/interface/ImportRemapper.h>
 
 #include <libyul/YulStack.h>
 
 #include <liblangutil/DebugInfoSelection.h>
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
-#include <libsolutil/JSON.h>
+#include <libhyputil/JSON.h>
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem/path.hpp>
@@ -43,7 +43,7 @@
 #include <string>
 #include <vector>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 enum class InputMode
@@ -57,7 +57,7 @@ enum class InputMode
 	Linker,
 	Assembler,
 	LanguageServer,
-	EVMAssemblerJSON
+	ZVMAssemblerJSON
 };
 
 struct CompilerOutputs
@@ -182,7 +182,7 @@ struct CommandLineOptions
 	{
 		boost::filesystem::path dir;
 		bool overwriteFiles = false;
-		langutil::EVMVersion evmVersion;
+		langutil::ZVMVersion zvmVersion;
 		bool viaIR = false;
 		RevertStrings revertStrings = RevertStrings::Default;
 		std::optional<langutil::DebugInfoSelection> debugInfoSelection;
@@ -191,7 +191,7 @@ struct CommandLineOptions
 
 	struct
 	{
-		yul::YulStack::Machine targetMachine = yul::YulStack::Machine::EVM;
+		yul::YulStack::Machine targetMachine = yul::YulStack::Machine::ZVM;
 		yul::YulStack::Language inputLanguage = yul::YulStack::Language::StrictAssembly;
 	} assembly;
 
@@ -223,7 +223,7 @@ struct CommandLineOptions
 
 	struct
 	{
-		bool optimizeEvmasm = false;
+		bool optimizeZvmasm = false;
 		bool optimizeYul = false;
 		std::optional<unsigned> expectedExecutionsPerDeployment;
 		std::optional<std::string> yulSteps;
@@ -295,4 +295,4 @@ private:
 	boost::program_options::variables_map m_args;
 };
 
-} // namespace solidity::frontend
+} // namespace hyperion::frontend

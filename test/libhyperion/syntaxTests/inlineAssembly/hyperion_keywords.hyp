@@ -1,7 +1,7 @@
 contract C {
   function f() view public {
     assembly {
-  // These are keywords of Solidity -- a copy from liblangutil/Token.h.
+  // These are keywords of Hyperion -- a copy from liblangutil/Token.h.
   let abstract := 1
   let anonymous := 1
   let as := 1
@@ -41,14 +41,14 @@ contract C {
   let private := 1
   let pure := 1
   let receive := 1
-  // return is a builtin in EVMDialect
+  // return is a builtin in ZVMDialect
   return(0, 0)
   let returns := 1
   let storage := 1
   let calldata := 1
   let struct := 1
   let try := 1
-  // type shadows the Solidity function
+  // type shadows the Hyperion function
   let unicode := 1
   let using := 1
   let view := 1
@@ -66,10 +66,10 @@ contract C {
   let int := 1
   let uint := 1
   let bytes := 1
-  // byte is a builtin in EVMDialect
+  // byte is a builtin in ZVMDialect
   pop(byte(1, 1))
   let string := 1
-  // address is a builtin in EVMDialect
+  // address is a builtin in ZVMDialect
   pop(address())
   let bool := 1
   let fixed := 1

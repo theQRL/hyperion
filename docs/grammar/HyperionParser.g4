@@ -1,12 +1,12 @@
 /**
- * Solidity is a statically typed, contract-oriented, high-level language for implementing smart contracts on the Ethereum platform.
+ * Hyperion is a statically typed, contract-oriented, high-level language for implementing smart contracts on the Zond platform.
  */
-parser grammar SolidityParser;
+parser grammar HyperionParser;
 
-options { tokenVocab=SolidityLexer; }
+options { tokenVocab=HyperionLexer; }
 
 /**
- * On top level, Solidity allows pragmas, import directives, and
+ * On top level, Hyperion allows pragmas, import directives, and
  * definitions of contracts, interfaces, libraries, structs, enums and constants.
  */
 sourceUnit: (
@@ -597,12 +597,12 @@ yulFunctionDefinition:
  * While only identifiers without dots can be declared within inline assembly,
  * paths containing dots can refer to declarations outside the inline assembly block.
  */
-yulPath: YulIdentifier (YulPeriod (YulIdentifier | YulEVMBuiltin))*;
+yulPath: YulIdentifier (YulPeriod (YulIdentifier | YulZVMBuiltin))*;
 /**
  * A call to a function with return values can only occur as right-hand side of an assignment or
  * a variable declaration.
  */
-yulFunctionCall: (YulIdentifier | YulEVMBuiltin) YulLParen (yulExpression (YulComma yulExpression)*)? YulRParen;
+yulFunctionCall: (YulIdentifier | YulZVMBuiltin) YulLParen (yulExpression (YulComma yulExpression)*)? YulRParen;
 yulBoolean: YulTrue | YulFalse;
 yulLiteral: YulDecimalNumber | YulStringLiteral | YulHexNumber | yulBoolean | YulHexStringLiteral;
 yulExpression: yulPath | yulFunctionCall | yulLiteral;

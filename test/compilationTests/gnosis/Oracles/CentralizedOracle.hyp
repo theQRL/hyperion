@@ -1,5 +1,5 @@
-pragma solidity >=0.0;
-import "../Oracles/Oracle.sol";
+pragma hyperion >=0.0;
+import "../Oracles/Oracle.hyp";
 
 
 /// @title Centralized oracle contract - Allows the contract owner to set an outcome

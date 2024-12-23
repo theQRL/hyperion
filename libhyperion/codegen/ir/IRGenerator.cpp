@@ -1,52 +1,52 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Alex Beregszaszi
  * @date 2017
- * Component that translates Solidity code into Yul.
+ * Component that translates Hyperion code into Yul.
  */
 
-#include <libsolidity/codegen/ir/Common.h>
-#include <libsolidity/codegen/ir/IRGenerator.h>
-#include <libsolidity/codegen/ir/IRGeneratorForStatements.h>
+#include <libhyperion/codegen/ir/Common.h>
+#include <libhyperion/codegen/ir/IRGenerator.h>
+#include <libhyperion/codegen/ir/IRGeneratorForStatements.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/ASTVisitor.h>
-#include <libsolidity/codegen/ABIFunctions.h>
-#include <libsolidity/codegen/CompilerUtils.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/ASTVisitor.h>
+#include <libhyperion/codegen/ABIFunctions.h>
+#include <libhyperion/codegen/CompilerUtils.h>
 
 #include <libyul/YulStack.h>
 #include <libyul/Utilities.h>
 
-#include <libsolutil/Algorithms.h>
-#include <libsolutil/CommonData.h>
-#include <libsolutil/StringUtils.h>
-#include <libsolutil/Whiskers.h>
+#include <libhyputil/Algorithms.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/StringUtils.h>
+#include <libhyputil/Whiskers.h>
 
 #include <json/json.h>
 
 #include <sstream>
 #include <variant>
 
-using namespace solidity;
-using namespace solidity::frontend;
-using namespace solidity::langutil;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::frontend;
+using namespace hyperion::langutil;
+using namespace hyperion::util;
 using namespace std::string_literals;
 
 namespace
@@ -60,14 +60,14 @@ void verifyCallGraph(
 	for (auto const& expectedCallable: _expectedCallables)
 		if (auto const* expectedFunction = dynamic_cast<FunctionDefinition const*>(expectedCallable))
 		{
-			solAssert(
+			hypAssert(
 				_generatedFunctions.count(expectedFunction) == 1 || expectedFunction->isConstructor(),
 				"No code generated for function " + expectedFunction->name() + " even though it is not a constructor."
 			);
 			_generatedFunctions.erase(expectedFunction);
 		}
 
-	solAssert(
+	hypAssert(
 		_generatedFunctions.size() == 0,
 		"Of the generated functions " + toString(_generatedFunctions.size()) + " are not in the call graph."
 	);
@@ -214,8 +214,8 @@ std::string IRGenerator::generate(
 	bool deployedInvolvesMemoryUnsafeAssembly = m_context.memoryUnsafeInlineAssemblySeen();
 	t("memoryInitDeployed", memoryInit(!deployedInvolvesMemoryUnsafeAssembly));
 
-	solAssert(_contract.annotation().creationCallGraph->get() != nullptr, "");
-	solAssert(_contract.annotation().deployedCallGraph->get() != nullptr, "");
+	hypAssert(_contract.annotation().creationCallGraph->get() != nullptr, "");
+	hypAssert(_contract.annotation().deployedCallGraph->get() != nullptr, "");
 	verifyCallGraph(collectReachableCallables(**_contract.annotation().creationCallGraph), std::move(creationFunctionList));
 	verifyCallGraph(collectReachableCallables(**_contract.annotation().deployedCallGraph), std::move(deployedFunctionList));
 
@@ -247,7 +247,7 @@ std::set<FunctionDefinition const*> IRGenerator::generateQueuedFunctions()
 
 InternalDispatchMap IRGenerator::generateInternalDispatchFunctions(ContractDefinition const& _contract)
 {
-	solAssert(
+	hypAssert(
 		m_context.functionGenerationQueueEmpty(),
 		"At this point all the enqueued functions should have been generated. "
 		"Otherwise the dispatch may be incomplete."
@@ -282,16 +282,16 @@ InternalDispatchMap IRGenerator::generateInternalDispatchFunctions(ContractDefin
 			std::set<int64_t> caseValues;
 			for (FunctionDefinition const* function: internalDispatchMap.at(arity))
 			{
-				solAssert(function, "");
-				solAssert(
+				hypAssert(function, "");
+				hypAssert(
 					YulArity::fromType(*TypeProvider::function(*function, FunctionType::Kind::Internal)) == arity,
 					"A single dispatch function can only handle functions of one arity"
 				);
-				solAssert(!function->isConstructor(), "");
+				hypAssert(!function->isConstructor(), "");
 				// 0 is reserved for uninitialized function pointers
-				solAssert(function->id() != 0, "Unexpected function ID: 0");
-				solAssert(caseValues.count(function->id()) == 0, "Duplicate function ID");
-				solAssert(m_context.functionCollector().contains(IRNames::function(*function)), "");
+				hypAssert(function->id() != 0, "Unexpected function ID: 0");
+				hypAssert(caseValues.count(function->id()) == 0, "Duplicate function ID");
+				hypAssert(m_context.functionCollector().contains(IRNames::function(*function)), "");
 
 				cases.emplace_back(std::map<std::string, std::string>{
 					{"funID", std::to_string(m_context.mostDerivedContract().annotation().internalFunctionIDs.at(function))},
@@ -305,8 +305,8 @@ InternalDispatchMap IRGenerator::generateInternalDispatchFunctions(ContractDefin
 		});
 	}
 
-	solAssert(m_context.internalDispatchClean(), "");
-	solAssert(
+	hypAssert(m_context.internalDispatchClean(), "");
+	hypAssert(
 		m_context.functionGenerationQueueEmpty(),
 		"Internal dispatch generation must not add new functions to generation queue because they won't be proeessed."
 	);
@@ -421,7 +421,7 @@ std::string IRGenerator::generateModifier(
 		ModifierDefinition const* modifier = dynamic_cast<ModifierDefinition const*>(
 			_modifierInvocation.name().annotation().referencedDeclaration
 		);
-		solAssert(modifier, "");
+		hypAssert(modifier, "");
 
 		if (m_context.debugInfoSelection().astID)
 			t("astIDComment", "/// @ast-id " + std::to_string(modifier->id()) + "\n");
@@ -437,15 +437,15 @@ std::string IRGenerator::generateModifier(
 		{
 		case VirtualLookup::Virtual:
 			modifier = &modifier->resolveVirtual(m_context.mostDerivedContract());
-			solAssert(modifier, "");
+			hypAssert(modifier, "");
 			break;
 		case VirtualLookup::Static:
 			break;
 		case VirtualLookup::Super:
-			solAssert(false, "");
+			hypAssert(false, "");
 		}
 
-		solAssert(
+		hypAssert(
 			modifier->parameters().empty() ==
 			(!_modifierInvocation.arguments() || _modifierInvocation.arguments()->empty()),
 			""
@@ -523,14 +523,14 @@ std::string IRGenerator::generateGetter(VariableDeclaration const& _varDecl)
 	return m_context.functionCollector().createFunction(functionName, [&]() {
 		Type const* type = _varDecl.annotation().type;
 
-		solAssert(_varDecl.isStateVariable(), "");
+		hypAssert(_varDecl.isStateVariable(), "");
 
 		FunctionType accessorType(_varDecl);
 		TypePointers paramTypes = accessorType.parameterTypes();
 		if (_varDecl.immutable())
 		{
-			solAssert(paramTypes.empty(), "");
-			solUnimplementedAssert(type->sizeOnStack() == 1);
+			hypAssert(paramTypes.empty(), "");
+			hypUnimplementedAssert(type->sizeOnStack() == 1);
 			return Whiskers(R"(
 				<astIDComment><sourceLocationComment>
 				function <functionName>() -> rval {
@@ -555,7 +555,7 @@ std::string IRGenerator::generateGetter(VariableDeclaration const& _varDecl)
 		}
 		else if (_varDecl.isConstant())
 		{
-			solAssert(paramTypes.empty(), "");
+			hypAssert(paramTypes.empty(), "");
 			return Whiskers(R"(
 				<astIDComment><sourceLocationComment>
 				function <functionName>() -> <ret> {
@@ -592,7 +592,7 @@ std::string IRGenerator::generateGetter(VariableDeclaration const& _varDecl)
 		.render();
 
 		if (!paramTypes.empty())
-			solAssert(
+			hypAssert(
 				location.second == 0,
 				"If there are parameters, we are dealing with structs or mappings and thus should have offset zero."
 			);
@@ -611,7 +611,7 @@ std::string IRGenerator::generateGetter(VariableDeclaration const& _varDecl)
 		{
 			MappingType const* mappingType = dynamic_cast<MappingType const*>(currentType);
 			ArrayType const* arrayType = dynamic_cast<ArrayType const*>(currentType);
-			solAssert(mappingType || arrayType, "");
+			hypAssert(mappingType || arrayType, "");
 
 			std::vector<std::string> keys = IRVariable("key_" + std::to_string(i),
 				mappingType ? *mappingType->keyType() : *TypeProvider::uint256()
@@ -641,10 +641,10 @@ std::string IRGenerator::generateGetter(VariableDeclaration const& _varDecl)
 		}
 
 		auto returnTypes = accessorType.returnParameterTypes();
-		solAssert(returnTypes.size() >= 1, "");
+		hypAssert(returnTypes.size() >= 1, "");
 		if (StructType const* structType = dynamic_cast<StructType const*>(currentType))
 		{
-			solAssert(location.second == 0, "");
+			hypAssert(location.second == 0, "");
 			auto const& names = accessorType.returnParameterNames();
 			for (size_t i = 0; i < names.size(); ++i)
 			{
@@ -670,10 +670,10 @@ std::string IRGenerator::generateGetter(VariableDeclaration const& _varDecl)
 		}
 		else
 		{
-			solAssert(returnTypes.size() == 1, "");
+			hypAssert(returnTypes.size() == 1, "");
 			auto const* arrayType = dynamic_cast<ArrayType const*>(returnTypes.front());
 			if (arrayType)
-				solAssert(arrayType->isByteArrayOrString(), "");
+				hypAssert(arrayType->isByteArrayOrString(), "");
 			std::vector<std::string> retVars = IRVariable("ret", *returnTypes.front()).stackSlots();
 			returnVariables += retVars;
 			code += Whiskers(R"(
@@ -727,20 +727,20 @@ std::string IRGenerator::generateExternalFunction(ContractDefinition const& _con
 		unsigned paramVars = std::make_shared<TupleType>(_functionType.parameterTypes())->sizeOnStack();
 		unsigned retVars = std::make_shared<TupleType>(_functionType.returnParameterTypes())->sizeOnStack();
 
-		ABIFunctions abiFunctions(m_evmVersion, m_context.revertStrings(), m_context.functionCollector());
+		ABIFunctions abiFunctions(m_zvmVersion, m_context.revertStrings(), m_context.functionCollector());
 		t("abiDecode", abiFunctions.tupleDecoder(_functionType.parameterTypes()));
 		t("params",  suffixedVariableNameList("param_", 0, paramVars));
 		t("retParams",  suffixedVariableNameList("ret_", 0, retVars));
 
 		if (FunctionDefinition const* funDef = dynamic_cast<FunctionDefinition const*>(&_functionType.declaration()))
 		{
-			solAssert(!funDef->isConstructor());
+			hypAssert(!funDef->isConstructor());
 			t("function", m_context.enqueueFunctionForCodeGeneration(*funDef));
 		}
 		else if (VariableDeclaration const* varDecl = dynamic_cast<VariableDeclaration const*>(&_functionType.declaration()))
 			t("function", generateGetter(*varDecl));
 		else
-			solAssert(false, "Unexpected declaration for function!");
+			hypAssert(false, "Unexpected declaration for function!");
 
 		t("allocateUnbounded", m_utils.allocateUnboundedFunction());
 		t("abiEncode", abiFunctions.tupleEncoder(_functionType.returnParameterTypes(), _functionType.returnParameterTypes(), _contract.isLibrary()));
@@ -763,7 +763,7 @@ std::pair<std::string, std::map<ContractDefinition const*, std::vector<std::stri
 	{
 		bool operator()(ContractDefinition const* _c1, ContractDefinition const* _c2) const
 		{
-			solAssert(util::contains(linearizedBaseContracts, _c1) && util::contains(linearizedBaseContracts, _c2), "");
+			hypAssert(util::contains(linearizedBaseContracts, _c1) && util::contains(linearizedBaseContracts, _c2), "");
 			auto it1 = find(linearizedBaseContracts.begin(), linearizedBaseContracts.end(), _c1);
 			auto it2 = find(linearizedBaseContracts.begin(), linearizedBaseContracts.end(), _c2);
 			return it1 < it2;
@@ -780,7 +780,7 @@ std::pair<std::string, std::map<ContractDefinition const*, std::vector<std::stri
 		if (FunctionDefinition const* baseConstructor = dynamic_cast<ContractDefinition const*>(
 				base->name().annotation().referencedDeclaration
 		)->constructor(); baseConstructor && base->arguments())
-			solAssert(baseConstructorArguments.emplace(
+			hypAssert(baseConstructorArguments.emplace(
 				dynamic_cast<ContractDefinition const*>(baseConstructor->scope()),
 				base->arguments()
 			).second, "");
@@ -794,7 +794,7 @@ std::pair<std::string, std::map<ContractDefinition const*, std::vector<std::stri
 					FunctionDefinition const* baseConstructor = baseContract->constructor();
 					baseConstructor && modifier->arguments()
 				)
-					solAssert(baseConstructorArguments.emplace(
+					hypAssert(baseConstructorArguments.emplace(
 						dynamic_cast<ContractDefinition const*>(baseConstructor->scope()),
 						modifier->arguments()
 					).second, "");
@@ -802,7 +802,7 @@ std::pair<std::string, std::map<ContractDefinition const*, std::vector<std::stri
 	IRGeneratorForStatements generator{m_context, m_utils, m_optimiserSettings};
 	for (auto&& [baseContract, arguments]: baseConstructorArguments)
 	{
-		solAssert(baseContract && arguments, "");
+		hypAssert(baseContract && arguments, "");
 		if (baseContract->constructor() && !arguments->empty())
 		{
 			std::vector<std::string> params;
@@ -951,7 +951,7 @@ std::string IRGenerator::deployCode(ContractDefinition const& _contract)
 	std::vector<std::map<std::string, std::string>> immutables;
 	if (_contract.isLibrary())
 	{
-		solAssert(ContractType(_contract).immutableVariables().empty(), "");
+		hypAssert(ContractType(_contract).immutableVariables().empty(), "");
 		immutables.emplace_back(std::map<std::string, std::string>{
 			{"immutableName"s, IRNames::libraryAddressImmutable()},
 			{"value"s, "address()"}
@@ -961,8 +961,8 @@ std::string IRGenerator::deployCode(ContractDefinition const& _contract)
 	else
 		for (VariableDeclaration const* immutable: ContractType(_contract).immutableVariables())
 		{
-			solUnimplementedAssert(immutable->type()->isValueType());
-			solUnimplementedAssert(immutable->type()->sizeOnStack() == 1);
+			hypUnimplementedAssert(immutable->type()->isValueType());
+			hypUnimplementedAssert(immutable->type()->sizeOnStack() == 1);
 			immutables.emplace_back(std::map<std::string, std::string>{
 				{"immutableName"s, std::to_string(immutable->id())},
 				{"value"s, "mload(" + std::to_string(m_context.immutableMemoryOffset(*immutable)) + ")"}
@@ -1009,7 +1009,7 @@ std::string IRGenerator::dispatchRoutine(ContractDefinition const& _contract)
 		std::string delegatecallCheck;
 		if (_contract.isLibrary())
 		{
-			solAssert(!type->isPayable(), "");
+			hypAssert(!type->isPayable(), "");
 			if (type->stateMutability() > StateMutability::View)
 				// If the function is not a view function and is called without DELEGATECALL,
 				// we revert.
@@ -1026,14 +1026,14 @@ std::string IRGenerator::dispatchRoutine(ContractDefinition const& _contract)
 	FunctionDefinition const* etherReceiver = _contract.receiveFunction();
 	if (etherReceiver)
 	{
-		solAssert(!_contract.isLibrary(), "");
+		hypAssert(!_contract.isLibrary(), "");
 		t("receiveEther", m_context.enqueueFunctionForCodeGeneration(*etherReceiver) + "() stop()");
 	}
 	else
 		t("receiveEther", "");
 	if (FunctionDefinition const* fallback = _contract.fallbackFunction())
 	{
-		solAssert(!_contract.isLibrary(), "");
+		hypAssert(!_contract.isLibrary(), "");
 		std::string fallbackCode;
 		if (!fallback->isPayable())
 			fallbackCode += callValueCheck() + "\n";
@@ -1041,7 +1041,7 @@ std::string IRGenerator::dispatchRoutine(ContractDefinition const& _contract)
 			fallbackCode += m_context.enqueueFunctionForCodeGeneration(*fallback) + "() stop()";
 		else
 		{
-			solAssert(fallback->parameters().size() == 1 && fallback->returnParameters().size() == 1, "");
+			hypAssert(fallback->parameters().size() == 1 && fallback->returnParameters().size() == 1, "");
 			fallbackCode += "let retval := " + m_context.enqueueFunctionForCodeGeneration(*fallback) + "(0, calldatasize())\n";
 			fallbackCode += "return(add(retval, 0x20), mload(retval))\n";
 
@@ -1060,7 +1060,7 @@ std::string IRGenerator::dispatchRoutine(ContractDefinition const& _contract)
 
 std::string IRGenerator::memoryInit(bool _useMemoryGuard)
 {
-	// This function should be called at the beginning of the EVM call frame
+	// This function should be called at the beginning of the ZVM call frame
 	// and thus can assume all memory to be zero, including the contents of
 	// the "zero memory area" (the position CompilerUtils::zeroPointer points to).
 	return
@@ -1078,25 +1078,25 @@ std::string IRGenerator::memoryInit(bool _useMemoryGuard)
 
 void IRGenerator::resetContext(ContractDefinition const& _contract, ExecutionContext _context)
 {
-	solAssert(
+	hypAssert(
 		m_context.functionGenerationQueueEmpty(),
 		"Reset function generation queue while it still had functions."
 	);
-	solAssert(
+	hypAssert(
 		m_context.functionCollector().requestedFunctions().empty(),
 		"Reset context while it still had functions."
 	);
-	solAssert(
+	hypAssert(
 		m_context.internalDispatchClean(),
 		"Reset internal dispatch map without consuming it."
 	);
 	IRGenerationContext newContext(
-		m_evmVersion,
+		m_zvmVersion,
 		_context,
 		m_context.revertStrings(),
 		m_context.sourceIndices(),
 		m_context.debugInfoSelection(),
-		m_context.soliditySourceProvider()
+		m_context.hyperionSourceProvider()
 	);
 	m_context = std::move(newContext);
 

@@ -1,5 +1,5 @@
-==== ExternalSource: _external/external.sol ====
-import {External} from "_external/external.sol";
+==== ExternalSource: _external/external.hyp ====
+import {External} from "_external/external.hyp";
 contract C {
 }
 // ----

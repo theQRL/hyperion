@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -24,29 +24,29 @@
 
 #pragma once
 
-#include <libsolidity/analysis/FunctionCallGraph.h>
-#include <libsolidity/interface/ReadFile.h>
-#include <libsolidity/interface/ImportRemapper.h>
-#include <libsolidity/interface/OptimiserSettings.h>
-#include <libsolidity/interface/Version.h>
-#include <libsolidity/interface/DebugSettings.h>
+#include <libhyperion/analysis/FunctionCallGraph.h>
+#include <libhyperion/interface/ReadFile.h>
+#include <libhyperion/interface/ImportRemapper.h>
+#include <libhyperion/interface/OptimiserSettings.h>
+#include <libhyperion/interface/Version.h>
+#include <libhyperion/interface/DebugSettings.h>
 
-#include <libsolidity/formal/ModelCheckerSettings.h>
+#include <libhyperion/formal/ModelCheckerSettings.h>
 
 #include <libsmtutil/SolverInterface.h>
 
 #include <liblangutil/CharStreamProvider.h>
 #include <liblangutil/DebugInfoSelection.h>
 #include <liblangutil/ErrorReporter.h>
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 #include <liblangutil/SourceLocation.h>
 
-#include <libevmasm/AbstractAssemblyStack.h>
-#include <libevmasm/LinkerObject.h>
+#include <libzvmasm/AbstractAssemblyStack.h>
+#include <libzvmasm/LinkerObject.h>
 
-#include <libsolutil/Common.h>
-#include <libsolutil/FixedHash.h>
-#include <libsolutil/LazyInit.h>
+#include <libhyputil/Common.h>
+#include <libhyputil/FixedHash.h>
+#include <libhyputil/LazyInit.h>
 
 #include <json/json.h>
 
@@ -57,20 +57,20 @@
 #include <string>
 #include <vector>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 class CharStream;
 }
 
 
-namespace solidity::evmasm
+namespace hyperion::zvmasm
 {
 class Assembly;
 class AssemblyItem;
 using AssemblyItems = std::vector<AssemblyItem>;
 }
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 // forward declarations
@@ -88,11 +88,11 @@ class Analysis;
 }
 
 /**
- * Easy to use and self-contained Solidity compiler with as few header dependencies as possible.
+ * Easy to use and self-contained Hyperion compiler with as few header dependencies as possible.
  * It holds state and can be used to either step through the compilation stages (and abort e.g.
  * before compilation to bytecode) or run the whole compilation in one call.
  */
-class CompilerStack: public langutil::CharStreamProvider, public evmasm::AbstractAssemblyStack
+class CompilerStack: public langutil::CharStreamProvider, public zvmasm::AbstractAssemblyStack
 {
 public:
 	/// Noncopyable.
@@ -121,10 +121,10 @@ public:
 	};
 
 	enum class CompilationSourceType {
-		/// Regular compilation from Solidity source files.
-		Solidity,
-		/// Compilation from an imported Solidity AST.
-		SolidityAST,
+		/// Regular compilation from Hyperion source files.
+		Hyperion,
+		/// Compilation from an imported Hyperion AST.
+		HyperionAST,
 	};
 
 	/// Creates a new compiler stack.
@@ -169,10 +169,10 @@ public:
 	/// Must be set before parsing.
 	void setViaIR(bool _viaIR);
 
-	/// Set the EVM version used before running compile.
+	/// Set the ZVM version used before running compile.
 	/// When called without an argument it will revert to the default version.
 	/// Must be set before parsing.
-	void setEVMVersion(langutil::EVMVersion _version = langutil::EVMVersion{});
+	void setZVMVersion(langutil::ZVMVersion _version = langutil::ZVMVersion{});
 
 	/// Set model checker settings.
 	void setModelCheckerSettings(ModelCheckerSettings _settings);
@@ -186,8 +186,8 @@ public:
 		m_requestedContractNames = _contractNames;
 	}
 
-	/// Enable EVM Bytecode generation. This is enabled by default.
-	void enableEvmBytecodeGeneration(bool _enable = true) { m_generateEvmBytecode = _enable; }
+	/// Enable ZVM Bytecode generation. This is enabled by default.
+	void enableZvmBytecodeGeneration(bool _enable = true) { m_generateZvmBytecode = _enable; }
 
 	/// Enable generation of Yul IR code.
 	void enableIRGeneration(bool _enable = true) { m_generateIR = _enable; }
@@ -275,16 +275,16 @@ public:
 	Json::Value const& yulIROptimizedAst(std::string const& _contractName) const;
 
 	/// @returns the assembled object for a contract.
-	virtual evmasm::LinkerObject const& object(std::string const& _contractName) const override;
+	virtual zvmasm::LinkerObject const& object(std::string const& _contractName) const override;
 
 	/// @returns the runtime object for the contract.
-	virtual evmasm::LinkerObject const& runtimeObject(std::string const& _contractName) const override;
+	virtual zvmasm::LinkerObject const& runtimeObject(std::string const& _contractName) const override;
 
 	/// @returns normal contract assembly items
-	evmasm::AssemblyItems const* assemblyItems(std::string const& _contractName) const;
+	zvmasm::AssemblyItems const* assemblyItems(std::string const& _contractName) const;
 
 	/// @returns runtime contract assembly items
-	evmasm::AssemblyItems const* runtimeAssemblyItems(std::string const& _contractName) const;
+	zvmasm::AssemblyItems const* runtimeAssemblyItems(std::string const& _contractName) const;
 
 	/// @returns an array containing all utility sources generated during compilation.
 	/// Format: [ { name: string, id: number, language: "Yul", contents: string }, ... ]
@@ -335,7 +335,7 @@ public:
 
 	/// @returns the CBOR-encoded metadata.
 	/// @param _forIR If true, the metadata for the IR codegen is used. Otherwise it's the metadata
-	///               for the EVM codegen
+	///               for the ZVM codegen
 	bytes cborMetadata(std::string const& _contractName, bool _forIR) const;
 
 	/// @returns a JSON representing the estimated gas usage for contract creation, internal and external functions
@@ -369,10 +369,10 @@ private:
 	{
 		ContractDefinition const* contract = nullptr;
 		std::shared_ptr<Compiler> compiler;
-		std::shared_ptr<evmasm::Assembly> evmAssembly;
-		std::shared_ptr<evmasm::Assembly> evmRuntimeAssembly;
-		evmasm::LinkerObject object; ///< Deployment object (includes the runtime sub-object).
-		evmasm::LinkerObject runtimeObject; ///< Runtime object.
+		std::shared_ptr<zvmasm::Assembly> zvmAssembly;
+		std::shared_ptr<zvmasm::Assembly> zvmRuntimeAssembly;
+		zvmasm::LinkerObject object; ///< Deployment object (includes the runtime sub-object).
+		zvmasm::LinkerObject runtimeObject; ///< Runtime object.
 		std::string yulIR; ///< Yul IR code.
 		std::string yulIROptimized; ///< Optimized Yul IR code.
 		Json::Value yulIRAst; ///< JSON AST of Yul IR code.
@@ -419,11 +419,11 @@ private:
 	bool analyzeExperimental();
 
 	/// Assembles the contract.
-	/// This function should only be internally called by compileContract and generateEVMFromIR.
+	/// This function should only be internally called by compileContract and generateZVMFromIR.
 	void assembleYul(
 		ContractDefinition const& _contract,
-		std::shared_ptr<evmasm::Assembly> _assembly,
-		std::shared_ptr<evmasm::Assembly> _runtimeAssembly
+		std::shared_ptr<zvmasm::Assembly> _assembly,
+		std::shared_ptr<zvmasm::Assembly> _runtimeAssembly
 	);
 
 	/// Compile a single contract.
@@ -438,9 +438,9 @@ private:
 	/// The IR is stored but otherwise unused.
 	void generateIR(ContractDefinition const& _contract);
 
-	/// Generate EVM representation for a single contract.
+	/// Generate ZVM representation for a single contract.
 	/// Depends on output generated by generateIR.
-	void generateEVMFromIR(ContractDefinition const& _contract);
+	void generateZVMFromIR(ContractDefinition const& _contract);
 
 	/// Links all the known library addresses in the available objects. Any unknown
 	/// library will still be kept as an unlinked placeholder in the objects.
@@ -459,7 +459,7 @@ private:
 	std::string createMetadata(Contract const& _contract, bool _forIR) const;
 
 	/// @returns the metadata CBOR for the given serialised metadata JSON.
-	/// @param _forIR If true, use the metadata for the IR codegen. Otherwise the one for EVM codegen.
+	/// @param _forIR If true, use the metadata for the IR codegen. Otherwise the one for ZVM codegen.
 	bytes createCBORMetadata(Contract const& _contract, bool _forIR) const;
 
 	/// @returns the contract ABI as a JSON object.
@@ -494,10 +494,10 @@ private:
 	RevertStrings m_revertStrings = RevertStrings::Default;
 	State m_stopAfter = State::CompilationSuccessful;
 	bool m_viaIR = false;
-	langutil::EVMVersion m_evmVersion;
+	langutil::ZVMVersion m_zvmVersion;
 	ModelCheckerSettings m_modelCheckerSettings;
 	std::map<std::string, std::set<std::string>> m_requestedContractNames;
-	bool m_generateEvmBytecode = true;
+	bool m_generateZvmBytecode = true;
 	bool m_generateIR = false;
 	std::map<std::string, util::h160> m_libraries;
 	ImportRemapper m_importRemapper;
@@ -515,7 +515,7 @@ private:
 	MetadataHash m_metadataHash = MetadataHash::IPFS;
 	langutil::DebugInfoSelection m_debugInfoSelection = langutil::DebugInfoSelection::Default();
 	State m_stackState = Empty;
-	CompilationSourceType m_compilationSourceType = CompilationSourceType::Solidity;
+	CompilationSourceType m_compilationSourceType = CompilationSourceType::Hyperion;
 	MetadataFormat m_metadataFormat = defaultMetadataFormat();
 };
 

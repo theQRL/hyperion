@@ -3,5 +3,5 @@
     let y := false
 }
 // ====
-// dialect: evm
+// dialect: zvm
 // ----

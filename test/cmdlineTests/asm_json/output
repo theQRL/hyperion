@@ -1,6 +1,6 @@
 
-======= asm_json/input.sol:C =======
-EVM assembly:
+======= asm_json/input.hyp:C =======
+ZVM assembly:
 {
   ".code":
   [
@@ -1572,7 +1572,7 @@ EVM assembly:
   },
   "sourceList":
   [
-    "asm_json/input.sol",
+    "asm_json/input.hyp",
     "#utility.yul"
   ]
 }

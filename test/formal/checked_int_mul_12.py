@@ -34,13 +34,13 @@ for type_bits in [4, 6, 8, 12]:
 
 	# Overflow and underflow checks in YulUtilFunction::overflowCheckedIntMulFunction
 	if type_bits > n_bits / 2:
-		sol_overflow_check_1 = ISZERO(OR(ISZERO(X), EQ(Y, SDIV(product, X))))
+		hyp_overflow_check_1 = ISZERO(OR(ISZERO(X), EQ(Y, SDIV(product, X))))
 		if type_bits == n_bits:
-			sol_overflow_check_2 = AND(SLT(X, 0), EQ(Y, min_value))
-			sol_overflow_check = Or(sol_overflow_check_1 != 0, sol_overflow_check_2 != 0)
+			hyp_overflow_check_2 = AND(SLT(X, 0), EQ(Y, min_value))
+			hyp_overflow_check = Or(hyp_overflow_check_1 != 0, hyp_overflow_check_2 != 0)
 		else:
-			sol_overflow_check = (sol_overflow_check_1 != 0)
+			hyp_overflow_check = (hyp_overflow_check_1 != 0)
 	else:
-		sol_overflow_check = (ISZERO(EQ(product, product_raw)) != 0)
+		hyp_overflow_check = (ISZERO(EQ(product, product_raw)) != 0)
 
-	rule.check(Or(actual_overflow, actual_underflow), sol_overflow_check)
+	rule.check(Or(actual_overflow, actual_underflow), hyp_overflow_check)

@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /** @file Instruction.cpp
@@ -20,13 +20,13 @@
  * @date 2014
  */
 
-#include <libevmasm/Instruction.h>
+#include <libzvmasm/Instruction.h>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::evmasm;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::zvmasm;
 
-std::map<std::string, Instruction> const solidity::evmasm::c_instructions =
+std::map<std::string, Instruction> const hyperion::zvmasm::c_instructions =
 {
 	{ "STOP", Instruction::STOP },
 	{ "ADD", Instruction::ADD },
@@ -172,7 +172,7 @@ std::map<std::string, Instruction> const solidity::evmasm::c_instructions =
 	{ "INVALID", Instruction::INVALID }
 };
 
-/// @note InstructionInfo is assumed to be the same across all EVM versions except for the instruction name.
+/// @note InstructionInfo is assumed to be the same across all ZVM versions except for the instruction name.
 static std::map<Instruction, InstructionInfo> const c_instructionInfo =
 { //												Add, Args, Ret, SideEffects, GasPriceTier
 	{ Instruction::STOP,		{ "STOP",			0, 0, 0, true,  Tier::Zero } },
@@ -319,7 +319,7 @@ static std::map<Instruction, InstructionInfo> const c_instructionInfo =
 	{ Instruction::INVALID,		{ "INVALID",		0, 0, 0, true, Tier::Zero } }
 };
 
-InstructionInfo solidity::evmasm::instructionInfo(Instruction _inst)
+InstructionInfo hyperion::zvmasm::instructionInfo(Instruction _inst)
 {
 	try
 	{
@@ -331,7 +331,7 @@ InstructionInfo solidity::evmasm::instructionInfo(Instruction _inst)
 	}
 }
 
-bool solidity::evmasm::isValidInstruction(Instruction _inst)
+bool hyperion::zvmasm::isValidInstruction(Instruction _inst)
 {
 	return !!c_instructionInfo.count(_inst);
 }

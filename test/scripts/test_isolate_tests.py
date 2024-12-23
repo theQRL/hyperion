@@ -8,7 +8,7 @@ from unittest_helpers import FIXTURE_DIR, load_fixture
 
 # NOTE: This test file file only works with scripts/ added to PYTHONPATH so pylint can't find the imports
 # pragma pylint: disable=import-error
-from isolate_tests import extract_solidity_docs_cases, extract_yul_docs_cases
+from isolate_tests import extract_hyperion_docs_cases, extract_yul_docs_cases
 # pragma pylint: enable=import-error
 
 CODE_BLOCK_RST_PATH = FIXTURE_DIR / 'code_block.rst'
@@ -25,11 +25,11 @@ class TestExtractDocsCases(unittest.TestCase):
         self.maxDiff = 10000
 
 
-    def test_solidity_block(self):
+    def test_hyperion_block(self):
         expected_cases = [formatCase(case) for case in [
             """
                 // SPDX-License-Identifier: GPL-3.0
-                pragma solidity >=0.7.0 <0.9.0;
+                pragma hyperion >=0.7.0 <0.9.0;
 
                 contract C {
                     function foo() public view {}
@@ -41,13 +41,13 @@ class TestExtractDocsCases(unittest.TestCase):
             """,
         ]]
 
-        self.assertEqual(extract_solidity_docs_cases(CODE_BLOCK_RST_PATH), expected_cases)
+        self.assertEqual(extract_hyperion_docs_cases(CODE_BLOCK_RST_PATH), expected_cases)
 
-    def test_solidity_block_with_directives(self):
+    def test_hyperion_block_with_directives(self):
         expected_cases = [formatCase(case) for case in [
             """
                 // SPDX-License-Identifier: GPL-3.0
-                pragma solidity >=0.7.0 <0.9.0;
+                pragma hyperion >=0.7.0 <0.9.0;
 
                 contract C {
                     function foo() public view {}
@@ -66,7 +66,7 @@ class TestExtractDocsCases(unittest.TestCase):
             """,
         ]]
 
-        self.assertEqual(extract_solidity_docs_cases(CODE_BLOCK_WITH_DIRECTIVES_RST_PATH), expected_cases)
+        self.assertEqual(extract_hyperion_docs_cases(CODE_BLOCK_WITH_DIRECTIVES_RST_PATH), expected_cases)
 
     def test_yul_block(self):
         expected_cases = [formatCase(case) for case in [

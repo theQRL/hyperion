@@ -1,41 +1,41 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * Tests that check that the cost of certain operations stay within range.
  */
 
-#include <test/libsolidity/SolidityExecutionFramework.h>
-#include <liblangutil/EVMVersion.h>
-#include <libsolutil/IpfsHash.h>
-#include <libevmasm/GasMeter.h>
+#include <test/libhyperion/HyperionExecutionFramework.h>
+#include <liblangutil/ZVMVersion.h>
+#include <libhyputil/IpfsHash.h>
+#include <libzvmasm/GasMeter.h>
 
 #include <cmath>
 
-using namespace solidity::langutil;
-using namespace solidity::langutil;
-using namespace solidity::evmasm;
-using namespace solidity::frontend;
-using namespace solidity::test;
+using namespace hyperion::langutil;
+using namespace hyperion::langutil;
+using namespace hyperion::zvmasm;
+using namespace hyperion::frontend;
+using namespace hyperion::test;
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
-#define CHECK_DEPLOY_GAS(_gasNoOpt, _gasOpt, _evmVersion) \
+#define CHECK_DEPLOY_GAS(_gasNoOpt, _gasOpt, _zvmVersion) \
 	do \
 	{ \
 		u256 metaCost = GasMeter::dataGas(m_compiler.cborMetadata(m_compiler.lastContractName()), true); \
@@ -79,7 +79,7 @@ namespace solidity::frontend::test
 		); \
 	} while(0)
 
-BOOST_FIXTURE_TEST_SUITE(GasCostTests, SolidityExecutionFramework)
+BOOST_FIXTURE_TEST_SUITE(GasCostTests, HyperionExecutionFramework)
 
 BOOST_AUTO_TEST_CASE(string_storage)
 {
@@ -98,16 +98,16 @@ BOOST_AUTO_TEST_CASE(string_storage)
 	{
 		if (CommonOptions::get().optimize)
 		{
-			CHECK_DEPLOY_GAS(0, 97071, evmVersion);
+			CHECK_DEPLOY_GAS(0, 97071, zvmVersion);
 		}
 		else
 		{
-			CHECK_DEPLOY_GAS(121493, 110969, evmVersion);
+			CHECK_DEPLOY_GAS(121493, 110969, zvmVersion);
 		}
 	}
 	// TODO(now.youtrack.cloud/issue/TS-14): Gas used: 102421 - expected: 114077
 	// else
-		// CHECK_DEPLOY_GAS(114077, 95835, evmVersion);
+		// CHECK_DEPLOY_GAS(114077, 95835, zvmVersion);
 
 	callContractFunction("f()");
 	if (!CommonOptions::get().useABIEncoderV1)

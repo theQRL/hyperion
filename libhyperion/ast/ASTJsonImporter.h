@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -24,14 +24,14 @@
 #pragma once
 
 #include <vector>
-#include <libsolidity/ast/AST.h>
+#include <libhyperion/ast/AST.h>
 #include <json/json.h>
-#include <libsolidity/ast/ASTAnnotations.h>
-#include <liblangutil/EVMVersion.h>
+#include <libhyperion/ast/ASTAnnotations.h>
+#include <liblangutil/ZVMVersion.h>
 #include <liblangutil/Exceptions.h>
 #include <liblangutil/SourceLocation.h>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 /**
@@ -40,8 +40,8 @@ namespace solidity::frontend
 class ASTJsonImporter
 {
 public:
-	ASTJsonImporter(langutil::EVMVersion _evmVersion)
-		:m_evmVersion(_evmVersion)
+	ASTJsonImporter(langutil::ZVMVersion _zvmVersion)
+		:m_zvmVersion(_zvmVersion)
 	{}
 
 	/// Converts the AST from JSON-format to ASTPointer
@@ -163,8 +163,8 @@ private:
 	std::map<std::string, ASTPointer<SourceUnit>> m_sourceUnits;
 	/// IDs already used by the nodes
 	std::set<int64_t> m_usedIDs;
-	/// Configured EVM version
-	langutil::EVMVersion m_evmVersion;
+	/// Configured ZVM version
+	langutil::ZVMVersion m_zvmVersion;
 };
 
 }

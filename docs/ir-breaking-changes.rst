@@ -4,11 +4,11 @@
 .. _ir-breaking-changes:
 
 *********************************
-Solidity IR-based Codegen Changes
+Hyperion IR-based Codegen Changes
 *********************************
 
-Solidity can generate EVM bytecode in two different ways:
-Either directly from Solidity to EVM opcodes ("old codegen") or through
+Hyperion can generate ZVM bytecode in two different ways:
+Either directly from Hyperion to ZVM opcodes ("old codegen") or through
 an intermediate representation ("IR") in Yul ("new codegen" or "IR-based codegen").
 
 The IR-based code generator was introduced with an aim to not only allow
@@ -53,10 +53,10 @@ hiding new and different behavior in existing code.
   This causes differences in contracts where the initial value of a state
   variable relies on the result of the constructor in another contract:
 
-  .. code-block:: solidity
+  .. code-block:: hyperion
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma solidity >=0.7.1;
+      pragma hyperion >=0.7.1;
 
       contract A {
           uint x;
@@ -82,10 +82,10 @@ hiding new and different behavior in existing code.
   ``delete`` will now also clear the added member (while it wouldn't
   have been cleared in the past).
 
-  .. code-block:: solidity
+  .. code-block:: hyperion
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma solidity >=0.7.1;
+      pragma hyperion >=0.7.1;
 
       contract C {
           struct S {
@@ -113,10 +113,10 @@ hiding new and different behavior in existing code.
   and the effect on return variables is that they are reset to their default (zero) value for each
   execution.
 
-  .. code-block:: solidity
+  .. code-block:: hyperion
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma solidity >=0.7.0;
+      pragma hyperion >=0.7.0;
       contract C {
           function f(uint a) public pure mod() returns (uint r) {
               r = a++;
@@ -127,10 +127,10 @@ hiding new and different behavior in existing code.
   If you execute ``f(0)`` in the old code generator, it will return ``1``, while
   it will return ``0`` when using the new code generator.
 
-  .. code-block:: solidity
+  .. code-block:: hyperion
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma solidity >=0.7.1 <0.9.0;
+      pragma hyperion >=0.7.1 <0.9.0;
 
       contract C {
           bool active = true;
@@ -164,10 +164,10 @@ hiding new and different behavior in existing code.
 
   For example:
 
-  .. code-block:: solidity
+  .. code-block:: hyperion
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma solidity >=0.8.1;
+      pragma hyperion >=0.8.1;
       contract C {
           function preincr_u8(uint8 a) public pure returns (uint8) {
               return ++a + a;
@@ -185,10 +185,10 @@ hiding new and different behavior in existing code.
   by both code generators with the exception of the global functions ``addmod`` and ``mulmod``.
   For example:
 
-  .. code-block:: solidity
+  .. code-block:: hyperion
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma solidity >=0.8.1;
+      pragma hyperion >=0.8.1;
       contract C {
           function add(uint8 a, uint8 b) public pure returns (uint8) {
               return a + b;
@@ -207,10 +207,10 @@ hiding new and different behavior in existing code.
   and left-to-right by the new code generator.
   For example:
 
-  .. code-block:: solidity
+  .. code-block:: hyperion
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma solidity >=0.8.1;
+      pragma hyperion >=0.8.1;
       contract C {
           function f() public pure returns (uint256 aMod, uint256 mMod) {
               uint256 x = 3;
@@ -233,19 +233,19 @@ hiding new and different behavior in existing code.
 
   For example:
 
-  .. code-block:: solidity
+  .. code-block:: hyperion
       :force:
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma solidity >0.8.0;
+      pragma hyperion >0.8.0;
       contract C {
           function f() public {
               uint[] memory arr;
               // allocation size: 576460752303423481
               // assumes freeMemPtr points to 0x80 initially
-              uint solYulMaxAllocationBeforeMemPtrOverflow = (type(uint64).max - 0x80 - 31) / 32;
+              uint hypYulMaxAllocationBeforeMemPtrOverflow = (type(uint64).max - 0x80 - 31) / 32;
               // freeMemPtr overflows UINT64_MAX
-              arr = new uint[](solYulMaxAllocationBeforeMemPtrOverflow);
+              arr = new uint[](hypYulMaxAllocationBeforeMemPtrOverflow);
           }
       }
 
@@ -287,11 +287,11 @@ The hope is that the optimizer will be powerful enough to eliminate redundant cl
 
 For example:
 
-.. code-block:: solidity
+.. code-block:: hyperion
     :force:
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.8.1;
+    pragma hyperion >=0.8.1;
     contract C {
         function f(uint8 a) public pure returns (uint r1, uint r2)
         {

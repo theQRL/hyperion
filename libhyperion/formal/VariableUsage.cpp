@@ -1,34 +1,34 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/formal/VariableUsage.h>
+#include <libhyperion/formal/VariableUsage.h>
 
-#include <libsolidity/formal/BMC.h>
-#include <libsolidity/formal/SMTEncoder.h>
+#include <libhyperion/formal/BMC.h>
+#include <libhyperion/formal/SMTEncoder.h>
 
 #include <range/v3/view.hpp>
 
 #include <algorithm>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::frontend;
-using namespace solidity::frontend::smt;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::smt;
 
 std::set<VariableDeclaration const*> VariableUsage::touchedVariables(ASTNode const& _node, std::vector<CallableDeclaration const*> const& _outerCallstack)
 {
@@ -76,7 +76,7 @@ bool VariableUsage::visit(FunctionDefinition const& _function)
 
 void VariableUsage::endVisit(FunctionDefinition const&)
 {
-	solAssert(!m_callStack.empty(), "");
+	hypAssert(!m_callStack.empty(), "");
 	m_callStack.pop_back();
 }
 
@@ -89,11 +89,11 @@ void VariableUsage::endVisit(ModifierInvocation const& _modifierInv)
 
 void VariableUsage::endVisit(PlaceholderStatement const&)
 {
-	solAssert(!m_callStack.empty(), "");
+	hypAssert(!m_callStack.empty(), "");
 	FunctionDefinition const* funDef = nullptr;
 	for (auto it = m_callStack.rbegin(); it != m_callStack.rend() && !funDef; ++it)
 		funDef = dynamic_cast<FunctionDefinition const*>(*it);
-	solAssert(funDef, "");
+	hypAssert(funDef, "");
 	if (funDef->isImplemented())
 		funDef->body().accept(*this);
 }
@@ -101,7 +101,7 @@ void VariableUsage::endVisit(PlaceholderStatement const&)
 void VariableUsage::checkIdentifier(Identifier const& _identifier)
 {
 	Declaration const* declaration = _identifier.annotation().referencedDeclaration;
-	solAssert(declaration, "");
+	hypAssert(declaration, "");
 	if (VariableDeclaration const* varDecl = dynamic_cast<VariableDeclaration const*>(declaration))
 	{
 		if (!varDecl->isLocalVariable() || (m_lastCall && varDecl->functionOrModifierDefinition() == m_lastCall))

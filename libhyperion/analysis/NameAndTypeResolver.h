@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -23,23 +23,23 @@
 
 #pragma once
 
-#include <libsolidity/analysis/DeclarationContainer.h>
-#include <libsolidity/analysis/GlobalContext.h>
-#include <libsolidity/analysis/ReferencesResolver.h>
-#include <libsolidity/ast/ASTAnnotations.h>
-#include <libsolidity/ast/ASTVisitor.h>
+#include <libhyperion/analysis/DeclarationContainer.h>
+#include <libhyperion/analysis/GlobalContext.h>
+#include <libhyperion/analysis/ReferencesResolver.h>
+#include <libhyperion/ast/ASTAnnotations.h>
+#include <libhyperion/ast/ASTVisitor.h>
 
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
 #include <list>
 #include <map>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 class ErrorReporter;
 }
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 /**
@@ -58,7 +58,7 @@ public:
 	/// are filled during the lifetime of this object.
 	NameAndTypeResolver(
 		GlobalContext& _globalContext,
-		langutil::EVMVersion _evmVersion,
+		langutil::ZVMVersion _zvmVersion,
 		langutil::ErrorReporter& _errorReporter
 	);
 	/// Registers all declarations found in the AST node, usually a source unit.
@@ -128,7 +128,7 @@ private:
 	/// Aliases (for example `import "x" as y;`) create multiple pointers to the same scope.
 	std::map<ASTNode const*, std::shared_ptr<DeclarationContainer>> m_scopes;
 
-	langutil::EVMVersion m_evmVersion;
+	langutil::ZVMVersion m_zvmVersion;
 	DeclarationContainer* m_currentScope = nullptr;
 	langutil::ErrorReporter& m_errorReporter;
 	GlobalContext& m_globalContext;

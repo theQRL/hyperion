@@ -1,5 +1,5 @@
 pragma abicoder v2;
-// A rewrite of the test/libsolidity/semanticTests/various/erc20.sol, but using user defined value
+// A rewrite of the test/libhyperion/semanticTests/various/erc20.hyp, but using user defined value
 // types.
 
 // User defined type name. Indicating a type with 18 decimals.

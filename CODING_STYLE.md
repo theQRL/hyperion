@@ -46,12 +46,12 @@ foo->bar(someLongVariableName,
 cout << "some very long string that contains completely irrelevant text that talks about this and that and contains the words \"lorem\" and \"ipsum\"" << endl;
 ```
 
-To set indentation and tab width settings uniformly, the repository contains an [EditorConfig](https://editorconfig.org/) [`.editorconfig`](https://github.com/ethereum/solidity/blob/develop/.editorconfig) file, which describes some of the styles used and which is recognized by many IDE's and editors.
+To set indentation and tab width settings uniformly, the repository contains an [EditorConfig](https://editorconfig.org/) [`.editorconfig`](https://github.com/theQRL/hyperion/blob/develop/.editorconfig) file, which describes some of the styles used and which is recognized by many IDE's and editors.
 
 ## 1. Namespaces
 
 1. No `using namespace` declarations in header files.
-2. `using namespace solidity;` and other project local namespaces is fine in cpp files, and generally encouraged.
+2. `using namespace hyperion;` and other project local namespaces is fine in cpp files, and generally encouraged.
 3. Avoid `using namespace` at file level for third party libraries, such as boost, ranges, etc.
 4. All symbols should be declared in a namespace except for final applications.
 5. Use anonymous namespaces for helpers whose scope is a cpp file only.
@@ -100,7 +100,7 @@ All other entities' first alpha is lower case.
 
 ## 5. Assertions
 
-Use `solAssert` and `solUnimplementedAssert` generously to check assumptions that span across different parts of the code base, for example before dereferencing a pointer.
+Use `hypAssert` and `hypUnimplementedAssert` generously to check assumptions that span across different parts of the code base, for example before dereferencing a pointer.
 
 ## 6. Declarations
 
@@ -202,23 +202,23 @@ for (map<ComplexTypeOne, ComplexTypeTwo>::iterator i = l.begin(); i != l.end(); 
 
 ## 12. Include Headers
 
-1. Includes should go in increasing order of generality (`libsolidity` -> `libevmasm` -> `libsolutil` -> `boost` -> `STL`).
+1. Includes should go in increasing order of generality (`libhyperion` -> `libzvmasm` -> `libhyputil` -> `boost` -> `STL`).
 2. The corresponding `.h` file should be the first include in the respective `.cpp` file.
 3. Insert empty lines between blocks of include files.
 
 Example:
 ```cpp
-#include <libsolidity/codegen/ExpressionCompiler.h>
+#include <libhyperion/codegen/ExpressionCompiler.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/codegen/CompilerContext.h>
-#include <libsolidity/codegen/CompilerUtils.h>
-#include <libsolidity/codegen/LValue.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/codegen/CompilerContext.h>
+#include <libhyperion/codegen/CompilerUtils.h>
+#include <libhyperion/codegen/LValue.h>
 
-#include <libevmasm/GasMeter.h>
+#include <libzvmasm/GasMeter.h>
 
-#include <libsolutil/Common.h>
-#include <libsolutil/SHA3.h>
+#include <libhyputil/Common.h>
+#include <libhyputil/SHA3.h>
 
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/algorithm/string/replace.hpp>

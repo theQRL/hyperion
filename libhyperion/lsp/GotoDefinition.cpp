@@ -1,25 +1,25 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
-#include <libsolidity/lsp/GotoDefinition.h>
-#include <libsolidity/lsp/Transport.h> // for RequestError
-#include <libsolidity/lsp/Utils.h>
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/ASTUtils.h>
+#include <libhyperion/lsp/GotoDefinition.h>
+#include <libhyperion/lsp/Transport.h> // for RequestError
+#include <libhyperion/lsp/Utils.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/ASTUtils.h>
 
 #include <fmt/format.h>
 
@@ -27,9 +27,9 @@
 #include <string>
 #include <vector>
 
-using namespace solidity::frontend;
-using namespace solidity::langutil;
-using namespace solidity::lsp;
+using namespace hyperion::frontend;
+using namespace hyperion::langutil;
+using namespace hyperion::lsp;
 
 void GotoDefinition::operator()(MessageID _id, Json::Value const& _args)
 {

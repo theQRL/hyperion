@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,31 +21,31 @@
  * Unit tests for the gas estimator.
  */
 
-#include <test/libsolidity/SolidityExecutionFramework.h>
-#include <libevmasm/GasMeter.h>
-#include <libevmasm/KnownState.h>
-#include <libevmasm/PathGasMeter.h>
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/interface/GasEstimator.h>
+#include <test/libhyperion/HyperionExecutionFramework.h>
+#include <libzvmasm/GasMeter.h>
+#include <libzvmasm/KnownState.h>
+#include <libzvmasm/PathGasMeter.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/interface/GasEstimator.h>
 
-using namespace solidity::langutil;
-using namespace solidity::evmasm;
-using namespace solidity::frontend;
-using namespace solidity::frontend::test;
+using namespace hyperion::langutil;
+using namespace hyperion::zvmasm;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::test;
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
-class GasMeterTestFramework: public SolidityExecutionFramework
+class GasMeterTestFramework: public HyperionExecutionFramework
 {
 public:
 	void compile(std::string const& _sourceCode)
 	{
 		m_compiler.reset();
-		m_compiler.setSources({{"", "pragma solidity >=0.0;\n"
+		m_compiler.setSources({{"", "pragma hyperion >=0.0;\n"
 				"// SPDX-License-Identifier: GPL-3.0\n" + _sourceCode}});
-		m_compiler.setOptimiserSettings(solidity::test::CommonOptions::get().optimize);
-		m_compiler.setEVMVersion(m_evmVersion);
+		m_compiler.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
+		m_compiler.setZVMVersion(m_zvmVersion);
 		BOOST_REQUIRE_MESSAGE(m_compiler.compile(), "Compiling contract failed");
 	}
 
@@ -53,7 +53,7 @@ public:
 	{
 		compileAndRun(_sourceCode);
 		auto state = std::make_shared<KnownState>();
-		PathGasMeter meter(*m_compiler.assemblyItems(m_compiler.lastContractName()), solidity::test::CommonOptions::get().evmVersion());
+		PathGasMeter meter(*m_compiler.assemblyItems(m_compiler.lastContractName()), hyperion::test::CommonOptions::get().zvmVersion());
 		GasMeter::GasConsumption gas = meter.estimateMax(0, state);
 		u256 bytecodeSize(m_compiler.runtimeObject(m_compiler.lastContractName()).bytecode.size());
 		// costs for deployment
@@ -63,7 +63,7 @@ public:
 
 		// Skip the tests when we use ABIEncoderV2.
 		// TODO: We should enable this again once the yul optimizer is activated.
-		if (solidity::test::CommonOptions::get().useABIEncoderV1)
+		if (hyperion::test::CommonOptions::get().useABIEncoderV1)
 		{
 			BOOST_REQUIRE(!gas.isInfinite);
 			BOOST_CHECK_LE(m_gasUsed, gas.value);
@@ -86,13 +86,13 @@ public:
 			gas = std::max(gas, gasForTransaction(hash.asBytes() + arguments, false));
 		}
 
-		gas += GasEstimator(solidity::test::CommonOptions::get().evmVersion()).functionalEstimation(
+		gas += GasEstimator(hyperion::test::CommonOptions::get().zvmVersion()).functionalEstimation(
 			*m_compiler.runtimeAssemblyItems(m_compiler.lastContractName()),
 			_sig
 		);
 		// Skip the tests when we use ABIEncoderV2.
 		// TODO: We should enable this again once the yul optimizer is activated.
-		if (solidity::test::CommonOptions::get().useABIEncoderV1)
+		if (hyperion::test::CommonOptions::get().useABIEncoderV1)
 		{
 			BOOST_REQUIRE(!gas.isInfinite);
 			BOOST_CHECK_LE(m_gasUsed, gas.value);

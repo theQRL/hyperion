@@ -3,5 +3,5 @@
 	{}
 }
 // ====
-// dialect: evmTyped
+// dialect: zvmTyped
 // ----

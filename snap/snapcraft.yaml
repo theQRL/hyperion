@@ -1,13 +1,13 @@
-name: solc
+name: hypc
 version: develop
 version-script: git describe --exact-match --tags 2> /dev/null || echo "develop"
-summary: The Solidity Contract-Oriented Programming Language
+summary: The Hyperion Contract-Oriented Programming Language
 description: |
-  Solidity is a contract-oriented, high-level language whose syntax is similar
+  Hyperion is a contract-oriented, high-level language whose syntax is similar
   to that of JavaScript and it is designed to target the Ethereum Virtual
-  Machine (EVM).
+  Machine (ZVM).
 
-  Solidity is statically typed, supports inheritance, libraries and complex
+  Hyperion is statically typed, supports inheritance, libraries and complex
   user-defined types among other features.
 
   It is possible to create contracts for voting, crowdfunding, blind auctions,
@@ -18,12 +18,12 @@ grade: stable
 confinement: strict
 
 apps:
-  solc:
-    command: usr/local/bin/solc
+  hypc:
+    command: usr/local/bin/hypc
     plugs: [home]
 
 parts:
-  solidity:
+  hyperion:
     source: .
     source-type: git
     plugin: cmake

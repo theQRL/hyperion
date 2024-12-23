@@ -1,10 +1,10 @@
 {
-	"language": "Solidity",
+	"language": "Hyperion",
 	"sources": {
 		"A\"B": {
 			"content": "
 				// SPDX-License-Identifier: GPL-3.0
-				pragma solidity >=0.0;
+				pragma hyperion >=0.0;
 
 				library L {
 					function f() external {}
@@ -26,7 +26,7 @@
 		},
 		"outputSelection": {
 			"*": {
-				"C": ["evm.bytecode.object", "evm.bytecode.linkReferences"]
+				"C": ["zvm.bytecode.object", "zvm.bytecode.linkReferences"]
 			}
 		}
 	}

@@ -29,7 +29,7 @@ They cannot be used as parameters or return parameters
 of contract functions that are publicly visible.
 These restrictions are also true for arrays and structs that contain mappings.
 
-You can mark state variables of mapping type as ``public`` and Solidity creates a
+You can mark state variables of mapping type as ``public`` and Hyperion creates a
 :ref:`getter <visibility-and-getters>` for you. The ``KeyType`` becomes a parameter
 with name ``KeyName`` (if specified) for the getter.
 If ``ValueType`` is a value type or a struct, the getter returns ``ValueType`` with
@@ -43,10 +43,10 @@ an Ethereum address to an unsigned integer value. As ``uint`` is a value type, t
 returns a value that matches the type, which you can see in the ``MappingUser``
 contract that returns the value at the specified address.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.0 <0.9.0;
+    pragma hyperion >=0.4.0 <0.9.0;
 
     contract MappingExample {
         mapping(address => uint) public balances;
@@ -65,17 +65,17 @@ contract that returns the value at the specified address.
     }
 
 The example below is a simplified version of an
-`ERC20 token <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol>`_.
+`ERC20 token <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.hyp>`_.
 ``_allowances`` is an example of a mapping type inside another mapping type.
 
 In the example below, the optional ``KeyName`` and ``ValueName`` are provided for the mapping.
 It does not affect any contract functionality or bytecode, it only sets the ``name`` field
 for the inputs and outputs in the ABI for the mapping's getter.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.18;
+    pragma hyperion ^0.8.18;
 
     contract MappingExampleWithNames {
         mapping(address user => uint balance) public balances;
@@ -88,10 +88,10 @@ for the inputs and outputs in the ABI for the mapping's getter.
 
 The example below uses ``_allowances`` to record the amount someone else is allowed to withdraw from your account.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.22 <0.9.0;
+    pragma hyperion >=0.4.22 <0.9.0;
 
     contract MappingExample {
 
@@ -144,11 +144,11 @@ top of them and iterate over that. For example, the code below implements an
 ``IterableMapping`` library that the ``User`` contract then adds data to, and
 the ``sum`` function iterates over to sum all the values.
 
-.. code-block:: solidity
+.. code-block:: hyperion
     :force:
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.8;
+    pragma hyperion ^0.8.8;
 
     struct IndexValue { uint keyIndex; uint value; }
     struct KeyFlag { uint key; bool deleted; }

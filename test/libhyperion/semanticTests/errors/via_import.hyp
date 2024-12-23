@@ -1,11 +1,11 @@
-==== Source: s1.sol ====
+==== Source: s1.hyp ====
 error E(uint);
-==== Source: s2.sol ====
-import "s1.sol" as S;
-==== Source: s3.sol ====
-import "s1.sol" as S;
-import "s2.sol" as T;
-import "s1.sol";
+==== Source: s2.hyp ====
+import "s1.hyp" as S;
+==== Source: s3.hyp ====
+import "s1.hyp" as S;
+import "s2.hyp" as T;
+import "s1.hyp";
 contract C {
   function x() public pure {
     revert E(1);

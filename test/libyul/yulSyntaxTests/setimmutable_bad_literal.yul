@@ -4,7 +4,7 @@
     setimmutable(0, false, 0x1234567890123456789012345678901234567890)
 }
 // ====
-// dialect: evm
+// dialect: zvm
 // ----
 // TypeError 5859: (22-23): Function expects string literal.
 // TypeError 5859: (89-93): Function expects string literal.

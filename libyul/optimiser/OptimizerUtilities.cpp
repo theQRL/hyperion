@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,20 +21,20 @@
 
 #include <libyul/optimiser/OptimizerUtilities.h>
 
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 
 #include <libyul/Dialect.h>
 #include <libyul/AST.h>
 
 #include <liblangutil/Token.h>
-#include <libsolutil/CommonData.h>
+#include <libhyputil/CommonData.h>
 
 #include <range/v3/action/remove_if.hpp>
 
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::util;
-using namespace solidity::yul;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::util;
+using namespace hyperion::yul;
 
 void yul::removeEmptyBlocks(Block& _block)
 {
@@ -49,19 +49,19 @@ bool yul::isRestrictedIdentifier(Dialect const& _dialect, YulString const& _iden
 	return _identifier.empty() || TokenTraits::isYulKeyword(_identifier.str()) || _dialect.reservedIdentifier(_identifier);
 }
 
-std::optional<evmasm::Instruction> yul::toEVMInstruction(Dialect const& _dialect, YulString const& _name)
+std::optional<zvmasm::Instruction> yul::toZVMInstruction(Dialect const& _dialect, YulString const& _name)
 {
-	if (auto const* dialect = dynamic_cast<EVMDialect const*>(&_dialect))
-		if (BuiltinFunctionForEVM const* builtin = dialect->builtin(_name))
+	if (auto const* dialect = dynamic_cast<ZVMDialect const*>(&_dialect))
+		if (BuiltinFunctionForZVM const* builtin = dialect->builtin(_name))
 			return builtin->instruction;
 	return std::nullopt;
 }
 
-langutil::EVMVersion const yul::evmVersionFromDialect(Dialect const& _dialect)
+langutil::ZVMVersion const yul::zvmVersionFromDialect(Dialect const& _dialect)
 {
-	if (auto const* dialect = dynamic_cast<EVMDialect const*>(&_dialect))
-		return dialect->evmVersion();
-	return langutil::EVMVersion();
+	if (auto const* dialect = dynamic_cast<ZVMDialect const*>(&_dialect))
+		return dialect->zvmVersion();
+	return langutil::ZVMVersion();
 }
 
 void StatementRemover::operator()(Block& _block)

@@ -6,5 +6,5 @@
     function i() { let z := mload(0) }
 }
 // ====
-// dialect: evm
+// dialect: zvm
 // ----

@@ -1,37 +1,37 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 #pragma once
 
-#include <libsolidity/interface/ImportRemapper.h>
-#include <libsolidity/interface/ReadFile.h>
+#include <libhyperion/interface/ImportRemapper.h>
+#include <libhyperion/interface/ReadFile.h>
 
 #include <boost/filesystem.hpp>
 
 #include <map>
 #include <set>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 /// FileReader - used for progressively loading source code.
 ///
-/// It is used in solc to load files from CLI parameters, stdin, or from JSON and
-/// also used in the solc language server where solc is a long running process.
+/// It is used in hypc to load files from CLI parameters, stdin, or from JSON and
+/// also used in the hypc language server where hypc is a long running process.
 class FileReader
 {
 public:
@@ -132,7 +132,7 @@ public:
 	/// Paths are treated as case-sensitive. Does not require the path to actually exist in the
 	/// filesystem and does not follow symlinks. Only considers whole segments, e.g. /abc/d is not
 	/// considered a prefix of /abc/def. Both paths must be non-empty.
-	/// Ignores the trailing slash, i.e. /a/b/c.sol/ is treated as a valid prefix of /a/b/c.sol.
+	/// Ignores the trailing slash, i.e. /a/b/c.hyp/ is treated as a valid prefix of /a/b/c.hyp.
 	static bool isPathPrefix(boost::filesystem::path const& _prefix, boost::filesystem::path const& _path);
 
 	/// If @a _prefix is actually a prefix of @p _path, removes it from @a _path to make it relative.

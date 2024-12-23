@@ -1,28 +1,28 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <solc/CommandLineParser.h>
+#include <hypc/CommandLineParser.h>
 
-#include <solc/Exceptions.h>
+#include <hypc/Exceptions.h>
 
 #include <libyul/optimiser/Suite.h>
 
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -32,12 +32,12 @@
 
 #include <fmt/format.h>
 
-using namespace solidity::langutil;
-using namespace solidity::yul;
+using namespace hyperion::langutil;
+using namespace hyperion::yul;
 
 namespace po = boost::program_options;
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 static std::string const g_strAllowPaths = "allow-paths";
@@ -45,14 +45,14 @@ static std::string const g_strBasePath = "base-path";
 static std::string const g_strIncludePath = "include-path";
 static std::string const g_strAssemble = "assemble";
 static std::string const g_strCombinedJson = "combined-json";
-static std::string const g_strEVM = "evm";
-static std::string const g_strEVMVersion = "evm-version";
+static std::string const g_strZVM = "zvm";
+static std::string const g_strZVMVersion = "zvm-version";
 static std::string const g_strViaIR = "via-ir";
 static std::string const g_strExperimentalViaIR = "experimental-via-ir";
 static std::string const g_strGas = "gas";
 static std::string const g_strHelp = "help";
 static std::string const g_strImportAst = "import-ast";
-static std::string const g_strImportEvmAssemblerJson = "import-asm-json";
+static std::string const g_strImportZvmAssemblerJson = "import-asm-json";
 static std::string const g_strInputFile = "input-file";
 static std::string const g_strYul = "yul";
 static std::string const g_strYulDialect = "yul-dialect";
@@ -117,13 +117,13 @@ static std::string const g_strErrorIds = "error-codes";
 /// Possible arguments to for --machine
 static std::set<std::string> const g_machineArgs
 {
-	g_strEVM
+	g_strZVM
 };
 
 /// Possible arguments to for --yul-dialect
 static std::set<std::string> const g_yulDialectArgs
 {
-	g_strEVM
+	g_strZVM
 };
 
 /// Possible arguments to for --metadata-hash
@@ -144,14 +144,14 @@ static std::map<InputMode, std::string> const g_inputModeName = {
 	{InputMode::StandardJson, "standard JSON"},
 	{InputMode::Linker, "linker"},
 	{InputMode::LanguageServer, "language server (LSP)"},
-	{InputMode::EVMAssemblerJSON, "EVM assembler (JSON format)"},
+	{InputMode::ZVMAssemblerJSON, "ZVM assembler (JSON format)"},
 };
 
 void CommandLineParser::checkMutuallyExclusive(std::vector<std::string> const& _optionNames)
 {
 	if (countEnabledOptions(_optionNames) > 1)
 	{
-		solThrow(
+		hypThrow(
 			CommandLineValidationError,
 			"The following options are mutually exclusive: " + joinOptionNames(_optionNames) + ". " +
 			"Select at most one."
@@ -179,14 +179,14 @@ std::ostream& operator<<(std::ostream& _out, CompilerOutputs const& _selection)
 
 std::string const& CompilerOutputs::componentName(bool CompilerOutputs::* _component)
 {
-	solAssert(_component, "");
+	hypAssert(_component, "");
 
 	// NOTE: Linear search is not optimal but it's simpler than getting pointers-to-members to work as map keys.
 	for (auto const& [componentName, component]: CompilerOutputs::componentMap())
 		if (component == _component)
 			return componentName;
 
-	solAssert(false, "");
+	hypAssert(false, "");
 }
 
 bool CombinedJsonRequests::operator==(CombinedJsonRequests const& _other) const noexcept
@@ -210,13 +210,13 @@ std::ostream& operator<<(std::ostream& _out, CombinedJsonRequests const& _reques
 
 std::string const& CombinedJsonRequests::componentName(bool CombinedJsonRequests::* _component)
 {
-	solAssert(_component, "");
+	hypAssert(_component, "");
 
 	for (auto const& [componentName, component]: CombinedJsonRequests::componentMap())
 		if (component == _component)
 			return componentName;
 
-	solAssert(false, "");
+	hypAssert(false, "");
 }
 
 bool CommandLineOptions::operator==(CommandLineOptions const& _other) const noexcept
@@ -232,7 +232,7 @@ bool CommandLineOptions::operator==(CommandLineOptions const& _other) const noex
 		input.noImportCallback == _other.input.noImportCallback &&
 		output.dir == _other.output.dir &&
 		output.overwriteFiles == _other.output.overwriteFiles &&
-		output.evmVersion == _other.output.evmVersion &&
+		output.zvmVersion == _other.output.zvmVersion &&
 		output.viaIR == _other.output.viaIR &&
 		output.revertStrings == _other.output.revertStrings &&
 		output.debugInfoSelection == _other.output.debugInfoSelection &&
@@ -250,7 +250,7 @@ bool CommandLineOptions::operator==(CommandLineOptions const& _other) const noex
 		metadata.format == _other.metadata.format &&
 		metadata.hash == _other.metadata.hash &&
 		metadata.literalSources == _other.metadata.literalSources &&
-		optimizer.optimizeEvmasm == _other.optimizer.optimizeEvmasm &&
+		optimizer.optimizeZvmasm == _other.optimizer.optimizeZvmasm &&
 		optimizer.optimizeYul == _other.optimizer.optimizeYul &&
 		optimizer.expectedExecutionsPerDeployment == _other.optimizer.expectedExecutionsPerDeployment &&
 		optimizer.yulSteps == _other.optimizer.yulSteps &&
@@ -262,7 +262,7 @@ OptimiserSettings CommandLineOptions::optimiserSettings() const
 {
 	OptimiserSettings settings;
 
-	if (optimizer.optimizeEvmasm)
+	if (optimizer.optimizeZvmasm)
 		settings = OptimiserSettings::standard();
 	else
 		settings = OptimiserSettings::minimal();
@@ -285,7 +285,7 @@ OptimiserSettings CommandLineOptions::optimiserSettings() const
 		if (delimiterPos != std::string::npos)
 			settings.yulOptimiserCleanupSteps = fullSequence.substr(delimiterPos + 1);
 		else
-			solAssert(settings.yulOptimiserCleanupSteps == OptimiserSettings::DefaultYulOptimiserCleanupSteps);
+			hypAssert(settings.yulOptimiserCleanupSteps == OptimiserSettings::DefaultYulOptimiserCleanupSteps);
 	}
 
 	return settings;
@@ -308,10 +308,10 @@ void CommandLineParser::parseInputPathsAndRemappings()
 			{
 				std::optional<ImportRemapper::Remapping> remapping = ImportRemapper::parseRemapping(positionalArg);
 				if (!remapping.has_value())
-					solThrow(CommandLineValidationError, "Invalid remapping: \"" + positionalArg + "\".");
+					hypThrow(CommandLineValidationError, "Invalid remapping: \"" + positionalArg + "\".");
 
 				if (m_options.input.mode == InputMode::StandardJson)
-					solThrow(
+					hypThrow(
 						CommandLineValidationError,
 						"Import remappings are not accepted on the command line in Standard JSON mode.\n"
 						"Please put them under 'settings.remappings' in the JSON input."
@@ -340,7 +340,7 @@ void CommandLineParser::parseInputPathsAndRemappings()
 	if (m_options.input.mode == InputMode::StandardJson)
 	{
 		if (m_options.input.paths.size() > 1 || (m_options.input.paths.size() == 1 && m_options.input.addStdin))
-			solThrow(
+			hypThrow(
 				CommandLineValidationError,
 				"Too many input files for --" + g_strStandardJSON + ".\n"
 				"Please either specify a single file name or provide its content on standard input."
@@ -351,7 +351,7 @@ void CommandLineParser::parseInputPathsAndRemappings()
 			m_options.input.addStdin = true;
 	}
 	else if (m_options.input.paths.size() == 0 && !m_options.input.addStdin)
-		solThrow(
+		hypThrow(
 			CommandLineValidationError,
 			"No input files given. If you wish to use the standard input please specify \"-\" explicitly."
 		);
@@ -392,7 +392,7 @@ void CommandLineParser::parseLibraryOption(std::string const& _input)
 			{
 				separator = lib.rfind(':');
 				if (separator == std::string::npos)
-					solThrow(
+					hypThrow(
 						CommandLineValidationError,
 						"Equal sign separator missing in library address specifier \"" + lib + "\""
 					);
@@ -401,7 +401,7 @@ void CommandLineParser::parseLibraryOption(std::string const& _input)
 			}
 			else
 				if (lib.rfind('=') != lib.find('='))
-					solThrow(
+					hypThrow(
 						CommandLineValidationError,
 						"Only one equal sign \"=\" is allowed in the address string \"" + lib + "\"."
 					);
@@ -409,7 +409,7 @@ void CommandLineParser::parseLibraryOption(std::string const& _input)
 			std::string libName(lib.begin(), lib.begin() + static_cast<ptrdiff_t>(separator));
 			boost::trim(libName);
 			if (m_options.linker.libraries.count(libName))
-				solThrow(
+				hypThrow(
 					CommandLineValidationError,
 					"Address specified more than once for library \"" + libName + "\"."
 				);
@@ -417,7 +417,7 @@ void CommandLineParser::parseLibraryOption(std::string const& _input)
 			std::string addrString(lib.begin() + static_cast<ptrdiff_t>(separator) + 1, lib.end());
 			boost::trim(addrString);
 			if (addrString.empty())
-				solThrow(
+				hypThrow(
 					CommandLineValidationError,
 					"Empty address provided for library \"" + libName + "\".\n"
 					"Note that there should not be any whitespace after the " +
@@ -427,20 +427,20 @@ void CommandLineParser::parseLibraryOption(std::string const& _input)
 			if (addrString.substr(0, 2) == "0x")
 				addrString = addrString.substr(2);
 			else
-				solThrow(
+				hypThrow(
 					CommandLineValidationError,
 					"The address " + addrString + " is not prefixed with \"0x\".\n"
 					"Note that the address must be prefixed with \"0x\"."
 				);
 
 			if (addrString.length() != 40)
-				solThrow(
+				hypThrow(
 					CommandLineValidationError,
 					"Invalid length for address for library \"" + libName + "\": " +
 					std::to_string(addrString.length()) + " instead of 40 characters."
 				);
 			if (!util::passesAddressChecksum(addrString, false))
-				solThrow(
+				hypThrow(
 					CommandLineValidationError,
 					"Invalid checksum on address for library \"" + libName + "\": " + addrString + "\n"
 					"The correct checksum is " + util::getChecksummedAddress(addrString)
@@ -448,7 +448,7 @@ void CommandLineParser::parseLibraryOption(std::string const& _input)
 			bytes binAddr = util::fromHex(addrString);
 			util::h160 address(binAddr, util::h160::AlignRight);
 			if (binAddr.size() > 20 || address == util::h160())
-				solThrow(
+				hypThrow(
 					CommandLineValidationError,
 					"Invalid address for library \"" + libName + "\": " + addrString
 				);
@@ -471,7 +471,7 @@ void CommandLineParser::parseOutputSelection()
 			CompilerOutputs::componentName(&CompilerOutputs::irOptimized),
 			CompilerOutputs::componentName(&CompilerOutputs::astCompactJson),
 		};
-		static std::set<std::string> const evmAssemblyJsonImportModeOutputs = {
+		static std::set<std::string> const zvmAssemblyJsonImportModeOutputs = {
 			CompilerOutputs::componentName(&CompilerOutputs::asm_),
 			CompilerOutputs::componentName(&CompilerOutputs::binary),
 			CompilerOutputs::componentName(&CompilerOutputs::binaryRuntime),
@@ -484,12 +484,12 @@ void CommandLineParser::parseOutputSelection()
 		case InputMode::License:
 		case InputMode::Version:
 		case InputMode::LanguageServer:
-			solAssert(false);
+			hypAssert(false);
 		case InputMode::Compiler:
 		case InputMode::CompilerWithASTImport:
 			return util::contains(compilerModeOutputs, _outputName);
-		case InputMode::EVMAssemblerJSON:
-			return util::contains(evmAssemblyJsonImportModeOutputs, _outputName);
+		case InputMode::ZVMAssemblerJSON:
+			return util::contains(zvmAssemblyJsonImportModeOutputs, _outputName);
 		case InputMode::Assembler:
 			return util::contains(assemblerModeOutputs, _outputName);
 		case InputMode::StandardJson:
@@ -497,7 +497,7 @@ void CommandLineParser::parseOutputSelection()
 			return false;
 		}
 
-		solAssert(false, "");
+		hypAssert(false, "");
 	};
 
 	for (auto&& [optionName, outputComponent]: CompilerOutputs::componentMap())
@@ -518,32 +518,32 @@ void CommandLineParser::parseOutputSelection()
 			unsupportedOutputs.push_back(optionName);
 
 	if (!unsupportedOutputs.empty())
-		solThrow(
+		hypThrow(
 			CommandLineValidationError,
 			"The following outputs are not supported in " + g_inputModeName.at(m_options.input.mode) + " mode: " +
 			joinOptionNames(unsupportedOutputs) + "."
 		);
 
-	// TODO: restrict EOF version to correct EVM version.
+	// TODO: restrict EOF version to correct ZVM version.
 }
 
 po::options_description CommandLineParser::optionsDescription()
 {
 	// Declare the supported options.
-	po::options_description desc((R"(solc, the Solidity commandline compiler.
+	po::options_description desc((R"(hypc, the Hyperion commandline compiler.
 
 This program comes with ABSOLUTELY NO WARRANTY. This is free software, and you
-are welcome to redistribute it under certain conditions. See 'solc --)" + g_strLicense + R"('
+are welcome to redistribute it under certain conditions. See 'hypc --)" + g_strLicense + R"('
 for details.
 
-Usage: solc [options] [input_file...]
-Compiles the given Solidity input files (or the standard input if "-" is
+Usage: hypc [options] [input_file...]
+Compiles the given Hyperion input files (or the standard input if "-" is
 used as a file name) and outputs the components specified in the options
 at standard output or in files in the output directory, if specified.
 Imports are automatically read from the filesystem, but it is also possible to
 remap paths using the context:prefix=path syntax.
 Example:
-solc --)" + CompilerOutputs::componentName(&CompilerOutputs::binary) + R"( -o /tmp/solcoutput dapp-bin=/usr/local/lib/dapp-bin contract.sol
+hypc --)" + CompilerOutputs::componentName(&CompilerOutputs::binary) + R"( -o /tmp/hypcoutput dapp-bin=/usr/local/lib/dapp-bin contract.hyp
 
 General Information)").c_str(),
 		po::options_description::m_default_line_length,
@@ -600,9 +600,9 @@ General Information)").c_str(),
 			"Overwrite existing files (used together with -o)."
 		)
 		(
-			g_strEVMVersion.c_str(),
-			po::value<std::string>()->value_name("version")->default_value(EVMVersion{}.name()),
-			"Select desired EVM version: shanghai."
+			g_strZVMVersion.c_str(),
+			po::value<std::string>()->value_name("version")->default_value(ZVMVersion{}.name()),
+			"Select desired ZVM version: shanghai."
 		)
 	;
 	outputOptions.add_options()
@@ -622,7 +622,7 @@ General Information)").c_str(),
 		(
 			g_strDebugInfo.c_str(),
 			po::value<std::string>()->default_value(util::toString(DebugInfoSelection::Default())),
-			("Debug info components to be included in the produced EVM assembly and Yul code. "
+			("Debug info components to be included in the produced ZVM assembly and Yul code. "
 			"Value can be all, none or a comma-separated list containing one or more of the "
 			"following components: " + util::joinHumanReadable(DebugInfoSelection::componentMap() | ranges::views::keys) + ".").c_str()
 		)
@@ -665,8 +665,8 @@ General Information)").c_str(),
 			"--" + g_strCombinedJson + " " + CombinedJsonRequests::componentName(&CombinedJsonRequests::ast)).c_str()
 		)
 		(
-			g_strImportEvmAssemblerJson.c_str(),
-			"Import EVM assembly from JSON. Assumes input is in the format used by --asm-json."
+			g_strImportZvmAssemblerJson.c_str(),
+			"Import ZVM assembly from JSON. Assumes input is in the format used by --asm-json."
 		)
 		(
 			g_strLSP.c_str(),
@@ -732,8 +732,8 @@ General Information)").c_str(),
 	po::options_description outputComponents("Output Components");
 	outputComponents.add_options()
 		(CompilerOutputs::componentName(&CompilerOutputs::astCompactJson).c_str(), "AST of all source files in a compact JSON format.")
-		(CompilerOutputs::componentName(&CompilerOutputs::asm_).c_str(), "EVM assembly of the contracts.")
-		(CompilerOutputs::componentName(&CompilerOutputs::asmJson).c_str(), "EVM assembly of the contracts in JSON format.")
+		(CompilerOutputs::componentName(&CompilerOutputs::asm_).c_str(), "ZVM assembly of the contracts.")
+		(CompilerOutputs::componentName(&CompilerOutputs::asmJson).c_str(), "ZVM assembly of the contracts in JSON format.")
 		(CompilerOutputs::componentName(&CompilerOutputs::opcodes).c_str(), "Opcodes of the contracts.")
 		(CompilerOutputs::componentName(&CompilerOutputs::binary).c_str(), "Binary of the contracts in hex.")
 		(CompilerOutputs::componentName(&CompilerOutputs::binaryRuntime).c_str(), "Binary of the runtime part of the contracts in hex.")
@@ -798,13 +798,13 @@ General Information)").c_str(),
 		)
 		(
 			g_strOptimizeYul.c_str(),
-			("Enable Yul optimizer (independently of the EVM assembly optimizer). "
+			("Enable Yul optimizer (independently of the ZVM assembly optimizer). "
 			"The general --" + g_strOptimize + " option automatically enables this unless --" +
 			g_strNoOptimizeYul + " is specified.").c_str()
 		)
 		(
 			g_strNoOptimizeYul.c_str(),
-			"Disable Yul optimizer (independently of the EVM assembly optimizer)."
+			"Disable Yul optimizer (independently of the ZVM assembly optimizer)."
 		)
 		(
 			g_strYulOptimizations.c_str(),
@@ -920,7 +920,7 @@ void CommandLineParser::parseArgs(int _argc, char const* const* _argv)
 	}
 	catch (po::error const& _exception)
 	{
-		solThrow(CommandLineValidationError, _exception.what());
+		hypThrow(CommandLineValidationError, _exception.what());
 	}
 
 	po::notify(m_args);
@@ -944,7 +944,7 @@ void CommandLineParser::processArgs()
 		g_strYul,
 		g_strImportAst,
 		g_strLSP,
-		g_strImportEvmAssemblerJson,
+		g_strImportZvmAssemblerJson,
 	});
 
 	if (m_args.count(g_strHelp) > 0)
@@ -963,8 +963,8 @@ void CommandLineParser::processArgs()
 		m_options.input.mode = InputMode::Linker;
 	else if (m_args.count(g_strImportAst) > 0)
 		m_options.input.mode = InputMode::CompilerWithASTImport;
-	else if (m_args.count(g_strImportEvmAssemblerJson) > 0)
-		m_options.input.mode = InputMode::EVMAssemblerJSON;
+	else if (m_args.count(g_strImportZvmAssemblerJson) > 0)
+		m_options.input.mode = InputMode::ZVMAssemblerJSON;
 	else
 		m_options.input.mode = InputMode::Compiler;
 
@@ -1008,7 +1008,7 @@ void CommandLineParser::processArgs()
 	}
 
 	if (!invalidOptionsForCurrentInputMode.empty())
-		solThrow(
+		hypThrow(
 			CommandLineValidationError,
 			"The following options are not supported in the current input mode: " +
 			joinOptionNames(invalidOptionsForCurrentInputMode)
@@ -1024,10 +1024,10 @@ void CommandLineParser::processArgs()
 		if (option != CompilerOutputs::componentName(&CompilerOutputs::astCompactJson))
 			checkMutuallyExclusive({g_strStopAfter, option});
 
-	if (m_options.input.mode == InputMode::EVMAssemblerJSON)
+	if (m_options.input.mode == InputMode::ZVMAssemblerJSON)
 	{
-		static std::set<std::string> const supportedByEvmAsmJsonImport{
-			g_strImportEvmAssemblerJson,
+		static std::set<std::string> const supportedByZvmAsmJsonImport{
+			g_strImportZvmAssemblerJson,
 			CompilerOutputs::componentName(&CompilerOutputs::asm_),
 			CompilerOutputs::componentName(&CompilerOutputs::binary),
 			CompilerOutputs::componentName(&CompilerOutputs::binaryRuntime),
@@ -1042,13 +1042,13 @@ void CommandLineParser::processArgs()
 		};
 
 		for (auto const& [optionName, optionValue]: m_args)
-			if (!optionValue.defaulted() && !supportedByEvmAsmJsonImport.count(optionName))
-				solThrow(
+			if (!optionValue.defaulted() && !supportedByZvmAsmJsonImport.count(optionName))
+				hypThrow(
 					CommandLineValidationError,
 					fmt::format(
 						"Option --{} is not supported with --{}.",
 						optionName,
-						g_strImportEvmAssemblerJson
+						g_strImportZvmAssemblerJson
 					)
 				);
 	}
@@ -1056,25 +1056,25 @@ void CommandLineParser::processArgs()
 	if (
 		m_options.input.mode != InputMode::Compiler &&
 		m_options.input.mode != InputMode::CompilerWithASTImport &&
-		m_options.input.mode != InputMode::EVMAssemblerJSON &&
+		m_options.input.mode != InputMode::ZVMAssemblerJSON &&
 		m_options.input.mode != InputMode::Assembler
 	)
 	{
 		if (!m_args[g_strOptimizeRuns].defaulted())
-			solThrow(
+			hypThrow(
 				CommandLineValidationError,
 				"Option --" + g_strOptimizeRuns + " is only valid in compiler and assembler modes."
 			);
 
 		for (std::string const& option: {g_strOptimize, g_strNoOptimizeYul, g_strOptimizeYul, g_strYulOptimizations})
 			if (m_args.count(option) > 0)
-				solThrow(
+				hypThrow(
 					CommandLineValidationError,
 					"Option --" + option + " is only valid in compiler and assembler modes."
 				);
 
 		if (!m_args[g_strDebugInfo].defaulted())
-			solThrow(
+			hypThrow(
 				CommandLineValidationError,
 				"Option --" + g_strDebugInfo + " is only valid in compiler and assembler modes."
 			);
@@ -1087,12 +1087,12 @@ void CommandLineParser::processArgs()
 		std::string revertStringsString = m_args[g_strRevertStrings].as<std::string>();
 		std::optional<RevertStrings> revertStrings = revertStringsFromString(revertStringsString);
 		if (!revertStrings)
-			solThrow(
+			hypThrow(
 				CommandLineValidationError,
 				"Invalid option for --" + g_strRevertStrings + ": " + revertStringsString
 			);
 		if (*revertStrings == RevertStrings::VerboseDebug)
-			solThrow(
+			hypThrow(
 				CommandLineValidationError,
 				"Only \"default\", \"strip\" and \"debug\" are implemented for --" + g_strRevertStrings + " for now."
 			);
@@ -1104,10 +1104,10 @@ void CommandLineParser::processArgs()
 		std::string optionValue = m_args[g_strDebugInfo].as<std::string>();
 		m_options.output.debugInfoSelection = DebugInfoSelection::fromString(optionValue);
 		if (!m_options.output.debugInfoSelection.has_value())
-			solThrow(CommandLineValidationError, "Invalid value for --" + g_strDebugInfo + " option: " + optionValue);
+			hypThrow(CommandLineValidationError, "Invalid value for --" + g_strDebugInfo + " option: " + optionValue);
 
 		if (m_options.output.debugInfoSelection->snippet && !m_options.output.debugInfoSelection->location)
-			solThrow(CommandLineValidationError, "To use 'snippet' with --" + g_strDebugInfo + " you must select also 'location'.");
+			hypThrow(CommandLineValidationError, "To use 'snippet' with --" + g_strDebugInfo + " you must select also 'location'.");
 	}
 
 	parseCombinedJsonOption();
@@ -1137,12 +1137,12 @@ void CommandLineParser::processArgs()
 	if (m_args.count(g_strIncludePath) > 0)
 	{
 		if (m_options.input.basePath.empty())
-			solThrow(CommandLineValidationError, "--" + g_strIncludePath + " option requires a non-empty base path.");
+			hypThrow(CommandLineValidationError, "--" + g_strIncludePath + " option requires a non-empty base path.");
 
 		for (std::string const& includePath: m_args[g_strIncludePath].as<std::vector<std::string>>())
 		{
 			if (includePath.empty())
-				solThrow(CommandLineValidationError, "Empty values are not allowed in --" + g_strIncludePath + ".");
+				hypThrow(CommandLineValidationError, "Empty values are not allowed in --" + g_strIncludePath + ".");
 
 			m_options.input.includePaths.push_back(includePath);
 		}
@@ -1164,7 +1164,7 @@ void CommandLineParser::processArgs()
 	if (m_args.count(g_strStopAfter))
 	{
 		if (m_args[g_strStopAfter].as<std::string>() != "parsing")
-			solThrow(CommandLineValidationError, "Valid options for --" + g_strStopAfter + " are: \"parsing\".\n");
+			hypThrow(CommandLineValidationError, "Valid options for --" + g_strStopAfter + " are: \"parsing\".\n");
 		else
 			m_options.output.stopAfter = CompilerStack::State::Parsed;
 	}
@@ -1181,22 +1181,22 @@ void CommandLineParser::processArgs()
 	if (m_options.input.mode == InputMode::Linker)
 		return;
 
-	if (m_args.count(g_strEVMVersion))
+	if (m_args.count(g_strZVMVersion))
 	{
-		std::string versionOptionStr = m_args[g_strEVMVersion].as<std::string>();
-		std::optional<langutil::EVMVersion> versionOption = langutil::EVMVersion::fromString(versionOptionStr);
+		std::string versionOptionStr = m_args[g_strZVMVersion].as<std::string>();
+		std::optional<langutil::ZVMVersion> versionOption = langutil::ZVMVersion::fromString(versionOptionStr);
 		if (!versionOption)
-			solThrow(CommandLineValidationError, "Invalid option for --" + g_strEVMVersion + ": " + versionOptionStr);
-		m_options.output.evmVersion = *versionOption;
+			hypThrow(CommandLineValidationError, "Invalid option for --" + g_strZVMVersion + ": " + versionOptionStr);
+		m_options.output.zvmVersion = *versionOption;
 	}
 
 	if (m_args.count(g_strNoOptimizeYul) > 0 && m_args.count(g_strOptimizeYul) > 0)
-		solThrow(
+		hypThrow(
 			CommandLineValidationError,
 			"Options --" + g_strOptimizeYul + " and --" + g_strNoOptimizeYul + " cannot be used together."
 		);
 
-	m_options.optimizer.optimizeEvmasm = (m_args.count(g_strOptimize) > 0);
+	m_options.optimizer.optimizeZvmasm = (m_args.count(g_strOptimize) > 0);
 	m_options.optimizer.optimizeYul = (
 		(m_args.count(g_strOptimize) > 0 && m_args.count(g_strNoOptimizeYul) == 0) ||
 		m_args.count(g_strOptimizeYul) > 0
@@ -1208,7 +1208,7 @@ void CommandLineParser::processArgs()
 	{
 		OptimiserSettings optimiserSettings = m_options.optimiserSettings();
 		if (!optimiserSettings.runYulOptimiser && !OptimiserSuite::isEmptyOptimizerSequence(m_args[g_strYulOptimizations].as<std::string>()))
-			solThrow(CommandLineValidationError, "--" + g_strYulOptimizations + " is invalid with a non-empty sequence if Yul optimizer is disabled.");
+			hypThrow(CommandLineValidationError, "--" + g_strYulOptimizations + " is invalid with a non-empty sequence if Yul optimizer is disabled.");
 
 		try
 		{
@@ -1216,7 +1216,7 @@ void CommandLineParser::processArgs()
 		}
 		catch (yul::OptimizerException const& _exception)
 		{
-			solThrow(
+			hypThrow(
 				CommandLineValidationError,
 				"Invalid optimizer step sequence in --" + g_strYulOptimizations + ": " + _exception.what()
 			);
@@ -1239,7 +1239,7 @@ void CommandLineParser::processArgs()
 			auto enabledOptions = nonAssemblyModeOptions | ranges::views::filter(optionEnabled) | ranges::to_vector;
 
 			std::string message = "The following options are invalid in assembly mode: " + joinOptionNames(enabledOptions) + ".";
-			solThrow(CommandLineValidationError, message);
+			hypThrow(CommandLineValidationError, message);
 		}
 
 		// switch to assembly mode
@@ -1250,31 +1250,31 @@ void CommandLineParser::processArgs()
 		if (m_args.count(g_strMachine))
 		{
 			std::string machine = m_args[g_strMachine].as<std::string>();
-			if (machine == g_strEVM)
-				m_options.assembly.targetMachine = Machine::EVM;
+			if (machine == g_strZVM)
+				m_options.assembly.targetMachine = Machine::ZVM;
 			else
-				solThrow(CommandLineValidationError, "Invalid option for --" + g_strMachine + ": " + machine);
+				hypThrow(CommandLineValidationError, "Invalid option for --" + g_strMachine + ": " + machine);
 		}
 		if (m_args.count(g_strYulDialect))
 		{
 			std::string dialect = m_args[g_strYulDialect].as<std::string>();
-			if (dialect == g_strEVM)
+			if (dialect == g_strZVM)
 				m_options.assembly.inputLanguage = Input::StrictAssembly;
 			else
-				solThrow(CommandLineValidationError, "Invalid option for --" + g_strYulDialect + ": " + dialect);
+				hypThrow(CommandLineValidationError, "Invalid option for --" + g_strYulDialect + ": " + dialect);
 		}
 		if (
-				(m_options.optimizer.optimizeEvmasm || m_options.optimizer.optimizeYul) &&
+				(m_options.optimizer.optimizeZvmasm || m_options.optimizer.optimizeYul) &&
 				m_options.assembly.inputLanguage != Input::StrictAssembly
 			)
-			solThrow(
+			hypThrow(
 				CommandLineValidationError,
 				"Optimizer can only be used for strict assembly. Use --"  + g_strStrictAssembly + "."
 			);
 		return;
 	}
 	else if (countEnabledOptions({g_strYulDialect, g_strMachine}) >= 1)
-		solThrow(
+		hypThrow(
 			CommandLineValidationError,
 			"--" + g_strYulDialect + " and --" + g_strMachine + " are only valid in assembly mode."
 		);
@@ -1289,7 +1289,7 @@ void CommandLineParser::processArgs()
 		else if (hashStr == g_strNone)
 			m_options.metadata.hash = CompilerStack::MetadataHash::None;
 		else
-			solThrow(CommandLineValidationError, "Invalid option for --" + g_strMetadataHash + ": " + hashStr);
+			hypThrow(CommandLineValidationError, "Invalid option for --" + g_strMetadataHash + ": " + hashStr);
 	}
 
 	if (m_args.count(g_strNoCBORMetadata))
@@ -1298,7 +1298,7 @@ void CommandLineParser::processArgs()
 			m_args.count(g_strMetadataHash) &&
 			m_options.metadata.hash != CompilerStack::MetadataHash::None
 		)
-			solThrow(
+			hypThrow(
 				CommandLineValidationError,
 				"Cannot specify a metadata hashing method when --" +
 				g_strNoCBORMetadata + " is set."
@@ -1312,7 +1312,7 @@ void CommandLineParser::processArgs()
 		std::string contractsStr = m_args[g_strModelCheckerContracts].as<std::string>();
 		std::optional<ModelCheckerContracts> contracts = ModelCheckerContracts::fromString(contractsStr);
 		if (!contracts)
-			solThrow(CommandLineValidationError, "Invalid option for --" + g_strModelCheckerContracts + ": " + contractsStr);
+			hypThrow(CommandLineValidationError, "Invalid option for --" + g_strModelCheckerContracts + ": " + contractsStr);
 		m_options.modelChecker.settings.contracts = std::move(*contracts);
 	}
 
@@ -1324,7 +1324,7 @@ void CommandLineParser::processArgs()
 		std::string engineStr = m_args[g_strModelCheckerEngine].as<std::string>();
 		std::optional<ModelCheckerEngine> engine = ModelCheckerEngine::fromString(engineStr);
 		if (!engine)
-			solThrow(CommandLineValidationError, "Invalid option for --" + g_strModelCheckerEngine + ": " + engineStr);
+			hypThrow(CommandLineValidationError, "Invalid option for --" + g_strModelCheckerEngine + ": " + engineStr);
 		m_options.modelChecker.settings.engine = *engine;
 	}
 
@@ -1333,7 +1333,7 @@ void CommandLineParser::processArgs()
 		std::string mode = m_args[g_strModelCheckerExtCalls].as<std::string>();
 		std::optional<ModelCheckerExtCalls> extCallsMode = ModelCheckerExtCalls::fromString(mode);
 		if (!extCallsMode)
-			solThrow(CommandLineValidationError, "Invalid option for --" + g_strModelCheckerExtCalls + ": " + mode);
+			hypThrow(CommandLineValidationError, "Invalid option for --" + g_strModelCheckerExtCalls + ": " + mode);
 		m_options.modelChecker.settings.externalCalls = *extCallsMode;
 	}
 
@@ -1342,7 +1342,7 @@ void CommandLineParser::processArgs()
 		std::string invsStr = m_args[g_strModelCheckerInvariants].as<std::string>();
 		std::optional<ModelCheckerInvariants> invs = ModelCheckerInvariants::fromString(invsStr);
 		if (!invs)
-			solThrow(CommandLineValidationError, "Invalid option for --" + g_strModelCheckerInvariants + ": " + invsStr);
+			hypThrow(CommandLineValidationError, "Invalid option for --" + g_strModelCheckerInvariants + ": " + invsStr);
 		m_options.modelChecker.settings.invariants = *invs;
 	}
 
@@ -1360,14 +1360,14 @@ void CommandLineParser::processArgs()
 		std::string solversStr = m_args[g_strModelCheckerSolvers].as<std::string>();
 		std::optional<smtutil::SMTSolverChoice> solvers = smtutil::SMTSolverChoice::fromString(solversStr);
 		if (!solvers)
-			solThrow(CommandLineValidationError, "Invalid option for --" + g_strModelCheckerSolvers + ": " + solversStr);
+			hypThrow(CommandLineValidationError, "Invalid option for --" + g_strModelCheckerSolvers + ": " + solversStr);
 		m_options.modelChecker.settings.solvers = *solvers;
 	}
 
 	if (m_args.count(g_strModelCheckerPrintQuery))
 	{
 		if (!(m_options.modelChecker.settings.solvers == smtutil::SMTSolverChoice::SMTLIB2()))
-			solThrow(CommandLineValidationError, "Only SMTLib2 solver can be enabled to print queries");
+			hypThrow(CommandLineValidationError, "Only SMTLib2 solver can be enabled to print queries");
 		m_options.modelChecker.settings.printQuery = true;
 	}
 
@@ -1376,7 +1376,7 @@ void CommandLineParser::processArgs()
 		std::string targetsStr = m_args[g_strModelCheckerTargets].as<std::string>();
 		std::optional<ModelCheckerTargets> targets = ModelCheckerTargets::fromString(targetsStr);
 		if (!targets)
-			solThrow(CommandLineValidationError, "Invalid option for --" + g_strModelCheckerTargets + ": " + targetsStr);
+			hypThrow(CommandLineValidationError, "Invalid option for --" + g_strModelCheckerTargets + ": " + targetsStr);
 		m_options.modelChecker.settings.targets = *targets;
 	}
 
@@ -1386,7 +1386,7 @@ void CommandLineParser::processArgs()
 	if (m_args.count(g_strModelCheckerBMCLoopIterations))
 	{
 		if (!m_options.modelChecker.settings.engine.bmc)
-			solThrow(CommandLineValidationError, "BMC loop unrolling requires the BMC engine to be enabled");
+			hypThrow(CommandLineValidationError, "BMC loop unrolling requires the BMC engine to be enabled");
 		m_options.modelChecker.settings.bmcLoopIterations = m_args[g_strModelCheckerBMCLoopIterations].as<unsigned>();
 	}
 
@@ -1405,10 +1405,10 @@ void CommandLineParser::processArgs()
 		m_args.count(g_strModelCheckerTimeout);
 	m_options.output.viaIR = (m_args.count(g_strExperimentalViaIR) > 0 || m_args.count(g_strViaIR) > 0);
 
-	solAssert(
+	hypAssert(
 		m_options.input.mode == InputMode::Compiler ||
 		m_options.input.mode == InputMode::CompilerWithASTImport ||
-		m_options.input.mode == InputMode::EVMAssemblerJSON
+		m_options.input.mode == InputMode::ZVMAssemblerJSON
 	);
 }
 
@@ -1420,13 +1420,13 @@ void CommandLineParser::parseCombinedJsonOption()
 	std::set<std::string> requests;
 	for (std::string const& item: boost::split(requests, m_args[g_strCombinedJson].as<std::string>(), boost::is_any_of(",")))
 		if (CombinedJsonRequests::componentMap().count(item) == 0)
-			solThrow(CommandLineValidationError, "Invalid option to --" + g_strCombinedJson + ": " + item);
+			hypThrow(CommandLineValidationError, "Invalid option to --" + g_strCombinedJson + ": " + item);
 
 	m_options.compiler.combinedJsonRequests = CombinedJsonRequests{};
 	for (auto&& [componentName, component]: CombinedJsonRequests::componentMap())
 		m_options.compiler.combinedJsonRequests.value().*component = (requests.count(componentName) > 0);
 
-	if (m_options.input.mode == InputMode::EVMAssemblerJSON && m_options.compiler.combinedJsonRequests.has_value())
+	if (m_options.input.mode == InputMode::ZVMAssemblerJSON && m_options.compiler.combinedJsonRequests.has_value())
 	{
 		static bool CombinedJsonRequests::* invalidOptions[]{
 			&CombinedJsonRequests::abi,
@@ -1444,10 +1444,10 @@ void CommandLineParser::parseCombinedJsonOption()
 
 		for (auto const invalidOption: invalidOptions)
 			if (m_options.compiler.combinedJsonRequests.value().*invalidOption)
-				solThrow(
+				hypThrow(
 					CommandLineValidationError,
 					fmt::format(
-						"The --{} {} output is not available in EVM assembly import mode.",
+						"The --{} {} output is not available in ZVM assembly import mode.",
 						g_strCombinedJson,
 						CombinedJsonRequests::componentName(invalidOption)
 					)
@@ -1472,4 +1472,4 @@ std::string CommandLineParser::joinOptionNames(std::vector<std::string> const& _
 	);
 }
 
-} // namespace solidity::frontend
+} // namespace hyperion::frontend

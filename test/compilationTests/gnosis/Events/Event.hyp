@@ -1,7 +1,7 @@
-pragma solidity >=0.0;
-import "../Tokens/Token.sol";
-import "../Tokens/OutcomeToken.sol";
-import "../Oracles/Oracle.sol";
+pragma hyperion >=0.0;
+import "../Tokens/Token.hyp";
+import "../Tokens/OutcomeToken.hyp";
+import "../Oracles/Oracle.hyp";
 
 
 /// @title Event contract - Provide basic functionality required by different event types

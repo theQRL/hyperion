@@ -1,22 +1,22 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <test/tools/ossfuzz/SolidityEvmoneInterface.h>
+#include <test/tools/ossfuzz/HyperionZvmoneInterface.h>
 
 #include <liblangutil/Exceptions.h>
 #include <liblangutil/SourceReferenceFormatter.h>
@@ -24,17 +24,17 @@
 #include <range/v3/algorithm/all_of.hpp>
 #include <range/v3/span.hpp>
 
-using namespace solidity::test::fuzzer;
-using namespace solidity::frontend;
-using namespace solidity::langutil;
-using namespace solidity::util;
+using namespace hyperion::test::fuzzer;
+using namespace hyperion::frontend;
+using namespace hyperion::langutil;
+using namespace hyperion::util;
 using namespace std;
 
-optional<CompilerOutput> SolidityCompilationFramework::compileContract()
+optional<CompilerOutput> HyperionCompilationFramework::compileContract()
 {
 	m_compiler.setSources(m_compilerInput.sourceCode);
 	m_compiler.setLibraries(m_compilerInput.libraryAddresses);
-	m_compiler.setEVMVersion(m_compilerInput.evmVersion);
+	m_compiler.setZVMVersion(m_compilerInput.zvmVersion);
 	m_compiler.setOptimiserSettings(m_compilerInput.optimiserSettings);
 	m_compiler.setViaIR(m_compilerInput.viaIR);
 	if (!m_compiler.compile())
@@ -56,13 +56,13 @@ optional<CompilerOutput> SolidityCompilationFramework::compileContract()
 			contractName = m_compiler.lastContractName();
 		else
 			contractName = m_compilerInput.contractName;
-		evmasm::LinkerObject obj = m_compiler.object(contractName);
+		zvmasm::LinkerObject obj = m_compiler.object(contractName);
 		Json::Value methodIdentifiers = m_compiler.interfaceSymbols(contractName)["methods"];
 		return CompilerOutput{obj.bytecode, methodIdentifiers};
 	}
 }
 
-bool EvmoneUtility::zeroWord(uint8_t const* _result, size_t _length)
+bool ZvmoneUtility::zeroWord(uint8_t const* _result, size_t _length)
 {
 	return _length == 32 &&
 		ranges::all_of(
@@ -70,10 +70,10 @@ bool EvmoneUtility::zeroWord(uint8_t const* _result, size_t _length)
 			[](uint8_t _v) { return _v == 0; });
 }
 
-evmc_message EvmoneUtility::initializeMessage(bytes const& _input)
+zvmc_message ZvmoneUtility::initializeMessage(bytes const& _input)
 {
 	// Zero initialize all message fields
-	evmc_message msg = {};
+	zvmc_message msg = {};
 	// Gas available (value of type int64_t) is set to its maximum
 	// value.
 	msg.gas = std::numeric_limits<int64_t>::max();
@@ -82,53 +82,53 @@ evmc_message EvmoneUtility::initializeMessage(bytes const& _input)
 	return msg;
 }
 
-evmc::Result EvmoneUtility::executeContract(
+zvmc::Result ZvmoneUtility::executeContract(
 	bytes const& _functionHash,
-	evmc_address _deployedAddress
+	zvmc_address _deployedAddress
 )
 {
-	evmc_message message = initializeMessage(_functionHash);
+	zvmc_message message = initializeMessage(_functionHash);
 	message.recipient = _deployedAddress;
 	message.code_address = _deployedAddress;
-	message.kind = EVMC_CALL;
-	return m_evmHost.call(message);
+	message.kind = ZVMC_CALL;
+	return m_zvmHost.call(message);
 }
 
-evmc::Result EvmoneUtility::deployContract(bytes const& _code)
+zvmc::Result ZvmoneUtility::deployContract(bytes const& _code)
 {
-	evmc_message message = initializeMessage(_code);
-	message.kind = EVMC_CREATE;
-	return m_evmHost.call(message);
+	zvmc_message message = initializeMessage(_code);
+	message.kind = ZVMC_CREATE;
+	return m_zvmHost.call(message);
 }
 
-evmc::Result EvmoneUtility::deployAndExecute(
+zvmc::Result ZvmoneUtility::deployAndExecute(
 	bytes const& _byteCode,
 	string const& _hexEncodedInput
 )
 {
 	// Deploy contract and signal failure if deploy failed
-	evmc::Result createResult = deployContract(_byteCode);
-	solAssert(
-		createResult.status_code == EVMC_SUCCESS,
-		"SolidityEvmoneInterface: Contract creation failed"
+	zvmc::Result createResult = deployContract(_byteCode);
+	hypAssert(
+		createResult.status_code == ZVMC_SUCCESS,
+		"HyperionZvmoneInterface: Contract creation failed"
 	);
 
-	// Execute test function and signal failure if EVM reverted or
+	// Execute test function and signal failure if ZVM reverted or
 	// did not return expected output on successful execution.
-	evmc::Result callResult = executeContract(
+	zvmc::Result callResult = executeContract(
 		util::fromHex(_hexEncodedInput),
 		createResult.create_address
 	);
 
-	// We don't care about EVM One failures other than EVMC_REVERT
-	solAssert(
-		callResult.status_code != EVMC_REVERT,
-		"SolidityEvmoneInterface: EVM One reverted"
+	// We don't care about ZVM One failures other than ZVMC_REVERT
+	hypAssert(
+		callResult.status_code != ZVMC_REVERT,
+		"HyperionZvmoneInterface: ZVM One reverted"
 	);
 	return callResult;
 }
 
-evmc::Result EvmoneUtility::compileDeployAndExecute(string _fuzzIsabelle)
+zvmc::Result ZvmoneUtility::compileDeployAndExecute(string _fuzzIsabelle)
 {
 	map<string, h160> libraryAddressMap;
 	// Stage 1: Compile and deploy library if present.
@@ -136,15 +136,15 @@ evmc::Result EvmoneUtility::compileDeployAndExecute(string _fuzzIsabelle)
 	{
 		m_compilationFramework.contractName(m_libraryName);
 		auto compilationOutput = m_compilationFramework.compileContract();
-		solAssert(compilationOutput.has_value(), "Compiling library failed");
+		hypAssert(compilationOutput.has_value(), "Compiling library failed");
 		CompilerOutput cOutput = compilationOutput.value();
 		// Deploy contract and signal failure if deploy failed
-		evmc::Result createResult = deployContract(cOutput.byteCode);
-		solAssert(
-			createResult.status_code == EVMC_SUCCESS,
-			"SolidityEvmoneInterface: Library deployment failed"
+		zvmc::Result createResult = deployContract(cOutput.byteCode);
+		hypAssert(
+			createResult.status_code == ZVMC_SUCCESS,
+			"HyperionZvmoneInterface: Library deployment failed"
 		);
-		libraryAddressMap[m_libraryName] = EVMHost::convertFromEVMC(createResult.create_address);
+		libraryAddressMap[m_libraryName] = ZVMHost::convertFromZVMC(createResult.create_address);
 		m_compilationFramework.libraryAddresses(libraryAddressMap);
 	}
 
@@ -152,10 +152,10 @@ evmc::Result EvmoneUtility::compileDeployAndExecute(string _fuzzIsabelle)
 	// address map.
 	m_compilationFramework.contractName(m_contractName);
 	auto cOutput = m_compilationFramework.compileContract();
-	solAssert(cOutput.has_value(), "Compiling contract failed");
-	solAssert(
+	hypAssert(cOutput.has_value(), "Compiling contract failed");
+	hypAssert(
 		!cOutput->byteCode.empty() && !cOutput->methodIdentifiersInContract.empty(),
-		"SolidityEvmoneInterface: Invalid compilation output."
+		"HyperionZvmoneInterface: Invalid compilation output."
 	);
 
 	string methodName;
@@ -175,13 +175,13 @@ evmc::Result EvmoneUtility::compileDeployAndExecute(string _fuzzIsabelle)
 	);
 }
 
-optional<CompilerOutput> EvmoneUtility::compileContract()
+optional<CompilerOutput> ZvmoneUtility::compileContract()
 {
 	try
 	{
 		return m_compilationFramework.compileContract();
 	}
-	catch (evmasm::StackTooDeepException const&)
+	catch (zvmasm::StackTooDeepException const&)
 	{
 		return {};
 	}

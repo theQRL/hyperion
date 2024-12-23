@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -22,14 +22,14 @@
 #pragma once
 
 #include <liblangutil/Exceptions.h>
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
 #include <libyul/ASTForward.h>
 #include <libyul/Dialect.h>
 #include <libyul/Scope.h>
 
-#include <libyul/backends/evm/AbstractAssembly.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/AbstractAssembly.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 
 #include <functional>
 #include <list>
@@ -37,13 +37,13 @@
 #include <optional>
 #include <utility>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 class ErrorReporter;
 struct SourceLocation;
 }
 
-namespace solidity::yul
+namespace hyperion::yul
 {
 
 struct AsmAnalysisInfo;
@@ -69,8 +69,8 @@ public:
 		m_dialect(_dialect),
 		m_dataNames(std::move(_dataNames))
 	{
-		if (EVMDialect const* evmDialect = dynamic_cast<EVMDialect const*>(&m_dialect))
-			m_evmVersion = evmDialect->evmVersion();
+		if (ZVMDialect const* zvmDialect = dynamic_cast<ZVMDialect const*>(&m_dialect))
+			m_zvmVersion = zvmDialect->zvmVersion();
 	}
 
 	bool analyze(Block const& _block);
@@ -114,7 +114,7 @@ private:
 	void expectValidType(YulString _type, langutil::SourceLocation const& _location);
 	void expectType(YulString _expectedType, YulString _givenType, langutil::SourceLocation const& _location);
 
-	bool validateInstructions(evmasm::Instruction _instr, langutil::SourceLocation const& _location);
+	bool validateInstructions(zvmasm::Instruction _instr, langutil::SourceLocation const& _location);
 	bool validateInstructions(std::string const& _instrIdentifier, langutil::SourceLocation const& _location);
 	bool validateInstructions(FunctionCall const& _functionCall);
 
@@ -125,7 +125,7 @@ private:
 	std::set<Scope::Variable const*> m_activeVariables;
 	AsmAnalysisInfo& m_info;
 	langutil::ErrorReporter& m_errorReporter;
-	langutil::EVMVersion m_evmVersion;
+	langutil::ZVMVersion m_zvmVersion;
 	Dialect const& m_dialect;
 	/// Names of data objects to be referenced by builtin functions with literal arguments.
 	std::set<YulString> m_dataNames;

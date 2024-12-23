@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /** @file CommonIO.cpp
@@ -20,8 +20,8 @@
  * @date 2014
  */
 
-#include <libsolutil/CommonIO.h>
-#include <libsolutil/Assertions.h>
+#include <libhyputil/CommonIO.h>
+#include <libhyputil/Assertions.h>
 
 #include <fstream>
 #if defined(_WIN32)
@@ -31,7 +31,7 @@
 #include <termios.h>
 #endif
 
-using namespace solidity::util;
+using namespace hyperion::util;
 
 namespace
 {
@@ -66,19 +66,19 @@ inline T readFile(boost::filesystem::path const& _file)
 
 }
 
-std::string solidity::util::readFileAsString(boost::filesystem::path const& _file)
+std::string hyperion::util::readFileAsString(boost::filesystem::path const& _file)
 {
 	return readFile<std::string>(_file);
 }
 
-std::string solidity::util::readUntilEnd(std::istream& _stdin)
+std::string hyperion::util::readUntilEnd(std::istream& _stdin)
 {
 	std::ostringstream ss;
 	ss << _stdin.rdbuf();
 	return ss.str();
 }
 
-std::string solidity::util::readBytes(std::istream& _input, size_t _length)
+std::string hyperion::util::readBytes(std::istream& _input, size_t _length)
 {
 	std::string output;
 	output.resize(_length);
@@ -131,13 +131,13 @@ private:
 };
 #endif
 
-int solidity::util::readStandardInputChar()
+int hyperion::util::readStandardInputChar()
 {
 	DisableConsoleBuffering disableConsoleBuffering;
 	return std::cin.get();
 }
 
-std::string solidity::util::absolutePath(std::string const& _path, std::string const& _reference)
+std::string hyperion::util::absolutePath(std::string const& _path, std::string const& _reference)
 {
 	boost::filesystem::path p(_path);
 	// Anything that does not start with `.` is an absolute path.
@@ -157,6 +157,6 @@ std::string solidity::util::absolutePath(std::string const& _path, std::string c
 	return result.generic_string();
 }
 
-std::string solidity::util::sanitizePath(std::string const& _path) {
+std::string hyperion::util::sanitizePath(std::string const& _path) {
 	return boost::filesystem::path(_path).generic_string();
 }

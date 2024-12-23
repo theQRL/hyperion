@@ -5,6 +5,6 @@
 	}
 }
 // ====
-// dialect: evmTyped
+// dialect: zvmTyped
 // ----
 // SyntaxError 2592: (61-69): Keyword "continue" needs to be inside a for-loop body.

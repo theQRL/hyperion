@@ -1,18 +1,18 @@
 /*
- * This file is part of solidity.
+ * This file is part of hyperion.
  *
- * solidity is free software: you can redistribute it and/or modify
+ * hyperion is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * solidity is distributed in the hope that it will be useful,
+ * hyperion is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+ * along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
  *
  * This file is derived from the file "scanner.h", which was part of the
  * V8 project. The original copyright header follows:
@@ -47,7 +47,7 @@
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Solidity scanner.
+ * Hyperion scanner.
  */
 
 #pragma once
@@ -59,7 +59,7 @@
 #include <optional>
 #include <iosfwd>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 
 class AstRawString;
@@ -68,9 +68,9 @@ class ParserRecorder;
 
 enum class ScannerKind
 {
-	Solidity,
+	Hyperion,
 	Yul,
-	ExperimentalSolidity
+	ExperimentalHyperion
 };
 
 enum class ScannerError
@@ -216,7 +216,7 @@ private:
 	bool scanHexByte(char& o_scannedByte);
 	std::optional<unsigned> scanUnicode();
 
-	/// Scans a single Solidity token.
+	/// Scans a single Hyperion token.
 	void scanToken();
 
 	/// Skips all whitespace and @returns true if something was skipped.
@@ -264,7 +264,7 @@ private:
 	CharStream& m_source;
 	std::shared_ptr<std::string const> m_sourceName;
 
-	ScannerKind m_kind = ScannerKind::Solidity;
+	ScannerKind m_kind = ScannerKind::Hyperion;
 
 	/// one character look-ahead, equals 0 at end of input
 	char m_char;

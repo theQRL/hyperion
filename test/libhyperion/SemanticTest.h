@@ -1,33 +1,33 @@
 /*
-	This file is part of solidity.
-	solidity is free software: you can redistribute it and/or modify
+	This file is part of hyperion.
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
 
-#include <test/libsolidity/util/TestFileParser.h>
-#include <test/libsolidity/util/TestFunctionCall.h>
-#include <test/libsolidity/SolidityExecutionFramework.h>
-#include <test/libsolidity/AnalysisFramework.h>
+#include <test/libhyperion/util/TestFileParser.h>
+#include <test/libhyperion/util/TestFunctionCall.h>
+#include <test/libhyperion/HyperionExecutionFramework.h>
+#include <test/libhyperion/AnalysisFramework.h>
 #include <test/TestCase.h>
 #include <liblangutil/Exceptions.h>
-#include <libsolutil/AnsiColorized.h>
+#include <libhyputil/AnsiColorized.h>
 
 #include <iosfwd>
 #include <string>
 #include <vector>
 #include <utility>
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 struct AnnotatedEventSignature
@@ -48,18 +48,18 @@ std::ostream& operator<<(std::ostream& _output, RequiresYulOptimizer _requiresYu
 
 /**
  * Class that represents a semantic test (or end-to-end test) and allows running it as part of the
- * boost unit test environment or isoltest. It reads the Solidity source and an additional comment
+ * boost unit test environment or ihyptest. It reads the Hyperion source and an additional comment
  * section from the given file. This comment section should define a set of functions to be called
  * and an expected result they return after being executed.
  */
-class SemanticTest: public SolidityExecutionFramework, public EVMVersionRestrictedTestCase
+class SemanticTest: public HyperionExecutionFramework, public ZVMVersionRestrictedTestCase
 {
 public:
 	static std::unique_ptr<TestCase> create(Config const& _options)
 	{
 		return std::make_unique<SemanticTest>(
 			_options.filename,
-			_options.evmVersion,
+			_options.zvmVersion,
 			_options.vmPaths,
 			_options.enforceGasCost,
 			_options.enforceGasCostMinValue
@@ -68,7 +68,7 @@ public:
 
 	explicit SemanticTest(
 		std::string const& _filename,
-		langutil::EVMVersion _evmVersion,
+		langutil::ZVMVersion _zvmVersion,
 		std::vector<boost::filesystem::path> const& _vmPaths,
 		bool _enforceGasCost = false,
 		u256 _enforceGasCostMinValue = 100000
@@ -87,7 +87,7 @@ public:
 
 	/// Compiles and deploys currently held source.
 	/// Returns true if deployment was successful, false otherwise.
-	bool deploy(std::string const& _contractName, u256 const& _value, bytes const& _arguments, std::map<std::string, solidity::test::Address> const& _libraries = {});
+	bool deploy(std::string const& _contractName, u256 const& _value, bytes const& _arguments, std::map<std::string, hyperion::test::Address> const& _libraries = {});
 
 private:
 	TestResult runTest(

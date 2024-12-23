@@ -33,7 +33,7 @@ comma — no spaces are used.
 
 .. note::
     The return type of a function is not part of this signature. In
-    :ref:`Solidity's function overloading <overload-function>` return types are not considered.
+    :ref:`Hyperion's function overloading <overload-function>` return types are not considered.
     The reason is to keep function call resolution context-independent.
     The :ref:`JSON description of the ABI<abi_json>` however contains both inputs and outputs.
 
@@ -95,17 +95,17 @@ Types can be combined to a tuple by enclosing them inside parentheses, separated
 
 It is possible to form tuples of tuples, arrays of tuples and so on. It is also possible to form zero-tuples (where ``n == 0``).
 
-Mapping Solidity to ABI types
+Mapping Hyperion to ABI types
 -----------------------------
 
-Solidity supports all the types presented above with the same names with the
-exception of tuples. On the other hand, some Solidity types are not supported
-by the ABI. The following table shows on the left column Solidity types that
+Hyperion supports all the types presented above with the same names with the
+exception of tuples. On the other hand, some Hyperion types are not supported
+by the ABI. The following table shows on the left column Hyperion types that
 are not part of the ABI, and on the right column the ABI types that represent
 them.
 
 +-------------------------------+-----------------------------------------------------------------------------+
-|      Solidity                 |                                           ABI                               |
+|      Hyperion                 |                                           ABI                               |
 +===============================+=============================================================================+
 |:ref:`address payable<address>`|``address``                                                                  |
 +-------------------------------+-----------------------------------------------------------------------------+
@@ -239,11 +239,11 @@ Examples
 
 Given the contract:
 
-.. code-block:: solidity
+.. code-block:: hyperion
     :force:
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     contract Foo {
         function bar(bytes3[2] memory) public pure {}
@@ -516,10 +516,10 @@ call.
 As an example, let us consider the following contract whose ``transfer`` function always
 reverts with a custom error of "insufficient balance":
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.4;
+    pragma hyperion ^0.8.4;
 
     contract TestToken {
         error InsufficientBalance(uint256 available, uint256 required);
@@ -569,7 +569,7 @@ Constructor, receive, and fallback never have ``name`` or ``outputs``. Receive a
     Sending non-zero Ether to non-payable function will revert the transaction.
 
 .. note::
-    The state mutability ``nonpayable`` is reflected in Solidity by not specifying
+    The state mutability ``nonpayable`` is reflected in Hyperion by not specifying
     a state mutability modifier at all.
 
 An event description is a JSON object with fairly similar fields:
@@ -605,10 +605,10 @@ Errors look as follows:
 
 For example,
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.4;
+    pragma hyperion ^0.8.4;
 
 
     contract Test {
@@ -659,10 +659,10 @@ which is of an array type and has the same structure as the top-level object exc
 
 As an example, the code
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.7.5 <0.9.0;
+    pragma hyperion >=0.7.5 <0.9.0;
     pragma abicoder v2;
 
     contract Test {
@@ -742,13 +742,13 @@ This means that offsets have to be as small as possible while still not creating
 allowed.
 
 Usually, ABI decoders are written in a straightforward way by just following offset pointers, but some decoders
-might enforce strict mode. The Solidity ABI decoder currently does not enforce strict mode, but the encoder
+might enforce strict mode. The Hyperion ABI decoder currently does not enforce strict mode, but the encoder
 always creates data in strict mode.
 
 Non-standard Packed Mode
 ========================
 
-Through ``abi.encodePacked()``, Solidity supports a non-standard packed mode where:
+Through ``abi.encodePacked()``, Hyperion supports a non-standard packed mode where:
 
 - types shorter than 32 bytes are concatenated directly, without padding or sign extension
 - dynamic types are encoded in-place and without the length.

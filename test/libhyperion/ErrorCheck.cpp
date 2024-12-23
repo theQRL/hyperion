@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /** @file ErrorCheck.cpp
@@ -20,16 +20,16 @@
  * @date 2016
  */
 
-#include <test/libsolidity/ErrorCheck.h>
-#include <libsolutil/Exceptions.h>
+#include <test/libhyperion/ErrorCheck.h>
+#include <libhyputil/Exceptions.h>
 
 #include <string>
 #include <set>
 #include <iostream>
 
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
 namespace
 {
@@ -39,7 +39,7 @@ std::string errorMessage(Error const& _e)
 }
 }
 
-bool solidity::frontend::test::searchErrorMessage(Error const& _err, std::string const& _substr)
+bool hyperion::frontend::test::searchErrorMessage(Error const& _err, std::string const& _substr)
 {
 	if (std::string const* errorMessage = _err.comment())
 	{
@@ -55,7 +55,7 @@ bool solidity::frontend::test::searchErrorMessage(Error const& _err, std::string
 	return _substr.empty();
 }
 
-std::string solidity::frontend::test::searchErrors(ErrorList const& _errors, std::vector<std::pair<Error::Type, std::string>> const& _expectations)
+std::string hyperion::frontend::test::searchErrors(ErrorList const& _errors, std::vector<std::pair<Error::Type, std::string>> const& _expectations)
 {
 	auto expectations = _expectations;
 	for (auto const& error: _errors)

@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -20,14 +20,14 @@
  * Inlines small code snippets by replacing JUMP with a copy of the code jumped to.
  */
 
-#include <libevmasm/Inliner.h>
+#include <libzvmasm/Inliner.h>
 
-#include <libevmasm/AssemblyItem.h>
-#include <libevmasm/GasMeter.h>
-#include <libevmasm/KnownState.h>
-#include <libevmasm/SemanticInformation.h>
+#include <libzvmasm/AssemblyItem.h>
+#include <libzvmasm/GasMeter.h>
+#include <libzvmasm/KnownState.h>
+#include <libzvmasm/SemanticInformation.h>
 
-#include <libsolutil/CommonData.h>
+#include <libhyputil/CommonData.h>
 
 #include <range/v3/numeric/accumulate.hpp>
 #include <range/v3/view/drop_last.hpp>
@@ -38,17 +38,17 @@
 #include <optional>
 #include <limits>
 
-using namespace solidity;
-using namespace solidity::evmasm;
+using namespace hyperion;
+using namespace hyperion::zvmasm;
 
 
 namespace
 {
 /// @returns an estimation of the runtime gas cost of the AsssemblyItems in @a _itemRange.
 template<typename RangeType>
-u256 executionCost(RangeType const& _itemRange, langutil::EVMVersion _evmVersion)
+u256 executionCost(RangeType const& _itemRange, langutil::ZVMVersion _zvmVersion)
 {
-	GasMeter gasMeter{std::make_shared<KnownState>(), _evmVersion};
+	GasMeter gasMeter{std::make_shared<KnownState>(), _zvmVersion};
 	auto gasConsumption = ranges::accumulate(_itemRange | ranges::views::transform(
 		[&gasMeter](auto const& _item) { return gasMeter.estimateMax(_item, false); }
 	), GasMeter::GasConsumption());
@@ -162,8 +162,8 @@ bool Inliner::shouldInlineFullFunctionBody(size_t _tag, ranges::span<AssemblyIte
 	// Since the function body has to be executed equally often both with and without inlining,
 	// it can be ignored.
 	bigint uninlinedExecutionCost = numberOfCalls * (
-		executionCost(uninlinedCallSitePattern, m_evmVersion) +
-		executionCost(uninlinedFunctionPattern, m_evmVersion)
+		executionCost(uninlinedCallSitePattern, m_zvmVersion) +
+		executionCost(uninlinedFunctionPattern, m_zvmVersion)
 	);
 	// Each call site deposits the call site pattern, whereas the jump site pattern and the function itself are deposited once.
 	bigint uninlinedDepositCost = GasMeter::dataGas(

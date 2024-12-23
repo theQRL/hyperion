@@ -3,7 +3,7 @@ from rule import Rule
 from z3 import BitVec, BV2Int, Int2BV, IntVal
 
 """
-Shift left workaround that Solidity implements
+Shift left workaround that Hyperion implements
 due to a bug in Boost.
 """
 

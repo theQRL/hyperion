@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -20,15 +20,15 @@
  * only once.
  */
 
-#include <libsolidity/codegen/MultiUseYulFunctionCollector.h>
+#include <libhyperion/codegen/MultiUseYulFunctionCollector.h>
 
 #include <liblangutil/Exceptions.h>
-#include <libsolutil/Whiskers.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/Whiskers.h>
+#include <libhyputil/StringUtils.h>
 
-using namespace solidity;
-using namespace solidity::frontend;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::frontend;
+using namespace hyperion::util;
 
 std::string MultiUseYulFunctionCollector::requestedFunctions()
 {
@@ -44,8 +44,8 @@ std::string MultiUseYulFunctionCollector::createFunction(std::string const& _nam
 	{
 		m_requestedFunctions.insert(_name);
 		std::string fun = _creator();
-		solAssert(!fun.empty(), "");
-		solAssert(fun.find("function " + _name + "(") != std::string::npos, "Function not properly named.");
+		hypAssert(!fun.empty(), "");
+		hypAssert(fun.find("function " + _name + "(") != std::string::npos, "Function not properly named.");
 		m_code += std::move(fun);
 	}
 	return _name;
@@ -56,14 +56,14 @@ std::string MultiUseYulFunctionCollector::createFunction(
 	std::function<std::string(std::vector<std::string>&, std::vector<std::string>&)> const& _creator
 )
 {
-	solAssert(!_name.empty(), "");
+	hypAssert(!_name.empty(), "");
 	if (!m_requestedFunctions.count(_name))
 	{
 		m_requestedFunctions.insert(_name);
 		std::vector<std::string> arguments;
 		std::vector<std::string> returnParameters;
 		std::string body = _creator(arguments, returnParameters);
-		solAssert(!body.empty(), "");
+		hypAssert(!body.empty(), "");
 
 		m_code += Whiskers(R"(
 			function <functionName>(<args>)<?+retParams> -> <retParams></+retParams> {

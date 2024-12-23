@@ -1,41 +1,41 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Solidity data types
+ * Hyperion data types
  */
 
-#include <libsolidity/ast/Types.h>
+#include <libhyperion/ast/Types.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/TypeProvider.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/TypeProvider.h>
 
-#include <libsolidity/analysis/ConstantEvaluator.h>
+#include <libhyperion/analysis/ConstantEvaluator.h>
 
-#include <libsolutil/Algorithms.h>
-#include <libsolutil/CommonData.h>
-#include <libsolutil/CommonIO.h>
-#include <libsolutil/FunctionSelector.h>
-#include <libsolutil/Keccak256.h>
-#include <libsolutil/StringUtils.h>
-#include <libsolutil/UTF8.h>
-#include <libsolutil/Visitor.h>
+#include <libhyputil/Algorithms.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/CommonIO.h>
+#include <libhyputil/FunctionSelector.h>
+#include <libhyputil/Keccak256.h>
+#include <libhyputil/StringUtils.h>
+#include <libhyputil/UTF8.h>
+#include <libhyputil/Visitor.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -54,9 +54,9 @@
 #include <unordered_set>
 #include <utility>
 
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
 namespace
 {
@@ -154,9 +154,9 @@ void StorageOffsets::computeOffsets(TypePointers const& _types)
 			++slotOffset;
 			byteOffset = 0;
 		}
-		solAssert(slotOffset < bigint(1) << 256 ,"Object too large for storage.");
+		hypAssert(slotOffset < bigint(1) << 256 ,"Object too large for storage.");
 		offsets[i] = std::make_pair(u256(slotOffset), byteOffset);
-		solAssert(type->storageSize() >= 1, "Invalid storage size.");
+		hypAssert(type->storageSize() >= 1, "Invalid storage size.");
 		if (type->storageSize() == 1 && byteOffset + type->storageBytes() <= 32)
 			byteOffset += type->storageBytes();
 		else
@@ -167,7 +167,7 @@ void StorageOffsets::computeOffsets(TypePointers const& _types)
 	}
 	if (byteOffset > 0)
 		++slotOffset;
-	solAssert(slotOffset < bigint(1) << 256, "Object too large for storage.");
+	hypAssert(slotOffset < bigint(1) << 256, "Object too large for storage.");
 	m_storageSize = u256(slotOffset);
 	swap(m_offsets, offsets);
 }
@@ -273,8 +273,8 @@ std::string Type::escapeIdentifier(std::string const& _identifier)
 std::string Type::identifier() const
 {
 	std::string ret = escapeIdentifier(richIdentifier());
-	solAssert(ret.find_first_of("0123456789") != 0, "Identifier cannot start with a number.");
-	solAssert(
+	hypAssert(ret.find_first_of("0123456789") != 0, "Identifier cannot start with a number.");
+	hypAssert(
 		ret.find_first_not_of("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMONPQRSTUVWXYZ_$") == std::string::npos,
 		"Identifier contains invalid characters."
 	);
@@ -297,7 +297,7 @@ MemberList const& Type::members(ASTNode const* _currentScope) const
 {
 	if (!m_members[_currentScope])
 	{
-		solAssert(
+		hypAssert(
 			_currentScope == nullptr ||
 			dynamic_cast<SourceUnit const*>(_currentScope) ||
 			dynamic_cast<ContractDefinition const*>(_currentScope),
@@ -350,7 +350,7 @@ std::vector<UsingForDirective const*> usingForDirectivesForType(Type const& _typ
 		usingForDirectives += contract->usingForDirectives();
 	}
 	else
-		solAssert(sourceUnit, "");
+		hypAssert(sourceUnit, "");
 	usingForDirectives += ASTNode::filteredNodes<UsingForDirective>(sourceUnit->nodes());
 
 	if (Declaration const* typeDefinition = _type.typeDefinition())
@@ -404,7 +404,7 @@ std::set<FunctionDefinition const*, ASTNode::CompareByID> Type::operatorDefiniti
 			auto const* functionType = dynamic_cast<FunctionType const*>(
 				functionDefinition.libraryFunction() ? functionDefinition.typeViaContractName() : functionDefinition.type()
 			);
-			solAssert(functionType && !functionType->parameterTypes().empty());
+			hypAssert(functionType && !functionType->parameterTypes().empty());
 
 			size_t parameterCount = functionDefinition.parameterList().parameters().size();
 			if (*this == *functionType->parameterTypes().front() && (_unary ? parameterCount == 1 : parameterCount == 2))
@@ -425,10 +425,10 @@ MemberList::MemberMap Type::attachedFunctions(Type const& _type, ASTNode const& 
 			_name = _function.name();
 		Type const* functionType =
 			_function.libraryFunction() ? _function.typeViaContractName() : _function.type();
-		solAssert(functionType, "");
+		hypAssert(functionType, "");
 		FunctionType const* withBoundFirstArgument =
 			dynamic_cast<FunctionType const&>(*functionType).withBoundFirstArgument();
-		solAssert(withBoundFirstArgument, "");
+		hypAssert(withBoundFirstArgument, "");
 
 		if (_type.isImplicitlyConvertibleTo(*withBoundFirstArgument->selfType()))
 			if (seenFunctions.insert(std::make_pair(*_name, &_function)).second)
@@ -443,13 +443,13 @@ MemberList::MemberMap Type::attachedFunctions(Type const& _type, ASTNode const& 
 				// I.e. `using {f, f as +} for T` allows `T x; x.f()` but `using {f as +} for T` does not.
 				continue;
 
-			solAssert(identifierPath);
+			hypAssert(identifierPath);
 			Declaration const* declaration = identifierPath->annotation().referencedDeclaration;
-			solAssert(declaration);
+			hypAssert(declaration);
 
 			if (ContractDefinition const* library = dynamic_cast<ContractDefinition const*>(declaration))
 			{
-				solAssert(library->isLibrary());
+				hypAssert(library->isLibrary());
 				for (FunctionDefinition const* function: library->definedFunctions())
 				{
 					if (!function->isOrdinary() || !function->isVisibleAsLibraryMember() || function->parameters().empty())
@@ -470,7 +470,7 @@ MemberList::MemberMap Type::attachedFunctions(Type const& _type, ASTNode const& 
 AddressType::AddressType(StateMutability _stateMutability):
 	m_stateMutability(_stateMutability)
 {
-	solAssert(m_stateMutability == StateMutability::Payable || m_stateMutability == StateMutability::NonPayable, "");
+	hypAssert(m_stateMutability == StateMutability::Payable || m_stateMutability == StateMutability::NonPayable, "");
 }
 
 std::string AddressType::richIdentifier() const
@@ -522,8 +522,8 @@ std::string AddressType::canonicalName() const
 
 u256 AddressType::literalValue(Literal const* _literal) const
 {
-	solAssert(_literal, "");
-	solAssert(_literal->value().substr(0, 2) == "0x", "");
+	hypAssert(_literal, "");
+	hypAssert(_literal->value().substr(0, 2) == "0x", "");
 	return u256(_literal->valueWithoutUnderscores());
 }
 
@@ -588,7 +588,7 @@ bool isValidShiftAndAmountType(Token _operator, Type const& _shiftAmountType)
 IntegerType::IntegerType(unsigned _bits, IntegerType::Modifier _modifier):
 	m_bits(_bits), m_modifier(_modifier)
 {
-	solAssert(
+	hypAssert(
 		m_bits > 0 && m_bits <= 256 && m_bits % 8 == 0,
 		"Invalid bit number for integer type: " + util::toString(m_bits)
 	);
@@ -754,7 +754,7 @@ TypeResult IntegerType::binaryOperatorResult(Token _operator, Type const* _other
 FixedPointType::FixedPointType(unsigned _totalBits, unsigned _fractionalDigits, FixedPointType::Modifier _modifier):
 	m_totalBits(_totalBits), m_fractionalDigits(_fractionalDigits), m_modifier(_modifier)
 {
-	solAssert(
+	hypAssert(
 		8 <= m_totalBits && m_totalBits <= 256 && m_totalBits % 8 == 0 && m_fractionalDigits <= 80,
 		"Invalid bit number(s) for fixed type: " +
 		util::toString(_totalBits) + "x" + util::toString(_fractionalDigits)
@@ -788,7 +788,7 @@ BoolResult FixedPointType::isExplicitlyConvertibleTo(Type const& _convertTo) con
 
 TypeResult FixedPointType::unaryOperatorResult(Token _operator) const
 {
-	solAssert(_operator != Token::Add);
+	hypAssert(_operator != Token::Add);
 
 	switch (_operator)
 	{
@@ -1184,14 +1184,14 @@ u256 RationalNumberType::literalValue(Literal const*) const
 	else
 	{
 		auto fixed = fixedPointType();
-		solAssert(fixed, "Rational number cannot be represented as fixed point type.");
+		hypAssert(fixed, "Rational number cannot be represented as fixed point type.");
 		unsigned fractionalDigits = fixed->fractionalDigits();
 		shiftedValue = m_value.numerator() * boost::multiprecision::pow(bigint(10), fractionalDigits) / m_value.denominator();
 	}
 
 	// we ignore the literal and hope that the type was correctly determined
-	solAssert(shiftedValue <= u256(-1), "Number constant too large.");
-	solAssert(shiftedValue >= -(bigint(1) << 255), "Number constant too small.");
+	hypAssert(shiftedValue <= u256(-1), "Number constant too large.");
+	hypAssert(shiftedValue >= -(bigint(1) << 255), "Number constant too small.");
 
 	if (m_value >= rational(0))
 		value = u256(shiftedValue);
@@ -1210,7 +1210,7 @@ Type const* RationalNumberType::mobileType() const
 
 IntegerType const* RationalNumberType::integerType() const
 {
-	solAssert(!isFractional(), "integerType() called for fractional number.");
+	hypAssert(!isFractional(), "integerType() called for fractional number.");
 	bigint value = m_value.numerator();
 	bool negative = (value < 0);
 	if (negative) // convert to positive number of same bit requirements
@@ -1254,7 +1254,7 @@ FixedPointType const* RationalNumberType::fixedPointType() const
 		return nullptr;
 
 	unsigned totalBits = std::max(numberEncodingSize(v), 1u) * 8;
-	solAssert(totalBits <= 256, "");
+	hypAssert(totalBits <= 256, "");
 
 	return TypeProvider::fixedPoint(
 		totalBits, fractionalDigits,
@@ -1336,7 +1336,7 @@ Type const* StringLiteralType::mobileType() const
 
 FixedBytesType::FixedBytesType(unsigned _bytes): m_bytes(_bytes)
 {
-	solAssert(
+	hypAssert(
 		m_bytes > 0 && m_bytes <= 32,
 		"Invalid byte number for fixed bytes type: " + util::toString(m_bytes)
 	);
@@ -1418,13 +1418,13 @@ bool FixedBytesType::operator==(Type const& _other) const
 
 u256 BoolType::literalValue(Literal const* _literal) const
 {
-	solAssert(_literal, "");
+	hypAssert(_literal, "");
 	if (_literal->token() == Token::TrueLiteral)
 		return u256(1);
 	else if (_literal->token() == Token::FalseLiteral)
 		return u256(0);
 	else
-		solAssert(false, "Bool type constructed from non-boolean literal.");
+		hypAssert(false, "Bool type constructed from non-boolean literal.");
 }
 
 TypeResult BoolType::unaryOperatorResult(Token _operator) const
@@ -1571,7 +1571,7 @@ std::string ReferenceType::stringForReferencePart() const
 	case DataLocation::Memory:
 		return "memory";
 	}
-	solAssert(false, "");
+	hypAssert(false, "");
 	return "";
 }
 
@@ -1753,7 +1753,7 @@ BoolResult ArrayType::validForLocation(DataLocation _loc) const
 
 bigint ArrayType::unlimitedStaticCalldataSize(bool _padded) const
 {
-	solAssert(!isDynamicallySized(), "");
+	hypAssert(!isDynamicallySized(), "");
 	bigint size = bigint(length()) * calldataStride();
 	if (_padded)
 		size = ((size + 31) / 32) * 32;
@@ -1762,21 +1762,21 @@ bigint ArrayType::unlimitedStaticCalldataSize(bool _padded) const
 
 unsigned ArrayType::calldataEncodedSize(bool _padded) const
 {
-	solAssert(!isDynamicallyEncoded(), "");
+	hypAssert(!isDynamicallyEncoded(), "");
 	bigint size = unlimitedStaticCalldataSize(_padded);
-	solAssert(size <= std::numeric_limits<unsigned>::max(), "Array size does not fit unsigned.");
+	hypAssert(size <= std::numeric_limits<unsigned>::max(), "Array size does not fit unsigned.");
 	return unsigned(size);
 }
 
 unsigned ArrayType::calldataEncodedTailSize() const
 {
-	solAssert(isDynamicallyEncoded(), "");
+	hypAssert(isDynamicallyEncoded(), "");
 	if (isDynamicallySized())
 		// We do not know the dynamic length itself, but at least the uint256 containing the
 		// length must still be present.
 		return 32;
 	bigint size = unlimitedStaticCalldataSize(false);
-	solAssert(size <= std::numeric_limits<unsigned>::max(), "Array size does not fit unsigned.");
+	hypAssert(size <= std::numeric_limits<unsigned>::max(), "Array size does not fit unsigned.");
 	return unsigned(size);
 }
 
@@ -1809,7 +1809,7 @@ u256 ArrayType::storageSize() const
 	}
 	else
 		size = bigint(length()) * baseType()->storageSize();
-	solAssert(size < bigint(1) << 256, "Array too large for storage.");
+	hypAssert(size < bigint(1) << 256, "Array too large for storage.");
 	return std::max<u256>(1, u256(size));
 }
 
@@ -1828,7 +1828,7 @@ std::vector<std::tuple<std::string, Type const*>> ArrayType::makeStackItems() co
 			// byte offset inside storage value is omitted
 			return {std::make_tuple("slot", TypeProvider::uint256())};
 	}
-	solAssert(false, "");
+	hypAssert(false, "");
 }
 
 std::string ArrayType::toString(bool _withoutDataLocation) const
@@ -1891,7 +1891,7 @@ std::string ArrayType::signatureInExternalFunction(bool _structsByName) const
 		return canonicalName();
 	else
 	{
-		solAssert(baseType(), "");
+		hypAssert(baseType(), "");
 		return
 			baseType()->signatureInExternalFunction(_structsByName) +
 			"[" +
@@ -1964,7 +1964,7 @@ TypeResult ArrayType::interfaceType(bool _inLibrary) const
 
 	if (!baseInterfaceType.get())
 	{
-		solAssert(!baseInterfaceType.message().empty(), "Expected detailed error message!");
+		hypAssert(!baseInterfaceType.message().empty(), "Expected detailed error message!");
 		result = baseInterfaceType;
 	}
 	else if (_inLibrary && location() == DataLocation::Storage)
@@ -2000,11 +2000,11 @@ Type const* ArrayType::finalBaseType(bool _breakIfDynamicArrayType) const
 
 u256 ArrayType::memoryDataSize() const
 {
-	solAssert(!isDynamicallySized(), "");
-	solAssert(m_location == DataLocation::Memory, "");
-	solAssert(!isByteArrayOrString(), "");
+	hypAssert(!isDynamicallySized(), "");
+	hypAssert(m_location == DataLocation::Memory, "");
+	hypAssert(!isByteArrayOrString(), "");
 	bigint size = bigint(m_length) * m_baseType->memoryHeadSize();
-	solAssert(size <= std::numeric_limits<u256>::max(), "Array size does not fit u256.");
+	hypAssert(size <= std::numeric_limits<u256>::max(), "Array size does not fit u256.");
 	return u256(size);
 }
 
@@ -2107,7 +2107,7 @@ std::string ContractType::canonicalName() const
 MemberList::MemberMap ContractType::nativeMembers(ASTNode const*) const
 {
 	MemberList::MemberMap members;
-	solAssert(!m_super, "");
+	hypAssert(!m_super, "");
 	if (!m_contract.isLibrary())
 		for (auto const& it: m_contract.interfaceFunctions())
 			members.emplace_back(
@@ -2208,12 +2208,12 @@ bool StructType::operator==(Type const& _other) const
 
 unsigned StructType::calldataEncodedSize(bool) const
 {
-	solAssert(!isDynamicallyEncoded(), "");
+	hypAssert(!isDynamicallyEncoded(), "");
 
 	unsigned size = 0;
 	for (auto const& member: members(nullptr))
 	{
-		solAssert(!member.type->containsNestedMapping(), "");
+		hypAssert(!member.type->containsNestedMapping(), "");
 		// Struct members are always padded.
 		size += member.type->calldataEncodedSize();
 	}
@@ -2223,12 +2223,12 @@ unsigned StructType::calldataEncodedSize(bool) const
 
 unsigned StructType::calldataEncodedTailSize() const
 {
-	solAssert(isDynamicallyEncoded(), "");
+	hypAssert(isDynamicallyEncoded(), "");
 
 	unsigned size = 0;
 	for (auto const& member: members(nullptr))
 	{
-		solAssert(!member.type->containsNestedMapping(), "");
+		hypAssert(!member.type->containsNestedMapping(), "");
 		// Struct members are always padded.
 		size += member.type->calldataHeadSize();
 	}
@@ -2240,23 +2240,23 @@ unsigned StructType::calldataOffsetOfMember(std::string const& _member) const
 	unsigned offset = 0;
 	for (auto const& member: members(nullptr))
 	{
-		solAssert(!member.type->containsNestedMapping(), "");
+		hypAssert(!member.type->containsNestedMapping(), "");
 		if (member.name == _member)
 			return offset;
 		// Struct members are always padded.
 		offset += member.type->calldataHeadSize();
 	}
-	solAssert(false, "Struct member not found.");
+	hypAssert(false, "Struct member not found.");
 }
 
 bool StructType::isDynamicallyEncoded() const
 {
 	if (recursive())
 		return true;
-	solAssert(interfaceType(false).get(), "");
+	hypAssert(interfaceType(false).get(), "");
 	for (auto t: memoryMemberTypes())
 	{
-		solAssert(t, "Parameter should have external type.");
+		hypAssert(t, "Parameter should have external type.");
 		t = t->interfaceType(false);
 		if (t->isDynamicallyEncoded())
 			return true;
@@ -2299,7 +2299,7 @@ bool StructType::containsNestedMapping() const
 				for (auto const& member: _struct->members())
 				{
 					Type const* memberType = member->annotation().type;
-					solAssert(memberType, "");
+					hypAssert(memberType, "");
 
 					if (auto arrayType = dynamic_cast<ArrayType const*>(memberType))
 						memberType = arrayType->finalBaseType(false);
@@ -2335,8 +2335,8 @@ MemberList::MemberMap StructType::nativeMembers(ASTNode const*) const
 	for (ASTPointer<VariableDeclaration> const& variable: m_struct.members())
 	{
 		Type const* type = variable->annotation().type;
-		solAssert(type, "");
-		solAssert(!(location() != DataLocation::Storage && type->containsNestedMapping()), "");
+		hypAssert(type, "");
+		hypAssert(!(location() != DataLocation::Storage && type->containsNestedMapping()), "");
 		members.emplace_back(
 			variable.get(),
 			copyForLocationIfReference(type)
@@ -2366,7 +2366,7 @@ TypeResult StructType::interfaceType(bool _inLibrary) const
 					auto interfaceType = member->annotation().type->interfaceType(false);
 					if (!interfaceType.get())
 					{
-						solAssert(!interfaceType.message().empty(), "Expected detailed error message!");
+						hypAssert(!interfaceType.message().empty(), "Expected detailed error message!");
 						result = interfaceType;
 						break;
 					}
@@ -2428,7 +2428,7 @@ TypeResult StructType::interfaceType(bool _inLibrary) const
 					auto iType = memberType->interfaceType(_inLibrary);
 					if (!iType.get())
 					{
-						solAssert(!iType.message().empty(), "Expected detailed error message!");
+						hypAssert(!iType.message().empty(), "Expected detailed error message!");
 						result = iType;
 						breadthFirstSearch.abort();
 						return;
@@ -2474,7 +2474,7 @@ BoolResult StructType::validForLocation(DataLocation _loc) const
 
 bool StructType::recursive() const
 {
-	solAssert(m_struct.annotation().recursive.has_value(), "Called StructType::recursive() before DeclarationTypeChecker.");
+	hypAssert(m_struct.annotation().recursive.has_value(), "Called StructType::recursive() before DeclarationTypeChecker.");
 	return *m_struct.annotation().recursive;
 }
 
@@ -2495,9 +2495,9 @@ std::string StructType::signatureInExternalFunction(bool _structsByName) const
 		TypePointers memberTypes = memoryMemberTypes();
 		auto memberTypeStrings = memberTypes | ranges::views::transform([&](Type const* _t) -> std::string
 		{
-			solAssert(_t, "Parameter should have external type.");
+			hypAssert(_t, "Parameter should have external type.");
 			auto t = _t->interfaceType(_structsByName);
-			solAssert(t.get(), "");
+			hypAssert(t.get(), "");
 			return t.get()->signatureInExternalFunction(_structsByName);
 		});
 		return "(" + boost::algorithm::join(memberTypeStrings, ",") + ")";
@@ -2513,7 +2513,7 @@ FunctionTypePointer StructType::constructorType() const
 {
 	TypePointers paramTypes;
 	strings paramNames;
-	solAssert(!containsNestedMapping(), "");
+	hypAssert(!containsNestedMapping(), "");
 	for (auto const& member: members(nullptr))
 	{
 		paramNames.push_back(member.name);
@@ -2531,7 +2531,7 @@ FunctionTypePointer StructType::constructorType() const
 std::pair<u256, unsigned> const& StructType::storageOffsetsOfMember(std::string const& _name) const
 {
 	auto const* offsets = members(nullptr).memberStorageOffset(_name);
-	solAssert(offsets, "Storage offset of non-existing member requested.");
+	hypAssert(offsets, "Storage offset of non-existing member requested.");
 	return *offsets;
 }
 
@@ -2543,13 +2543,13 @@ u256 StructType::memoryOffsetOfMember(std::string const& _name) const
 			return offset;
 		else
 			offset += member.type->memoryHeadSize();
-	solAssert(false, "Member not found in struct.");
+	hypAssert(false, "Member not found in struct.");
 	return 0;
 }
 
 TypePointers StructType::memoryMemberTypes() const
 {
-	solAssert(!containsNestedMapping(), "");
+	hypAssert(!containsNestedMapping(), "");
 	TypePointers types;
 	for (ASTPointer<VariableDeclaration> const& variable: m_struct.members())
 		types.push_back(TypeProvider::withLocationIfReference(DataLocation::Memory, variable->annotation().type));
@@ -2568,7 +2568,7 @@ std::vector<std::tuple<std::string, Type const*>> StructType::makeStackItems() c
 		case DataLocation::Storage:
 			return {std::make_tuple("slot", TypeProvider::uint256())};
 	}
-	solAssert(false, "");
+	hypAssert(false, "");
 }
 
 std::vector<Type const*> StructType::decomposition() const
@@ -2581,7 +2581,7 @@ std::vector<Type const*> StructType::decomposition() const
 
 Type const* EnumType::encodingType() const
 {
-	solAssert(numberOfMembers() <= 256, "");
+	hypAssert(numberOfMembers() <= 256, "");
 	return TypeProvider::uint(8);
 }
 
@@ -2610,7 +2610,7 @@ bool EnumType::operator==(Type const& _other) const
 
 unsigned EnumType::storageBytes() const
 {
-	solAssert(numberOfMembers() <= 256, "");
+	hypAssert(numberOfMembers() <= 256, "");
 	return 1;
 }
 
@@ -2647,14 +2647,14 @@ unsigned EnumType::memberValue(ASTString const& _member) const
 			return index;
 		++index;
 	}
-	solAssert(false, "Requested unknown enum value " + _member);
+	hypAssert(false, "Requested unknown enum value " + _member);
 }
 
 Type const& UserDefinedValueType::underlyingType() const
 {
 	Type const* type = m_definition.underlyingType()->annotation().type;
-	solAssert(type, "");
-	solAssert(type->category() != Category::UserDefinedValueType, "");
+	hypAssert(type, "");
+	hypAssert(type->category() != Category::UserDefinedValueType, "");
 	return *type;
 }
 
@@ -2748,7 +2748,7 @@ std::string TupleType::humanReadableName() const
 
 u256 TupleType::storageSize() const
 {
-	solAssert(false, "Storage size of non-storable tuple type requested.");
+	hypAssert(false, "Storage size of non-storable tuple type requested.");
 }
 
 std::vector<std::tuple<std::string, Type const*>> TupleType::makeStackItems() const
@@ -2787,7 +2787,7 @@ FunctionType::FunctionType(FunctionDefinition const& _function, Kind _kind):
 	m_stateMutability(_function.stateMutability()),
 	m_declaration(&_function)
 {
-	solAssert(
+	hypAssert(
 		_kind == Kind::Internal || _kind == Kind::External || _kind == Kind::Declaration,
 		"Only internal or external function types or function declaration types can be created from function definitions."
 	);
@@ -2796,23 +2796,23 @@ FunctionType::FunctionType(FunctionDefinition const& _function, Kind _kind):
 
 	for (ASTPointer<VariableDeclaration> const& var: _function.parameters())
 	{
-		solAssert(var->annotation().type, "Parameter type is not yet available in the AST.");
+		hypAssert(var->annotation().type, "Parameter type is not yet available in the AST.");
 		m_parameterNames.push_back(var->name());
 		m_parameterTypes.push_back(var->annotation().type);
 	}
 	for (ASTPointer<VariableDeclaration> const& var: _function.returnParameters())
 	{
-		solAssert(var->annotation().type, "Return parameter type is not yet available in the AST.");
+		hypAssert(var->annotation().type, "Return parameter type is not yet available in the AST.");
 		m_returnParameterNames.push_back(var->name());
 		m_returnParameterTypes.push_back(var->annotation().type);
 	}
 
-	solAssert(
+	hypAssert(
 		m_parameterNames.size() == m_parameterTypes.size(),
 		"Parameter names list must match parameter types list!"
 	);
 
-	solAssert(
+	hypAssert(
 		m_returnParameterNames.size() == m_returnParameterTypes.size(),
 		"Return parameter names list must match return parameter types list!"
 	);
@@ -2852,7 +2852,7 @@ FunctionType::FunctionType(VariableDeclaration const& _varDecl):
 	{
 		for (auto const& member: structType->members(nullptr))
 		{
-			solAssert(member.type, "");
+			hypAssert(member.type, "");
 			if (member.type->category() != Category::Mapping)
 			{
 				if (auto arrayType = dynamic_cast<ArrayType const*>(member.type))
@@ -2875,11 +2875,11 @@ FunctionType::FunctionType(VariableDeclaration const& _varDecl):
 		m_returnParameterNames.emplace_back(returnName);
 	}
 
-	solAssert(
+	hypAssert(
 			m_parameterNames.size() == m_parameterTypes.size(),
 			"Parameter names list must match parameter types list!"
 			);
-	solAssert(
+	hypAssert(
 			m_returnParameterNames.size() == m_returnParameterTypes.size(),
 			"Return parameter names list must match return parameter types list!"
 			);
@@ -2896,11 +2896,11 @@ FunctionType::FunctionType(EventDefinition const& _event):
 		m_parameterTypes.push_back(var->annotation().type);
 	}
 
-	solAssert(
+	hypAssert(
 		m_parameterNames.size() == m_parameterTypes.size(),
 		"Parameter names list must match parameter types list!"
 	);
-	solAssert(
+	hypAssert(
 		m_returnParameterNames.size() == 0 &&
 		m_returnParameterTypes.size() == 0,
 		""
@@ -2918,11 +2918,11 @@ FunctionType::FunctionType(ErrorDefinition const& _error):
 		m_parameterTypes.push_back(var->annotation().type);
 	}
 
-	solAssert(
+	hypAssert(
 		m_parameterNames.size() == m_parameterTypes.size(),
 		"Parameter names list must match parameter types list!"
 	);
-	solAssert(
+	hypAssert(
 		m_returnParameterNames.size() == 0 &&
 		m_returnParameterTypes.size() == 0,
 		""
@@ -2936,23 +2936,23 @@ FunctionType::FunctionType(FunctionTypeName const& _typeName):
 	m_stateMutability(_typeName.stateMutability())
 {
 	if (_typeName.isPayable())
-		solAssert(m_kind == Kind::External, "Internal payable function type used.");
+		hypAssert(m_kind == Kind::External, "Internal payable function type used.");
 	for (auto const& t: _typeName.parameterTypes())
 	{
-		solAssert(t->annotation().type, "Type not set for parameter.");
+		hypAssert(t->annotation().type, "Type not set for parameter.");
 		m_parameterTypes.push_back(t->annotation().type);
 	}
 	for (auto const& t: _typeName.returnParameterTypes())
 	{
-		solAssert(t->annotation().type, "Type not set for return parameter.");
+		hypAssert(t->annotation().type, "Type not set for return parameter.");
 		m_returnParameterTypes.push_back(t->annotation().type);
 	}
 
-	solAssert(
+	hypAssert(
 			m_parameterNames.size() == m_parameterTypes.size(),
 			"Parameter names list must match parameter types list!"
 			);
-	solAssert(
+	hypAssert(
 			m_returnParameterNames.size() == m_returnParameterTypes.size(),
 			"Return parameter names list must match return parameter types list!"
 			);
@@ -2965,7 +2965,7 @@ FunctionTypePointer FunctionType::newExpressionType(ContractDefinition const& _c
 	strings parameterNames;
 	StateMutability stateMutability = StateMutability::NonPayable;
 
-	solAssert(!_contract.isInterface(), "");
+	hypAssert(!_contract.isInterface(), "");
 
 	if (constructor)
 	{
@@ -3008,7 +3008,7 @@ TypePointers FunctionType::returnParameterTypesWithoutDynamicTypes() const
 	)
 		for (auto& param: returnParameterTypes)
 		{
-			solAssert(param->decodingType(), "");
+			hypAssert(param->decodingType(), "");
 			if (param->decodingType()->isDynamicallyEncoded())
 				param = TypeProvider::inaccessibleDynamic();
 		}
@@ -3174,7 +3174,7 @@ TypeResult FunctionType::binaryOperatorResult(Token _operator, Type const* _othe
 
 std::string FunctionType::canonicalName() const
 {
-	solAssert(m_kind == Kind::External, "");
+	hypAssert(m_kind == Kind::External, "");
 	return "function";
 }
 
@@ -3197,7 +3197,7 @@ std::string FunctionType::toString(bool _withoutDataLocation) const
 	if (m_kind == Kind::Declaration)
 	{
 		auto const* functionDefinition = dynamic_cast<FunctionDefinition const*>(m_declaration);
-		solAssert(functionDefinition, "");
+		hypAssert(functionDefinition, "");
 		if (auto const* contract = dynamic_cast<ContractDefinition const*>(functionDefinition->scope()))
 			name += *contract->annotation().canonicalName + ".";
 		name += functionDefinition->name();
@@ -3228,7 +3228,7 @@ u256 FunctionType::storageSize() const
 	if (m_kind == Kind::External || m_kind == Kind::Internal)
 		return 1;
 	else
-		solAssert(false, "Storage size of non-storable function type requested.");
+		hypAssert(false, "Storage size of non-storable function type requested.");
 }
 
 bool FunctionType::leftAligned() const
@@ -3243,7 +3243,7 @@ unsigned FunctionType::storageBytes() const
 	else if (m_kind == Kind::Internal)
 		return 8; // it should really not be possible to create larger programs
 	else
-		solAssert(false, "Storage size of non-storable function type requested.");
+		hypAssert(false, "Storage size of non-storable function type requested.");
 }
 
 bool FunctionType::nameable() const
@@ -3263,7 +3263,7 @@ std::vector<std::tuple<std::string, Type const*>> FunctionType::makeStackItems()
 	Kind kind = m_kind;
 	if (m_kind == Kind::SetGas || m_kind == Kind::SetValue)
 	{
-		solAssert(m_returnParameterTypes.size() == 1, "");
+		hypAssert(m_returnParameterTypes.size() == 1, "");
 		kind = dynamic_cast<FunctionType const&>(*m_returnParameterTypes.front()).m_kind;
 	}
 
@@ -3288,7 +3288,7 @@ std::vector<std::tuple<std::string, Type const*>> FunctionType::makeStackItems()
 		break;
 	case Kind::ArrayPush:
 	case Kind::ArrayPop:
-		solAssert(hasBoundFirstArgument(), "");
+		hypAssert(hasBoundFirstArgument(), "");
 		slots = {};
 		break;
 	default:
@@ -3309,7 +3309,7 @@ std::vector<std::tuple<std::string, Type const*>> FunctionType::makeStackItems()
 FunctionTypePointer FunctionType::interfaceFunctionType() const
 {
 	// Note that m_declaration might also be a state variable!
-	solAssert(m_declaration, "Declaration needed to determine interface function type.");
+	hypAssert(m_declaration, "Declaration needed to determine interface function type.");
 	bool isLibraryFunction = false;
 	if (kind() != Kind::Event && kind() != Kind::Error)
 		if (auto const* contract = dynamic_cast<ContractDefinition const*>(m_declaration->scope()))
@@ -3331,7 +3331,7 @@ FunctionTypePointer FunctionType::interfaceFunctionType() const
 	if (variable && retParamTypes.get().empty())
 		return FunctionTypePointer();
 
-	solAssert(!takesArbitraryParameters());
+	hypAssert(!takesArbitraryParameters());
 	return TypeProvider::function(
 		paramTypes,
 		retParamTypes,
@@ -3363,7 +3363,7 @@ MemberList::MemberMap FunctionType::nativeMembers(ASTNode const* _scope) const
 		)
 		{
 			auto const* contractScope = dynamic_cast<ContractDefinition const*>(_scope);
-			solAssert(contractScope && contractScope->derivesFrom(*functionDefinition->annotation().contract), "");
+			hypAssert(contractScope && contractScope->derivesFrom(*functionDefinition->annotation().contract), "");
 			return {{"selector", TypeProvider::fixedBytes(4)}};
 		}
 		else
@@ -3417,10 +3417,10 @@ MemberList::MemberMap FunctionType::nativeMembers(ASTNode const* _scope) const
 	{
 		if (auto const* functionDefinition = dynamic_cast<FunctionDefinition const*>(m_declaration))
 		{
-			solAssert(functionDefinition->visibility() > Visibility::Internal, "");
+			hypAssert(functionDefinition->visibility() > Visibility::Internal, "");
 			auto const *contract = dynamic_cast<ContractDefinition const*>(m_declaration->scope());
-			solAssert(contract, "");
-			solAssert(contract->isLibrary(), "");
+			hypAssert(contract, "");
+			hypAssert(contract->isLibrary(), "");
 			return {{"selector", TypeProvider::fixedBytes(4)}};
 		}
 		return {};
@@ -3484,7 +3484,7 @@ bool FunctionType::canTakeArguments(
 	Type const* _selfType
 ) const
 {
-	solAssert(!hasBoundFirstArgument() || _selfType, "");
+	hypAssert(!hasBoundFirstArgument() || _selfType, "");
 	if (hasBoundFirstArgument() && !_selfType->isImplicitlyConvertibleTo(*selfType()))
 		return false;
 	TypePointers paramTypes = parameterTypes();
@@ -3508,7 +3508,7 @@ bool FunctionType::canTakeArguments(
 		return false;
 	else
 	{
-		solAssert(_arguments.numArguments() == _arguments.numNames(), "Expected equal sized type & name vectors");
+		hypAssert(_arguments.numArguments() == _arguments.numNames(), "Expected equal sized type & name vectors");
 
 		size_t matchedNames = 0;
 
@@ -3567,7 +3567,7 @@ bool FunctionType::equalExcludingStateMutability(FunctionType const& _other) con
 	if (hasBoundFirstArgument() != _other.hasBoundFirstArgument())
 		return false;
 
-	solAssert(!hasBoundFirstArgument() || *selfType() == *_other.selfType(), "");
+	hypAssert(!hasBoundFirstArgument() || *selfType() == *_other.selfType(), "");
 
 	return true;
 }
@@ -3589,8 +3589,8 @@ bool FunctionType::isBareCall() const
 
 std::string FunctionType::externalSignature() const
 {
-	solAssert(m_declaration != nullptr, "External signature of function needs declaration");
-	solAssert(!m_declaration->name().empty(), "Fallback function has no signature.");
+	hypAssert(m_declaration != nullptr, "External signature of function needs declaration");
+	hypAssert(!m_declaration->name().empty(), "Fallback function has no signature.");
 	switch (kind())
 	{
 	case Kind::Internal:
@@ -3601,7 +3601,7 @@ std::string FunctionType::externalSignature() const
 	case Kind::Declaration:
 		break;
 	default:
-		solAssert(false, "Invalid function type for requesting external signature.");
+		hypAssert(false, "Invalid function type for requesting external signature.");
 	}
 
 	// "inLibrary" is only relevant if this is neither an event nor an error.
@@ -3612,7 +3612,7 @@ std::string FunctionType::externalSignature() const
 
 	auto extParams = transformParametersToExternal(m_parameterTypes, inLibrary);
 
-	solAssert(extParams.message().empty(), extParams.message());
+	hypAssert(extParams.message().empty(), extParams.message());
 
 	auto typeStrings = extParams.get() | ranges::views::transform([&](Type const* _t) -> std::string
 	{
@@ -3668,7 +3668,7 @@ TypePointers FunctionType::parseElementaryTypeVector(strings const& _types)
 
 Type const* FunctionType::copyAndSetCallOptions(bool _setGas, bool _setValue, bool _setSalt) const
 {
-	solAssert(m_kind != Kind::Declaration, "");
+	hypAssert(m_kind != Kind::Declaration, "");
 	Options options = Options::fromFunctionType(*this);
 	if (_setGas) options.gasSet = true;
 	if (_setValue) options.valueSet = true;
@@ -3687,10 +3687,10 @@ Type const* FunctionType::copyAndSetCallOptions(bool _setGas, bool _setValue, bo
 
 FunctionTypePointer FunctionType::withBoundFirstArgument() const
 {
-	solAssert(!m_parameterTypes.empty(), "");
-	solAssert(!gasSet(), "");
-	solAssert(!valueSet(), "");
-	solAssert(!saltSet(), "");
+	hypAssert(!m_parameterTypes.empty(), "");
+	hypAssert(!gasSet(), "");
+	hypAssert(!valueSet(), "");
+	hypAssert(!saltSet(), "");
 	Options options = Options::fromFunctionType(*this);
 	options.hasBoundFirstArgument = true;
 	return TypeProvider::function(
@@ -3728,8 +3728,8 @@ FunctionTypePointer FunctionType::asExternallyCallableFunction(bool _inLibrary) 
 	Kind kind = m_kind;
 	if (_inLibrary)
 	{
-		solAssert(!!m_declaration, "Declaration has to be available.");
-		solAssert(m_declaration->isPublic(), "");
+		hypAssert(!!m_declaration, "Declaration has to be available.");
+		hypAssert(m_declaration->isPublic(), "");
 		kind = Kind::DelegateCall;
 	}
 
@@ -3747,8 +3747,8 @@ FunctionTypePointer FunctionType::asExternallyCallableFunction(bool _inLibrary) 
 
 Type const* FunctionType::selfType() const
 {
-	solAssert(hasBoundFirstArgument(), "Function is not attached to a type.");
-	solAssert(m_parameterTypes.size() > 0, "Function has no self type.");
+	hypAssert(hasBoundFirstArgument(), "Function is not attached to a type.");
+	hypAssert(m_parameterTypes.size() > 0, "Function has no self type.");
 	return m_parameterTypes.at(0);
 }
 
@@ -3810,7 +3810,7 @@ std::string MappingType::canonicalName() const
 
 TypeResult MappingType::interfaceType(bool _inLibrary) const
 {
-	solAssert(keyType()->interfaceType(_inLibrary).get(), "Must be an elementary type!");
+	hypAssert(keyType()->interfaceType(_inLibrary).get(), "Must be an elementary type!");
 
 	if (_inLibrary)
 	{
@@ -3818,7 +3818,7 @@ TypeResult MappingType::interfaceType(bool _inLibrary) const
 
 		if (!iType.get())
 		{
-			solAssert(!iType.message().empty(), "Expected detailed error message!");
+			hypAssert(!iType.message().empty(), "Expected detailed error message!");
 			return iType;
 		}
 	}
@@ -3851,7 +3851,7 @@ bool TypeType::operator==(Type const& _other) const
 
 u256 TypeType::storageSize() const
 {
-	solAssert(false, "Storage size of non-storable type type requested.");
+	hypAssert(false, "Storage size of non-storable type type requested.");
 }
 
 std::vector<std::tuple<std::string, Type const*>> TypeType::makeStackItems() const
@@ -3859,7 +3859,7 @@ std::vector<std::tuple<std::string, Type const*>> TypeType::makeStackItems() con
 	if (auto contractType = dynamic_cast<ContractType const*>(m_actualType))
 		if (contractType->contractDefinition().isLibrary())
 		{
-			solAssert(!contractType->isSuper(), "");
+			hypAssert(!contractType->isSuper(), "");
 			return {std::make_tuple("address", TypeProvider::address())};
 		}
 
@@ -3877,7 +3877,7 @@ MemberList::MemberMap TypeType::nativeMembers(ASTNode const* _currentScope) cons
 		{
 			// add the most derived of all functions which are visible in derived contracts
 			auto bases = contract.annotation().linearizedBaseContracts;
-			solAssert(bases.size() >= 1, "linearizedBaseContracts should at least contain the most derived contract.");
+			hypAssert(bases.size() >= 1, "linearizedBaseContracts should at least contain the most derived contract.");
 			// `sliced(1, ...)` ignores the most derived contract, which should not be searchable from `super`.
 			for (ContractDefinition const* base: bases | ranges::views::tail)
 				for (FunctionDefinition const* function: base->definedFunctions())
@@ -3892,7 +3892,7 @@ MemberList::MemberMap TypeType::nativeMembers(ASTNode const* _currentScope) cons
 						if (member.name != function->name())
 							continue;
 						auto memberType = dynamic_cast<FunctionType const*>(member.type);
-						solAssert(!!memberType, "Override changes type.");
+						hypAssert(!!memberType, "Override changes type.");
 						if (!memberType->hasEqualParameterTypes(*functionType))
 							continue;
 						functionWithEqualArgumentsFound = true;
@@ -4002,7 +4002,7 @@ ModifierType::ModifierType(ModifierDefinition const& _modifier)
 
 u256 ModifierType::storageSize() const
 {
-	solAssert(false, "Storage size of non-storable type type requested.");
+	hypAssert(false, "Storage size of non-storable type type requested.");
 }
 
 std::string ModifierType::richIdentifier() const
@@ -4077,7 +4077,7 @@ std::string MagicType::richIdentifier() const
 	case Kind::ABI:
 		return "t_magic_abi";
 	case Kind::MetaType:
-		solAssert(m_typeArgument, "");
+		hypAssert(m_typeArgument, "");
 		return "t_magic_meta_type_" + m_typeArgument->richIdentifier();
 	}
 	return "";
@@ -4184,7 +4184,7 @@ MemberList::MemberMap MagicType::nativeMembers(ASTNode const*) const
 		});
 	case Kind::MetaType:
 	{
-		solAssert(
+		hypAssert(
 			m_typeArgument && (
 					m_typeArgument->category() == Type::Category::Contract ||
 					m_typeArgument->category() == Type::Category::Integer ||
@@ -4226,7 +4226,7 @@ MemberList::MemberMap MagicType::nativeMembers(ASTNode const*) const
 		}
 	}
 	}
-	solAssert(false, "Unknown kind of magic.");
+	hypAssert(false, "Unknown kind of magic.");
 	return {};
 }
 
@@ -4243,17 +4243,17 @@ std::string MagicType::toString(bool _withoutDataLocation) const
 	case Kind::ABI:
 		return "abi";
 	case Kind::MetaType:
-		solAssert(m_typeArgument, "");
+		hypAssert(m_typeArgument, "");
 		return "type(" + m_typeArgument->toString(_withoutDataLocation) + ")";
 	}
-	solAssert(false, "Unknown kind of magic.");
+	hypAssert(false, "Unknown kind of magic.");
 	return {};
 }
 
 Type const* MagicType::typeArgument() const
 {
-	solAssert(m_kind == Kind::MetaType, "");
-	solAssert(m_typeArgument, "");
+	hypAssert(m_kind == Kind::MetaType, "");
+	hypAssert(m_typeArgument, "");
 	return m_typeArgument;
 }
 

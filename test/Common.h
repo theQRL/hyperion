@@ -1,45 +1,45 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
-#include <libsolutil/Exceptions.h>
-#include <liblangutil/EVMVersion.h>
+#include <libhyputil/Exceptions.h>
+#include <liblangutil/ZVMVersion.h>
 #include <liblangutil/Exceptions.h>
-#include <libsolutil/Numeric.h>
+#include <libhyputil/Numeric.h>
 
-#include <test/evmc/evmc.h>
+#include <test/zvmc/zvmc.h>
 
 #include <boost/filesystem/path.hpp>
 #include <boost/program_options.hpp>
 
-namespace solidity::test
+namespace hyperion::test
 {
 
 #ifdef _WIN32
-static constexpr auto evmoneFilename = "evmone.dll";
-static constexpr auto evmoneDownloadLink = "https://github.com/ethereum/evmone/releases/download/v0.10.0/evmone-0.10.0-windows-amd64.zip";
+static constexpr auto zvmoneFilename = "zvmone.dll";
+static constexpr auto zvmoneDownloadLink = "https://github.com/theQRL/zvmone/releases/download/v0.1.0/zvmone-0.1.0-windows-amd64.zip";
 #elif defined(__APPLE__)
-static constexpr auto evmoneFilename = "libevmone.dylib";
-static constexpr auto evmoneDownloadLink = "https://github.com/ethereum/evmone/releases/download/v0.10.0/evmone-0.10.0-darwin-x86_64.tar.gz";
+static constexpr auto zvmoneFilename = "libzvmone.dylib";
+static constexpr auto zvmoneDownloadLink = "https://github.com/theQRL/zvmone/releases/download/v0.1.0/zvmone-0.1.0-darwin-x86_64.tar.gz";
 #else
-static constexpr auto evmoneFilename = "libevmone.so";
-static constexpr auto evmoneDownloadLink = "https://github.com/ethereum/evmone/releases/download/v0.10.0/evmone-0.10.0-linux-x86_64.tar.gz";
+static constexpr auto zvmoneFilename = "libzvmone.so";
+static constexpr auto zvmoneDownloadLink = "https://github.com/theQRL/zvmone/releases/download/v0.1.0/zvmone-0.1.0-linux-x86_64.tar.gz";
 #endif
 
 struct ConfigException: public util::Exception {};
@@ -63,7 +63,7 @@ struct CommonOptions
 	size_t batches = 1;
 	size_t selectedBatch = 0;
 
-	langutil::EVMVersion evmVersion() const;
+	langutil::ZVMVersion zvmVersion() const;
 
 	virtual void addOptions();
 	// @returns true if the program should continue, false if it should exit immediately without
@@ -74,7 +74,7 @@ struct CommonOptions
 	virtual void validate() const;
 
 	/// @returns string with a key=value list of the options separated by comma
-	/// Ex.: "evmVersion=shanghai, optimize=true, useABIEncoderV1=false"
+	/// Ex.: "zvmVersion=shanghai, optimize=true, useABIEncoderV1=false"
 	virtual std::string toString(std::vector<std::string> const& _selectedOptions) const;
 	/// Helper to print the value of settings used
 	virtual void printSelectedOptions(std::ostream& _stream, std::string const& _linePrefix, std::vector<std::string> const& _selectedOptions) const;
@@ -89,13 +89,13 @@ protected:
 	boost::program_options::options_description options;
 
 private:
-	std::string evmVersionString;
+	std::string zvmVersionString;
 	static std::unique_ptr<CommonOptions const> m_singleton;
 };
 
 /// @return true if it is ok to treat the file located under the specified path as a semantic test.
 /// I.e. if the test is located in the semantic test directory and is not excluded due to being a part of external sources.
-/// Note: @p _testPath can be relative but must include at least the `/test/libsolidity/semanticTests/` part
+/// Note: @p _testPath can be relative but must include at least the `/test/libhyperion/semanticTests/` part
 bool isValidSemanticTestPath(boost::filesystem::path const& _testPath);
 
 bool loadVMs(CommonOptions const& _options);
@@ -110,7 +110,7 @@ public:
 		m_offset(_offset),
 		m_batches(_batches)
 	{
-		solAssert(m_batches > 0 && m_offset < m_batches);
+		hypAssert(m_batches > 0 && m_offset < m_batches);
 	}
 	Batcher(Batcher const&) = delete;
 	Batcher& operator=(Batcher const&) = delete;

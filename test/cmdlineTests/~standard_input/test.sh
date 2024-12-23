@@ -5,7 +5,7 @@ set -euo pipefail
 source "${REPO_ROOT}/scripts/common.sh"
 
 set +e
-output=$("$SOLC" --bin 2>&1)
+output=$("$HYPC" --bin 2>&1)
 result=$?
 set -e
 
@@ -16,11 +16,11 @@ then
 fi
 
 # The contract should be compiled
-if ! echo 'contract C {}' | msg_on_error --no-stderr "$SOLC" - --bin | grep -q "<stdin>:C"
+if ! echo 'contract C {}' | msg_on_error --no-stderr "$HYPC" - --bin | grep -q "<stdin>:C"
 then
     fail "Failed to compile a simple contract from standard input"
 fi
 
 # This should not fail
 echo '' | msg_on_error --silent --msg "Incorrect response to --ast-compact-json option with empty stdin" \
-    "$SOLC" --ast-compact-json -
+    "$HYPC" --ast-compact-json -

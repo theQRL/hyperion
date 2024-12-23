@@ -1,4 +1,4 @@
-pragma solidity >=0.0;
+pragma hyperion >=0.0;
 
 /*
     Copyright 2016, Jordi Baylina
@@ -29,8 +29,8 @@ pragma solidity >=0.0;
 
 /// @dev We use the RLP library to decode RLP so that the donor can approve one
 ///  set of milestone changes at a time.
-///  https://github.com/androlo/standard-contracts/blob/master/contracts/src/codec/RLP.sol
-import "RLP.sol";
+///  https://github.com/androlo/standard-contracts/blob/master/contracts/src/codec/RLP.hyp
+import "RLP.hyp";
 
 
 

@@ -1,18 +1,18 @@
 /*(
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
  * Component that checks whether all variables are reachable on the stack.
@@ -23,12 +23,12 @@
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AsmAnalysisInfo.h>
 
-#include <libyul/backends/evm/EVMCodeTransform.h>
-#include <libyul/backends/evm/NoOutputAssembly.h>
+#include <libyul/backends/zvm/ZVMCodeTransform.h>
+#include <libyul/backends/zvm/NoOutputAssembly.h>
 
-using namespace solidity;
-using namespace solidity::yul;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::yul;
+using namespace hyperion::util;
 
 CompilabilityChecker::CompilabilityChecker(
 	Dialect const& _dialect,
@@ -36,9 +36,9 @@ CompilabilityChecker::CompilabilityChecker(
 	bool _optimizeStackAllocation
 )
 {
-	if (auto const* evmDialect = dynamic_cast<EVMDialect const*>(&_dialect))
+	if (auto const* zvmDialect = dynamic_cast<ZVMDialect const*>(&_dialect))
 	{
-		NoOutputEVMDialect noOutputDialect(*evmDialect);
+		NoOutputZVMDialect noOutputDialect(*zvmDialect);
 
 		yul::AsmAnalysisInfo analysisInfo =
 			yul::AsmAnalyzer::analyzeStrictAssertCorrect(noOutputDialect, _object);
@@ -49,7 +49,7 @@ CompilabilityChecker::CompilabilityChecker(
 			builtinContext.subIDs[_object.name] = 1;
 		for (auto const& subNode: _object.subObjects)
 			builtinContext.subIDs[subNode->name] = 1;
-		NoOutputAssembly assembly{evmDialect->evmVersion()};
+		NoOutputAssembly assembly{zvmDialect->zvmVersion()};
 		CodeTransform transform(
 			assembly,
 			analysisInfo,

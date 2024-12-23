@@ -1,1 +1,1 @@
---strict-assembly --evm-version shanghai
+--strict-assembly --zvm-version shanghai

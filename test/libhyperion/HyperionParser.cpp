@@ -1,39 +1,39 @@
 /*
-    This file is part of solidity.
+    This file is part of hyperion.
 
-    solidity is free software: you can redistribute it and/or modify
+    hyperion is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    solidity is distributed in the hope that it will be useful,
+    hyperion is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+    along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Unit tests for the solidity parser.
+ * Unit tests for the hyperion parser.
  */
 
 #include <string>
 #include <memory>
 #include <liblangutil/Scanner.h>
-#include <libsolidity/parsing/Parser.h>
+#include <libhyperion/parsing/Parser.h>
 #include <liblangutil/ErrorReporter.h>
 #include <test/Common.h>
-#include <test/libsolidity/ErrorCheck.h>
-#include <libsolidity/ast/ASTVisitor.h>
+#include <test/libhyperion/ErrorCheck.h>
+#include <libhyperion/ast/ASTVisitor.h>
 
 #include <boost/test/unit_test.hpp>
 
-using namespace solidity::langutil;
+using namespace hyperion::langutil;
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 namespace
@@ -44,7 +44,7 @@ ASTPointer<ContractDefinition> parseText(std::string const& _source, ErrorList& 
 	auto charStream = CharStream(_source, "");
 	ASTPointer<SourceUnit> sourceUnit = Parser(
 		errorReporter,
-		solidity::test::CommonOptions::get().evmVersion()
+		hyperion::test::CommonOptions::get().zvmVersion()
 	).parse(charStream);
 	if (!sourceUnit)
 		return ASTPointer<ContractDefinition>();
@@ -113,7 +113,7 @@ do \
 while(0)
 
 
-BOOST_AUTO_TEST_SUITE(SolidityParser)
+BOOST_AUTO_TEST_SUITE(HyperionParser)
 
 BOOST_AUTO_TEST_CASE(reserved_keywords)
 {
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE(natspec_comment_in_function_body)
 				// I should not interfere with actual natspec comments (natspec comments on local variables not allowed anymore)
 				uint256 c;
 				mapping(address=>bytes32) d;
-				bytes7 name = "Solidity";
+				bytes7 name = "Hyperion";
 			}
 			/// This is a test function
 			/// and it has 2 lines
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE(natspec_docstring_between_keyword_and_signature)
 				// I should not interfere with actual natspec comments (natspec comments on local variables not allowed anymore)
 				uint256 c;
 				mapping(address=>bytes32) d;
-				bytes7 name = "Solidity";
+				bytes7 name = "Hyperion";
 			}
 		}
 	)";
@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE(natspec_docstring_after_signature)
 				// I should not interfere with actual natspec comments (natspec comments on local variables not allowed anymore)
 				uint256 c;
 				mapping(address=>bytes32) d;
-				bytes7 name = "Solidity";
+				bytes7 name = "Hyperion";
 			}
 		}
 	)";
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE(variable_definition_with_initialization)
 				uint b = 2;
 				uint256 c = 0x87;
 				mapping(address=>bytes32) d;
-				bytes7 name = "Solidity";
+				bytes7 name = "Hyperion";
 				customtype varname;
 			}
 		}

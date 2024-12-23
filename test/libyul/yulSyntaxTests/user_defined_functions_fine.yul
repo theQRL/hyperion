@@ -6,5 +6,5 @@
     let x: bool, y: u256 := f(1, 2: u256, true)
 }
 // ====
-// dialect: evmTyped
+// dialect: zvmTyped
 // ----

@@ -16,8 +16,8 @@
         }
     },
     "sourceList": [
-        "contract.sol",
-        "contract.sol",
+        "contract.hyp",
+        "contract.hyp",
         "#utility.yul"
     ]
 }

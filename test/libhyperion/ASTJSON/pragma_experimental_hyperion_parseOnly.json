@@ -1,6 +1,6 @@
 {
   "absolutePath": "a",
-  "experimentalSolidity": true,
+  "experimentalHyperion": true,
   "id": 2,
   "nodeType": "SourceUnit",
   "nodes":
@@ -10,7 +10,7 @@
       "literals":
       [
         "experimental",
-        "solidity"
+        "hyperion"
       ],
       "nodeType": "PragmaDirective",
       "src": "0:29:1"

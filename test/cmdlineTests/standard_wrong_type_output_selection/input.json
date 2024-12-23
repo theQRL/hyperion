@@ -1,8 +1,8 @@
 {
-	"language": "Solidity",
+	"language": "Hyperion",
 	"sources": {
 		"fileA": {
-			"content": "//SPDX-License-Identifier: GPL-3.0\npragma solidity >=0.0;\ncontract A { }"
+			"content": "//SPDX-License-Identifier: GPL-3.0\npragma hyperion >=0.0;\ncontract A { }"
 		}
 	},
 	"settings": {

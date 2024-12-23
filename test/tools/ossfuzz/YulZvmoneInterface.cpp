@@ -1,27 +1,27 @@
 /*
-    This file is part of solidity.
+    This file is part of hyperion.
 
-    solidity is free software: you can redistribute it and/or modify
+    hyperion is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    solidity is distributed in the hope that it will be useful,
+    hyperion is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+    along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <test/tools/ossfuzz/YulEvmoneInterface.h>
+#include <test/tools/ossfuzz/YulZvmoneInterface.h>
 
 #include <libyul/Exceptions.h>
 
-using namespace solidity;
-using namespace solidity::test::fuzzer;
-using namespace solidity::yul;
+using namespace hyperion;
+using namespace hyperion::test::fuzzer;
+using namespace hyperion::yul;
 
 bytes YulAssembler::assemble()
 {
@@ -35,7 +35,7 @@ bytes YulAssembler::assemble()
 
 	if (m_optimiseYul)
 		m_stack.optimize();
-	return m_stack.assemble(YulStack::Machine::EVM).bytecode->bytecode;
+	return m_stack.assemble(YulStack::Machine::ZVM).bytecode->bytecode;
 }
 
 std::shared_ptr<yul::Object> YulAssembler::object()
@@ -43,13 +43,13 @@ std::shared_ptr<yul::Object> YulAssembler::object()
 	return m_stack.parserResult();
 }
 
-evmc::Result YulEvmoneUtility::deployCode(bytes const& _input, EVMHost& _host)
+zvmc::Result YulZvmoneUtility::deployCode(bytes const& _input, ZVMHost& _host)
 {
 	// Zero initialize all message fields
-	evmc_message msg = {};
+	zvmc_message msg = {};
 	// Gas available (value of type int64_t) is set to its maximum value
 	msg.gas = std::numeric_limits<int64_t>::max();
-	solAssert(
+	hypAssert(
 		_input.size() <= 0xffff,
 		"Deployed byte code is larger than the permissible 65535 bytes."
 	);
@@ -71,33 +71,33 @@ evmc::Result YulEvmoneUtility::deployCode(bytes const& _input, EVMHost& _host)
 	} + _input;
 	msg.input_data = deployCode.data();
 	msg.input_size = deployCode.size();
-	msg.kind = EVMC_CREATE;
+	msg.kind = ZVMC_CREATE;
 	return _host.call(msg);
 }
 
-evmc_message YulEvmoneUtility::callMessage(evmc_address _address)
+zvmc_message YulZvmoneUtility::callMessage(zvmc_address _address)
 {
-	evmc_message call = {};
+	zvmc_message call = {};
 	call.gas = std::numeric_limits<int64_t>::max();
 	call.recipient = _address;
 	call.code_address = _address;
-	call.kind = EVMC_CALL;
+	call.kind = ZVMC_CALL;
 	return call;
 }
 
-bool YulEvmoneUtility::seriousCallError(evmc_status_code _code)
+bool YulZvmoneUtility::seriousCallError(zvmc_status_code _code)
 {
-	if (_code == EVMC_OUT_OF_GAS)
+	if (_code == ZVMC_OUT_OF_GAS)
 		return true;
-	else if (_code == EVMC_STACK_OVERFLOW)
+	else if (_code == ZVMC_STACK_OVERFLOW)
 		return true;
-	else if (_code == EVMC_STACK_UNDERFLOW)
+	else if (_code == ZVMC_STACK_UNDERFLOW)
 		return true;
-	else if (_code == EVMC_INTERNAL_ERROR)
+	else if (_code == ZVMC_INTERNAL_ERROR)
 		return true;
-	else if (_code == EVMC_UNDEFINED_INSTRUCTION)
+	else if (_code == ZVMC_UNDEFINED_INSTRUCTION)
 		return true;
-	else if (_code == EVMC_INVALID_MEMORY_ACCESS)
+	else if (_code == ZVMC_INVALID_MEMORY_ACCESS)
 		return true;
 	else
 		return false;

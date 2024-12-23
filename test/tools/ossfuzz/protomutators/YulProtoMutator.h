@@ -2,13 +2,13 @@
 
 #include <test/tools/ossfuzz/yulProto.pb.h>
 
-#include <libsolutil/Common.h>
+#include <libhyputil/Common.h>
 
 #include <src/libfuzzer/libfuzzer_macro.h>
 
 #include <random>
 
-namespace solidity::yul::test::yul_fuzzer
+namespace hyperion::yul::test::yul_fuzzer
 {
 
 using ProtobufMessage = google::protobuf::Message;

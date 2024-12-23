@@ -1,8 +1,8 @@
 
-======= strict_asm_debug_info_print_none/input.yul (EVM) =======
+======= strict_asm_debug_info_print_none/input.yul (ZVM) =======
 
 Pretty printed source:
-/// @use-src 0:"input.sol"
+/// @use-src 0:"input.hyp"
 object "C_6_deployed" {
     code {
         {

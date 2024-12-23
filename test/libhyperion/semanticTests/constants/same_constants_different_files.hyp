@@ -1,4 +1,4 @@
-==== Source: s1.sol ====
+==== Source: s1.hyp ====
 
 
 uint constant a = 89;
@@ -7,10 +7,10 @@ function fre() pure returns (uint) {
     return a;
 }
 
-==== Source: s2.sol ====
+==== Source: s2.hyp ====
 
-import {a as b, fre} from "s1.sol";
-import "s1.sol" as M;
+import {a as b, fre} from "s1.hyp";
+import "s1.hyp" as M;
 
 uint256 constant a = 13;
 

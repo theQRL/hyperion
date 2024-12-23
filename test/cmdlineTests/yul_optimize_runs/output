@@ -1,5 +1,5 @@
 
-======= yul_optimize_runs/input.yul (EVM) =======
+======= yul_optimize_runs/input.yul (ZVM) =======
 
 Pretty printed source:
 object "RunsTest1" {

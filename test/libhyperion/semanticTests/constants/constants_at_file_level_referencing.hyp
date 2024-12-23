@@ -1,4 +1,4 @@
-==== Source: s1.sol ====
+==== Source: s1.hyp ====
 
 
 bytes constant a = b;
@@ -8,9 +8,9 @@ function fre() pure returns (bytes memory) {
     return a;
 }
 
-==== Source: s2.sol ====
+==== Source: s2.hyp ====
 
-import "s1.sol";
+import "s1.hyp";
 
 uint256 constant c = uint8(a[0]) + 2;
 

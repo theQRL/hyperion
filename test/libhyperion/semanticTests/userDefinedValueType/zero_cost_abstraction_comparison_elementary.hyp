@@ -1,5 +1,5 @@
 // a test to compare the cost between using user defined value types and elementary type. See the
-// test zero_cost_abstraction_userdefined.sol for a comparison.
+// test zero_cost_abstraction_userdefined.hyp for a comparison.
 
 pragma abicoder v2;
 

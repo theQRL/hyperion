@@ -1,8 +1,8 @@
 
-======= linking_qualified_library_name/contract1.sol:C =======
+======= linking_qualified_library_name/contract1.hyp:C =======
 Binary:
 <BYTECODE REMOVED>
 
-======= linking_qualified_library_name/math.sol:Log =======
+======= linking_qualified_library_name/math.hyp:Log =======
 Binary:
 <BYTECODE REMOVED>

@@ -1,35 +1,35 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-/// Unit tests for solc/CommandLineParser.h
+/// Unit tests for hypc/CommandLineParser.h
 
-#include <solc/CommandLineParser.h>
-#include <solc/Exceptions.h>
+#include <hypc/CommandLineParser.h>
+#include <hypc/Exceptions.h>
 
-#include <test/solc/Common.h>
+#include <test/hypc/Common.h>
 
 #include <test/Common.h>
-#include <test/libsolidity/util/SoltestErrors.h>
+#include <test/libhyperion/util/HyptestErrors.h>
 
-#include <libsolutil/CommonData.h>
-#include <liblangutil/EVMVersion.h>
+#include <libhyputil/CommonData.h>
+#include <liblangutil/ZVMVersion.h>
 #include <libsmtutil/SolverInterface.h>
-#include <libsolidity/interface/Version.h>
+#include <libhyperion/interface/Version.h>
 
 #include <map>
 #include <optional>
@@ -39,10 +39,10 @@
 #include <vector>
 
 using namespace std;
-using namespace solidity::frontend;
-using namespace solidity::langutil;
-using namespace solidity::util;
-using namespace solidity::yul;
+using namespace hyperion::frontend;
+using namespace hyperion::langutil;
+using namespace hyperion::util;
+using namespace hyperion::yul;
 
 namespace
 {
@@ -58,17 +58,17 @@ CommandLineOptions parseCommandLine(vector<string> const& _commandLine)
 
 } // namespace
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 BOOST_AUTO_TEST_SUITE(CommandLineParserTest)
 
 BOOST_AUTO_TEST_CASE(no_options)
 {
-	vector<string> commandLine = {"solc", "contract.sol"};
+	vector<string> commandLine = {"hypc", "contract.hyp"};
 
 	CommandLineOptions expectedOptions;
-	expectedOptions.input.paths = {"contract.sol"};
+	expectedOptions.input.paths = {"contract.hyp"};
 	expectedOptions.modelChecker.initialize = true;
 	expectedOptions.modelChecker.settings = {};
 
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(help_license_version)
 
 	for (auto const& [option, expectedMode]: expectedModePerOption)
 	{
-		CommandLineOptions parsedOptions = parseCommandLine({"solc", option});
+		CommandLineOptions parsedOptions = parseCommandLine({"hypc", option});
 
 		CommandLineOptions expectedOptions;
 		expectedOptions.input.mode = expectedMode;
@@ -101,16 +101,16 @@ BOOST_AUTO_TEST_CASE(cli_mode_options)
 	for (InputMode inputMode: {InputMode::Compiler, InputMode::CompilerWithASTImport})
 	{
 		vector<string> commandLine = {
-			"solc",
-			"contract.sol",             // Both modes do not care about file names, just about
-			"/tmp/projects/token.sol",  // their content. They also both support stdin.
-			"/home/user/lib/dex.sol",
+			"hypc",
+			"contract.hyp",             // Both modes do not care about file names, just about
+			"/tmp/projects/token.hyp",  // their content. They also both support stdin.
+			"/home/user/lib/dex.hyp",
 			"file",
 			"input.json",
 			"-",
 			"/tmp=/usr/lib/",
 			"a:b=c/d",
-			":contract.sol=",
+			":contract.hyp=",
 			"--base-path=/home/user/",
 			"--include-path=/usr/lib/include/",
 			"--include-path=/home/user/include",
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(cli_mode_options)
 			"--ignore-missing",
 			"--output-dir=/tmp/out",
 			"--overwrite",
-			"--evm-version=shanghai",
+			"--zvm-version=shanghai",
 			"--via-ir",
 			"--experimental-via-ir",
 			"--revert-strings=strip",
@@ -128,8 +128,8 @@ BOOST_AUTO_TEST_CASE(cli_mode_options)
 			"--no-color",
 			"--error-codes",
 			"--libraries="
-				"dir1/file1.sol:L=0x1234567890123456789012345678901234567890,"
-				"dir2/file2.sol:L=0x1111122222333334444455555666667777788888",
+				"dir1/file1.hyp:L=0x1234567890123456789012345678901234567890,"
+				"dir2/file2.hyp:L=0x1111122222333334444455555666667777788888",
 			"--ast-compact-json", "--asm", "--asm-json", "--opcodes", "--bin", "--bin-runtime", "--abi",
 			"--ir", "--ir-ast-json", "--ir-optimized", "--ir-optimized-ast-json", "--hashes", "--userdoc", "--devdoc", "--metadata", "--storage-layout",
 			"--gas",
@@ -163,11 +163,11 @@ BOOST_AUTO_TEST_CASE(cli_mode_options)
 
 		CommandLineOptions expectedOptions;
 		expectedOptions.input.mode = inputMode;
-		expectedOptions.input.paths = {"contract.sol", "/tmp/projects/token.sol", "/home/user/lib/dex.sol", "file", "input.json"};
+		expectedOptions.input.paths = {"contract.hyp", "/tmp/projects/token.hyp", "/home/user/lib/dex.hyp", "file", "input.json"};
 		expectedOptions.input.remappings = {
 			{"", "/tmp", "/usr/lib/"},
 			{"a", "b", "c/d"},
-			{"", "contract.sol", ""},
+			{"", "contract.hyp", ""},
 		};
 
 		expectedOptions.input.addStdin = true;
@@ -178,14 +178,14 @@ BOOST_AUTO_TEST_CASE(cli_mode_options)
 		expectedOptions.input.ignoreMissingFiles = true;
 		expectedOptions.output.dir = "/tmp/out";
 		expectedOptions.output.overwriteFiles = true;
-		expectedOptions.output.evmVersion = EVMVersion::shanghai();
+		expectedOptions.output.zvmVersion = ZVMVersion::shanghai();
 		expectedOptions.output.viaIR = true;
 		expectedOptions.output.revertStrings = RevertStrings::Strip;
 		expectedOptions.output.debugInfoSelection = DebugInfoSelection::fromString("location");
 		expectedOptions.formatting.json = JsonFormat{JsonFormat::Pretty, 7};
 		expectedOptions.linker.libraries = {
-			{"dir1/file1.sol:L", h160("1234567890123456789012345678901234567890")},
-			{"dir2/file2.sol:L", h160("1111122222333334444455555666667777788888")},
+			{"dir1/file1.hyp:L", h160("1234567890123456789012345678901234567890")},
+			{"dir2/file2.hyp:L", h160("1111122222333334444455555666667777788888")},
 		};
 		expectedOptions.formatting.coloredOutput = false;
 		expectedOptions.formatting.withErrorIds = true;
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(cli_mode_options)
 		};
 		expectedOptions.metadata.hash = CompilerStack::MetadataHash::Bzzr1;
 		expectedOptions.metadata.literalSources = true;
-		expectedOptions.optimizer.optimizeEvmasm = true;
+		expectedOptions.optimizer.optimizeZvmasm = true;
 		expectedOptions.optimizer.optimizeYul = true;
 		expectedOptions.optimizer.expectedExecutionsPerDeployment = 1000;
 		expectedOptions.optimizer.yulSteps = "agf";
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE(cli_mode_options)
 
 BOOST_AUTO_TEST_CASE(no_cbor_metadata)
 {
-	vector<string> commandLine = {"solc", "--no-cbor-metadata", "contract.sol"};
+	vector<string> commandLine = {"hypc", "--no-cbor-metadata", "contract.hyp"};
 	CommandLineOptions parsedOptions = parseCommandLine(commandLine);
 	bool assert = parsedOptions.metadata.format == CompilerStack::MetadataFormat::NoMetadata;
 
@@ -244,13 +244,13 @@ BOOST_AUTO_TEST_CASE(no_cbor_metadata)
 BOOST_AUTO_TEST_CASE(no_import_callback)
 {
 	std::vector<std::vector<std::string>> commandLinePerInputMode = {
-		{"solc", "--no-import-callback", "contract.sol"},
-		{"solc", "--standard-json", "--no-import-callback", "input.json"},
-		{"solc", "--assemble", "--no-import-callback", "input.yul"},
-		{"solc", "--strict-assembly", "--no-import-callback", "input.yul"},
-		{"solc", "--import-ast", "--no-import-callback", "ast.json"},
-		{"solc", "--link", "--no-import-callback", "input.bin"},
-		{"solc", "--yul", "--no-import-callback", "input.yul"},
+		{"hypc", "--no-import-callback", "contract.hyp"},
+		{"hypc", "--standard-json", "--no-import-callback", "input.json"},
+		{"hypc", "--assemble", "--no-import-callback", "input.yul"},
+		{"hypc", "--strict-assembly", "--no-import-callback", "input.yul"},
+		{"hypc", "--import-ast", "--no-import-callback", "ast.json"},
+		{"hypc", "--link", "--no-import-callback", "input.bin"},
+		{"hypc", "--yul", "--no-import-callback", "input.yul"},
 	};
 
 	for (auto const& commandLine: commandLinePerInputMode)
@@ -262,29 +262,29 @@ BOOST_AUTO_TEST_CASE(no_import_callback)
 
 BOOST_AUTO_TEST_CASE(via_ir_options)
 {
-	BOOST_TEST(!parseCommandLine({"solc", "contract.sol"}).output.viaIR);
+	BOOST_TEST(!parseCommandLine({"hypc", "contract.hyp"}).output.viaIR);
 	for (string viaIrOption: {"--via-ir", "--experimental-via-ir"})
-		BOOST_TEST(parseCommandLine({"solc", viaIrOption, "contract.sol"}).output.viaIR);
+		BOOST_TEST(parseCommandLine({"hypc", viaIrOption, "contract.hyp"}).output.viaIR);
 }
 
 BOOST_AUTO_TEST_CASE(assembly_mode_options)
 {
 	static vector<tuple<vector<string>, YulStack::Machine, YulStack::Language>> const allowedCombinations = {
-		{{"--machine=evm", "--yul-dialect=evm", "--assemble"}, YulStack::Machine::EVM, YulStack::Language::StrictAssembly},
-		{{"--machine=evm", "--yul-dialect=evm", "--yul"}, YulStack::Machine::EVM, YulStack::Language::StrictAssembly},
-		{{"--machine=evm", "--yul-dialect=evm", "--strict-assembly"}, YulStack::Machine::EVM, YulStack::Language::StrictAssembly},
-		{{"--machine=evm", "--assemble"}, YulStack::Machine::EVM, YulStack::Language::Assembly},
-		{{"--machine=evm", "--yul"}, YulStack::Machine::EVM, YulStack::Language::Yul},
-		{{"--machine=evm", "--strict-assembly"}, YulStack::Machine::EVM, YulStack::Language::StrictAssembly},
-		{{"--assemble"}, YulStack::Machine::EVM, YulStack::Language::Assembly},
-		{{"--yul"}, YulStack::Machine::EVM, YulStack::Language::Yul},
-		{{"--strict-assembly"}, YulStack::Machine::EVM, YulStack::Language::StrictAssembly},
+		{{"--machine=zvm", "--yul-dialect=zvm", "--assemble"}, YulStack::Machine::ZVM, YulStack::Language::StrictAssembly},
+		{{"--machine=zvm", "--yul-dialect=zvm", "--yul"}, YulStack::Machine::ZVM, YulStack::Language::StrictAssembly},
+		{{"--machine=zvm", "--yul-dialect=zvm", "--strict-assembly"}, YulStack::Machine::ZVM, YulStack::Language::StrictAssembly},
+		{{"--machine=zvm", "--assemble"}, YulStack::Machine::ZVM, YulStack::Language::Assembly},
+		{{"--machine=zvm", "--yul"}, YulStack::Machine::ZVM, YulStack::Language::Yul},
+		{{"--machine=zvm", "--strict-assembly"}, YulStack::Machine::ZVM, YulStack::Language::StrictAssembly},
+		{{"--assemble"}, YulStack::Machine::ZVM, YulStack::Language::Assembly},
+		{{"--yul"}, YulStack::Machine::ZVM, YulStack::Language::Yul},
+		{{"--strict-assembly"}, YulStack::Machine::ZVM, YulStack::Language::StrictAssembly},
 	};
 
 	for (auto const& [assemblyOptions, expectedMachine, expectedLanguage]: allowedCombinations)
 	{
 		vector<string> commandLine = {
-			"solc",
+			"hypc",
 			"contract.yul",
 			"/tmp/projects/token.yul",
 			"/home/user/lib/dex.yul",
@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_CASE(assembly_mode_options)
 			"--allow-paths=/tmp,/home,project,../contracts",
 			"--ignore-missing",
 			"--overwrite",
-			"--evm-version=shanghai",
+			"--zvm-version=shanghai",
 			"--revert-strings=strip",      // Accepted but has no effect in assembly mode
 			"--debug-info=location",
 			"--pretty-json",
@@ -308,8 +308,8 @@ BOOST_AUTO_TEST_CASE(assembly_mode_options)
 			"--no-color",
 			"--error-codes",
 			"--libraries="
-				"dir1/file1.sol:L=0x1234567890123456789012345678901234567890,"
-				"dir2/file2.sol:L=0x1111122222333334444455555666667777788888",
+				"dir1/file1.hyp:L=0x1234567890123456789012345678901234567890,"
+				"dir2/file2.hyp:L=0x1111122222333334444455555666667777788888",
 			"--asm",
 			"--bin",
 			"--ir-optimized",
@@ -338,15 +338,15 @@ BOOST_AUTO_TEST_CASE(assembly_mode_options)
 		expectedOptions.input.allowedDirectories = {"/tmp", "/home", "project", "../contracts", "c", "/usr/lib"};
 		expectedOptions.input.ignoreMissingFiles = true;
 		expectedOptions.output.overwriteFiles = true;
-		expectedOptions.output.evmVersion = EVMVersion::shanghai();
+		expectedOptions.output.zvmVersion = ZVMVersion::shanghai();
 		expectedOptions.output.revertStrings = RevertStrings::Strip;
 		expectedOptions.output.debugInfoSelection = DebugInfoSelection::fromString("location");
 		expectedOptions.formatting.json = JsonFormat {JsonFormat::Pretty, 1};
 		expectedOptions.assembly.targetMachine = expectedMachine;
 		expectedOptions.assembly.inputLanguage = expectedLanguage;
 		expectedOptions.linker.libraries = {
-			{"dir1/file1.sol:L", h160("1234567890123456789012345678901234567890")},
-			{"dir2/file2.sol:L", h160("1111122222333334444455555666667777788888")},
+			{"dir1/file1.hyp:L", h160("1234567890123456789012345678901234567890")},
+			{"dir2/file2.hyp:L", h160("1111122222333334444455555666667777788888")},
 		};
 		expectedOptions.formatting.coloredOutput = false;
 		expectedOptions.formatting.withErrorIds = true;
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE(assembly_mode_options)
 		expectedOptions.compiler.outputs.astCompactJson = true;
 		if (expectedLanguage == YulStack::Language::StrictAssembly)
 		{
-			expectedOptions.optimizer.optimizeEvmasm = true;
+			expectedOptions.optimizer.optimizeZvmasm = true;
 			expectedOptions.optimizer.optimizeYul = true;
 			expectedOptions.optimizer.yulSteps = "agf";
 			expectedOptions.optimizer.expectedExecutionsPerDeployment = 1000;
@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE(assembly_mode_options)
 BOOST_AUTO_TEST_CASE(standard_json_mode_options)
 {
 	vector<string> commandLine = {
-		"solc",
+		"hypc",
 		"input.json",
 		"--standard-json",
 		"--base-path=/home/user/",
@@ -381,15 +381,15 @@ BOOST_AUTO_TEST_CASE(standard_json_mode_options)
 		"--ignore-missing",
 		"--output-dir=/tmp/out",           // Accepted but has no effect in Standard JSON mode
 		"--overwrite",                     // Accepted but has no effect in Standard JSON mode
-		"--evm-version=shanghai",    // Ignored in Standard JSON mode
+		"--zvm-version=shanghai",    // Ignored in Standard JSON mode
 		"--revert-strings=strip",          // Accepted but has no effect in Standard JSON mode
 		"--pretty-json",
 		"--json-indent=1",
 		"--no-color",                      // Accepted but has no effect in Standard JSON mode
 		"--error-codes",                   // Accepted but has no effect in Standard JSON mode
 		"--libraries="                     // Ignored in Standard JSON mode
-			"dir1/file1.sol:L=0x1234567890123456789012345678901234567890,"
-			"dir2/file2.sol:L=0x1111122222333334444455555666667777788888",
+			"dir1/file1.hyp:L=0x1234567890123456789012345678901234567890,"
+			"dir2/file2.hyp:L=0x1111122222333334444455555666667777788888",
 		"--gas",                           // Accepted but has no effect in Standard JSON mode
 		"--combined-json=abi,bin",         // Accepted but has no effect in Standard JSON mode
 	};
@@ -444,9 +444,9 @@ BOOST_AUTO_TEST_CASE(invalid_options_input_modes_combinations)
 			stringstream serr;
 			size_t separatorPosition = optionName.find("=");
 			string optionNameWithoutValue = optionName.substr(0, separatorPosition);
-			soltestAssert(!optionNameWithoutValue.empty());
+			hyptestAssert(!optionNameWithoutValue.empty());
 
-			vector<string> commandLine = {"solc", optionName, "file", inputMode};
+			vector<string> commandLine = {"hypc", optionName, "file", inputMode};
 
 			string expectedMessage = "The following options are not supported in the current input mode: " + optionNameWithoutValue;
 			auto hasCorrectMessage = [&](CommandLineValidationError const& _exception) { return _exception.what() == expectedMessage; };
@@ -461,15 +461,15 @@ BOOST_AUTO_TEST_CASE(optimizer_flags)
 	yulOnly.runYulOptimiser = true;
 	yulOnly.optimizeStackAllocation = true;
 
-	OptimiserSettings evmasmOnly = OptimiserSettings::standard();
-	evmasmOnly.runYulOptimiser = false;
+	OptimiserSettings zvmasmOnly = OptimiserSettings::standard();
+	zvmasmOnly.runYulOptimiser = false;
 
 	map<vector<string>, OptimiserSettings> settingsMap = {
 		{{}, OptimiserSettings::minimal()},
 		{{"--optimize"}, OptimiserSettings::standard()},
 		{{"--no-optimize-yul"}, OptimiserSettings::minimal()},
 		{{"--optimize-yul"}, yulOnly},
-		{{"--optimize", "--no-optimize-yul"}, evmasmOnly},
+		{{"--optimize", "--no-optimize-yul"}, zvmasmOnly},
 		{{"--optimize", "--optimize-yul"}, OptimiserSettings::standard()},
 	};
 
@@ -482,7 +482,7 @@ BOOST_AUTO_TEST_CASE(optimizer_flags)
 	for (auto const& [inputMode, inputModeFlag]: inputModeFlagMap)
 		for (auto const& [optimizerFlags, expectedOptimizerSettings]: settingsMap)
 		{
-			vector<string> commandLine = {"solc", inputModeFlag, "file"};
+			vector<string> commandLine = {"hypc", inputModeFlag, "file"};
 			commandLine += optimizerFlags;
 			BOOST_CHECK(parseCommandLine(commandLine).optimiserSettings() == expectedOptimizerSettings);
 		}
@@ -490,7 +490,7 @@ BOOST_AUTO_TEST_CASE(optimizer_flags)
 
 BOOST_AUTO_TEST_CASE(default_optimiser_sequence)
 {
-	CommandLineOptions const& commandLineOptions = parseCommandLine({"solc", "contract.sol", "--optimize"});
+	CommandLineOptions const& commandLineOptions = parseCommandLine({"hypc", "contract.hyp", "--optimize"});
 	BOOST_CHECK_EQUAL(commandLineOptions.optimiserSettings().yulOptimiserSteps, OptimiserSettings::DefaultYulOptimiserSteps);
 	BOOST_CHECK_EQUAL(commandLineOptions.optimiserSettings().yulOptimiserCleanupSteps, OptimiserSettings::DefaultYulOptimiserCleanupSteps);
 }
@@ -523,7 +523,7 @@ BOOST_AUTO_TEST_CASE(valid_optimiser_sequences)
 
 	for (size_t i = 0; i < validSequenceInputs.size(); ++i)
 	{
-		CommandLineOptions const& commandLineOptions = parseCommandLine({"solc", "contract.sol", "--optimize", "--yul-optimizations=" + validSequenceInputs[i]});
+		CommandLineOptions const& commandLineOptions = parseCommandLine({"hypc", "contract.hyp", "--optimize", "--yul-optimizations=" + validSequenceInputs[i]});
 		auto const& [expectedYulOptimiserSteps, expectedYulCleanupSteps] = expectedParsedSequences[i];
 		BOOST_CHECK_EQUAL(commandLineOptions.optimiserSettings().yulOptimiserSteps, expectedYulOptimiserSteps);
 		BOOST_CHECK_EQUAL(commandLineOptions.optimiserSettings().yulOptimiserCleanupSteps, expectedYulCleanupSteps);
@@ -565,7 +565,7 @@ BOOST_AUTO_TEST_CASE(invalid_optimiser_sequences)
 
 	for (size_t i = 0; i < invalidSequenceInputs.size(); ++i)
 	{
-		vector<string> const commandLineOptions = {"solc", "contract.sol", "--optimize", "--yul-optimizations=" + invalidSequenceInputs[i]};
+		vector<string> const commandLineOptions = {"hypc", "contract.hyp", "--optimize", "--yul-optimizations=" + invalidSequenceInputs[i]};
 		string const expectedErrorMessage = baseExpectedErrorMessage + expectedErrorMessages[i];
 		auto hasCorrectMessage = [&](CommandLineValidationError const& _exception) { return _exception.what() == expectedErrorMessage; };
 		BOOST_CHECK_EXCEPTION(parseCommandLine(commandLineOptions), CommandLineValidationError, hasCorrectMessage);
@@ -592,7 +592,7 @@ BOOST_AUTO_TEST_CASE(valid_empty_optimizer_sequences_without_optimize)
 
 	for (size_t i = 0; i < validSequenceInputs.size(); ++i)
 	{
-		CommandLineOptions const& commandLineOptions = parseCommandLine({"solc", "contract.sol", "--yul-optimizations=" + validSequenceInputs[i]});
+		CommandLineOptions const& commandLineOptions = parseCommandLine({"hypc", "contract.hyp", "--yul-optimizations=" + validSequenceInputs[i]});
 		auto const& [expectedYulOptimiserSteps, expectedYulCleanupSteps] = expectedParsedSequences[i];
 		BOOST_CHECK_EQUAL(commandLineOptions.optimiserSettings().yulOptimiserSteps, expectedYulOptimiserSteps);
 		BOOST_CHECK_EQUAL(commandLineOptions.optimiserSettings().yulOptimiserCleanupSteps, expectedYulCleanupSteps);
@@ -603,11 +603,11 @@ BOOST_AUTO_TEST_CASE(invalid_optimizer_sequence_without_optimize)
 {
 	string const invalidSequence{"u: "};
 	string const expectedErrorMessage{"--yul-optimizations is invalid with a non-empty sequence if Yul optimizer is disabled."};
-	vector<string> commandLineOptions{"solc", "contract.sol", "--yul-optimizations=" + invalidSequence};
+	vector<string> commandLineOptions{"hypc", "contract.hyp", "--yul-optimizations=" + invalidSequence};
 	auto hasCorrectMessage = [&](CommandLineValidationError const& _exception) { return _exception.what() == expectedErrorMessage; };
 	BOOST_CHECK_EXCEPTION(parseCommandLine(commandLineOptions), CommandLineValidationError, hasCorrectMessage);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
 
-} // namespace solidity::frontend::test
+} // namespace hyperion::frontend::test

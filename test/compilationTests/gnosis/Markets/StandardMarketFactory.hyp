@@ -1,6 +1,6 @@
-pragma solidity >=0.0;
-import "../Markets/MarketFactory.sol";
-import "../Markets/StandardMarket.sol";
+pragma hyperion >=0.0;
+import "../Markets/MarketFactory.hyp";
+import "../Markets/StandardMarket.hyp";
 
 
 /// @title Market factory contract - Allows to create market contracts

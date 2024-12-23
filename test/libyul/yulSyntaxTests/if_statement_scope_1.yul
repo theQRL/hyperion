@@ -3,5 +3,5 @@
 	if 42 { x := 3 }
 }
 // ====
-// dialect: evm
+// dialect: zvm
 // ----

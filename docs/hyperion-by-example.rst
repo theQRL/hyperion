@@ -1,5 +1,5 @@
 ###################
-Solidity by Example
+Hyperion by Example
 ###################
 
 .. include:: examples/voting.rst

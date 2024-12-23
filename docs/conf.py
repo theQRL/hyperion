@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Solidity documentation build configuration file, created by
+# Hyperion documentation build configuration file, created by
 # sphinx-quickstart on Mon Dec  7 12:32:57 2015.
 #
 # This file is execfile()d with the current directory set to its
@@ -28,7 +28,7 @@ ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(ROOT_PATH, 'ext'))
 
 def setup(sphinx):
-    sphinx.add_lexer('Solidity', SolidityLexer)
+    sphinx.add_lexer('Hyperion', SolidityLexer)
     sphinx.add_lexer('Yul', YulLexer)
 
     sphinx.add_css_file('css/fonts.css')
@@ -66,8 +66,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Solidity'
-project_copyright = '2016-2023, The Solidity Authors'
+project = 'Hyperion'
+project_copyright = '2016-2023, The Hyperion Authors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -115,7 +115,7 @@ exclude_patterns = ['_build', 'contracts', 'types', 'examples', 'grammar']
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
-highlight_language = 'Solidity'
+highlight_language = 'Hyperion'
 
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
@@ -226,7 +226,7 @@ html_show_sphinx = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Soliditydoc'
+htmlhelp_basename = 'Hyperiondoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -246,7 +246,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ('index', 'solidity.tex', 'Solidity Documentation', 'Ethereum', 'manual'),
+    ('index', 'hyperion.tex', 'Hyperion Documentation', 'Ethereum', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

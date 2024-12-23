@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2022 solidity contributors.
+# (c) 2022 hyperion contributors.
 #------------------------------------------------------------------------------
 
 set -e
@@ -46,11 +46,11 @@ function brink_test
 
     local compile_only_presets=(
         ir-no-optimize             # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
-        ir-optimize-evm-only       # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
-        ir-optimize-evm+yul        # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
-        legacy-optimize-evm+yul    # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
+        ir-optimize-zvm-only       # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
+        ir-optimize-zvm+yul        # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
+        legacy-optimize-zvm+yul    # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
         legacy-no-optimize         # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
-        legacy-optimize-evm-only   # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
+        legacy-optimize-zvm-only   # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
     )
     local settings_presets=(
         "${compile_only_presets[@]}"
@@ -59,16 +59,16 @@ function brink_test
     [[ $SELECTED_PRESETS != "" ]] || SELECTED_PRESETS=$(circleci_select_steps_multiarg "${settings_presets[@]}")
     print_presets_or_exit "$SELECTED_PRESETS"
 
-    setup_solc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"
+    setup_hypc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"
     download_project "$repo" "$ref_type" "$ref" "$DIR"
 
     # TODO: Remove this when Brink merges https://github.com/brinktrade/brink-core/pull/52
-    sed -i "s|\(function isValidSignature(bytes \)calldata\( _data, bytes \)calldata\( _signature)\)|\1memory\2memory\3|g" src/Test/MockEIP1271Validator.sol
+    sed -i "s|\(function isValidSignature(bytes \)calldata\( _data, bytes \)calldata\( _signature)\)|\1memory\2memory\3|g" src/Test/MockEIP1271Validator.hyp
 
     neutralize_package_lock
     neutralize_package_json_hooks
     force_hardhat_compiler_binary "$config_file" "$BINARY_TYPE" "$BINARY_PATH"
-    force_hardhat_compiler_settings "$config_file" "$(first_word "$SELECTED_PRESETS")" "$config_var" "$CURRENT_EVM_VERSION" "$extra_settings" "$extra_optimizer_settings"
+    force_hardhat_compiler_settings "$config_file" "$(first_word "$SELECTED_PRESETS")" "$config_var" "$CURRENT_ZVM_VERSION" "$extra_settings" "$extra_optimizer_settings"
     yarn install
     yarn add hardhat-gas-reporter
 

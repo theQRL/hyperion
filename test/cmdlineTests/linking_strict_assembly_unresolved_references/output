@@ -1,12 +1,12 @@
 
-======= linking_strict_assembly_unresolved_references/input.yul (EVM) =======
+======= linking_strict_assembly_unresolved_references/input.yul (ZVM) =======
 
 Pretty printed source:
 object "a" {
     code {
         {
-            let addr1 := linkersymbol("contract/test.sol:L1")
-            let addr2 := linkersymbol("contract/test.sol:L2")
+            let addr1 := linkersymbol("contract/test.hyp:L1")
+            let addr2 := linkersymbol("contract/test.hyp:L2")
             sstore(0, addr1)
             sstore(1, addr2)
         }
@@ -15,13 +15,13 @@ object "a" {
 
 
 Binary representation:
-73123456789012345678901234567890123456789073__$fb58009a6b1ecea3b9d99bedd645df4ec3$__905f5560015500
+73123456789012345678901234567890123456789073__$44518d487bfd7a9642075c4306cd386dcf$__905f5560015500
 
 Text representation:
     /* "linking_strict_assembly_unresolved_references/input.yul":45:81   */
-  linkerSymbol("05b0326038374a21e0895480a58bda0768cdcc04c8d18f154362d1ca5223d245")
+  linkerSymbol("fa1b428b992f41b9bb46f34fd071640abd23b0bdcc9385f6c77d157d8e18957c")
     /* "linking_strict_assembly_unresolved_references/input.yul":103:139   */
-  linkerSymbol("fb58009a6b1ecea3b9d99bedd645df4ec308f17bc0087e5f39d078f77f809177")
+  linkerSymbol("44518d487bfd7a9642075c4306cd386dcf4b0a0f85190d576d1487040b8f498d")
     /* "linking_strict_assembly_unresolved_references/input.yul":148:164   */
   swap1
     /* "linking_strict_assembly_unresolved_references/input.yul":155:156   */

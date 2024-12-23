@@ -1,9 +1,9 @@
 {
-  "language": "SolidityAST",
+  "language": "HyperionAST",
   "sources": {
     "A": {
       "ast": {
-        "absolutePath": "empty_contract.sol",
+        "absolutePath": "empty_contract.hyp",
         "exportedSymbols": {
           "test": [
             1
@@ -41,8 +41,8 @@
     "outputSelection": {
       "*": {
         "*": [
-          "evm.bytecode",
-          "evm.bytecode.sourceMap"
+          "zvm.bytecode",
+          "zvm.bytecode.sourceMap"
         ]
       }
     }

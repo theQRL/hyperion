@@ -7,13 +7,13 @@ List of Known Bugs
 ##################
 
 Below, you can find a JSON-formatted list of some of the known security-relevant bugs in the
-Solidity compiler. The file itself is hosted in the `Github repository
-<https://github.com/ethereum/solidity/blob/develop/docs/bugs.json>`_.
+Hyperion compiler. The file itself is hosted in the `Github repository
+<https://github.com/theQRL/hyperion/blob/develop/docs/bugs.json>`_.
 The list stretches back as far as version 0.3.0, bugs known to be present only
 in versions preceding that are not listed.
 
 There is another file called `bugs_by_version.json
-<https://github.com/ethereum/solidity/blob/develop/docs/bugs_by_version.json>`_,
+<https://github.com/theQRL/hyperion/blob/develop/docs/bugs_by_version.json>`_,
 which can be used to check which bugs affect a specific version of the compiler.
 
 Contract source verification tools and also other tools interacting with
@@ -60,10 +60,10 @@ conditions
     keys can be used:
     ``optimizer``, Boolean value which
     means that the optimizer has to be switched on to enable the bug.
-    ``evmVersion``, a string that indicates which EVM version compiler
+    ``zvmVersion``, a string that indicates which ZVM version compiler
     settings trigger the bug. The string can contain comparison
     operators. For example, ``">=constantinople"`` means that the bug
-    is present when the EVM version is set to ``constantinople`` or
+    is present when the ZVM version is set to ``constantinople`` or
     later.
     If no conditions are given, assume that the bug is present.
 check
@@ -75,9 +75,9 @@ check
     accuracy, the checks should be applied to the source code after stripping
     comments.
     The second type of check are patterns to be checked on the compact AST of
-    the Solidity program ("ast-compact-json-path"). The specified search query
+    the Hyperion program ("ast-compact-json-path"). The specified search query
     is a `JsonPath <https://github.com/json-path/JsonPath>`_ expression.
-    If at least one path of the Solidity AST matches the query, the bug is
+    If at least one path of the Hyperion AST matches the query, the bug is
     likely present.
 
 .. literalinclude:: bugs.json

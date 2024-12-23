@@ -1,35 +1,35 @@
 #!/usr/bin/env bash
 
 #------------------------------------------------------------------------------
-# Bash script to execute the Solidity tests.
+# Bash script to execute the Hyperion tests.
 #
-# The documentation for solidity is hosted at:
+# The documentation for hyperion is hosted at:
 #
 #     https://docs.soliditylang.org
 #
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2016 solidity contributors.
+# (c) 2016 hyperion contributors.
 #------------------------------------------------------------------------------
 
 set -e
 
 REPO_ROOT="$(dirname "$0")/.."
-SOLIDITY_BUILD_DIR="${SOLIDITY_BUILD_DIR:-${REPO_ROOT}/build}"
+HYPERION_BUILD_DIR="${HYPERION_BUILD_DIR:-${REPO_ROOT}/build}"
 IFS=" " read -r -a SMT_FLAGS <<< "$SMT_FLAGS"
 
 # shellcheck source=scripts/common.sh
@@ -84,7 +84,7 @@ printTask "Testing Python scripts..."
 "$REPO_ROOT/test/pyscriptTests.py"
 
 printTask "Testing LSP..."
-"$REPO_ROOT/test/lsp.py" "${SOLIDITY_BUILD_DIR}/solc/solc"
+"$REPO_ROOT/test/lsp.py" "${HYPERION_BUILD_DIR}/hypc/hypc"
 
 printTask "Running commandline tests..."
 # Only run in parallel if this is run on CI infrastructure
@@ -101,13 +101,13 @@ else
 fi
 
 
-EVM_VERSIONS="shanghai"
+ZVM_VERSIONS="shanghai"
 
-# And then run the Solidity unit-tests in the matrix combination of optimizer / no optimizer
+# And then run the Hyperion unit-tests in the matrix combination of optimizer / no optimizer
 # and shanghai VM
 for optimize in "" "--optimize"
 do
-    for vm in $EVM_VERSIONS
+    for vm in $ZVM_VERSIONS
     do
         FORCE_ABIV1_RUNS="no yes"
         for abiv1 in $FORCE_ABIV1_RUNS
@@ -117,7 +117,7 @@ do
             then
                 force_abiv1_flag=(--abiencoderv1)
             fi
-            printTask "--> Running tests using $optimize --evm-version $vm ${force_abiv1_flag[*]}..."
+            printTask "--> Running tests using $optimize --zvm-version $vm ${force_abiv1_flag[*]}..."
 
             log=()
             if [ -n "$log_directory" ]
@@ -131,7 +131,7 @@ do
             fi
 
             set +e
-            "${SOLIDITY_BUILD_DIR}"/test/soltest --show-progress "${log[@]}" -- --testpath "$REPO_ROOT"/test "$optimize" --evm-version "$vm" "${SMT_FLAGS[@]}" "${force_abiv1_flag[@]}"
+            "${HYPERION_BUILD_DIR}"/test/hyptest --show-progress "${log[@]}" -- --testpath "$REPO_ROOT"/test "$optimize" --zvm-version "$vm" "${SMT_FLAGS[@]}" "${force_abiv1_flag[@]}"
 
             if test "0" -ne "$?"; then
                 exit 1

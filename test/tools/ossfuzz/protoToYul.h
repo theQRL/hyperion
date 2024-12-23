@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
@@ -28,13 +28,13 @@
 
 #include <test/tools/ossfuzz/yulProto.pb.h>
 
-#include <libsolutil/Common.h>
-#include <libsolutil/FixedHash.h>
-#include <libsolutil/Whiskers.h>
+#include <libhyputil/Common.h>
+#include <libhyputil/FixedHash.h>
+#include <libhyputil/Whiskers.h>
 
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
-namespace solidity::yul::test::yul_fuzzer
+namespace hyperion::yul::test::yul_fuzzer
 {
 class ProtoConverter
 {
@@ -64,10 +64,10 @@ public:
 	ProtoConverter(ProtoConverter&&) = delete;
 	std::string programToString(Program const& _input);
 
-	/// Returns evm version
-	solidity::langutil::EVMVersion version()
+	/// Returns zvm version
+	hyperion::langutil::ZVMVersion version()
 	{
-		return m_evmVersion;
+		return m_zvmVersion;
 	}
 private:
 	void visit(BinaryOp const&);
@@ -268,9 +268,9 @@ private:
 	/// dictionarySize is the total number of entries in the dictionary.
 	std::string dictionaryToken(util::HexPrefix _p = util::HexPrefix::Add);
 
-	/// Returns an EVMVersion object corresponding to the protobuf
+	/// Returns an ZVMVersion object corresponding to the protobuf
 	/// enum of type Program_Version
-	static solidity::langutil::EVMVersion evmVersionMapping(Program_Version const& _x);
+	static hyperion::langutil::ZVMVersion zvmVersionMapping(Program_Version const& _x);
 
 	/// @returns name of Yul function with return type of @param _numReturns.
 	std::optional<std::string> functionExists(NumFunctionReturns _numReturns);
@@ -378,8 +378,8 @@ private:
 	/// Flag to track whether scope extension of variables defined in for-init
 	/// block is enabled.
 	bool m_forInitScopeExtEnabled;
-	/// Object that holds the targeted evm version specified by protobuf input
-	solidity::langutil::EVMVersion m_evmVersion;
+	/// Object that holds the targeted zvm version specified by protobuf input
+	hyperion::langutil::ZVMVersion m_zvmVersion;
 	/// Flag that, if set, stops the converter from generating state changing
 	/// opcodes.
 	bool m_filterStatefulInstructions;

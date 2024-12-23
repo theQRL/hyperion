@@ -1,38 +1,38 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Solidity data types
+ * Hyperion data types
  */
 
 #pragma once
 
-#include <libsolidity/ast/ASTEnums.h>
-#include <libsolidity/ast/ASTForward.h>
-#include <libsolidity/parsing/Token.h>
+#include <libhyperion/ast/ASTEnums.h>
+#include <libhyperion/ast/ASTForward.h>
+#include <libhyperion/parsing/Token.h>
 #include <liblangutil/Exceptions.h>
 
-#include <libsolutil/Common.h>
-#include <libsolutil/Numeric.h>
-#include <libsolutil/CommonIO.h>
-#include <libsolutil/LazyInit.h>
-#include <libsolutil/Result.h>
+#include <libhyputil/Common.h>
+#include <libhyputil/Numeric.h>
+#include <libhyputil/CommonIO.h>
+#include <libhyputil/LazyInit.h>
+#include <libhyputil/Result.h>
 
 #include <boost/rational.hpp>
 
@@ -43,7 +43,7 @@
 #include <string>
 #include <utility>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 class TypeProvider;
@@ -57,12 +57,12 @@ using BoolResult = util::Result<bool>;
 
 }
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 inline rational makeRational(bigint const& _numerator, bigint const& _denominator)
 {
-	solAssert(_denominator != 0, "division by zero");
+	hypAssert(_denominator != 0, "division by zero");
 	// due to a bug in certain versions of boost the denominator has to be positive
 	if (_denominator < 0)
 		return rational(-_numerator, -_denominator);
@@ -128,7 +128,7 @@ public:
 		for (auto const& it: m_memberTypes)
 			if (it.name == _name)
 			{
-				solAssert(!type, "Requested member type by non-unique name.");
+				hypAssert(!type, "Requested member type by non-unique name.");
 				type = it.type;
 			}
 		return type;
@@ -201,12 +201,12 @@ public:
 	static Type const* commonType(Type const* _a, Type const* _b);
 
 	virtual Category category() const = 0;
-	/// @returns a valid solidity identifier such that two types should compare equal if and
+	/// @returns a valid hyperion identifier such that two types should compare equal if and
 	/// only if they have the same identifier.
 	/// The identifier should start with "t_".
 	/// Can contain characters which are invalid in identifiers.
 	virtual std::string richIdentifier() const = 0;
-	/// @returns a valid solidity identifier such that two types should compare equal if and
+	/// @returns a valid hyperion identifier such that two types should compare equal if and
 	/// only if they have the same identifier.
 	/// The identifier should start with "t_".
 	/// Will not contain any character which would be invalid as an identifier.
@@ -243,7 +243,7 @@ public:
 	/// Always returns a value greater than zero and throws if the type cannot be encoded in calldata
 	/// (or is dynamically encoded).
 	/// If @a _padded then it is assumed that each element is padded to a multiple of 32 bytes.
-	virtual unsigned calldataEncodedSize([[maybe_unused]] bool _padded) const { solAssert(false, ""); }
+	virtual unsigned calldataEncodedSize([[maybe_unused]] bool _padded) const { hypAssert(false, ""); }
 	/// Convenience version of @see calldataEncodedSize(bool)
 	unsigned calldataEncodedSize() const { return calldataEncodedSize(true); }
 	/// @returns the distance between two elements of this type in a calldata array, tuple or struct.
@@ -257,7 +257,7 @@ public:
 	/// this is the sum of the calldataHeadSize's of its members.
 	/// Always returns a value greater than zero and throws if the type cannot be encoded in calldata
 	/// (or is not dynamically encoded).
-	virtual unsigned calldataEncodedTailSize() const { solAssert(false, ""); }
+	virtual unsigned calldataEncodedTailSize() const { hypAssert(false, ""); }
 	/// @returns the size of this data type in bytes when stored in memory. For memory-reference
 	/// types, this is the size of the memory pointer.
 	virtual unsigned memoryHeadSize() const { return calldataEncodedSize(); }
@@ -287,13 +287,13 @@ public:
 	/// encoding is more complicated.
 	/// Signed integers are not considered "more complicated" even though they need to be
 	/// sign-extended.
-	virtual bool leftAligned() const { solAssert(false, "Alignment property of non-value type requested."); }
+	virtual bool leftAligned() const { hypAssert(false, "Alignment property of non-value type requested."); }
 	/// Returns true if the type can be stored in storage.
 	virtual bool canBeStored() const { return true; }
 	/// Returns false if the type cannot live outside the storage, i.e. if it includes some mapping.
 	virtual bool containsNestedMapping() const
 	{
-		solAssert(nameable(), "Called for a non nameable type.");
+		hypAssert(nameable(), "Called for a non nameable type.");
 		return false;
 	}
 	/// Returns true if the type can be stored as a value (as opposed to a reference) on the stack,
@@ -366,7 +366,7 @@ public:
 	}
 	virtual u256 literalValue(Literal const*) const
 	{
-		solAssert(false, "Literal value requested for type without literals: " + toString(false));
+		hypAssert(false, "Literal value requested for type without literals: " + toString(false));
 	}
 
 	/// @returns a (simpler) type that is encoded in the same way for external function calls.
@@ -380,7 +380,7 @@ public:
 	Type const* fullEncodingType(bool _inLibraryCall, bool _encoderV2, bool _packed) const;
 	/// @returns a (simpler) type that is used when decoding this type in calldata.
 	virtual Type const* decodingType() const { return encodingType(); }
-	/// @returns a type that will be used outside of Solidity for e.g. function signatures.
+	/// @returns a type that will be used outside of Hyperion for e.g. function signatures.
 	/// This for example returns address for contract types.
 	/// If there is no such type, returns an empty shared pointer.
 	/// @param _inLibrary if set, returns types as used in a library, e.g. struct and contract types
@@ -881,7 +881,7 @@ public:
 	bool isByteArrayOrString() const { return m_arrayKind != ArrayKind::Ordinary; }
 	/// @returns true if this is a string
 	bool isString() const { return m_arrayKind == ArrayKind::String; }
-	Type const* baseType() const { solAssert(!!m_baseType, ""); return m_baseType; }
+	Type const* baseType() const { hypAssert(!!m_baseType, ""); return m_baseType; }
 	Type const* finalBaseType(bool breakIfDynamicArrayType) const;
 	u256 const& length() const { return m_length; }
 	u256 memoryDataSize() const override;
@@ -925,7 +925,7 @@ public:
 	BoolResult isExplicitlyConvertibleTo(Type const& _convertTo) const override;
 	std::string richIdentifier() const override;
 	bool operator==(Type const& _other) const override;
-	unsigned calldataEncodedSize(bool) const override { solAssert(false, ""); }
+	unsigned calldataEncodedSize(bool) const override { hypAssert(false, ""); }
 	unsigned calldataEncodedTailSize() const override { return 32; }
 	bool isDynamicallySized() const override { return true; }
 	bool isDynamicallyEncoded() const override { return true; }
@@ -936,9 +936,9 @@ public:
 	BoolResult validForLocation(DataLocation _loc) const override { return m_arrayType.validForLocation(_loc); }
 
 	ArrayType const& arrayType() const { return m_arrayType; }
-	u256 memoryDataSize() const override { solAssert(false, ""); }
+	u256 memoryDataSize() const override { hypAssert(false, ""); }
 
-	std::unique_ptr<ReferenceType> copyForLocation(DataLocation, bool) const override { solAssert(false, ""); }
+	std::unique_ptr<ReferenceType> copyForLocation(DataLocation, bool) const override { hypAssert(false, ""); }
 
 protected:
 	std::vector<std::tuple<std::string, Type const*>> makeStackItems() const override;
@@ -967,11 +967,11 @@ public:
 	bool operator==(Type const& _other) const override;
 	unsigned calldataEncodedSize(bool _padded ) const override
 	{
-		solAssert(!isSuper(), "");
+		hypAssert(!isSuper(), "");
 		return encodingType()->calldataEncodedSize(_padded);
 	}
-	unsigned storageBytes() const override { solAssert(!isSuper(), ""); return 20; }
-	bool leftAligned() const override { solAssert(!isSuper(), ""); return false; }
+	unsigned storageBytes() const override { hypAssert(!isSuper(), ""); return 20; }
+	bool leftAligned() const override { hypAssert(!isSuper(), ""); return false; }
 	bool isValueType() const override { return !isSuper(); }
 	bool nameable() const override { return !isSuper(); }
 	std::string toString(bool _withoutDataLocation) const override;
@@ -1119,7 +1119,7 @@ public:
 	unsigned int minValue() const { return 0; }
 	unsigned int maxValue() const
 	{
-		solAssert(numberOfMembers() <= 256, "");
+		hypAssert(numberOfMembers() <= 256, "");
 		return static_cast<unsigned int>(numberOfMembers()) - 1;
 	}
 
@@ -1160,34 +1160,34 @@ public:
 	bool isValueType() const override { return true; }
 	bool nameable() const override
 	{
-		solAssert(underlyingType().nameable(), "");
+		hypAssert(underlyingType().nameable(), "");
 		return true;
 	}
 
 	bool containsNestedMapping() const override
 	{
-		solAssert(nameable(), "Called for a non nameable type.");
+		hypAssert(nameable(), "Called for a non nameable type.");
 		// DeclarationTypeChecker::endVisit(VariableDeclaration const&)
 		// assumes that this will never be true.
-		solAssert(!underlyingType().containsNestedMapping(), "");
+		hypAssert(!underlyingType().containsNestedMapping(), "");
 		return false;
 	}
 
 	bool hasSimpleZeroValueInMemory() const override
 	{
-		solAssert(underlyingType().hasSimpleZeroValueInMemory(), "");
+		hypAssert(underlyingType().hasSimpleZeroValueInMemory(), "");
 		return true;
 	}
 
 	bool dataStoredIn(DataLocation _loc) const override
 	{
-		solAssert(!underlyingType().dataStoredIn(_loc), "");
+		hypAssert(!underlyingType().dataStoredIn(_loc), "");
 		return false;
 	}
 
 	std::string toString(bool _withoutDataLocation) const override;
 	std::string canonicalName() const override;
-	std::string signatureInExternalFunction(bool) const override { solAssert(false, ""); }
+	std::string signatureInExternalFunction(bool) const override { hypAssert(false, ""); }
 
 protected:
 	std::vector<std::tuple<std::string, Type const*>> makeStackItems() const override;
@@ -1225,10 +1225,10 @@ protected:
 	std::vector<Type const*> decomposition() const override
 	{
 		// Currently calling TupleType::decomposition() is not expected, because we cannot declare a variable of a tuple type.
-		// If that changes, before removing the solAssert, make sure the function does the right thing and is used properly.
+		// If that changes, before removing the hypAssert, make sure the function does the right thing and is used properly.
 		// Note that different tuple members can have different data locations, so using decomposition() to check
 		// the tuple validity for a data location might require special care.
-		solUnimplemented("Tuple decomposition is not expected.");
+		hypUnimplemented("Tuple decomposition is not expected.");
 		return m_components;
 	}
 
@@ -1244,7 +1244,7 @@ private:
 class FunctionType: public Type
 {
 public:
-	/// How this function is invoked on the EVM.
+	/// How this function is invoked on the ZVM.
 	enum class Kind
 	{
 		Internal, ///< stack-call using plain JUMP
@@ -1351,7 +1351,7 @@ public:
 	)
 	{
 		// In this constructor, only the "arbitrary Parameters" option should be used.
-		solAssert(!hasBoundFirstArgument() && !gasSet() && !valueSet() && !saltSet());
+		hypAssert(!hasBoundFirstArgument() && !gasSet() && !valueSet() && !saltSet());
 	}
 
 	/// Detailed constructor, use with care.
@@ -1374,15 +1374,15 @@ public:
 		m_declaration(_declaration),
 		m_options(std::move(_options))
 	{
-		solAssert(
+		hypAssert(
 			m_parameterNames.size() == m_parameterTypes.size(),
 			"Parameter names list must match parameter types list!"
 		);
-		solAssert(
+		hypAssert(
 			m_returnParameterNames.size() == m_returnParameterTypes.size(),
 			"Return parameter names list must match return parameter types list!"
 		);
-		solAssert(
+		hypAssert(
 			!hasBoundFirstArgument() || !m_parameterTypes.empty(),
 			"Attempted construction of attached function without self type"
 		);
@@ -1461,7 +1461,7 @@ public:
 	std::string externalIdentifierHex() const;
 	Declaration const& declaration() const
 	{
-		solAssert(m_declaration, "Requested declaration from a FunctionType that has none");
+		hypAssert(m_declaration, "Requested declaration from a FunctionType that has none");
 		return *m_declaration;
 	}
 	bool hasDeclaration() const { return !!m_declaration; }
@@ -1552,7 +1552,7 @@ public:
 	TypeResult interfaceType(bool _inLibrary) const override;
 	bool dataStoredIn(DataLocation _location) const override { return _location == DataLocation::Storage; }
 	/// Cannot be stored in memory, but just in case.
-	bool hasSimpleZeroValueInMemory() const override { solAssert(false, ""); }
+	bool hasSimpleZeroValueInMemory() const override { hypAssert(false, ""); }
 	bool nameable() const override { return true; }
 
 	std::vector<std::tuple<std::string, Type const*>> makeStackItems() const override;
@@ -1590,7 +1590,7 @@ public:
 	bool operator==(Type const& _other) const override;
 	bool canBeStored() const override { return false; }
 	u256 storageSize() const override;
-	bool hasSimpleZeroValueInMemory() const override { solAssert(false, ""); }
+	bool hasSimpleZeroValueInMemory() const override { hypAssert(false, ""); }
 	std::string toString(bool _withoutDataLocation) const override { return "type(" + m_actualType->toString(_withoutDataLocation) + ")"; }
 	MemberList::MemberMap nativeMembers(ASTNode const* _currentScope) const override;
 	Type const* mobileType() const override { return nullptr; }
@@ -1616,7 +1616,7 @@ public:
 	TypeResult binaryOperatorResult(Token, Type const*) const override { return nullptr; }
 	bool canBeStored() const override { return false; }
 	u256 storageSize() const override;
-	bool hasSimpleZeroValueInMemory() const override { solAssert(false, ""); }
+	bool hasSimpleZeroValueInMemory() const override { hypAssert(false, ""); }
 	std::string richIdentifier() const override;
 	bool operator==(Type const& _other) const override;
 	std::string toString(bool _withoutDataLocation) const override;
@@ -1642,7 +1642,7 @@ public:
 	std::string richIdentifier() const override;
 	bool operator==(Type const& _other) const override;
 	bool canBeStored() const override { return false; }
-	bool hasSimpleZeroValueInMemory() const override { solAssert(false, ""); }
+	bool hasSimpleZeroValueInMemory() const override { hypAssert(false, ""); }
 	MemberList::MemberMap nativeMembers(ASTNode const*) const override;
 
 	std::string toString(bool _withoutDataLocation) const override;
@@ -1681,7 +1681,7 @@ public:
 	std::string richIdentifier() const override;
 	bool operator==(Type const& _other) const override;
 	bool canBeStored() const override { return false; }
-	bool hasSimpleZeroValueInMemory() const override { solAssert(false, ""); }
+	bool hasSimpleZeroValueInMemory() const override { hypAssert(false, ""); }
 	MemberList::MemberMap nativeMembers(ASTNode const*) const override;
 
 	std::string toString(bool _withoutDataLocation) const override;
@@ -1702,7 +1702,7 @@ private:
 
 /**
  * Special type that is used for dynamic types in returns from external function calls
- * (The EVM currently cannot access dynamically-sized return values).
+ * (The ZVM currently cannot access dynamically-sized return values).
  */
 class InaccessibleDynamicType: public Type
 {
@@ -1716,7 +1716,7 @@ public:
 	unsigned calldataEncodedSize(bool) const override { return 32; }
 	bool canBeStored() const override { return false; }
 	bool isValueType() const override { return true; }
-	bool hasSimpleZeroValueInMemory() const override { solAssert(false, ""); }
+	bool hasSimpleZeroValueInMemory() const override { hypAssert(false, ""); }
 	std::string toString(bool) const override { return "inaccessible dynamic type"; }
 	Type const* decodingType() const override;
 };

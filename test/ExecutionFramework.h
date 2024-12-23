@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -24,27 +24,27 @@
 #pragma once
 
 #include <test/Common.h>
-#include <test/EVMHost.h>
+#include <test/ZVMHost.h>
 
-#include <libsolidity/interface/OptimiserSettings.h>
-#include <libsolidity/interface/DebugSettings.h>
+#include <libhyperion/interface/OptimiserSettings.h>
+#include <libhyperion/interface/DebugSettings.h>
 
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
-#include <libsolutil/FunctionSelector.h>
-#include <libsolutil/ErrorCodes.h>
+#include <libhyputil/FunctionSelector.h>
+#include <libhyputil/ErrorCodes.h>
 
 #include <functional>
 
 #include <boost/rational.hpp>
 #include <boost/test/unit_test.hpp>
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 struct LogRecord;
-} // namespace solidity::frontend::test
+} // namespace hyperion::frontend::test
 
-namespace solidity::test
+namespace hyperion::test
 {
 using rational = boost::rational<bigint>;
 
@@ -56,7 +56,7 @@ class ExecutionFramework
 
 public:
 	ExecutionFramework();
-	ExecutionFramework(langutil::EVMVersion _evmVersion, std::vector<boost::filesystem::path> const& _vmPaths);
+	ExecutionFramework(langutil::ZVMVersion _zvmVersion, std::vector<boost::filesystem::path> const& _vmPaths);
 	virtual ~ExecutionFramework() = default;
 
 	virtual bytes const& compileAndRunWithoutCheck(
@@ -204,7 +204,7 @@ public:
 		return bytes();
 	}
 	/// @returns error returndata corresponding to the Panic(uint256) error code,
-	/// if REVERT is supported by the current EVM version and the empty string otherwise.
+	/// if REVERT is supported by the current ZVM version and the empty string otherwise.
 	bytes panicData(util::PanicCode _code);
 
 	//@todo might be extended in the future
@@ -274,7 +274,7 @@ private:
 protected:
 	u256 const InitialGas = 100000000;
 
-	void selectVM(evmc_capabilities _cap = evmc_capabilities::EVMC_CAPABILITY_EVM1);
+	void selectVM(zvmc_capabilities _cap = zvmc_capabilities::ZVMC_CAPABILITY_ZVM1);
 	void reset();
 
 	void sendMessage(bytes const& _data, bool _isCreation, u256 const& _value = 0);
@@ -291,11 +291,11 @@ protected:
 
 	std::vector<frontend::test::LogRecord> recordedLogs() const;
 
-	langutil::EVMVersion m_evmVersion;
-	solidity::frontend::RevertStrings m_revertStrings = solidity::frontend::RevertStrings::Default;
-	solidity::frontend::OptimiserSettings m_optimiserSettings = solidity::frontend::OptimiserSettings::minimal();
+	langutil::ZVMVersion m_zvmVersion;
+	hyperion::frontend::RevertStrings m_revertStrings = hyperion::frontend::RevertStrings::Default;
+	hyperion::frontend::OptimiserSettings m_optimiserSettings = hyperion::frontend::OptimiserSettings::minimal();
 	bool m_showMessages = false;
-	std::unique_ptr<EVMHost> m_evmcHost;
+	std::unique_ptr<ZVMHost> m_zvmcHost;
 
 	std::vector<boost::filesystem::path> m_vmPaths;
 

@@ -1,15 +1,15 @@
-// EVMC: Ethereum Client-VM Connector API.
-// Copyright 2021 The EVMC Authors.
+// ZVMC: Zond Client-VM Connector API.
+// Copyright 2021 The ZVMC Authors.
 // Licensed under the Apache License, Version 2.0.
 #pragma once
 
-#include <evmc/filter_iterator.hpp>
+#include <zvmc/filter_iterator.hpp>
 #include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
 
-namespace evmc
+namespace zvmc
 {
 /// String of uint8_t chars.
 using bytes = std::basic_string<uint8_t>;
@@ -68,7 +68,7 @@ inline constexpr bool from_hex(InputIt begin, InputIt end, OutputIt out) noexcep
     for (auto it = begin; it != end; ++it, ++i)
     {
         const auto h = *it;
-        const int v = evmc::internal::from_hex_digit(h);
+        const int v = zvmc::internal::from_hex_digit(h);
         if (v < 0)
         {
             if (i == 1 && hi_nibble == 0 && h == 'x')  // 0x prefix
@@ -155,4 +155,4 @@ inline std::optional<bytes> from_spaced_hex(std::string_view hex) noexcept
 {
     return from_spaced_hex(hex.begin(), hex.end());
 }
-}  // namespace evmc
+}  // namespace zvmc

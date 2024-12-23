@@ -1,88 +1,88 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <test/tools/ossfuzz/protoToSol.h>
-#include <test/tools/ossfuzz/SolidityEvmoneInterface.h>
-#include <test/tools/ossfuzz/solProto.pb.h>
+#include <test/tools/ossfuzz/protoToHyp.h>
+#include <test/tools/ossfuzz/HyperionZvmoneInterface.h>
+#include <test/tools/ossfuzz/hypProto.pb.h>
 
-#include <test/EVMHost.h>
+#include <test/ZVMHost.h>
 
-#include <evmone/evmone.h>
+#include <zvmone/zvmone.h>
 #include <src/libfuzzer/libfuzzer_macro.h>
 
 #include <fstream>
 
-static evmc::VM evmone = evmc::VM{evmc_create_evmone()};
+static zvmc::VM zvmone = zvmc::VM{zvmc_create_zvmone()};
 
-using namespace solidity::test::fuzzer;
-using namespace solidity::test::solprotofuzzer;
-using namespace solidity;
-using namespace solidity::frontend;
-using namespace solidity::test;
-using namespace solidity::util;
+using namespace hyperion::test::fuzzer;
+using namespace hyperion::test::hypprotofuzzer;
+using namespace hyperion;
+using namespace hyperion::frontend;
+using namespace hyperion::test;
+using namespace hyperion::util;
 using namespace std;
 
 DEFINE_PROTO_FUZZER(Program const& _input)
 {
 	ProtoConverter converter;
-	string sol_source = converter.protoToSolidity(_input);
+	string hyp_source = converter.protoToHyperion(_input);
 
 	if (char const* dump_path = getenv("PROTO_FUZZER_DUMP_PATH"))
 	{
 		// With libFuzzer binary run this to generate a YUL source file x.yul:
 		// PROTO_FUZZER_DUMP_PATH=x.yul ./a.out proto-input
 		ofstream of(dump_path);
-		of.write(sol_source.data(), static_cast<streamsize>(sol_source.size()));
+		of.write(hyp_source.data(), static_cast<streamsize>(hyp_source.size()));
 	}
 
-	if (char const* dump_path = getenv("SOL_DEBUG_FILE"))
+	if (char const* dump_path = getenv("HYP_DEBUG_FILE"))
 	{
-		sol_source.clear();
+		hyp_source.clear();
 		// With libFuzzer binary run this to generate a YUL source file x.yul:
 		// PROTO_FUZZER_LOAD_PATH=x.yul ./a.out proto-input
 		ifstream ifstr(dump_path);
-		sol_source = {
+		hyp_source = {
 			std::istreambuf_iterator<char>(ifstr),
 			std::istreambuf_iterator<char>()
 		};
-		std::cout << sol_source << std::endl;
+		std::cout << hyp_source << std::endl;
 	}
 
-	// We target the default EVM which is the latest
-	langutil::EVMVersion version;
-	EVMHost hostContext(version, evmone);
+	// We target the default ZVM which is the latest
+	langutil::ZVMVersion version;
+	ZVMHost hostContext(version, zvmone);
 	string contractName = "C";
 	string libraryName = converter.libraryTest() ? converter.libraryName() : "";
 	string methodName = "test()";
-	StringMap source({{"test.sol", sol_source}});
+	StringMap source({{"test.hyp", hyp_source}});
 	CompilerInput cInput(version, source, contractName, OptimiserSettings::minimal(), {});
-	EvmoneUtility evmoneUtil(
+	ZvmoneUtility zvmoneUtil(
 		hostContext,
 		cInput,
 		contractName,
 		libraryName,
 		methodName
 	);
-	auto minimalResult = evmoneUtil.compileDeployAndExecute();
-	solAssert(minimalResult.status_code != EVMC_REVERT, "Sol proto fuzzer: Evmone reverted.");
-	if (minimalResult.status_code == EVMC_SUCCESS)
-		solAssert(
-			EvmoneUtility::zeroWord(minimalResult.output_data, minimalResult.output_size),
-			"Proto solc fuzzer: Output incorrect"
+	auto minimalResult = zvmoneUtil.compileDeployAndExecute();
+	hypAssert(minimalResult.status_code != ZVMC_REVERT, "Hyp proto fuzzer: Zvmone reverted.");
+	if (minimalResult.status_code == ZVMC_SUCCESS)
+		hypAssert(
+			ZvmoneUtility::zeroWord(minimalResult.output_data, minimalResult.output_size),
+			"Proto hypc fuzzer: Output incorrect"
 		);
 }

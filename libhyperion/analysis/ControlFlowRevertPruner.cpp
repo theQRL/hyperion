@@ -1,29 +1,29 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/analysis/ControlFlowRevertPruner.h>
+#include <libhyperion/analysis/ControlFlowRevertPruner.h>
 
-#include <libsolutil/Algorithms.h>
+#include <libhyputil/Algorithms.h>
 
 #include <range/v3/algorithm/remove.hpp>
 
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 namespace
@@ -76,7 +76,7 @@ void ControlFlowRevertPruner::findRevertStates()
 
 		FunctionFlow const& functionFlow = m_cfg.functionFlow(*item.function, item.contract);
 
-		solidity::util::BreadthFirstSearch<CFGNode*>{{functionFlow.entry}}.run(
+		hyperion::util::BreadthFirstSearch<CFGNode*>{{functionFlow.entry}}.run(
 			[&](CFGNode* _node, auto&& _addChild) {
 				if (_node == functionFlow.exit)
 					foundExit = true;
@@ -129,7 +129,7 @@ void ControlFlowRevertPruner::modifyFunctionFlows()
 	for (auto& item: m_functions)
 	{
 		FunctionFlow const& functionFlow = m_cfg.functionFlow(*item.first.function, item.first.contract);
-		solidity::util::BreadthFirstSearch<CFGNode*>{{functionFlow.entry}}.run(
+		hyperion::util::BreadthFirstSearch<CFGNode*>{{functionFlow.entry}}.run(
 			[&](CFGNode* _node, auto&& _addChild) {
 				auto const* resolvedFunction = _node->functionDefinition;
 				if (resolvedFunction && resolvedFunction->isImplemented())

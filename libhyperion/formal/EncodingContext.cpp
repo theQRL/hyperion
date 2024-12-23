@@ -1,28 +1,28 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/formal/EncodingContext.h>
+#include <libhyperion/formal/EncodingContext.h>
 
-#include <libsolidity/formal/SymbolicTypes.h>
+#include <libhyperion/formal/SymbolicTypes.h>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::frontend::smt;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::frontend::smt;
 
 EncodingContext::EncodingContext():
 	m_state(*this)
@@ -52,13 +52,13 @@ unsigned EncodingContext::newUniqueId()
 
 std::shared_ptr<SymbolicVariable> EncodingContext::variable(frontend::VariableDeclaration const& _varDecl)
 {
-	solAssert(knownVariable(_varDecl), "");
+	hypAssert(knownVariable(_varDecl), "");
 	return m_variables[&_varDecl];
 }
 
 bool EncodingContext::createVariable(frontend::VariableDeclaration const& _varDecl)
 {
-	solAssert(!knownVariable(_varDecl), "");
+	hypAssert(!knownVariable(_varDecl), "");
 	auto const& type = _varDecl.type();
 	auto result = newSymbolicVariable(*type, _varDecl.name() + "_" + std::to_string(_varDecl.id()), *this);
 	m_variables.emplace(&_varDecl, result.second);
@@ -98,13 +98,13 @@ void EncodingContext::resetAllVariables()
 
 smtutil::Expression EncodingContext::newValue(frontend::VariableDeclaration const& _decl)
 {
-	solAssert(knownVariable(_decl), "");
+	hypAssert(knownVariable(_decl), "");
 	return m_variables.at(&_decl)->increaseIndex();
 }
 
 void EncodingContext::setZeroValue(frontend::VariableDeclaration const& _decl)
 {
-	solAssert(knownVariable(_decl), "");
+	hypAssert(knownVariable(_decl), "");
 	setZeroValue(*m_variables.at(&_decl));
 }
 
@@ -115,7 +115,7 @@ void EncodingContext::setZeroValue(SymbolicVariable& _variable)
 
 void EncodingContext::setUnknownValue(frontend::VariableDeclaration const& _decl)
 {
-	solAssert(knownVariable(_decl), "");
+	hypAssert(knownVariable(_decl), "");
 	setUnknownValue(*m_variables.at(&_decl));
 }
 
@@ -135,7 +135,7 @@ std::shared_ptr<SymbolicVariable> EncodingContext::expression(frontend::Expressi
 
 bool EncodingContext::createExpression(frontend::Expression const& _e, std::shared_ptr<SymbolicVariable> _symbVar)
 {
-	solAssert(_e.annotation().type, "");
+	hypAssert(_e.annotation().type, "");
 	if (knownExpression(_e))
 	{
 		expression(_e)->increaseIndex();
@@ -163,13 +163,13 @@ bool EncodingContext::knownExpression(frontend::Expression const& _e) const
 
 std::shared_ptr<SymbolicVariable> EncodingContext::globalSymbol(std::string const& _name)
 {
-	solAssert(knownGlobalSymbol(_name), "");
+	hypAssert(knownGlobalSymbol(_name), "");
 	return m_globalContext.at(_name);
 }
 
 bool EncodingContext::createGlobalSymbol(std::string const& _name, frontend::Expression const& _expr)
 {
-	solAssert(!knownGlobalSymbol(_name), "");
+	hypAssert(!knownGlobalSymbol(_name), "");
 	auto result = newSymbolicVariable(*_expr.annotation().type, _name, *this);
 	m_globalContext.emplace(_name, result.second);
 	setUnknownValue(*result.second);
@@ -201,7 +201,7 @@ void EncodingContext::pushSolver()
 
 void EncodingContext::popSolver()
 {
-	solAssert(!m_assertions.empty(), "");
+	hypAssert(!m_assertions.empty(), "");
 	m_assertions.pop_back();
 }
 

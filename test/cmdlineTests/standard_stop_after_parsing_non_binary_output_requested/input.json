@@ -1,7 +1,7 @@
 {
-	"language": "Solidity",
+	"language": "Hyperion",
 	"sources": {
-		"C": {"urls": ["standard_stop_after_parsing_non_binary_output_requested/in.sol"]}
+		"C": {"urls": ["standard_stop_after_parsing_non_binary_output_requested/in.hyp"]}
 	},
 	"settings": {
 		"stopAfter": "parsing",
@@ -12,7 +12,7 @@
 				"userdoc",
 				"metadata",
 				"storageLayout",
-				"evm.methodIdentifiers"
+				"zvm.methodIdentifiers"
 			]}
 		}
 	}

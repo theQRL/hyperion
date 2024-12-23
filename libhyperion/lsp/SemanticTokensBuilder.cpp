@@ -1,32 +1,32 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
-#include <libsolidity/lsp/SemanticTokensBuilder.h>
-#include <libsolidity/lsp/Utils.h>
+#include <libhyperion/lsp/SemanticTokensBuilder.h>
+#include <libhyperion/lsp/Utils.h>
 
 #include <liblangutil/CharStream.h>
 #include <liblangutil/SourceLocation.h>
 
 #include <fmt/format.h>
 
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
-namespace solidity::lsp
+namespace hyperion::lsp
 {
 
 namespace
@@ -111,7 +111,7 @@ void SemanticTokensBuilder::encode(
 		So traverse through the AST and assign each leaf a token 5-tuple.
 	*/
 
-	// solAssert(_sourceLocation.isValid());
+	// hypAssert(_sourceLocation.isValid());
 	if (!_sourceLocation.isValid())
 		return;
 

@@ -1,36 +1,36 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Yul dialects for EVM.
+ * Yul dialects for ZVM.
  */
 
 #pragma once
 
 #include <libyul/Dialect.h>
 
-#include <libyul/backends/evm/AbstractAssembly.h>
+#include <libyul/backends/zvm/AbstractAssembly.h>
 #include <libyul/ASTForward.h>
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
 #include <map>
 #include <set>
 
-namespace solidity::yul
+namespace hyperion::yul
 {
 
 class YulString;
@@ -48,9 +48,9 @@ struct BuiltinContext
 	std::map<YulString, AbstractAssembly::SubID> subIDs;
 };
 
-struct BuiltinFunctionForEVM: public BuiltinFunction
+struct BuiltinFunctionForZVM: public BuiltinFunction
 {
-	std::optional<evmasm::Instruction> instruction;
+	std::optional<zvmasm::Instruction> instruction;
 	/// Function to generate code for the given function call and append it to the abstract
 	/// assembly. Expects all non-literal arguments of the call to be on stack in reverse order
 	/// (i.e. right-most argument pushed first).
@@ -60,52 +60,52 @@ struct BuiltinFunctionForEVM: public BuiltinFunction
 
 
 /**
- * Yul dialect for EVM as a backend.
+ * Yul dialect for ZVM as a backend.
  * The main difference is that the builtin functions take an AbstractAssembly for the
  * code generation.
  */
-struct EVMDialect: public Dialect
+struct ZVMDialect: public Dialect
 {
 	/// Constructor, should only be used internally. Use the factory functions below.
-	EVMDialect(langutil::EVMVersion _evmVersion, bool _objectAccess);
+	ZVMDialect(langutil::ZVMVersion _zvmVersion, bool _objectAccess);
 
 	/// @returns the builtin function of the given name or a nullptr if it is not a builtin function.
-	BuiltinFunctionForEVM const* builtin(YulString _name) const override;
+	BuiltinFunctionForZVM const* builtin(YulString _name) const override;
 
 	/// @returns true if the identifier is reserved. This includes the builtins too.
 	bool reservedIdentifier(YulString _name) const override;
 
-	BuiltinFunctionForEVM const* discardFunction(YulString /*_type*/) const override { return builtin("pop"_yulstring); }
-	BuiltinFunctionForEVM const* equalityFunction(YulString /*_type*/) const override { return builtin("eq"_yulstring); }
-	BuiltinFunctionForEVM const* booleanNegationFunction() const override { return builtin("iszero"_yulstring); }
-	BuiltinFunctionForEVM const* memoryStoreFunction(YulString /*_type*/) const override { return builtin("mstore"_yulstring); }
-	BuiltinFunctionForEVM const* memoryLoadFunction(YulString /*_type*/) const override { return builtin("mload"_yulstring); }
-	BuiltinFunctionForEVM const* storageStoreFunction(YulString /*_type*/) const override { return builtin("sstore"_yulstring); }
-	BuiltinFunctionForEVM const* storageLoadFunction(YulString /*_type*/) const override { return builtin("sload"_yulstring); }
+	BuiltinFunctionForZVM const* discardFunction(YulString /*_type*/) const override { return builtin("pop"_yulstring); }
+	BuiltinFunctionForZVM const* equalityFunction(YulString /*_type*/) const override { return builtin("eq"_yulstring); }
+	BuiltinFunctionForZVM const* booleanNegationFunction() const override { return builtin("iszero"_yulstring); }
+	BuiltinFunctionForZVM const* memoryStoreFunction(YulString /*_type*/) const override { return builtin("mstore"_yulstring); }
+	BuiltinFunctionForZVM const* memoryLoadFunction(YulString /*_type*/) const override { return builtin("mload"_yulstring); }
+	BuiltinFunctionForZVM const* storageStoreFunction(YulString /*_type*/) const override { return builtin("sstore"_yulstring); }
+	BuiltinFunctionForZVM const* storageLoadFunction(YulString /*_type*/) const override { return builtin("sload"_yulstring); }
 	YulString hashFunction(YulString /*_type*/) const override { return "keccak256"_yulstring; }
 
-	static EVMDialect const& strictAssemblyForEVM(langutil::EVMVersion _version);
-	static EVMDialect const& strictAssemblyForEVMObjects(langutil::EVMVersion _version);
+	static ZVMDialect const& strictAssemblyForZVM(langutil::ZVMVersion _version);
+	static ZVMDialect const& strictAssemblyForZVMObjects(langutil::ZVMVersion _version);
 
-	langutil::EVMVersion evmVersion() const { return m_evmVersion; }
+	langutil::ZVMVersion zvmVersion() const { return m_zvmVersion; }
 
 	bool providesObjectAccess() const { return m_objectAccess; }
 
-	static SideEffects sideEffectsOfInstruction(evmasm::Instruction _instruction);
+	static SideEffects sideEffectsOfInstruction(zvmasm::Instruction _instruction);
 
 protected:
-	BuiltinFunctionForEVM const* verbatimFunction(size_t _arguments, size_t _returnVariables) const;
+	BuiltinFunctionForZVM const* verbatimFunction(size_t _arguments, size_t _returnVariables) const;
 
 	bool const m_objectAccess;
-	langutil::EVMVersion const m_evmVersion;
-	std::map<YulString, BuiltinFunctionForEVM> m_functions;
-	std::map<std::pair<size_t, size_t>, std::shared_ptr<BuiltinFunctionForEVM const>> mutable m_verbatimFunctions;
+	langutil::ZVMVersion const m_zvmVersion;
+	std::map<YulString, BuiltinFunctionForZVM> m_functions;
+	std::map<std::pair<size_t, size_t>, std::shared_ptr<BuiltinFunctionForZVM const>> mutable m_verbatimFunctions;
 	std::set<YulString> m_reserved;
 };
 
 /**
- * EVM dialect with types u256 (default) and bool.
- * Difference to EVMDialect:
+ * ZVM dialect with types u256 (default) and bool.
+ * Difference to ZVMDialect:
  *  - All comparison functions return type bool
  *  - bitwise operations are called bitor, bitand, bitxor and bitnot
  *  - and, or, xor take bool and return bool
@@ -113,16 +113,16 @@ protected:
  *  - there are conversion functions bool_to_u256 and u256_to_bool.
  *  - there is popbool
  */
-struct EVMDialectTyped: public EVMDialect
+struct ZVMDialectTyped: public ZVMDialect
 {
 	/// Constructor, should only be used internally. Use the factory function below.
-	EVMDialectTyped(langutil::EVMVersion _evmVersion, bool _objectAccess);
+	ZVMDialectTyped(langutil::ZVMVersion _zvmVersion, bool _objectAccess);
 
-	BuiltinFunctionForEVM const* discardFunction(YulString _type) const override;
-	BuiltinFunctionForEVM const* equalityFunction(YulString _type) const override;
-	BuiltinFunctionForEVM const* booleanNegationFunction() const override { return builtin("not"_yulstring); }
+	BuiltinFunctionForZVM const* discardFunction(YulString _type) const override;
+	BuiltinFunctionForZVM const* equalityFunction(YulString _type) const override;
+	BuiltinFunctionForZVM const* booleanNegationFunction() const override { return builtin("not"_yulstring); }
 
-	static EVMDialectTyped const& instance(langutil::EVMVersion _version);
+	static ZVMDialectTyped const& instance(langutil::ZVMVersion _version);
 };
 
 }

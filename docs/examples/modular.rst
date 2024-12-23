@@ -17,10 +17,10 @@ provides an isolated component that properly tracks balances of accounts.
 It is easy to verify that the ``Balances`` library never produces negative balances or overflows
 and the sum of all balances is an invariant across the lifetime of the contract.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.5.0 <0.9.0;
+    pragma hyperion >=0.5.0 <0.9.0;
 
     library Balances {
         function move(mapping(address => uint256) storage balances, address from, address to, uint amount) internal {

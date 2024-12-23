@@ -1,4 +1,4 @@
-==== Source: external.sol ====
+==== Source: external.hyp ====
 type Int is int128;
 
 library L {
@@ -9,7 +9,7 @@ library L {
 using {L.binaryOperator as +} for Int global;
 using {L.unaryOperator as -} for Int global;
 
-==== Source: internal.sol ====
+==== Source: internal.hyp ====
 type Int is int128;
 
 library L {
@@ -20,7 +20,7 @@ library L {
 using {L.binaryOperator as +} for Int global;
 using {L.unaryOperator as -} for Int global;
 
-==== Source: public.sol ====
+==== Source: public.hyp ====
 type Int is int128;
 
 library L {
@@ -31,9 +31,9 @@ library L {
 using {L.binaryOperator as +} for Int global;
 using {L.unaryOperator as -} for Int global;
 // ----
-// TypeError 7775: (external.sol:175-191): Only pure free functions can be used to define operators.
-// TypeError 7775: (external.sol:221-236): Only pure free functions can be used to define operators.
-// TypeError 7775: (internal.sol:175-191): Only pure free functions can be used to define operators.
-// TypeError 7775: (internal.sol:221-236): Only pure free functions can be used to define operators.
-// TypeError 7775: (public.sol:171-187): Only pure free functions can be used to define operators.
-// TypeError 7775: (public.sol:217-232): Only pure free functions can be used to define operators.
+// TypeError 7775: (external.hyp:175-191): Only pure free functions can be used to define operators.
+// TypeError 7775: (external.hyp:221-236): Only pure free functions can be used to define operators.
+// TypeError 7775: (internal.hyp:175-191): Only pure free functions can be used to define operators.
+// TypeError 7775: (internal.hyp:221-236): Only pure free functions can be used to define operators.
+// TypeError 7775: (public.hyp:171-187): Only pure free functions can be used to define operators.
+// TypeError 7775: (public.hyp:217-232): Only pure free functions can be used to define operators.

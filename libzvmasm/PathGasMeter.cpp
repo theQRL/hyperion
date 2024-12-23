@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /** @file PathGasMeter.cpp
@@ -20,15 +20,15 @@
  * @date 2015
  */
 
-#include <libevmasm/PathGasMeter.h>
-#include <libevmasm/KnownState.h>
-#include <libevmasm/SemanticInformation.h>
+#include <libzvmasm/PathGasMeter.h>
+#include <libzvmasm/KnownState.h>
+#include <libzvmasm/SemanticInformation.h>
 
-using namespace solidity;
-using namespace solidity::evmasm;
+using namespace hyperion;
+using namespace hyperion::zvmasm;
 
-PathGasMeter::PathGasMeter(AssemblyItems const& _items, langutil::EVMVersion _evmVersion):
-	m_items(_items), m_evmVersion(_evmVersion)
+PathGasMeter::PathGasMeter(AssemblyItems const& _items, langutil::ZVMVersion _zvmVersion):
+	m_items(_items), m_zvmVersion(_zvmVersion)
 {
 	for (size_t i = 0; i < m_items.size(); ++i)
 		if (m_items[i].type() == Tag)
@@ -70,7 +70,7 @@ GasMeter::GasConsumption PathGasMeter::handleQueueItem()
 	m_queue.erase(--m_queue.end());
 
 	std::shared_ptr<KnownState> state = path->state;
-	GasMeter meter(state, m_evmVersion, path->largestMemoryAccess);
+	GasMeter meter(state, m_zvmVersion, path->largestMemoryAccess);
 	ExpressionClasses& classes = state->expressionClasses();
 	GasMeter::GasConsumption gas = path->gas;
 	size_t index = path->index;

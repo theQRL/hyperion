@@ -1,6 +1,6 @@
 function f() pure {
-    /// @solidity memory-safe-assembly
-    assembly "evmasm" ("memory-safe") {
+    /// @hyperion memory-safe-assembly
+    assembly "zvmasm" ("memory-safe") {
     }
 }
 // ----

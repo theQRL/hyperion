@@ -1,36 +1,36 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Code generator for translating Yul / inline assembly to EVM.
+ * Code generator for translating Yul / inline assembly to ZVM.
  */
 
-#include <libyul/backends/evm/EVMCodeTransform.h>
+#include <libyul/backends/zvm/ZVMCodeTransform.h>
 
 #include <libyul/optimiser/NameCollector.h>
 #include <libyul/AsmAnalysisInfo.h>
 #include <libyul/Utilities.h>
 
-#include <libsolutil/Visitor.h>
-#include <libsolutil/StackTooDeepString.h>
+#include <libhyputil/Visitor.h>
+#include <libhyputil/StackTooDeepString.h>
 
 #include <liblangutil/Exceptions.h>
 
-#include <libevmasm/Instruction.h>
+#include <libzvmasm/Instruction.h>
 
 #include <range/v3/view/reverse.hpp>
 
@@ -42,16 +42,16 @@
 #include <utility>
 #include <variant>
 
-using namespace solidity;
-using namespace solidity::yul;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::yul;
+using namespace hyperion::util;
 
 CodeTransform::CodeTransform(
 	AbstractAssembly& _assembly,
 	AsmAnalysisInfo& _analysisInfo,
 	Block const& _block,
 	bool _allowStackOpt,
-	EVMDialect const& _dialect,
+	ZVMDialect const& _dialect,
 	BuiltinContext& _builtinContext,
 	ExternalIdentifierAccess::CodeGenerator _identifierAccessCodeGen,
 	UseNamedLabels _useNamedLabelsForFunctions,
@@ -119,7 +119,7 @@ void CodeTransform::freeUnusedVariables(bool _popUnusedSlotsAtStackTop)
 		while (m_unusedStackSlots.count(m_assembly.stackHeight() - 1))
 		{
 			yulAssert(m_unusedStackSlots.erase(m_assembly.stackHeight() - 1), "");
-			m_assembly.appendInstruction(evmasm::Instruction::POP);
+			m_assembly.appendInstruction(zvmasm::Instruction::POP);
 		}
 }
 
@@ -169,7 +169,7 @@ void CodeTransform::operator()(VariableDeclaration const& _varDecl)
 			if (atTopOfStack)
 			{
 				m_context->variableStackHeights.erase(&var);
-				m_assembly.appendInstruction(evmasm::Instruction::POP);
+				m_assembly.appendInstruction(zvmasm::Instruction::POP);
 			}
 			else
 				m_variablesScheduledForDeletion.insert(&var);
@@ -186,8 +186,8 @@ void CodeTransform::operator()(VariableDeclaration const& _varDecl)
 				m_unusedStackSlots.erase(it);
 				m_context->variableStackHeights[&var] = slot;
 				if (size_t heightDiff = variableHeightDiff(var, varName, true))
-					m_assembly.appendInstruction(evmasm::swapInstruction(static_cast<unsigned>(heightDiff - 1)));
-				m_assembly.appendInstruction(evmasm::Instruction::POP);
+					m_assembly.appendInstruction(zvmasm::swapInstruction(static_cast<unsigned>(heightDiff - 1)));
+				m_assembly.appendInstruction(zvmasm::Instruction::POP);
 				break;
 			}
 			if (!foundUnusedSlot)
@@ -198,10 +198,10 @@ void CodeTransform::operator()(VariableDeclaration const& _varDecl)
 
 void CodeTransform::stackError(StackTooDeepError _error, int _targetStackHeight)
 {
-	m_assembly.appendInstruction(evmasm::Instruction::INVALID);
+	m_assembly.appendInstruction(zvmasm::Instruction::INVALID);
 	// Correct the stack.
 	while (m_assembly.stackHeight() > _targetStackHeight)
-		m_assembly.appendInstruction(evmasm::Instruction::POP);
+		m_assembly.appendInstruction(zvmasm::Instruction::POP);
 	while (m_assembly.stackHeight() < _targetStackHeight)
 		m_assembly.appendConstant(u256(0));
 	// Store error.
@@ -230,7 +230,7 @@ void CodeTransform::operator()(FunctionCall const& _call)
 	yulAssert(m_scope, "");
 
 	m_assembly.setSourceLocation(originLocationOf(_call));
-	if (BuiltinFunctionForEVM const* builtin = m_dialect.builtin(_call.functionName.name))
+	if (BuiltinFunctionForZVM const* builtin = m_dialect.builtin(_call.functionName.name))
 	{
 		for (auto&& [i, arg]: _call.arguments | ranges::views::enumerate | ranges::views::reverse)
 			if (!builtin->literalArgument(i))
@@ -273,7 +273,7 @@ void CodeTransform::operator()(Identifier const& _identifier)
 			// TODO: opportunity for optimization: Do not DUP if this is the last reference
 			// to the top most element of the stack
 			if (size_t heightDiff = variableHeightDiff(_var, _identifier.name, false))
-				m_assembly.appendInstruction(evmasm::dupInstruction(static_cast<unsigned>(heightDiff)));
+				m_assembly.appendInstruction(zvmasm::dupInstruction(static_cast<unsigned>(heightDiff)));
 			else
 				// Store something to balance the stack
 				m_assembly.appendConstant(u256(0));
@@ -304,7 +304,7 @@ void CodeTransform::operator()(If const& _if)
 {
 	visitExpression(*_if.condition);
 	m_assembly.setSourceLocation(originLocationOf(_if));
-	m_assembly.appendInstruction(evmasm::Instruction::ISZERO);
+	m_assembly.appendInstruction(zvmasm::Instruction::ISZERO);
 	AbstractAssembly::LabelID end = m_assembly.newLabelId();
 	m_assembly.appendJumpToIf(end);
 	(*this)(_if.body);
@@ -327,8 +327,8 @@ void CodeTransform::operator()(Switch const& _switch)
 			AbstractAssembly::LabelID bodyLabel = m_assembly.newLabelId();
 			caseBodies[&c] = bodyLabel;
 			yulAssert(m_assembly.stackHeight() == expressionHeight + 1, "");
-			m_assembly.appendInstruction(evmasm::dupInstruction(2));
-			m_assembly.appendInstruction(evmasm::Instruction::EQ);
+			m_assembly.appendInstruction(zvmasm::dupInstruction(2));
+			m_assembly.appendInstruction(zvmasm::Instruction::EQ);
 			m_assembly.appendJumpToIf(bodyLabel);
 		}
 		else
@@ -354,7 +354,7 @@ void CodeTransform::operator()(Switch const& _switch)
 
 	m_assembly.setSourceLocation(originLocationOf(_switch));
 	m_assembly.appendLabel(end);
-	m_assembly.appendInstruction(evmasm::Instruction::POP);
+	m_assembly.appendInstruction(zvmasm::Instruction::POP);
 }
 
 void CodeTransform::operator()(FunctionDefinition const& _function)
@@ -472,12 +472,12 @@ void CodeTransform::operator()(FunctionDefinition const& _function)
 			while (!stackLayout.empty() && stackLayout.back() != static_cast<int>(stackLayout.size() - 1))
 				if (stackLayout.back() < 0)
 				{
-					m_assembly.appendInstruction(evmasm::Instruction::POP);
+					m_assembly.appendInstruction(zvmasm::Instruction::POP);
 					stackLayout.pop_back();
 				}
 				else
 				{
-					m_assembly.appendInstruction(evmasm::swapInstruction(static_cast<unsigned>(stackLayout.size()) - static_cast<unsigned>(stackLayout.back()) - 1u));
+					m_assembly.appendInstruction(zvmasm::swapInstruction(static_cast<unsigned>(stackLayout.size()) - static_cast<unsigned>(stackLayout.back()) - 1u));
 					std::swap(stackLayout[static_cast<size_t>(stackLayout.back())], stackLayout.back());
 				}
 			for (size_t i = 0; i < stackLayout.size(); ++i)
@@ -509,7 +509,7 @@ void CodeTransform::operator()(ForLoop const& _forLoop)
 
 	visitExpression(*_forLoop.condition);
 	m_assembly.setSourceLocation(originLocationOf(_forLoop));
-	m_assembly.appendInstruction(evmasm::Instruction::ISZERO);
+	m_assembly.appendInstruction(zvmasm::Instruction::ISZERO);
 	m_assembly.appendJumpToIf(loopEnd);
 
 	int const stackHeightBody = m_assembly.stackHeight();
@@ -534,7 +534,7 @@ int CodeTransform::appendPopUntil(int _targetDepth)
 {
 	int const stackDiffAfter = m_assembly.stackHeight() - _targetDepth;
 	for (int i = 0; i < stackDiffAfter; ++i)
-		m_assembly.appendInstruction(evmasm::Instruction::POP);
+		m_assembly.appendInstruction(zvmasm::Instruction::POP);
 	return stackDiffAfter;
 }
 
@@ -733,7 +733,7 @@ void CodeTransform::finalizeBlock(Block const& _block, std::optional<int> blockS
 				yulAssert(!m_context->variableReferences.count(&var), "");
 			}
 			else
-				m_assembly.appendInstruction(evmasm::Instruction::POP);
+				m_assembly.appendInstruction(zvmasm::Instruction::POP);
 		}
 
 	if (blockStartStackHeight)
@@ -757,8 +757,8 @@ void CodeTransform::generateAssignment(Identifier const& _variableName)
 	{
 		Scope::Variable const& _var = std::get<Scope::Variable>(*var);
 		if (size_t heightDiff = variableHeightDiff(_var, _variableName.name, true))
-			m_assembly.appendInstruction(evmasm::swapInstruction(static_cast<unsigned>(heightDiff - 1)));
-		m_assembly.appendInstruction(evmasm::Instruction::POP);
+			m_assembly.appendInstruction(zvmasm::swapInstruction(static_cast<unsigned>(heightDiff - 1)));
+		m_assembly.appendInstruction(zvmasm::Instruction::POP);
 		decreaseReference(_variableName.name, _var);
 	}
 	else

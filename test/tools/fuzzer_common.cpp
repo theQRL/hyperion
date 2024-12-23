@@ -1,47 +1,47 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #include <test/tools/fuzzer_common.h>
 
-#include <libsolidity/interface/OptimiserSettings.h>
-#include <libsolidity/interface/CompilerStack.h>
-#include <libsolidity/formal/ModelCheckerSettings.h>
+#include <libhyperion/interface/OptimiserSettings.h>
+#include <libhyperion/interface/CompilerStack.h>
+#include <libhyperion/formal/ModelCheckerSettings.h>
 
-#include <libsolutil/JSON.h>
+#include <libhyputil/JSON.h>
 
-#include <libevmasm/Assembly.h>
-#include <libevmasm/ConstantOptimiser.h>
+#include <libzvmasm/Assembly.h>
+#include <libzvmasm/ConstantOptimiser.h>
 
-#include <libsolc/libsolc.h>
+#include <libhypc/libhypc.h>
 
 #include <liblangutil/Exceptions.h>
 
 #include <sstream>
 
 using namespace std;
-using namespace solidity;
-using namespace solidity::evmasm;
-using namespace solidity::frontend;
-using namespace solidity::langutil;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::zvmasm;
+using namespace hyperion::frontend;
+using namespace hyperion::langutil;
+using namespace hyperion::util;
 
-static vector<EVMVersion> s_evmVersions = {
-	EVMVersion::shanghai()
+static vector<ZVMVersion> s_zvmVersions = {
+	ZVMVersion::shanghai()
 };
 
 void FuzzerUtil::testCompilerJsonInterface(string const& _input, bool _optimize, bool _quiet)
@@ -50,7 +50,7 @@ void FuzzerUtil::testCompilerJsonInterface(string const& _input, bool _optimize,
 		cout << "Testing compiler " << (_optimize ? "with" : "without") << " optimizer." << endl;
 
 	Json::Value config = Json::objectValue;
-	config["language"] = "Solidity";
+	config["language"] = "Hyperion";
 	config["sources"] = Json::objectValue;
 	config["sources"][""] = Json::objectValue;
 	config["sources"][""]["content"] = _input;
@@ -58,7 +58,7 @@ void FuzzerUtil::testCompilerJsonInterface(string const& _input, bool _optimize,
 	config["settings"]["optimizer"] = Json::objectValue;
 	config["settings"]["optimizer"]["enabled"] = _optimize;
 	config["settings"]["optimizer"]["runs"] = static_cast<int>(OptimiserSettings{}.expectedExecutionsPerDeployment);
-	config["settings"]["evmVersion"] = "shanghai";
+	config["settings"]["zvmVersion"] = "shanghai";
 
 	// Enable all SourceUnit-level outputs.
 	config["settings"]["outputSelection"]["*"][""][0] = "*";
@@ -86,7 +86,7 @@ void FuzzerUtil::testCompiler(
 )
 {
 	frontend::CompilerStack compiler;
-	EVMVersion evmVersion = s_evmVersions[_rand % s_evmVersions.size()];
+	ZVMVersion zvmVersion = s_zvmVersions[_rand % s_zvmVersions.size()];
 	frontend::OptimiserSettings optimiserSettings;
 	if (_optimize)
 		optimiserSettings = frontend::OptimiserSettings::standard();
@@ -112,7 +112,7 @@ void FuzzerUtil::testCompiler(
 		});
 	}
 	compiler.setSources(_input);
-	compiler.setEVMVersion(evmVersion);
+	compiler.setZVMVersion(zvmVersion);
 	compiler.setOptimiserSettings(optimiserSettings);
 	compiler.setViaIR(_compileViaYul);
 	try
@@ -139,12 +139,12 @@ void FuzzerUtil::runCompiler(string const& _input, bool _quiet)
 {
 	if (!_quiet)
 		cout << "Input JSON: " << _input << endl;
-	string outputString(solidity_compile(_input.c_str(), nullptr, nullptr));
+	string outputString(hyperion_compile(_input.c_str(), nullptr, nullptr));
 	if (!_quiet)
 		cout << "Output JSON: " << outputString << endl;
 
 	// This should be safe given the above copies the output.
-	solidity_reset();
+	hyperion_reset();
 
 	Json::Value output;
 	if (!jsonParseStrict(outputString, output))
@@ -187,7 +187,7 @@ void FuzzerUtil::testConstantOptimizer(string const& _input, bool _quiet)
 
 	for (bool isCreation: {false, true})
 	{
-		Assembly assembly{langutil::EVMVersion{}, isCreation, {}};
+		Assembly assembly{langutil::ZVMVersion{}, isCreation, {}};
 		for (u256 const& n: numbers)
 		{
 			if (!_quiet)
@@ -201,7 +201,7 @@ void FuzzerUtil::testConstantOptimizer(string const& _input, bool _quiet)
 			ConstantOptimisationMethod::optimiseConstants(
 				isCreation,
 				runs,
-				langutil::EVMVersion{},
+				langutil::ZVMVersion{},
 				tmp
 			);
 		}

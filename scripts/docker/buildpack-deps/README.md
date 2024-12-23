@@ -1,6 +1,6 @@
 # buildpack-deps docker images
 
-The `buildpack-deps` docker images are used to compile and test solidity within our CI.
+The `buildpack-deps` docker images are used to compile and test hyperion within our CI.
 
 ## GitHub Workflow
 

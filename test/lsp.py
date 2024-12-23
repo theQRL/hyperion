@@ -32,10 +32,10 @@ else:
         tty.setcbreak(sys.stdin.fileno())
 
 
-# Type for the pure test name without .sol suffix or sub directory
+# Type for the pure test name without .hyp suffix or sub directory
 TestName = NewType("TestName", str)
 
-# Type for the test path, e.g.  subdir/mytest.sol
+# Type for the test path, e.g.  subdir/mytest.hyp
 RelativeTestPath = NewType("RelativeTestPath", str)
 
 
@@ -83,7 +83,7 @@ TEST_REGEXES = TestRegexesTuple(
 )
 
 """
-Named tuple holding regexes to find tags in the solidity code
+Named tuple holding regexes to find tags in the hyperion code
 """
 TagRegexesTuple = namedtuple("TagRegexestuple", ["simpleRange", "multilineRange"])
 TAG_REGEXES = TagRegexesTuple(
@@ -174,7 +174,7 @@ class JsonRpcProcess:
         )
 
         if self.print_pid:
-            print(f"solc pid: {self.process.pid}. Attach with sudo gdb -p {self.process.pid}")
+            print(f"hypc pid: {self.process.pid}. Attach with sudo gdb -p {self.process.pid}")
 
         return self
 
@@ -287,7 +287,7 @@ class JSONExpectationFailed(ExpectationFailed):
 
 
 def create_cli_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Solidity LSP Test suite")
+    parser = argparse.ArgumentParser(description="Hyperion LSP Test suite")
     parser.set_defaults(fail_fast=False)
     parser.add_argument(
         "-f", "--fail-fast",
@@ -302,12 +302,12 @@ def create_cli_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Prevent interactive queries and just fail instead."
     )
-    parser.set_defaults(print_solc_pid=False)
+    parser.set_defaults(print_hypc_pid=False)
     parser.add_argument(
-        "-p", "--print-solc-pid",
-        dest="print_solc_pid",
+        "-p", "--print-hypc-pid",
+        dest="print_hypc_pid",
         action="store_true",
-        help="Print pid of each started solc for debugging purposes."
+        help="Print pid of each started hypc for debugging purposes."
     )
     parser.set_defaults(trace_io=False)
     parser.add_argument(
@@ -332,17 +332,17 @@ def create_cli_parser() -> argparse.ArgumentParser:
         nargs="?"
     )
     parser.add_argument(
-        "solc_path",
+        "hypc_path",
         type=str,
-        default="solc",
-        help="Path to solc binary to test against",
+        default="hypc",
+        help="Path to hypc binary to test against",
         nargs="?"
     )
     parser.add_argument(
         "project_root_dir",
         type=str,
         default=f"{os.path.dirname(os.path.realpath(__file__))}/..",
-        help="Path to Solidity project's root directory (must be fully qualified).",
+        help="Path to Hyperion project's root directory (must be fully qualified).",
         nargs="?"
     )
     return parser
@@ -557,11 +557,11 @@ class FileTestRunner:
         SuccessOrIgnored = auto()
         Reparse = auto()
 
-    def __init__(self, test_name, sub_dir, solc, suite):
+    def __init__(self, test_name, sub_dir, hypc, suite):
         self.test_name = test_name
         self.sub_dir = sub_dir
         self.suite = suite
-        self.solc = solc
+        self.hypc = hypc
         self.open_tests = []
         self.content = self.suite.get_test_file_contents(self.test_name, self.sub_dir)
         self.markers = self.suite.get_test_tags(self.test_name, self.sub_dir)
@@ -588,12 +588,12 @@ class FileTestRunner:
                 expected_diagnostics_per_file[self.test_name] = []
 
             published_diagnostics = \
-                self.suite.open_file_and_wait_for_diagnostics(self.solc, self.test_name, self.sub_dir)
+                self.suite.open_file_and_wait_for_diagnostics(self.hypc, self.test_name, self.sub_dir)
 
             for diagnostics in published_diagnostics:
                 if not diagnostics["uri"].startswith(self.suite.project_root_uri + "/"):
                     raise RuntimeError(
-                        f"'{self.test_name}.sol' imported file outside of test directory: '{diagnostics['uri']}'"
+                        f"'{self.test_name}.hyp' imported file outside of test directory: '{diagnostics['uri']}'"
                     )
                 self.open_tests.append(self.suite.normalizeUri(diagnostics["uri"]))
 
@@ -646,11 +646,11 @@ class FileTestRunner:
         for testpath in self.open_tests:
             test, sub_dir = split_path(testpath)
 
-            self.solc.send_message(
+            self.hypc.send_message(
                 'textDocument/didClose',
                 { 'textDocument': { 'uri': self.suite.get_test_file_uri(test, sub_dir) }}
             )
-            self.suite.wait_for_diagnostics(self.solc)
+            self.suite.wait_for_diagnostics(self.hypc)
 
         self.open_tests.clear()
 
@@ -734,7 +734,7 @@ class FileTestRunner:
         if 'textDocument' not in requestBodyJson:
             requestBodyJson['textDocument'] = { 'uri': self.suite.get_test_file_uri(self.test_name, self.sub_dir) }
 
-        actualResponseJson = self.solc.call_method(
+        actualResponseJson = self.hypc.call_method(
             testcase.method,
             requestBodyJson,
             expects_response=testcase.response is not None
@@ -814,7 +814,7 @@ class FileTestRunner:
             # Needs to be done before the loop or it might be called only after
             # we found "range" or "position"
             if "uri" in data:
-                markers = self.suite.get_test_tags(data["uri"][:-len(".sol")], self.sub_dir)
+                markers = self.suite.get_test_tags(data["uri"][:-len(".hyp")], self.sub_dir)
 
             for key, val in data.items():
                 if key == "range":
@@ -826,7 +826,7 @@ class FileTestRunner:
                 elif key == "changes":
                     for path, list_of_changes in val.items():
                         test_name, file_sub_dir = split_path(path)
-                        markers = self.suite.get_test_tags(test_name[:-len(".sol")], file_sub_dir)
+                        markers = self.suite.get_test_tags(test_name[:-len(".hyp")], file_sub_dir)
                         for change in list_of_changes:
                             if "range" in change:
                                 change["range"] = findMarker(change["range"])
@@ -840,7 +840,7 @@ class FileTestRunner:
         return replace_tag(contentJson, markersFallback)
 
 
-class SolidityLSPTestSuite: # {{{
+class HyperionLSPTestSuite: # {{{
     test_counter = Counter()
     assertion_counter = Counter()
     print_assertions: bool = False
@@ -851,15 +851,15 @@ class SolidityLSPTestSuite: # {{{
     def __init__(self):
         colorama.init()
         args = create_cli_parser().parse_args()
-        self.solc_path = args.solc_path
-        self.project_root_dir = os.path.realpath(args.project_root_dir) + "/test/libsolidity/lsp"
+        self.hypc_path = args.hypc_path
+        self.project_root_dir = os.path.realpath(args.project_root_dir) + "/test/libhyperion/lsp"
         self.project_root_uri = PurePath(self.project_root_dir).as_uri()
         self.print_assertions = args.print_assertions
         self.trace_io = args.trace_io
         self.test_pattern = args.test_pattern
         self.fail_fast = args.fail_fast
         self.non_interactive = args.non_interactive
-        self.print_solc_pid = args.print_solc_pid
+        self.print_hypc_pid = args.print_hypc_pid
 
         print(f"{SGR_NOTICE}test pattern: {self.test_pattern}{SGR_RESET}")
 
@@ -870,8 +870,8 @@ class SolidityLSPTestSuite: # {{{
         """
         all_tests = sorted([
             str(name)[5:]
-            for name in dir(SolidityLSPTestSuite)
-            if callable(getattr(SolidityLSPTestSuite, name)) and name.startswith("test_")
+            for name in dir(HyperionLSPTestSuite)
+            if callable(getattr(HyperionLSPTestSuite, name)) and name.startswith("test_")
         ])
         filtered_tests = fnmatch.filter(all_tests, self.test_pattern)
         if filtered_tests.count("generic") == 0:
@@ -882,8 +882,8 @@ class SolidityLSPTestSuite: # {{{
             title: str = test_fn.__name__[5:]
             print(f"{SGR_TEST_BEGIN}Testing {title} ...{SGR_RESET}")
             try:
-                with JsonRpcProcess(self.solc_path, ["--lsp"], trace_io=self.trace_io, print_pid=self.print_solc_pid) as solc:
-                    test_fn(solc)
+                with JsonRpcProcess(self.hypc_path, ["--lsp"], trace_io=self.trace_io, print_pid=self.print_hypc_pid) as hypc:
+                    test_fn(hypc)
                     self.test_counter.passed += 1
             except ExpectationFailed:
                 self.test_counter.failed += 1
@@ -914,7 +914,7 @@ class SolidityLSPTestSuite: # {{{
         project_root_subdir=None
     ):
         """
-        Prepares the solc LSP server by calling `initialize`,
+        Prepares the hypc LSP server by calling `initialize`,
         and `initialized` methods.
         """
         project_root_uri_with_maybe_subdir = self.project_root_uri
@@ -958,8 +958,8 @@ class SolidityLSPTestSuite: # {{{
     # {{{ helpers
     def get_test_file_path(self, test_case_name, sub_dir=None):
         if sub_dir:
-            return f"{self.project_root_dir}/{sub_dir}/{test_case_name}.sol"
-        return f"{self.project_root_dir}/{test_case_name}.sol"
+            return f"{self.project_root_dir}/{sub_dir}/{test_case_name}.hyp"
+        return f"{self.project_root_dir}/{test_case_name}.hyp"
 
     def get_test_file_uri(self, test_case_name, sub_dir=None):
         return PurePath(self.get_test_file_path(test_case_name, sub_dir)).as_uri()
@@ -968,7 +968,7 @@ class SolidityLSPTestSuite: # {{{
         """
         Reads the file contents from disc for a given test case.
         The `test_case_name` will be the basename of the file
-        in the test path (test/libsolidity/lsp/{sub_dir}).
+        in the test path (test/libhyperion/lsp/{sub_dir}).
         """
         with open(self.get_test_file_path(test_case_name, sub_dir), mode="r", encoding="utf-8", newline='') as f:
             return f.read().replace("\r\n", "\n")
@@ -990,16 +990,16 @@ class SolidityLSPTestSuite: # {{{
         self.expect_equal(message['method'], method_name, description="Ensure expected method name")
         return message['params']
 
-    def wait_for_diagnostics(self, solc: JsonRpcProcess) -> List[dict]:
+    def wait_for_diagnostics(self, hypc: JsonRpcProcess) -> List[dict]:
         """
         Return all published diagnostic reports sorted by file URI.
         """
         reports = []
 
-        num_files = solc.receive_message()["params"]["openFileCount"]
+        num_files = hypc.receive_message()["params"]["openFileCount"]
 
         for _ in range(0, num_files):
-            message = solc.receive_message()
+            message = hypc.receive_message()
 
             assert message is not None # This can happen if the server aborts early.
 
@@ -1013,12 +1013,12 @@ class SolidityLSPTestSuite: # {{{
         return sorted(reports, key=lambda x: x['uri'])
 
     def normalizeUri(self, uri):
-        return uri.replace(self.project_root_uri + "/", "")[:-len(".sol")]
+        return uri.replace(self.project_root_uri + "/", "")[:-len(".hyp")]
 
-    def fetch_and_format_diagnostics(self, solc: JsonRpcProcess, test, sub_dir=None):
+    def fetch_and_format_diagnostics(self, hypc: JsonRpcProcess, test, sub_dir=None):
         expectations = ""
 
-        published_diagnostics = self.open_file_and_wait_for_diagnostics(solc, test, sub_dir)
+        published_diagnostics = self.open_file_and_wait_for_diagnostics(hypc, test, sub_dir)
 
         for file_diagnostics in published_diagnostics:
             testname, local_sub_dir = split_path(self.normalizeUri(file_diagnostics["uri"]))
@@ -1042,7 +1042,7 @@ class SolidityLSPTestSuite: # {{{
 
     def update_diagnostics_in_file(
         self,
-        solc: JsonRpcProcess,
+        hypc: JsonRpcProcess,
         test,
         sub_dir,
         content,
@@ -1055,7 +1055,7 @@ class SolidityLSPTestSuite: # {{{
 
         content = content[:current_diagnostics.start] + \
             test_header + \
-            self.fetch_and_format_diagnostics(solc, test, sub_dir) + \
+            self.fetch_and_format_diagnostics(hypc, test, sub_dir) + \
             content[current_diagnostics.end:]
 
         with open(self.get_test_file_path(test, sub_dir), mode="w", encoding="utf-8", newline='') as f:
@@ -1065,26 +1065,26 @@ class SolidityLSPTestSuite: # {{{
 
     def open_file_and_wait_for_diagnostics(
         self,
-        solc_process: JsonRpcProcess,
+        hypc_process: JsonRpcProcess,
         test_case_name: str,
         sub_dir=None
     ) -> List[Any]:
         """
         Opens file for given test case and waits for diagnostics to be published.
         """
-        solc_process.send_message(
+        hypc_process.send_message(
             'textDocument/didOpen',
             {
                 'textDocument':
                 {
                     'uri': self.get_test_file_uri(test_case_name, sub_dir),
-                    'languageId': 'Solidity',
+                    'languageId': 'Hyperion',
                     'version': 1,
                     'text': self.get_test_file_contents(test_case_name, sub_dir)
                 }
             }
         )
-        return self.wait_for_diagnostics(solc_process)
+        return self.wait_for_diagnostics(hypc_process)
 
     def expect_true(
         self,
@@ -1178,7 +1178,7 @@ class SolidityLSPTestSuite: # {{{
 
     def expect_goto_definition_location(
         self,
-        solc: JsonRpcProcess,
+        hypc: JsonRpcProcess,
         document_uri: str,
         document_position: Tuple[int, int],
         expected_uri: str,
@@ -1186,7 +1186,7 @@ class SolidityLSPTestSuite: # {{{
         expected_startEndColumns: Tuple[int, int],
         description: str
     ):
-        response = solc.call_method(
+        response = hypc.call_method(
             'textDocument/definition',
             {
                 'textDocument': {
@@ -1243,7 +1243,7 @@ class SolidityLSPTestSuite: # {{{
         for item in recursive_iter(content):
             if "uri" in item and "range" in item:
                 try:
-                    markers = self.get_test_tags(item["uri"][:-len(".sol")], sub_dir)
+                    markers = self.get_test_tags(item["uri"][:-len(".hyp")], sub_dir)
                     replace_range(item, markers)
                 except FileNotFoundError:
                     # Skip over errors as this is user provided input that can
@@ -1253,7 +1253,7 @@ class SolidityLSPTestSuite: # {{{
                 for file, changes_for_file in item["changes"].items():
                     test_name, file_sub_dir = split_path(file)
                     try:
-                        markers = self.get_test_tags(test_name[:-len(".sol")], file_sub_dir)
+                        markers = self.get_test_tags(test_name[:-len(".hyp")], file_sub_dir)
                         for change in changes_for_file:
                             replace_range(change, markers)
 
@@ -1272,7 +1272,7 @@ class SolidityLSPTestSuite: # {{{
 
     def user_interaction_failed_diagnostics(
         self,
-        solc: JsonRpcProcess,
+        hypc: JsonRpcProcess,
         test,
         sub_dir,
         content,
@@ -1293,7 +1293,7 @@ class SolidityLSPTestSuite: # {{{
             if user_response == "u":
                 while True:
                     try:
-                        self.update_diagnostics_in_file(solc, test, sub_dir, content, current_diagnostics)
+                        self.update_diagnostics_in_file(hypc, test, sub_dir, content, current_diagnostics)
                         return False
                     # pragma pylint: disable=broad-except
                     except Exception as e:
@@ -1330,9 +1330,9 @@ class SolidityLSPTestSuite: # {{{
     # }}}
 
     # {{{ actual tests
-    def test_analyze_all_project_files_flat(self, solc: JsonRpcProcess) -> None:
+    def test_analyze_all_project_files_flat(self, hypc: JsonRpcProcess) -> None:
         """
-        Tests the option (default) to analyze all .sol project files even when they have not been actively
+        Tests the option (default) to analyze all .hyp project files even when they have not been actively
         opened yet. This is how other LSPs (at least for C++) work too and it makes cross-unit tasks
         actually correct (e.g. symbolic rename, find all references, ...).
 
@@ -1341,29 +1341,29 @@ class SolidityLSPTestSuite: # {{{
         """
         SUBDIR = 'analyze-full-project'
         self.setup_lsp(
-            solc,
+            hypc,
             file_load_strategy=FileLoadStrategy.ProjectDirectory,
             project_root_subdir=SUBDIR
         )
-        published_diagnostics = self.wait_for_diagnostics(solc)
+        published_diagnostics = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(published_diagnostics), 3, "Diagnostic reports for 3 files")
 
-        # C.sol
+        # C.hyp
         report = published_diagnostics[0]
         self.expect_equal(report['uri'], self.get_test_file_uri('C', SUBDIR), "Correct file URI")
         self.expect_equal(len(report['diagnostics']), 0, "no diagnostics")
 
-        # D.sol
+        # D.hyp
         report = published_diagnostics[1]
         self.expect_equal(report['uri'], self.get_test_file_uri('D', SUBDIR), "Correct file URI")
         self.expect_equal(len(report['diagnostics']), 0, "no diagnostics")
 
-        # E.sol
+        # E.hyp
         report = published_diagnostics[2]
         self.expect_equal(report['uri'], self.get_test_file_uri('E', SUBDIR), "Correct file URI")
         self.expect_equal(len(report['diagnostics']), 0, "no diagnostics")
 
-    def test_analyze_all_project_files_nested(self, solc: JsonRpcProcess) -> None:
+    def test_analyze_all_project_files_nested(self, hypc: JsonRpcProcess) -> None:
         """
         Same as first test on that matter but with deeper nesting levels.
         """
@@ -1376,16 +1376,16 @@ class SolidityLSPTestSuite: # {{{
         }
         EXPECTED_URIS = {self.get_test_file_uri(x, SUBDIR) for x in EXPECTED_FILES}
         self.setup_lsp(
-            solc,
+            hypc,
             file_load_strategy=FileLoadStrategy.ProjectDirectory,
             project_root_subdir=SUBDIR
         )
-        published_diagnostics = self.wait_for_diagnostics(solc)
+        published_diagnostics = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(published_diagnostics), len(EXPECTED_FILES), "Test number of files analyzed.")
         self.expect_equal({report['uri'] for report in published_diagnostics}, EXPECTED_URIS)
         self.expect_equal([len(report['diagnostics']) for report in published_diagnostics], [0] * len(EXPECTED_URIS))
 
-    def test_analyze_all_project_files_nested_with_include_paths(self, solc: JsonRpcProcess) -> None:
+    def test_analyze_all_project_files_nested_with_include_paths(self, hypc: JsonRpcProcess) -> None:
         """
         Same as first test on that matter but with deeper nesting levels.
         """
@@ -1399,12 +1399,12 @@ class SolidityLSPTestSuite: # {{{
         IMPLICITLY_LOADED_FILE_COUNT = 1
         EXPECTED_URIS = {self.get_test_file_uri(x, SUBDIR) for x in EXPECTED_FILES}
         self.setup_lsp(
-            solc,
+            hypc,
             file_load_strategy=FileLoadStrategy.ProjectDirectory,
             project_root_subdir=SUBDIR,
             custom_include_paths=[f"{self.project_root_dir}/other-include-dir"]
         )
-        published_diagnostics = self.wait_for_diagnostics(solc)
+        published_diagnostics = self.wait_for_diagnostics(hypc)
         self.expect_equal(
             len(published_diagnostics),
             len(EXPECTED_FILES) + IMPLICITLY_LOADED_FILE_COUNT,
@@ -1417,16 +1417,16 @@ class SolidityLSPTestSuite: # {{{
             self.expect_equal(len(report['diagnostics']), 0, "no diagnostics")
 
         # Check last report (should be the custom imported lib).
-        # This file is analyzed because it was imported via "A/B/C/foo.sol".
+        # This file is analyzed because it was imported via "A/B/C/foo.hyp".
         last_report = published_diagnostics[len(EXPECTED_URIS)]
         self.expect_equal(last_report['uri'], self.get_test_file_uri('second', 'other-include-dir/otherlib'), "Correct file URI")
         self.expect_equal(len(last_report['diagnostics']), 0, "no diagnostics")
 
 
-    def test_publish_diagnostics_errors_multiline(self, solc: JsonRpcProcess) -> None:
-        self.setup_lsp(solc)
+    def test_publish_diagnostics_errors_multiline(self, hypc: JsonRpcProcess) -> None:
+        self.setup_lsp(hypc)
         TEST_NAME = 'publish_diagnostics_3'
-        published_diagnostics = self.open_file_and_wait_for_diagnostics(solc, TEST_NAME)
+        published_diagnostics = self.open_file_and_wait_for_diagnostics(hypc, TEST_NAME)
 
         self.expect_equal(len(published_diagnostics), 1, "One published_diagnostics message")
         report = published_diagnostics[0]
@@ -1445,10 +1445,10 @@ class SolidityLSPTestSuite: # {{{
             "diagnostic: check range"
         )
 
-    def test_textDocument_didOpen_with_relative_import(self, solc: JsonRpcProcess) -> None:
-        self.setup_lsp(solc)
+    def test_textDocument_didOpen_with_relative_import(self, hypc: JsonRpcProcess) -> None:
+        self.setup_lsp(hypc)
         TEST_NAME = 'didOpen_with_import'
-        published_diagnostics = self.open_file_and_wait_for_diagnostics(solc, TEST_NAME)
+        published_diagnostics = self.open_file_and_wait_for_diagnostics(hypc, TEST_NAME)
 
         self.expect_equal(len(published_diagnostics), 2, "Diagnostic reports for 2 files")
 
@@ -1457,7 +1457,7 @@ class SolidityLSPTestSuite: # {{{
         self.expect_equal(report['uri'], self.get_test_file_uri(TEST_NAME), "Correct file URI")
         self.expect_equal(len(report['diagnostics']), 0, "no diagnostics")
 
-        # imported file (goto/lib.sol):
+        # imported file (goto/lib.hyp):
         report = published_diagnostics[1]
         self.expect_equal(report['uri'], self.get_test_file_uri('lib', 'goto'), "Correct file URI")
         self.expect_equal(len(report['diagnostics']), 1, "one diagnostic")
@@ -1507,9 +1507,9 @@ class SolidityLSPTestSuite: # {{{
         return markers
 
 
-    def test_custom_includes(self, solc: JsonRpcProcess) -> None:
-        self.setup_lsp(solc, expose_project_root=False)
-        solc.send_notification(
+    def test_custom_includes(self, hypc: JsonRpcProcess) -> None:
+        self.setup_lsp(hypc, expose_project_root=False)
+        hypc.send_notification(
             'workspace/didChangeConfiguration', {
                 'settings': {
                     'include-paths': [
@@ -1518,7 +1518,7 @@ class SolidityLSPTestSuite: # {{{
                 }
             }
         )
-        published_diagnostics = self.open_file_and_wait_for_diagnostics(solc, 'include-paths/using-custom-includes')
+        published_diagnostics = self.open_file_and_wait_for_diagnostics(hypc, 'include-paths/using-custom-includes')
 
         self.expect_equal(len(published_diagnostics), 2, "Diagnostic reports for 2 files")
 
@@ -1530,23 +1530,23 @@ class SolidityLSPTestSuite: # {{{
 
         # imported file
         report = published_diagnostics[1]
-        self.expect_equal(report['uri'], f"{self.project_root_uri}/other-include-dir/otherlib/otherlib.sol")
+        self.expect_equal(report['uri'], f"{self.project_root_uri}/other-include-dir/otherlib/otherlib.hyp")
         diagnostics = report['diagnostics']
         self.expect_equal(len(diagnostics), 1, "no diagnostics")
         self.expect_diagnostic(diagnostics[0], code=2018, lineNo=5, startEndColumns=(4, 62))
 
-    def test_custom_includes_with_full_project(self, solc: JsonRpcProcess) -> None:
+    def test_custom_includes_with_full_project(self, hypc: JsonRpcProcess) -> None:
         """
         Tests loading all project files while having custom include directories configured.
         In such a scenario, all project files should be analyzed and those being included via search path
         but not those include files that are not directly nor indirectly included.
         """
         self.setup_lsp(
-            solc,
+            hypc,
             expose_project_root=True,
             project_root_subdir=''
         )
-        solc.send_notification(
+        hypc.send_notification(
             'workspace/didChangeConfiguration', {
                 'settings': {
                     'include-paths': [
@@ -1555,7 +1555,7 @@ class SolidityLSPTestSuite: # {{{
                 }
             }
         )
-        published_diagnostics = self.open_file_and_wait_for_diagnostics(solc, 'include-paths/using-custom-includes')
+        published_diagnostics = self.open_file_and_wait_for_diagnostics(hypc, 'include-paths/using-custom-includes')
 
         self.expect_equal(len(published_diagnostics), 2, "Diagnostic reports for 2 files")
 
@@ -1567,17 +1567,17 @@ class SolidityLSPTestSuite: # {{{
 
         # imported file
         report = published_diagnostics[1]
-        self.expect_equal(report['uri'], f"{self.project_root_uri}/other-include-dir/otherlib/otherlib.sol")
+        self.expect_equal(report['uri'], f"{self.project_root_uri}/other-include-dir/otherlib/otherlib.hyp")
         diagnostics = report['diagnostics']
         self.expect_equal(len(diagnostics), 1)
         self.expect_diagnostic(diagnostics[0], code=2018, lineNo=5, startEndColumns=(4, 62))
 
-    def test_didChange_in_A_causing_error_in_B(self, solc: JsonRpcProcess) -> None:
+    def test_didChange_in_A_causing_error_in_B(self, hypc: JsonRpcProcess) -> None:
         # Reusing another test but now change some file that generates an error in the other.
-        self.test_textDocument_didOpen_with_relative_import(solc)
+        self.test_textDocument_didOpen_with_relative_import(hypc)
         marker = self.get_test_tags("lib", "goto")["@addFunction"]
-        self.open_file_and_wait_for_diagnostics(solc, 'lib', "goto")
-        solc.send_message(
+        self.open_file_and_wait_for_diagnostics(hypc, 'lib', "goto")
+        hypc.send_message(
             'textDocument/didChange',
             {
                 'textDocument':
@@ -1593,7 +1593,7 @@ class SolidityLSPTestSuite: # {{{
                 ]
             }
         )
-        published_diagnostics = self.wait_for_diagnostics(solc)
+        published_diagnostics = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(published_diagnostics), 2, "Diagnostic reports for 2 files")
 
         # Main file now contains a new diagnostic
@@ -1610,10 +1610,10 @@ class SolidityLSPTestSuite: # {{{
         self.expect_equal(len(report['diagnostics']), 0)
         # The warning went away because the compiler aborts further processing after the error.
 
-    def test_textDocument_didOpen_with_relative_import_without_project_url(self, solc: JsonRpcProcess) -> None:
-        self.setup_lsp(solc, expose_project_root=False)
+    def test_textDocument_didOpen_with_relative_import_without_project_url(self, hypc: JsonRpcProcess) -> None:
+        self.setup_lsp(hypc, expose_project_root=False)
         TEST_NAME = 'didOpen_with_import'
-        published_diagnostics = self.open_file_and_wait_for_diagnostics(solc, TEST_NAME)
+        published_diagnostics = self.open_file_and_wait_for_diagnostics(hypc, TEST_NAME)
         self.verify_didOpen_with_import_diagnostics(published_diagnostics)
 
     def verify_didOpen_with_import_diagnostics(
@@ -1628,7 +1628,7 @@ class SolidityLSPTestSuite: # {{{
         self.expect_equal(report['uri'], self.get_test_file_uri(main_file_name), "Correct file URI")
         self.expect_equal(len(report['diagnostics']), 0, "one diagnostic")
 
-        # imported file (./goto/lib.sol):
+        # imported file (./goto/lib.hyp):
         report = published_diagnostics[1]
         self.expect_equal(report['uri'], self.get_test_file_uri('lib', 'goto'), "Correct file URI")
         self.expect_equal(len(report['diagnostics']), 1, "one diagnostic")
@@ -1637,8 +1637,8 @@ class SolidityLSPTestSuite: # {{{
         marker = markers["@diagnostics"]
         self.expect_diagnostic(report['diagnostics'][0], code=2072, marker=marker)
 
-    def test_generic(self, solc: JsonRpcProcess) -> None:
-        self.setup_lsp(solc)
+    def test_generic(self, hypc: JsonRpcProcess) -> None:
+        self.setup_lsp(hypc)
 
         sub_dirs = filter(
             lambda filepath: filepath.is_dir() and filepath.name != 'node_modules',
@@ -1647,9 +1647,9 @@ class SolidityLSPTestSuite: # {{{
 
         for sub_dir in map(lambda filepath: filepath.name, sub_dirs):
             tests = map(
-                lambda file_object, sd=sub_dir: sd + "/" + file_object.name[:-len(".sol")],
+                lambda file_object, sd=sub_dir: sd + "/" + file_object.name[:-len(".hyp")],
                 filter(
-                    lambda filepath: filepath.is_file() and filepath.name.endswith('.sol'),
+                    lambda filepath: filepath.is_file() and filepath.name.endswith('.hyp'),
                     os.scandir(f"{self.project_root_dir}/{sub_dir}")
                 )
             )
@@ -1665,7 +1665,7 @@ class SolidityLSPTestSuite: # {{{
                 print(f"\t{test}")
 
                 while try_again:
-                    runner = FileTestRunner(test, sub_dir, solc, self)
+                    runner = FileTestRunner(test, sub_dir, hypc, self)
 
                     try:
                         runner.test_diagnostics()
@@ -1675,7 +1675,7 @@ class SolidityLSPTestSuite: # {{{
 
                         if e.part == e.Part.Diagnostics:
                             try_again = not self.user_interaction_failed_diagnostics(
-                                solc,
+                                hypc,
                                 test,
                                 sub_dir,
                                 runner.content,
@@ -1684,10 +1684,10 @@ class SolidityLSPTestSuite: # {{{
                         else:
                             raise
 
-    def test_textDocument_didChange_updates_diagnostics(self, solc: JsonRpcProcess) -> None:
-        self.setup_lsp(solc)
+    def test_textDocument_didChange_updates_diagnostics(self, hypc: JsonRpcProcess) -> None:
+        self.setup_lsp(hypc)
         TEST_NAME = 'publish_diagnostics_1'
-        published_diagnostics = self.open_file_and_wait_for_diagnostics(solc, TEST_NAME, "goto")
+        published_diagnostics = self.open_file_and_wait_for_diagnostics(hypc, TEST_NAME, "goto")
         self.expect_equal(len(published_diagnostics), 1, "One published_diagnostics message")
         report = published_diagnostics[0]
         self.expect_equal(report['uri'], self.get_test_file_uri(TEST_NAME, "goto"), "Correct file URI")
@@ -1698,7 +1698,7 @@ class SolidityLSPTestSuite: # {{{
         self.expect_diagnostic(diagnostics[1], code=2072, marker=markers["@unusedVariable"])
         self.expect_diagnostic(diagnostics[2], code=2072, marker=markers["@unusedContractVariable"])
 
-        solc.send_message(
+        hypc.send_message(
             'textDocument/didChange',
             {
                 'textDocument': {
@@ -1712,7 +1712,7 @@ class SolidityLSPTestSuite: # {{{
                 ]
             }
         )
-        published_diagnostics = self.wait_for_diagnostics(solc)
+        published_diagnostics = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(published_diagnostics), 1)
         report = published_diagnostics[0]
         self.expect_equal(report['uri'], self.get_test_file_uri(TEST_NAME, "goto"), "Correct file URI")
@@ -1721,15 +1721,15 @@ class SolidityLSPTestSuite: # {{{
         self.expect_diagnostic(diagnostics[0], code=6321, marker=markers["@unusedReturnVariable"])
         self.expect_diagnostic(diagnostics[1], code=2072, marker=markers["@unusedContractVariable"])
 
-    def test_textDocument_didChange_delete_line_and_close(self, solc: JsonRpcProcess) -> None:
+    def test_textDocument_didChange_delete_line_and_close(self, hypc: JsonRpcProcess) -> None:
         # Reuse this test to prepare and ensure it is as expected
-        self.test_textDocument_didOpen_with_relative_import(solc)
-        self.open_file_and_wait_for_diagnostics(solc, 'lib', 'goto')
+        self.test_textDocument_didOpen_with_relative_import(hypc)
+        self.open_file_and_wait_for_diagnostics(hypc, 'lib', 'goto')
 
         marker = self.get_test_tags('lib', 'goto')["@diagnostics"]
 
-        # lib.sol: Fix the unused variable message by removing it.
-        solc.send_message(
+        # lib.hyp: Fix the unused variable message by removing it.
+        hypc.send_message(
             'textDocument/didChange',
             {
                 'textDocument':
@@ -1745,65 +1745,65 @@ class SolidityLSPTestSuite: # {{{
                 ]
             }
         )
-        published_diagnostics = self.wait_for_diagnostics(solc)
+        published_diagnostics = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(published_diagnostics), 2, "published diagnostics count")
         report1 = published_diagnostics[0]
         self.expect_equal(report1['uri'], self.get_test_file_uri('didOpen_with_import'), "Correct file URI")
-        self.expect_equal(len(report1['diagnostics']), 0, "no diagnostics in didOpen_with_import.sol")
+        self.expect_equal(len(report1['diagnostics']), 0, "no diagnostics in didOpen_with_import.hyp")
         report2 = published_diagnostics[1]
         self.expect_equal(report2['uri'], self.get_test_file_uri('lib', 'goto'), "Correct file URI")
-        self.expect_equal(len(report2['diagnostics']), 0, "no diagnostics in lib.sol")
+        self.expect_equal(len(report2['diagnostics']), 0, "no diagnostics in lib.hyp")
 
         # Now close the file and expect the warning to re-appear
-        solc.send_message(
+        hypc.send_message(
             'textDocument/didClose',
             { 'textDocument': { 'uri': self.get_test_file_uri('lib', 'goto') }}
         )
 
-        published_diagnostics = self.wait_for_diagnostics(solc)
+        published_diagnostics = self.wait_for_diagnostics(hypc)
         self.verify_didOpen_with_import_diagnostics(published_diagnostics)
 
-    def test_textDocument_opening_two_new_files_edit_and_close(self, solc: JsonRpcProcess) -> None:
+    def test_textDocument_opening_two_new_files_edit_and_close(self, hypc: JsonRpcProcess) -> None:
         """
         Open two new files A and B, let A import B, expect no error,
         then close B and now expect the error of file B not being found.
         """
 
-        self.setup_lsp(solc)
-        FILE_A_URI = 'file:///a.sol'
-        solc.send_message('textDocument/didOpen', {
+        self.setup_lsp(hypc)
+        FILE_A_URI = 'file:///a.hyp'
+        hypc.send_message('textDocument/didOpen', {
             'textDocument': {
                 'uri': FILE_A_URI,
-                'languageId': 'Solidity',
+                'languageId': 'Hyperion',
                 'version': 1,
                 'text': ''.join([
                     '// SPDX-License-Identifier: UNLICENSED\n',
-                    'pragma solidity >=0.8.0;\n',
+                    'pragma hyperion >=0.8.0;\n',
                 ])
             }
         })
-        reports = self.wait_for_diagnostics(solc)
+        reports = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(reports), 1, "one publish diagnostics notification")
         self.expect_equal(len(reports[0]['diagnostics']), 0, "should not contain diagnostics")
 
-        FILE_B_URI = 'file:///b.sol'
-        solc.send_message('textDocument/didOpen', {
+        FILE_B_URI = 'file:///b.hyp'
+        hypc.send_message('textDocument/didOpen', {
             'textDocument': {
                 'uri': FILE_B_URI,
-                'languageId': 'Solidity',
+                'languageId': 'Hyperion',
                 'version': 1,
                 'text': ''.join([
                     '// SPDX-License-Identifier: UNLICENSED\n',
-                    'pragma solidity >=0.8.0;\n',
+                    'pragma hyperion >=0.8.0;\n',
                 ])
             }
         })
-        reports = self.wait_for_diagnostics(solc)
+        reports = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(reports), 2, "one publish diagnostics notification")
         self.expect_equal(len(reports[0]['diagnostics']), 0, "should not contain diagnostics")
         self.expect_equal(len(reports[1]['diagnostics']), 0, "should not contain diagnostics")
 
-        solc.send_message('textDocument/didChange', {
+        hypc.send_message('textDocument/didChange', {
             'textDocument': {
                 'uri': FILE_A_URI
             },
@@ -1813,83 +1813,83 @@ class SolidityLSPTestSuite: # {{{
                         'start': { 'line': 2, 'character': 0 },
                         'end': { 'line': 2, 'character': 0 }
                     },
-                    'text': 'import "./b.sol";\n'
+                    'text': 'import "./b.hyp";\n'
                 }
             ]
         })
-        reports = self.wait_for_diagnostics(solc)
+        reports = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(reports), 2, "one publish diagnostics notification")
         self.expect_equal(len(reports[0]['diagnostics']), 0, "should not contain diagnostics")
         self.expect_equal(len(reports[1]['diagnostics']), 0, "should not contain diagnostics")
 
-        solc.send_message(
+        hypc.send_message(
             'textDocument/didClose',
             { 'textDocument': { 'uri': FILE_B_URI }}
         )
-        # We only get one diagnostics message since the diagnostics for b.sol was empty.
-        reports = self.wait_for_diagnostics(solc)
+        # We only get one diagnostics message since the diagnostics for b.hyp was empty.
+        reports = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(reports), 1, "one publish diagnostics notification")
-        self.expect_diagnostic(reports[0]['diagnostics'][0], 6275, 2, (0, 17)) # a.sol: File B not found
+        self.expect_diagnostic(reports[0]['diagnostics'][0], 6275, 2, (0, 17)) # a.hyp: File B not found
         self.expect_equal(reports[0]['uri'], FILE_A_URI, "Correct uri")
 
-    def test_textDocument_closing_virtual_file_removes_imported_real_file(self, solc: JsonRpcProcess) -> None:
+    def test_textDocument_closing_virtual_file_removes_imported_real_file(self, hypc: JsonRpcProcess) -> None:
         """
         We open a virtual file that imports a real file with a warning.
         Once we close the virtual file, the warning is removed from the diagnostics,
         since the real file is not considered part of the project anymore.
         """
 
-        self.setup_lsp(solc)
-        FILE_A_URI = f'{self.project_root_uri}/a.sol'
-        solc.send_message('textDocument/didOpen', {
+        self.setup_lsp(hypc)
+        FILE_A_URI = f'{self.project_root_uri}/a.hyp'
+        hypc.send_message('textDocument/didOpen', {
             'textDocument': {
                 'uri': FILE_A_URI,
-                'languageId': 'Solidity',
+                'languageId': 'Hyperion',
                 'version': 1,
                 'text':
                     '// SPDX-License-Identifier: UNLICENSED\n'
-                    'pragma solidity >=0.8.0;\n'
-                    'import "./goto/lib.sol";\n'
+                    'pragma hyperion >=0.8.0;\n'
+                    'import "./goto/lib.hyp";\n'
             }
         })
-        reports = self.wait_for_diagnostics(solc)
+        reports = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(reports), 2, '')
         self.expect_equal(len(reports[0]['diagnostics']), 0, "should not contain diagnostics")
 
         marker = self.get_test_tags("lib", 'goto')["@diagnostics"]
 
-        # unused variable in lib.sol
+        # unused variable in lib.hyp
         self.expect_diagnostic(reports[1]['diagnostics'][0], code=2072, marker=marker)
 
-        # Now close the file and expect the warning for lib.sol to be removed
-        solc.send_message(
+        # Now close the file and expect the warning for lib.hyp to be removed
+        hypc.send_message(
             'textDocument/didClose',
             { 'textDocument': { 'uri': FILE_A_URI }}
         )
-        reports = self.wait_for_diagnostics(solc)
+        reports = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(reports), 1, '')
-        self.expect_equal(reports[0]['uri'], f'{self.project_root_uri}/goto/lib.sol', "")
+        self.expect_equal(reports[0]['uri'], f'{self.project_root_uri}/goto/lib.hyp', "")
         self.expect_equal(len(reports[0]['diagnostics']), 0, "should not contain diagnostics")
 
-    def test_textDocument_didChange_at_eol(self, solc: JsonRpcProcess) -> None:
+    def test_textDocument_didChange_at_eol(self, hypc: JsonRpcProcess) -> None:
         """
         Append at one line and insert a new one below.
         """
-        self.setup_lsp(solc)
+        self.setup_lsp(hypc)
         FILE_NAME = 'didChange_template'
         FILE_URI = self.get_test_file_uri(FILE_NAME)
-        solc.send_message('textDocument/didOpen', {
+        hypc.send_message('textDocument/didOpen', {
             'textDocument': {
                 'uri': FILE_URI,
-                'languageId': 'Solidity',
+                'languageId': 'Hyperion',
                 'version': 1,
                 'text': self.get_test_file_contents(FILE_NAME)
             }
         })
-        published_diagnostics = self.wait_for_diagnostics(solc)
+        published_diagnostics = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(published_diagnostics), 1, "one publish diagnostics notification")
         self.expect_equal(len(published_diagnostics[0]['diagnostics']), 0, "no diagnostics")
-        solc.send_message('textDocument/didChange', {
+        hypc.send_message('textDocument/didChange', {
             'textDocument': {
                 'uri': FILE_URI
             },
@@ -1903,14 +1903,14 @@ class SolidityLSPTestSuite: # {{{
                 }
             ]
         })
-        published_diagnostics = self.wait_for_diagnostics(solc)
+        published_diagnostics = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(published_diagnostics), 1, "one publish diagnostics notification")
         report2 = published_diagnostics[0]
         self.expect_equal(report2['uri'], FILE_URI, "Correct file URI")
         self.expect_equal(len(report2['diagnostics']), 1, "one diagnostic")
         self.expect_diagnostic(report2['diagnostics'][0], 7858, 6, (1, 2))
 
-        solc.send_message('textDocument/didChange', {
+        hypc.send_message('textDocument/didChange', {
             'textDocument': { 'uri': FILE_URI },
             'contentChanges': [
                 {
@@ -1922,40 +1922,40 @@ class SolidityLSPTestSuite: # {{{
                 }
             ]
         })
-        published_diagnostics = self.wait_for_diagnostics(solc)
+        published_diagnostics = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(published_diagnostics), 1, "one publish diagnostics notification")
         report3 = published_diagnostics[0]
         self.expect_equal(report3['uri'], FILE_URI, "Correct file URI")
         self.expect_equal(len(report3['diagnostics']), 1, "one diagnostic")
         self.expect_diagnostic(report3['diagnostics'][0], 4126, 6, (1, 23))
 
-    def test_textDocument_didChange_empty_file(self, solc: JsonRpcProcess) -> None:
+    def test_textDocument_didChange_empty_file(self, hypc: JsonRpcProcess) -> None:
         """
         Starts with an empty file and changes it to look like
         the didOpen_with_import test case. Then we can use
         the same verification calls to ensure it worked as expected.
         """
-        # This FILE_NAME must be alphabetically before lib.sol to not over-complify
+        # This FILE_NAME must be alphabetically before lib.hyp to not over-complify
         # the test logic in verify_didOpen_with_import_diagnostics.
         FILE_NAME = 'a_new_file'
         FILE_URI = self.get_test_file_uri(FILE_NAME)
-        self.setup_lsp(solc)
-        solc.send_message('textDocument/didOpen', {
+        self.setup_lsp(hypc)
+        hypc.send_message('textDocument/didOpen', {
             'textDocument': {
                 'uri': FILE_URI,
-                'languageId': 'Solidity',
+                'languageId': 'Hyperion',
                 'version': 1,
                 'text': ''
             }
         })
-        reports = self.wait_for_diagnostics(solc)
+        reports = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(reports), 1)
         report = reports[0]
         published_diagnostics = report['diagnostics']
         self.expect_equal(len(published_diagnostics), 2)
         self.expect_diagnostic(published_diagnostics[0], code=1878, lineNo=0, startEndColumns=(0, 0))
         self.expect_diagnostic(published_diagnostics[1], code=3420, lineNo=0, startEndColumns=(0, 0))
-        solc.send_message('textDocument/didChange', {
+        hypc.send_message('textDocument/didChange', {
             'textDocument': {
                 'uri': self.get_test_file_uri('a_new_file')
             },
@@ -1969,29 +1969,29 @@ class SolidityLSPTestSuite: # {{{
                 }
             ]
         })
-        published_diagnostics = self.wait_for_diagnostics(solc)
+        published_diagnostics = self.wait_for_diagnostics(hypc)
         self.verify_didOpen_with_import_diagnostics(published_diagnostics, 'a_new_file')
 
-    def test_textDocument_didChange_multi_line(self, solc: JsonRpcProcess) -> None:
+    def test_textDocument_didChange_multi_line(self, hypc: JsonRpcProcess) -> None:
         """
         Starts with an empty file and changes it to multiple times, changing
         content across lines.
         """
-        self.setup_lsp(solc)
+        self.setup_lsp(hypc)
         FILE_NAME = 'didChange_template'
         FILE_URI = self.get_test_file_uri(FILE_NAME)
-        solc.send_message('textDocument/didOpen', {
+        hypc.send_message('textDocument/didOpen', {
             'textDocument': {
                 'uri': FILE_URI,
-                'languageId': 'Solidity',
+                'languageId': 'Hyperion',
                 'version': 1,
                 'text': self.get_test_file_contents(FILE_NAME)
             }
         })
-        published_diagnostics = self.wait_for_diagnostics(solc)
+        published_diagnostics = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(published_diagnostics), 1, "one publish diagnostics notification")
         self.expect_equal(len(published_diagnostics[0]['diagnostics']), 0, "no diagnostics")
-        solc.send_message('textDocument/didChange', {
+        hypc.send_message('textDocument/didChange', {
             'textDocument': { 'uri': FILE_URI },
             'contentChanges': [
                 {
@@ -2003,7 +2003,7 @@ class SolidityLSPTestSuite: # {{{
                 }
             ]
         })
-        published_diagnostics = self.wait_for_diagnostics(solc)
+        published_diagnostics = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(published_diagnostics), 1, "one publish diagnostics notification")
         report2 = published_diagnostics[0]
         self.expect_equal(report2['uri'], FILE_URI, "Correct file URI")
@@ -2011,7 +2011,7 @@ class SolidityLSPTestSuite: # {{{
         self.expect_diagnostic(report2['diagnostics'][0], 7407, 6, (3, 5))
 
         # Now we are changing the part "x\n = -" of "uint x\n = -1;"
-        solc.send_message('textDocument/didChange', {
+        hypc.send_message('textDocument/didChange', {
             'textDocument': { 'uri': FILE_URI },
             'contentChanges': [
                 {
@@ -2023,7 +2023,7 @@ class SolidityLSPTestSuite: # {{{
                 }
             ]
         })
-        published_diagnostics = self.wait_for_diagnostics(solc)
+        published_diagnostics = self.wait_for_diagnostics(hypc)
         self.expect_equal(len(published_diagnostics), 1, "one publish diagnostics notification")
         report3 = published_diagnostics[0]
         self.expect_equal(report3['uri'], FILE_URI, "Correct file URI")
@@ -2056,6 +2056,6 @@ class SolidityLSPTestSuite: # {{{
 
 
 if __name__ == "__main__":
-    suite = SolidityLSPTestSuite()
+    suite = HyperionLSPTestSuite()
     exit_code = suite.main()
     sys.exit(exit_code)

@@ -1,5 +1,5 @@
-// EVMC: Ethereum Client-VM Connector API.
-// Copyright 2018 The EVMC Authors.
+// ZVMC: Zond Client-VM Connector API.
+// Copyright 2018 The ZVMC Authors.
 // Licensed under the Apache License, Version 2.0.
 
 #pragma once
@@ -13,23 +13,23 @@
  */
 
 /**
- * @def EVMC_EXPORT
+ * @def ZVMC_EXPORT
  * Marks a function to be exported from a shared library.
  */
 #if defined _MSC_VER || defined __MINGW32__
-#define EVMC_EXPORT __declspec(dllexport)
+#define ZVMC_EXPORT __declspec(dllexport)
 #else
-#define EVMC_EXPORT __attribute__((visibility("default")))
+#define ZVMC_EXPORT __attribute__((visibility("default")))
 #endif
 
 /**
- * @def EVMC_NOEXCEPT
+ * @def ZVMC_NOEXCEPT
  * Safe way of marking a function with `noexcept` C++ specifier.
  */
 #ifdef __cplusplus
-#define EVMC_NOEXCEPT noexcept
+#define ZVMC_NOEXCEPT noexcept
 #else
-#define EVMC_NOEXCEPT
+#define ZVMC_NOEXCEPT
 #endif
 
 /** @} */

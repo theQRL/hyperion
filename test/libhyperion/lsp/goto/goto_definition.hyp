@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.0;
+pragma hyperion >=0.8.0;
 
-import "./lib.sol";
+import "./lib.hyp";
 //      ^ @importDirective
 
 interface I
@@ -103,7 +103,7 @@ contract C
 //                 "line": 0
 //             }
 //         },
-//         "uri": "lib.sol"
+//         "uri": "lib.hyp"
 //     }
 // ]
 // -> textDocument/definition {
@@ -112,7 +112,7 @@ contract C
 // <- [
 //     {
 //         "range": @IASymbol,
-//         "uri": "goto_definition.sol"
+//         "uri": "goto_definition.hyp"
 //     }
 // ]
 // -> textDocument/definition {
@@ -121,7 +121,7 @@ contract C
 // <- [
 //     {
 //         "range": @functionF,
-//         "uri": "goto_definition.sol"
+//         "uri": "goto_definition.hyp"
 //     }
 // ]
 // -> textDocument/definition {
@@ -130,7 +130,7 @@ contract C
 // <- [
 //     {
 //         "range": @IntLibAdd,
-//         "uri": "goto_definition.sol"
+//         "uri": "goto_definition.hyp"
 //     }
 // ]
 // -> textDocument/definition {
@@ -139,7 +139,7 @@ contract C
 // <- [
 //     {
 //         "range": @LibLibrary,
-//         "uri": "lib.sol"
+//         "uri": "lib.hyp"
 //     }
 // ]
 // -> textDocument/definition {
@@ -148,7 +148,7 @@ contract C
 // <- [
 //     {
 //         "range": @addSymbol,
-//         "uri": "lib.sol"
+//         "uri": "lib.hyp"
 //     }
 // ]
 // -> textDocument/definition {
@@ -157,7 +157,7 @@ contract C
 // <- [
 //     {
 //         "range": @ColorEnum,
-//         "uri": "lib.sol"
+//         "uri": "lib.hyp"
 //     }
 // ]
 // -> textDocument/definition {
@@ -166,7 +166,7 @@ contract C
 // <- [
 //     {
 //         "range": @EnumMemberRed,
-//         "uri": "lib.sol"
+//         "uri": "lib.hyp"
 //     }
 // ]
 // -> textDocument/definition {
@@ -175,7 +175,7 @@ contract C
 // <- [
 //     {
 //         "range": @eVariableDeclaration,
-//         "uri": "goto_definition.sol"
+//         "uri": "goto_definition.hyp"
 //     }
 // ]
 // -> textDocument/definition {
@@ -184,7 +184,7 @@ contract C
 // <- [
 //     {
 //         "range": @PriceDeclaration,
-//         "uri": "goto_definition.sol"
+//         "uri": "goto_definition.hyp"
 //     }
 // ]
 // -> textDocument/definition {
@@ -193,7 +193,7 @@ contract C
 // <- [
 //     {
 //         "range": @PriceDeclaration,
-//         "uri": "goto_definition.sol"
+//         "uri": "goto_definition.hyp"
 //     }
 // ]
 // -> textDocument/definition {
@@ -202,6 +202,6 @@ contract C
 // <- [
 //     {
 //         "range": @RGBColorStruct,
-//         "uri": "lib.sol"
+//         "uri": "lib.hyp"
 //     }
 // ]

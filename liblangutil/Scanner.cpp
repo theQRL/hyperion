@@ -1,18 +1,18 @@
 /*
- * This file is part of solidity.
+ * This file is part of hyperion.
  *
- * solidity is free software: you can redistribute it and/or modify
+ * hyperion is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * solidity is distributed in the hope that it will be useful,
+ * hyperion is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+ * along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
  *
  * This file is derived from the file "scanner.cc", which was part of the
  * V8 project. The original copyright header follows:
@@ -47,7 +47,7 @@
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Solidity scanner.
+ * Hyperion scanner.
  */
 
 #include <liblangutil/Common.h>
@@ -62,7 +62,7 @@
 #include <array>
 
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 
 std::string to_string(ScannerError _errorCode)
@@ -85,7 +85,7 @@ std::string to_string(ScannerError _errorCode)
 		case ScannerError::DirectionalOverrideUnderflow: return "Unicode direction override underflow in comment or string literal.";
 		case ScannerError::DirectionalOverrideMismatch: return "Mismatching directional override markers in comment or string literal.";
 		default:
-			solAssert(false, "Unhandled case in to_string(ScannerError)");
+			hypAssert(false, "Unhandled case in to_string(ScannerError)");
 			return "";
 	}
 }
@@ -139,7 +139,7 @@ private:
 void Scanner::reset()
 {
 	m_source.reset();
-	m_kind = ScannerKind::Solidity;
+	m_kind = ScannerKind::Hyperion;
 	m_char = m_source.get();
 	skipWhitespace();
 	next();
@@ -930,7 +930,7 @@ Token Scanner::scanNumber(char _charSeen)
 	}
 	else
 	{
-		solAssert(_charSeen == 0, "");
+		hypAssert(_charSeen == 0, "");
 		// if the first character is '0' we must check for octals and hex
 		if (m_char == '0')
 		{
@@ -979,7 +979,7 @@ Token Scanner::scanNumber(char _charSeen)
 	// scan exponent, if any
 	if (m_char == 'e' || m_char == 'E')
 	{
-		solAssert(kind != HEX, "'e'/'E' must be scanned as part of the hex number");
+		hypAssert(kind != HEX, "'e'/'E' must be scanned as part of the hex number");
 		if (kind != DECIMAL)
 			return setError(ScannerError::IllegalExponent);
 		else if (!m_source.isPastEndOfInput(1) && m_source.get(1) == '_')
@@ -1012,7 +1012,7 @@ Token Scanner::scanNumber(char _charSeen)
 
 std::tuple<Token, unsigned, unsigned> Scanner::scanIdentifierOrKeyword()
 {
-	solAssert(isIdentifierStart(m_char), "");
+	hypAssert(isIdentifierStart(m_char), "");
 	LiteralScope literal(this, LITERAL_TYPE_STRING);
 	addLiteralCharAndAdvance();
 	// Scan the rest of the identifier characters.
@@ -1023,26 +1023,26 @@ std::tuple<Token, unsigned, unsigned> Scanner::scanIdentifierOrKeyword()
 	auto const token = TokenTraits::fromIdentifierOrKeyword(m_tokens[NextNext].literal);
 	switch (m_kind)
 	{
-	case ScannerKind::Solidity:
-		// Turn experimental Solidity keywords that are not keywords in legacy Solidity into identifiers.
-		if (TokenTraits::isExperimentalSolidityOnlyKeyword(std::get<0>(token)))
+	case ScannerKind::Hyperion:
+		// Turn experimental Hyperion keywords that are not keywords in legacy Hyperion into identifiers.
+		if (TokenTraits::isExperimentalHyperionOnlyKeyword(std::get<0>(token)))
 			return std::make_tuple(Token::Identifier, 0, 0);
 		break;
 	case ScannerKind::Yul:
-		// Turn Solidity identifier into a Yul keyword
+		// Turn Hyperion identifier into a Yul keyword
 		if (m_tokens[NextNext].literal == "leave")
 			return std::make_tuple(Token::Leave, 0, 0);
 		// Turn non-Yul keywords into identifiers.
 		if (!TokenTraits::isYulKeyword(std::get<0>(token)))
 			return std::make_tuple(Token::Identifier, 0, 0);
 		break;
-	case ScannerKind::ExperimentalSolidity:
-		// Turn legacy Solidity keywords that are not keywords in experimental Solidity into identifiers.
-		if (!TokenTraits::isExperimentalSolidityKeyword(std::get<0>(token)))
+	case ScannerKind::ExperimentalHyperion:
+		// Turn legacy Hyperion keywords that are not keywords in experimental Hyperion into identifiers.
+		if (!TokenTraits::isExperimentalHyperionKeyword(std::get<0>(token)))
 			return std::make_tuple(Token::Identifier, 0, 0);
 		break;
 	}
 	return token;
 }
 
-} // namespace solidity::langutil
+} // namespace hyperion::langutil

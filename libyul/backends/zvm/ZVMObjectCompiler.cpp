@@ -1,29 +1,29 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Compiler that transforms Yul Objects to EVM bytecode objects.
+ * Compiler that transforms Yul Objects to ZVM bytecode objects.
  */
 
-#include <libyul/backends/evm/EVMObjectCompiler.h>
+#include <libyul/backends/zvm/ZVMObjectCompiler.h>
 
-#include <libyul/backends/evm/EVMCodeTransform.h>
-#include <libyul/backends/evm/EVMDialect.h>
-#include <libyul/backends/evm/OptimizedEVMCodeTransform.h>
+#include <libyul/backends/zvm/ZVMCodeTransform.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/zvm/OptimizedZVMCodeTransform.h>
 
 #include <libyul/optimiser/FunctionCallFinder.h>
 
@@ -32,20 +32,20 @@
 
 #include <boost/algorithm/string.hpp>
 
-using namespace solidity::yul;
+using namespace hyperion::yul;
 
-void EVMObjectCompiler::compile(
+void ZVMObjectCompiler::compile(
 	Object& _object,
 	AbstractAssembly& _assembly,
-	EVMDialect const& _dialect,
+	ZVMDialect const& _dialect,
 	bool _optimize
 )
 {
-	EVMObjectCompiler compiler(_assembly, _dialect);
+	ZVMObjectCompiler compiler(_assembly, _dialect);
 	compiler.run(_object, _optimize);
 }
 
-void EVMObjectCompiler::run(Object& _object, bool _optimize)
+void ZVMObjectCompiler::run(Object& _object, bool _optimize)
 {
 	BuiltinContext context;
 	context.currentObject = &_object;
@@ -74,13 +74,13 @@ void EVMObjectCompiler::run(Object& _object, bool _optimize)
 	yulAssert(_object.code, "No code.");
 	if (_optimize)
 	{
-		auto stackErrors = OptimizedEVMCodeTransform::run(
+		auto stackErrors = OptimizedZVMCodeTransform::run(
 			m_assembly,
 			*_object.analysisInfo,
 			*_object.code,
 			m_dialect,
 			context,
-			OptimizedEVMCodeTransform::UseNamedLabels::ForFirstFunctionOfEachName
+			OptimizedZVMCodeTransform::UseNamedLabels::ForFirstFunctionOfEachName
 		);
 		if (!stackErrors.empty())
 		{

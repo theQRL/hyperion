@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /** @file boostTest.cpp
@@ -39,7 +39,7 @@
 
 #include <test/InteractiveTests.h>
 #include <test/Common.h>
-#include <test/EVMHost.h>
+#include <test/ZVMHost.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -47,7 +47,7 @@
 #include <string>
 
 using namespace boost::unit_test;
-using namespace solidity::frontend::test;
+using namespace hyperion::frontend::test;
 namespace fs = boost::filesystem;
 using namespace std;
 
@@ -57,7 +57,7 @@ void removeTestSuite(std::string const& _name)
 {
 	master_test_suite_t& master = framework::master_test_suite();
 	auto id = master.get(_name);
-	soltestAssert(id != INV_TEST_UNIT_ID, "Removing non-existent test suite!");
+	hyptestAssert(id != INV_TEST_UNIT_ID, "Removing non-existent test suite!");
 	master.remove(id);
 }
 
@@ -68,7 +68,7 @@ void removeTestSuite(std::string const& _name)
 class BoostBatcher: public test_tree_visitor
 {
 public:
-	BoostBatcher(solidity::test::Batcher& _batcher):
+	BoostBatcher(hyperion::test::Batcher& _batcher):
 		m_batcher(_batcher)
 	{}
 
@@ -91,7 +91,7 @@ public:
 	}
 
 private:
-	solidity::test::Batcher& m_batcher;
+	hyperion::test::Batcher& m_batcher;
 	std::vector<test_suite*> m_path;
 };
 
@@ -135,17 +135,17 @@ int registerTests(
 	boost::filesystem::path const& _path,
 	vector<string> const& _labels,
 	TestCase::TestCaseCreator _testCaseCreator,
-	solidity::test::Batcher& _batcher
+	hyperion::test::Batcher& _batcher
 )
 {
 	int numTestsAdded = 0;
 	fs::path fullpath = _basepath / _path;
 	TestCase::Config config{
 		fullpath.string(),
-		solidity::test::CommonOptions::get().evmVersion(),
-		solidity::test::CommonOptions::get().vmPaths,
-		solidity::test::CommonOptions::get().enforceGasTest,
-		solidity::test::CommonOptions::get().enforceGasTestMinValue,
+		hyperion::test::CommonOptions::get().zvmVersion(),
+		hyperion::test::CommonOptions::get().vmPaths,
+		hyperion::test::CommonOptions::get().enforceGasTest,
+		hyperion::test::CommonOptions::get().enforceGasTestMinValue,
 	};
 	if (fs::is_directory(fullpath))
 	{
@@ -155,7 +155,7 @@ int registerTests(
 			fs::directory_iterator()
 		))
 			if (
-				solidity::test::isValidSemanticTestPath(entry) &&
+				hyperion::test::isValidSemanticTestPath(entry) &&
 				(fs::is_directory(entry.path()) || TestCase::isTestFilename(entry.path().filename()))
 			)
 				numTestsAdded += registerTests(
@@ -202,13 +202,13 @@ bool initializeOptions()
 {
 	auto const& suite = boost::unit_test::framework::master_test_suite();
 
-	auto options = std::make_unique<solidity::test::CommonOptions>();
+	auto options = std::make_unique<hyperion::test::CommonOptions>();
 	bool shouldContinue = options->parse(suite.argc, suite.argv);
 	if (!shouldContinue)
 		return false;
 	options->validate();
 
-	solidity::test::CommonOptions::setSingleton(std::move(options));
+	hyperion::test::CommonOptions::setSingleton(std::move(options));
 	return true;
 }
 
@@ -220,10 +220,10 @@ test_suite* init_unit_test_suite(int /*argc*/, char* /*argv*/[]);
 
 test_suite* init_unit_test_suite(int /*argc*/, char* /*argv*/[])
 {
-	using namespace solidity::test;
+	using namespace hyperion::test;
 
 	master_test_suite_t& master = framework::master_test_suite();
-	master.p_name.value = "SolidityTests";
+	master.p_name.value = "HyperionTests";
 
 	try
 	{
@@ -231,13 +231,13 @@ test_suite* init_unit_test_suite(int /*argc*/, char* /*argv*/[])
 		if (!shouldContinue)
 			exit(EXIT_SUCCESS);
 
-		if (!solidity::test::loadVMs(solidity::test::CommonOptions::get()))
+		if (!hyperion::test::loadVMs(hyperion::test::CommonOptions::get()))
 			exit(EXIT_FAILURE);
 
-		if (solidity::test::CommonOptions::get().disableSemanticTests)
+		if (hyperion::test::CommonOptions::get().disableSemanticTests)
 			cout << endl << "--- SKIPPING ALL SEMANTICS TESTS ---" << endl << endl;
 
-		if (!solidity::test::CommonOptions::get().enforceGasTest)
+		if (!hyperion::test::CommonOptions::get().enforceGasTest)
 			cout << endl << "WARNING :: Gas Cost Expectations are not being enforced" << endl << endl;
 
 		Batcher batcher(CommonOptions::get().selectedBatch, CommonOptions::get().batches);
@@ -251,16 +251,16 @@ test_suite* init_unit_test_suite(int /*argc*/, char* /*argv*/[])
 		// Include the interactive tests in the automatic tests as well
 		for (auto const& ts: g_interactiveTestsuites)
 		{
-			auto const& options = solidity::test::CommonOptions::get();
+			auto const& options = hyperion::test::CommonOptions::get();
 
 			if (ts.smt && options.disableSMT)
 				continue;
 
-			if (ts.needsVM && solidity::test::CommonOptions::get().disableSemanticTests)
+			if (ts.needsVM && hyperion::test::CommonOptions::get().disableSemanticTests)
 				continue;
 
 			//TODO
-			//solAssert(
+			//hypAssert(
 			registerTests(
 				master,
 				options.testPath / ts.path,
@@ -272,22 +272,22 @@ test_suite* init_unit_test_suite(int /*argc*/, char* /*argv*/[])
 			// > 0, std::string("no ") + ts.title + " tests found");
 		 }
 
-		if (solidity::test::CommonOptions::get().disableSemanticTests)
+		if (hyperion::test::CommonOptions::get().disableSemanticTests)
 		{
 			for (auto suite: {
 				"ABIDecoderTest",
 				"ABIEncoderTest",
-				"SolidityAuctionRegistrar",
-				"SolidityWallet",
+				"HyperionAuctionRegistrar",
+				"HyperionWallet",
 				"GasMeterTests",
 				"GasCostTests",
-				"SolidityEndToEndTest",
-				"SolidityOptimizer"
+				"HyperionEndToEndTest",
+				"HyperionOptimizer"
 			})
 				removeTestSuite(suite);
 		}
 	}
-	catch (solidity::test::ConfigException const& exception)
+	catch (hyperion::test::ConfigException const& exception)
 	{
 		cerr << exception.what() << endl;
 		exit(EXIT_FAILURE);

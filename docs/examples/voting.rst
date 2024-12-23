@@ -7,7 +7,7 @@ Voting
 ******
 
 The following contract is quite complex, but showcases
-a lot of Solidity's features. It implements a voting
+a lot of Hyperion's features. It implements a voting
 contract. Of course, the main problems of electronic
 voting is how to assign voting rights to the correct
 persons and how to prevent manipulation. We will not
@@ -30,10 +30,10 @@ At the end of the voting time, ``winningProposal()``
 will return the proposal with the largest number
 of votes.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.7.0 <0.9.0;
+    pragma hyperion >=0.7.0 <0.9.0;
     /// @title Voting with delegation.
     contract Ballot {
         // This declares a new complex type which will
@@ -87,7 +87,7 @@ of votes.
             // to `false`, execution terminates and all
             // changes to the state and to Ether balances
             // are reverted.
-            // This used to consume all gas in old EVM versions, but
+            // This used to consume all gas in old ZVM versions, but
             // not anymore.
             // It is often a good idea to use `require` to check if
             // functions are called correctly.

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.0;
+pragma hyperion >=0.8.0;
 
-import "./contract.sol" as externalFile;
+import "./contract.hyp" as externalFile;
 //                         ^^^^^^^^^^^^ @FileAliasInImportDirective
 //                             ^ @CursorOnFileAliasInImportDirective
-import {ToRename as ExternalContract, User} from "./contract.sol";
+import {ToRename as ExternalContract, User} from "./contract.hyp";
 //                  ^^^^^^^^^^^^^^^^ @RenamedContractInImportDirective
 //                         ^ @CursorOnRenamedContractInImportDirective
 //      ^^^^^^^^ @OriginalNameInImportDirective
@@ -34,7 +34,7 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/import_directive.sol": [
+//         "rename/import_directive.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @FileAliasInPublicVariable
@@ -52,7 +52,7 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/import_directive.sol": [
+//         "rename/import_directive.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @RenamedContractInPublicVariable
@@ -70,7 +70,7 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/contract.sol": [
+//         "rename/contract.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ContractInParameter
@@ -100,7 +100,7 @@ contract C
 //                 "range": @ContractInDefinition
 //             }
 //         ],
-//         "rename/import_directive.sol": [
+//         "rename/import_directive.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @OriginalNameInPublicVariable
@@ -118,7 +118,7 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/import_directive.sol": [
+//         "rename/import_directive.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @RenamedContractInPublicVariable
@@ -136,7 +136,7 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/import_directive.sol": [
+//         "rename/import_directive.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @FileAliasInPublicVariable
@@ -154,7 +154,7 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/contract.sol": [
+//         "rename/contract.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ContractInParameter
@@ -184,7 +184,7 @@ contract C
 //                 "range": @ContractInDefinition
 //             }
 //         ],
-//         "rename/import_directive.sol": [
+//         "rename/import_directive.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @OriginalNameInPublicVariable
@@ -202,13 +202,13 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/contract.sol": [
+//         "rename/contract.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @UserContractInContractTest
 //             }
 //         ],
-//         "rename/import_directive.sol": [
+//         "rename/import_directive.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @UserInPublicVariable
@@ -226,13 +226,13 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/contract.sol": [
+//         "rename/contract.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @UserContractInContractTest
 //             }
 //         ],
-//         "rename/import_directive.sol": [
+//         "rename/import_directive.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @UserInPublicVariable

@@ -25,11 +25,11 @@ function test_cli_and_standard_json_equivalence
     cli_output=$(
         # shellcheck disable=SC2086 # Intentionally unquoted. May contain multiple options.
         msg_on_error --no-stderr \
-            "$SOLC" $cli_options "$selected_cli_output" "$input_file_relative_path"
+            "$HYPC" $cli_options "$selected_cli_output" "$input_file_relative_path"
     )
     standard_json_output=$(
         singleContractOutputViaStandardJSON \
-            Solidity \
+            Hyperion \
             "$selected_standard_json_output" \
             "$standard_json_settings" \
             "$input_file_relative_path"
@@ -49,13 +49,13 @@ test_cli_and_standard_json_equivalence \
     '--optimize' \
     '--asm' \
     '"optimizer": {"enabled": true}' \
-    'evm.assembly' \
-    "test/libsolidity/semanticTests/various/erc20.sol"
+    'zvm.assembly' \
+    "test/libhyperion/semanticTests/various/erc20.hyp"
 
 printTask "    - --optimize-yul vs optimizer.details.yul: true (--asm output)"
 test_cli_and_standard_json_equivalence \
     '--optimize-yul' \
     '--asm' \
     '"optimizer": {"enabled": false, "details": {"yul": true}}' \
-    'evm.assembly' \
-    "test/libsolidity/semanticTests/various/erc20.sol"
+    'zvm.assembly' \
+    "test/libhyperion/semanticTests/various/erc20.hyp"

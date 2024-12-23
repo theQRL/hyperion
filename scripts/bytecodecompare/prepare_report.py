@@ -176,7 +176,7 @@ def parse_standard_json_output(source_file_name: Path, standard_json_output: str
             file_report.contract_reports.append(ContractReport(
                 contract_name=contract_name,
                 file_name=Path(file_name),
-                bytecode=clean_string(contract_results.get('evm', {}).get('bytecode', {}).get('object')),
+                bytecode=clean_string(contract_results.get('zvm', {}).get('bytecode', {}).get('object')),
                 metadata=clean_string(contract_results.get('metadata')),
             ))
 
@@ -223,7 +223,7 @@ def prepare_compiler_input(
 
     if interface == CompilerInterface.STANDARD_JSON:
         json_input: dict = {
-            'language': 'Solidity',
+            'language': 'Hyperion',
             'sources': {
                 str(source_file_name): {'content': load_source(source_file_name, smt_use)}
             },
@@ -231,7 +231,7 @@ def prepare_compiler_input(
                 'optimizer': {'enabled': settings.optimize},
                 # NOTE: We omit viaIR rather than set it to false to handle older versions that don't have it.
                 **({'viaIR': True} if settings.via_ir else {}),
-                'outputSelection': {'*': {'*': ['evm.bytecode.object', 'metadata']}},
+                'outputSelection': {'*': {'*': ['zvm.bytecode.object', 'metadata']}},
             }
         }
 
@@ -407,11 +407,11 @@ def generate_report(
 def commandline_parser() -> ArgumentParser:
     script_description = (
         "Generates a report listing bytecode and metadata obtained by compiling all the "
-        "*.sol files found in the current working directory using the provided binary."
+        "*.hyp files found in the current working directory using the provided binary."
     )
 
     parser = ArgumentParser(description=script_description)
-    parser.add_argument(dest='compiler_path', help="Solidity compiler executable")
+    parser.add_argument(dest='compiler_path', help="Hyperion compiler executable")
     parser.add_argument(
         '--interface',
         dest='interface',
@@ -440,7 +440,7 @@ def commandline_parser() -> ArgumentParser:
         dest='force_no_optimize_yul',
         default=False,
         action='store_true',
-        help="Explicitly disable Yul optimizer in CLI runs without optimization to work around a bug in solc 0.6.0 and 0.6.1."
+        help="Explicitly disable Yul optimizer in CLI runs without optimization to work around a bug in hypc 0.6.0 and 0.6.1."
     )
     parser.add_argument('--report-file', dest='report_file', default='report.txt', help="The file to write the report to.")
     parser.add_argument('--verbose', dest='verbose', default=False, action='store_true', help="More verbose output.")
@@ -465,7 +465,7 @@ if __name__ == "__main__":
         presets = options.presets
 
     generate_report(
-        glob("*.sol"),
+        glob("*.hyp"),
         Path(options.compiler_path),
         CompilerInterface(options.interface),
         [SettingsPreset(p) for preset_group in presets for p in preset_group],

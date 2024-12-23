@@ -1,33 +1,33 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
-#include <libsolidity/formal/SSAVariable.h>
-#include <libsolidity/ast/Types.h>
-#include <libsolidity/ast/TypeProvider.h>
+#include <libhyperion/formal/SSAVariable.h>
+#include <libhyperion/ast/Types.h>
+#include <libhyperion/ast/TypeProvider.h>
 
 #include <libsmtutil/SolverInterface.h>
 
 #include <map>
 #include <memory>
 
-namespace solidity::frontend::smt
+namespace hyperion::frontend::smt
 {
 
 class EncodingContext;
@@ -64,7 +64,7 @@ public:
 	virtual smtutil::Expression increaseIndex();
 	virtual smtutil::Expression operator()(std::vector<smtutil::Expression> /*_arguments*/) const
 	{
-		solAssert(false, "Function application to non-function.");
+		hypAssert(false, "Function application to non-function.");
 	}
 
 	unsigned index() const { return m_ssa->index(); }
@@ -79,9 +79,9 @@ protected:
 
 	/// SMT sort.
 	smtutil::SortPointer m_sort;
-	/// Solidity type, used for size and range in number types.
+	/// Hyperion type, used for size and range in number types.
 	frontend::Type const* m_type;
-	/// Solidity original type, used for type conversion if necessary.
+	/// Hyperion original type, used for type conversion if necessary.
 	frontend::Type const* m_originalType;
 	std::string m_uniqueName;
 	EncodingContext& m_context;

@@ -1,20 +1,20 @@
 
-======= linking_unqualified_library_name/contract1.sol:C =======
+======= linking_unqualified_library_name/contract1.hyp:C =======
 Binary:
-<BYTECODE REMOVED>__$cdf6d5ab08a9335b02e7c2475aa27d04fa$__<BYTECODE REMOVED>
+<BYTECODE REMOVED>__$e63096606d137dcf30e58fffe71ce66a83$__<BYTECODE REMOVED>
 
-// $cdf6d5ab08a9335b02e7c2475aa27d04fa$ -> linking_unqualified_library_name/error.sol:Log
+// $e63096606d137dcf30e58fffe71ce66a83$ -> linking_unqualified_library_name/error.hyp:Log
 
-======= linking_unqualified_library_name/contract2.sol:C =======
+======= linking_unqualified_library_name/contract2.hyp:C =======
 Binary:
-<BYTECODE REMOVED>__$22584241c2fc4f2884d5222245463779a8$__<BYTECODE REMOVED>
+<BYTECODE REMOVED>__$7ecfe524f6f11235043731781d2064511e$__<BYTECODE REMOVED>
 
-// $22584241c2fc4f2884d5222245463779a8$ -> linking_unqualified_library_name/math.sol:Log
+// $7ecfe524f6f11235043731781d2064511e$ -> linking_unqualified_library_name/math.hyp:Log
 
-======= linking_unqualified_library_name/error.sol:Log =======
+======= linking_unqualified_library_name/error.hyp:Log =======
 Binary:
 <BYTECODE REMOVED>
 
-======= linking_unqualified_library_name/math.sol:Log =======
+======= linking_unqualified_library_name/math.hyp:Log =======
 Binary:
 <BYTECODE REMOVED>

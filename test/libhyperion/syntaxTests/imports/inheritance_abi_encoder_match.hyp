@@ -1,4 +1,4 @@
-==== Source: A.sol ====
+==== Source: A.hyp ====
 pragma abicoder               v2;
 
 contract A
@@ -7,14 +7,14 @@ contract A
     S public s;
     function f(S memory _s) public returns (S memory,S memory) { }
 }
-==== Source: B.sol ====
+==== Source: B.hyp ====
 pragma abicoder               v2;
 
-import "./A.sol";
+import "./A.hyp";
 contract B is A { }
-==== Source: C.sol ====
+==== Source: C.hyp ====
 pragma abicoder               v2;
 
-import "./B.sol";
+import "./B.hyp";
 contract C is B { }
 // ----

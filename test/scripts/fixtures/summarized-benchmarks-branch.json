@@ -1,12 +1,12 @@
 {
     "bleeps": {
-        "ir-optimize-evm+yul": {
+        "ir-optimize-zvm+yul": {
             "bytecode_size": 132868,
             "deployment_gas": 0,
             "method_gas": 39289198,
             "version": "bb90cd0"
         },
-        "legacy-optimize-evm+yul": {
+        "legacy-optimize-zvm+yul": {
             "bytecode_size": 137869,
             "deployment_gas": 0,
             "method_gas": 38863224,
@@ -20,7 +20,7 @@
             "method_gas": null,
             "version": "573399b"
         },
-        "legacy-optimize-evm+yul": {
+        "legacy-optimize-zvm+yul": {
             "bytecode_size": 363606,
             "deployment_gas": null,
             "method_gas": null,
@@ -34,11 +34,11 @@
             "method_gas": null,
             "version": "87f8b5e"
         },
-        "legacy-optimize-evm+yul": {
+        "legacy-optimize-zvm+yul": {
             "deployment_gas": 40951128,
             "version": "87f8b5e"
         },
-        "ir-optimize-evm-only": {},
+        "ir-optimize-zvm-only": {},
         "ir-no-optimize": {
             "deployment_gas": null,
             "method_gas": 2777867251,
@@ -58,32 +58,32 @@
             "method_gas": 3537419168,
             "version": "2ef99fc"
         },
-        "legacy-optimize-evm+yul": {
+        "legacy-optimize-zvm+yul": {
             "bytecode_size": 182190,
             "deployment_gas": 35236828,
             "method_gas": 2777867251,
             "version": "2ef99fc"
         },
-        "legacy-optimize-evm-only": {
+        "legacy-optimize-zvm-only": {
             "bytecode_size": 205211,
             "deployment_gas": 39459629,
             "method_gas": 2978467272,
             "version": "2ef99fc"
         },
-        "ir-optimize-evm-only": {
+        "ir-optimize-zvm-only": {
             "bytecode_size": 205211,
             "deployment_gas": 39459629,
             "method_gas": 2978467272,
             "version": "2ef99fc"
         },
-        "ir-optimize-evm+yul": {
+        "ir-optimize-zvm+yul": {
             "bytecode_size": 205211,
             "deployment_gas": 39459629,
             "method_gas": 2777867251
         }
     },
     "gnosis": {
-        "ir-optimize-evm+yul": {
+        "ir-optimize-zvm+yul": {
             "bytecode_size": 56069,
             "deployment_gas": null,
             "method_gas": null,
@@ -91,7 +91,7 @@
         }
     },
     "zeppelin": {
-        "legacy-optimize-evm+yul": {
+        "legacy-optimize-zvm+yul": {
             "bytecode_size": 510428,
             "deployment_gas": 94501114,
             "version": "af7ec04"

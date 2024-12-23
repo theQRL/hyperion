@@ -1,23 +1,23 @@
 /*
-	This file is part of solidity.
-	solidity is free software: you can redistribute it and/or modify
+	This file is part of hyperion.
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <test/libsolidity/util/TestFunctionCall.h>
+#include <test/libhyperion/util/TestFunctionCall.h>
 
-#include <test/libsolidity/util/BytesUtils.h>
-#include <test/libsolidity/util/ContractABIUtils.h>
+#include <test/libhyperion/util/BytesUtils.h>
+#include <test/libhyperion/util/ContractABIUtils.h>
 
-#include <libsolutil/AnsiColorized.h>
+#include <libhyputil/AnsiColorized.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -25,11 +25,11 @@
 #include <stdexcept>
 #include <string>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::frontend::test;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::frontend::test;
 
-using Token = soltest::Token;
+using Token = hyptest::Token;
 
 std::string TestFunctionCall::format(
 	ErrorReporter& _errorReporter,
@@ -77,7 +77,7 @@ std::string TestFunctionCall::format(
 				stream << comma << ws << m_call.value.value << ws << wei;
 				break;
 			default:
-				soltestAssert(false, "");
+				hyptestAssert(false, "");
 			}
 		}
 		if (!m_call.arguments.rawBytes().empty())
@@ -224,12 +224,12 @@ std::string TestFunctionCall::formatBytesParameters(
 	ErrorReporter& _errorReporter,
 	bytes const& _bytes,
 	std::string const& _signature,
-	solidity::frontend::test::ParameterList const& _parameters,
+	hyperion::frontend::test::ParameterList const& _parameters,
 	bool _highlight,
 	bool _failure
 ) const
 {
-	using ParameterList = solidity::frontend::test::ParameterList;
+	using ParameterList = hyperion::frontend::test::ParameterList;
 
 	std::stringstream os;
 
@@ -282,7 +282,7 @@ std::string TestFunctionCall::formatBytesParameters(
 
 std::string TestFunctionCall::formatFailure(
 	ErrorReporter& _errorReporter,
-	solidity::frontend::test::FunctionCall const& _call,
+	hyperion::frontend::test::FunctionCall const& _call,
 	bytes const& _output,
 	bool _renderResult,
 	bool _highlight
@@ -311,7 +311,7 @@ std::string TestFunctionCall::formatFailure(
 }
 
 std::string TestFunctionCall::formatRawParameters(
-	solidity::frontend::test::ParameterList const& _params,
+	hyperion::frontend::test::ParameterList const& _params,
 	std::string const& _linePrefix
 ) const
 {

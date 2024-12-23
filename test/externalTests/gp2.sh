@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2019 solidity contributors.
+# (c) 2019 hyperion contributors.
 #------------------------------------------------------------------------------
 
 set -e
@@ -48,18 +48,18 @@ function gp2_test
     )
     local settings_presets=(
         "${compile_only_presets[@]}"
-        ir-optimize-evm-only
-        ir-optimize-evm+yul
-        legacy-optimize-evm-only
-        legacy-optimize-evm+yul
+        ir-optimize-zvm-only
+        ir-optimize-zvm+yul
+        legacy-optimize-zvm-only
+        legacy-optimize-zvm+yul
     )
 
     [[ $SELECTED_PRESETS != "" ]] || SELECTED_PRESETS=$(circleci_select_steps_multiarg "${settings_presets[@]}")
     print_presets_or_exit "$SELECTED_PRESETS"
 
-    setup_solc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"
+    setup_hypc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"
     download_project "$repo" "$ref_type" "$ref" "$DIR"
-    [[ $BINARY_TYPE == native ]] && replace_global_solc "$BINARY_PATH"
+    [[ $BINARY_TYPE == native ]] && replace_global_hypc "$BINARY_PATH"
 
     neutralize_package_lock
     neutralize_package_json_hooks
@@ -87,16 +87,16 @@ function gp2_test
     # Patch contracts for 0.8.x compatibility.
     # NOTE: I'm patching OpenZeppelin as well instead of installing OZ 4.0 because it requires less
     # work. The project imports files that were moved to different locations in 4.0.
-    sed -i 's|uint256(-1)|type(uint256).max|g' src/contracts/GPv2Settlement.sol
-    sed -i 's|return msg\.sender;|return payable(msg.sender);|g' node_modules/@openzeppelin/contracts/utils/Context.sol
+    sed -i 's|uint256(-1)|type(uint256).max|g' src/contracts/GPv2Settlement.hyp
+    sed -i 's|return msg\.sender;|return payable(msg.sender);|g' node_modules/@openzeppelin/contracts/utils/Context.hyp
     perl -i -0pe \
         "s/uint256 (executedBuyAmount = \(-tokenDeltas\[trade.buyTokenIndex\]\)\n\s+.toUint256\(\);)/uint256 executedBuyAmount; unchecked \{\1\}/g" \
-        src/contracts/GPv2Settlement.sol
+        src/contracts/GPv2Settlement.hyp
 
     # This test is not supposed to work. The compiler is supposed to enforce zero padding since
     # at least 0.5.8 (see https://github.com/ethereum/solidity/pull/5815). For some reason the
     # test worked on 0.7.6 but no longer works on 0.8.x.
-    sed -i 's|it\(("invalid EVM transaction encoding does not change order hash"\)|it.skip\1|g' test/GPv2Signing.test.ts
+    sed -i 's|it\(("invalid ZVM transaction encoding does not change order hash"\)|it.skip\1|g' test/GPv2Signing.test.ts
 
     # Disable tests that won't pass on the ir presets due to Hardhat heuristics. Note that this also disables
     # them for other presets but that's fine - we want same code run for benchmarks to be comparable.

@@ -1,39 +1,39 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libevmasm/AssemblyItem.h>
+#include <libzvmasm/AssemblyItem.h>
 
-#include <libevmasm/Assembly.h>
+#include <libzvmasm/Assembly.h>
 
-#include <libsolutil/CommonData.h>
-#include <libsolutil/CommonIO.h>
-#include <libsolutil/Numeric.h>
-#include <libsolutil/StringUtils.h>
-#include <libsolutil/FixedHash.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/CommonIO.h>
+#include <libhyputil/Numeric.h>
+#include <libhyputil/StringUtils.h>
+#include <libhyputil/FixedHash.h>
 #include <liblangutil/SourceLocation.h>
 
 #include <fstream>
 #include <limits>
 
 using namespace std::literals;
-using namespace solidity;
-using namespace solidity::evmasm;
-using namespace solidity::langutil;
+using namespace hyperion;
+using namespace hyperion::zvmasm;
+using namespace hyperion::langutil;
 
 static_assert(sizeof(size_t) <= 8, "size_t must be at most 64-bits wide");
 
@@ -146,7 +146,7 @@ size_t AssemblyItem::bytesRequired(size_t _addressLength, Precision _precision) 
 			immutableOccurrences = 1; // Assume one immut. ref.
 		else
 		{
-			solAssert(m_immutableOccurrences, "No immutable references. `bytesRequired()` called before assembly()?");
+			hypAssert(m_immutableOccurrences, "No immutable references. `bytesRequired()` called before assembly()?");
 			immutableOccurrences = m_immutableOccurrences.value();
 		}
 
@@ -296,7 +296,7 @@ std::string AssemblyItem::toAssemblyText(Assembly const& _assembly) const
 		text =
 			(type() == PushSub ? "dataOffset"s : "dataSize"s) +
 			"(" +
-			solidity::util::joinHumanReadable(subPathComponents, ".") +
+			hyperion::util::joinHumanReadable(subPathComponents, ".") +
 			")";
 		break;
 	}
@@ -336,7 +336,7 @@ std::string AssemblyItem::toAssemblyText(Assembly const& _assembly) const
 }
 
 // Note: This method is exclusively used for debugging.
-std::ostream& solidity::evmasm::operator<<(std::ostream& _out, AssemblyItem const& _item)
+std::ostream& hyperion::zvmasm::operator<<(std::ostream& _out, AssemblyItem const& _item)
 {
 	switch (_item.type())
 	{
@@ -408,7 +408,7 @@ size_t AssemblyItem::opcodeCount() const noexcept
 			// For n immutable occurrences the first (n - 1) occurrences will
 			// generate 5 opcodes and the last will generate 3 opcodes,
 			// because it is reusing the 2 top-most elements on the stack.
-			solAssert(m_immutableOccurrences, "");
+			hypAssert(m_immutableOccurrences, "");
 
 			if (m_immutableOccurrences.value() != 0)
 				return (*m_immutableOccurrences - 1) * 5 + 3;
@@ -444,9 +444,9 @@ std::string AssemblyItem::computeSourceMapping(
 			static_cast<int>(_sourceIndicesMap.at(*location.sourceName)) :
 			-1;
 		char jump = '-';
-		if (item.getJumpType() == evmasm::AssemblyItem::JumpType::IntoFunction)
+		if (item.getJumpType() == zvmasm::AssemblyItem::JumpType::IntoFunction)
 			jump = 'i';
-		else if (item.getJumpType() == evmasm::AssemblyItem::JumpType::OutOfFunction)
+		else if (item.getJumpType() == zvmasm::AssemblyItem::JumpType::OutOfFunction)
 			jump = 'o';
 		int modifierDepth = static_cast<int>(item.m_modifierDepth);
 

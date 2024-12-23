@@ -1,6 +1,6 @@
-==== Source: a/.b.sol ====
+==== Source: a/.b.hyp ====
 contract B {}
-==== Source: a/a.sol ====
-import ".b.sol"; contract A is B {}
+==== Source: a/a.hyp ====
+import ".b.hyp"; contract A is B {}
 // ----
-// ParserError 6275: (a/a.sol:0-16): Source ".b.sol" not found: File not supplied initially.
+// ParserError 6275: (a/a.hyp:0-16): Source ".b.hyp" not found: File not supplied initially.

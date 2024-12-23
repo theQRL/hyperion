@@ -5,8 +5,8 @@
   "nodes":
   [
     {
-      "absolutePath": "notexisting.sol",
-      "file": "notexisting.sol",
+      "absolutePath": "notexisting.hyp",
+      "file": "notexisting.hyp",
       "id": 1,
       "nameLocation": "28:11:1",
       "nodeType": "ImportDirective",

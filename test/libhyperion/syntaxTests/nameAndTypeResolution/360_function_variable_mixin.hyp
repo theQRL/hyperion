@@ -1,4 +1,4 @@
-// bug #1798 (cpp-ethereum), related to #1286 (solidity)
+// bug #1798 (cpp-ethereum), related to #1286 (hyperion)
 contract attribute {
     bool ok = false;
 }

@@ -1,8 +1,8 @@
-==== Source: a.sol ====
+==== Source: a.hyp ====
 function f(uint) pure returns (uint) { return 7; }
 function f(bytes memory x) pure returns (uint) { return x.length; }
-==== Source: b.sol ====
-import "a.sol" as M;
+==== Source: b.hyp ====
+import "a.hyp" as M;
 contract C {
 	function f() internal pure returns (uint, uint) {
 		return (M.f(2), M.f("abc"));
@@ -18,6 +18,6 @@ contract C {
 // ====
 // SMTEngine: all
 // ----
-// Warning 6328: (b.sol:208-222): CHC: Assertion violation happens here.
-// Warning 6328: (b.sol:274-288): CHC: Assertion violation happens here.
+// Warning 6328: (b.hyp:208-222): CHC: Assertion violation happens here.
+// Warning 6328: (b.hyp:274-288): CHC: Assertion violation happens here.
 // Info 1391: CHC: 2 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.

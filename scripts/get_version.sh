@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
 
 #------------------------------------------------------------------------------
-# Prints version of the Solidity compiler that the source code corresponds to.
+# Prints version of the Hyperion compiler that the source code corresponds to.
 #
-# The documentation for solidity is hosted at:
+# The documentation for hyperion is hosted at:
 #
 #     https://docs.soliditylang.org
 #
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2017 solidity contributors.
+# (c) 2017 hyperion contributors.
 #------------------------------------------------------------------------------
 
 set -eu

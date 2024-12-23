@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -27,10 +27,10 @@
 #include <libyul/AST.h>
 #include <libyul/Utilities.h>
 
-#include <libevmasm/SemanticInformation.h>
+#include <libzvmasm/SemanticInformation.h>
 
-using namespace solidity;
-using namespace solidity::yul;
+using namespace hyperion;
+using namespace hyperion::yul;
 
 void ExpressionSimplifier::run(OptimiserStepContext& _context, Block& _ast)
 {
@@ -46,11 +46,11 @@ void ExpressionSimplifier::visit(Expression& _expression)
 		m_dialect,
 		[this](YulString _var) { return variableValue(_var); }
 	))
-		_expression = match->action().toExpression(debugDataOf(_expression), evmVersionFromDialect(m_dialect));
+		_expression = match->action().toExpression(debugDataOf(_expression), zvmVersionFromDialect(m_dialect));
 
 	if (auto* functionCall = std::get_if<FunctionCall>(&_expression))
-		if (std::optional<evmasm::Instruction> instruction = toEVMInstruction(m_dialect, functionCall->functionName.name))
-			for (auto op: evmasm::SemanticInformation::readWriteOperations(*instruction))
+		if (std::optional<zvmasm::Instruction> instruction = toZVMInstruction(m_dialect, functionCall->functionName.name))
+			for (auto op: zvmasm::SemanticInformation::readWriteOperations(*instruction))
 				if (op.startParameter && op.lengthParameter)
 				{
 					Expression& startArgument = functionCall->arguments.at(*op.startParameter);

@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 # ------------------------------------------------------------------------------
 # vim:ts=4:et
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2016-2019 solidity contributors.
+# (c) 2016-2019 hyperion contributors.
 # ------------------------------------------------------------------------------
 
 YULARGS=(--strict-assembly)
@@ -65,7 +65,7 @@ function compileFull
     fi
 
     set +e
-    "$SOLC" "${args[@]}" "${files[@]}" >/dev/null 2>"$stderr_path"
+    "$HYPC" "${args[@]}" "${files[@]}" >/dev/null 2>"$stderr_path"
     local exit_code=$?
     local errors; errors=$(grep -v -E \
         -e 'Warning: This is a pre-release compiler version|Warning: Experimental features are turned on|pragma experimental ABIEncoderV2|^ +--> |^ +\||^[0-9]+ +\| ' \
@@ -95,7 +95,7 @@ function compileFull
 
         printError ""
         printError "While calling:"
-        echo      "\"$SOLC\" ${args[*]} ${files[*]}"
+        echo      "\"$HYPC\" ${args[*]} ${files[*]}"
         printError "Inside directory:"
         echo "    $(pwd)"
         printError "Input was:"
@@ -114,7 +114,7 @@ function singleContractOutputViaStandardJSON
     [[ $selected_output != "*" ]] || assertFail
 
     json_output=$(
-        "$SOLC" --standard-json --allow-paths "$(basename "$input_file")" - <<EOF
+        "$HYPC" --standard-json --allow-paths "$(basename "$input_file")" - <<EOF
         {
             "language": "${language}",
             "sources": {"${input_file}": {"urls": ["${input_file}"]}},
@@ -151,7 +151,7 @@ function stripCLIDecorations
         -e '/^Opcodes:$/d' \
         -e '/^IR:$/d' \
         -e '/^Optimized IR:$/d' \
-        -e '/^EVM assembly:$/d' \
+        -e '/^ZVM assembly:$/d' \
         -e '/^JSON AST (compact format):$/d' \
         -e '/^Function signatures:$/d' \
         -e '/^Contract Storage Layout:$/d' \
@@ -159,7 +159,7 @@ function stripCLIDecorations
         -e '/^User Documentation$/d' \
         -e '/^Contract JSON ABI$/d' \
         -e '/^Metadata:$/d' \
-        -e '/^EVM$/d' \
+        -e '/^ZVM$/d' \
         -e '/^Pretty printed source:$/d' \
         -e '/^Text representation:$/d' \
         -e '/^Binary representation:$/d'

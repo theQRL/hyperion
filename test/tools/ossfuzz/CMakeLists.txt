@@ -1,7 +1,7 @@
 add_custom_target(ossfuzz)
 add_dependencies(ossfuzz
-        solc_ossfuzz
-        solc_mutator_ossfuzz
+        hypc_ossfuzz
+        hypc_mutator_ossfuzz
         const_opt_ossfuzz
         strictasm_diff_ossfuzz
         strictasm_opt_ossfuzz
@@ -11,7 +11,7 @@ add_dependencies(ossfuzz
 if (OSSFUZZ)
     add_custom_target(ossfuzz_proto)
     add_dependencies(ossfuzz_proto
-            sol_proto_ossfuzz
+            hyp_proto_ossfuzz
             yul_proto_ossfuzz
             yul_proto_diff_ossfuzz
             yul_proto_diff_custom_mutate_ossfuzz
@@ -23,30 +23,30 @@ if (OSSFUZZ)
 endif()
 
 if (OSSFUZZ)
-    add_executable(solc_ossfuzz
-            solc_ossfuzz.cpp
+    add_executable(hypc_ossfuzz
+            hypc_ossfuzz.cpp
             ../fuzzer_common.cpp
             ../../TestCaseReader.cpp
     )
-    target_link_libraries(solc_ossfuzz PRIVATE libsolc evmasm)
-    set_target_properties(solc_ossfuzz PROPERTIES LINK_FLAGS ${LIB_FUZZING_ENGINE})
+    target_link_libraries(hypc_ossfuzz PRIVATE libhypc zvmasm)
+    set_target_properties(hypc_ossfuzz PROPERTIES LINK_FLAGS ${LIB_FUZZING_ENGINE})
 
-    add_executable(solc_mutator_ossfuzz
-            solc_ossfuzz.cpp
+    add_executable(hypc_mutator_ossfuzz
+            hypc_ossfuzz.cpp
             ../fuzzer_common.cpp
             ../../TestCaseReader.cpp
-            SolidityGenerator.cpp
-            SolidityCustomMutatorInterface.cpp
+            HyperionGenerator.cpp
+            HyperionCustomMutatorInterface.cpp
     )
-    target_link_libraries(solc_mutator_ossfuzz PRIVATE libsolc evmasm)
-    set_target_properties(solc_mutator_ossfuzz PROPERTIES LINK_FLAGS ${LIB_FUZZING_ENGINE})
+    target_link_libraries(hypc_mutator_ossfuzz PRIVATE libhypc zvmasm)
+    set_target_properties(hypc_mutator_ossfuzz PROPERTIES LINK_FLAGS ${LIB_FUZZING_ENGINE})
 
     add_executable(const_opt_ossfuzz const_opt_ossfuzz.cpp ../fuzzer_common.cpp)
-    target_link_libraries(const_opt_ossfuzz PRIVATE libsolc evmasm)
+    target_link_libraries(const_opt_ossfuzz PRIVATE libhypc zvmasm)
     set_target_properties(const_opt_ossfuzz PROPERTIES LINK_FLAGS ${LIB_FUZZING_ENGINE})
 
     add_executable(strictasm_diff_ossfuzz strictasm_diff_ossfuzz.cpp yulFuzzerCommon.cpp)
-    target_link_libraries(strictasm_diff_ossfuzz PRIVATE libsolc evmasm yulInterpreter)
+    target_link_libraries(strictasm_diff_ossfuzz PRIVATE libhypc zvmasm yulInterpreter)
     set_target_properties(strictasm_diff_ossfuzz PROPERTIES LINK_FLAGS ${LIB_FUZZING_ENGINE})
 
     add_executable(strictasm_opt_ossfuzz strictasm_opt_ossfuzz.cpp)
@@ -116,13 +116,13 @@ if (OSSFUZZ)
             StackReuseCodegenFuzzer.cpp
             protoToYul.cpp
             yulProto.pb.cc
-            ../../EVMHost.cpp
-            YulEvmoneInterface.cpp
+            ../../ZVMHost.cpp
+            YulZvmoneInterface.cpp
     )
     target_include_directories(stack_reuse_codegen_ossfuzz PRIVATE /usr/include/libprotobuf-mutator)
     target_link_libraries(stack_reuse_codegen_ossfuzz PRIVATE yul
-            evmc
-            evmone-standalone
+            zvmc
+            zvmone-standalone
             protobuf-mutator-libfuzzer.a
             protobuf-mutator.a
             protobuf.a
@@ -139,18 +139,18 @@ if (OSSFUZZ)
     )
 
     add_executable(abiv2_proto_ossfuzz
-            ../../EVMHost.cpp
+            ../../ZVMHost.cpp
             abiV2ProtoFuzzer.cpp
-            SolidityEvmoneInterface.cpp
+            HyperionZvmoneInterface.cpp
             protoToAbiV2.cpp
             abiV2Proto.pb.cc
     )
     target_include_directories(abiv2_proto_ossfuzz PRIVATE
             /usr/include/libprotobuf-mutator
     )
-    target_link_libraries(abiv2_proto_ossfuzz PRIVATE solidity
-            evmc
-            evmone-standalone
+    target_link_libraries(abiv2_proto_ossfuzz PRIVATE hyperion
+            zvmc
+            zvmone-standalone
             protobuf-mutator-libfuzzer.a
             protobuf-mutator.a
             protobuf.a
@@ -160,17 +160,17 @@ if (OSSFUZZ)
 
     add_executable(abiv2_isabelle_ossfuzz
             AbiV2IsabelleFuzzer.cpp
-            SolidityEvmoneInterface.cpp
-            ../../EVMHost.cpp
+            HyperionZvmoneInterface.cpp
+            ../../ZVMHost.cpp
             protoToAbiV2.cpp
             abiV2Proto.pb.cc
     )
     target_include_directories(abiv2_isabelle_ossfuzz PRIVATE
             /usr/include/libprotobuf-mutator
     )
-    target_link_libraries(abiv2_isabelle_ossfuzz PRIVATE solidity
-            evmc
-            evmone-standalone
+    target_link_libraries(abiv2_isabelle_ossfuzz PRIVATE hyperion
+            zvmc
+            zvmone-standalone
             protobuf-mutator-libfuzzer.a
             protobuf-mutator.a
             protobuf.a
@@ -180,48 +180,48 @@ if (OSSFUZZ)
     set_target_properties(abiv2_isabelle_ossfuzz PROPERTIES LINK_FLAGS ${LIB_FUZZING_ENGINE})
     target_compile_options(abiv2_isabelle_ossfuzz PUBLIC ${COMPILE_OPTIONS} -Wno-sign-conversion -Wno-suggest-destructor-override -Wno-inconsistent-missing-destructor-override -Wno-shorten-64-to-32)
 
-    add_executable(sol_proto_ossfuzz
-            solProtoFuzzer.cpp
-            SolidityEvmoneInterface.cpp
-            protoToSol.cpp
-            solProto.pb.cc
-            ../../EVMHost.cpp
+    add_executable(hyp_proto_ossfuzz
+            hypProtoFuzzer.cpp
+            HyperionZvmoneInterface.cpp
+            protoToHyp.cpp
+            hypProto.pb.cc
+            ../../ZVMHost.cpp
     )
-    target_include_directories(sol_proto_ossfuzz PRIVATE
+    target_include_directories(hyp_proto_ossfuzz PRIVATE
             /usr/include/libprotobuf-mutator
     )
-    target_link_libraries(sol_proto_ossfuzz PRIVATE solidity libsolc
-            evmc
-            evmone-standalone
+    target_link_libraries(hyp_proto_ossfuzz PRIVATE hyperion libhypc
+            zvmc
+            zvmone-standalone
             protobuf-mutator-libfuzzer.a
             protobuf-mutator.a
             protobuf.a
     )
-    set_target_properties(sol_proto_ossfuzz PROPERTIES LINK_FLAGS ${LIB_FUZZING_ENGINE})
-    target_compile_options(sol_proto_ossfuzz PUBLIC ${COMPILE_OPTIONS} -Wno-sign-conversion -Wno-suggest-destructor-override -Wno-inconsistent-missing-destructor-override -Wno-shorten-64-to-32)
+    set_target_properties(hyp_proto_ossfuzz PROPERTIES LINK_FLAGS ${LIB_FUZZING_ENGINE})
+    target_compile_options(hyp_proto_ossfuzz PUBLIC ${COMPILE_OPTIONS} -Wno-sign-conversion -Wno-suggest-destructor-override -Wno-inconsistent-missing-destructor-override -Wno-shorten-64-to-32)
 else()
-    add_library(solc_ossfuzz
-            solc_ossfuzz.cpp
+    add_library(hypc_ossfuzz
+            hypc_ossfuzz.cpp
             ../fuzzer_common.cpp
             )
-    target_link_libraries(solc_ossfuzz PRIVATE libsolc evmasm)
+    target_link_libraries(hypc_ossfuzz PRIVATE libhypc zvmasm)
 
-    add_library(solc_mutator_ossfuzz
-            solc_ossfuzz.cpp
+    add_library(hypc_mutator_ossfuzz
+            hypc_ossfuzz.cpp
             ../fuzzer_common.cpp
             )
-    target_link_libraries(solc_mutator_ossfuzz PRIVATE libsolc evmasm)
+    target_link_libraries(hypc_mutator_ossfuzz PRIVATE libhypc zvmasm)
 
     add_library(const_opt_ossfuzz
             const_opt_ossfuzz.cpp
             ../fuzzer_common.cpp)
-    target_link_libraries(const_opt_ossfuzz PRIVATE libsolc evmasm)
+    target_link_libraries(const_opt_ossfuzz PRIVATE libhypc zvmasm)
 
     add_library(strictasm_diff_ossfuzz
             strictasm_diff_ossfuzz.cpp
             yulFuzzerCommon.cpp
             )
-    target_link_libraries(strictasm_diff_ossfuzz PRIVATE libsolc evmasm yulInterpreter)
+    target_link_libraries(strictasm_diff_ossfuzz PRIVATE libhypc zvmasm yulInterpreter)
 
     add_library(strictasm_opt_ossfuzz
             strictasm_opt_ossfuzz.cpp
@@ -250,7 +250,7 @@ else()
 #            protobuf.a
 #            FuzzingEngine.a)
 #    add_executable(abiv2_proto_ossfuzz
-#            ../../EVMHost.cpp
+#            ../../ZVMHost.cpp
 #            abiV2ProtoFuzzer.cpp
 #            abiV2FuzzerCommon.cpp
 #            protoToAbiV2.cpp
@@ -259,10 +259,10 @@ else()
 #    target_include_directories(abiv2_proto_ossfuzz PRIVATE
 #            /src/LPM/external.protobuf/include
 #            /src/libprotobuf-mutator
-#            /src/evmone/include
+#            /src/zvmone/include
 #    )
-#    target_link_libraries(abiv2_proto_ossfuzz PRIVATE solidity
-#            evmone intx ethash keccak evmc-instructions evmc
+#    target_link_libraries(abiv2_proto_ossfuzz PRIVATE hyperion
+#            zvmone intx ethash keccak zvmc-instructions zvmc
 #            protobuf-mutator-libfuzzer.a
 #            protobuf-mutator.a
 #            protobuf.a

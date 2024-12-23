@@ -1,14 +1,14 @@
 #!/bin/sh
 
 # This script is expected to produce working builds for all compiler versions >= 0.3.6 and
-# succeeding solc-js test runs for all compiler versions >= 0.5.0.
+# succeeding hypc-js test runs for all compiler versions >= 0.5.0.
 
 if [ $# -lt 2 ]; then
   echo "Usage: $0 [tagFilter] [outputDirectory] [options...]"
   echo
   echo "  [tagFilter] will be passed to "git tag --list" to filter the tags to be built."
-  echo "  [outputDirectory] will contain log files and the resulting soljson.js builds."
-  echo "  --retest will re-run tests and bytecode comparisons, even if soljson.js is already built."
+  echo "  [outputDirectory] will contain log files and the resulting hypjson.js builds."
+  echo "  --retest will re-run tests and bytecode comparisons, even if hypjson.js is already built."
   exit 1
 fi
 

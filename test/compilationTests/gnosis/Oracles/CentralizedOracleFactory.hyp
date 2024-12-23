@@ -1,5 +1,5 @@
-pragma solidity >=0.0;
-import "../Oracles/CentralizedOracle.sol";
+pragma hyperion >=0.0;
+import "../Oracles/CentralizedOracle.hyp";
 
 
 /// @title Centralized oracle factory contract - Allows to create centralized oracle contracts

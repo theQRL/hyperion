@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.0;
+pragma hyperion >=0.8.0;
 
 contract ToRename
 //       ^ @CursorOnContractDefinition
@@ -45,7 +45,7 @@ contract User
 // }
 // <- {
 //     "changes": {
-//         "rename/contract.sol": [
+//         "rename/contract.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ContractInParameter
@@ -83,7 +83,7 @@ contract User
 // }
 // <- {
 //     "changes": {
-//         "rename/contract.sol": [
+//         "rename/contract.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ContractInParameter
@@ -121,7 +121,7 @@ contract User
 // }
 // <- {
 //     "changes": {
-//         "rename/contract.sol": [
+//         "rename/contract.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ContractInParameter
@@ -159,7 +159,7 @@ contract User
 // }
 // <- {
 //     "changes": {
-//         "rename/contract.sol": [
+//         "rename/contract.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ContractInParameter
@@ -197,7 +197,7 @@ contract User
 // }
 // <- {
 //     "changes": {
-//         "rename/contract.sol": [
+//         "rename/contract.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ContractInParameter
@@ -235,7 +235,7 @@ contract User
 // }
 // <- {
 //     "changes": {
-//         "rename/contract.sol": [
+//         "rename/contract.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ContractInParameter
@@ -273,7 +273,7 @@ contract User
 // }
 // <- {
 //     "changes": {
-//         "rename/contract.sol": [
+//         "rename/contract.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ContractInParameter

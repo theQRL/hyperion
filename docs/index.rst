@@ -1,29 +1,29 @@
-Solidity
+Hyperion
 ========
 
-Solidity is an object-oriented, high-level language for implementing smart contracts.
+Hyperion is an object-oriented, high-level language for implementing smart contracts.
 Smart contracts are programs that govern the behavior of accounts within the Ethereum state.
 
-Solidity is a `curly-bracket language <https://en.wikipedia.org/wiki/List_of_programming_languages_by_type#Curly-bracket_languages>`_ designed to target the Ethereum Virtual Machine (EVM).
+Hyperion is a `curly-bracket language <https://en.wikipedia.org/wiki/List_of_programming_languages_by_type#Curly-bracket_languages>`_ designed to target the Zond Virtual Machine (ZVM).
 It is influenced by C++, Python, and JavaScript.
-You can find more details about which languages Solidity has been inspired by in the :doc:`language influences <language-influences>` section.
+You can find more details about which languages Hyperion has been inspired by in the :doc:`language influences <language-influences>` section.
 
-Solidity is statically typed, supports inheritance, libraries, and complex user-defined types, among other features.
+Hyperion is statically typed, supports inheritance, libraries, and complex user-defined types, among other features.
 
-With Solidity, you can create contracts for uses such as voting, crowdfunding, blind auctions, and multi-signature wallets.
+With Hyperion, you can create contracts for uses such as voting, crowdfunding, blind auctions, and multi-signature wallets.
 
-When deploying contracts, you should use the latest released version of Solidity.
+When deploying contracts, you should use the latest released version of Hyperion.
 Apart from exceptional cases, only the latest version receives
-`security fixes <https://github.com/ethereum/solidity/security/policy#supported-versions>`_.
+`security fixes <https://github.com/theQRL/hyperion/security/policy#supported-versions>`_.
 Furthermore, breaking changes, as well as new features, are introduced regularly.
 We currently use a 0.y.z version number `to indicate this fast pace of change <https://semver.org/#spec-item-4>`_.
 
 .. warning::
 
-  Solidity recently released the 0.8.x version that introduced a lot of breaking changes.
+  Hyperion recently released the 0.8.x version that introduced a lot of breaking changes.
   Make sure you read :doc:`the full list <080-breaking-changes>`.
 
-Ideas for improving Solidity or this documentation are always welcome,
+Ideas for improving Hyperion or this documentation are always welcome,
 read our :doc:`contributors guide <contributing>` for more details.
 
 .. Hint::
@@ -39,25 +39,25 @@ Getting Started
 
 If you are new to the concept of smart contracts, we recommend you to get started by digging into the "Introduction to Smart Contracts" section, which covers the following:
 
-* :ref:`A simple example smart contract <simple-smart-contract>` written in Solidity.
+* :ref:`A simple example smart contract <simple-smart-contract>` written in Hyperion.
 * :ref:`Blockchain Basics <blockchain-basics>`.
-* :ref:`The Ethereum Virtual Machine <the-ethereum-virtual-machine>`.
+* :ref:`The Zond Virtual Machine <the-ethereum-virtual-machine>`.
 
-**2. Get to Know Solidity**
+**2. Get to Know Hyperion**
 
-Once you are accustomed to the basics, we recommend you read the :doc:`"Solidity by Example" <solidity-by-example>`
+Once you are accustomed to the basics, we recommend you read the :doc:`"Hyperion by Example" <hyperion-by-example>`
 and “Language Description” sections to understand the core concepts of the language.
 
-**3. Install the Solidity Compiler**
+**3. Install the Hyperion Compiler**
 
-There are various ways to install the Solidity compiler,
-simply choose your preferred option and follow the steps outlined on the :ref:`installation page <installing-solidity>`.
+There are various ways to install the Hyperion compiler,
+simply choose your preferred option and follow the steps outlined on the :ref:`installation page <installing-hyperion>`.
 
 .. hint::
   You can try out code examples directly in your browser with the
   `Remix IDE <https://remix.ethereum.org>`_.
-  Remix is a web browser-based IDE that allows you to write, deploy and administer Solidity smart contracts,
-  without the need to install Solidity locally.
+  Remix is a web browser-based IDE that allows you to write, deploy and administer Hyperion smart contracts,
+  without the need to install Hyperion locally.
 
 .. warning::
     As humans write software, it can have bugs.
@@ -69,13 +69,13 @@ simply choose your preferred option and follow the steps outlined on the :ref:`i
 
 **4. Learn More**
 
-If you want to learn more about building decentralized applications on Ethereum,
-the `Ethereum Developer Resources <https://ethereum.org/en/developers/>`_ can help you with further general documentation around Ethereum,
+If you want to learn more about building decentralized applications on Zond,
+the `Zond Developer Resources <https://theqrl.org/en/developers/>`_ can help you with further general documentation around Zond,
 and a wide selection of tutorials, tools, and development frameworks.
 
 If you have any questions, you can try searching for answers or asking on the
-`Ethereum StackExchange <https://ethereum.stackexchange.com/>`_,
-or our `Gitter channel <https://gitter.im/ethereum/solidity>`_.
+`QRL StackExchange <https://theqrl.stackexchange.com/>`_,
+or our `Gitter channel <https://gitter.im/theQRL/hyperion>`_.
 
 .. _translations:
 
@@ -115,8 +115,8 @@ Contents
    :caption: Basics
 
    introduction-to-smart-contracts.rst
-   solidity-by-example.rst
-   installing-solidity.rst
+   hyperion-by-example.rst
+   installing-hyperion.rst
 
 .. toctree::
    :maxdepth: 2

@@ -1,49 +1,49 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Unit tests for the solidity expression compiler.
+ * Unit tests for the hyperion expression compiler.
  */
 
 #include <string>
 
 #include <liblangutil/Scanner.h>
-#include <libsolidity/parsing/Parser.h>
-#include <libsolidity/analysis/NameAndTypeResolver.h>
-#include <libsolidity/analysis/Scoper.h>
-#include <libsolidity/analysis/SyntaxChecker.h>
-#include <libsolidity/analysis/DeclarationTypeChecker.h>
-#include <libsolidity/codegen/CompilerContext.h>
-#include <libsolidity/codegen/ExpressionCompiler.h>
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/TypeProvider.h>
-#include <libsolidity/analysis/TypeChecker.h>
+#include <libhyperion/parsing/Parser.h>
+#include <libhyperion/analysis/NameAndTypeResolver.h>
+#include <libhyperion/analysis/Scoper.h>
+#include <libhyperion/analysis/SyntaxChecker.h>
+#include <libhyperion/analysis/DeclarationTypeChecker.h>
+#include <libhyperion/codegen/CompilerContext.h>
+#include <libhyperion/codegen/ExpressionCompiler.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/TypeProvider.h>
+#include <libhyperion/analysis/TypeChecker.h>
 #include <liblangutil/ErrorReporter.h>
-#include <libevmasm/LinkerObject.h>
+#include <libzvmasm/LinkerObject.h>
 #include <test/Common.h>
 
 #include <boost/test/unit_test.hpp>
 
-using namespace solidity::evmasm;
-using namespace solidity::langutil;
+using namespace hyperion::zvmasm;
+using namespace hyperion::langutil;
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 namespace
@@ -99,7 +99,7 @@ bytes compileFirstExpression(
 	std::vector<std::vector<std::string>> _localVariables = {}
 )
 {
-	std::string sourceCode = "pragma solidity >=0.0; // SPDX-License-Identifier: GPL-3\n" + _sourceCode;
+	std::string sourceCode = "pragma hyperion >=0.0; // SPDX-License-Identifier: GPL-3\n" + _sourceCode;
 	CharStream stream(sourceCode, "");
 
 	ASTPointer<SourceUnit> sourceUnit;
@@ -107,7 +107,7 @@ bytes compileFirstExpression(
 	{
 		ErrorList errors;
 		ErrorReporter errorReporter(errors);
-		sourceUnit = Parser(errorReporter, solidity::test::CommonOptions::get().evmVersion()).parse(stream);
+		sourceUnit = Parser(errorReporter, hyperion::test::CommonOptions::get().zvmVersion()).parse(stream);
 		if (!sourceUnit)
 			return bytes();
 	}
@@ -127,13 +127,13 @@ bytes compileFirstExpression(
 	GlobalContext globalContext;
 	Scoper::assignScopes(*sourceUnit);
 	BOOST_REQUIRE(SyntaxChecker(errorReporter, false).checkSyntax(*sourceUnit));
-	NameAndTypeResolver resolver(globalContext, solidity::test::CommonOptions::get().evmVersion(), errorReporter);
+	NameAndTypeResolver resolver(globalContext, hyperion::test::CommonOptions::get().zvmVersion(), errorReporter);
 	resolver.registerDeclarations(*sourceUnit);
 	BOOST_REQUIRE_MESSAGE(resolver.resolveNamesAndTypes(*sourceUnit), "Resolving names failed");
-	DeclarationTypeChecker declarationTypeChecker(errorReporter, solidity::test::CommonOptions::get().evmVersion());
+	DeclarationTypeChecker declarationTypeChecker(errorReporter, hyperion::test::CommonOptions::get().zvmVersion());
 	for (ASTPointer<ASTNode> const& node: sourceUnit->nodes())
 		BOOST_REQUIRE(declarationTypeChecker.check(*node));
-	TypeChecker typeChecker(solidity::test::CommonOptions::get().evmVersion(), errorReporter);
+	TypeChecker typeChecker(hyperion::test::CommonOptions::get().zvmVersion(), errorReporter);
 	BOOST_REQUIRE(typeChecker.checkTypeRequirements(*sourceUnit));
 	for (ASTPointer<ASTNode> const& node: sourceUnit->nodes())
 		if (ContractDefinition* contract = dynamic_cast<ContractDefinition*>(node.get()))
@@ -142,7 +142,7 @@ bytes compileFirstExpression(
 			BOOST_REQUIRE(extractor.expression() != nullptr);
 
 			CompilerContext context(
-				solidity::test::CommonOptions::get().evmVersion(),
+				hyperion::test::CommonOptions::get().zvmVersion(),
 				RevertStrings::Default
 			);
 			context.resetVisitedNodes(contract);
@@ -158,7 +158,7 @@ bytes compileFirstExpression(
 
 			ExpressionCompiler(
 				context,
-				solidity::test::CommonOptions::get().optimize
+				hyperion::test::CommonOptions::get().optimize
 			).compile(*extractor.expression());
 
 			for (std::vector<std::string> const& function: _functions)
@@ -176,7 +176,7 @@ bytes compileFirstExpression(
 			BOOST_REQUIRE(object.immutableReferences.empty());
 			bytes instructions = object.bytecode;
 			// debug
-			// cout << evmasm::disassemble(instructions) << endl;
+			// cout << zvmasm::disassemble(instructions) << endl;
 			return instructions;
 		}
 	BOOST_FAIL("No contract found in source.");
@@ -185,7 +185,7 @@ bytes compileFirstExpression(
 
 } // end anonymous namespace
 
-BOOST_AUTO_TEST_SUITE(SolidityExpressionCompiler)
+BOOST_AUTO_TEST_SUITE(HyperionExpressionCompiler)
 
 BOOST_AUTO_TEST_CASE(literal_true)
 {
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE(comparison)
 	bytes code = compileFirstExpression(sourceCode);
 
 	bytes expectation;
-	if (solidity::test::CommonOptions::get().optimize)
+	if (hyperion::test::CommonOptions::get().optimize)
 		expectation = {
 			uint8_t(Instruction::PUSH2), 0x11, 0xaa,
 			uint8_t(Instruction::PUSH2), 0x10, 0xaa,
@@ -369,7 +369,7 @@ BOOST_AUTO_TEST_CASE(arithmetic)
 		};
 
 	bytes expectation;
-	if (solidity::test::CommonOptions::get().optimize)
+	if (hyperion::test::CommonOptions::get().optimize)
 		expectation = bytes{
 			uint8_t(Instruction::PUSH1), 0x2,
 			uint8_t(Instruction::PUSH1), 0x3,
@@ -469,7 +469,7 @@ BOOST_AUTO_TEST_CASE(unary_operators)
 	bytes push0Bytes = bytes{uint8_t(Instruction::PUSH0)};
 
 	bytes expectation;
-	if (solidity::test::CommonOptions::get().optimize)
+	if (hyperion::test::CommonOptions::get().optimize)
 		expectation = bytes{
 			uint8_t(Instruction::DUP1),
 		} +
@@ -564,7 +564,7 @@ BOOST_AUTO_TEST_CASE(assignment)
 
 	// Stack: a, b
 	bytes expectation;
-	if (solidity::test::CommonOptions::get().optimize)
+	if (hyperion::test::CommonOptions::get().optimize)
 		expectation = {
 			uint8_t(Instruction::DUP1),
 			uint8_t(Instruction::DUP3),

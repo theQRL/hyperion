@@ -37,7 +37,7 @@ if (${USE_Z3_DLOPEN})
 endif()
 
 add_library(smtutil ${sources} ${z3_SRCS} ${cvc4_SRCS})
-target_link_libraries(smtutil PUBLIC solutil Boost::boost)
+target_link_libraries(smtutil PUBLIC hyputil Boost::boost)
 
 if (${USE_Z3_DLOPEN})
   target_include_directories(smtutil PUBLIC ${Z3_HEADER_PATH})

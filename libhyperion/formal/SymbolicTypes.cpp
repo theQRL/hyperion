@@ -1,35 +1,35 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/formal/SymbolicTypes.h>
+#include <libhyperion/formal/SymbolicTypes.h>
 
-#include <libsolidity/formal/EncodingContext.h>
+#include <libhyperion/formal/EncodingContext.h>
 
-#include <libsolidity/ast/TypeProvider.h>
-#include <libsolidity/ast/Types.h>
-#include <libsolutil/CommonData.h>
+#include <libhyperion/ast/TypeProvider.h>
+#include <libhyperion/ast/Types.h>
+#include <libhyputil/CommonData.h>
 #include <memory>
 #include <vector>
 
-using namespace solidity::util;
-using namespace solidity::smtutil;
+using namespace hyperion::util;
+using namespace hyperion::smtutil;
 
-namespace solidity::frontend::smt
+namespace hyperion::frontend::smt
 {
 
 SortPointer smtSort(frontend::Type const& _type)
@@ -50,7 +50,7 @@ SortPointer smtSort(frontend::Type const& _type)
 	case Kind::Function:
 	{
 		auto fType = dynamic_cast<frontend::FunctionType const*>(&_type);
-		solAssert(fType, "");
+		hypAssert(fType, "");
 		std::vector<SortPointer> parameterSorts = smtSort(fType->parameterTypes());
 		auto returnTypes = fType->returnParameterTypes();
 		SortPointer returnSort;
@@ -71,13 +71,13 @@ SortPointer smtSort(frontend::Type const& _type)
 		if (isMapping(_type))
 		{
 			auto mapType = dynamic_cast<frontend::MappingType const*>(&_type);
-			solAssert(mapType, "");
+			hypAssert(mapType, "");
 			array = std::make_shared<ArraySort>(smtSortAbstractFunction(*mapType->keyType()), smtSortAbstractFunction(*mapType->valueType()));
 		}
 		else if (isStringLiteral(_type))
 		{
 			auto stringLitType = dynamic_cast<frontend::StringLiteralType const*>(&_type);
-			solAssert(stringLitType, "");
+			hypAssert(stringLitType, "");
 			array = std::make_shared<ArraySort>(SortProvider::uintSort, SortProvider::uintSort);
 		}
 		else
@@ -88,9 +88,9 @@ SortPointer smtSort(frontend::Type const& _type)
 			else if (auto const* slice = dynamic_cast<frontend::ArraySliceType const*>(&_type))
 				arrayType = &slice->arrayType();
 			else
-				solAssert(false, "");
+				hypAssert(false, "");
 
-			solAssert(arrayType, "");
+			hypAssert(arrayType, "");
 			array = std::make_shared<ArraySort>(SortProvider::uintSort, smtSortAbstractFunction(*arrayType->baseType()));
 		}
 
@@ -105,7 +105,7 @@ SortPointer smtSort(frontend::Type const& _type)
 		else if (arrayType)
 		{
 			auto baseType = arrayType->baseType();
-			// Solidity allows implicit conversion also when assigning arrays.
+			// Hyperion allows implicit conversion also when assigning arrays.
 			// So if the base type potentially has a size, that size cannot go
 			// in the tuple's name.
 			if (auto tupleSort = std::dynamic_pointer_cast<TupleSort>(array->range))
@@ -148,7 +148,7 @@ SortPointer smtSort(frontend::Type const& _type)
 		}
 		else if (auto const* structType = dynamic_cast<frontend::StructType const*>(&_type))
 		{
-			solAssert(!structType->recursive(), "");
+			hypAssert(!structType->recursive(), "");
 			auto const& structMembers = structType->structDefinition().members();
 			for (auto member: structMembers)
 				members.emplace_back(tupleName + "_accessor_" + member->name());
@@ -158,7 +158,7 @@ SortPointer smtSort(frontend::Type const& _type)
 			));
 		}
 		else
-			solAssert(false, "");
+			hypAssert(false, "");
 
 		return std::make_shared<TupleSort>(tupleName, members, sorts);
 	}
@@ -282,7 +282,7 @@ std::pair<bool, std::shared_ptr<SymbolicVariable>> newSymbolicVariable(
 	else if (isFixedBytes(_type))
 	{
 		auto fixedBytesType = dynamic_cast<frontend::FixedBytesType const*>(type);
-		solAssert(fixedBytesType, "");
+		hypAssert(fixedBytesType, "");
 		var = std::make_shared<SymbolicFixedBytesVariable>(type, fixedBytesType->numBytes(), _uniqueName, _context);
 	}
 	else if (isAddress(_type) || isContract(_type))
@@ -292,7 +292,7 @@ std::pair<bool, std::shared_ptr<SymbolicVariable>> newSymbolicVariable(
 	else if (isRational(_type))
 	{
 		auto rational = dynamic_cast<frontend::RationalNumberType const*>(&_type);
-		solAssert(rational, "");
+		hypAssert(rational, "");
 		if (rational->isFractional())
 			var = std::make_shared<SymbolicIntVariable>(frontend::TypeProvider::uint256(), type, _uniqueName, _context);
 		else
@@ -310,7 +310,7 @@ std::pair<bool, std::shared_ptr<SymbolicVariable>> newSymbolicVariable(
 	else if (isNonRecursiveStruct(_type))
 		var = std::make_shared<SymbolicStructVariable>(type, _uniqueName, _context);
 	else
-		solAssert(false, "");
+		hypAssert(false, "");
 	return make_pair(abstract, var);
 }
 
@@ -413,7 +413,7 @@ smtutil::Expression minValue(frontend::Type const* _type)
 	if (auto userType = dynamic_cast<UserDefinedValueType const*>(_type))
 		return minValue(&userType->underlyingType());
 
-	solAssert(isNumber(*_type), "");
+	hypAssert(isNumber(*_type), "");
 	if (auto const* intType = dynamic_cast<IntegerType const*>(_type))
 		return intType->minValue();
 	if (auto const* fixedType = dynamic_cast<FixedPointType const*>(_type))
@@ -425,7 +425,7 @@ smtutil::Expression minValue(frontend::Type const* _type)
 		dynamic_cast<FixedBytesType const*>(_type)
 	)
 		return 0;
-	solAssert(false, "");
+	hypAssert(false, "");
 }
 
 smtutil::Expression maxValue(frontend::IntegerType const& _type)
@@ -438,7 +438,7 @@ smtutil::Expression maxValue(frontend::Type const* _type)
 	if (auto userType = dynamic_cast<UserDefinedValueType const*>(_type))
 		return maxValue(&userType->underlyingType());
 
-	solAssert(isNumber(*_type), "");
+	hypAssert(isNumber(*_type), "");
 	if (auto const* intType = dynamic_cast<IntegerType const*>(_type))
 		return intType->maxValue();
 	if (auto const* fixedType = dynamic_cast<FixedPointType const*>(_type))
@@ -452,7 +452,7 @@ smtutil::Expression maxValue(frontend::Type const* _type)
 		return enumType->numberOfMembers() - 1;
 	if (auto const* bytesType = dynamic_cast<FixedBytesType const*>(_type))
 		return TypeProvider::uint(bytesType->numBytes() * 8)->maxValue();
-	solAssert(false, "");
+	hypAssert(false, "");
 }
 
 void setSymbolicZeroValue(SymbolicVariable const& _variable, EncodingContext& _context)
@@ -462,13 +462,13 @@ void setSymbolicZeroValue(SymbolicVariable const& _variable, EncodingContext& _c
 
 void setSymbolicZeroValue(smtutil::Expression _expr, frontend::Type const* _type, EncodingContext& _context)
 {
-	solAssert(_type, "");
+	hypAssert(_type, "");
 	_context.addAssertion(_expr == zeroValue(_type));
 }
 
 smtutil::Expression zeroValue(frontend::Type const* _type)
 {
-	solAssert(_type, "");
+	hypAssert(_type, "");
 
 	if (auto userType = dynamic_cast<UserDefinedValueType const*>(_type))
 		return zeroValue(&userType->underlyingType());
@@ -482,7 +482,7 @@ smtutil::Expression zeroValue(frontend::Type const* _type)
 		if (isArray(*_type) || isMapping(*_type))
 		{
 			auto tupleSort = std::dynamic_pointer_cast<TupleSort>(smtSort(*_type));
-			solAssert(tupleSort, "");
+			hypAssert(tupleSort, "");
 			auto sortSort = std::make_shared<SortSort>(tupleSort->components.front());
 
 			std::optional<smtutil::Expression> zeroArray;
@@ -496,9 +496,9 @@ smtutil::Expression zeroValue(frontend::Type const* _type)
 			else if (auto mappingType = dynamic_cast<MappingType const*>(_type))
 				zeroArray = smtutil::Expression::const_array(smtutil::Expression(sortSort), zeroValue(mappingType->valueType()));
 			else
-				solAssert(false, "");
+				hypAssert(false, "");
 
-			solAssert(zeroArray, "");
+			hypAssert(zeroArray, "");
 			return smtutil::Expression::tuple_constructor(
 				smtutil::Expression(std::make_shared<SortSort>(tupleSort), tupleSort->name),
 				std::vector<smtutil::Expression>{*zeroArray, length}
@@ -517,7 +517,7 @@ smtutil::Expression zeroValue(frontend::Type const* _type)
 				)
 			);
 		}
-		solAssert(false, "");
+		hypAssert(false, "");
 	}
 	// Unsupported types are abstracted as Int.
 	return 0;
@@ -528,7 +528,7 @@ bool isSigned(frontend::Type const* _type)
 	if (auto userType = dynamic_cast<UserDefinedValueType const*>(_type))
 		return isSigned(&userType->underlyingType());
 
-	solAssert(smt::isNumber(*_type), "");
+	hypAssert(smt::isNumber(*_type), "");
 	bool isSigned = false;
 	if (auto const* numberType = dynamic_cast<RationalNumberType const*>(_type))
 		isSigned |= numberType->isNegative();
@@ -544,7 +544,7 @@ bool isSigned(frontend::Type const* _type)
 	)
 		return false;
 	else
-		solAssert(false, "");
+		hypAssert(false, "");
 
 	return isSigned;
 }
@@ -561,7 +561,7 @@ std::pair<unsigned, bool> typeBvSizeAndSignedness(frontend::Type const* _type)
 	else if (auto const* fixedBytesType = dynamic_cast<FixedBytesType const*>(_type))
 		return {fixedBytesType->numBytes() * 8, false};
 	else
-		solAssert(false, "");
+		hypAssert(false, "");
 }
 
 void setSymbolicUnknownValue(SymbolicVariable const& _variable, EncodingContext& _context)
@@ -576,7 +576,7 @@ void setSymbolicUnknownValue(smtutil::Expression _expr, frontend::Type const* _t
 
 smtutil::Expression symbolicUnknownConstraints(smtutil::Expression _expr, frontend::Type const* _type)
 {
-	solAssert(_type, "");
+	hypAssert(_type, "");
 
 	if (auto userType = dynamic_cast<UserDefinedValueType const*>(_type))
 		return symbolicUnknownConstraints(std::move(_expr), &userType->underlyingType());

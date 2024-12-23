@@ -1,5 +1,5 @@
 function f() pure {
-    assembly "evmasm" ("a", "b", "c", "c") {}
+    assembly "zvmasm" ("a", "b", "c", "c") {}
 }
 // ----
 // Warning 4430: (24-65): Unknown inline assembly flag: "a"

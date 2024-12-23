@@ -1,4 +1,4 @@
-==== Source: Interfaces.sol ====
+==== Source: Interfaces.hyp ====
 interface ERC20 {
     /// Transfer ``amount`` from ``msg.sender`` to ``to``.
     /// @dev test
@@ -15,8 +15,8 @@ interface ERC21 {
     function transfer(address to, uint amount) external returns (bool);
 }
 
-==== Source: Testfile.sol ====
-import "Interfaces.sol" as myInterfaces;
+==== Source: Testfile.hyp ====
+import "Interfaces.hyp" as myInterfaces;
 
 contract Token is myInterfaces.ERC20, myInterfaces.ERC21 {
     /// @inheritdoc myInterfaces.ERC20
@@ -28,7 +28,7 @@ contract Token is myInterfaces.ERC20, myInterfaces.ERC21 {
 
 // ----
 // ----
-// Interfaces.sol:ERC20 devdoc
+// Interfaces.hyp:ERC20 devdoc
 // {
 //     "kind": "dev",
 //     "methods":
@@ -46,7 +46,7 @@ contract Token is myInterfaces.ERC20, myInterfaces.ERC21 {
 //     "version": 1
 // }
 //
-// Interfaces.sol:ERC20 userdoc
+// Interfaces.hyp:ERC20 userdoc
 // {
 //     "kind": "user",
 //     "methods":
@@ -59,7 +59,7 @@ contract Token is myInterfaces.ERC20, myInterfaces.ERC21 {
 //     "version": 1
 // }
 //
-// Interfaces.sol:ERC21 devdoc
+// Interfaces.hyp:ERC21 devdoc
 // {
 //     "kind": "dev",
 //     "methods":
@@ -77,7 +77,7 @@ contract Token is myInterfaces.ERC20, myInterfaces.ERC21 {
 //     "version": 1
 // }
 //
-// Interfaces.sol:ERC21 userdoc
+// Interfaces.hyp:ERC21 userdoc
 // {
 //     "kind": "user",
 //     "methods":
@@ -90,7 +90,7 @@ contract Token is myInterfaces.ERC20, myInterfaces.ERC21 {
 //     "version": 1
 // }
 //
-// Testfile.sol:Token devdoc
+// Testfile.hyp:Token devdoc
 // {
 //     "kind": "dev",
 //     "methods":
@@ -108,7 +108,7 @@ contract Token is myInterfaces.ERC20, myInterfaces.ERC21 {
 //     "version": 1
 // }
 //
-// Testfile.sol:Token userdoc
+// Testfile.hyp:Token userdoc
 // {
 //     "kind": "user",
 //     "methods":

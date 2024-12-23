@@ -1,3 +1,3 @@
-import {C} from "../../c.sol";
+import {C} from "../../c.hyp";
 contract B {
 }

@@ -1,8 +1,8 @@
-==== Source: A.sol ====
+==== Source: A.hyp ====
 event E();
-==== Source: B.sol ====
-import "A.sol";
+==== Source: B.hyp ====
+import "A.hyp";
 
 event E();
 // ----
-// DeclarationError 5883: (B.sol:17-27): Event with same name and parameter types defined twice.
+// DeclarationError 5883: (B.hyp:17-27): Event with same name and parameter types defined twice.

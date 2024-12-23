@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2022 solidity contributors.
+# (c) 2022 hyperion contributors.
 #------------------------------------------------------------------------------
 
 set -e
@@ -47,17 +47,17 @@ function bleeps_test
     local settings_presets=(
         "${compile_only_presets[@]}"
         #ir-no-optimize            # Compilation fails with: "YulException: Variable expr_15509_mpos is 4 too deep in the stack". No memoryguard was present.
-        #ir-optimize-evm-only      # Compilation fails with: "YulException: Variable expr_15260_mpos is 4 too deep in the stack". No memoryguard was present.
-        ir-optimize-evm+yul
+        #ir-optimize-zvm-only      # Compilation fails with: "YulException: Variable expr_15260_mpos is 4 too deep in the stack". No memoryguard was present.
+        ir-optimize-zvm+yul
         #legacy-no-optimize        # Compilation fails with: "CompilerError: Stack too deep, try removing local variables."
-        #legacy-optimize-evm-only  # Compilation fails with: "CompilerError: Stack too deep, try removing local variables."
-        legacy-optimize-evm+yul
+        #legacy-optimize-zvm-only  # Compilation fails with: "CompilerError: Stack too deep, try removing local variables."
+        legacy-optimize-zvm+yul
     )
 
     [[ $SELECTED_PRESETS != "" ]] || SELECTED_PRESETS=$(circleci_select_steps_multiarg "${settings_presets[@]}")
     print_presets_or_exit "$SELECTED_PRESETS"
 
-    setup_solc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"
+    setup_hypc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"
     download_project "$repo" "$ref_type" "$ref" "$DIR"
 
     pushd "common-lib/"
@@ -69,11 +69,11 @@ function bleeps_test
     pushd "contracts/"
     sed -i 's|"bleeps-common": "workspace:\*",|"bleeps-common": "file:../common-lib/",|g' package.json
 
-    sed -i 's/function() public/fallback() external/g' src/externals/WETH9.sol
-    sed -i 's/this\.balance/address(this).balance/g' src/externals/WETH9.sol
-    sed -i 's/uint(-1)/type(uint).max/g' src/externals/WETH9.sol
-    sed -i 's/msg\.sender\.transfer(/payable(msg.sender).transfer(/g' src/externals/WETH9.sol
-    sed -i 's/^\s*\(Deposit\|Withdrawal\|Approval\|Transfer\)(/emit \1(/g' src/externals/WETH9.sol
+    sed -i 's/function() public/fallback() external/g' src/externals/WETH9.hyp
+    sed -i 's/this\.balance/address(this).balance/g' src/externals/WETH9.hyp
+    sed -i 's/uint(-1)/type(uint).max/g' src/externals/WETH9.hyp
+    sed -i 's/msg\.sender\.transfer(/payable(msg.sender).transfer(/g' src/externals/WETH9.hyp
+    sed -i 's/^\s*\(Deposit\|Withdrawal\|Approval\|Transfer\)(/emit \1(/g' src/externals/WETH9.hyp
 
     # This test does not currently pass due to an upstream problem.
     # TODO: Remove this line when https://github.com/wighawag/bleeps/issues/2 is fixed
@@ -96,7 +96,7 @@ function bleeps_test
     # Remove this when Bleeps gets updated to support newer OpenZeppelin.
     perl -i -0pe \
         "s/(function hashProposal\(\n        address\[\] )calldata( targets,\n        uint256\[\] )calldata( values,\n        bytes\[\] )calldata( calldatas,)/\1memory\2memory\3memory\4/g" \
-        node_modules/@openzeppelin/contracts/governance/IGovernor.sol
+        node_modules/@openzeppelin/contracts/governance/IGovernor.hyp
 
     replace_version_pragmas
 

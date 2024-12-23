@@ -4,7 +4,7 @@
 Creating Contracts
 ******************
 
-Contracts can be created "from outside" via Ethereum transactions or from within Solidity contracts.
+Contracts can be created "from outside" via Ethereum transactions or from within Hyperion contracts.
 
 IDEs, such as `Remix <https://remix.ethereum.org/>`_, make the creation process seamless using UI elements.
 
@@ -32,10 +32,10 @@ If a contract wants to create another contract, the source code
 (and the binary) of the created contract has to be known to the creator.
 This means that cyclic creation dependencies are impossible.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.22 <0.9.0;
+    pragma hyperion >=0.4.22 <0.9.0;
 
 
     contract OwnedToken {

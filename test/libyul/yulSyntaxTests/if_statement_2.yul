@@ -5,5 +5,5 @@
 	}
 }
 // ====
-// dialect: evmTyped
+// dialect: zvmTyped
 // ----

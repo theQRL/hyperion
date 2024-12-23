@@ -10,7 +10,7 @@
 |    gnosis |           `!B` |           `!B` |           `!B` |
 |  zeppelin |                |                |                |
 
-### `ir-optimize-evm+yul`
+### `ir-optimize-zvm+yul`
 |   project |   bytecode_size |  deployment_gas | method_gas |
 |:---------:|----------------:|----------------:|-----------:|
 |    bleeps |  **`+0.53% ❌`** |            `0%` |      `-0%` |
@@ -21,7 +21,7 @@
 |    gnosis |            `!B` |            `!B` |       `!B` |
 |  zeppelin |                 |                 |            |
 
-### `ir-optimize-evm-only`
+### `ir-optimize-zvm-only`
 |   project | bytecode_size | deployment_gas | method_gas |
 |:---------:|--------------:|---------------:|-----------:|
 |    bleeps |               |                |            |
@@ -43,7 +43,7 @@
 |    gnosis |          `!B` |           `!B` |       `!B` |
 |  zeppelin |               |                |            |
 
-### `legacy-optimize-evm+yul`
+### `legacy-optimize-zvm+yul`
 |   project | bytecode_size | deployment_gas | method_gas |
 |:---------:|--------------:|---------------:|-----------:|
 |    bleeps |          `0%` |           `0%` |       `0%` |
@@ -54,7 +54,7 @@
 |    gnosis |          `!B` |           `!B` |       `!B` |
 |  zeppelin |          `0%` |           `0%` |            |
 
-### `legacy-optimize-evm-only`
+### `legacy-optimize-zvm-only`
 |   project | bytecode_size | deployment_gas | method_gas |
 |:---------:|--------------:|---------------:|-----------:|
 |    bleeps |               |                |            |

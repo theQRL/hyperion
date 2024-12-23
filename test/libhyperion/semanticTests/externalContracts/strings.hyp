@@ -1,7 +1,7 @@
-==== ExternalSource: _stringutils/stringutils.sol ====
-==== Source: strings.sol ====
+==== ExternalSource: _stringutils/stringutils.hyp ====
+==== Source: strings.hyp ====
 pragma abicoder v2;
-import "_stringutils/stringutils.sol";
+import "_stringutils/stringutils.hyp";
 
 contract test {
     using strings for bytes32;
@@ -68,7 +68,7 @@ contract test {
 // gas irOptimized: 28440
 // gas legacy: 31621
 // gas legacyOptimized: 27914
-// benchmark(string,bytes32): 0x40, 0x0842021, 8, "solidity" -> 0x2020
+// benchmark(string,bytes32): 0x40, 0x0842021, 8, "hyperion" -> 0x2020
 // gas irOptimized: 1980944
 // gas legacy: 4233999
 // gas legacyOptimized: 2318684

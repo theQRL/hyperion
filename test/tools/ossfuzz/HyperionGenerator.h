@@ -1,23 +1,23 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * Implements generators for synthesizing mostly syntactically valid
- * Solidity test programs.
+ * Hyperion test programs.
  */
 
 #pragma once
@@ -31,10 +31,10 @@
 #include <set>
 #include <variant>
 
-namespace solidity::test::fuzzer::mutator
+namespace hyperion::test::fuzzer::mutator
 {
 /// Forward declarations
-class SolidityGenerator;
+class HyperionGenerator;
 
 /// Type declarations
 #define SEMICOLON() ;
@@ -74,7 +74,7 @@ struct UniformRandomDistribution
 	/// @param _n must be non zero.
 	[[nodiscard]] bool probable(size_t _n) const
 	{
-		solAssert(_n > 0, "");
+		hypAssert(_n > 0, "");
 		return distributionOneToN(_n) == 1;
 	}
 	std::unique_ptr<RandomEngine> randomEngine;
@@ -123,14 +123,14 @@ struct TestState
 
 struct GeneratorBase
 {
-	explicit GeneratorBase(std::shared_ptr<SolidityGenerator> _mutator);
+	explicit GeneratorBase(std::shared_ptr<HyperionGenerator> _mutator);
 	template <typename T>
 	std::shared_ptr<T> generator()
 	{
 		for (auto& g: generators)
 			if (std::holds_alternative<std::shared_ptr<T>>(g))
 				return std::get<std::shared_ptr<T>>(g);
-		solAssert(false, "");
+		hypAssert(false, "");
 	}
 	/// @returns test fragment created by this generator.
 	std::string generate()
@@ -140,7 +140,7 @@ struct GeneratorBase
 		return generatedCode;
 	}
 	/// @returns a string representing the generation of
-	/// the Solidity grammar element.
+	/// the Hyperion grammar element.
 	virtual std::string visit() = 0;
 	/// Method called after visiting this generator. Used
 	/// for clearing state if necessary.
@@ -166,7 +166,7 @@ struct GeneratorBase
 		generators.clear();
 	}
 	/// Shared pointer to the mutator instance
-	std::shared_ptr<SolidityGenerator> mutator;
+	std::shared_ptr<HyperionGenerator> mutator;
 	/// Set of generators used by this generator.
 	std::set<GeneratorPtr> generators;
 	/// Shared ptr to global test state.
@@ -178,7 +178,7 @@ struct GeneratorBase
 class TestCaseGenerator: public GeneratorBase
 {
 public:
-	explicit TestCaseGenerator(std::shared_ptr<SolidityGenerator> _mutator):
+	explicit TestCaseGenerator(std::shared_ptr<HyperionGenerator> _mutator):
 		GeneratorBase(std::move(_mutator)),
 		m_numSourceUnits(0)
 	{}
@@ -192,10 +192,10 @@ private:
 	/// @returns a new source path name that is formed by concatenating
 	/// a static prefix @name m_sourceUnitNamePrefix, a monotonically
 	/// increasing counter starting from 0 and the postfix (extension)
-	/// ".sol".
+	/// ".hyp".
 	[[nodiscard]] std::string path() const
 	{
-		return m_sourceUnitNamePrefix + std::to_string(m_numSourceUnits) + ".sol";
+		return m_sourceUnitNamePrefix + std::to_string(m_numSourceUnits) + ".hyp";
 	}
 	/// Adds @param _path to list of source paths in global test
 	/// state and increments @name m_numSourceUnits.
@@ -215,7 +215,7 @@ private:
 class SourceUnitGenerator: public GeneratorBase
 {
 public:
-	explicit SourceUnitGenerator(std::shared_ptr<SolidityGenerator> _mutator):
+	explicit SourceUnitGenerator(std::shared_ptr<HyperionGenerator> _mutator):
 		GeneratorBase(std::move(_mutator))
 	{}
 	void setup() override;
@@ -226,7 +226,7 @@ public:
 class PragmaGenerator: public GeneratorBase
 {
 public:
-	explicit PragmaGenerator(std::shared_ptr<SolidityGenerator> _mutator):
+	explicit PragmaGenerator(std::shared_ptr<HyperionGenerator> _mutator):
 		GeneratorBase(std::move(_mutator))
 	{}
 	std::string visit() override;
@@ -236,7 +236,7 @@ public:
 class ImportGenerator: public GeneratorBase
 {
 public:
-	explicit ImportGenerator(std::shared_ptr<SolidityGenerator> _mutator):
+	explicit ImportGenerator(std::shared_ptr<HyperionGenerator> _mutator):
 	       GeneratorBase(std::move(_mutator))
 	{}
 	std::string visit() override;
@@ -252,10 +252,10 @@ private:
 	static constexpr size_t s_selfImportInvProb = 17;
 };
 
-class SolidityGenerator: public std::enable_shared_from_this<SolidityGenerator>
+class HyperionGenerator: public std::enable_shared_from_this<HyperionGenerator>
 {
 public:
-	explicit SolidityGenerator(unsigned _seed);
+	explicit HyperionGenerator(unsigned _seed);
 
 	/// @returns the generator of type @param T.
 	template <typename T>

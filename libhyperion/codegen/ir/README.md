@@ -1,8 +1,8 @@
-# The Solidity to Yul Code Generator
+# The Hyperion to Yul Code Generator
 
 This directory contains the new experimental code generator that
-compiles Solidity to an intermediate representation in Yul
-with EVM dialect.
+compiles Hyperion to an intermediate representation in Yul
+with ZVM dialect.
 
 The main semantic differences to the legacy code generator are the following:
 

@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -20,24 +20,24 @@
  * checks at contract or function level.
  */
 
-#include <libsolidity/analysis/OverrideChecker.h>
+#include <libhyperion/analysis/OverrideChecker.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/TypeProvider.h>
-#include <libsolidity/analysis/TypeChecker.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/TypeProvider.h>
+#include <libhyperion/analysis/TypeChecker.h>
 #include <liblangutil/ErrorReporter.h>
-#include <libsolutil/Visitor.h>
+#include <libhyputil/Visitor.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 
 
-using namespace solidity;
-using namespace solidity::frontend;
-using namespace solidity::langutil;
+using namespace hyperion;
+using namespace hyperion::frontend;
+using namespace hyperion::langutil;
 
-using solidity::util::GenericVisitor;
-using solidity::util::contains_if;
-using solidity::util::joinHumanReadable;
+using hyperion::util::GenericVisitor;
+using hyperion::util::contains_if;
+using hyperion::util::joinHumanReadable;
 
 namespace
 {
@@ -183,7 +183,7 @@ OverrideProxy makeOverrideProxy(CallableDeclaration const& _callable)
 	else if (auto const* mod = dynamic_cast<ModifierDefinition const*>(&_callable))
 		return OverrideProxy{mod};
 	else
-		solAssert(false, "Invalid call to makeOverrideProxy.");
+		hypAssert(false, "Invalid call to makeOverrideProxy.");
 	return {};
 }
 
@@ -289,7 +289,7 @@ StateMutability OverrideProxy::stateMutability() const
 {
 	return std::visit(GenericVisitor{
 		[&](FunctionDefinition const* _item) { return _item->stateMutability(); },
-		[&](ModifierDefinition const*) { solAssert(false, "Requested state mutability from modifier."); return StateMutability{}; },
+		[&](ModifierDefinition const*) { hypAssert(false, "Requested state mutability from modifier."); return StateMutability{}; },
 		[&](VariableDeclaration const* _var) { return _var->isConstant() ? StateMutability::Pure : StateMutability::View; }
 	}, m_item);
 }
@@ -317,7 +317,7 @@ FunctionType const* OverrideProxy::externalFunctionType() const
 	return std::visit(GenericVisitor{
 		[&](FunctionDefinition const* _item) { return FunctionType(*_item).asExternallyCallableFunction(false); },
 		[&](VariableDeclaration const* _item) { return FunctionType(*_item).asExternallyCallableFunction(false); },
-		[&](ModifierDefinition const*) -> FunctionType const* { solAssert(false, "Requested function type of modifier."); return nullptr; }
+		[&](ModifierDefinition const*) -> FunctionType const* { hypAssert(false, "Requested function type of modifier."); return nullptr; }
 	}, m_item);
 }
 
@@ -325,16 +325,16 @@ FunctionType const* OverrideProxy::originalFunctionType() const
 {
 	return std::visit(GenericVisitor{
 		[&](FunctionDefinition const* _item) { return TypeProvider::function(*_item); },
-		[&](VariableDeclaration const*) -> FunctionType const* { solAssert(false, "Requested specific function type of variable."); return nullptr; },
-		[&](ModifierDefinition const*) -> FunctionType const* { solAssert(false, "Requested specific function type of modifier."); return nullptr; }
+		[&](VariableDeclaration const*) -> FunctionType const* { hypAssert(false, "Requested specific function type of variable."); return nullptr; },
+		[&](ModifierDefinition const*) -> FunctionType const* { hypAssert(false, "Requested specific function type of modifier."); return nullptr; }
 	}, m_item);
 }
 
 ModifierType const* OverrideProxy::modifierType() const
 {
 	return std::visit(GenericVisitor{
-		[&](FunctionDefinition const*) -> ModifierType const* { solAssert(false, "Requested modifier type of function."); return nullptr; },
-		[&](VariableDeclaration const*) -> ModifierType const* { solAssert(false, "Requested modifier type of variable."); return nullptr; },
+		[&](FunctionDefinition const*) -> ModifierType const* { hypAssert(false, "Requested modifier type of function."); return nullptr; },
+		[&](VariableDeclaration const*) -> ModifierType const* { hypAssert(false, "Requested modifier type of variable."); return nullptr; },
 		[&](ModifierDefinition const* _modifier) -> ModifierType const* { return TypeProvider::modifier(*_modifier); }
 	}, m_item);
 }
@@ -515,7 +515,7 @@ void OverrideChecker::checkIllegalOverrides(ContractDefinition const& _contract)
 
 void OverrideChecker::checkOverride(OverrideProxy const& _overriding, OverrideProxy const& _super)
 {
-	solAssert(_super.isModifier() == _overriding.isModifier(), "");
+	hypAssert(_super.isModifier() == _overriding.isModifier(), "");
 
 	if (_super.isFunction() || _super.isModifier())
 		_overriding.storeBaseFunction(_super);
@@ -563,7 +563,7 @@ void OverrideChecker::checkOverride(OverrideProxy const& _overriding, OverridePr
 				"Public state variables can only override functions with external visibility.",
 				"Overridden function is here:"
 			);
-		solAssert(_overriding.visibility() == Visibility::External, "");
+		hypAssert(_overriding.visibility() == Visibility::External, "");
 	}
 	else if (_overriding.visibility() != _super.visibility())
 	{
@@ -584,7 +584,7 @@ void OverrideChecker::checkOverride(OverrideProxy const& _overriding, OverridePr
 
 	if (_overriding.unimplemented() && !_super.unimplemented())
 	{
-		solAssert(!_overriding.isVariable() || !_overriding.unimplemented(), "");
+		hypAssert(!_overriding.isVariable() || !_overriding.unimplemented(), "");
 		overrideError(
 			_overriding,
 			_super,
@@ -603,7 +603,7 @@ void OverrideChecker::checkOverride(OverrideProxy const& _overriding, OverridePr
 		bool returnTypesDifferAlready = false;
 		if (_overriding.functionKind() != Token::Fallback)
 		{
-			solAssert(functionType->hasEqualParameterTypes(*superType), "Override doesn't have equal parameters!");
+			hypAssert(functionType->hasEqualParameterTypes(*superType), "Override doesn't have equal parameters!");
 
 			if (!functionType->hasEqualReturnTypes(*superType))
 			{
@@ -828,7 +828,7 @@ std::set<ContractDefinition const*, OverrideChecker::CompareByID> OverrideChecke
 	for (ASTPointer<IdentifierPath> const& override: _overrides.overrides())
 	{
 		Declaration const* decl  = override->annotation().referencedDeclaration;
-		solAssert(decl, "Expected declaration to be resolved.");
+		hypAssert(decl, "Expected declaration to be resolved.");
 
 		// If it's not a contract it will be caught
 		// in the reference resolver

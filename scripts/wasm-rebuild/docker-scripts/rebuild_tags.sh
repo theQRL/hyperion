@@ -24,9 +24,9 @@ while (( "$#" )); do
   shift
 done
 
-SOLIDITY_REPO_URL="https://github.com/ethereum/solidity"
-SOLC_JS_REPO_URL="https://github.com/ethereum/solc-js"
-SOLC_JS_BRANCH=wasmRebuildTests
+HYPERION_REPO_URL="https://github.com/theQRL/hyperion"
+HYPC_JS_REPO_URL="https://github.com/theQRL/hypc-js"
+HYPC_JS_BRANCH=wasmRebuildTests
 RELEASE_URL="https://binaries.soliditylang.org/bin"
 RELEASE_COMMIT_LIST_URL="$RELEASE_URL/list.txt"
 
@@ -57,10 +57,10 @@ function generate_bytecode_report
       git reset --hard HEAD --quiet
       git clean -f -d -x --quiet
 
-      for dir in build/solc build/libsolc emscripten_build/libsolc; do
+      for dir in build/hypc build/libhypc emscripten_build/libhypc; do
         mkdir -p $dir
-        rm -rf $dir/soljson.js
-        ln -sf "$1" $dir/soljson.js
+        rm -rf $dir/hypjson.js
+        ln -sf "$1" $dir/hypjson.js
       done
 
        /tmp/storebytecode.sh >/dev/null 2>&1
@@ -97,7 +97,7 @@ function process_tag
   fi
 
   # compatibility symlink
-  ln -s . solidity
+  ln -s . hyperion
 
   local VERSION
   if [ -f ./scripts/get_version.sh ]; then
@@ -110,15 +110,15 @@ function process_tag
   local FULL_VERSION_SUFFIX="${TAG}+commit.${COMMIT_HASH}"
   local HISTORIC_VERSION_SUFFIX="${TAG}+commit.${HISTORIC_COMMIT_HASH}"
 
-  if [ ! -f "${OUTPUTDIR}/bin/soljson-${FULL_VERSION_SUFFIX}.js" ]; then
+  if [ ! -f "${OUTPUTDIR}/bin/hypjson-${FULL_VERSION_SUFFIX}.js" ]; then
     echo -ne "BUILDING ${CYAN}${TAG}${RESET}... "
     set +e
     (
       set -e
       "${SCRIPTDIR}/rebuild_current.sh" "${VERSION}" >"${OUTPUTDIR}/log/running/build-$TAG.txt" 2>&1
-      "${SCRIPTDIR}/patch.sh" "$TAG" upload/soljson.js
-      cp upload/soljson.js "${OUTPUTDIR}/bin/soljson-${FULL_VERSION_SUFFIX}.js"
-      rm upload/soljson.js
+      "${SCRIPTDIR}/patch.sh" "$TAG" upload/hypjson.js
+      cp upload/hypjson.js "${OUTPUTDIR}/bin/hypjson-${FULL_VERSION_SUFFIX}.js"
+      rm upload/hypjson.js
     )
     local EXIT_STATUS=$?
     set -e
@@ -138,18 +138,18 @@ function process_tag
     fi
   fi
 
-  if [ -f "${OUTPUTDIR}/bin/soljson-${FULL_VERSION_SUFFIX}.js" ]; then
+  if [ -f "${OUTPUTDIR}/bin/hypjson-${FULL_VERSION_SUFFIX}.js" ]; then
 
     echo -ne "GENERATE BYTECODE REPORT FOR ${CYAN}${TAG}${RESET}... "
-    generate_bytecode_report "${OUTPUTDIR}/bin/soljson-${FULL_VERSION_SUFFIX}.js" "${OUTPUTDIR}/log/reports/report-${TAG}.txt" "${TAG}"
+    generate_bytecode_report "${OUTPUTDIR}/bin/hypjson-${FULL_VERSION_SUFFIX}.js" "${OUTPUTDIR}/log/reports/report-${TAG}.txt" "${TAG}"
     echo -ne "GENERATE BYTECODE REPORT FOR HISTORIC ${CYAN}${TAG}${RESET}... "
-    rm -rf /tmp/soljson.js
-    if wget -q "$RELEASE_URL/soljson-${HISTORIC_VERSION_SUFFIX}.js" -O /tmp/soljson.js; then
-      generate_bytecode_report /tmp/soljson.js "${OUTPUTDIR}/log/reports/report-historic-${TAG}.txt" "${TAG}"
+    rm -rf /tmp/hypjson.js
+    if wget -q "$RELEASE_URL/hypjson-${HISTORIC_VERSION_SUFFIX}.js" -O /tmp/hypjson.js; then
+      generate_bytecode_report /tmp/hypjson.js "${OUTPUTDIR}/log/reports/report-historic-${TAG}.txt" "${TAG}"
     else
       echo -e "${ORANGE}CANNOT FETCH RELEASE${RESET}"
     fi
-    rm -rf /tmp/soljson.js
+    rm -rf /tmp/hypjson.js
 
     if [ -f "${OUTPUTDIR}/log/reports/report-${TAG}.txt" ] && [ -f "${OUTPUTDIR}/log/reports/report-historic-${TAG}.txt" ]; then
       rm -rf "${OUTPUTDIR}/log/success/bytecode-${TAG}.txt"
@@ -164,10 +164,10 @@ function process_tag
     fi
 
     echo -ne "TESTING ${CYAN}${TAG}${RESET}... "
-    cd /root/solc-js
+    cd /root/hypc-js
     npm version --allow-same-version --no-git-tag-version "${VERSION}" >/dev/null
-    sed -i -e "s/runTests(solc, .*)/runTests(solc, '${FULL_VERSION_SUFFIX}')/" test/compiler.js
-    ln -sf "${OUTPUTDIR}/bin/soljson-${FULL_VERSION_SUFFIX}.js" soljson.js
+    sed -i -e "s/runTests(hypc, .*)/runTests(hypc, '${FULL_VERSION_SUFFIX}')/" test/compiler.js
+    ln -sf "${OUTPUTDIR}/bin/hypjson-${FULL_VERSION_SUFFIX}.js" hypjson.js
     rm -f "${OUTPUTDIR}/log/success/test-$TAG.txt"
     rm -f "${OUTPUTDIR}/log/fail/test-$TAG.txt"
     if npm test >"${OUTPUTDIR}/log/running/test-$TAG.txt" 2>&1; then
@@ -182,11 +182,11 @@ function process_tag
 
 cd /tmp
 
-echo "Check out solidity repository..."
+echo "Check out hyperion repository..."
 if [ -d /root/project ]; then
-  echo "Solidity repo checkout already exists."
+  echo "Hyperion repo checkout already exists."
 else
-  git clone "${SOLIDITY_REPO_URL}" /root/project --quiet
+  git clone "${HYPERION_REPO_URL}" /root/project --quiet
 fi
 
 echo "Extract bytecode comparison scripts from v0.6.1..."
@@ -196,14 +196,14 @@ cp scripts/bytecodecompare/storebytecode.sh /tmp
 # shellcheck disable=SC2016
 sed -i -e 's/rm -rf "\$TMPDIR"/cp "\$TMPDIR"\/report.txt \/tmp\/report.txt ; rm -rf "\$TMPDIR"/' /tmp/storebytecode.sh
 sed -i -e 's/REPO_ROOT=.*/REPO_ROOT=\/src/' /tmp/storebytecode.sh
-sed -i -e 's/git clone/git clone --branch '"${SOLC_JS_BRANCH}"'/' /tmp/storebytecode.sh
-export SOLC_EMSCRIPTEN="On"
+sed -i -e 's/git clone/git clone --branch '"${HYPC_JS_BRANCH}"'/' /tmp/storebytecode.sh
+export HYPC_EMSCRIPTEN="On"
 
-echo "Check out solc-js repository..."
-if [ -d /root/solc-js ]; then
-  echo "solc-js repo checkout already exists."
+echo "Check out hypc-js repository..."
+if [ -d /root/hypc-js ]; then
+  echo "hypc-js repo checkout already exists."
 else
-  git clone --branch "${SOLC_JS_BRANCH}" "${SOLC_JS_REPO_URL}" /root/solc-js --quiet
+  git clone --branch "${HYPC_JS_BRANCH}" "${HYPC_JS_REPO_URL}" /root/hypc-js --quiet
 fi
 
 echo "Create symbolic links for backwards compatibility with older emscripten docker images."
@@ -228,8 +228,8 @@ mkdir -p "${OUTPUTDIR}"/log/running
 mkdir -p "${OUTPUTDIR}"/log/reports
 mkdir -p "${OUTPUTDIR}"/bin
 
-echo "Prepare solc-js."
-cd /root/solc-js
+echo "Prepare hypc-js."
+cd /root/hypc-js
 npm install >/dev/null 2>&1
 
 echo "Install semver helper."

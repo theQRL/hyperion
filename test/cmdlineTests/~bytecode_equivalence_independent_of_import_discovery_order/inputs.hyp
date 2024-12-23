@@ -1,6 +1,6 @@
-==== Source: A.sol ====
-import "@/D.sol";
-import "B.sol";
+==== Source: A.hyp ====
+import "@/D.hyp";
+import "B.hyp";
 
 contract A is B {
     function a() public pure {
@@ -8,22 +8,22 @@ contract A is B {
     }
 }
 
-==== Source: B.sol ====
-import "C.sol";
+==== Source: B.hyp ====
+import "C.hyp";
 
 abstract contract B is C {}
 
-==== Source: C.sol ====
+==== Source: C.hyp ====
 abstract contract C {
     function c() public pure returns (uint) {
         return 0;
     }
 }
 
-==== Source: @/D.sol ====
-import "@/E.sol";
+==== Source: @/D.hyp ====
+import "@/E.hyp";
 
-==== Source: @/E.sol ====
+==== Source: @/E.hyp ====
 function e() pure returns (bytes memory returndata) {
     return "";
 }

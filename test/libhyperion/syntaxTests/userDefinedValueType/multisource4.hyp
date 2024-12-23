@@ -1,9 +1,9 @@
-==== Source: s1.sol ====
+==== Source: s1.hyp ====
 type MyInt is int;
-==== Source: s2.sol ====
-import "s1.sol" as M;
+==== Source: s2.hyp ====
+import "s1.hyp" as M;
 contract C {
   function f(int x) public pure returns (MyInt) { return MyInt.wrap(x); }
 }
 // ----
-// DeclarationError 7920: (s2.sol:76-81): Identifier not found or not unique.
+// DeclarationError 7920: (s2.hyp:76-81): Identifier not found or not unique.

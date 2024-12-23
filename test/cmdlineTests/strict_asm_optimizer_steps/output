@@ -1,5 +1,5 @@
 
-======= strict_asm_optimizer_steps/input.yul (EVM) =======
+======= strict_asm_optimizer_steps/input.yul (ZVM) =======
 
 Pretty printed source:
 object "C_6" {

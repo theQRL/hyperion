@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,20 +21,20 @@
  * LValues for use in the expression compiler.
  */
 
-#include <libsolidity/codegen/LValue.h>
+#include <libhyperion/codegen/LValue.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/Types.h>
-#include <libsolidity/codegen/CompilerUtils.h>
-#include <libevmasm/Instruction.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/Types.h>
+#include <libhyperion/codegen/CompilerUtils.h>
+#include <libzvmasm/Instruction.h>
 
-#include <libsolutil/StackTooDeepString.h>
+#include <libhyputil/StackTooDeepString.h>
 
-using namespace solidity;
-using namespace solidity::evmasm;
-using namespace solidity::frontend;
-using namespace solidity::langutil;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::zvmasm;
+using namespace hyperion::frontend;
+using namespace hyperion::langutil;
+using namespace hyperion::util;
 
 
 StackVariable::StackVariable(CompilerContext& _compilerContext, VariableDeclaration const& _declaration):
@@ -53,7 +53,7 @@ void StackVariable::retrieveValue(SourceLocation const& _location, bool) const
 			errinfo_sourceLocation(_location) <<
 			util::errinfo_comment(util::stackTooDeepString)
 		);
-	solAssert(stackPos + 1 >= m_size, "Size and stack pos mismatch.");
+	hypAssert(stackPos + 1 >= m_size, "Size and stack pos mismatch.");
 	for (unsigned i = 0; i < m_size; ++i)
 		m_context << dupInstruction(stackPos + 1);
 }
@@ -103,7 +103,7 @@ void MemoryItem::storeValue(Type const& _sourceType, SourceLocation const&, bool
 	CompilerUtils utils(m_context);
 	if (m_dataType->isValueType())
 	{
-		solAssert(_sourceType.isValueType(), "");
+		hypAssert(_sourceType.isValueType(), "");
 		utils.moveIntoStack(_sourceType.sizeOnStack());
 		utils.convertType(_sourceType, *m_dataType, true);
 		if (!_move)
@@ -113,8 +113,8 @@ void MemoryItem::storeValue(Type const& _sourceType, SourceLocation const&, bool
 		}
 		if (!m_padded)
 		{
-			solAssert(m_dataType->calldataEncodedSize(false) == 1, "Invalid non-padded type.");
-			solAssert(m_dataType->category() != Type::Category::UserDefinedValueType, "");
+			hypAssert(m_dataType->calldataEncodedSize(false) == 1, "Invalid non-padded type.");
+			hypAssert(m_dataType->category() != Type::Category::UserDefinedValueType, "");
 			if (m_dataType->category() == Type::Category::FixedBytes)
 				m_context << u256(0) << Instruction::BYTE;
 			m_context << Instruction::SWAP1 << Instruction::MSTORE8;
@@ -127,9 +127,9 @@ void MemoryItem::storeValue(Type const& _sourceType, SourceLocation const&, bool
 	}
 	else
 	{
-		solUnimplementedAssert(_sourceType == *m_dataType, "Conversion not implemented for assignment to memory.");
+		hypUnimplementedAssert(_sourceType == *m_dataType, "Conversion not implemented for assignment to memory.");
 
-		solAssert(m_dataType->sizeOnStack() == 1, "");
+		hypAssert(m_dataType->sizeOnStack() == 1, "");
 		if (!_move)
 			m_context << Instruction::DUP2 << Instruction::SWAP1;
 		// stack: [value] value lvalue
@@ -141,7 +141,7 @@ void MemoryItem::storeValue(Type const& _sourceType, SourceLocation const&, bool
 void MemoryItem::setToZero(SourceLocation const&, bool _removeReference) const
 {
 	CompilerUtils utils(m_context);
-	solAssert(_removeReference, "");
+	hypAssert(_removeReference, "");
 	utils.pushZeroValue(*m_dataType);
 	utils.storeInMemoryDynamic(*m_dataType, m_padded);
 	m_context << Instruction::POP;
@@ -151,12 +151,12 @@ void MemoryItem::setToZero(SourceLocation const&, bool _removeReference) const
 ImmutableItem::ImmutableItem(CompilerContext& _compilerContext, VariableDeclaration const& _variable):
 	LValue(_compilerContext, _variable.annotation().type), m_variable(_variable)
 {
-	solAssert(_variable.immutable(), "");
+	hypAssert(_variable.immutable(), "");
 }
 
 void ImmutableItem::retrieveValue(SourceLocation const&, bool) const
 {
-	solUnimplementedAssert(m_dataType->isValueType());
+	hypUnimplementedAssert(m_dataType->isValueType());
 
 	if (m_context.runtimeContext())
 		CompilerUtils(m_context).loadFromMemory(
@@ -173,8 +173,8 @@ void ImmutableItem::retrieveValue(SourceLocation const&, bool) const
 void ImmutableItem::storeValue(Type const& _sourceType, SourceLocation const&, bool _move) const
 {
 	CompilerUtils utils(m_context);
-	solUnimplementedAssert(m_dataType->isValueType());
-	solAssert(_sourceType.isValueType(), "");
+	hypUnimplementedAssert(m_dataType->isValueType());
+	hypAssert(_sourceType.isValueType(), "");
 
 	utils.convertType(_sourceType, *m_dataType, true);
 	m_context << m_context.immutableMemoryOffset(m_variable);
@@ -189,8 +189,8 @@ void ImmutableItem::storeValue(Type const& _sourceType, SourceLocation const&, b
 void ImmutableItem::setToZero(SourceLocation const&, bool _removeReference) const
 {
 	CompilerUtils utils(m_context);
-	solUnimplementedAssert(m_dataType->isValueType());
-	solAssert(_removeReference);
+	hypUnimplementedAssert(m_dataType->isValueType());
+	hypAssert(_removeReference);
 
 	m_context << m_context.immutableMemoryOffset(m_variable);
 	utils.pushZeroValue(*m_dataType);
@@ -201,7 +201,7 @@ void ImmutableItem::setToZero(SourceLocation const&, bool _removeReference) cons
 StorageItem::StorageItem(CompilerContext& _compilerContext, VariableDeclaration const& _declaration):
 	StorageItem(_compilerContext, *_declaration.annotation().type)
 {
-	solAssert(!_declaration.immutable(), "");
+	hypAssert(!_declaration.immutable(), "");
 	auto const& location = m_context.storageLocationOfVariable(_declaration);
 	m_context << location.first << u256(location.second);
 }
@@ -212,8 +212,8 @@ StorageItem::StorageItem(CompilerContext& _compilerContext, Type const& _type):
 	if (m_dataType->isValueType())
 	{
 		if (m_dataType->category() != Type::Category::Function)
-			solAssert(m_dataType->storageSize() == m_dataType->sizeOnStack(), "");
-		solAssert(m_dataType->storageSize() == 1, "Invalid storage size.");
+			hypAssert(m_dataType->storageSize() == m_dataType->sizeOnStack(), "");
+		hypAssert(m_dataType->storageSize() == 1, "Invalid storage size.");
 	}
 }
 
@@ -222,7 +222,7 @@ void StorageItem::retrieveValue(SourceLocation const&, bool _remove) const
 	// stack: storage_key storage_offset
 	if (!m_dataType->isValueType())
 	{
-		solAssert(m_dataType->sizeOnStack() == 1, "Invalid storage ref size.");
+		hypAssert(m_dataType->sizeOnStack() == 1, "Invalid storage ref size.");
 		if (_remove)
 			m_context << Instruction::POP; // remove byte offset
 		else
@@ -244,7 +244,7 @@ void StorageItem::retrieveValue(SourceLocation const&, bool _remove) const
 			<< u256(0x100) << Instruction::EXP << Instruction::SWAP1 << Instruction::DIV;
 		if (type->category() == Type::Category::FixedPoint)
 			// implementation should be very similar to the integer case.
-			solUnimplemented("Not yet implemented - FixedPointType.");
+			hypUnimplemented("Not yet implemented - FixedPointType.");
 		else if (FunctionType const* fun = dynamic_cast<decltype(fun)>(type))
 		{
 			if (fun->kind() == FunctionType::Kind::External)
@@ -275,7 +275,7 @@ void StorageItem::retrieveValue(SourceLocation const&, bool _remove) const
 
 		if (!cleaned)
 		{
-			solAssert(type->sizeOnStack() == 1, "");
+			hypAssert(type->sizeOnStack() == 1, "");
 			m_context << ((u256(0x1) << (8 * type->storageBytes())) - 1) << Instruction::AND;
 		}
 	}
@@ -284,16 +284,16 @@ void StorageItem::retrieveValue(SourceLocation const&, bool _remove) const
 void StorageItem::storeValue(Type const& _sourceType, SourceLocation const& _location, bool _move) const
 {
 	CompilerUtils utils(m_context);
-	solAssert(m_dataType, "");
+	hypAssert(m_dataType, "");
 
 	// stack: value storage_key storage_offset
 	if (m_dataType->isValueType())
 	{
-		solAssert(m_dataType->storageBytes() <= 32, "Invalid storage bytes size.");
-		solAssert(m_dataType->storageBytes() > 0, "Invalid storage bytes size.");
+		hypAssert(m_dataType->storageBytes() <= 32, "Invalid storage bytes size.");
+		hypAssert(m_dataType->storageBytes() > 0, "Invalid storage bytes size.");
 		if (m_dataType->storageBytes() == 32)
 		{
-			solAssert(m_dataType->sizeOnStack() == 1, "Invalid stack size.");
+			hypAssert(m_dataType->sizeOnStack() == 1, "Invalid stack size.");
 			// offset should be zero
 			m_context << Instruction::POP;
 			if (!_move)
@@ -323,20 +323,20 @@ void StorageItem::storeValue(Type const& _sourceType, SourceLocation const& _loc
 			// stack: value storage_ref cleared_value multiplier value
 			if (auto const* fun = dynamic_cast<FunctionType const*>(m_dataType))
 			{
-				solAssert(
+				hypAssert(
 					_sourceType.isImplicitlyConvertibleTo(*m_dataType),
 					"function item stored but target is not implicitly convertible to source"
 				);
-				solAssert(!fun->hasBoundFirstArgument(), "");
+				hypAssert(!fun->hasBoundFirstArgument(), "");
 				if (fun->kind() == FunctionType::Kind::External)
 				{
-					solAssert(fun->sizeOnStack() == 2, "");
+					hypAssert(fun->sizeOnStack() == 2, "");
 					// Combine the two-item function type into a single stack slot.
 					utils.combineExternalFunctionType(false);
 				}
 				else
 				{
-					solAssert(fun->sizeOnStack() == 1, "");
+					hypAssert(fun->sizeOnStack() == 1, "");
 					m_context <<
 						((u256(1) << (8 * m_dataType->storageBytes())) - 1) <<
 						Instruction::AND;
@@ -344,7 +344,7 @@ void StorageItem::storeValue(Type const& _sourceType, SourceLocation const& _loc
 			}
 			else if (m_dataType->leftAligned())
 			{
-				solAssert(_sourceType.category() == Type::Category::FixedBytes || (
+				hypAssert(_sourceType.category() == Type::Category::FixedBytes || (
 					_sourceType.encodingType() &&
 					_sourceType.encodingType()->category() == Type::Category::FixedBytes
 				), "source not fixed bytes");
@@ -352,7 +352,7 @@ void StorageItem::storeValue(Type const& _sourceType, SourceLocation const& _loc
 			}
 			else
 			{
-				solAssert(m_dataType->sizeOnStack() == 1, "Invalid stack size for opaque type.");
+				hypAssert(m_dataType->sizeOnStack() == 1, "Invalid stack size for opaque type.");
 				// remove the higher order bits
 				utils.convertType(_sourceType, *m_dataType, true, true);
 			}
@@ -365,7 +365,7 @@ void StorageItem::storeValue(Type const& _sourceType, SourceLocation const& _loc
 	}
 	else
 	{
-		solAssert(
+		hypAssert(
 			_sourceType.category() == m_dataType->category(),
 			"Wrong type conversation for assignment."
 		);
@@ -386,15 +386,15 @@ void StorageItem::storeValue(Type const& _sourceType, SourceLocation const& _loc
 			m_context << Instruction::POP;
 			auto const& structType = dynamic_cast<StructType const&>(*m_dataType);
 			auto const& sourceType = dynamic_cast<StructType const&>(_sourceType);
-			solAssert(
+			hypAssert(
 				structType.structDefinition() == sourceType.structDefinition(),
 				"Struct assignment with conversion."
 			);
-			solAssert(!structType.containsNestedMapping(), "");
+			hypAssert(!structType.containsNestedMapping(), "");
 			if (sourceType.location() == DataLocation::CallData)
 			{
-				solAssert(sourceType.sizeOnStack() == 1, "");
-				solAssert(structType.sizeOnStack() == 1, "");
+				hypAssert(sourceType.sizeOnStack() == 1, "");
+				hypAssert(structType.sizeOnStack() == 1, "");
 				m_context << Instruction::DUP2 << Instruction::DUP2;
 				m_context.callYulFunction(m_context.utilFunctions().updateStorageValueFunction(sourceType, structType, 0), 2, 0);
 			}
@@ -404,7 +404,7 @@ void StorageItem::storeValue(Type const& _sourceType, SourceLocation const& _loc
 				{
 					// assign each member that can live outside of storage
 					Type const* memberType = member.type;
-					solAssert(memberType->nameable(), "");
+					hypAssert(memberType->nameable(), "");
 					Type const* sourceMemberType = sourceType.memberType(member.name);
 					if (sourceType.location() == DataLocation::Storage)
 					{
@@ -418,7 +418,7 @@ void StorageItem::storeValue(Type const& _sourceType, SourceLocation const& _loc
 					}
 					else
 					{
-						solAssert(sourceType.location() == DataLocation::Memory, "");
+						hypAssert(sourceType.location() == DataLocation::Memory, "");
 						// stack layout: source_ref target_ref
 						m_context << sourceType.memoryOffsetOfMember(member.name);
 						m_context << Instruction::DUP3 << Instruction::ADD;
@@ -434,7 +434,7 @@ void StorageItem::storeValue(Type const& _sourceType, SourceLocation const& _loc
 				}
 			}
 			// stack layout: source_ref target_ref
-			solAssert(sourceType.sizeOnStack() == 1, "Unexpected source size.");
+			hypAssert(sourceType.sizeOnStack() == 1, "Unexpected source size.");
 			if (_move)
 				utils.popStackSlots(2);
 			else
@@ -479,7 +479,7 @@ void StorageItem::setToZero(SourceLocation const&, bool _removeReference) const
 	}
 	else
 	{
-		solAssert(m_dataType->isValueType(), "Clearing of unsupported type requested: " + m_dataType->toString());
+		hypAssert(m_dataType->isValueType(), "Clearing of unsupported type requested: " + m_dataType->toString());
 		if (!_removeReference)
 			CompilerUtils(m_context).copyToStackTop(sizeOnStack(), sizeOnStack());
 		if (m_dataType->storageBytes() == 32)
@@ -547,7 +547,7 @@ void StorageByteArrayElement::storeValue(Type const&, SourceLocation const&, boo
 void StorageByteArrayElement::setToZero(SourceLocation const&, bool _removeReference) const
 {
 	// stack: ref byte_number
-	solAssert(_removeReference, "");
+	hypAssert(_removeReference, "");
 	m_context << u256(31) << Instruction::SUB << u256(0x100) << Instruction::EXP;
 	// stack: ref (1<<(8*(31-byte_number)))
 	m_context << Instruction::DUP2 << Instruction::SLOAD;
@@ -578,7 +578,7 @@ unsigned TupleObject::sizeOnStack() const
 
 void TupleObject::retrieveValue(SourceLocation const&, bool) const
 {
-	solAssert(false, "Tried to retrieve value of tuple.");
+	hypAssert(false, "Tried to retrieve value of tuple.");
 }
 
 void TupleObject::storeValue(Type const& _sourceType, SourceLocation const& _location, bool) const
@@ -586,7 +586,7 @@ void TupleObject::storeValue(Type const& _sourceType, SourceLocation const& _loc
 	// values are below the lvalue references
 	unsigned valuePos = sizeOnStack();
 	TypePointers const& valueTypes = dynamic_cast<TupleType const&>(_sourceType).components();
-	solAssert(valueTypes.size() == m_lvalues.size(), "");
+	hypAssert(valueTypes.size() == m_lvalues.size(), "");
 	// valuePos .... refPos ...
 	// We will assign from right to left to optimize stack layout.
 	for (size_t i = 0; i < m_lvalues.size(); ++i)
@@ -594,7 +594,7 @@ void TupleObject::storeValue(Type const& _sourceType, SourceLocation const& _loc
 		std::unique_ptr<LValue> const& lvalue = m_lvalues[m_lvalues.size() - i - 1];
 		Type const* valType = valueTypes[valueTypes.size() - i - 1];
 		unsigned stackHeight = m_context.stackHeight();
-		solAssert(!valType == !lvalue, "");
+		hypAssert(!valType == !lvalue, "");
 		if (!lvalue)
 			continue;
 		valuePos += valType->sizeOnStack();
@@ -611,5 +611,5 @@ void TupleObject::storeValue(Type const& _sourceType, SourceLocation const& _loc
 
 void TupleObject::setToZero(SourceLocation const&, bool) const
 {
-	solAssert(false, "Tried to delete tuple.");
+	hypAssert(false, "Tried to delete tuple.");
 }

@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
@@ -56,22 +56,22 @@
 #include <libyul/optimiser/StructuralSimplifier.h>
 #include <libyul/optimiser/StackCompressor.h>
 #include <libyul/optimiser/Suite.h>
-#include <libyul/backends/evm/ConstantOptimiser.h>
-#include <libyul/backends/evm/EVMDialect.h>
-#include <libyul/backends/evm/EVMMetrics.h>
+#include <libyul/backends/zvm/ConstantOptimiser.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/zvm/ZVMMetrics.h>
 #include <libyul/AsmAnalysis.h>
 #include <libyul/CompilabilityChecker.h>
 
-#include <libsolidity/interface/OptimiserSettings.h>
+#include <libhyperion/interface/OptimiserSettings.h>
 
 #include <random>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::langutil;
-using namespace solidity::yul;
-using namespace solidity::yul::test;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::langutil;
+using namespace hyperion::yul;
+using namespace hyperion::yul::test;
+using namespace hyperion::frontend;
 using namespace std;
 
 YulOptimizerTestCommon::YulOptimizerTestCommon(
@@ -99,8 +99,8 @@ YulOptimizerTestCommon::YulOptimizerTestCommon(
 			BlockFlattener::run(*m_context, *m_ast);
 		}},
 		{"constantOptimiser", [&]() {
-			GasMeter meter(dynamic_cast<EVMDialect const&>(*m_dialect), false, 200);
-			ConstantOptimiser{dynamic_cast<EVMDialect const&>(*m_dialect), meter}(*m_ast);
+			GasMeter meter(dynamic_cast<ZVMDialect const&>(*m_dialect), false, 200);
+			ConstantOptimiser{dynamic_cast<ZVMDialect const&>(*m_dialect), meter}(*m_ast);
 		}},
 		{"varDeclInitializer", [&]() { VarDeclInitializer::run(*m_context, *m_ast); }},
 		{"varNameCleaner", [&]() {
@@ -325,7 +325,7 @@ YulOptimizerTestCommon::YulOptimizerTestCommon(
 			BlockFlattener::run(*m_context, *m_ast);
 		}},
 		{"fullSuite", [&]() {
-			GasMeter meter(dynamic_cast<EVMDialect const&>(*m_dialect), false, 200);
+			GasMeter meter(dynamic_cast<ZVMDialect const&>(*m_dialect), false, 200);
 			OptimiserSuite::run(
 				*m_dialect,
 				&meter,

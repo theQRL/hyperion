@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -22,20 +22,20 @@
 
 #include <string>
 #include <boost/test/unit_test.hpp>
-#include <libsolidity/interface/OptimiserSettings.h>
-#include <libsolidity/interface/StandardCompiler.h>
-#include <libsolidity/interface/Version.h>
-#include <libsolutil/JSON.h>
-#include <libsolutil/CommonData.h>
+#include <libhyperion/interface/OptimiserSettings.h>
+#include <libhyperion/interface/StandardCompiler.h>
+#include <libhyperion/interface/Version.h>
+#include <libhyputil/JSON.h>
+#include <libhyputil/CommonData.h>
 #include <test/Metadata.h>
 
 #include <algorithm>
 #include <set>
 
-using namespace solidity::evmasm;
+using namespace hyperion::zvmasm;
 using namespace std::string_literals;
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 namespace
@@ -102,9 +102,9 @@ Json::Value getContractResult(Json::Value const& _compilerResult, std::string co
 void checkLinkReferencesSchema(Json::Value const& _contractResult)
 {
 	BOOST_TEST_REQUIRE(_contractResult.isObject());
-	BOOST_TEST_REQUIRE(_contractResult["evm"]["bytecode"].isObject());
+	BOOST_TEST_REQUIRE(_contractResult["zvm"]["bytecode"].isObject());
 
-	Json::Value const& linkReferenceResult = _contractResult["evm"]["bytecode"]["linkReferences"];
+	Json::Value const& linkReferenceResult = _contractResult["zvm"]["bytecode"]["linkReferences"];
 	BOOST_TEST_REQUIRE(linkReferenceResult.isObject());
 
 	for (std::string const& fileName: linkReferenceResult.getMemberNames())
@@ -129,7 +129,7 @@ void expectLinkReferences(Json::Value const& _contractResult, std::map<std::stri
 {
 	checkLinkReferencesSchema(_contractResult);
 
-	Json::Value const& linkReferenceResult = _contractResult["evm"]["bytecode"]["linkReferences"];
+	Json::Value const& linkReferenceResult = _contractResult["zvm"]["bytecode"]["linkReferences"];
 	BOOST_TEST(linkReferenceResult.size() == _expectedLinkReferences.size());
 
 	for (auto const& [fileName, libraries]: _expectedLinkReferences)
@@ -187,25 +187,25 @@ BOOST_AUTO_TEST_CASE(invalid_language)
 	}
 	)";
 	Json::Value result = compile(input);
-	BOOST_CHECK(containsError(result, "JSONError", "Only \"Solidity\", \"Yul\" or \"SolidityAST\" is supported as a language."));
+	BOOST_CHECK(containsError(result, "JSONError", "Only \"Hyperion\", \"Yul\" or \"HyperionAST\" is supported as a language."));
 }
 
 BOOST_AUTO_TEST_CASE(valid_language)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity"
+		"language": "Hyperion"
 	}
 	)";
 	Json::Value result = compile(input);
-	BOOST_CHECK(!containsError(result, "JSONError", "Only \"Solidity\" or \"Yul\" is supported as a language."));
+	BOOST_CHECK(!containsError(result, "JSONError", "Only \"Hyperion\" or \"Yul\" is supported as a language."));
 }
 
 BOOST_AUTO_TEST_CASE(no_sources)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity"
+		"language": "Hyperion"
 	}
 	)";
 	Json::Value result = compile(input);
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE(no_sources_empty_object)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources": {}
 	}
 	)";
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(no_sources_empty_array)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources": []
 	}
 	)";
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE(sources_is_array)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources": ["aa", "bb"]
 	}
 	)";
@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE(unexpected_trailing_test)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources": {
 			"A": {
 				"content": "contract A { function f() {} }"
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE(smoke_test)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources": {
 			"empty": {
 				"content": ""
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE(optimizer_enabled_not_boolean)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"optimizer": {
 				"enabled": "wrong"
@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE(optimizer_runs_not_a_number)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"optimizer": {
 				"enabled": true,
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE(optimizer_runs_not_an_unsigned_number)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"optimizer": {
 				"enabled": true,
@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE(basic_compilation)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources": {
 			"fileA": {
 				"content": "contract A { }"
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE(basic_compilation)
 		"settings": {
 			"outputSelection": {
 				"fileA": {
-					"A": [ "abi", "devdoc", "userdoc", "evm.bytecode", "evm.assembly", "evm.gasEstimates", "evm.legacyAssembly", "metadata" ],
+					"A": [ "abi", "devdoc", "userdoc", "zvm.bytecode", "zvm.assembly", "zvm.gasEstimates", "zvm.legacyAssembly", "metadata" ],
 					"": [ "ast" ]
 				}
 			}
@@ -377,18 +377,18 @@ BOOST_AUTO_TEST_CASE(basic_compilation)
 	BOOST_CHECK_EQUAL(util::jsonCompactPrint(contract["devdoc"]), R"({"kind":"dev","methods":{},"version":1})");
 	BOOST_CHECK(contract["userdoc"].isObject());
 	BOOST_CHECK_EQUAL(util::jsonCompactPrint(contract["userdoc"]), R"({"kind":"user","methods":{},"version":1})");
-	BOOST_CHECK(contract["evm"].isObject());
-	/// @TODO check evm.methodIdentifiers, legacyAssembly, bytecode, deployedBytecode
-	BOOST_CHECK(contract["evm"]["bytecode"].isObject());
-	BOOST_CHECK(contract["evm"]["bytecode"]["object"].isString());
+	BOOST_CHECK(contract["zvm"].isObject());
+	/// @TODO check zvm.methodIdentifiers, legacyAssembly, bytecode, deployedBytecode
+	BOOST_CHECK(contract["zvm"]["bytecode"].isObject());
+	BOOST_CHECK(contract["zvm"]["bytecode"]["object"].isString());
 	BOOST_CHECK_EQUAL(
-		solidity::test::bytecodeSansMetadata(contract["evm"]["bytecode"]["object"].asString()),
+		hyperion::test::bytecodeSansMetadata(contract["zvm"]["bytecode"]["object"].asString()),
 		std::string("6080604052348015600e575f80fd5b5060") +
 		(VersionIsRelease ? "3e" : util::toHex(bytes{uint8_t(60 + VersionStringStrict.size())})) +
 		"80601a5f395ff3fe60806040525f80fdfe"
 	);
-	BOOST_CHECK(contract["evm"]["assembly"].isString());
-	BOOST_CHECK(contract["evm"]["assembly"].asString().find(
+	BOOST_CHECK(contract["zvm"]["assembly"].isString());
+	BOOST_CHECK(contract["zvm"]["assembly"].asString().find(
 		"    /* \"fileA\":0:14  contract A { } */\n  mstore(0x40, 0x80)\n  "
 		"callvalue\n  dup1\n  "
 		"iszero\n  tag_1\n  jumpi\n  "
@@ -400,24 +400,24 @@ BOOST_AUTO_TEST_CASE(basic_compilation)
 		"0x00\n      "
 		"dup1\n      revert\n\n    auxdata: 0xa26469706673582212"
 	) == 0);
-	BOOST_CHECK(contract["evm"]["gasEstimates"].isObject());
-	BOOST_CHECK_EQUAL(contract["evm"]["gasEstimates"].size(), 1);
-	BOOST_CHECK(contract["evm"]["gasEstimates"]["creation"].isObject());
-	BOOST_CHECK_EQUAL(contract["evm"]["gasEstimates"]["creation"].size(), 3);
-	BOOST_CHECK(contract["evm"]["gasEstimates"]["creation"]["codeDepositCost"].isString());
-	BOOST_CHECK(contract["evm"]["gasEstimates"]["creation"]["executionCost"].isString());
-	BOOST_CHECK(contract["evm"]["gasEstimates"]["creation"]["totalCost"].isString());
+	BOOST_CHECK(contract["zvm"]["gasEstimates"].isObject());
+	BOOST_CHECK_EQUAL(contract["zvm"]["gasEstimates"].size(), 1);
+	BOOST_CHECK(contract["zvm"]["gasEstimates"]["creation"].isObject());
+	BOOST_CHECK_EQUAL(contract["zvm"]["gasEstimates"]["creation"].size(), 3);
+	BOOST_CHECK(contract["zvm"]["gasEstimates"]["creation"]["codeDepositCost"].isString());
+	BOOST_CHECK(contract["zvm"]["gasEstimates"]["creation"]["executionCost"].isString());
+	BOOST_CHECK(contract["zvm"]["gasEstimates"]["creation"]["totalCost"].isString());
 	BOOST_CHECK_EQUAL(
-		u256(contract["evm"]["gasEstimates"]["creation"]["codeDepositCost"].asString()) +
-		u256(contract["evm"]["gasEstimates"]["creation"]["executionCost"].asString()),
-		u256(contract["evm"]["gasEstimates"]["creation"]["totalCost"].asString())
+		u256(contract["zvm"]["gasEstimates"]["creation"]["codeDepositCost"].asString()) +
+		u256(contract["zvm"]["gasEstimates"]["creation"]["executionCost"].asString()),
+		u256(contract["zvm"]["gasEstimates"]["creation"]["totalCost"].asString())
 	);
 	// Lets take the top level `.code` section (the "deployer code"), that should expose most of the features of
 	// the assembly JSON. What we want to check here is Operation, Push, PushTag, PushSub, PushSubSize and Tag.
-	BOOST_CHECK(contract["evm"]["legacyAssembly"].isObject());
-	BOOST_CHECK(contract["evm"]["legacyAssembly"][".code"].isArray());
+	BOOST_CHECK(contract["zvm"]["legacyAssembly"].isObject());
+	BOOST_CHECK(contract["zvm"]["legacyAssembly"][".code"].isArray());
 	BOOST_CHECK_EQUAL(
-		util::jsonCompactPrint(contract["evm"]["legacyAssembly"][".code"]),
+		util::jsonCompactPrint(contract["zvm"]["legacyAssembly"][".code"]),
 		"[{\"begin\":0,\"end\":14,\"name\":\"PUSH\",\"source\":0,\"value\":\"80\"},"
 		"{\"begin\":0,\"end\":14,\"name\":\"PUSH\",\"source\":0,\"value\":\"40\"},"
 		"{\"begin\":0,\"end\":14,\"name\":\"MSTORE\",\"source\":0},"
@@ -441,7 +441,7 @@ BOOST_AUTO_TEST_CASE(basic_compilation)
 		"{\"begin\":0,\"end\":14,\"name\":\"RETURN\",\"source\":0}]"
 	);
 	BOOST_CHECK(contract["metadata"].isString());
-	BOOST_CHECK(solidity::test::isValidMetadata(contract["metadata"].asString()));
+	BOOST_CHECK(hyperion::test::isValidMetadata(contract["metadata"].asString()));
 	BOOST_CHECK(result["sources"].isObject());
 	BOOST_CHECK(result["sources"]["fileA"].isObject());
 	BOOST_CHECK(result["sources"]["fileA"]["ast"].isObject());
@@ -459,7 +459,7 @@ BOOST_AUTO_TEST_CASE(compilation_error)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
 				"fileA": {
@@ -499,7 +499,7 @@ BOOST_AUTO_TEST_CASE(output_selection_explicit)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
 				"fileA": {
@@ -528,7 +528,7 @@ BOOST_AUTO_TEST_CASE(output_selection_all_contracts)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
 				"fileA": {
@@ -557,7 +557,7 @@ BOOST_AUTO_TEST_CASE(output_selection_all_files_single_contract)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
 				"*": {
@@ -586,7 +586,7 @@ BOOST_AUTO_TEST_CASE(output_selection_all_files_all_contracts)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
 				"*": {
@@ -615,7 +615,7 @@ BOOST_AUTO_TEST_CASE(output_selection_dependent_contract)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
 				"*": {
@@ -644,7 +644,7 @@ BOOST_AUTO_TEST_CASE(output_selection_dependent_contract_with_import)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
 				"*": {
@@ -676,10 +676,10 @@ BOOST_AUTO_TEST_CASE(filename_with_colon)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
-				"http://github.com/ethereum/solidity/std/StandardToken.sol": {
+				"http://github.com/theQRL/hyperion/std/StandardToken.hyp": {
 					"A": [
 						"abi"
 					]
@@ -687,7 +687,7 @@ BOOST_AUTO_TEST_CASE(filename_with_colon)
 			}
 		},
 		"sources": {
-			"http://github.com/ethereum/solidity/std/StandardToken.sol": {
+			"http://github.com/theQRL/hyperion/std/StandardToken.hyp": {
 				"content": "contract A { }"
 			}
 		}
@@ -695,7 +695,7 @@ BOOST_AUTO_TEST_CASE(filename_with_colon)
 	)";
 	Json::Value result = compile(input);
 	BOOST_CHECK(containsAtMostWarnings(result));
-	Json::Value contract = getContractResult(result, "http://github.com/ethereum/solidity/std/StandardToken.sol", "A");
+	Json::Value contract = getContractResult(result, "http://github.com/theQRL/hyperion/std/StandardToken.hyp", "A");
 	BOOST_CHECK(contract.isObject());
 	BOOST_CHECK(contract["abi"].isArray());
 	BOOST_CHECK_EQUAL(util::jsonCompactPrint(contract["abi"]), "[]");
@@ -705,21 +705,21 @@ BOOST_AUTO_TEST_CASE(library_filename_with_colon)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
 				"fileA": {
 					"A": [
-						"evm.bytecode"
+						"zvm.bytecode"
 					]
 				}
 			}
 		},
 		"sources": {
 			"fileA": {
-				"content": "import \"git:library.sol\"; contract A { function f() public returns (uint) { return L.g(); } }"
+				"content": "import \"git:library.hyp\"; contract A { function f() public returns (uint) { return L.g(); } }"
 			},
-			"git:library.sol": {
+			"git:library.hyp": {
 				"content": "library L { function g() public returns (uint) { return 1; } }"
 			}
 		}
@@ -729,14 +729,14 @@ BOOST_AUTO_TEST_CASE(library_filename_with_colon)
 	BOOST_CHECK(containsAtMostWarnings(result));
 	Json::Value contract = getContractResult(result, "fileA", "A");
 	BOOST_CHECK(contract.isObject());
-	expectLinkReferences(contract, {{"git:library.sol", {"L"}}});
+	expectLinkReferences(contract, {{"git:library.hyp", {"L"}}});
 }
 
 BOOST_AUTO_TEST_CASE(libraries_invalid_top_level)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"libraries": "42"
 		},
@@ -755,7 +755,7 @@ BOOST_AUTO_TEST_CASE(libraries_invalid_entry)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"libraries": {
 				"L": "42"
@@ -776,10 +776,10 @@ BOOST_AUTO_TEST_CASE(libraries_invalid_hex)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"libraries": {
-				"library.sol": {
+				"library.hyp": {
 					"L": "0x4200000000000000000000000000000000000xx1"
 				}
 			}
@@ -799,10 +799,10 @@ BOOST_AUTO_TEST_CASE(libraries_invalid_length)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"libraries": {
-				"library.sol": {
+				"library.hyp": {
 					"L1": "0x42",
 					"L2": "0x4200000000000000000000000000000000000001ff"
 				}
@@ -823,10 +823,10 @@ BOOST_AUTO_TEST_CASE(libraries_missing_hex_prefix)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"libraries": {
-				"library.sol": {
+				"library.hyp": {
 					"L": "4200000000000000000000000000000000000001"
 				}
 			}
@@ -846,29 +846,29 @@ BOOST_AUTO_TEST_CASE(library_linking)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"libraries": {
-				"library.sol": {
+				"library.hyp": {
 					"L": "0x4200000000000000000000000000000000000001"
 				}
 			},
 			"outputSelection": {
 				"fileA": {
 					"A": [
-						"evm.bytecode"
+						"zvm.bytecode"
 					]
 				}
 			}
 		},
 		"sources": {
 			"fileA": {
-				"content": "import \"library.sol\"; import \"library2.sol\"; contract A { function f() public returns (uint) { L2.g(); return L.g(); } }"
+				"content": "import \"library.hyp\"; import \"library2.hyp\"; contract A { function f() public returns (uint) { L2.g(); return L.g(); } }"
 			},
-			"library.sol": {
+			"library.hyp": {
 				"content": "library L { function g() public returns (uint) { return 1; } }"
 			},
-			"library2.sol": {
+			"library2.hyp": {
 				"content": "library L2 { function g() public { } }"
 			}
 		}
@@ -877,7 +877,7 @@ BOOST_AUTO_TEST_CASE(library_linking)
 	Json::Value result = compile(input);
 	BOOST_TEST(containsAtMostWarnings(result));
 	Json::Value contractResult = getContractResult(result, "fileA", "A");
-	expectLinkReferences(contractResult, {{"library2.sol", {"L2"}}});
+	expectLinkReferences(contractResult, {{"library2.hyp", {"L2"}}});
 }
 
 BOOST_AUTO_TEST_CASE(linking_yul)
@@ -894,7 +894,7 @@ BOOST_AUTO_TEST_CASE(linking_yul)
 			"outputSelection": {
 				"fileA": {
 					"*": [
-						"evm.bytecode.linkReferences"
+						"zvm.bytecode.linkReferences"
 					]
 				}
 			}
@@ -926,7 +926,7 @@ BOOST_AUTO_TEST_CASE(linking_yul_empty_link_reference)
 			"outputSelection": {
 				"fileA": {
 					"*": [
-						"evm.bytecode.linkReferences"
+						"zvm.bytecode.linkReferences"
 					]
 				}
 			}
@@ -958,7 +958,7 @@ BOOST_AUTO_TEST_CASE(linking_yul_no_filename_in_link_reference)
 			"outputSelection": {
 				"fileA": {
 					"*": [
-						"evm.bytecode.linkReferences"
+						"zvm.bytecode.linkReferences"
 					]
 				}
 			}
@@ -990,7 +990,7 @@ BOOST_AUTO_TEST_CASE(linking_yul_same_library_name_different_files)
 			"outputSelection": {
 				"fileA": {
 					"*": [
-						"evm.bytecode.linkReferences"
+						"zvm.bytecode.linkReferences"
 					]
 				}
 			}
@@ -1008,13 +1008,13 @@ BOOST_AUTO_TEST_CASE(linking_yul_same_library_name_different_files)
 	expectLinkReferences(contractResult, {{"fileC", {"L"}}});
 }
 
-BOOST_AUTO_TEST_CASE(evm_version)
+BOOST_AUTO_TEST_CASE(zvm_version)
 {
 	auto inputForVersion = [](std::string const& _version)
 	{
 		return R"(
 			{
-				"language": "Solidity",
+				"language": "Hyperion",
 				"sources": { "fileA": { "content": "contract A { }" } },
 				"settings": {
 					)" + _version + R"(
@@ -1028,21 +1028,21 @@ BOOST_AUTO_TEST_CASE(evm_version)
 		)";
 	};
 	Json::Value result;
-	result = compile(inputForVersion("\"evmVersion\": \"shanghai\","));
-	BOOST_CHECK(result["contracts"]["fileA"]["A"]["metadata"].asString().find("\"evmVersion\":\"shanghai\"") != std::string::npos);
+	result = compile(inputForVersion("\"zvmVersion\": \"shanghai\","));
+	BOOST_CHECK(result["contracts"]["fileA"]["A"]["metadata"].asString().find("\"zvmVersion\":\"shanghai\"") != std::string::npos);
 	// test default
 	result = compile(inputForVersion(""));
-	BOOST_CHECK(result["contracts"]["fileA"]["A"]["metadata"].asString().find("\"evmVersion\":\"shanghai\"") != std::string::npos);
+	BOOST_CHECK(result["contracts"]["fileA"]["A"]["metadata"].asString().find("\"zvmVersion\":\"shanghai\"") != std::string::npos);
 	// test invalid
-	result = compile(inputForVersion("\"evmVersion\": \"invalid\","));
-	BOOST_CHECK(result["errors"][0]["message"].asString() == "Invalid EVM version requested.");
+	result = compile(inputForVersion("\"zvmVersion\": \"invalid\","));
+	BOOST_CHECK(result["errors"][0]["message"].asString() == "Invalid ZVM version requested.");
 }
 
 BOOST_AUTO_TEST_CASE(optimizer_settings_default_disabled)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
 				"fileA": { "A": [ "metadata" ] }
@@ -1074,7 +1074,7 @@ BOOST_AUTO_TEST_CASE(optimizer_settings_default_enabled)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
 				"fileA": { "A": [ "metadata" ] }
@@ -1107,7 +1107,7 @@ BOOST_AUTO_TEST_CASE(optimizer_settings_details_exactly_as_default_disabled)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
 				"fileA": { "A": [ "metadata" ] }
@@ -1148,7 +1148,7 @@ BOOST_AUTO_TEST_CASE(optimizer_settings_details_different)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
 				"fileA": { "A": [ "metadata" ] }
@@ -1209,7 +1209,7 @@ BOOST_AUTO_TEST_CASE(metadata_without_compilation)
 	// If the metadata is successfully returned, that means no compilation was attempted.
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
 				"fileA": { "A": [ "metadata" ] }
@@ -1233,7 +1233,7 @@ BOOST_AUTO_TEST_CASE(metadata_without_compilation)
 	Json::Value contract = getContractResult(result, "fileA", "A");
 	BOOST_CHECK(contract.isObject());
 	BOOST_CHECK(contract["metadata"].isString());
-	BOOST_CHECK(solidity::test::isValidMetadata(contract["metadata"].asString()));
+	BOOST_CHECK(hyperion::test::isValidMetadata(contract["metadata"].asString()));
 }
 
 
@@ -1241,7 +1241,7 @@ BOOST_AUTO_TEST_CASE(license_in_metadata)
 {
 	std::string const input = R"(
 			{
-				"language": "Solidity",
+				"language": "Hyperion",
 				"sources": {
 					"fileA": { "content": "import \"fileB\"; contract A { } // SPDX-License-Identifier: GPL-3.0 \n" },
 					"fileB": { "content": "import \"fileC\"; /* SPDX-License-Identifier: MIT */ contract B { }" },
@@ -1280,11 +1280,11 @@ BOOST_AUTO_TEST_CASE(common_pattern)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"outputSelection": {
 				"*": {
-					"*": [ "evm.bytecode.object", "metadata" ]
+					"*": [ "zvm.bytecode.object", "metadata" ]
 				}
 			}
 		},
@@ -1300,9 +1300,9 @@ BOOST_AUTO_TEST_CASE(common_pattern)
 	Json::Value contract = getContractResult(result, "fileA", "A");
 	BOOST_CHECK(contract.isObject());
 	BOOST_CHECK(contract["metadata"].isString());
-	BOOST_CHECK(solidity::test::isValidMetadata(contract["metadata"].asString()));
-	BOOST_CHECK(contract["evm"]["bytecode"].isObject());
-	BOOST_CHECK(contract["evm"]["bytecode"]["object"].isString());
+	BOOST_CHECK(hyperion::test::isValidMetadata(contract["metadata"].asString()));
+	BOOST_CHECK(contract["zvm"]["bytecode"].isObject());
+	BOOST_CHECK(contract["zvm"]["bytecode"]["object"].isString());
 }
 
 BOOST_AUTO_TEST_CASE(use_stack_optimization)
@@ -1311,11 +1311,11 @@ BOOST_AUTO_TEST_CASE(use_stack_optimization)
 	// If we enable stack optimization, though, it will compile.
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"settings": {
 			"optimizer": { "enabled": true, "details": { "yul": true } },
 			"outputSelection": {
-				"fileA": { "A": [ "evm.bytecode.object" ] }
+				"fileA": { "A": [ "zvm.bytecode.object" ] }
 			}
 		},
 		"sources": {
@@ -1356,14 +1356,14 @@ BOOST_AUTO_TEST_CASE(use_stack_optimization)
 	Json::Value parsedInput;
 	BOOST_REQUIRE(util::jsonParseStrict(input, parsedInput));
 
-	solidity::frontend::StandardCompiler compiler;
+	hyperion::frontend::StandardCompiler compiler;
 	Json::Value result = compiler.compile(parsedInput);
 
 	BOOST_CHECK(containsAtMostWarnings(result));
 	Json::Value contract = getContractResult(result, "fileA", "A");
 	BOOST_REQUIRE(contract.isObject());
-	BOOST_REQUIRE(contract["evm"]["bytecode"]["object"].isString());
-	BOOST_CHECK(contract["evm"]["bytecode"]["object"].asString().length() > 20);
+	BOOST_REQUIRE(contract["zvm"]["bytecode"]["object"].isString());
+	BOOST_CHECK(contract["zvm"]["bytecode"]["object"].asString().length() > 20);
 
 	// Now disable stack optimizations and UnusedFunctionParameterPruner (p)
 	// results in "stack too deep"
@@ -1387,19 +1387,19 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 			"sources":
 		{
 			"A":
 			{
-				"content": "pragma solidity >=0.0; contract C { function f() public pure {} }"
+				"content": "pragma hyperion >=0.0; contract C { function f() public pure {} }"
 			}
 		},
 		"settings":
 		{
 			"outputSelection":
 			{
-				"*": { "C": ["evm.bytecode"] }
+				"*": { "C": ["zvm.bytecode"] }
 			}
 		}
 	}
@@ -1408,7 +1408,7 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard)
 	Json::Value parsedInput;
 	BOOST_REQUIRE(util::jsonParseStrict(input, parsedInput));
 
-	solidity::frontend::StandardCompiler compiler;
+	hyperion::frontend::StandardCompiler compiler;
 	Json::Value result = compiler.compile(parsedInput);
 
 	BOOST_REQUIRE(result["contracts"].isObject());
@@ -1416,8 +1416,8 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard)
 	BOOST_REQUIRE(result["contracts"]["A"].isObject());
 	BOOST_REQUIRE(result["contracts"]["A"].size() == 1);
 	BOOST_REQUIRE(result["contracts"]["A"]["C"].isObject());
-	BOOST_REQUIRE(result["contracts"]["A"]["C"]["evm"].isObject());
-	BOOST_REQUIRE(result["contracts"]["A"]["C"]["evm"]["bytecode"].isObject());
+	BOOST_REQUIRE(result["contracts"]["A"]["C"]["zvm"].isObject());
+	BOOST_REQUIRE(result["contracts"]["A"]["C"]["zvm"]["bytecode"].isObject());
 	BOOST_REQUIRE(result["sources"].isObject());
 	BOOST_REQUIRE(result["sources"].size() == 1);
 	BOOST_REQUIRE(result["sources"]["A"].isObject());
@@ -1428,19 +1428,19 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_colon_source)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources":
 		{
 			":A":
 			{
-				"content": "pragma solidity >=0.0; contract C { function f() public pure {} }"
+				"content": "pragma hyperion >=0.0; contract C { function f() public pure {} }"
 			}
 		},
 		"settings":
 		{
 			"outputSelection":
 			{
-				"*": { "C": ["evm.bytecode"] }
+				"*": { "C": ["zvm.bytecode"] }
 			}
 		}
 	}
@@ -1449,7 +1449,7 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_colon_source)
 	Json::Value parsedInput;
 	BOOST_REQUIRE(util::jsonParseStrict(input, parsedInput));
 
-	solidity::frontend::StandardCompiler compiler;
+	hyperion::frontend::StandardCompiler compiler;
 	Json::Value result = compiler.compile(parsedInput);
 
 	BOOST_REQUIRE(result["contracts"].isObject());
@@ -1457,8 +1457,8 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_colon_source)
 	BOOST_REQUIRE(result["contracts"][":A"].isObject());
 	BOOST_REQUIRE(result["contracts"][":A"].size() == 1);
 	BOOST_REQUIRE(result["contracts"][":A"]["C"].isObject());
-	BOOST_REQUIRE(result["contracts"][":A"]["C"]["evm"].isObject());
-	BOOST_REQUIRE(result["contracts"][":A"]["C"]["evm"]["bytecode"].isObject());
+	BOOST_REQUIRE(result["contracts"][":A"]["C"]["zvm"].isObject());
+	BOOST_REQUIRE(result["contracts"][":A"]["C"]["zvm"]["bytecode"].isObject());
 	BOOST_REQUIRE(result["sources"].isObject());
 	BOOST_REQUIRE(result["sources"].size() == 1);
 	BOOST_REQUIRE(result["sources"][":A"].isObject());
@@ -1468,19 +1468,19 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_empty_source)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources":
 		{
 			"":
 			{
-				"content": "pragma solidity >=0.0; contract C { function f() public pure {} }"
+				"content": "pragma hyperion >=0.0; contract C { function f() public pure {} }"
 			}
 		},
 		"settings":
 		{
 			"outputSelection":
 			{
-				"*": { "C": ["evm.bytecode"] }
+				"*": { "C": ["zvm.bytecode"] }
 			}
 		}
 	}
@@ -1489,7 +1489,7 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_empty_source)
 	Json::Value parsedInput;
 	BOOST_REQUIRE(util::jsonParseStrict(input, parsedInput));
 
-	solidity::frontend::StandardCompiler compiler;
+	hyperion::frontend::StandardCompiler compiler;
 	Json::Value result = compiler.compile(parsedInput);
 
 	BOOST_REQUIRE(result["contracts"].isObject());
@@ -1497,8 +1497,8 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_empty_source)
 	BOOST_REQUIRE(result["contracts"][""].isObject());
 	BOOST_REQUIRE(result["contracts"][""].size() == 1);
 	BOOST_REQUIRE(result["contracts"][""]["C"].isObject());
-	BOOST_REQUIRE(result["contracts"][""]["C"]["evm"].isObject());
-	BOOST_REQUIRE(result["contracts"][""]["C"]["evm"]["bytecode"].isObject());
+	BOOST_REQUIRE(result["contracts"][""]["C"]["zvm"].isObject());
+	BOOST_REQUIRE(result["contracts"][""]["C"]["zvm"]["bytecode"].isObject());
 	BOOST_REQUIRE(result["sources"].isObject());
 	BOOST_REQUIRE(result["sources"].size() == 1);
 	BOOST_REQUIRE(result["sources"][""].isObject());
@@ -1508,23 +1508,23 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_multiple_sources)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources":
 		{
 			"A":
 			{
-				"content": "pragma solidity >=0.0; contract C { function f() public pure {} }"
+				"content": "pragma hyperion >=0.0; contract C { function f() public pure {} }"
 			},
 			"B":
 			{
-				"content": "pragma solidity >=0.0; contract D { function f() public pure {} }"
+				"content": "pragma hyperion >=0.0; contract D { function f() public pure {} }"
 			}
 		},
 		"settings":
 		{
 			"outputSelection":
 			{
-				"*": { "D": ["evm.bytecode"] }
+				"*": { "D": ["zvm.bytecode"] }
 			}
 		}
 	}
@@ -1533,7 +1533,7 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_multiple_sources)
 	Json::Value parsedInput;
 	BOOST_REQUIRE(util::jsonParseStrict(input, parsedInput));
 
-	solidity::frontend::StandardCompiler compiler;
+	hyperion::frontend::StandardCompiler compiler;
 	Json::Value result = compiler.compile(parsedInput);
 
 	BOOST_REQUIRE(result["contracts"].isObject());
@@ -1541,8 +1541,8 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_multiple_sources)
 	BOOST_REQUIRE(result["contracts"]["B"].isObject());
 	BOOST_REQUIRE(result["contracts"]["B"].size() == 1);
 	BOOST_REQUIRE(result["contracts"]["B"]["D"].isObject());
-	BOOST_REQUIRE(result["contracts"]["B"]["D"]["evm"].isObject());
-	BOOST_REQUIRE(result["contracts"]["B"]["D"]["evm"]["bytecode"].isObject());
+	BOOST_REQUIRE(result["contracts"]["B"]["D"]["zvm"].isObject());
+	BOOST_REQUIRE(result["contracts"]["B"]["D"]["zvm"]["bytecode"].isObject());
 	BOOST_REQUIRE(result["sources"].isObject());
 	BOOST_REQUIRE(result["sources"].size() == 2);
 	BOOST_REQUIRE(result["sources"]["A"].isObject());
@@ -1553,15 +1553,15 @@ BOOST_AUTO_TEST_CASE(stopAfter_invalid_value)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources":
-		{ "": { "content": "pragma solidity >=0.0; contract C { function f() public pure {} }" } },
+		{ "": { "content": "pragma hyperion >=0.0; contract C { function f() public pure {} }" } },
 		"settings":
 		{
 			"stopAfter": "rrr",
 			"outputSelection":
 			{
-				"*": { "C": ["evm.bytecode"] }
+				"*": { "C": ["zvm.bytecode"] }
 			}
 		}
 	}
@@ -1574,15 +1574,15 @@ BOOST_AUTO_TEST_CASE(stopAfter_invalid_type)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources":
-		{ "": { "content": "pragma solidity >=0.0; contract C { function f() public pure {} }" } },
+		{ "": { "content": "pragma hyperion >=0.0; contract C { function f() public pure {} }" } },
 		"settings":
 		{
 			"stopAfter": 3,
 			"outputSelection":
 			{
-				"*": { "C": ["evm.bytecode"] }
+				"*": { "C": ["zvm.bytecode"] }
 			}
 		}
 	}
@@ -1595,15 +1595,15 @@ BOOST_AUTO_TEST_CASE(stopAfter_bin_conflict)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources":
-		{ "": { "content": "pragma solidity >=0.0; contract C { function f() public pure {} }" } },
+		{ "": { "content": "pragma hyperion >=0.0; contract C { function f() public pure {} }" } },
 		"settings":
 		{
 			"stopAfter": "parsing",
 			"outputSelection":
 			{
-				"*": { "C": ["evm.bytecode"] }
+				"*": { "C": ["zvm.bytecode"] }
 			}
 		}
 	}
@@ -1616,10 +1616,10 @@ BOOST_AUTO_TEST_CASE(stopAfter_ast_output)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources": {
-			"a.sol": {
-				"content": "// SPDX-License-Identifier: GPL-3.0\nimport \"tes32.sol\";\n contract C is X { constructor() {} }"
+			"a.hyp": {
+				"content": "// SPDX-License-Identifier: GPL-3.0\nimport \"tes32.hyp\";\n contract C is X { constructor() {} }"
 			}
 		},
 		"settings": {
@@ -1630,27 +1630,27 @@ BOOST_AUTO_TEST_CASE(stopAfter_ast_output)
 	)";
 	Json::Value result = compile(input);
 	BOOST_CHECK(result["sources"].isObject());
-	BOOST_CHECK(result["sources"]["a.sol"].isObject());
-	BOOST_CHECK(result["sources"]["a.sol"]["ast"].isObject());
+	BOOST_CHECK(result["sources"]["a.hyp"].isObject());
+	BOOST_CHECK(result["sources"]["a.hyp"]["ast"].isObject());
 }
 
 BOOST_AUTO_TEST_CASE(dependency_tracking_of_abstract_contract)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources": {
-			"BlockRewardAuRaBase.sol": {
+			"BlockRewardAuRaBase.hyp": {
 				"content": " contract Sacrifice { constructor() payable {} } abstract contract BlockRewardAuRaBase { function _transferNativeReward() internal { new Sacrifice(); } function _distributeTokenRewards() internal virtual; } "
 			},
-			"BlockRewardAuRaCoins.sol": {
-				"content": " import \"./BlockRewardAuRaBase.sol\"; contract BlockRewardAuRaCoins is BlockRewardAuRaBase { function transferReward() public { _transferNativeReward(); } function _distributeTokenRewards() internal override {} } "
+			"BlockRewardAuRaCoins.hyp": {
+				"content": " import \"./BlockRewardAuRaBase.hyp\"; contract BlockRewardAuRaCoins is BlockRewardAuRaBase { function transferReward() public { _transferNativeReward(); } function _distributeTokenRewards() internal override {} } "
 			}
 		},
 		"settings": {
 			"outputSelection": {
-				"BlockRewardAuRaCoins.sol": {
-					"BlockRewardAuRaCoins": ["ir", "evm.bytecode.sourceMap"]
+				"BlockRewardAuRaCoins.hyp": {
+					"BlockRewardAuRaCoins": ["ir", "zvm.bytecode.sourceMap"]
 				}
 			}
 		}
@@ -1660,17 +1660,17 @@ BOOST_AUTO_TEST_CASE(dependency_tracking_of_abstract_contract)
 	Json::Value parsedInput;
 	BOOST_REQUIRE(util::jsonParseStrict(input, parsedInput));
 
-	solidity::frontend::StandardCompiler compiler;
+	hyperion::frontend::StandardCompiler compiler;
 	Json::Value result = compiler.compile(parsedInput);
 
 	BOOST_REQUIRE(result["contracts"].isObject());
 	BOOST_REQUIRE(result["contracts"].size() == 1);
-	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.sol"].isObject());
-	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.sol"].size() == 1);
-	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.sol"]["BlockRewardAuRaCoins"].isObject());
-	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.sol"]["BlockRewardAuRaCoins"]["evm"].isObject());
-	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.sol"]["BlockRewardAuRaCoins"]["ir"].isString());
-	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.sol"]["BlockRewardAuRaCoins"]["evm"]["bytecode"].isObject());
+	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.hyp"].isObject());
+	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.hyp"].size() == 1);
+	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.hyp"]["BlockRewardAuRaCoins"].isObject());
+	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.hyp"]["BlockRewardAuRaCoins"]["zvm"].isObject());
+	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.hyp"]["BlockRewardAuRaCoins"]["ir"].isString());
+	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.hyp"]["BlockRewardAuRaCoins"]["zvm"]["bytecode"].isObject());
 	BOOST_REQUIRE(result["sources"].isObject());
 	BOOST_REQUIRE(result["sources"].size() == 2);
 }
@@ -1679,15 +1679,15 @@ BOOST_AUTO_TEST_CASE(dependency_tracking_of_abstract_contract_yul)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources": {
-			"A.sol": {
+			"A.hyp": {
 				"content": "contract A {} contract B {} contract C { constructor() { new B(); } } contract D {}"
 			}
 		},
 		"settings": {
 			"outputSelection": {
-				"A.sol": {
+				"A.hyp": {
 					"C": ["ir"]
 				}
 			}
@@ -1698,17 +1698,17 @@ BOOST_AUTO_TEST_CASE(dependency_tracking_of_abstract_contract_yul)
 	Json::Value parsedInput;
 	BOOST_REQUIRE(util::jsonParseStrict(input, parsedInput));
 
-	solidity::frontend::StandardCompiler compiler;
+	hyperion::frontend::StandardCompiler compiler;
 	Json::Value result = compiler.compile(parsedInput);
 
 	BOOST_REQUIRE(result["contracts"].isObject());
 	BOOST_REQUIRE(result["contracts"].size() == 1);
-	BOOST_REQUIRE(result["contracts"]["A.sol"].isObject());
-	BOOST_REQUIRE(result["contracts"]["A.sol"].size() == 1);
-	BOOST_REQUIRE(result["contracts"]["A.sol"]["C"].isObject());
-	BOOST_REQUIRE(result["contracts"]["A.sol"]["C"]["ir"].isString());
+	BOOST_REQUIRE(result["contracts"]["A.hyp"].isObject());
+	BOOST_REQUIRE(result["contracts"]["A.hyp"].size() == 1);
+	BOOST_REQUIRE(result["contracts"]["A.hyp"]["C"].isObject());
+	BOOST_REQUIRE(result["contracts"]["A.hyp"]["C"]["ir"].isString());
 
-	const std::string& irCode = result["contracts"]["A.sol"]["C"]["ir"].asString();
+	const std::string& irCode = result["contracts"]["A.hyp"]["C"]["ir"].asString();
 
 	// Make sure C and B contracts are deployed
 	BOOST_REQUIRE(irCode.find("object \"C") != std::string::npos);
@@ -1728,16 +1728,16 @@ BOOST_AUTO_TEST_CASE(source_location_of_bare_block)
 {
 	char const* input = R"(
 	{
-		"language": "Solidity",
+		"language": "Hyperion",
 		"sources": {
-			"A.sol": {
+			"A.hyp": {
 				"content": "contract A { constructor() { uint x = 2; { uint y = 3; } } }"
 			}
 		},
 		"settings": {
 			"outputSelection": {
-				"A.sol": {
-					"A": ["evm.bytecode.sourceMap"]
+				"A.hyp": {
+					"A": ["zvm.bytecode.sourceMap"]
 				}
 			}
 		}
@@ -1747,10 +1747,10 @@ BOOST_AUTO_TEST_CASE(source_location_of_bare_block)
 	Json::Value parsedInput;
 	BOOST_REQUIRE(util::jsonParseStrict(input, parsedInput));
 
-	solidity::frontend::StandardCompiler compiler;
+	hyperion::frontend::StandardCompiler compiler;
 	Json::Value result = compiler.compile(parsedInput);
 
-	std::string sourceMap = result["contracts"]["A.sol"]["A"]["evm"]["bytecode"]["sourceMap"].asString();
+	std::string sourceMap = result["contracts"]["A.hyp"]["A"]["zvm"]["bytecode"]["sourceMap"].asString();
 
 	// Check that the bare block's source location is referenced.
 	std::string sourceRef =

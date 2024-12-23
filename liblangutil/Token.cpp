@@ -25,33 +25,33 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Modifications as part of solidity under the following license:
+// Modifications as part of hyperion under the following license:
 //
-// solidity is free software: you can redistribute it and/or modify
+// hyperion is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// solidity is distributed in the hope that it will be useful,
+// hyperion is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+// along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <liblangutil/Exceptions.h>
 #include <liblangutil/Token.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/StringUtils.h>
 
 #include <map>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 
 Token TokenTraits::AssignmentToBinaryOp(Token op)
 {
-	solAssert(isAssignmentOp(op) && op != Token::Assign, "");
+	hypAssert(isAssignmentOp(op) && op != Token::Assign, "");
 	return static_cast<Token>(static_cast<int>(op) + (static_cast<int>(Token::BitOr) - static_cast<int>(Token::AssignBitOr)));
 }
 
@@ -60,7 +60,7 @@ std::string ElementaryTypeNameToken::toString(bool const& tokenValue) const
 	std::string name = TokenTraits::toString(m_token);
 	if (tokenValue || (firstNumber() == 0 && secondNumber() == 0))
 		return name;
-	solAssert(name.size() >= 3, "Token name size should be greater than 3. Should not reach here.");
+	hypAssert(name.size() >= 3, "Token name size should be greater than 3. Should not reach here.");
 	if (m_token == Token::FixedMxN || m_token == Token::UFixedMxN)
 		return name.substr(0, name.size() - 3) + std::to_string(m_firstNumber) + "x" + std::to_string(m_secondNumber);
 	else
@@ -69,29 +69,29 @@ std::string ElementaryTypeNameToken::toString(bool const& tokenValue) const
 
 void ElementaryTypeNameToken::assertDetails(Token _baseType, unsigned const& _first, unsigned const& _second)
 {
-	solAssert(TokenTraits::isElementaryTypeName(_baseType), "Expected elementary type name: " + std::string(TokenTraits::toString(_baseType)));
+	hypAssert(TokenTraits::isElementaryTypeName(_baseType), "Expected elementary type name: " + std::string(TokenTraits::toString(_baseType)));
 	if (_baseType == Token::BytesM)
 	{
-		solAssert(_second == 0, "There should not be a second size argument to type bytesM.");
-		solAssert(_first <= 32, "No elementary type bytes" + std::to_string(_first) + ".");
+		hypAssert(_second == 0, "There should not be a second size argument to type bytesM.");
+		hypAssert(_first <= 32, "No elementary type bytes" + std::to_string(_first) + ".");
 	}
 	else if (_baseType == Token::UIntM || _baseType == Token::IntM)
 	{
-		solAssert(_second == 0, "There should not be a second size argument to type " + std::string(TokenTraits::toString(_baseType)) + ".");
-		solAssert(
+		hypAssert(_second == 0, "There should not be a second size argument to type " + std::string(TokenTraits::toString(_baseType)) + ".");
+		hypAssert(
 			_first <= 256 && _first % 8 == 0,
 			"No elementary type " + std::string(TokenTraits::toString(_baseType)) + std::to_string(_first) + "."
 		);
 	}
 	else if (_baseType == Token::UFixedMxN || _baseType == Token::FixedMxN)
 	{
-		solAssert(
+		hypAssert(
 			_first >= 8 && _first <= 256 && _first % 8 == 0 && _second <= 80,
 			"No elementary type " + std::string(TokenTraits::toString(_baseType)) + std::to_string(_first) + "x" + std::to_string(_second) + "."
 		);
 	}
 	else
-		solAssert(_first == 0 && _second == 0, "Unexpected size arguments");
+		hypAssert(_first == 0 && _second == 0, "Unexpected size arguments");
 
 	m_token = _baseType;
 	m_firstNumber = _first;
@@ -118,7 +118,7 @@ char const* name(Token tok)
 	static char const* const names[TokenTraits::count()] = { TOKEN_LIST(T, T) };
 #undef T
 
-	solAssert(static_cast<size_t>(tok) < TokenTraits::count(), "");
+	hypAssert(static_cast<size_t>(tok) < TokenTraits::count(), "");
 	return names[static_cast<size_t>(tok)];
 }
 
@@ -129,7 +129,7 @@ std::string friendlyName(Token tok)
 		return std::string(ret);
 
 	ret = name(tok);
-	solAssert(ret != nullptr, "");
+	hypAssert(ret != nullptr, "");
 	return std::string(ret);
 }
 

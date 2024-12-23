@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -25,17 +25,17 @@
 #include <libyul/AsmAnalysisInfo.h>
 #include <libyul/AsmAnalysis.h>
 #include <libyul/Dialect.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 #include <libyul/YulStack.h>
 
 #include <liblangutil/DebugInfoSelection.h>
 #include <liblangutil/Exceptions.h>
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 #include <liblangutil/SourceReferenceFormatter.h>
 
-#include <libsolutil/CommonIO.h>
-#include <libsolutil/CommonData.h>
-#include <libsolutil/Exceptions.h>
+#include <libhyputil/CommonIO.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/Exceptions.h>
 
 #include <boost/program_options.hpp>
 
@@ -44,11 +44,11 @@
 #include <iostream>
 
 using namespace std;
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::langutil;
-using namespace solidity::yul;
-using namespace solidity::yul::test;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::langutil;
+using namespace hyperion::yul;
+using namespace hyperion::yul::test;
 
 namespace po = boost::program_options;
 
@@ -58,9 +58,9 @@ namespace
 pair<shared_ptr<Block>, shared_ptr<AsmAnalysisInfo>> parse(string const& _source)
 {
 	YulStack stack(
-		langutil::EVMVersion(),
+		langutil::ZVMVersion(),
 		YulStack::Language::StrictAssembly,
-		solidity::frontend::OptimiserSettings::none(),
+		hyperion::frontend::OptimiserSettings::none(),
 		DebugInfoSelection::Default()
 	);
 	if (stack.parseAndAnalyze("--INPUT--", _source))
@@ -87,7 +87,7 @@ void interpret(string const& _source, bool _inspect, bool _disableExternalCalls)
 	state.maxTraceSize = 10000;
 	try
 	{
-		Dialect const& dialect(EVMDialect::strictAssemblyForEVMObjects(langutil::EVMVersion{}));
+		Dialect const& dialect(ZVMDialect::strictAssemblyForZVMObjects(langutil::ZVMVersion{}));
 
 		if (_inspect)
 			InspectedInterpreter::run(std::make_shared<Inspector>(_source, state), state, dialect, *ast, _disableExternalCalls, /*disableMemoryTracing=*/false);

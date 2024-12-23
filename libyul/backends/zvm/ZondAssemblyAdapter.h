@@ -1,49 +1,49 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Adaptor between AbstractAssembly and libevmasm.
+ * Adaptor between AbstractAssembly and libzvmasm.
  */
 
 #pragma once
 
-#include <libyul/backends/evm/AbstractAssembly.h>
+#include <libyul/backends/zvm/AbstractAssembly.h>
 #include <libyul/AsmAnalysis.h>
 #include <liblangutil/SourceLocation.h>
 
 #include <functional>
 #include <limits>
 
-namespace solidity::evmasm
+namespace hyperion::zvmasm
 {
 class Assembly;
 class AssemblyItem;
 }
 
-namespace solidity::yul
+namespace hyperion::yul
 {
-class EthAssemblyAdapter: public AbstractAssembly
+class ZondAssemblyAdapter: public AbstractAssembly
 {
 public:
-	explicit EthAssemblyAdapter(evmasm::Assembly& _assembly);
+	explicit ZondAssemblyAdapter(zvmasm::Assembly& _assembly);
 	void setSourceLocation(langutil::SourceLocation const& _location) override;
 	int stackHeight() const override;
 	void setStackHeight(int height) override;
-	void appendInstruction(evmasm::Instruction _instruction) override;
+	void appendInstruction(zvmasm::Instruction _instruction) override;
 	void appendConstant(u256 const& _constant) override;
 	void appendLabel(LabelID _labelId) override;
 	void appendLabelReference(LabelID _labelId) override;
@@ -67,14 +67,14 @@ public:
 
 	void markAsInvalid() override;
 
-	langutil::EVMVersion evmVersion() const override;
+	langutil::ZVMVersion zvmVersion() const override;
 
 
 private:
-	static LabelID assemblyTagToIdentifier(evmasm::AssemblyItem const& _tag);
-	void appendJumpInstruction(evmasm::Instruction _instruction, JumpType _jumpType);
+	static LabelID assemblyTagToIdentifier(zvmasm::AssemblyItem const& _tag);
+	void appendJumpInstruction(zvmasm::Instruction _instruction, JumpType _jumpType);
 
-	evmasm::Assembly& m_assembly;
+	zvmasm::Assembly& m_assembly;
 	std::map<SubID, u256> m_dataHashBySubId;
 	size_t m_nextDataCounter = std::numeric_limits<size_t>::max() / 2;
 };

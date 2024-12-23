@@ -1,7 +1,7 @@
 {
    "contracts":
    {
-      "combined_json_abi/input.sol:C":
+      "combined_json_abi/input.hyp:C":
       {
          "abi": []
       }

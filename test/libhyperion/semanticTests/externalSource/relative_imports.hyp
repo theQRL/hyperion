@@ -1,11 +1,11 @@
-==== ExternalSource: _relative_imports/dir/contract.sol ====
-==== ExternalSource: _relative_imports/dir/a.sol ====
-==== ExternalSource: _relative_imports/dir/B/b.sol ====
-==== ExternalSource: _relative_imports/c.sol ====
-==== ExternalSource: _relative_imports/D/d.sol ====
-==== ExternalSource: _relative_imports/dir/G/g.sol ====
-==== ExternalSource: _relative_imports/h.sol ====
-import {A, B, C, D, G, H, Contract} from "_relative_imports/dir/contract.sol";
+==== ExternalSource: _relative_imports/dir/contract.hyp ====
+==== ExternalSource: _relative_imports/dir/a.hyp ====
+==== ExternalSource: _relative_imports/dir/B/b.hyp ====
+==== ExternalSource: _relative_imports/c.hyp ====
+==== ExternalSource: _relative_imports/D/d.hyp ====
+==== ExternalSource: _relative_imports/dir/G/g.hyp ====
+==== ExternalSource: _relative_imports/h.hyp ====
+import {A, B, C, D, G, H, Contract} from "_relative_imports/dir/contract.hyp";
 contract CC {
 }
 // ----

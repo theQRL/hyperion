@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /** @file ConstantOptimiser.cpp
@@ -20,17 +20,17 @@
  * @date 2015
  */
 
-#include <libevmasm/ConstantOptimiser.h>
-#include <libevmasm/Assembly.h>
-#include <libevmasm/GasMeter.h>
+#include <libzvmasm/ConstantOptimiser.h>
+#include <libzvmasm/Assembly.h>
+#include <libzvmasm/GasMeter.h>
 
-using namespace solidity;
-using namespace solidity::evmasm;
+using namespace hyperion;
+using namespace hyperion::zvmasm;
 
 unsigned ConstantOptimisationMethod::optimiseConstants(
 	bool _isCreation,
 	size_t _runs,
-	langutil::EVMVersion _evmVersion,
+	langutil::ZVMVersion _zvmVersion,
 	Assembly& _assembly
 )
 {
@@ -52,7 +52,7 @@ unsigned ConstantOptimisationMethod::optimiseConstants(
 		params.multiplicity = it.second;
 		params.isCreation = _isCreation;
 		params.runs = _runs;
-		params.evmVersion = _evmVersion;
+		params.zvmVersion = _zvmVersion;
 		LiteralMethod lit(params, item.data());
 		bigint literalGas = lit.gasNeeded();
 		CodeCopyMethod copy(params, item.data());
@@ -102,7 +102,7 @@ bigint ConstantOptimisationMethod::dataGas(bytes const& _data) const
 
 size_t ConstantOptimisationMethod::bytesRequired(AssemblyItems const& _items)
 {
-	return evmasm::bytesRequired(_items, 3, Precision::Approximate); // assume 3 byte addresses
+	return zvmasm::bytesRequired(_items, 3, Precision::Approximate); // assume 3 byte addresses
 }
 
 void ConstantOptimisationMethod::replaceConstants(
@@ -244,7 +244,7 @@ AssemblyItems ComputeMethod::findRepresentation(u256 const& _value)
 
 bool ComputeMethod::checkRepresentation(u256 const& _value, AssemblyItems const& _routine) const
 {
-	// This is a tiny EVM that can only evaluate some instructions.
+	// This is a tiny ZVM that can only evaluate some instructions.
 	std::vector<u256> stack;
 	for (AssemblyItem const& item: _routine)
 	{

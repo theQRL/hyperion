@@ -1,15 +1,15 @@
 {
     "sourceList":
     [
-        "no_contract_combined_json/input.sol"
+        "no_contract_combined_json/input.hyp"
     ],
     "sources":
     {
-        "no_contract_combined_json/input.sol":
+        "no_contract_combined_json/input.hyp":
         {
             "AST":
             {
-                "absolutePath": "no_contract_combined_json/input.sol",
+                "absolutePath": "no_contract_combined_json/input.hyp",
                 "exportedSymbols": {},
                 "id": 2,
                 "license": "GPL-3.0",
@@ -20,7 +20,7 @@
                         "id": 1,
                         "literals":
                         [
-                            "solidity",
+                            "hyperion",
                             ">=",
                             "0.0"
                         ],

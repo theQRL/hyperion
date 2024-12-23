@@ -1,43 +1,43 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Lefteris <lefteris@ethdev.com>
  * @date 2014
- * Solidity command line interface.
+ * Hyperion command line interface.
  */
 #pragma once
 
-#include <solc/CommandLineParser.h>
+#include <hypc/CommandLineParser.h>
 
-#include <libevmasm/AbstractAssemblyStack.h>
-#include <libevmasm/EVMAssemblyStack.h>
-#include <libsolidity/interface/CompilerStack.h>
-#include <libsolidity/interface/DebugSettings.h>
-#include <libsolidity/interface/FileReader.h>
-#include <libsolidity/interface/SMTSolverCommand.h>
-#include <libsolidity/interface/UniversalCallback.h>
+#include <libzvmasm/AbstractAssemblyStack.h>
+#include <libzvmasm/ZVMAssemblyStack.h>
+#include <libhyperion/interface/CompilerStack.h>
+#include <libhyperion/interface/DebugSettings.h>
+#include <libhyperion/interface/FileReader.h>
+#include <libhyperion/interface/SMTSolverCommand.h>
+#include <libhyperion/interface/UniversalCallback.h>
 #include <libyul/YulStack.h>
 
 #include <iostream>
 #include <memory>
 #include <string>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 class CommandLineInterface
@@ -86,14 +86,14 @@ private:
 	void printVersion();
 	void printLicense();
 	void compile();
-	void assembleFromEVMAssemblyJSON();
+	void assembleFromZVMAssemblyJSON();
 	void serveLSP();
 	void link();
 	void writeLinkedFiles();
 	/// @returns the ``// <identifier> -> name`` hint for library placeholders.
 	static std::string libraryPlaceholderHint(std::string const& _libraryName);
 	/// @returns the full object with library placeholder hints in hex.
-	static std::string objectWithLinkRefsHex(evmasm::LinkerObject const& _obj);
+	static std::string objectWithLinkRefsHex(zvmasm::LinkerObject const& _obj);
 
 	void assembleYul(yul::YulStack::Language _language, yul::YulStack::Machine _targetMachine);
 
@@ -101,7 +101,7 @@ private:
 
 	void handleCombinedJSON();
 	void handleAst();
-	void handleEVMAssembly(std::string const& _contract);
+	void handleZVMAssembly(std::string const& _contract);
 	void handleBinary(std::string const& _contract);
 	void handleOpcode(std::string const& _contract);
 	void handleIR(std::string const& _contract);
@@ -118,7 +118,7 @@ private:
 
 	/// Tries to read @ m_sourceCodes as a JSONs holding ASTs
 	/// such that they can be imported into the compiler  (importASTs())
-	/// (produced by --combined-json ast <file.sol>
+	/// (produced by --combined-json ast <file.hyp>
 	/// or standard-json output
 	std::map<std::string, Json::Value> parseAstFromInput();
 
@@ -151,8 +151,8 @@ private:
 	UniversalCallback m_universalCallback{&m_fileReader, m_solverCommand};
 	std::optional<std::string> m_standardJsonInput;
 	std::unique_ptr<frontend::CompilerStack> m_compiler;
-	std::unique_ptr<evmasm::EVMAssemblyStack> m_evmAssemblyStack;
-	evmasm::AbstractAssemblyStack* m_assemblyStack = nullptr;
+	std::unique_ptr<zvmasm::ZVMAssemblyStack> m_zvmAssemblyStack;
+	zvmasm::AbstractAssemblyStack* m_assemblyStack = nullptr;
 	CommandLineOptions m_options;
 };
 

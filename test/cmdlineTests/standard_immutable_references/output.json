@@ -1,11 +1,11 @@
 {
     "contracts":
     {
-        "a.sol":
+        "a.hyp":
         {
             "A":
             {
-                "evm":
+                "zvm":
                 {
                     "deployedBytecode":
                     {
@@ -26,7 +26,7 @@
     },
     "sources":
     {
-        "a.sol":
+        "a.hyp":
         {
             "id": 0
         }

@@ -1,15 +1,15 @@
 .. index:: ! installing
 
-.. _installing-solidity:
+.. _installing-hyperion:
 
 ################################
-Installing the Solidity Compiler
+Installing the Hyperion Compiler
 ################################
 
 Versioning
 ==========
 
-Solidity versions follow `Semantic Versioning <https://semver.org>`_. In
+Hyperion versions follow `Semantic Versioning <https://semver.org>`_. In
 addition, patch-level releases with major release 0 (i.e. 0.x.y) will not
 contain breaking changes. That means code that compiles with version 0.x.y
 can be expected to compile with 0.x.z where z > y.
@@ -22,79 +22,79 @@ not guaranteed to be always working. Despite our best efforts, they might
 contain undocumented and/or broken changes that will not become a part of an
 actual release. They are not meant for production use.
 
-When deploying contracts, you should use the latest released version of Solidity. This
+When deploying contracts, you should use the latest released version of Hyperion. This
 is because breaking changes, as well as new features and bug fixes are introduced regularly.
 We currently use a 0.x version number `to indicate this fast pace of change <https://semver.org/#spec-item-4>`_.
 
 Remix
 =====
 
-*We recommend Remix for small contracts and for quickly learning Solidity.*
+*We recommend Remix for small contracts and for quickly learning Hyperion.*
 
 `Access Remix online <https://remix.ethereum.org/>`_, you do not need to install anything.
 If you want to use it without connection to the Internet, go to
 https://github.com/ethereum/remix-live/tree/gh-pages#readme and follow the instructions on that page.
 Remix is also a convenient option for testing nightly builds
-without installing multiple Solidity versions.
+without installing multiple Hyperion versions.
 
-Further options on this page detail installing command-line Solidity compiler software
+Further options on this page detail installing command-line Hyperion compiler software
 on your computer. Choose a command-line compiler if you are working on a larger contract
 or if you require more compilation options.
 
-.. _solcjs:
+.. _hypcjs:
 
 npm / Node.js
 =============
 
-Use ``npm`` for a convenient and portable way to install ``solcjs``, a Solidity compiler. The
-`solcjs` program has fewer features than the ways to access the compiler described
+Use ``npm`` for a convenient and portable way to install ``hypcjs``, a Hyperion compiler. The
+`hypcjs` program has fewer features than the ways to access the compiler described
 further down this page. The
 :ref:`commandline-compiler` documentation assumes you are using
-the full-featured compiler, ``solc``. The usage of ``solcjs`` is documented inside its own
-`repository <https://github.com/ethereum/solc-js>`_.
+the full-featured compiler, ``hypc``. The usage of ``hypcjs`` is documented inside its own
+`repository <https://github.com/theQRL/hypc-js>`_.
 
-Note: The solc-js project is derived from the C++
-`solc` by using Emscripten, which means that both use the same compiler source code.
-`solc-js` can be used in JavaScript projects directly (such as Remix).
-Please refer to the solc-js repository for instructions.
+Note: The hypc-js project is derived from the C++
+`hypc` by using Emscripten, which means that both use the same compiler source code.
+`hypc-js` can be used in JavaScript projects directly (such as Remix).
+Please refer to the hypc-js repository for instructions.
 
 .. code-block:: bash
 
-    npm install -g solc
+    npm install -g hypc
 
 .. note::
 
-    The command-line executable is named ``solcjs``.
+    The command-line executable is named ``hypcjs``.
 
-    The command-line options of ``solcjs`` are not compatible with ``solc`` and tools (such as ``geth``)
-    expecting the behavior of ``solc`` will not work with ``solcjs``.
+    The command-line options of ``hypcjs`` are not compatible with ``hypc`` and tools (such as ``geth``)
+    expecting the behavior of ``hypc`` will not work with ``hypcjs``.
 
 Docker
 ======
 
-Docker images of Solidity builds are available using the ``solc`` image from the ``ethereum`` organization.
+Docker images of Hyperion builds are available using the ``hypc`` image from the ``ethereum`` organization.
 Use the ``stable`` tag for the latest released version, and ``nightly`` for potentially unstable changes in the develop branch.
 
 The Docker image runs the compiler executable so that you can pass all compiler arguments to it.
-For example, the command below pulls the stable version of the ``solc`` image (if you do not have it already),
+For example, the command below pulls the stable version of the ``hypc`` image (if you do not have it already),
 and runs it in a new container, passing the ``--help`` argument.
 
 .. code-block:: bash
 
-    docker run ethereum/solc:stable --help
+    docker run ethereum/hypc:stable --help
 
 For example, You can specify release build versions in the tag for the 0.5.4 release.
 
 .. code-block:: bash
 
-    docker run ethereum/solc:0.5.4 --help
+    docker run ethereum/hypc:0.5.4 --help
 
-To use the Docker image to compile Solidity files on the host machine, mount a
+To use the Docker image to compile Hyperion files on the host machine, mount a
 local folder for input and output, and specify the contract to compile. For example.
 
 .. code-block:: bash
 
-    docker run -v /local/path:/sources ethereum/solc:stable -o /sources/output --abi --bin /sources/Contract.sol
+    docker run -v /local/path:/sources ethereum/hypc:stable -o /sources/output --abi --bin /sources/Contract.hyp
 
 You can also use the standard JSON interface (which is recommended when using the compiler with tooling).
 When using this interface, it is not necessary to mount any directories as long as the JSON input is
@@ -103,22 +103,22 @@ self-contained (i.e. it does not refer to any external files that would have to 
 
 .. code-block:: bash
 
-    docker run ethereum/solc:stable --standard-json < input.json > output.json
+    docker run theqrl/hypc:stable --standard-json < input.json > output.json
 
 Linux Packages
 ==============
 
-Binary packages of Solidity are available at
-`solidity/releases <https://github.com/ethereum/solidity/releases>`_.
+Binary packages of Hyperion are available at
+`hyperion/releases <https://github.com/theQRL/hyperion/releases>`_.
 
 We also have PPAs for Ubuntu, you can get the latest stable
 version using the following commands:
 
 .. code-block:: bash
 
-    sudo add-apt-repository ppa:ethereum/ethereum
+    sudo add-apt-repository ppa:theqrl/zond
     sudo apt-get update
-    sudo apt-get install solc
+    sudo apt-get install hypc
 
 The nightly version can be installed using these commands:
 
@@ -127,7 +127,7 @@ The nightly version can be installed using these commands:
     sudo add-apt-repository ppa:ethereum/ethereum
     sudo add-apt-repository ppa:ethereum/ethereum-dev
     sudo apt-get update
-    sudo apt-get install solc
+    sudo apt-get install hypc
 
 Furthermore, some Linux distributions provide their own packages. These packages are not directly
 maintained by us but usually kept up-to-date by the respective package maintainers.
@@ -140,24 +140,24 @@ and `solidity-bin <https://aur.archlinux.org/packages/solidity-bin>`_.
     Please be aware that `AUR <https://wiki.archlinux.org/title/Arch_User_Repository>`_ packages
     are user-produced content and unofficial packages. Exercise caution when using them.
 
-There is also a `snap package <https://snapcraft.io/solc>`_, however, it is **currently unmaintained**.
+There is also a `snap package <https://snapcraft.io/hypc>`_, however, it is **currently unmaintained**.
 It is installable in all the `supported Linux distros <https://snapcraft.io/docs/core/install>`_. To
-install the latest stable version of solc:
+install the latest stable version of hypc:
 
 .. code-block:: bash
 
-    sudo snap install solc
+    sudo snap install hypc
 
-If you want to help testing the latest development version of Solidity
+If you want to help testing the latest development version of Hyperion
 with the most recent changes, please use the following:
 
 .. code-block:: bash
 
-    sudo snap install solc --edge
+    sudo snap install hypc --edge
 
 .. note::
 
-    The ``solc`` snap uses strict confinement. This is the most secure mode for snap packages
+    The ``hypc`` snap uses strict confinement. This is the most secure mode for snap packages
     but it comes with limitations, like accessing only the files in your ``/home`` and ``/media`` directories.
     For more information, go to `Demystifying Snap Confinement <https://snapcraft.io/blog/demystifying-snap-confinement>`_.
 
@@ -165,7 +165,7 @@ with the most recent changes, please use the following:
 macOS Packages
 ==============
 
-We distribute the Solidity compiler through Homebrew
+We distribute the Hyperion compiler through Homebrew
 as a build-from-source version. Pre-built bottles are
 currently not supported.
 
@@ -176,21 +176,21 @@ currently not supported.
     brew tap ethereum/ethereum
     brew install solidity
 
-To install the most recent 0.4.x / 0.5.x version of Solidity you can also use ``brew install solidity@4``
+To install the most recent 0.4.x / 0.5.x version of Hyperion you can also use ``brew install solidity@4``
 and ``brew install solidity@5``, respectively.
 
-If you need a specific version of Solidity you can install a
+If you need a specific version of Hyperion you can install a
 Homebrew formula directly from Github.
 
 View
-`solidity.rb commits on Github <https://github.com/ethereum/homebrew-ethereum/commits/master/solidity.rb>`_.
+`hyperion.rb commits on Github <https://github.com/theQRL/homebrew-zond/commits/master/hyperion.rb>`_.
 
 Copy the commit hash of the version you want and check it out on your machine.
 
 .. code-block:: bash
 
-    git clone https://github.com/ethereum/homebrew-ethereum.git
-    cd homebrew-ethereum
+    git clone https://github.com/theQRL/homebrew-zond.git
+    cd homebrew-zond
     git checkout <your-hash-goes-here>
 
 Install it using ``brew``:
@@ -199,13 +199,13 @@ Install it using ``brew``:
 
     brew unlink solidity
     # eg. Install 0.4.8
-    brew install solidity.rb
+    brew install hyperion.rb
 
 Static Binaries
 ===============
 
 We maintain a repository containing static builds of past and current compiler versions for all
-supported platforms at `solc-bin`_. This is also the location where you can find the nightly builds.
+supported platforms at `hypc-bin`_. This is also the location where you can find the nightly builds.
 
 The repository is not only a quick and easy way for end users to get binaries ready to be used
 out-of-the-box but it is also meant to be friendly to third-party tools:
@@ -224,19 +224,19 @@ out-of-the-box but it is also meant to be friendly to third-party tools:
   (via git, HTTPS, IPFS or just have it cached locally) and verify hashes of the binaries
   after downloading them, you do not have to use HTTPS for the binaries themselves.
 
-The same binaries are in most cases available on the `Solidity release page on Github`_. The
+The same binaries are in most cases available on the `Hyperion release page on Github`_. The
 difference is that we do not generally update old releases on the Github release page. This means
 that we do not rename them if the naming convention changes and we do not add builds for platforms
-that were not supported at the time of release. This only happens in ``solc-bin``.
+that were not supported at the time of release. This only happens in ``hypc-bin``.
 
-The ``solc-bin`` repository contains several top-level directories, each representing a single platform.
+The ``hypc-bin`` repository contains several top-level directories, each representing a single platform.
 Each one includes a ``list.json`` file listing the available binaries. For example in
 ``emscripten-wasm32/list.json`` you will find the following information about version 0.7.4:
 
 .. code-block:: json
 
     {
-      "path": "solc-emscripten-wasm32-v0.7.4+commit.3f05b770.js",
+      "path": "hypc-emscripten-wasm32-v0.7.4+commit.3f05b770.js",
       "version": "0.7.4",
       "build": "commit.3f05b770",
       "longVersion": "0.7.4+commit.3f05b770",
@@ -251,10 +251,10 @@ Each one includes a ``list.json`` file listing the available binaries. For examp
 This means that:
 
 - You can find the binary in the same directory under the name
-  `solc-emscripten-wasm32-v0.7.4+commit.3f05b770.js <https://github.com/ethereum/solc-bin/blob/gh-pages/emscripten-wasm32/solc-emscripten-wasm32-v0.7.4+commit.3f05b770.js>`_.
+  `hypc-emscripten-wasm32-v0.7.4+commit.3f05b770.js <https://github.com/theQRL/hypc-bin/blob/gh-pages/emscripten-wasm32/hypc-emscripten-wasm32-v0.7.4+commit.3f05b770.js>`_.
   Note that the file might be a symlink, and you will need to resolve it yourself if you are not using
   git to download it or your file system does not support symlinks.
-- The binary is also mirrored at https://binaries.soliditylang.org/emscripten-wasm32/solc-emscripten-wasm32-v0.7.4+commit.3f05b770.js.
+- The binary is also mirrored at https://binaries.soliditylang.org/emscripten-wasm32/hypc-emscripten-wasm32-v0.7.4+commit.3f05b770.js.
   In this case git is not necessary and symlinks are resolved transparently, either by serving a copy
   of the file or returning a HTTP redirect.
 - The file is also available on IPFS at `QmTLs5MuLEWXQkths41HiACoXDiH8zxyqBHGFDRSzVE5CS`_.
@@ -280,14 +280,14 @@ This means that:
      if you want to be sure whether you are downloading a wasm or an asm.js binary.
    - Use ``list.json`` instead of ``list.js`` and ``list.txt``. The JSON list format contains all
      the information from the old ones and more.
-   - Use https://binaries.soliditylang.org instead of https://solc-bin.ethereum.org. To keep things
+   - Use https://binaries.soliditylang.org instead of https://hypc-bin.ethereum.org. To keep things
      simple we moved almost everything related to the compiler under the new ``soliditylang.org``
-     domain and this applies to ``solc-bin`` too. While the new domain is recommended, the old one
+     domain and this applies to ``hypc-bin`` too. While the new domain is recommended, the old one
      is still fully supported and guaranteed to point at the same location.
 
 .. warning::
 
-    The binaries are also available at https://ethereum.github.io/solc-bin/ but this page
+    The binaries are also available at https://ethereum.github.io/hypc-bin/ but this page
     stopped being updated just after the release of version 0.7.2, will not receive any new releases
     or nightly builds for any platform and does not serve the new directory structure, including
     non-emscripten builds.
@@ -300,8 +300,8 @@ This means that:
 
 .. _IPFS: https://ipfs.io
 .. _Swarm: https://swarm-gateways.net/bzz:/swarm.eth
-.. _solc-bin: https://github.com/ethereum/solc-bin/
-.. _Solidity release page on github: https://github.com/ethereum/solidity/releases
+.. _hypc-bin: https://github.com/theQRL/hypc-bin/
+.. _Hyperion release page on github: https://github.com/theQRL/hyperion/releases
 .. _sha3sum: https://github.com/maandree/sha3sum
 .. _keccak256() function from ethereumjs-util: https://github.com/ethereumjs/ethereumjs-util/blob/master/docs/modules/_hash_.md#const-keccak256
 .. _WebAssembly builds: https://emscripten.org/docs/compiling/WebAssembly.html
@@ -315,7 +315,7 @@ Building from Source
 Prerequisites - All Operating Systems
 -------------------------------------
 
-The following are dependencies for all builds of Solidity:
+The following are dependencies for all builds of Hyperion:
 
 +-----------------------------------+-------------------------------------------------------+
 | Software                          | Notes                                                 |
@@ -340,9 +340,9 @@ The following are dependencies for all builds of Solidity:
 .. _z3: https://github.com/Z3Prover/z3
 
 .. note::
-    Solidity versions prior to 0.5.10 can fail to correctly link against Boost versions 1.70+.
+    Hyperion versions prior to 0.5.10 can fail to correctly link against Boost versions 1.70+.
     A possible workaround is to temporarily rename ``<Boost install path>/lib/cmake/Boost-1.70.0``
-    prior to running the cmake command to configure Solidity.
+    prior to running the cmake command to configure Hyperion.
 
     Starting from 0.5.10 linking against Boost 1.70+ should work without manual intervention.
 
@@ -365,12 +365,12 @@ The following are dependencies for all builds of Solidity:
     Doing this is not recommended for general use but may be necessary when using a toolchain we are
     not testing with or trying to build an older version with newer tools.
     If you encounter such warnings, please consider
-    `reporting them <https://github.com/ethereum/solidity/issues/new>`_.
+    `reporting them <https://github.com/theQRL/hyperion/issues/new>`_.
 
 Minimum Compiler Versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The following C++ compilers and their minimum versions can build the Solidity codebase:
+The following C++ compilers and their minimum versions can build the Hyperion codebase:
 
 - `GCC <https://gcc.gnu.org>`_, version 8+
 - `Clang <https://clang.llvm.org/>`_, version 7+
@@ -401,7 +401,7 @@ if you ever want to start again from scratch.
 Prerequisites - Windows
 -----------------------
 
-You need to install the following dependencies for Windows builds of Solidity:
+You need to install the following dependencies for Windows builds of Hyperion:
 
 +-----------------------------------+-------------------------------------------------------+
 | Software                          | Notes                                                 |
@@ -417,7 +417,7 @@ If you already have one IDE and only need the compiler and libraries,
 you could install Visual Studio 2019 Build Tools.
 
 Visual Studio 2019 provides both IDE and necessary compiler and libraries.
-So if you have not got an IDE and prefer to develop Solidity, Visual Studio 2019
+So if you have not got an IDE and prefer to develop Hyperion, Visual Studio 2019
 may be a choice for you to get everything setup easily.
 
 Here is the list of components that should be installed
@@ -447,23 +447,23 @@ To clone the source code, execute the following command:
 
 .. code-block:: bash
 
-    git clone --recursive https://github.com/ethereum/solidity.git
+    git clone --recursive https://github.com/theQRL/hyperion.git
     cd solidity
 
-If you want to help develop Solidity,
-you should fork Solidity and add your personal fork as a second remote:
+If you want to help develop Hyperion,
+you should fork Hyperion and add your personal fork as a second remote:
 
 .. code-block:: bash
 
-    git remote add personal git@github.com:[username]/solidity.git
+    git remote add personal git@github.com:[username]/hyperion.git
 
 .. note::
     This method will result in a pre-release build leading to e.g. a flag
     being set in each bytecode produced by such a compiler.
-    If you want to re-build a released Solidity compiler, then
+    If you want to re-build a released Hyperion compiler, then
     please use the source tarball on the github release page:
 
-    https://github.com/ethereum/solidity/releases/download/v0.X.Y/solidity_0.X.Y.tar.gz
+    https://github.com/theQRL/solidity/releases/download/v0.X.Y/solidity_0.X.Y.tar.gz
 
     (not the "Source code" provided by github).
 
@@ -472,10 +472,10 @@ Command-Line Build
 
 **Be sure to install External Dependencies (see above) before build.**
 
-Solidity project uses CMake to configure the build.
+Hyperion project uses CMake to configure the build.
 You might want to install `ccache`_ to speed up repeated builds.
 CMake will pick it up automatically.
-Building Solidity is quite similar on Linux, macOS and other Unices:
+Building Hyperion is quite similar on Linux, macOS and other Unices:
 
 .. _ccache: https://ccache.dev/
 
@@ -489,12 +489,12 @@ or even easier on Linux and macOS, you can run:
 
 .. code-block:: bash
 
-    #note: this will install binaries solc and soltest at usr/local/bin
+    #note: this will install binaries hypc and hyptest at usr/local/bin
     ./scripts/build.sh
 
 .. warning::
 
-    BSD builds should work, but are untested by the Solidity team.
+    BSD builds should work, but are untested by the Hyperion team.
 
 And for Windows:
 
@@ -508,7 +508,7 @@ In case you want to use the version of boost installed by ``scripts\install_deps
 additionally need to pass ``-DBoost_DIR="deps\boost\lib\cmake\Boost-*"`` and ``-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded``
 as arguments to the call to ``cmake``.
 
-This should result in the creation of **solidity.sln** in that build directory.
+This should result in the creation of **hyperion.sln** in that build directory.
 Double-clicking on that file should result in Visual Studio firing up.  We suggest building
 **Release** configuration, but all others work.
 
@@ -527,7 +527,7 @@ If you are interested what CMake options are available run ``cmake .. -LH``.
 
 SMT Solvers
 -----------
-Solidity can be built against SMT solvers and will do so by default if
+Hyperion can be built against SMT solvers and will do so by default if
 they are found in the system. Each solver can be disabled by a ``cmake`` option.
 
 *Note: In some cases, this can also be a potential workaround for build failures.*
@@ -549,7 +549,7 @@ Inside the build folder you can disable them, since they are enabled by default:
 The Version String in Detail
 ============================
 
-The Solidity version string contains four parts:
+The Hyperion version string contains four parts:
 
 - the version number
 - pre-release tag, usually set to ``develop.YYYY.MM.DD`` or ``nightly.YYYY.MM.DD``
@@ -558,8 +558,8 @@ The Solidity version string contains four parts:
 
 If there are local modifications, the commit will be postfixed with ``.mod``.
 
-These parts are combined as required by SemVer, where the Solidity pre-release tag equals to the SemVer pre-release
-and the Solidity commit and platform combined make up the SemVer build metadata.
+These parts are combined as required by SemVer, where the Hyperion pre-release tag equals to the SemVer pre-release
+and the Hyperion commit and platform combined make up the SemVer build metadata.
 
 A release example: ``0.4.8+commit.60cc1668.Emscripten.clang``.
 

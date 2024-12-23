@@ -1,53 +1,53 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Solidity AST to EVM bytecode compiler for expressions.
+ * Hyperion AST to ZVM bytecode compiler for expressions.
  */
 
-#include <libsolidity/codegen/ExpressionCompiler.h>
+#include <libhyperion/codegen/ExpressionCompiler.h>
 
-#include <libsolidity/codegen/ReturnInfo.h>
-#include <libsolidity/codegen/CompilerContext.h>
-#include <libsolidity/codegen/CompilerUtils.h>
-#include <libsolidity/codegen/LValue.h>
+#include <libhyperion/codegen/ReturnInfo.h>
+#include <libhyperion/codegen/CompilerContext.h>
+#include <libhyperion/codegen/CompilerUtils.h>
+#include <libhyperion/codegen/LValue.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/ASTUtils.h>
-#include <libsolidity/ast/TypeProvider.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/ASTUtils.h>
+#include <libhyperion/ast/TypeProvider.h>
 
-#include <libevmasm/GasMeter.h>
-#include <libsolutil/Common.h>
-#include <libsolutil/FunctionSelector.h>
-#include <libsolutil/Keccak256.h>
-#include <libsolutil/Whiskers.h>
-#include <libsolutil/StackTooDeepString.h>
+#include <libzvmasm/GasMeter.h>
+#include <libhyputil/Common.h>
+#include <libhyputil/FunctionSelector.h>
+#include <libhyputil/Keccak256.h>
+#include <libhyputil/Whiskers.h>
+#include <libhyputil/StackTooDeepString.h>
 
 #include <boost/algorithm/string/replace.hpp>
 #include <numeric>
 #include <utility>
 
-using namespace solidity;
-using namespace solidity::evmasm;
-using namespace solidity::frontend;
-using namespace solidity::langutil;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::zvmasm;
+using namespace hyperion::frontend;
+using namespace hyperion::langutil;
+using namespace hyperion::util;
 
 namespace
 {
@@ -58,16 +58,16 @@ Type const* closestType(Type const* _type, Type const* _targetType, bool _isShif
 		return _type->mobileType();
 	else if (auto const* tupleType = dynamic_cast<TupleType const*>(_type))
 	{
-		solAssert(_targetType, "");
+		hypAssert(_targetType, "");
 		TypePointers const& targetComponents = dynamic_cast<TupleType const&>(*_targetType).components();
-		solAssert(tupleType->components().size() == targetComponents.size(), "");
+		hypAssert(tupleType->components().size() == targetComponents.size(), "");
 		TypePointers tempComponents(targetComponents.size());
 		for (size_t i = 0; i < targetComponents.size(); ++i)
 		{
 			if (tupleType->components()[i] && targetComponents[i])
 			{
 				tempComponents[i] = closestType(tupleType->components()[i], targetComponents[i], _isShiftOp);
-				solAssert(tempComponents[i], "");
+				hypAssert(tempComponents[i], "");
 			}
 		}
 		return TypeProvider::tuple(std::move(tempComponents));
@@ -88,7 +88,7 @@ void ExpressionCompiler::appendStateVariableInitialization(VariableDeclaration c
 	if (!_varDecl.value())
 		return;
 	Type const* type = _varDecl.value()->annotation().type;
-	solAssert(!!type, "Type information not available.");
+	hypAssert(!!type, "Type information not available.");
 	CompilerContext::LocationSetter locationSetter(m_context, _varDecl);
 	_varDecl.value()->accept(*this);
 
@@ -96,7 +96,7 @@ void ExpressionCompiler::appendStateVariableInitialization(VariableDeclaration c
 	{
 		// reference type, only convert value to mobile type and do final conversion in storeValue.
 		auto mt = type->mobileType();
-		solAssert(mt, "");
+		hypAssert(mt, "");
 		utils().convertType(*type, *mt);
 		type = mt;
 	}
@@ -113,23 +113,23 @@ void ExpressionCompiler::appendStateVariableInitialization(VariableDeclaration c
 
 void ExpressionCompiler::appendConstStateVariableAccessor(VariableDeclaration const& _varDecl)
 {
-	solAssert(_varDecl.isConstant(), "");
+	hypAssert(_varDecl.isConstant(), "");
 	acceptAndConvert(*_varDecl.value(), *_varDecl.annotation().type);
 
 	// append return
 	m_context << dupInstruction(_varDecl.annotation().type->sizeOnStack() + 1);
-	m_context.appendJump(evmasm::AssemblyItem::JumpType::OutOfFunction);
+	m_context.appendJump(zvmasm::AssemblyItem::JumpType::OutOfFunction);
 }
 
 void ExpressionCompiler::appendStateVariableAccessor(VariableDeclaration const& _varDecl)
 {
-	solAssert(!_varDecl.isConstant(), "");
+	hypAssert(!_varDecl.isConstant(), "");
 	CompilerContext::LocationSetter locationSetter(m_context, _varDecl);
 	FunctionType accessorType(_varDecl);
 
 	TypePointers paramTypes = accessorType.parameterTypes();
 	if (_varDecl.immutable())
-		solAssert(paramTypes.empty(), "");
+		hypAssert(paramTypes.empty(), "");
 
 	m_context.adjustStackOffset(static_cast<int>(1 + CompilerUtils::sizeOnStack(paramTypes)));
 
@@ -146,13 +146,13 @@ void ExpressionCompiler::appendStateVariableAccessor(VariableDeclaration const& 
 	{
 		if (auto mappingType = dynamic_cast<MappingType const*>(returnType))
 		{
-			solAssert(CompilerUtils::freeMemoryPointer >= 0x40, "");
+			hypAssert(CompilerUtils::freeMemoryPointer >= 0x40, "");
 
 			// pop offset
 			m_context << Instruction::POP;
 			if (paramTypes[i]->isDynamicallySized())
 			{
-				solAssert(
+				hypAssert(
 					dynamic_cast<ArrayType const&>(*paramTypes[i]).isByteArrayOrString(),
 					"Expected string or byte array for mapping key type"
 				);
@@ -178,7 +178,7 @@ void ExpressionCompiler::appendStateVariableAccessor(VariableDeclaration const& 
 			}
 			else
 			{
-				solAssert(paramTypes[i]->isValueType(), "Expected value type for mapping key");
+				hypAssert(paramTypes[i]->isValueType(), "Expected value type for mapping key");
 
 				// move storage offset to memory.
 				utils().storeInMemory(32);
@@ -212,7 +212,7 @@ void ExpressionCompiler::appendStateVariableAccessor(VariableDeclaration const& 
 			returnType = arrayType->baseType();
 		}
 		else
-			solAssert(false, "Index access is allowed only for \"mapping\" and \"array\" types.");
+			hypAssert(false, "Index access is allowed only for \"mapping\" and \"array\" types.");
 	}
 	// remove index arguments.
 	if (paramTypes.size() == 1)
@@ -226,10 +226,10 @@ void ExpressionCompiler::appendStateVariableAccessor(VariableDeclaration const& 
 	}
 	unsigned retSizeOnStack = 0;
 	auto returnTypes = accessorType.returnParameterTypes();
-	solAssert(returnTypes.size() >= 1, "");
+	hypAssert(returnTypes.size() >= 1, "");
 	if (StructType const* structType = dynamic_cast<StructType const*>(returnType))
 	{
-		solAssert(!_varDecl.immutable(), "");
+		hypAssert(!_varDecl.immutable(), "");
 		// remove offset
 		m_context << Instruction::POP;
 		auto const& names = accessorType.returnParameterNames();
@@ -255,7 +255,7 @@ void ExpressionCompiler::appendStateVariableAccessor(VariableDeclaration const& 
 	else
 	{
 		// simple value or array
-		solAssert(returnTypes.size() == 1, "");
+		hypAssert(returnTypes.size() == 1, "");
 		if (_varDecl.immutable())
 			ImmutableItem(m_context, _varDecl).retrieveValue(SourceLocation());
 		else
@@ -263,7 +263,7 @@ void ExpressionCompiler::appendStateVariableAccessor(VariableDeclaration const& 
 		utils().convertType(*returnType, *returnTypes.front());
 		retSizeOnStack = returnTypes.front()->sizeOnStack();
 	}
-	solAssert(retSizeOnStack == utils().sizeOnStack(returnTypes), "");
+	hypAssert(retSizeOnStack == utils().sizeOnStack(returnTypes), "");
 	if (retSizeOnStack > 15)
 		BOOST_THROW_EXCEPTION(
 			StackTooDeepError() <<
@@ -271,16 +271,16 @@ void ExpressionCompiler::appendStateVariableAccessor(VariableDeclaration const& 
 			util::errinfo_comment(util::stackTooDeepString)
 		);
 	m_context << dupInstruction(retSizeOnStack + 1);
-	m_context.appendJump(evmasm::AssemblyItem::JumpType::OutOfFunction);
+	m_context.appendJump(zvmasm::AssemblyItem::JumpType::OutOfFunction);
 }
 
 bool ExpressionCompiler::visit(Conditional const& _condition)
 {
 	CompilerContext::LocationSetter locationSetter(m_context, _condition);
 	_condition.condition().accept(*this);
-	evmasm::AssemblyItem trueTag = m_context.appendConditionalJump();
+	zvmasm::AssemblyItem trueTag = m_context.appendConditionalJump();
 	acceptAndConvert(_condition.falseExpression(), *_condition.annotation().type);
-	evmasm::AssemblyItem endTag = m_context.appendJumpToNew();
+	zvmasm::AssemblyItem endTag = m_context.appendJumpToNew();
 	m_context << trueTag;
 	int offset = static_cast<int>(_condition.annotation().type->sizeOnStack());
 	m_context.adjustStackOffset(-offset);
@@ -297,11 +297,11 @@ bool ExpressionCompiler::visit(Assignment const& _assignment)
 	Type const& leftType = *_assignment.leftHandSide().annotation().type;
 	if (leftType.category() == Type::Category::Tuple)
 	{
-		solAssert(*_assignment.annotation().type == TupleType(), "");
-		solAssert(op == Token::Assign, "");
+		hypAssert(*_assignment.annotation().type == TupleType(), "");
+		hypAssert(op == Token::Assign, "");
 	}
 	else
-		solAssert(*_assignment.annotation().type == leftType, "");
+		hypAssert(*_assignment.annotation().type == leftType, "");
 	bool cleanupNeeded = false;
 	if (op != Token::Assign)
 		cleanupNeeded = cleanupNeededForOp(leftType.category(), binOp, m_context.arithmetic());
@@ -314,18 +314,18 @@ bool ExpressionCompiler::visit(Assignment const& _assignment)
 		op != Token::Assign && TokenTraits::isShiftOp(binOp)
 	);
 
-	solAssert(rightIntermediateType, "");
+	hypAssert(rightIntermediateType, "");
 	utils().convertType(*_assignment.rightHandSide().annotation().type, *rightIntermediateType, cleanupNeeded);
 
 	_assignment.leftHandSide().accept(*this);
-	solAssert(!!m_currentLValue, "LValue not retrieved.");
+	hypAssert(!!m_currentLValue, "LValue not retrieved.");
 
 	if (op == Token::Assign)
 		m_currentLValue->storeValue(*rightIntermediateType, _assignment.location());
 	else  // compound assignment
 	{
-		solAssert(binOp != Token::Exp, "Compound exp is not possible.");
-		solAssert(leftType.isValueType(), "Compound operators only available for value types.");
+		hypAssert(binOp != Token::Exp, "Compound exp is not possible.");
+		hypAssert(leftType.isValueType(), "Compound operators only available for value types.");
 		unsigned lvalueSize = m_currentLValue->sizeOnStack();
 		unsigned itemSize = _assignment.annotation().type->sizeOnStack();
 		if (lvalueSize > 0)
@@ -341,7 +341,7 @@ bool ExpressionCompiler::visit(Assignment const& _assignment)
 			appendShiftOperatorCode(binOp, leftType, *rightIntermediateType);
 		else
 		{
-			solAssert(leftType == *rightIntermediateType, "");
+			hypAssert(leftType == *rightIntermediateType, "");
 			appendOrdinaryBinaryOperatorCode(binOp, leftType);
 		}
 		if (lvalueSize > 0)
@@ -368,7 +368,7 @@ bool ExpressionCompiler::visit(TupleExpression const& _tuple)
 	{
 		ArrayType const& arrayType = dynamic_cast<ArrayType const&>(*_tuple.annotation().type);
 
-		solAssert(!arrayType.isDynamicallySized(), "Cannot create dynamically sized inline array.");
+		hypAssert(!arrayType.isDynamicallySized(), "Cannot create dynamically sized inline array.");
 		utils().allocateMemory(std::max(u256(32u), arrayType.memoryDataSize()));
 		m_context << Instruction::DUP1;
 
@@ -389,7 +389,7 @@ bool ExpressionCompiler::visit(TupleExpression const& _tuple)
 				component->accept(*this);
 				if (_tuple.annotation().willBeWrittenTo)
 				{
-					solAssert(!!m_currentLValue, "");
+					hypAssert(!!m_currentLValue, "");
 					lvalues.push_back(std::move(m_currentLValue));
 				}
 			}
@@ -413,15 +413,15 @@ bool ExpressionCompiler::visit(UnaryOperation const& _unaryOperation)
 	FunctionDefinition const* function = *_unaryOperation.annotation().userDefinedFunction;
 	if (function)
 	{
-		solAssert(function->isFree());
+		hypAssert(function->isFree());
 
 		FunctionType const* functionType = _unaryOperation.userDefinedFunctionType();
-		solAssert(functionType);
-		solAssert(functionType->parameterTypes().size() == 1);
-		solAssert(functionType->returnParameterTypes().size() == 1);
-		solAssert(functionType->kind() == FunctionType::Kind::Internal);
+		hypAssert(functionType);
+		hypAssert(functionType->parameterTypes().size() == 1);
+		hypAssert(functionType->returnParameterTypes().size() == 1);
+		hypAssert(functionType->kind() == FunctionType::Kind::Internal);
 
-		evmasm::AssemblyItem returnLabel = m_context.pushNewTag();
+		zvmasm::AssemblyItem returnLabel = m_context.pushNewTag();
 		acceptAndConvert(
 			_unaryOperation.subExpression(),
 			*functionType->parameterTypes()[0],
@@ -429,7 +429,7 @@ bool ExpressionCompiler::visit(UnaryOperation const& _unaryOperation)
 		);
 
 		m_context << m_context.functionEntryLabel(*function).pushTag();
-		m_context.appendJump(evmasm::AssemblyItem::JumpType::IntoFunction);
+		m_context.appendJump(zvmasm::AssemblyItem::JumpType::IntoFunction);
 		m_context << returnLabel;
 
 		unsigned parameterSize = CompilerUtils::sizeOnStack(functionType->parameterTypes());
@@ -459,14 +459,14 @@ bool ExpressionCompiler::visit(UnaryOperation const& _unaryOperation)
 		m_context << Instruction::NOT;
 		break;
 	case Token::Delete: // delete
-		solAssert(!!m_currentLValue, "LValue not retrieved.");
+		hypAssert(!!m_currentLValue, "LValue not retrieved.");
 		m_currentLValue->setToZero(_unaryOperation.location());
 		m_currentLValue.reset();
 		break;
 	case Token::Inc: // ++ (pre- or postfix)
 	case Token::Dec: // -- (pre- or postfix)
-		solAssert(!!m_currentLValue, "LValue not retrieved.");
-		solUnimplementedAssert(
+		hypAssert(!!m_currentLValue, "LValue not retrieved.");
+		hypUnimplementedAssert(
 			type.category() != Type::Category::FixedPoint,
 			"Not yet implemented - FixedPointType."
 		);
@@ -474,7 +474,7 @@ bool ExpressionCompiler::visit(UnaryOperation const& _unaryOperation)
 		if (!_unaryOperation.isPrefixOperation())
 		{
 			// store value for later
-			solUnimplementedAssert(type.sizeOnStack() == 1, "Stack size != 1 not implemented.");
+			hypUnimplementedAssert(type.sizeOnStack() == 1, "Stack size != 1 not implemented.");
 			m_context << Instruction::DUP1;
 			if (m_currentLValue->sizeOnStack() > 0)
 				for (unsigned i = 1 + m_currentLValue->sizeOnStack(); i > 0; --i)
@@ -511,9 +511,9 @@ bool ExpressionCompiler::visit(UnaryOperation const& _unaryOperation)
 		break;
 	case Token::Add: // +
 		// According to SyntaxChecker...
-		solAssert(false, "Use of unary + is disallowed.");
+		hypAssert(false, "Use of unary + is disallowed.");
 	case Token::Sub: // -
-		solUnimplementedAssert(
+		hypUnimplementedAssert(
 			type.category() != Type::Category::FixedPoint,
 			"Not yet implemented - FixedPointType."
 		);
@@ -523,7 +523,7 @@ bool ExpressionCompiler::visit(UnaryOperation const& _unaryOperation)
 			m_context << u256(0) << Instruction::SUB;
 		break;
 	default:
-		solAssert(false, "Invalid unary operator: " + std::string(TokenTraits::toString(_unaryOperation.getOperator())));
+		hypAssert(false, "Invalid unary operator: " + std::string(TokenTraits::toString(_unaryOperation.getOperator())));
 	}
 	return false;
 }
@@ -536,15 +536,15 @@ bool ExpressionCompiler::visit(BinaryOperation const& _binaryOperation)
 	FunctionDefinition const* function = *_binaryOperation.annotation().userDefinedFunction;
 	if (function)
 	{
-		solAssert(function->isFree());
+		hypAssert(function->isFree());
 
 		FunctionType const* functionType = _binaryOperation.userDefinedFunctionType();
-		solAssert(functionType);
-		solAssert(functionType->parameterTypes().size() == 2);
-		solAssert(functionType->returnParameterTypes().size() == 1);
-		solAssert(functionType->kind() == FunctionType::Kind::Internal);
+		hypAssert(functionType);
+		hypAssert(functionType->parameterTypes().size() == 2);
+		hypAssert(functionType->returnParameterTypes().size() == 1);
+		hypAssert(functionType->kind() == FunctionType::Kind::Internal);
 
-		evmasm::AssemblyItem returnLabel = m_context.pushNewTag();
+		zvmasm::AssemblyItem returnLabel = m_context.pushNewTag();
 		acceptAndConvert(
 			leftExpression,
 			*functionType->parameterTypes()[0],
@@ -557,7 +557,7 @@ bool ExpressionCompiler::visit(BinaryOperation const& _binaryOperation)
 		);
 
 		m_context << m_context.functionEntryLabel(*function).pushTag();
-		m_context.appendJump(evmasm::AssemblyItem::JumpType::IntoFunction);
+		m_context.appendJump(zvmasm::AssemblyItem::JumpType::IntoFunction);
 		m_context << returnLabel;
 
 		unsigned parameterSize = CompilerUtils::sizeOnStack(functionType->parameterTypes());
@@ -568,7 +568,7 @@ bool ExpressionCompiler::visit(BinaryOperation const& _binaryOperation)
 		return false;
 	}
 
-	solAssert(!!_binaryOperation.annotation().commonType);
+	hypAssert(!!_binaryOperation.annotation().commonType);
 	Type const* commonType = _binaryOperation.annotation().commonType;
 	Token const c_op = _binaryOperation.getOperator();
 
@@ -585,7 +585,7 @@ bool ExpressionCompiler::visit(BinaryOperation const& _binaryOperation)
 			TokenTraits::isShiftOp(c_op) || c_op == Token::Exp ?
 			rightExpression.annotation().type->mobileType() :
 			commonType;
-		solAssert(rightTargetType, "");
+		hypAssert(rightTargetType, "");
 
 		// for commutative operators, push the literal as late as possible to allow improved optimization
 		auto isLiteral = [](Expression const& _e)
@@ -625,15 +625,15 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 	CompilerContext::LocationSetter locationSetter(m_context, _functionCall);
 	if (functionCallKind == FunctionCallKind::TypeConversion)
 	{
-		solAssert(_functionCall.arguments().size() == 1, "");
-		solAssert(_functionCall.names().empty(), "");
+		hypAssert(_functionCall.arguments().size() == 1, "");
+		hypAssert(_functionCall.names().empty(), "");
 		auto const& expression = *_functionCall.arguments().front();
 		auto const& targetType = *_functionCall.annotation().type;
 		if (auto const* typeType = dynamic_cast<TypeType const*>(expression.annotation().type))
 			if (auto const* addressType = dynamic_cast<AddressType const*>(&targetType))
 			{
 				auto const* contractType = dynamic_cast<ContractType const*>(typeType->actualType());
-				solAssert(
+				hypAssert(
 					contractType &&
 					contractType->contractDefinition().isLibrary() &&
 					addressType->stateMutability() == StateMutability::NonPayable,
@@ -679,7 +679,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 	{
 		FunctionType const& function = *functionType;
 		if (function.hasBoundFirstArgument())
-			solAssert(
+			hypAssert(
 				function.kind() == FunctionType::Kind::DelegateCall ||
 				function.kind() == FunctionType::Kind::Internal ||
 				function.kind() == FunctionType::Kind::ArrayPush ||
@@ -688,14 +688,14 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 		switch (function.kind())
 		{
 		case FunctionType::Kind::Declaration:
-			solAssert(false, "Attempted to generate code for calling a function definition.");
+			hypAssert(false, "Attempted to generate code for calling a function definition.");
 			break;
 		case FunctionType::Kind::Internal:
 		{
 			// Calling convention: Caller pushes return address and arguments
 			// Callee removes them and pushes return values
 
-			evmasm::AssemblyItem returnLabel = m_context.pushNewTag();
+			zvmasm::AssemblyItem returnLabel = m_context.pushNewTag();
 			for (unsigned i = 0; i < arguments.size(); ++i)
 				acceptAndConvert(*arguments[i], *function.parameterTypes()[i]);
 			_functionCall.expression().accept(*this);
@@ -716,7 +716,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 				// Extract the runtime part.
 				m_context << ((u256(1) << 32) - 1) << Instruction::AND;
 
-			m_context.appendJump(evmasm::AssemblyItem::JumpType::IntoFunction);
+			m_context.appendJump(zvmasm::AssemblyItem::JumpType::IntoFunction);
 			m_context << returnLabel;
 
 			unsigned returnParametersSize = CompilerUtils::sizeOnStack(function.returnParameterTypes());
@@ -727,7 +727,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 		case FunctionType::Kind::BareCall:
 		case FunctionType::Kind::BareDelegateCall:
 		case FunctionType::Kind::BareStaticCall:
-			solAssert(!_functionCall.annotation().tryCall, "");
+			hypAssert(!_functionCall.annotation().tryCall, "");
 			[[fallthrough]];
 		case FunctionType::Kind::External:
 		case FunctionType::Kind::DelegateCall:
@@ -739,8 +739,8 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			_functionCall.expression().accept(*this);
 			// Stack: [salt], [value]
 
-			solAssert(!function.gasSet(), "Gas limit set for contract creation.");
-			solAssert(function.returnParameterTypes().size() == 1, "");
+			hypAssert(!function.gasSet(), "Gas limit set for contract creation.");
+			hypAssert(function.returnParameterTypes().size() == 1, "");
 			TypePointers argumentTypes;
 			for (auto const& arg: arguments)
 			{
@@ -827,7 +827,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			_functionCall.expression().accept(*this);
 			// Provide the gas stipend manually at first because we may send zero ether.
 			// Will be zeroed if we send more than zero ether.
-			m_context << u256(evmasm::GasCosts::callStipend);
+			m_context << u256(zvmasm::GasCosts::callStipend);
 			acceptAndConvert(*arguments.front(), *function.parameterTypes().front(), true);
 			// gas <- gas * !value
 			m_context << Instruction::SWAP1 << Instruction::DUP2;
@@ -865,8 +865,8 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			else
 			{
 				// function-sel(Error(string)) + encoding
-				solAssert(arguments.size() == 1, "");
-				solAssert(function.parameterTypes().size() == 1, "");
+				hypAssert(arguments.size() == 1, "");
+				hypAssert(function.parameterTypes().size() == 1, "");
 				if (m_context.revertStrings() == RevertStrings::Strip)
 				{
 					if (!*arguments.front()->annotation().isPure)
@@ -886,10 +886,10 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 		}
 		case FunctionType::Kind::KECCAK256:
 		{
-			solAssert(arguments.size() == 1, "");
-			solAssert(!function.padArguments(), "");
+			hypAssert(arguments.size() == 1, "");
+			hypAssert(!function.padArguments(), "");
 			Type const* argType = arguments.front()->annotation().type;
-			solAssert(argType, "");
+			hypAssert(argType, "");
 			arguments.front()->accept(*this);
 			if (auto const* stringLiteral = dynamic_cast<StringLiteralType const*>(argType))
 				// Optimization: Compute keccak256 on string literals at compile-time.
@@ -935,12 +935,12 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 					}
 					else
 					{
-						solAssert(paramTypes[arg - 1]->isValueType(), "");
+						hypAssert(paramTypes[arg - 1]->isValueType(), "");
 						if (auto functionType =	dynamic_cast<FunctionType const*>(paramTypes[arg - 1]))
 						{
 							auto argumentType =
 								dynamic_cast<FunctionType const*>(arguments[arg-1]->annotation().type);
-							solAssert(
+							hypAssert(
 								argumentType &&
 								functionType->kind() == FunctionType::Kind::External &&
 								argumentType->kind() == FunctionType::Kind::External &&
@@ -963,7 +963,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 				m_context << u256(h256::Arith(keccak256(function.externalSignature())));
 				++numIndexed;
 			}
-			solAssert(numIndexed <= 4, "Too many indexed arguments.");
+			hypAssert(numIndexed <= 4, "Too many indexed arguments.");
 			// Copy all non-indexed arguments to memory (data)
 			// Memory position is only a hack and should be removed once we have free memory pointer.
 			TypePointers nonIndexedArgTypes;
@@ -991,7 +991,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 				arg->accept(*this);
 				argumentTypes.push_back(arg->annotation().type);
 			}
-			solAssert(dynamic_cast<ErrorDefinition const*>(&function.declaration()), "");
+			hypAssert(dynamic_cast<ErrorDefinition const*>(&function.declaration()), "");
 			utils().revertWithError(
 				function.externalSignature(),
 				function.parameterTypes(),
@@ -1002,24 +1002,24 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 		case FunctionType::Kind::Wrap:
 		case FunctionType::Kind::Unwrap:
 		{
-			solAssert(arguments.size() == 1, "");
+			hypAssert(arguments.size() == 1, "");
 			Type const* argumentType = arguments.at(0)->annotation().type;
 			Type const* functionCallType = _functionCall.annotation().type;
-			solAssert(argumentType, "");
-			solAssert(functionCallType, "");
+			hypAssert(argumentType, "");
+			hypAssert(functionCallType, "");
 			FunctionType::Kind kind = functionType->kind();
 			if (kind == FunctionType::Kind::Wrap)
 			{
-				solAssert(
+				hypAssert(
 					argumentType->isImplicitlyConvertibleTo(
 						dynamic_cast<UserDefinedValueType const&>(*functionCallType).underlyingType()
 					),
 					""
 				);
-				solAssert(argumentType->isImplicitlyConvertibleTo(*function.parameterTypes()[0]), "");
+				hypAssert(argumentType->isImplicitlyConvertibleTo(*function.parameterTypes()[0]), "");
 			}
 			else
-				solAssert(
+				hypAssert(
 					dynamic_cast<UserDefinedValueType const&>(*argumentType) ==
 					dynamic_cast<UserDefinedValueType const&>(*function.parameterTypes()[0]),
 					""
@@ -1059,22 +1059,22 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			m_context << contractAddresses.at(function.kind());
 			for (unsigned i = function.sizeOnStack(); i > 0; --i)
 				m_context << swapInstruction(i);
-			solAssert(!_functionCall.annotation().tryCall, "");
+			hypAssert(!_functionCall.annotation().tryCall, "");
 			appendExternalFunctionCall(function, arguments, false);
 			break;
 		}
 		case FunctionType::Kind::ArrayPush:
 		{
-			solAssert(function.hasBoundFirstArgument(), "");
+			hypAssert(function.hasBoundFirstArgument(), "");
 			_functionCall.expression().accept(*this);
 
 			if (function.parameterTypes().size() == 0)
 			{
 				auto paramType = function.returnParameterTypes().at(0);
-				solAssert(paramType, "");
+				hypAssert(paramType, "");
 
 				ArrayType const* arrayType = dynamic_cast<ArrayType const*>(function.selfType());
-				solAssert(arrayType, "");
+				hypAssert(arrayType, "");
 
 				// stack: ArrayReference
 				m_context << u256(1) << Instruction::DUP2;
@@ -1091,11 +1091,11 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			}
 			else
 			{
-				solAssert(function.parameterTypes().size() == 1, "");
-				solAssert(!!function.parameterTypes()[0], "");
+				hypAssert(function.parameterTypes().size() == 1, "");
+				hypAssert(!!function.parameterTypes()[0], "");
 				Type const* paramType = function.parameterTypes()[0];
 				ArrayType const* arrayType = dynamic_cast<ArrayType const*>(function.selfType());
-				solAssert(arrayType, "");
+				hypAssert(arrayType, "");
 
 				// stack: ArrayReference
 				arguments[0]->accept(*this);
@@ -1116,7 +1116,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 					arrayType->baseType()->dataStoredIn(DataLocation::Storage) ?
 					arguments[0]->annotation().type->mobileType() :
 					arrayType->baseType();
-				solAssert(type, "");
+				hypAssert(type, "");
 				utils().convertType(*argType, *type);
 				utils().moveToStackTop(1 + type->sizeOnStack());
 				utils().moveToStackTop(1 + type->sizeOnStack());
@@ -1131,10 +1131,10 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 		case FunctionType::Kind::ArrayPop:
 		{
 			_functionCall.expression().accept(*this);
-			solAssert(function.hasBoundFirstArgument(), "");
-			solAssert(function.parameterTypes().empty(), "");
+			hypAssert(function.hasBoundFirstArgument(), "");
+			hypAssert(function.parameterTypes().empty(), "");
 			ArrayType const* arrayType = dynamic_cast<ArrayType const*>(function.selfType());
-			solAssert(arrayType && arrayType->dataStoredIn(DataLocation::Storage), "");
+			hypAssert(arrayType && arrayType->dataStoredIn(DataLocation::Storage), "");
 			ArrayUtils(m_context).popStorageArrayElement(*arrayType);
 			break;
 		}
@@ -1147,7 +1147,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			for (auto const& argument: arguments)
 			{
 				argument->accept(*this);
-				solAssert(argument->annotation().type, "");
+				hypAssert(argument->annotation().type, "");
 				argumentTypes.emplace_back(argument->annotation().type);
 				if (argument->annotation().type->category() == Type::Category::FixedBytes)
 					targetTypes.emplace_back(argument->annotation().type);
@@ -1158,15 +1158,15 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 					targetTypes.emplace_back(TypeProvider::fixedBytes(static_cast<unsigned>(literalType->value().size())));
 				else
 				{
-					solAssert(!dynamic_cast<RationalNumberType const*>(argument->annotation().type), "");
+					hypAssert(!dynamic_cast<RationalNumberType const*>(argument->annotation().type), "");
 					if (function.kind() == FunctionType::Kind::StringConcat)
 					{
-						solAssert(argument->annotation().type->isImplicitlyConvertibleTo(*TypeProvider::stringMemory()), "");
+						hypAssert(argument->annotation().type->isImplicitlyConvertibleTo(*TypeProvider::stringMemory()), "");
 						targetTypes.emplace_back(TypeProvider::stringMemory());
 					}
 					else if (function.kind() == FunctionType::Kind::BytesConcat)
 					{
-						solAssert(argument->annotation().type->isImplicitlyConvertibleTo(*TypeProvider::bytesMemory()), "");
+						hypAssert(argument->annotation().type->isImplicitlyConvertibleTo(*TypeProvider::bytesMemory()), "");
 						targetTypes.emplace_back(TypeProvider::bytesMemory());
 					}
 				}
@@ -1188,7 +1188,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 		{
 			ArrayType const& arrayType = dynamic_cast<ArrayType const&>(*_functionCall.annotation().type);
 			_functionCall.expression().accept(*this);
-			solAssert(arguments.size() == 1, "");
+			hypAssert(arguments.size() == 1, "");
 
 			// Fetch requested length.
 			acceptAndConvert(*arguments[0], *TypeProvider::uint256());
@@ -1245,8 +1245,8 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 				// Users probably expect the second argument to be evaluated
 				// even if the condition is false, as would be the case for an actual
 				// function call.
-				solAssert(arguments.size() == 2, "");
-				solAssert(function.kind() == FunctionType::Kind::Require, "");
+				hypAssert(arguments.size() == 2, "");
+				hypAssert(function.kind() == FunctionType::Kind::Require, "");
 				if (m_context.revertStrings() == RevertStrings::Strip)
 				{
 					if (!*arguments.at(1)->annotation().isPure)
@@ -1301,7 +1301,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 
 			if (function.kind() == FunctionType::Kind::ABIEncodeCall)
 			{
-				solAssert(arguments.size() == 2);
+				hypAssert(arguments.size() == 2);
 
 				// Account for tuples with one component which become that component
 				if (auto const tupleType = dynamic_cast<TupleType const*>(arguments[1]->annotation().type))
@@ -1310,9 +1310,9 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 					argumentTypes.emplace_back(arguments[1]->annotation().type);
 
 				auto functionPtr = dynamic_cast<FunctionTypePointer>(arguments[0]->annotation().type);
-				solAssert(functionPtr);
+				hypAssert(functionPtr);
 				functionPtr = functionPtr->asExternallyCallableFunction(false);
-				solAssert(functionPtr);
+				hypAssert(functionPtr);
 				targetTypes = functionPtr->parameterTypes();
 			}
 			else
@@ -1332,12 +1332,12 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 
 			if (isPacked)
 			{
-				solAssert(!function.padArguments(), "");
+				hypAssert(!function.padArguments(), "");
 				utils().packedEncode(argumentTypes, targetTypes);
 			}
 			else
 			{
-				solAssert(function.padArguments(), "");
+				hypAssert(function.padArguments(), "");
 				utils().abiEncode(argumentTypes, targetTypes);
 			}
 			utils().fetchFreeMemoryPointer();
@@ -1354,7 +1354,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			if (hasSelectorOrSignature)
 			{
 				// stack: <selector/functionPointer/signature> <memory pointer>
-				solAssert(arguments.size() >= 1, "");
+				hypAssert(arguments.size() >= 1, "");
 				Type const* selectorType = arguments[0]->annotation().type;
 				utils().moveIntoStack(selectorType->sizeOnStack());
 				Type const* dataOnStack = selectorType;
@@ -1385,13 +1385,13 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 					auto const& funType = dynamic_cast<FunctionType const&>(*selectorType);
 					if (funType.kind() == FunctionType::Kind::Declaration)
 					{
-						solAssert(funType.hasDeclaration());
-						solAssert(selectorType->sizeOnStack() == 0);
+						hypAssert(funType.hasDeclaration());
+						hypAssert(selectorType->sizeOnStack() == 0);
 						m_context << funType.externalIdentifier();
 					}
 					else
 					{
-						solAssert(selectorType->sizeOnStack() == 2);
+						hypAssert(selectorType->sizeOnStack() == 2);
 						// stack: <memory pointer> <functionPointer>
 						// Extract selector from the stack
 						m_context << Instruction::SWAP1 << Instruction::POP;
@@ -1400,7 +1400,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 					dataOnStack = TypeProvider::uint(32);
 				}
 				else
-					solAssert(function.kind() == FunctionType::Kind::ABIEncodeWithSelector, "");
+					hypAssert(function.kind() == FunctionType::Kind::ABIEncodeWithSelector, "");
 
 				utils().convertType(*dataOnStack, FixedBytesType(4), true);
 
@@ -1434,7 +1434,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 				referenceType && referenceType->dataStoredIn(DataLocation::CallData)
 			)
 			{
-				solAssert(referenceType->isImplicitlyConvertibleTo(*TypeProvider::bytesCalldata()), "");
+				hypAssert(referenceType->isImplicitlyConvertibleTo(*TypeProvider::bytesCalldata()), "");
 				utils().convertType(*referenceType, *TypeProvider::bytesCalldata());
 				utils().abiDecode(targetTypes, false);
 			}
@@ -1490,10 +1490,10 @@ bool ExpressionCompiler::visit(FunctionCallOptions const& _functionCallOptions)
 		else if (name == "value")
 			newOption = Value;
 		else
-			solAssert(false, "Unexpected option name!");
+			hypAssert(false, "Unexpected option name!");
 		acceptAndConvert(*_functionCallOptions.options()[i], *requiredType);
 
-		solAssert(!util::contains(presentOptions, newOption), "");
+		hypAssert(!util::contains(presentOptions, newOption), "");
 		ptrdiff_t insertPos = presentOptions.end() - lower_bound(presentOptions.begin(), presentOptions.end(), newOption);
 
 		utils().moveIntoStack(static_cast<unsigned>(insertPos), 1);
@@ -1521,7 +1521,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			if (funType->kind() == FunctionType::Kind::Internal)
 			{
 				FunctionDefinition const& funDef = dynamic_cast<decltype(funDef)>(funType->declaration());
-				solAssert(*_memberAccess.annotation().requiredLookup == VirtualLookup::Static, "");
+				hypAssert(*_memberAccess.annotation().requiredLookup == VirtualLookup::Static, "");
 				utils().pushCombinedFunctionEntryLabel(
 					funDef,
 					// If we call directly, do not include the second label.
@@ -1537,9 +1537,9 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			}
 			else
 			{
-				solAssert(funType->kind() == FunctionType::Kind::DelegateCall, "");
+				hypAssert(funType->kind() == FunctionType::Kind::DelegateCall, "");
 				auto contract = dynamic_cast<ContractDefinition const*>(funType->declaration().scope());
-				solAssert(contract && contract->isLibrary(), "");
+				hypAssert(contract && contract->isLibrary(), "");
 				m_context.appendLibraryAddress(contract->fullyQualifiedName());
 				m_context << funType->externalIdentifier();
 				utils().moveIntoStack(funType->selfType()->sizeOnStack(), 2);
@@ -1553,12 +1553,12 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 	{
 		if (auto contractType = dynamic_cast<ContractType const*>(type->actualType()))
 		{
-			solAssert(_memberAccess.annotation().type, "_memberAccess has no type");
+			hypAssert(_memberAccess.annotation().type, "_memberAccess has no type");
 			if (contractType->isSuper())
 			{
 				_memberAccess.expression().accept(*this);
-				solAssert(_memberAccess.annotation().referencedDeclaration, "Referenced declaration not resolved.");
-				solAssert(*_memberAccess.annotation().requiredLookup == VirtualLookup::Super, "");
+				hypAssert(_memberAccess.annotation().referencedDeclaration, "Referenced declaration not resolved.");
+				hypAssert(*_memberAccess.annotation().requiredLookup == VirtualLookup::Super, "");
 				utils().pushCombinedFunctionEntryLabel(
 					m_context.superFunction(
 						dynamic_cast<FunctionDefinition const&>(*_memberAccess.annotation().referencedDeclaration),
@@ -1584,7 +1584,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 						// us to link against it although we actually do not need it.
 						if (auto const* function = dynamic_cast<FunctionDefinition const*>(_memberAccess.annotation().referencedDeclaration))
 						{
-							solAssert(*_memberAccess.annotation().requiredLookup == VirtualLookup::Static, "");
+							hypAssert(*_memberAccess.annotation().requiredLookup == VirtualLookup::Static, "");
 							utils().pushCombinedFunctionEntryLabel(
 								*function,
 								// If we call directly, do not include the second label.
@@ -1592,16 +1592,16 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 							);
 						}
 						else
-							solAssert(false, "Function not found in member access");
+							hypAssert(false, "Function not found in member access");
 						break;
 					case FunctionType::Kind::Event:
 						if (!dynamic_cast<EventDefinition const*>(_memberAccess.annotation().referencedDeclaration))
-							solAssert(false, "event not found");
+							hypAssert(false, "event not found");
 						// no-op, because the parent node will do the job
 						break;
 					case FunctionType::Kind::Error:
 						if (!dynamic_cast<ErrorDefinition const*>(_memberAccess.annotation().referencedDeclaration))
-							solAssert(false, "error not found");
+							hypAssert(false, "error not found");
 						// no-op, because the parent node will do the job
 						break;
 					case FunctionType::Kind::DelegateCall:
@@ -1618,7 +1618,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 					case FunctionType::Kind::DepositRoot:
 					case FunctionType::Kind::SHA256:
 					default:
-						solAssert(false, "unsupported member function");
+						hypAssert(false, "unsupported member function");
 					}
 				}
 				else if (dynamic_cast<TypeType const*>(_memberAccess.annotation().type))
@@ -1673,7 +1673,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 						else if (auto const* function = dynamic_cast<FunctionDefinition const*>(declaration))
 							identifier = FunctionType(*function).externalIdentifier();
 						else
-							solAssert(false, "Contract member is neither variable nor function.");
+							hypAssert(false, "Contract member is neither variable nor function.");
 						m_context << identifier;
 						/// need to store it as bytes4
 						utils().leftShiftNumberOnStack(224);
@@ -1711,7 +1711,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 		innerExpression->expression().annotation().type->category() == Type::Category::Address
 	)
 	{
-		solAssert(innerExpression->annotation().type->category() == Type::Category::Array, "");
+		hypAssert(innerExpression->annotation().type->category() == Type::Category::Array, "");
 
 		innerExpression->expression().accept(*this);
 
@@ -1740,17 +1740,17 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			else if (auto const* function = dynamic_cast<FunctionDefinition const*>(declaration))
 				identifier = FunctionType(*function).externalIdentifier();
 			else
-				solAssert(false, "Contract member is neither variable nor function.");
+				hypAssert(false, "Contract member is neither variable nor function.");
 			utils().convertType(type, type.isPayable() ? *TypeProvider::payableAddress() : *TypeProvider::address(), true);
 			m_context << identifier;
 		}
 		else
-			solAssert(false, "Invalid member access in contract");
+			hypAssert(false, "Invalid member access in contract");
 		break;
 	}
 	case Type::Category::Integer:
 	{
-		solAssert(false, "Invalid member access to integer");
+		hypAssert(false, "Invalid member access to integer");
 		break;
 	}
 	case Type::Category::Address:
@@ -1808,7 +1808,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 		}
 		else if ((std::set<std::string>{"send", "transfer"}).count(member))
 		{
-			solAssert(dynamic_cast<AddressType const&>(*_memberAccess.expression().annotation().type).stateMutability() == StateMutability::Payable, "");
+			hypAssert(dynamic_cast<AddressType const&>(*_memberAccess.expression().annotation().type).stateMutability() == StateMutability::Payable, "");
 			utils().convertType(
 				*_memberAccess.expression().annotation().type,
 				AddressType(StateMutability::Payable),
@@ -1822,7 +1822,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 				true
 			);
 		else
-			solAssert(false, "Invalid member access to address");
+			hypAssert(false, "Invalid member access to address");
 		break;
 	}
 	case Type::Category::Function:
@@ -1830,7 +1830,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 		{
 			auto const& functionType = dynamic_cast<FunctionType const&>(*_memberAccess.expression().annotation().type);
 			// all events should have already been caught by this stage
-			solAssert(!(functionType.kind() == FunctionType::Kind::Event));
+			hypAssert(!(functionType.kind() == FunctionType::Kind::Event));
 
 			if (functionType.kind() == FunctionType::Kind::External)
 				CompilerUtils(m_context).popStackSlots(functionType.sizeOnStack() - 2);
@@ -1842,11 +1842,11 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 		else if (member == "address")
 		{
 			auto const& functionType = dynamic_cast<FunctionType const&>(*_memberAccess.expression().annotation().type);
-			solAssert(functionType.kind() == FunctionType::Kind::External, "");
+			hypAssert(functionType.kind() == FunctionType::Kind::External, "");
 			CompilerUtils(m_context).popStackSlots(functionType.sizeOnStack() - 1);
 		}
 		else
-			solAssert(
+			hypAssert(
 				!!_memberAccess.expression().annotation().type->memberType(member),
 				"Invalid member access to function."
 			);
@@ -1881,14 +1881,14 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			m_context << u256(0) << Instruction::CALLDATALOAD
 				<< (u256(0xffffffff) << (256 - 32)) << Instruction::AND;
 		else if (member == "gas")
-			solAssert(false, "Gas has been removed.");
+			hypAssert(false, "Gas has been removed.");
 		else if (member == "blockhash")
-			solAssert(false, "Blockhash has been removed.");
+			hypAssert(false, "Blockhash has been removed.");
 		else if (member == "creationCode" || member == "runtimeCode")
 		{
 			Type const* arg = dynamic_cast<MagicType const&>(*_memberAccess.expression().annotation().type).typeArgument();
 			auto const& contractType = dynamic_cast<ContractType const&>(*arg);
-			solAssert(!contractType.isSuper(), "");
+			hypAssert(!contractType.isSuper(), "");
 			ContractDefinition const& contract = contractType.contractDefinition();
 			utils().fetchFreeMemoryPointer();
 			m_context << Instruction::DUP1 << u256(32) << Instruction::ADD;
@@ -1931,7 +1931,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			else if (EnumType const* enumType = dynamic_cast<EnumType const*>(arg->typeArgument()))
 				m_context << (member == "min" ? enumType->minValue() : enumType->maxValue());
 			else
-				solAssert(false, "min/max not available for the given type.");
+				hypAssert(false, "min/max not available for the given type.");
 
 		}
 		else if ((std::set<std::string>{"encode", "encodePacked", "encodeWithSelector", "encodeWithSignature", "decode"}).count(member))
@@ -1939,7 +1939,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			// no-op
 		}
 		else
-			solAssert(false, "Unknown magic member.");
+			hypAssert(false, "Unknown magic member.");
 		break;
 	case Type::Category::Struct:
 	{
@@ -1974,8 +1974,8 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 				// For non-value types the calldata offset is returned directly.
 				if (memberType->isValueType())
 				{
-					solAssert(memberType->calldataEncodedSize() > 0, "");
-					solAssert(memberType->storageBytes() <= 32, "");
+					hypAssert(memberType->calldataEncodedSize() > 0, "");
+					hypAssert(memberType->storageBytes() <= 32, "");
 					if (memberType->storageBytes() < 32 && m_context.useABICoderV2())
 					{
 						m_context << u256(32);
@@ -1985,7 +1985,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 						CompilerUtils(m_context).loadFromMemoryDynamic(*memberType, true, true, false);
 				}
 				else
-					solAssert(
+					hypAssert(
 						memberType->category() == Type::Category::Array ||
 						memberType->category() == Type::Category::Struct,
 						""
@@ -1994,7 +1994,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			break;
 		}
 		default:
-			solAssert(false, "Illegal data location for struct.");
+			hypAssert(false, "Illegal data location for struct.");
 		}
 		break;
 	}
@@ -2031,7 +2031,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 		}
 		else if (member == "push" || member == "pop")
 		{
-			solAssert(
+			hypAssert(
 				type.isDynamicallySized() &&
 				type.location() == DataLocation::Storage &&
 				type.category() == Type::Category::Array,
@@ -2039,7 +2039,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			);
 		}
 		else
-			solAssert(false, "Illegal array member.");
+			hypAssert(false, "Illegal array member.");
 		break;
 	}
 	case Type::Category::FixedBytes:
@@ -2049,13 +2049,13 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 		if (member == "length")
 			m_context << u256(type.numBytes());
 		else
-			solAssert(false, "Illegal fixed bytes member.");
+			hypAssert(false, "Illegal fixed bytes member.");
 		break;
 	}
 	case Type::Category::Module:
 	{
 		Type::Category category = _memberAccess.annotation().type->category();
-		solAssert(
+		hypAssert(
 			dynamic_cast<VariableDeclaration const*>(_memberAccess.annotation().referencedDeclaration) ||
 			dynamic_cast<FunctionDefinition const*>(_memberAccess.annotation().referencedDeclaration) ||
 			dynamic_cast<ErrorDefinition const*>(_memberAccess.annotation().referencedDeclaration) ||
@@ -2065,15 +2065,15 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 		);
 		if (auto variable = dynamic_cast<VariableDeclaration const*>(_memberAccess.annotation().referencedDeclaration))
 		{
-			solAssert(variable->isConstant(), "");
+			hypAssert(variable->isConstant(), "");
 			appendVariable(*variable, static_cast<Expression const&>(_memberAccess));
 		}
 		else if (auto const* function = dynamic_cast<FunctionDefinition const*>(_memberAccess.annotation().referencedDeclaration))
 		{
 			auto funType = dynamic_cast<FunctionType const*>(_memberAccess.annotation().type);
-			solAssert(function && function->isFree(), "");
-			solAssert(funType->kind() == FunctionType::Kind::Internal, "");
-			solAssert(*_memberAccess.annotation().requiredLookup == VirtualLookup::Static, "");
+			hypAssert(function && function->isFree(), "");
+			hypAssert(funType->kind() == FunctionType::Kind::Internal, "");
+			hypAssert(*_memberAccess.annotation().requiredLookup == VirtualLookup::Static, "");
 			utils().pushCombinedFunctionEntryLabel(
 				*function,
 				// If we call directly, do not include the second label.
@@ -2088,7 +2088,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 		break;
 	}
 	default:
-		solAssert(false, "Member access to unknown type.");
+		hypAssert(false, "Member access to unknown type.");
 	}
 	return false;
 }
@@ -2106,7 +2106,7 @@ bool ExpressionCompiler::visit(IndexAccess const& _indexAccess)
 		{
 			// stack: storage_base_ref
 			Type const* keyType = dynamic_cast<MappingType const&>(baseType).keyType();
-			solAssert(_indexAccess.indexExpression(), "Index expression expected.");
+			hypAssert(_indexAccess.indexExpression(), "Index expression expected.");
 			if (keyType->isDynamicallySized())
 			{
 				_indexAccess.indexExpression()->accept(*this);
@@ -2126,7 +2126,7 @@ bool ExpressionCompiler::visit(IndexAccess const& _indexAccess)
 				m_context << u256(0); // memory position
 				appendExpressionCopyToMemory(*keyType, *_indexAccess.indexExpression());
 				m_context << Instruction::SWAP1;
-				solAssert(CompilerUtils::freeMemoryPointer >= 0x40, "");
+				hypAssert(CompilerUtils::freeMemoryPointer >= 0x40, "");
 				utils().storeInMemoryDynamic(*TypeProvider::uint256());
 				m_context << u256(0);
 			}
@@ -2138,13 +2138,13 @@ bool ExpressionCompiler::visit(IndexAccess const& _indexAccess)
 		case Type::Category::ArraySlice:
 		{
 			auto const& arrayType = dynamic_cast<ArraySliceType const&>(baseType).arrayType();
-			solAssert(
+			hypAssert(
 				arrayType.location() == DataLocation::CallData &&
 				arrayType.isDynamicallySized() &&
 				!arrayType.baseType()->isDynamicallyEncoded(),
 				""
 			);
-			solAssert(_indexAccess.indexExpression(), "Index expression expected.");
+			hypAssert(_indexAccess.indexExpression(), "Index expression expected.");
 
 			acceptAndConvert(*_indexAccess.indexExpression(), *TypeProvider::uint256(), true);
 			ArrayUtils(m_context).accessCallDataArrayElement(arrayType);
@@ -2154,7 +2154,7 @@ bool ExpressionCompiler::visit(IndexAccess const& _indexAccess)
 		case Type::Category::Array:
 		{
 			ArrayType const& arrayType = dynamic_cast<ArrayType const&>(baseType);
-			solAssert(_indexAccess.indexExpression(), "Index expression expected.");
+			hypAssert(_indexAccess.indexExpression(), "Index expression expected.");
 
 			acceptAndConvert(*_indexAccess.indexExpression(), *TypeProvider::uint256(), true);
 			// stack layout: <base_ref> [<length>] <index>
@@ -2164,7 +2164,7 @@ bool ExpressionCompiler::visit(IndexAccess const& _indexAccess)
 					ArrayUtils(m_context).accessIndex(arrayType);
 					if (arrayType.isByteArrayOrString())
 					{
-						solAssert(!arrayType.isString(), "Index access to string is not allowed.");
+						hypAssert(!arrayType.isString(), "Index access to string is not allowed.");
 						setLValue<StorageByteArrayElement>(_indexAccess);
 					}
 					else
@@ -2183,7 +2183,7 @@ bool ExpressionCompiler::visit(IndexAccess const& _indexAccess)
 		case Type::Category::FixedBytes:
 		{
 			FixedBytesType const& fixedBytesType = dynamic_cast<FixedBytesType const&>(baseType);
-			solAssert(_indexAccess.indexExpression(), "Index expression expected.");
+			hypAssert(_indexAccess.indexExpression(), "Index expression expected.");
 
 			acceptAndConvert(*_indexAccess.indexExpression(), *TypeProvider::uint256(), true);
 			// stack layout: <value> <index>
@@ -2199,13 +2199,13 @@ bool ExpressionCompiler::visit(IndexAccess const& _indexAccess)
 		}
 		case Type::Category::TypeType:
 		{
-			solAssert(baseType.sizeOnStack() == 0, "");
-			solAssert(_indexAccess.annotation().type->sizeOnStack() == 0, "");
+			hypAssert(baseType.sizeOnStack() == 0, "");
+			hypAssert(_indexAccess.annotation().type->sizeOnStack() == 0, "");
 			// no-op - this seems to be a lone array type (`structType[];`)
 			break;
 		}
 		default:
-			solAssert(false, "Index access only allowed for mappings or arrays.");
+			hypAssert(false, "Index access only allowed for mappings or arrays.");
 			break;
 	}
 
@@ -2225,8 +2225,8 @@ bool ExpressionCompiler::visit(IndexRangeAccess const& _indexAccess)
 		if (ArraySliceType const* sliceType = dynamic_cast<ArraySliceType const*>(&baseType))
 			arrayType = &sliceType->arrayType();
 
-	solAssert(arrayType, "");
-	solUnimplementedAssert(
+	hypAssert(arrayType, "");
+	hypUnimplementedAssert(
 		arrayType->location() == DataLocation::CallData &&
 		arrayType->isDynamicallySized() &&
 		!arrayType->baseType()->isDynamicallyEncoded()
@@ -2266,7 +2266,7 @@ void ExpressionCompiler::endVisit(Identifier const& _identifier)
 		case Type::Category::Contract:
 			if (dynamic_cast<ContractType const*>(magicVar->type()))
 			{
-				solAssert(_identifier.name() == "this", "");
+				hypAssert(_identifier.name() == "this", "");
 				m_context << Instruction::ADDRESS;
 			}
 			break;
@@ -2276,7 +2276,7 @@ void ExpressionCompiler::endVisit(Identifier const& _identifier)
 	}
 	else if (FunctionDefinition const* functionDef = dynamic_cast<FunctionDefinition const*>(declaration))
 	{
-		solAssert(*_identifier.annotation().requiredLookup == VirtualLookup::Virtual, "");
+		hypAssert(*_identifier.annotation().requiredLookup == VirtualLookup::Virtual, "");
 		utils().pushCombinedFunctionEntryLabel(
 			functionDef->resolveVirtual(m_context.mostDerivedContract()),
 			// If we call directly, do not include the second (potential runtime) label.
@@ -2318,7 +2318,7 @@ void ExpressionCompiler::endVisit(Identifier const& _identifier)
 	}
 	else
 	{
-		solAssert(false, "Identifier type not expected in expression context.");
+		hypAssert(false, "Identifier type not expected in expression context.");
 	}
 }
 
@@ -2337,20 +2337,20 @@ void ExpressionCompiler::endVisit(Literal const& _literal)
 	case Type::Category::StringLiteral:
 		break; // will be done during conversion
 	default:
-		solUnimplemented("Only integer, boolean and string literals implemented for now.");
+		hypUnimplemented("Only integer, boolean and string literals implemented for now.");
 	}
 }
 
 void ExpressionCompiler::appendAndOrOperatorCode(BinaryOperation const& _binaryOperation)
 {
 	Token const c_op = _binaryOperation.getOperator();
-	solAssert(c_op == Token::Or || c_op == Token::And, "");
+	hypAssert(c_op == Token::Or || c_op == Token::And, "");
 
 	_binaryOperation.leftExpression().accept(*this);
 	m_context << Instruction::DUP1;
 	if (c_op == Token::And)
 		m_context << Instruction::ISZERO;
-	evmasm::AssemblyItem endLabel = m_context.appendConditionalJump();
+	zvmasm::AssemblyItem endLabel = m_context.appendConditionalJump();
 	m_context << Instruction::POP;
 	_binaryOperation.rightExpression().accept(*this);
 	m_context << endLabel;
@@ -2363,7 +2363,7 @@ void ExpressionCompiler::appendCompareOperatorCode(Token _operator, Type const& 
 		FunctionType const* functionType = dynamic_cast<decltype(functionType)>(&_type);
 		if (functionType && functionType->kind() == FunctionType::Kind::External)
 		{
-			solUnimplementedAssert(functionType->sizeOnStack() == 2, "");
+			hypUnimplementedAssert(functionType->sizeOnStack() == 2, "");
 			m_context << Instruction::SWAP3;
 
 			m_context << ((u256(1) << 160) - 1) << Instruction::AND;
@@ -2379,7 +2379,7 @@ void ExpressionCompiler::appendCompareOperatorCode(Token _operator, Type const& 
 		}
 		else
 		{
-			solAssert(_type.sizeOnStack() == 1, "Comparison of multi-slot types.");
+			hypAssert(_type.sizeOnStack() == 1, "Comparison of multi-slot types.");
 			if (functionType && functionType->kind() == FunctionType::Kind::Internal)
 			{
 				// We have to remove the upper bits (construction time value) because they might
@@ -2395,7 +2395,7 @@ void ExpressionCompiler::appendCompareOperatorCode(Token _operator, Type const& 
 	}
 	else
 	{
-		solAssert(_type.sizeOnStack() == 1, "Comparison of multi-slot types.");
+		hypAssert(_type.sizeOnStack() == 1, "Comparison of multi-slot types.");
 		bool isSigned = false;
 		if (auto type = dynamic_cast<IntegerType const*>(&_type))
 			isSigned = type->isSigned();
@@ -2419,7 +2419,7 @@ void ExpressionCompiler::appendCompareOperatorCode(Token _operator, Type const& 
 			m_context << (isSigned ? Instruction::SLT : Instruction::LT);
 			break;
 		default:
-			solAssert(false, "Unknown comparison operator.");
+			hypAssert(false, "Unknown comparison operator.");
 		}
 	}
 }
@@ -2431,13 +2431,13 @@ void ExpressionCompiler::appendOrdinaryBinaryOperatorCode(Token _operator, Type 
 	else if (TokenTraits::isBitOp(_operator))
 		appendBitOperatorCode(_operator);
 	else
-		solAssert(false, "Unknown binary operator.");
+		hypAssert(false, "Unknown binary operator.");
 }
 
 void ExpressionCompiler::appendArithmeticOperatorCode(Token _operator, Type const& _type)
 {
 	if (_type.category() == Type::Category::FixedPoint)
-		solUnimplemented("Not yet implemented - FixedPointType.");
+		hypUnimplemented("Not yet implemented - FixedPointType.");
 
 	IntegerType const& type = dynamic_cast<IntegerType const&>(_type);
 	if (m_context.arithmetic() == Arithmetic::Checked)
@@ -2463,7 +2463,7 @@ void ExpressionCompiler::appendArithmeticOperatorCode(Token _operator, Type cons
 		case Token::Exp:
 			// EXP is handled in a different function.
 		default:
-			solAssert(false, "Unknown arithmetic operator.");
+			hypAssert(false, "Unknown arithmetic operator.");
 		}
 		// TODO Maybe we want to force-inline this?
 		m_context.callYulFunction(functionName, 2, 1);
@@ -2497,7 +2497,7 @@ void ExpressionCompiler::appendArithmeticOperatorCode(Token _operator, Type cons
 			break;
 		}
 		default:
-			solAssert(false, "Unknown arithmetic operator.");
+			hypAssert(false, "Unknown arithmetic operator.");
 		}
 	}
 }
@@ -2516,7 +2516,7 @@ void ExpressionCompiler::appendBitOperatorCode(Token _operator)
 		m_context << Instruction::XOR;
 		break;
 	default:
-		solAssert(false, "Unknown bit operator.");
+		hypAssert(false, "Unknown bit operator.");
 	}
 }
 
@@ -2528,19 +2528,19 @@ void ExpressionCompiler::appendShiftOperatorCode(Token _operator, Type const& _v
 	if (auto valueType = dynamic_cast<IntegerType const*>(&_valueType))
 		c_valueSigned = valueType->isSigned();
 	else
-		solAssert(dynamic_cast<FixedBytesType const*>(&_valueType), "Only integer and fixed bytes type supported for shifts.");
+		hypAssert(dynamic_cast<FixedBytesType const*>(&_valueType), "Only integer and fixed bytes type supported for shifts.");
 
 	// The amount can be a RationalNumberType too.
 	if (auto amountType = dynamic_cast<RationalNumberType const*>(&_shiftAmountType))
 	{
 		// This should be handled by the type checker.
-		solAssert(amountType->integerType(), "");
-		solAssert(!amountType->integerType()->isSigned(), "");
+		hypAssert(amountType->integerType(), "");
+		hypAssert(!amountType->integerType()->isSigned(), "");
 	}
 	else if (auto amountType = dynamic_cast<IntegerType const*>(&_shiftAmountType))
-		solAssert(!amountType->isSigned(), "");
+		hypAssert(!amountType->isSigned(), "");
 	else
-		solAssert(false, "Invalid shift amount type.");
+		hypAssert(false, "Invalid shift amount type.");
 
 	m_context << Instruction::SWAP1;
 	// stack: value_to_shift shift_amount
@@ -2555,14 +2555,14 @@ void ExpressionCompiler::appendShiftOperatorCode(Token _operator, Type const& _v
 		break;
 	case Token::SHR:
 	default:
-		solAssert(false, "Unknown shift operator.");
+		hypAssert(false, "Unknown shift operator.");
 	}
 }
 
 void ExpressionCompiler::appendExpOperatorCode(Type const& _valueType, Type const& _exponentType)
 {
-	solAssert(_valueType.category() == Type::Category::Integer, "");
-	solAssert(!dynamic_cast<IntegerType const&>(_exponentType).isSigned(), "");
+	hypAssert(_valueType.category() == Type::Category::Integer, "");
+	hypAssert(!dynamic_cast<IntegerType const&>(_exponentType).isSigned(), "");
 
 
 	if (m_context.arithmetic() == Arithmetic::Checked)
@@ -2580,7 +2580,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 	bool _tryCall
 )
 {
-	solAssert(
+	hypAssert(
 		_functionType.takesArbitraryParameters() ||
 		_arguments.size() == _functionType.parameterTypes().size(), ""
 	);
@@ -2611,8 +2611,8 @@ void ExpressionCompiler::appendExternalFunctionCall(
 
 	if (_tryCall)
 	{
-		solAssert(!returnSuccessConditionAndReturndata, "");
-		solAssert(!_functionType.isBareCall(), "");
+		hypAssert(!returnSuccessConditionAndReturndata, "");
+		hypAssert(!_functionType.isBareCall(), "");
 	}
 
 	ReturnInfo const returnInfo{_functionType};
@@ -2673,9 +2673,9 @@ void ExpressionCompiler::appendExternalFunctionCall(
 	// CALL arguments: outSize, outOff, inSize, inOff (already present up to here)
 	// [value,] addr, gas (stack top)
 	if (isDelegateCall)
-		solAssert(!_functionType.valueSet(), "Value set for delegatecall");
+		hypAssert(!_functionType.valueSet(), "Value set for delegatecall");
 	else if (useStaticCall)
-		solAssert(!_functionType.valueSet(), "Value set for staticcall");
+		hypAssert(!_functionType.valueSet(), "Value set for staticcall");
 	else if (_functionType.valueSet())
 		m_context << dupInstruction(m_context.baseToCurrentStackOffset(valueStackPos));
 	else
@@ -2704,7 +2704,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		m_context << dupInstruction(m_context.baseToCurrentStackOffset(gasStackPos));
 	else
 	{
-		// Send all gas (requires tangerine whistle EVM)
+		// Send all gas (requires tangerine whistle ZVM)
 		m_context << Instruction::GAS;
 	}
 		
@@ -2722,7 +2722,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		(_functionType.gasSet() ? 1 : 0) +
 		(!_functionType.isBareCall() ? 1 : 0);
 
-	evmasm::AssemblyItem endTag = m_context.newTag();
+	zvmasm::AssemblyItem endTag = m_context.newTag();
 
 	if (!returnSuccessConditionAndReturndata && !_tryCall)
 	{
@@ -2774,10 +2774,10 @@ void ExpressionCompiler::appendExternalFunctionCall(
 			m_context.appendInlineAssembly("{ returndatacopy(return_data_start, 0, returndatasize()) }", {"return_data_start"});
 		}
 		else
-			solAssert(retSize > 0, "");
+			hypAssert(retSize > 0, "");
 		// Always use the actual return length, and not our calculated expected length, if returndatacopy is supported.
 		// This ensures it can catch badly formatted input from external calls.
-		m_context << evmasm::AssemblyItem(Instruction::RETURNDATASIZE);
+		m_context << zvmasm::AssemblyItem(Instruction::RETURNDATASIZE);
 		// Stack: return_data_start return_data_size
 		if (needToUpdateFreeMemoryPtr)
 			m_context.appendInlineAssembly(R"({
@@ -2799,7 +2799,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 
 void ExpressionCompiler::appendExpressionCopyToMemory(Type const& _expectedType, Expression const& _expression)
 {
-	solUnimplementedAssert(_expectedType.isValueType(), "Not implemented for non-value types.");
+	hypUnimplementedAssert(_expectedType.isValueType(), "Not implemented for non-value types.");
 	acceptAndConvert(_expression, _expectedType, true);
 	utils().storeInMemoryDynamic(_expectedType);
 }

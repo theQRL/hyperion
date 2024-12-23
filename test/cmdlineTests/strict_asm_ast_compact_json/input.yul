@@ -1,4 +1,4 @@
-/// @use-src 0:"input.sol"
+/// @use-src 0:"input.hyp"
 object "C_6_deployed" {
     code {
         /// @src 0:60:101  "contract C {..."

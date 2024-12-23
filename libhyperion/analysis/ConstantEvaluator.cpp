@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,17 +21,17 @@
  * Evaluator for types of constant expressions.
  */
 
-#include <libsolidity/analysis/ConstantEvaluator.h>
+#include <libhyperion/analysis/ConstantEvaluator.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/TypeProvider.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/TypeProvider.h>
 #include <liblangutil/ErrorReporter.h>
 
 #include <limits>
 
-using namespace solidity;
-using namespace solidity::frontend;
-using namespace solidity::langutil;
+using namespace hyperion;
+using namespace hyperion::frontend;
+using namespace hyperion::langutil;
 
 using TypedRational = ConstantEvaluator::TypedRational;
 
@@ -44,7 +44,7 @@ bool fitsPrecisionExp(bigint const& _base, bigint const& _exp)
 	if (_base == 0)
 		return true;
 
-	solAssert(_base > 0, "");
+	hypAssert(_base > 0, "");
 
 	std::size_t const bitsMax = 4096;
 
@@ -276,7 +276,7 @@ std::optional<TypedRational> ConstantEvaluator::evaluate(ASTNode const& _node)
 	{
 		if (auto const* varDecl = dynamic_cast<VariableDeclaration const*>(&_node))
 		{
-			solAssert(varDecl->isConstant(), "");
+			hypAssert(varDecl->isConstant(), "");
 			// In some circumstances, we do not yet have a type for the variable.
 			if (!varDecl->value() || !varDecl->type())
 				m_values[&_node] = std::nullopt;

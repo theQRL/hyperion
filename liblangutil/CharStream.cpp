@@ -1,18 +1,18 @@
 /*
- * This file is part of solidity.
+ * This file is part of hyperion.
  *
- * solidity is free software: you can redistribute it and/or modify
+ * hyperion is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * solidity is distributed in the hope that it will be useful,
+ * hyperion is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+ * along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
  *
  * This file is derived from the file "scanner.cc", which was part of the
  * V8 project. The original copyright header follows:
@@ -51,8 +51,8 @@
 #include <liblangutil/CharStream.h>
 #include <liblangutil/Exceptions.h>
 
-using namespace solidity;
-using namespace solidity::langutil;
+using namespace hyperion;
+using namespace hyperion::langutil;
 
 char CharStream::advanceAndGet(size_t _chars)
 {
@@ -66,14 +66,14 @@ char CharStream::advanceAndGet(size_t _chars)
 
 char CharStream::rollback(size_t _amount)
 {
-	solAssert(m_position >= _amount, "");
+	hypAssert(m_position >= _amount, "");
 	m_position -= _amount;
 	return get();
 }
 
 char CharStream::setPosition(size_t _location)
 {
-	solAssert(_location <= m_source.size(), "Attempting to set position past end of source.");
+	hypAssert(_location <= m_source.size(), "Attempting to set position past end of source.");
 	m_position = _location;
 	return get();
 }
@@ -120,8 +120,8 @@ std::string_view CharStream::text(SourceLocation const& _location) const
 {
 	if (!_location.hasText())
 		return {};
-	solAssert(_location.sourceName && *_location.sourceName == m_name, "");
-	solAssert(static_cast<size_t>(_location.end) <= m_source.size(), "");
+	hypAssert(_location.sourceName && *_location.sourceName == m_name, "");
+	hypAssert(static_cast<size_t>(_location.end) <= m_source.size(), "");
 	return std::string_view{m_source}.substr(
 		static_cast<size_t>(_location.start),
 		static_cast<size_t>(_location.end - _location.start)

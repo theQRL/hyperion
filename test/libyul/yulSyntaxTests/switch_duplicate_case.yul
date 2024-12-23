@@ -4,6 +4,6 @@
 	case 0x0:u256 {}
 }
 // ====
-// dialect: evmTyped
+// dialect: zvmTyped
 // ----
 // DeclarationError 6792: (34-50): Duplicate case "0" defined.

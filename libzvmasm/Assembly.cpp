@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /** @file Assembly.cpp
@@ -20,22 +20,22 @@
  * @date 2014
  */
 
-#include <libevmasm/Assembly.h>
+#include <libzvmasm/Assembly.h>
 
-#include <libevmasm/CommonSubexpressionEliminator.h>
-#include <libevmasm/ControlFlowGraph.h>
-#include <libevmasm/PeepholeOptimiser.h>
-#include <libevmasm/Inliner.h>
-#include <libevmasm/JumpdestRemover.h>
-#include <libevmasm/BlockDeduplicator.h>
-#include <libevmasm/ConstantOptimiser.h>
-#include <libevmasm/GasMeter.h>
+#include <libzvmasm/CommonSubexpressionEliminator.h>
+#include <libzvmasm/ControlFlowGraph.h>
+#include <libzvmasm/PeepholeOptimiser.h>
+#include <libzvmasm/Inliner.h>
+#include <libzvmasm/JumpdestRemover.h>
+#include <libzvmasm/BlockDeduplicator.h>
+#include <libzvmasm/ConstantOptimiser.h>
+#include <libzvmasm/GasMeter.h>
 
 #include <liblangutil/CharStream.h>
 #include <liblangutil/Exceptions.h>
 
-#include <libsolutil/JSON.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/JSON.h>
+#include <libhyputil/StringUtils.h>
 
 #include <fmt/format.h>
 
@@ -48,10 +48,10 @@
 #include <limits>
 #include <iterator>
 
-using namespace solidity;
-using namespace solidity::evmasm;
-using namespace solidity::langutil;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::zvmasm;
+using namespace hyperion::langutil;
+using namespace hyperion::util;
 
 std::map<std::string, std::shared_ptr<std::string const>> Assembly::s_sharedSourceNames;
 
@@ -83,18 +83,18 @@ unsigned Assembly::codeSize(unsigned subTagSize) const
 
 void Assembly::importAssemblyItemsFromJSON(Json::Value const& _code, std::vector<std::string> const& _sourceList)
 {
-	solAssert(m_items.empty());
+	hypAssert(m_items.empty());
 	solRequire(_code.isArray(), AssemblyImportException, "Supplied JSON is not an array.");
 	for (auto jsonItemIter = std::begin(_code); jsonItemIter != std::end(_code); ++jsonItemIter)
 	{
 		AssemblyItem const& newItem = m_items.emplace_back(createAssemblyItemFromJSON(*jsonItemIter, _sourceList));
 		if (newItem == Instruction::JUMPDEST)
-			solThrow(AssemblyImportException, "JUMPDEST instruction without a tag");
+			hypThrow(AssemblyImportException, "JUMPDEST instruction without a tag");
 		else if (newItem.type() == AssemblyItemType::Tag)
 		{
 			++jsonItemIter;
 			if (jsonItemIter != std::end(_code) && createAssemblyItemFromJSON(*jsonItemIter, _sourceList) != Instruction::JUMPDEST)
-				solThrow(AssemblyImportException, "JUMPDEST expected after tag.");
+				hypThrow(AssemblyImportException, "JUMPDEST expected after tag.");
 		}
 	}
 }
@@ -110,7 +110,7 @@ AssemblyItem Assembly::createAssemblyItemFromJSON(Json::Value const& _json, std:
 			fmt::format(
 				"Unknown member '{}'. Valid members are: {}.",
 				member,
-				solidity::util::joinHumanReadable(validMembers, ", ")
+				hyperion::util::joinHumanReadable(validMembers, ", ")
 			)
 		);
 	solRequire(isOfType<std::string>(_json["name"]), AssemblyImportException, "Member 'name' missing or not of type string.");
@@ -141,7 +141,7 @@ AssemblyItem Assembly::createAssemblyItemFromJSON(Json::Value const& _json, std:
 	auto storeImmutableHash = [&](std::string const& _immutableName) -> h256
 	{
 		h256 hash(util::keccak256(_immutableName));
-		solAssert(m_immutables.count(hash) == 0 || m_immutables[hash] == _immutableName);
+		hypAssert(m_immutables.count(hash) == 0 || m_immutables[hash] == _immutableName);
 		m_immutables[hash] = _immutableName;
 		return hash;
 	};
@@ -149,7 +149,7 @@ AssemblyItem Assembly::createAssemblyItemFromJSON(Json::Value const& _json, std:
 	auto storeLibraryHash = [&](std::string const& _libraryName) -> h256
 	{
 		h256 hash(util::keccak256(_libraryName));
-		solAssert(m_libraries.count(hash) == 0 || m_libraries[hash] == _libraryName);
+		hypAssert(m_libraries.count(hash) == 0 || m_libraries[hash] == _libraryName);
 		m_libraries[hash] = _libraryName;
 		return hash;
 	};
@@ -187,11 +187,11 @@ AssemblyItem Assembly::createAssemblyItemFromJSON(Json::Value const& _json, std:
 			{
 				std::optional<AssemblyItem::JumpType> parsedJumpType = AssemblyItem::parseJumpType(jumpType);
 				if (!parsedJumpType.has_value())
-					solThrow(AssemblyImportException, "Invalid jump type.");
+					hypThrow(AssemblyImportException, "Invalid jump type.");
 				item.setJumpType(parsedJumpType.value());
 			}
 			else
-				solThrow(
+				hypThrow(
 					AssemblyImportException,
 					"Member 'jumpType' set on instruction different from JUMP or JUMPI (was set on instruction '" + name + "')"
 				);
@@ -273,7 +273,7 @@ AssemblyItem Assembly::createAssemblyItemFromJSON(Json::Value const& _json, std:
 			result = item;
 		}
 		else
-			solThrow(InvalidOpcode, "Invalid opcode: " + name);
+			hypThrow(InvalidOpcode, "Invalid opcode: " + name);
 	}
 	result.setLocation(location);
 	result.m_modifierDepth = modifierDepth;
@@ -531,12 +531,12 @@ std::pair<std::shared_ptr<Assembly>, std::vector<std::string>> Assembly::fromJSO
 			"Member 'sourceList' may only be present in the root JSON object."
 		);
 
-	auto result = std::make_shared<Assembly>(EVMVersion{}, _level == 0 /* _creation */, "" /* _name */);
+	auto result = std::make_shared<Assembly>(ZVMVersion{}, _level == 0 /* _creation */, "" /* _name */);
 	std::vector<std::string> parsedSourceList;
 	if (_json.isMember("sourceList"))
 	{
-		solAssert(_level == 0);
-		solAssert(_sourceList.empty());
+		hypAssert(_level == 0);
+		hypAssert(_sourceList.empty());
 		for (Json::Value const& sourceName: _json["sourceList"])
 		{
 			solRequire(
@@ -569,7 +569,7 @@ std::pair<std::shared_ptr<Assembly>, std::vector<std::string>> Assembly::fromJSO
 		std::map<size_t, std::shared_ptr<Assembly>> subAssemblies;
 		for (Json::ValueConstIterator dataIter = data.begin(); dataIter != data.end(); dataIter++)
 		{
-			solAssert(dataIter.key().isString());
+			hypAssert(dataIter.key().isString());
 			std::string dataItemID = dataIter.key().asString();
 			Json::Value const& dataItem = data[dataItemID];
 			if (dataItem.isString())
@@ -594,21 +594,21 @@ std::pair<std::shared_ptr<Assembly>, std::vector<std::string>> Assembly::fromJSO
 				}
 				catch (std::invalid_argument const&)
 				{
-					solThrow(AssemblyImportException, "The key '" + dataItemID + "' inside '.data' is not an integer.");
+					hypThrow(AssemblyImportException, "The key '" + dataItemID + "' inside '.data' is not an integer.");
 				}
 				catch (std::out_of_range const&)
 				{
-					solThrow(AssemblyImportException, "The key '" + dataItemID + "' inside '.data' is out of the supported integer range.");
+					hypThrow(AssemblyImportException, "The key '" + dataItemID + "' inside '.data' is out of the supported integer range.");
 				}
 
 				auto [subAssembly, emptySourceList] = Assembly::fromJSON(dataItem, _level == 0 ? parsedSourceList : _sourceList, _level + 1);
-				solAssert(subAssembly);
-				solAssert(emptySourceList.empty());
-				solAssert(subAssemblies.count(index) == 0);
+				hypAssert(subAssembly);
+				hypAssert(emptySourceList.empty());
+				hypAssert(subAssemblies.count(index) == 0);
 				subAssemblies[index] = subAssembly;
 			}
 			else
-				solThrow(AssemblyImportException, "The value of key '" + dataItemID + "' inside '.data' is neither a hex string nor an object.");
+				hypThrow(AssemblyImportException, "The value of key '" + dataItemID + "' inside '.data' is neither a hex string nor an object.");
 		}
 
 		if (!subAssemblies.empty())
@@ -726,7 +726,7 @@ std::map<u256, u256> const& Assembly::optimiseInternal(
 				_tagsReferencedFromOutside,
 				_settings.expectedExecutionsPerDeployment,
 				isCreation(),
-				_settings.evmVersion
+				_settings.zvmVersion
 			}.optimise();
 
 		if (_settings.runJumpdestRemover)
@@ -828,7 +828,7 @@ std::map<u256, u256> const& Assembly::optimiseInternal(
 		ConstantOptimisationMethod::optimiseConstants(
 			isCreation(),
 			isCreation() ? 1 : _settings.expectedExecutionsPerDeployment,
-			_settings.evmVersion,
+			_settings.zvmVersion,
 			*this
 		);
 
@@ -1162,10 +1162,10 @@ Assembly const* Assembly::subAssemblyById(size_t _subId) const
 	return currentAssembly;
 }
 
-Assembly::OptimiserSettings Assembly::OptimiserSettings::translateSettings(frontend::OptimiserSettings const& _settings, langutil::EVMVersion const& _evmVersion)
+Assembly::OptimiserSettings Assembly::OptimiserSettings::translateSettings(frontend::OptimiserSettings const& _settings, langutil::ZVMVersion const& _zvmVersion)
 {
 	// Constructing it this way so that we notice changes in the fields.
-	evmasm::Assembly::OptimiserSettings asmSettings{false,  false, false, false, false, false, _evmVersion, 0};
+	zvmasm::Assembly::OptimiserSettings asmSettings{false,  false, false, false, false, false, _zvmVersion, 0};
 	asmSettings.runInliner = _settings.runInliner;
 	asmSettings.runJumpdestRemover = _settings.runJumpdestRemover;
 	asmSettings.runPeephole = _settings.runPeephole;
@@ -1173,6 +1173,6 @@ Assembly::OptimiserSettings Assembly::OptimiserSettings::translateSettings(front
 	asmSettings.runCSE = _settings.runCSE;
 	asmSettings.runConstantOptimiser = _settings.runConstantOptimiser;
 	asmSettings.expectedExecutionsPerDeployment = _settings.expectedExecutionsPerDeployment;
-	asmSettings.evmVersion = _evmVersion;
+	asmSettings.zvmVersion = _zvmVersion;
 	return asmSettings;
 }

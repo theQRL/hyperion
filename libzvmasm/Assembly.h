@@ -1,37 +1,37 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
-#include <libevmasm/Instruction.h>
+#include <libzvmasm/Instruction.h>
 #include <liblangutil/SourceLocation.h>
-#include <libevmasm/AssemblyItem.h>
-#include <libevmasm/LinkerObject.h>
-#include <libevmasm/Exceptions.h>
+#include <libzvmasm/AssemblyItem.h>
+#include <libzvmasm/LinkerObject.h>
+#include <libzvmasm/Exceptions.h>
 
 #include <liblangutil/DebugInfoSelection.h>
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
-#include <libsolutil/Common.h>
-#include <libsolutil/Assertions.h>
-#include <libsolutil/Keccak256.h>
+#include <libhyputil/Common.h>
+#include <libhyputil/Assertions.h>
+#include <libhyputil/Keccak256.h>
 
-#include <libsolidity/interface/OptimiserSettings.h>
+#include <libhyperion/interface/OptimiserSettings.h>
 
 #include <json/json.h>
 
@@ -41,7 +41,7 @@
 #include <map>
 #include <utility>
 
-namespace solidity::evmasm
+namespace hyperion::zvmasm
 {
 
 using AssemblyPointer = std::shared_ptr<Assembly>;
@@ -49,7 +49,7 @@ using AssemblyPointer = std::shared_ptr<Assembly>;
 class Assembly
 {
 public:
-	Assembly(langutil::EVMVersion _evmVersion, bool _creation, std::string _name): m_evmVersion(_evmVersion), m_creation(_creation), m_name(std::move(_name)) { }
+	Assembly(langutil::ZVMVersion _zvmVersion, bool _creation, std::string _name): m_zvmVersion(_zvmVersion), m_creation(_creation), m_name(std::move(_name)) { }
 
 	AssemblyItem newTag() { assertThrow(m_usedTags < 0xffffffff, AssemblyException, ""); return AssemblyItem(Tag, m_usedTags++); }
 	AssemblyItem newPushTag() { assertThrow(m_usedTags < 0xffffffff, AssemblyException, ""); return AssemblyItem(PushTag, m_usedTags++); }
@@ -112,7 +112,7 @@ public:
 	/// Changes the source location used for each appended item.
 	void setSourceLocation(langutil::SourceLocation const& _location) { m_currentSourceLocation = _location; }
 	langutil::SourceLocation const& currentSourceLocation() const { return m_currentSourceLocation; }
-	langutil::EVMVersion const& evmVersion() const { return m_evmVersion; }
+	langutil::ZVMVersion const& zvmVersion() const { return m_zvmVersion; }
 
 	/// Assembles the assembly into bytecode. The assembly should not be modified after this call, since the assembled version is cached.
 	LinkerObject const& assemble() const;
@@ -125,12 +125,12 @@ public:
 		bool runDeduplicate = false;
 		bool runCSE = false;
 		bool runConstantOptimiser = false;
-		langutil::EVMVersion evmVersion;
+		langutil::ZVMVersion zvmVersion;
 		/// This specifies an estimate on how often each opcode in this assembly will be executed,
 		/// i.e. use a small value to optimise for size and a large value to optimise for runtime gas usage.
 		size_t expectedExecutionsPerDeployment = frontend::OptimiserSettings{}.expectedExecutionsPerDeployment;
 
-		static OptimiserSettings translateSettings(frontend::OptimiserSettings const& _settings, langutil::EVMVersion const& _evmVersion);
+		static OptimiserSettings translateSettings(frontend::OptimiserSettings const& _settings, langutil::ZVMVersion const& _zvmVersion);
 	};
 
 	/// Modify and return the current assembly such that creation and execution gas usage
@@ -238,7 +238,7 @@ protected:
 	mutable LinkerObject m_assembledObject;
 	mutable std::vector<size_t> m_tagPositionsInBytecode;
 
-	langutil::EVMVersion m_evmVersion;
+	langutil::ZVMVersion m_zvmVersion;
 
 	int m_deposit = 0;
 	/// True, if the assembly contains contract creation code.

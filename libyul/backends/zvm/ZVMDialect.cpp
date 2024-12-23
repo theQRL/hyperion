@@ -1,37 +1,37 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Yul dialects for EVM.
+ * Yul dialects for ZVM.
  */
 
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 
-#include <libevmasm/Instruction.h>
-#include <libevmasm/SemanticInformation.h>
+#include <libzvmasm/Instruction.h>
+#include <libzvmasm/SemanticInformation.h>
 #include <liblangutil/Exceptions.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/StringUtils.h>
 #include <libyul/AST.h>
 #include <libyul/AsmAnalysisInfo.h>
 #include <libyul/AsmParser.h>
 #include <libyul/Exceptions.h>
 #include <libyul/Object.h>
 #include <libyul/Utilities.h>
-#include <libyul/backends/evm/AbstractAssembly.h>
+#include <libyul/backends/zvm/AbstractAssembly.h>
 
 #include <range/v3/view/reverse.hpp>
 #include <range/v3/view/tail.hpp>
@@ -39,28 +39,28 @@
 #include <regex>
 
 using namespace std::string_literals;
-using namespace solidity;
-using namespace solidity::yul;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::yul;
+using namespace hyperion::util;
 
 namespace
 {
 
-std::pair<YulString, BuiltinFunctionForEVM> createEVMFunction(
+std::pair<YulString, BuiltinFunctionForZVM> createZVMFunction(
 	std::string const& _name,
-	evmasm::Instruction _instruction
+	zvmasm::Instruction _instruction
 )
 {
-	evmasm::InstructionInfo info = evmasm::instructionInfo(_instruction);
-	BuiltinFunctionForEVM f;
+	zvmasm::InstructionInfo info = zvmasm::instructionInfo(_instruction);
+	BuiltinFunctionForZVM f;
 	f.name = YulString{_name};
 	f.parameters.resize(static_cast<size_t>(info.args));
 	f.returns.resize(static_cast<size_t>(info.ret));
-	f.sideEffects = EVMDialect::sideEffectsOfInstruction(_instruction);
-	if (evmasm::SemanticInformation::terminatesControlFlow(_instruction))
+	f.sideEffects = ZVMDialect::sideEffectsOfInstruction(_instruction);
+	if (zvmasm::SemanticInformation::terminatesControlFlow(_instruction))
 	{
 		f.controlFlowSideEffects.canContinue = false;
-		if (evmasm::SemanticInformation::reverts(_instruction))
+		if (zvmasm::SemanticInformation::reverts(_instruction))
 		{
 			f.controlFlowSideEffects.canTerminate = false;
 			f.controlFlowSideEffects.canRevert = true;
@@ -71,7 +71,7 @@ std::pair<YulString, BuiltinFunctionForEVM> createEVMFunction(
 			f.controlFlowSideEffects.canRevert = false;
 		}
 	}
-	f.isMSize = _instruction == evmasm::Instruction::MSIZE;
+	f.isMSize = _instruction == zvmasm::Instruction::MSIZE;
 	f.literalArguments.clear();
 	f.instruction = _instruction;
 	f.generateCode = [_instruction](
@@ -86,7 +86,7 @@ std::pair<YulString, BuiltinFunctionForEVM> createEVMFunction(
 	return {name, std::move(f)};
 }
 
-std::pair<YulString, BuiltinFunctionForEVM> createFunction(
+std::pair<YulString, BuiltinFunctionForZVM> createFunction(
 	std::string _name,
 	size_t _params,
 	size_t _returns,
@@ -98,7 +98,7 @@ std::pair<YulString, BuiltinFunctionForEVM> createFunction(
 	yulAssert(_literalArguments.size() == _params || _literalArguments.empty(), "");
 
 	YulString name{std::move(_name)};
-	BuiltinFunctionForEVM f;
+	BuiltinFunctionForZVM f;
 	f.name = name;
 	f.parameters.resize(_params);
 	f.returns.resize(_returns);
@@ -113,7 +113,7 @@ std::pair<YulString, BuiltinFunctionForEVM> createFunction(
 std::set<YulString> createReservedIdentifiers()
 {
 	std::set<YulString> reserved;
-	for (auto const& instr: evmasm::c_instructions)
+	for (auto const& instr: zvmasm::c_instructions)
 	{
 		std::string name = toLower(instr.first);
 		reserved.emplace(name);
@@ -129,23 +129,23 @@ std::set<YulString> createReservedIdentifiers()
 	return reserved;
 }
 
-std::map<YulString, BuiltinFunctionForEVM> createBuiltins(bool _objectAccess)
+std::map<YulString, BuiltinFunctionForZVM> createBuiltins(bool _objectAccess)
 {
-	std::map<YulString, BuiltinFunctionForEVM> builtins;
-	for (auto const& instr: evmasm::c_instructions)
+	std::map<YulString, BuiltinFunctionForZVM> builtins;
+	for (auto const& instr: zvmasm::c_instructions)
 	{
 		std::string name = toLower(instr.first);
 		auto const opcode = instr.second;
 
 		if (
-			!evmasm::isDupInstruction(opcode) &&
-			!evmasm::isSwapInstruction(opcode) &&
-			!evmasm::isPushInstruction(opcode) &&
-			opcode != evmasm::Instruction::JUMP &&
-			opcode != evmasm::Instruction::JUMPI &&
-			opcode != evmasm::Instruction::JUMPDEST
+			!zvmasm::isDupInstruction(opcode) &&
+			!zvmasm::isSwapInstruction(opcode) &&
+			!zvmasm::isPushInstruction(opcode) &&
+			opcode != zvmasm::Instruction::JUMP &&
+			opcode != zvmasm::Instruction::JUMPI &&
+			opcode != zvmasm::Instruction::JUMPDEST
 		)
-			builtins.emplace(createEVMFunction(name, opcode));
+			builtins.emplace(createZVMFunction(name, opcode));
 	}
 
 	if (_objectAccess)
@@ -231,7 +231,7 @@ std::map<YulString, BuiltinFunctionForEVM> createBuiltins(bool _objectAccess)
 				AbstractAssembly& _assembly,
 				BuiltinContext&
 			) {
-				_assembly.appendInstruction(evmasm::Instruction::CODECOPY);
+				_assembly.appendInstruction(zvmasm::Instruction::CODECOPY);
 			}
 		));
 		builtins.emplace(createFunction(
@@ -278,15 +278,15 @@ std::regex const& verbatimPattern()
 }
 
 
-EVMDialect::EVMDialect(langutil::EVMVersion _evmVersion, bool _objectAccess):
+ZVMDialect::ZVMDialect(langutil::ZVMVersion _zvmVersion, bool _objectAccess):
 	m_objectAccess(_objectAccess),
-	m_evmVersion(_evmVersion),
+	m_zvmVersion(_zvmVersion),
 	m_functions(createBuiltins(_objectAccess)),
 	m_reserved(createReservedIdentifiers())
 {
 }
 
-BuiltinFunctionForEVM const* EVMDialect::builtin(YulString _name) const
+BuiltinFunctionForZVM const* ZVMDialect::builtin(YulString _name) const
 {
 	if (m_objectAccess)
 	{
@@ -301,7 +301,7 @@ BuiltinFunctionForEVM const* EVMDialect::builtin(YulString _name) const
 		return nullptr;
 }
 
-bool EVMDialect::reservedIdentifier(YulString _name) const
+bool ZVMDialect::reservedIdentifier(YulString _name) const
 {
 	if (m_objectAccess)
 		if (_name.str().substr(0, "verbatim"s.size()) == "verbatim")
@@ -309,50 +309,50 @@ bool EVMDialect::reservedIdentifier(YulString _name) const
 	return m_reserved.count(_name) != 0;
 }
 
-EVMDialect const& EVMDialect::strictAssemblyForEVM(langutil::EVMVersion _version)
+ZVMDialect const& ZVMDialect::strictAssemblyForZVM(langutil::ZVMVersion _version)
 {
-	static std::map<langutil::EVMVersion, std::unique_ptr<EVMDialect const>> dialects;
+	static std::map<langutil::ZVMVersion, std::unique_ptr<ZVMDialect const>> dialects;
 	static YulStringRepository::ResetCallback callback{[&] { dialects.clear(); }};
 	if (!dialects[_version])
-		dialects[_version] = std::make_unique<EVMDialect>(_version, false);
+		dialects[_version] = std::make_unique<ZVMDialect>(_version, false);
 	return *dialects[_version];
 }
 
-EVMDialect const& EVMDialect::strictAssemblyForEVMObjects(langutil::EVMVersion _version)
+ZVMDialect const& ZVMDialect::strictAssemblyForZVMObjects(langutil::ZVMVersion _version)
 {
-	static std::map<langutil::EVMVersion, std::unique_ptr<EVMDialect const>> dialects;
+	static std::map<langutil::ZVMVersion, std::unique_ptr<ZVMDialect const>> dialects;
 	static YulStringRepository::ResetCallback callback{[&] { dialects.clear(); }};
 	if (!dialects[_version])
-		dialects[_version] = std::make_unique<EVMDialect>(_version, true);
+		dialects[_version] = std::make_unique<ZVMDialect>(_version, true);
 	return *dialects[_version];
 }
 
-SideEffects EVMDialect::sideEffectsOfInstruction(evmasm::Instruction _instruction)
+SideEffects ZVMDialect::sideEffectsOfInstruction(zvmasm::Instruction _instruction)
 {
-	auto translate = [](evmasm::SemanticInformation::Effect _e) -> SideEffects::Effect
+	auto translate = [](zvmasm::SemanticInformation::Effect _e) -> SideEffects::Effect
 	{
 		return static_cast<SideEffects::Effect>(_e);
 	};
 
 	return SideEffects{
-		evmasm::SemanticInformation::movable(_instruction),
-		evmasm::SemanticInformation::movableApartFromEffects(_instruction),
-		evmasm::SemanticInformation::canBeRemoved(_instruction),
-		evmasm::SemanticInformation::canBeRemovedIfNoMSize(_instruction),
+		zvmasm::SemanticInformation::movable(_instruction),
+		zvmasm::SemanticInformation::movableApartFromEffects(_instruction),
+		zvmasm::SemanticInformation::canBeRemoved(_instruction),
+		zvmasm::SemanticInformation::canBeRemovedIfNoMSize(_instruction),
 		true, // cannotLoop
-		translate(evmasm::SemanticInformation::otherState(_instruction)),
-		translate(evmasm::SemanticInformation::storage(_instruction)),
-		translate(evmasm::SemanticInformation::memory(_instruction)),
+		translate(zvmasm::SemanticInformation::otherState(_instruction)),
+		translate(zvmasm::SemanticInformation::storage(_instruction)),
+		translate(zvmasm::SemanticInformation::memory(_instruction)),
 	};
 }
 
-BuiltinFunctionForEVM const* EVMDialect::verbatimFunction(size_t _arguments, size_t _returnVariables) const
+BuiltinFunctionForZVM const* ZVMDialect::verbatimFunction(size_t _arguments, size_t _returnVariables) const
 {
 	std::pair<size_t, size_t> key{_arguments, _returnVariables};
-	std::shared_ptr<BuiltinFunctionForEVM const>& function = m_verbatimFunctions[key];
+	std::shared_ptr<BuiltinFunctionForZVM const>& function = m_verbatimFunctions[key];
 	if (!function)
 	{
-		BuiltinFunctionForEVM builtinFunction = createFunction(
+		BuiltinFunctionForZVM builtinFunction = createFunction(
 			"verbatim_" + std::to_string(_arguments) + "i_" + std::to_string(_returnVariables) + "o",
 			1 + _arguments,
 			_returnVariables,
@@ -374,13 +374,13 @@ BuiltinFunctionForEVM const* EVMDialect::verbatimFunction(size_t _arguments, siz
 			}
 		).second;
 		builtinFunction.isMSize = true;
-		function = std::make_shared<BuiltinFunctionForEVM const>(std::move(builtinFunction));
+		function = std::make_shared<BuiltinFunctionForZVM const>(std::move(builtinFunction));
 	}
 	return function.get();
 }
 
-EVMDialectTyped::EVMDialectTyped(langutil::EVMVersion _evmVersion, bool _objectAccess):
-	EVMDialect(_evmVersion, _objectAccess)
+ZVMDialectTyped::ZVMDialectTyped(langutil::ZVMVersion _zvmVersion, bool _objectAccess):
+	ZVMDialect(_zvmVersion, _objectAccess)
 {
 	defaultType = "u256"_yulstring;
 	boolType = "bool"_yulstring;
@@ -440,18 +440,18 @@ EVMDialectTyped::EVMDialectTyped(langutil::EVMVersion _evmVersion, bool _objectA
 		// TODO this should use a Panic.
 		// A value larger than 1 causes an invalid instruction.
 		_assembly.appendConstant(2);
-		_assembly.appendInstruction(evmasm::Instruction::DUP2);
-		_assembly.appendInstruction(evmasm::Instruction::LT);
+		_assembly.appendInstruction(zvmasm::Instruction::DUP2);
+		_assembly.appendInstruction(zvmasm::Instruction::LT);
 		AbstractAssembly::LabelID inRange = _assembly.newLabelId();
 		_assembly.appendJumpToIf(inRange);
-		_assembly.appendInstruction(evmasm::Instruction::INVALID);
+		_assembly.appendInstruction(zvmasm::Instruction::INVALID);
 		_assembly.appendLabel(inRange);
 	}));
 	m_functions["u256_to_bool"_yulstring].parameters = {"u256"_yulstring};
 	m_functions["u256_to_bool"_yulstring].returns = {"bool"_yulstring};
 }
 
-BuiltinFunctionForEVM const* EVMDialectTyped::discardFunction(YulString _type) const
+BuiltinFunctionForZVM const* ZVMDialectTyped::discardFunction(YulString _type) const
 {
 	if (_type == "bool"_yulstring)
 		return builtin("popbool"_yulstring);
@@ -462,7 +462,7 @@ BuiltinFunctionForEVM const* EVMDialectTyped::discardFunction(YulString _type) c
 	}
 }
 
-BuiltinFunctionForEVM const* EVMDialectTyped::equalityFunction(YulString _type) const
+BuiltinFunctionForZVM const* ZVMDialectTyped::equalityFunction(YulString _type) const
 {
 	if (_type == "bool"_yulstring)
 		return nullptr;
@@ -473,11 +473,11 @@ BuiltinFunctionForEVM const* EVMDialectTyped::equalityFunction(YulString _type) 
 	}
 }
 
-EVMDialectTyped const& EVMDialectTyped::instance(langutil::EVMVersion _version)
+ZVMDialectTyped const& ZVMDialectTyped::instance(langutil::ZVMVersion _version)
 {
-	static std::map<langutil::EVMVersion, std::unique_ptr<EVMDialectTyped const>> dialects;
+	static std::map<langutil::ZVMVersion, std::unique_ptr<ZVMDialectTyped const>> dialects;
 	static YulStringRepository::ResetCallback callback{[&] { dialects.clear(); }};
 	if (!dialects[_version])
-		dialects[_version] = std::make_unique<EVMDialectTyped>(_version, true);
+		dialects[_version] = std::make_unique<ZVMDialectTyped>(_version, true);
 	return *dialects[_version];
 }

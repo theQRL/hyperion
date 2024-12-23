@@ -1,29 +1,29 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/analysis/PostTypeChecker.h>
+#include <libhyperion/analysis/PostTypeChecker.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/interface/Version.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/interface/Version.h>
 #include <liblangutil/ErrorReporter.h>
 #include <liblangutil/SemVerHandler.h>
-#include <libsolutil/Algorithms.h>
-#include <libsolutil/FunctionSelector.h>
+#include <libhyputil/Algorithms.h>
+#include <libhyputil/FunctionSelector.h>
 #include <libyul/optimiser/ASTWalker.h>
 #include <libyul/AST.h>
 
@@ -31,9 +31,9 @@
 
 #include <memory>
 
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
 bool PostTypeChecker::check(ASTNode const& _astRoot)
 {
@@ -153,7 +153,7 @@ struct ConstStateVarCircularReferenceChecker: public PostTypeChecker::Checker
 
 	void finalize() override
 	{
-		solAssert(!m_currentConstVariable, "");
+		hypAssert(!m_currentConstVariable, "");
 		for (auto declaration: m_constVariables)
 			if (auto identifier = findCycle(*declaration))
 				m_errorReporter.typeError(
@@ -166,7 +166,7 @@ struct ConstStateVarCircularReferenceChecker: public PostTypeChecker::Checker
 
 	bool visit(ContractDefinition const&) override
 	{
-		solAssert(!m_currentConstVariable, "");
+		hypAssert(!m_currentConstVariable, "");
 		return true;
 	}
 
@@ -174,7 +174,7 @@ struct ConstStateVarCircularReferenceChecker: public PostTypeChecker::Checker
 	{
 		if (_variable.isConstant())
 		{
-			solAssert(!m_currentConstVariable, "");
+			hypAssert(!m_currentConstVariable, "");
 			m_currentConstVariable = &_variable;
 			m_constVariables.push_back(&_variable);
 		}
@@ -185,7 +185,7 @@ struct ConstStateVarCircularReferenceChecker: public PostTypeChecker::Checker
 	{
 		if (_variable.isConstant())
 		{
-			solAssert(m_currentConstVariable == &_variable, "");
+			hypAssert(m_currentConstVariable == &_variable, "");
 			m_currentConstVariable = nullptr;
 		}
 	}
@@ -249,7 +249,7 @@ struct OverrideSpecifierChecker: public PostTypeChecker::Checker
 		for (ASTPointer<IdentifierPath> const& override: _overrideSpecifier.overrides())
 		{
 			Declaration const* decl = override->annotation().referencedDeclaration;
-			solAssert(decl, "Expected declaration to be resolved.");
+			hypAssert(decl, "Expected declaration to be resolved.");
 
 			if (dynamic_cast<ContractDefinition const*>(decl))
 				continue;
@@ -393,7 +393,7 @@ struct NoVariablesInInterfaceChecker: public PostTypeChecker::Checker
 
 	bool visit(StructDefinition const&) override
 	{
-		solAssert(m_insideStruct >= 0, "");
+		hypAssert(m_insideStruct >= 0, "");
 		m_insideStruct++;
 		return true;
 	}
@@ -401,7 +401,7 @@ struct NoVariablesInInterfaceChecker: public PostTypeChecker::Checker
 	void endVisit(StructDefinition const&) override
 	{
 		m_insideStruct--;
-		solAssert(m_insideStruct >= 0, "");
+		hypAssert(m_insideStruct >= 0, "");
 	}
 private:
 	ContractDefinition const* m_scope = nullptr;
@@ -436,13 +436,13 @@ struct ReservedErrorSelector: public PostTypeChecker::Checker
 	}
 };
 
-class YulLValueChecker : public solidity::yul::ASTWalker
+class YulLValueChecker : public hyperion::yul::ASTWalker
 {
 public:
 	YulLValueChecker(ASTString const& _identifierName): m_identifierName(_identifierName) {}
 	bool willBeWrittenTo() const { return m_willBeWrittenTo; }
-	using solidity::yul::ASTWalker::operator();
-	void operator()(solidity::yul::Assignment const& _assignment) override
+	using hyperion::yul::ASTWalker::operator();
+	void operator()(hyperion::yul::Assignment const& _assignment) override
 	{
 		if (m_willBeWrittenTo)
 			return;
@@ -470,7 +470,7 @@ public:
 		if (m_willBeWrittenTo)
 			return;
 
-		solAssert(_identifier.annotation().referencedDeclaration);
+		hypAssert(_identifier.annotation().referencedDeclaration);
 		if (
 			*_identifier.annotation().referencedDeclaration == *m_declaration &&
 			_identifier.annotation().willBeWrittenTo
@@ -526,7 +526,7 @@ struct SimpleCounterForLoopChecker: public PostTypeChecker::Checker
 		)
 			return false;
 
-		solAssert(incExpressionIdentifier->annotation().referencedDeclaration);
+		hypAssert(incExpressionIdentifier->annotation().referencedDeclaration);
 		if (
 			auto const* incVariableDeclaration = dynamic_cast<VariableDeclaration const*>(
 				incExpressionIdentifier->annotation().referencedDeclaration
@@ -536,7 +536,7 @@ struct SimpleCounterForLoopChecker: public PostTypeChecker::Checker
 		)
 			return false;
 
-		solAssert(lhsIdentifier);
+		hypAssert(lhsIdentifier);
 		LValueChecker lValueChecker{*lhsIdentifier};
 		simpleCondition->rightExpression().accept(lValueChecker);
 		if (!lValueChecker.willBeWrittenTo())

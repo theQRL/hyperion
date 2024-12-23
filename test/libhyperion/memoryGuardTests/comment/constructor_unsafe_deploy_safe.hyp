@@ -8,7 +8,7 @@ contract C {
         assembly { mstore(0, 0) }
     }
     function g() public pure {
-        /// @solidity memory-safe-assembly
+        /// @hyperion memory-safe-assembly
         assembly { mstore(0, 0) }
     }
 }

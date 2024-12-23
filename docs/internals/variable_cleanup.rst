@@ -4,10 +4,10 @@
 Cleaning Up Variables
 *********************
 
-Ultimately, all values in the EVM are stored in 256 bit words.
+Ultimately, all values in the ZVM are stored in 256 bit words.
 Thus, in some cases, when the type of a value has less than 256 bits,
 it is necessary to clean the remaining bits.
-The Solidity compiler is designed to do such cleaning before any operations
+The Hyperion compiler is designed to do such cleaning before any operations
 that might be adversely affected by the potential garbage in the remaining bits.
 For example, before writing a value to  memory, the remaining bits need
 to be cleared because the memory contents can be used for computing
@@ -16,7 +16,7 @@ storing a value in the storage, the remaining bits need to be cleaned
 because otherwise the garbled value can be observed.
 
 Note that access via inline assembly is not considered such an operation:
-If you use inline assembly to access Solidity variables
+If you use inline assembly to access Hyperion variables
 shorter than 256 bits, the compiler does not guarantee that
 the value is properly cleaned up.
 
@@ -26,7 +26,7 @@ value is considered ``true`` by ``JUMPI`` instruction, we do not clean
 the boolean values before they are used as the condition for
 ``JUMPI``.
 
-In addition to the design principle above, the Solidity compiler
+In addition to the design principle above, the Hyperion compiler
 cleans input data when it is loaded onto the stack.
 
 The following table describes the cleaning rules applied to different types,

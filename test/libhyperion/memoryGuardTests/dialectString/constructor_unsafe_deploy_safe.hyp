@@ -8,7 +8,7 @@ contract C {
         assembly { mstore(0, 0) }
     }
     function g() public pure {
-        assembly "evmasm" ("memory-safe") { mstore(0, 0) }
+        assembly "zvmasm" ("memory-safe") { mstore(0, 0) }
     }
 }
 // ----

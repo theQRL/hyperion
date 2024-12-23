@@ -1,4 +1,4 @@
-==== Source: s1.sol ====
+==== Source: s1.hyp ====
 contract C
 {
 	function normal(bool x) public pure returns (uint)
@@ -13,12 +13,12 @@ contract C
 
 	function xxx() public virtual pure returns (uint) { return 1; }
 }
-==== Source: s2.sol ====
-import "s1.sol";
+==== Source: s2.hyp ====
+import "s1.hyp";
 contract D is C
 {
 	function foo() public pure returns (uint) { normal(false); }
 	function xxx() public override pure returns(uint) { revert(); }
 }
 // ----
-// Warning 6321: (s1.sol:215-219): Unnamed return variable can remain unassigned. Add an explicit return with value to all non-reverting code paths or name the variable.
+// Warning 6321: (s1.hyp:215-219): Unnamed return variable can remain unassigned. Add an explicit return with value to all non-reverting code paths or name the variable.

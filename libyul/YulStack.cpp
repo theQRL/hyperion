@@ -1,22 +1,22 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Full assembly stack that can support EVM-assembly and Yul as input and EVM, EVM1.5
+ * Full assembly stack that can support ZVM-assembly and Yul as input and ZVM, ZVM1.5
  */
 
 
@@ -24,38 +24,38 @@
 
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AsmAnalysisInfo.h>
-#include <libyul/backends/evm/EthAssemblyAdapter.h>
-#include <libyul/backends/evm/EVMCodeTransform.h>
-#include <libyul/backends/evm/EVMDialect.h>
-#include <libyul/backends/evm/EVMObjectCompiler.h>
-#include <libyul/backends/evm/EVMMetrics.h>
+#include <libyul/backends/zvm/ZondAssemblyAdapter.h>
+#include <libyul/backends/zvm/ZVMCodeTransform.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/zvm/ZVMObjectCompiler.h>
+#include <libyul/backends/zvm/ZVMMetrics.h>
 #include <libyul/ObjectParser.h>
 #include <libyul/optimiser/Semantics.h>
 #include <libyul/optimiser/Suite.h>
-#include <libevmasm/Assembly.h>
+#include <libzvmasm/Assembly.h>
 #include <liblangutil/Scanner.h>
-#include <libsolidity/interface/OptimiserSettings.h>
+#include <libhyperion/interface/OptimiserSettings.h>
 
 #include <boost/algorithm/string.hpp>
 
 #include <optional>
 
-using namespace solidity;
-using namespace solidity::frontend;
-using namespace solidity::yul;
-using namespace solidity::langutil;
+using namespace hyperion;
+using namespace hyperion::frontend;
+using namespace hyperion::yul;
+using namespace hyperion::langutil;
 
 namespace
 {
-Dialect const& languageToDialect(YulStack::Language _language, EVMVersion _version)
+Dialect const& languageToDialect(YulStack::Language _language, ZVMVersion _version)
 {
 	switch (_language)
 	{
 	case YulStack::Language::Assembly:
 	case YulStack::Language::StrictAssembly:
-		return EVMDialect::strictAssemblyForEVMObjects(_version);
+		return ZVMDialect::strictAssemblyForZVMObjects(_version);
 	case YulStack::Language::Yul:
-		return EVMDialectTyped::instance(_version);
+		return ZVMDialectTyped::instance(_version);
 	}
 	yulAssert(false, "");
 	return Dialect::yulDeprecated();
@@ -77,7 +77,7 @@ bool YulStack::parseAndAnalyze(std::string const& _sourceName, std::string const
 	m_analysisSuccessful = false;
 	m_charStream = std::make_unique<CharStream>(_source, _sourceName);
 	std::shared_ptr<Scanner> scanner = std::make_shared<Scanner>(*m_charStream);
-	m_parserResult = ObjectParser(m_errorReporter, languageToDialect(m_language, m_evmVersion)).parse(scanner, false);
+	m_parserResult = ObjectParser(m_errorReporter, languageToDialect(m_language, m_zvmVersion)).parse(scanner, false);
 	if (!m_errorReporter.errors().empty())
 		return false;
 	yulAssert(m_parserResult, "");
@@ -93,7 +93,7 @@ void YulStack::optimize()
 
 	if (
 		!m_optimiserSettings.runYulOptimiser &&
-		yul::MSizeFinder::containsMSize(languageToDialect(m_language, m_evmVersion), *m_parserResult)
+		yul::MSizeFinder::containsMSize(languageToDialect(m_language, m_zvmVersion), *m_parserResult)
 	)
 		return;
 
@@ -118,7 +118,7 @@ bool YulStack::analyzeParsed(Object& _object)
 	AsmAnalyzer analyzer(
 		*_object.analysisInfo,
 		m_errorReporter,
-		languageToDialect(m_language, m_evmVersion),
+		languageToDialect(m_language, m_zvmVersion),
 		{},
 		_object.qualifiedDataNames()
 	);
@@ -130,24 +130,24 @@ bool YulStack::analyzeParsed(Object& _object)
 	return success;
 }
 
-void YulStack::compileEVM(AbstractAssembly& _assembly, bool _optimize) const
+void YulStack::compileZVM(AbstractAssembly& _assembly, bool _optimize) const
 {
-	EVMDialect const* dialect = nullptr;
+	ZVMDialect const* dialect = nullptr;
 	switch (m_language)
 	{
 		case Language::Assembly:
 		case Language::StrictAssembly:
-			dialect = &EVMDialect::strictAssemblyForEVMObjects(m_evmVersion);
+			dialect = &ZVMDialect::strictAssemblyForZVMObjects(m_zvmVersion);
 			break;
 		case Language::Yul:
-			dialect = &EVMDialectTyped::instance(m_evmVersion);
+			dialect = &ZVMDialectTyped::instance(m_zvmVersion);
 			break;
 		default:
 			yulAssert(false, "Invalid language.");
 			break;
 	}
 
-	EVMObjectCompiler::compile(*m_parserResult, _assembly, *dialect, _optimize);
+	ZVMObjectCompiler::compile(*m_parserResult, _assembly, *dialect, _optimize);
 }
 
 void YulStack::optimize(Object& _object, bool _isCreation)
@@ -161,10 +161,10 @@ void YulStack::optimize(Object& _object, bool _isCreation)
 			optimize(*subObject, isCreation);
 		}
 
-	Dialect const& dialect = languageToDialect(m_language, m_evmVersion);
+	Dialect const& dialect = languageToDialect(m_language, m_zvmVersion);
 	std::unique_ptr<GasMeter> meter;
-	if (EVMDialect const* evmDialect = dynamic_cast<EVMDialect const*>(&dialect))
-		meter = std::make_unique<GasMeter>(*evmDialect, _isCreation, m_optimiserSettings.expectedExecutionsPerDeployment);
+	if (ZVMDialect const* zvmDialect = dynamic_cast<ZVMDialect const*>(&dialect))
+		meter = std::make_unique<GasMeter>(*zvmDialect, _isCreation, m_optimiserSettings.expectedExecutionsPerDeployment);
 
 	auto [optimizeStackAllocation, yulOptimiserSteps, yulOptimiserCleanupSteps] = [&]() -> std::tuple<bool, std::string, std::string>
 	{
@@ -213,7 +213,7 @@ MachineAssemblyObject YulStack::assemble(Machine _machine) const
 
 	switch (_machine)
 	{
-	case Machine::EVM:
+	case Machine::ZVM:
 		return assembleWithDeployed().first;
 	}
 	// unreachable
@@ -223,16 +223,16 @@ MachineAssemblyObject YulStack::assemble(Machine _machine) const
 std::pair<MachineAssemblyObject, MachineAssemblyObject>
 YulStack::assembleWithDeployed(std::optional<std::string_view> _deployName) const
 {
-	auto [creationAssembly, deployedAssembly] = assembleEVMWithDeployed(_deployName);
+	auto [creationAssembly, deployedAssembly] = assembleZVMWithDeployed(_deployName);
 	yulAssert(creationAssembly, "");
 	yulAssert(m_charStream, "");
 
 	MachineAssemblyObject creationObject;
-	creationObject.bytecode = std::make_shared<evmasm::LinkerObject>(creationAssembly->assemble());
+	creationObject.bytecode = std::make_shared<zvmasm::LinkerObject>(creationAssembly->assemble());
 	yulAssert(creationObject.bytecode->immutableReferences.empty(), "Leftover immutables.");
 	creationObject.assembly = creationAssembly->assemblyString(m_debugInfoSelection);
 	creationObject.sourceMappings = std::make_unique<std::string>(
-		evmasm::AssemblyItem::computeSourceMapping(
+		zvmasm::AssemblyItem::computeSourceMapping(
 			creationAssembly->items(),
 			{{m_charStream->name(), 0}}
 		)
@@ -241,10 +241,10 @@ YulStack::assembleWithDeployed(std::optional<std::string_view> _deployName) cons
 	MachineAssemblyObject deployedObject;
 	if (deployedAssembly)
 	{
-		deployedObject.bytecode = std::make_shared<evmasm::LinkerObject>(deployedAssembly->assemble());
+		deployedObject.bytecode = std::make_shared<zvmasm::LinkerObject>(deployedAssembly->assemble());
 		deployedObject.assembly = deployedAssembly->assemblyString(m_debugInfoSelection);
 		deployedObject.sourceMappings = std::make_unique<std::string>(
-			evmasm::AssemblyItem::computeSourceMapping(
+			zvmasm::AssemblyItem::computeSourceMapping(
 				deployedAssembly->items(),
 				{{m_charStream->name(), 0}}
 			)
@@ -254,27 +254,27 @@ YulStack::assembleWithDeployed(std::optional<std::string_view> _deployName) cons
 	return {std::move(creationObject), std::move(deployedObject)};
 }
 
-std::pair<std::shared_ptr<evmasm::Assembly>, std::shared_ptr<evmasm::Assembly>>
-YulStack::assembleEVMWithDeployed(std::optional<std::string_view> _deployName) const
+std::pair<std::shared_ptr<zvmasm::Assembly>, std::shared_ptr<zvmasm::Assembly>>
+YulStack::assembleZVMWithDeployed(std::optional<std::string_view> _deployName) const
 {
 	yulAssert(m_analysisSuccessful, "");
 	yulAssert(m_parserResult, "");
 	yulAssert(m_parserResult->code, "");
 	yulAssert(m_parserResult->analysisInfo, "");
 
-	evmasm::Assembly assembly(m_evmVersion, true, {});
-	EthAssemblyAdapter adapter(assembly);
+	zvmasm::Assembly assembly(m_zvmVersion, true, {});
+	ZondAssemblyAdapter adapter(assembly);
 
 	// NOTE: We always need stack optimization when Yul optimizer is disabled (unless code contains
 	// msize). It being disabled just means that we don't use the full step sequence. We still run
 	// it with the minimal steps required to avoid "stack too deep".
 	bool optimize = m_optimiserSettings.optimizeStackAllocation || (
 		!m_optimiserSettings.runYulOptimiser &&
-		!yul::MSizeFinder::containsMSize(languageToDialect(m_language, m_evmVersion), *m_parserResult)
+		!yul::MSizeFinder::containsMSize(languageToDialect(m_language, m_zvmVersion), *m_parserResult)
 	);
-	compileEVM(adapter, optimize);
+	compileZVM(adapter, optimize);
 
-	assembly.optimise(evmasm::Assembly::OptimiserSettings::translateSettings(m_optimiserSettings, m_evmVersion));
+	assembly.optimise(zvmasm::Assembly::OptimiserSettings::translateSettings(m_optimiserSettings, m_zvmVersion));
 
 	std::optional<size_t> subIndex;
 
@@ -288,7 +288,7 @@ YulStack::assembleEVMWithDeployed(std::optional<std::string_view> _deployName) c
 				break;
 			}
 
-		solAssert(subIndex.has_value(), "Failed to find object to be deployed.");
+		hypAssert(subIndex.has_value(), "Failed to find object to be deployed.");
 	}
 	// Otherwise use heuristic: If there is a single sub-assembly, this is likely the object to be deployed.
 	else if (assembly.numSubs() == 1)
@@ -296,20 +296,20 @@ YulStack::assembleEVMWithDeployed(std::optional<std::string_view> _deployName) c
 
 	if (subIndex.has_value())
 	{
-		evmasm::Assembly& runtimeAssembly = assembly.sub(*subIndex);
-		return {std::make_shared<evmasm::Assembly>(assembly), std::make_shared<evmasm::Assembly>(runtimeAssembly)};
+		zvmasm::Assembly& runtimeAssembly = assembly.sub(*subIndex);
+		return {std::make_shared<zvmasm::Assembly>(assembly), std::make_shared<zvmasm::Assembly>(runtimeAssembly)};
 	}
 
-	return {std::make_shared<evmasm::Assembly>(assembly), {}};
+	return {std::make_shared<zvmasm::Assembly>(assembly), {}};
 }
 
 std::string YulStack::print(
-	CharStreamProvider const* _soliditySourceProvider
+	CharStreamProvider const* _hyperionSourceProvider
 ) const
 {
 	yulAssert(m_parserResult, "");
 	yulAssert(m_parserResult->code, "");
-	return m_parserResult->toString(&languageToDialect(m_language, m_evmVersion), m_debugInfoSelection, _soliditySourceProvider) + "\n";
+	return m_parserResult->toString(&languageToDialect(m_language, m_zvmVersion), m_debugInfoSelection, _hyperionSourceProvider) + "\n";
 }
 
 Json::Value YulStack::astJson() const

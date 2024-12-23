@@ -1,29 +1,29 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #include <liblangutil/SourceReferenceFormatter.h>
-#include <libsolidity/ast/ASTJsonExporter.h>
-#include <libsolutil/AnsiColorized.h>
-#include <libsolutil/CommonIO.h>
-#include <libsolutil/JSON.h>
+#include <libhyperion/ast/ASTJsonExporter.h>
+#include <libhyputil/AnsiColorized.h>
+#include <libhyputil/CommonIO.h>
+#include <libhyputil/JSON.h>
 
 #include <test/Common.h>
-#include <test/libsolidity/ASTJSONTest.h>
+#include <test/libhyperion/ASTJSONTest.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -36,12 +36,12 @@
 #include <memory>
 #include <stdexcept>
 
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
-using namespace solidity::frontend::test;
-using namespace solidity::util::formatting;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::test;
+using namespace hyperion::util::formatting;
+using namespace hyperion::util;
 namespace fs = boost::filesystem;
 using namespace boost::unit_test;
 using namespace std::string_literals;
@@ -62,7 +62,7 @@ std::string compilerStateToString(CompilerStack::State _state)
 		case CompilerStack::State::AnalysisSuccessful: return "AnalysisSuccessful";
 		case CompilerStack::State::CompilationSuccessful: return "CompilationSuccessful";
 	}
-	soltestAssert(false, "Unexpected value of state parameter");
+	hyptestAssert(false, "Unexpected value of state parameter");
 }
 
 CompilerStack::State stringToCompilerState(const std::string& _state)
@@ -79,8 +79,8 @@ void replaceVersionWithTag(std::string& _input)
 {
 	boost::algorithm::replace_all(
 		_input,
-		"\"" + solidity::test::CommonOptions::get().evmVersion().name() + "\"",
-		"%EVMVERSION%"
+		"\"" + hyperion::test::CommonOptions::get().zvmVersion().name() + "\"",
+		"%ZVMVERSION%"
 	);
 }
 
@@ -88,8 +88,8 @@ void replaceTagWithVersion(std::string& _input)
 {
 	boost::algorithm::replace_all(
 		_input,
-		"%EVMVERSION%",
-		"\"" + solidity::test::CommonOptions::get().evmVersion().name() + "\""
+		"%ZVMVERSION%",
+		"\"" + hyperion::test::CommonOptions::get().zvmVersion().name() + "\""
 	);
 }
 
@@ -182,9 +182,9 @@ void ASTJSONTest::validateTestConfiguration() const
 }
 
 ASTJSONTest::ASTJSONTest(std::string const& _filename):
-	EVMVersionRestrictedTestCase(_filename)
+	ZVMVersionRestrictedTestCase(_filename)
 {
-	if (!boost::algorithm::ends_with(_filename, ".sol"))
+	if (!boost::algorithm::ends_with(_filename, ".hyp"))
 		BOOST_THROW_EXCEPTION(std::runtime_error("Invalid test contract file name: \"" + _filename + "\"."));
 
 	generateTestVariants(_filename);
@@ -210,7 +210,7 @@ TestCase::TestResult ASTJSONTest::run(std::ostream& _stream, std::string const& 
 	{
 		c.reset();
 		c.setSources(sources);
-		c.setEVMVersion(solidity::test::CommonOptions::get().evmVersion());
+		c.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
 
 		if (!c.parseAndAnalyze(variant.stopAfter))
 		{

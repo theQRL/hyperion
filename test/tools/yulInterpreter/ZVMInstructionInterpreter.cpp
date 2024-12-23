@@ -1,48 +1,48 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Yul interpreter module that evaluates EVM instructions.
+ * Yul interpreter module that evaluates ZVM instructions.
  */
 
-#include <test/tools/yulInterpreter/EVMInstructionInterpreter.h>
+#include <test/tools/yulInterpreter/ZVMInstructionInterpreter.h>
 
 #include <test/tools/yulInterpreter/Interpreter.h>
 
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 #include <libyul/AST.h>
 
-#include <libevmasm/Instruction.h>
-#include <libevmasm/SemanticInformation.h>
+#include <libzvmasm/Instruction.h>
+#include <libzvmasm/SemanticInformation.h>
 
-#include <libsolutil/Keccak256.h>
-#include <libsolutil/Numeric.h>
+#include <libhyputil/Keccak256.h>
+#include <libhyputil/Numeric.h>
 
 #include <limits>
 
 using namespace std;
-using namespace solidity;
-using namespace solidity::evmasm;
-using namespace solidity::yul;
-using namespace solidity::yul::test;
+using namespace hyperion;
+using namespace hyperion::zvmasm;
+using namespace hyperion::yul;
+using namespace hyperion::yul::test;
 
-using solidity::util::h160;
-using solidity::util::h256;
-using solidity::util::keccak256;
+using hyperion::util::h160;
+using hyperion::util::h256;
+using hyperion::util::keccak256;
 
 namespace
 {
@@ -72,7 +72,7 @@ u256 readZeroExtended(bytes const& _data, u256 const& _offset)
 
 }
 
-namespace solidity::yul::test
+namespace hyperion::yul::test
 {
 /// Copy @a _size bytes of @a _source at offset @a _sourceOffset to
 /// @a _target at offset @a _targetOffset. Behaves as if @a _source would
@@ -90,13 +90,13 @@ void copyZeroExtended(
 
 using u512 = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<512, 256, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void>>;
 
-u256 EVMInstructionInterpreter::eval(
-	evmasm::Instruction _instruction,
+u256 ZVMInstructionInterpreter::eval(
+	zvmasm::Instruction _instruction,
 	vector<u256> const& _arguments
 )
 {
-	using namespace solidity::evmasm;
-	using evmasm::Instruction;
+	using namespace hyperion::zvmasm;
+	using zvmasm::Instruction;
 
 	auto info = instructionInfo(_instruction);
 	yulAssert(static_cast<size_t>(info.args) == _arguments.size(), "");
@@ -449,8 +449,8 @@ u256 EVMInstructionInterpreter::eval(
 	return 0;
 }
 
-u256 EVMInstructionInterpreter::evalBuiltin(
-	BuiltinFunctionForEVM const& _fun,
+u256 ZVMInstructionInterpreter::evalBuiltin(
+	BuiltinFunctionForZVM const& _fun,
 	vector<Expression> const& _arguments,
 	vector<u256> const& _evaluatedArguments
 )
@@ -499,7 +499,7 @@ u256 EVMInstructionInterpreter::evalBuiltin(
 }
 
 
-bool EVMInstructionInterpreter::accessMemory(u256 const& _offset, u256 const& _size)
+bool ZVMInstructionInterpreter::accessMemory(u256 const& _offset, u256 const& _size)
 {
 	if (_size == 0)
 		return true;
@@ -517,7 +517,7 @@ bool EVMInstructionInterpreter::accessMemory(u256 const& _offset, u256 const& _s
 	return false;
 }
 
-bytes EVMInstructionInterpreter::readMemory(u256 const& _offset, u256 const& _size)
+bytes ZVMInstructionInterpreter::readMemory(u256 const& _offset, u256 const& _size)
 {
 	yulAssert(_size <= s_maxRangeSize, "Too large read.");
 	bytes data(size_t(_size), uint8_t(0));
@@ -526,33 +526,33 @@ bytes EVMInstructionInterpreter::readMemory(u256 const& _offset, u256 const& _si
 	return data;
 }
 
-u256 EVMInstructionInterpreter::readMemoryWord(u256 const& _offset)
+u256 ZVMInstructionInterpreter::readMemoryWord(u256 const& _offset)
 {
 	return u256(h256(m_state.readMemory(_offset, 32)));
 }
 
-void EVMInstructionInterpreter::writeMemoryWord(u256 const& _offset, u256 const& _value)
+void ZVMInstructionInterpreter::writeMemoryWord(u256 const& _offset, u256 const& _value)
 {
 	for (size_t i = 0; i < 32; i++)
 		m_state.memory[_offset + i] = uint8_t((_value >> (8 * (31 - i))) & 0xff);
 }
 
 
-void EVMInstructionInterpreter::logTrace(
-	evmasm::Instruction _instruction,
+void ZVMInstructionInterpreter::logTrace(
+	zvmasm::Instruction _instruction,
 	std::vector<u256> const& _arguments,
 	bytes const& _data
 )
 {
 	logTrace(
-		evmasm::instructionInfo(_instruction).name,
+		zvmasm::instructionInfo(_instruction).name,
 		SemanticInformation::memory(_instruction) == SemanticInformation::Effect::Write,
 		_arguments,
 		_data
 	);
 }
 
-void EVMInstructionInterpreter::logTrace(
+void ZVMInstructionInterpreter::logTrace(
 	std::string const& _pseudoInstruction,
 	bool _writesToMemory,
 	std::vector<u256> const& _arguments,
@@ -581,7 +581,7 @@ void EVMInstructionInterpreter::logTrace(
 	}
 }
 
-std::pair<bool, size_t> EVMInstructionInterpreter::isInputMemoryPtrModified(
+std::pair<bool, size_t> ZVMInstructionInterpreter::isInputMemoryPtrModified(
 	std::string const& _pseudoInstruction,
 	std::vector<u256> const& _arguments
 )

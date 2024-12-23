@@ -1,10 +1,10 @@
 {
-	"language": "Solidity",
+	"language": "Hyperion",
 	"sources":
 	{
 		"A":
 		{
-			"content": "// SPDX-License-Identifier: GPL-3.0\npragma solidity >=0.0;
+			"content": "// SPDX-License-Identifier: GPL-3.0\npragma hyperion >=0.0;
 					abstract contract Ext {
 						function f() virtual public view returns (uint);
 					}

@@ -4,7 +4,7 @@
     pop(linkersymbol(false))
 }
 // ====
-// dialect: evm
+// dialect: zvm
 // ----
 // TypeError 5859: (23-24): Function expects string literal.
 // TypeError 5859: (48-52): Function expects string literal.

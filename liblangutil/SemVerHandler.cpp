@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -30,14 +30,14 @@
 #include <fmt/format.h>
 
 using namespace std::string_literals;
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::util;
 
 SemVerMatchExpressionParser::SemVerMatchExpressionParser(std::vector<Token> _tokens, std::vector<std::string> _literals):
 	m_tokens(std::move(_tokens)), m_literals(std::move(_literals))
 {
-	solAssert(m_tokens.size() == m_literals.size(), "");
+	hypAssert(m_tokens.size() == m_literals.size(), "");
 }
 
 SemVerVersion::SemVerVersion(std::string const& _versionString)
@@ -54,7 +54,7 @@ SemVerVersion::SemVerVersion(std::string const& _versionString)
 		if (level < 2)
 		{
 			if (i == end || *i != '.')
-				solThrow(SemVerError, "Invalid versionString: "s + _versionString);
+				hypThrow(SemVerError, "Invalid versionString: "s + _versionString);
 			else
 				++i;
 		}
@@ -72,7 +72,7 @@ SemVerVersion::SemVerVersion(std::string const& _versionString)
 		build = std::string(buildStart, i);
 	}
 	if (i != end)
-		solThrow(SemVerError, "Invalid versionString "s + _versionString);
+		hypThrow(SemVerError, "Invalid versionString "s + _versionString);
 }
 
 bool SemVerMatchExpression::MatchComponent::matches(SemVerVersion const& _version) const
@@ -134,7 +134,7 @@ bool SemVerMatchExpression::MatchComponent::matches(SemVerVersion const& _versio
 		case Token::GreaterThanOrEqual:
 			return cmp >= 0;
 		default:
-			solAssert(false, "Invalid SemVer expression");
+			hypAssert(false, "Invalid SemVer expression");
 		}
 		return false;
 	}
@@ -163,7 +163,7 @@ SemVerMatchExpression SemVerMatchExpressionParser::parse()
 	reset();
 
 	if (m_tokens.empty())
-		solThrow(SemVerError, "Empty version pragma.");
+		hypThrow(SemVerError, "Empty version pragma.");
 
 	try
 	{
@@ -174,7 +174,7 @@ SemVerMatchExpression SemVerMatchExpressionParser::parse()
 				break;
 			if (currentToken() != Token::Or)
 			{
-				solThrow(
+				hypThrow(
 					SemVerError,
 					"You can only combine version ranges using the || operator."
 				);
@@ -272,16 +272,16 @@ unsigned SemVerMatchExpressionParser::parseVersionPart()
 		{
 			c = currentChar();
 			if (v * 10 < v || v * 10 + static_cast<unsigned>(c - '0') < v * 10)
-				solThrow(SemVerError, "Integer too large to be used in a version number.");
+				hypThrow(SemVerError, "Integer too large to be used in a version number.");
 			v = v * 10 + static_cast<unsigned>(c - '0');
 			nextChar();
 		}
 		return v;
 	}
 	else if (c == char(-1))
-		solThrow(SemVerError, "Expected version number but reached end of pragma.");
+		hypThrow(SemVerError, "Expected version number but reached end of pragma.");
 	else
-		solThrow(
+		hypThrow(
 			SemVerError, fmt::format(
 				"Expected the start of a version number but instead found character '{}'. "
 				"Version number is invalid or the pragma is not terminated with a semicolon.",

@@ -9,10 +9,10 @@ echo "========== STAGE 1: PREPARE ========== ($(date))"
 COMMIT_DATE="$(git show -s --format=%cI HEAD)"
 git rev-parse --short=8 HEAD >commit_hash.txt
 echo -e "" >prerelease.txt
-sed -i -e 's/-Wl,--gc-sections//' cmake/EthCompilerSettings.cmake
-echo "set(CMAKE_CXX_FLAGS \"\${CMAKE_CXX_FLAGS} -s EXTRA_EXPORTED_RUNTIME_METHODS=['cwrap','addFunction','removeFunction','UTF8ToString','lengthBytesUTF8','_malloc','stringToUTF8','setValue'] -s WASM=1 -s WASM_ASYNC_COMPILATION=0 -s SINGLE_FILE=1 -Wno-almost-asm\")" >>cmake/EthCompilerSettings.cmake
+sed -i -e 's/-Wl,--gc-sections//' cmake/ZondCompilerSettings.cmake
+echo "set(CMAKE_CXX_FLAGS \"\${CMAKE_CXX_FLAGS} -s EXTRA_EXPORTED_RUNTIME_METHODS=['cwrap','addFunction','removeFunction','UTF8ToString','lengthBytesUTF8','_malloc','stringToUTF8','setValue'] -s WASM=1 -s WASM_ASYNC_COMPILATION=0 -s SINGLE_FILE=1 -Wno-almost-asm\")" >>cmake/ZondCompilerSettings.cmake
 # Needed for < 0.5.0.
-sed -i -e 's/-Werror/-Wno-error/' cmake/EthCompilerSettings.cmake
+sed -i -e 's/-Werror/-Wno-error/' cmake/ZondCompilerSettings.cmake
 
 echo "========== STAGE 2: BUILD ========== ($(date))"
 scripts/travis-emscripten/install_deps.sh
@@ -53,19 +53,19 @@ set -e
 
 mkdir -p upload
 
-if [ ! -f upload/soljson.js ]; then
-  if [ -f build/solc/soljson.js ]; then
-    cp build/solc/soljson.js upload
-  elif [ -f build/libsolc/soljson.js ]; then
-    cp build/libsolc/soljson.js upload
-  elif [ -f emscripten_build/solc/soljson.js ]; then
-    cp emscripten_build/solc/soljson.js upload
-  elif [ -f emscripten_build/libsolc/soljson.js ]; then
-    cp emscripten_build/libsolc/soljson.js upload
+if [ ! -f upload/hypjson.js ]; then
+  if [ -f build/hypc/hypjson.js ]; then
+    cp build/hypc/hypjson.js upload
+  elif [ -f build/libhypc/hypjson.js ]; then
+    cp build/libhypc/hypjson.js upload
+  elif [ -f emscripten_build/hypc/hypjson.js ]; then
+    cp emscripten_build/hypc/hypjson.js upload
+  elif [ -f emscripten_build/libhypc/hypjson.js ]; then
+    cp emscripten_build/libhypc/hypjson.js upload
   fi
 fi
 
-if [ -f upload/soljson.js ]; then
+if [ -f upload/hypjson.js ]; then
   echo "========== SUCCESS ========== ($(date))"
   exit 0
 else

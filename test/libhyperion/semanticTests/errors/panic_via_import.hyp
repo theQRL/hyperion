@@ -1,7 +1,7 @@
-==== Source: s1.sol ====
+==== Source: s1.hyp ====
 error E(uint);
-==== Source: s2.sol ====
-import { E as Panic } from "s1.sol";
+==== Source: s2.hyp ====
+import { E as Panic } from "s1.hyp";
 contract C {
     error E(uint);
     function a() public pure {

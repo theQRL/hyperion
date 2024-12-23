@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
@@ -21,7 +21,7 @@
 
 #include <libyul/Exceptions.h>
 
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/StringUtils.h>
 
 #include <range/v3/algorithm/all_of.hpp>
 
@@ -33,11 +33,11 @@
 #include <algorithm>
 
 using namespace std;
-using namespace solidity::yul::test::yul_fuzzer;
-using namespace solidity::yul::test;
-using namespace solidity::langutil;
-using namespace solidity::util;
-using namespace solidity;
+using namespace hyperion::yul::test::yul_fuzzer;
+using namespace hyperion::yul::test;
+using namespace hyperion::langutil;
+using namespace hyperion::util;
+using namespace hyperion;
 
 string ProtoConverter::dictionaryToken(HexPrefix _p)
 {
@@ -92,12 +92,12 @@ string ProtoConverter::createAlphaNum(string const& _strBytes)
 	return tmp;
 }
 
-EVMVersion ProtoConverter::evmVersionMapping(Program_Version const& _ver)
+ZVMVersion ProtoConverter::zvmVersionMapping(Program_Version const& _ver)
 {
 	switch (_ver)
 	{
 	case Program::SHANGHAI:
-		return EVMVersion::shanghai();
+		return ZVMVersion::shanghai();
 	}
 }
 
@@ -236,7 +236,7 @@ void ProtoConverter::visit(Expression const& _x)
 	case Expression::kUnopdata:
 		// Filter datasize and dataoffset because these instructions may return
 		// a value that is a function of optimisation. Therefore, when run on
-		// an EVM client, the execution traces for unoptimised vs optimised
+		// an ZVM client, the execution traces for unoptimised vs optimised
 		// programs may differ. This ends up as a false-positive bug report.
 		if (m_isObject && !m_filterStatefulInstructions)
 			visit(_x.unopdata());
@@ -553,7 +553,7 @@ void ProtoConverter::visit(UnaryOp const& _x)
 {
 	UnaryOp_UOp op = _x.op();
 
-	// The following instructions may lead to change of EVM state and are hence
+	// The following instructions may lead to change of ZVM state and are hence
 	// excluded to avoid false positives.
 	if (
 		m_filterStatefulInstructions &&
@@ -634,7 +634,7 @@ void ProtoConverter::visit(TernaryOp const& _x)
 void ProtoConverter::visit(NullaryOp const& _x)
 {
 	auto op = _x.op();
-	// The following instructions may lead to a change in EVM state and are
+	// The following instructions may lead to a change in ZVM state and are
 	// excluded to avoid false positive reports.
 	if (
 		m_filterStatefulInstructions &&
@@ -1848,8 +1848,8 @@ void ProtoConverter::visit(Program const& _x)
 	// Initialize input size
 	m_inputSize = static_cast<unsigned>(_x.ByteSizeLong());
 
-	// Record EVM Version
-	m_evmVersion = evmVersionMapping(_x.ver());
+	// Record ZVM Version
+	m_zvmVersion = zvmVersionMapping(_x.ver());
 
 	// Program is either a Yul object or a block of
 	// statements.

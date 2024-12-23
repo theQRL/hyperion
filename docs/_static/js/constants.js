@@ -14,16 +14,16 @@ const MOON_ICON_PATH = `${ROOT_URL}/_static/img/moon.svg`;
 const LIGHT_HAMBURGER_PATH = `${ROOT_URL}/_static/img/hamburger-light.svg`;
 const DARK_HAMBURGER_PATH = `${ROOT_URL}/_static/img/hamburger-dark.svg`;
 const COLOR_TOGGLE_ICON_CLASS = "color-toggle-icon";
-const SOLIDITY_LOGO_CLASS = "solidity-logo";
+const HYPERION_LOGO_CLASS = "solidity-logo";
 const LS_COLOR_SCHEME = "color-scheme";
 
-// Solidity navigation constants
-const SOLIDITY_HOME_URL = "https://soliditylang.org";
-const BLOG_URL = `${SOLIDITY_HOME_URL}/blog`;
+// Hyperion navigation constants
+const HYPERION_HOME_URL = "https://soliditylang.org";
+const BLOG_URL = `${HYPERION_HOME_URL}/blog`;
 const DOCS_URL = "/";
-const USE_CASES_PATH = `${SOLIDITY_HOME_URL}/use-cases`;
+const USE_CASES_PATH = `${HYPERION_HOME_URL}/use-cases`;
 const CONTRIBUTE_PATH = `/en/latest/contributing.html`;
-const ABOUT_PATH = `${SOLIDITY_HOME_URL}/about`;
+const ABOUT_PATH = `${HYPERION_HOME_URL}/about`;
 const FORUM_URL = "https://forum.soliditylang.org/";
 const NAV_LINKS = [
   { name: "Blog", href: BLOG_URL },

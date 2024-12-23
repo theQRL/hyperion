@@ -1,7 +1,7 @@
 {
-	"language": "Solidity",
+	"language": "Hyperion",
 	"sources": {
-		"C": {"urls": ["standard_outputs_on_compilation_error/in.sol"]}
+		"C": {"urls": ["standard_outputs_on_compilation_error/in.hyp"]}
 	},
 	"settings": {
 		"optimizer": {"enabled": true},

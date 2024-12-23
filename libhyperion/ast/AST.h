@@ -1,39 +1,39 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Solidity abstract syntax tree.
+ * Hyperion abstract syntax tree.
  */
 
 #pragma once
 
-#include <libsolidity/ast/ASTForward.h>
-#include <libsolidity/ast/Types.h>
-#include <libsolidity/ast/ASTAnnotations.h>
-#include <libsolidity/ast/ASTEnums.h>
-#include <libsolidity/parsing/Token.h>
+#include <libhyperion/ast/ASTForward.h>
+#include <libhyperion/ast/Types.h>
+#include <libhyperion/ast/ASTAnnotations.h>
+#include <libhyperion/ast/ASTEnums.h>
+#include <libhyperion/parsing/Token.h>
 
 #include <liblangutil/SourceLocation.h>
-#include <libevmasm/Instruction.h>
-#include <libsolutil/FixedHash.h>
-#include <libsolutil/LazyInit.h>
-#include <libsolutil/Visitor.h>
+#include <libzvmasm/Instruction.h>
+#include <libhyputil/FixedHash.h>
+#include <libhyputil/LazyInit.h>
+#include <libhyputil/Visitor.h>
 
 #include <json/json.h>
 
@@ -46,14 +46,14 @@
 #include <utility>
 #include <vector>
 
-namespace solidity::yul
+namespace hyperion::yul
 {
 // Forward-declaration to <yul/AST.h>
 struct Block;
 struct Dialect;
 }
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 class ASTVisitor;
@@ -88,7 +88,7 @@ public:
 	{
 		for (T const& element: _list)
 		{
-			solAssert(element);
+			hypAssert(element);
 			element->accept(_visitor);
 		}
 	}
@@ -97,7 +97,7 @@ public:
 	{
 		for (T const& element: _list)
 		{
-			solAssert(element);
+			hypAssert(element);
 			element->accept(_visitor);
 		}
 	}
@@ -172,12 +172,12 @@ public:
 		SourceLocation const& _location,
 		std::optional<std::string> _licenseString,
 		std::vector<ASTPointer<ASTNode>> _nodes,
-		bool _experimentalSolidity
+		bool _experimentalHyperion
 	):
 		ASTNode(_id, _location),
 		m_licenseString(std::move(_licenseString)),
 		m_nodes(std::move(_nodes)),
-		m_experimentalSolidity(_experimentalSolidity)
+		m_experimentalHyperion(_experimentalHyperion)
 	{}
 
 	void accept(ASTVisitor& _visitor) override;
@@ -189,12 +189,12 @@ public:
 
 	/// @returns a set of referenced SourceUnits. Recursively if @a _recurse is true.
 	std::set<SourceUnit const*> referencedSourceUnits(bool _recurse = false, std::set<SourceUnit const*> _skipList = std::set<SourceUnit const*>()) const;
-	bool experimentalSolidity() const { return m_experimentalSolidity; }
+	bool experimentalHyperion() const { return m_experimentalHyperion; }
 
 private:
 	std::optional<std::string> m_licenseString;
 	std::vector<ASTPointer<ASTNode>> m_nodes;
-	bool m_experimentalSolidity = false;
+	bool m_experimentalHyperion = false;
 };
 
 /**
@@ -242,7 +242,7 @@ public:
 		case Visibility::External:
 			return "external";
 		default:
-			solAssert(false, "Invalid visibility specifier.");
+			hypAssert(false, "Invalid visibility specifier.");
 		}
 		return std::string();
 	}
@@ -310,7 +310,7 @@ private:
 };
 
 /**
- * Pragma directive, only version requirements in the form `pragma solidity "^0.4.0";` are
+ * Pragma directive, only version requirements in the form `pragma hyperion "^0.4.0";` are
  * supported for now.
  */
 class PragmaDirective: public ASTNode
@@ -340,7 +340,7 @@ private:
 
 /**
  * Import directive for referencing other files / source objects.
- * Example: import "abc.sol" // imports all symbols of "abc.sol" into current scope
+ * Example: import "abc.hyp" // imports all symbols of "abc.hyp" into current scope
  * Source objects are identified by a string which can be a file name but does not have to be.
  * Other ways to use it:
  * import "abc" as x; // creates symbol "x" that contains all symbols in "abc"
@@ -610,7 +610,7 @@ public:
 	):
 		ASTNode(_id, _location), m_path(std::move(_path)), m_pathLocations(std::move(_pathLocations))
 	{
-		solAssert(m_pathLocations.size() == m_path.size());
+		hypAssert(m_pathLocations.size() == m_path.size());
 	}
 
 	std::vector<ASTString> const& path() const { return m_path; }
@@ -639,7 +639,7 @@ public:
 	):
 		ASTNode(_id, _location), m_baseName(std::move(_baseName)), m_arguments(std::move(_arguments))
 	{
-		solAssert(m_baseName != nullptr, "Name cannot be null.");
+		hypAssert(m_baseName != nullptr, "Name cannot be null.");
 	}
 
 	void accept(ASTVisitor& _visitor) override;
@@ -696,7 +696,7 @@ public:
 		m_typeName(std::move(_typeName)),
 		m_global{_global}
 	{
-		solAssert(m_functionsOrLibrary.size() == m_operators.size());
+		hypAssert(m_functionsOrLibrary.size() == m_operators.size());
 	}
 
 	void accept(ASTVisitor& _visitor) override;
@@ -971,8 +971,8 @@ public:
 		m_functionModifiers(std::move(_modifiers)),
 		m_body(_body)
 	{
-		solAssert(_kind == Token::Constructor || _kind == Token::Function || _kind == Token::Fallback || _kind == Token::Receive, "");
-		solAssert(isOrdinary() == !name().empty(), "");
+		hypAssert(_kind == Token::Constructor || _kind == Token::Function || _kind == Token::Fallback || _kind == Token::Receive, "");
+		hypAssert(isOrdinary() == !name().empty(), "");
 	}
 
 	void accept(ASTVisitor& _visitor) override;
@@ -988,7 +988,7 @@ public:
 	Token kind() const { return m_kind; }
 	bool isPayable() const { return m_stateMutability == StateMutability::Payable; }
 	std::vector<ASTPointer<ModifierInvocation>> const& modifiers() const { return m_functionModifiers; }
-	Block const& body() const { solAssert(m_body, ""); return *m_body; }
+	Block const& body() const { hypAssert(m_body, ""); return *m_body; }
 	Visibility defaultVisibility() const override;
 	bool isVisibleInContract() const override
 	{
@@ -996,7 +996,7 @@ public:
 	}
 	bool isVisibleViaContractTypeAccess() const override
 	{
-		solAssert(!isFree(), "");
+		hypAssert(!isFree(), "");
 		return isOrdinary() && visibility() >= Visibility::Public;
 	}
 	bool isPartOfExternalInterface() const override { return isOrdinary() && isPublic(); }
@@ -1081,7 +1081,7 @@ public:
 		m_overrides(std::move(_overrides)),
 		m_location(_referenceLocation)
 	{
-		solAssert(m_typeName, "");
+		hypAssert(m_typeName, "");
 	}
 
 
@@ -1186,7 +1186,7 @@ public:
 	void accept(ASTVisitor& _visitor) override;
 	void accept(ASTConstVisitor& _visitor) const override;
 
-	Block const& body() const { solAssert(m_body, ""); return *m_body; }
+	Block const& body() const { hypAssert(m_body, ""); return *m_body; }
 
 	Type const* type() const override;
 
@@ -1218,7 +1218,7 @@ public:
 	):
 		ASTNode(_id, _location), m_modifierName(std::move(_name)), m_arguments(std::move(_arguments))
 	{
-		solAssert(m_modifierName != nullptr, "Name cannot be null.");
+		hypAssert(m_modifierName != nullptr, "Name cannot be null.");
 	}
 
 	void accept(ASTVisitor& _visitor) override;
@@ -1334,16 +1334,16 @@ public:
 
 	void accept(ASTVisitor&) override
 	{
-		solAssert(false, "MagicVariableDeclaration used inside real AST.");
+		hypAssert(false, "MagicVariableDeclaration used inside real AST.");
 	}
 	void accept(ASTConstVisitor&) const override
 	{
-		solAssert(false, "MagicVariableDeclaration used inside real AST.");
+		hypAssert(false, "MagicVariableDeclaration used inside real AST.");
 	}
 
 	FunctionType const* functionType(bool) const override
 	{
-		solAssert(m_type->category() == Type::Category::Function, "");
+		hypAssert(m_type->category() == Type::Category::Function, "");
 		return dynamic_cast<FunctionType const*>(m_type);
 	}
 	Type const* type() const override { return m_type; }
@@ -1381,7 +1381,7 @@ public:
 		std::optional<StateMutability> _stateMutability = {}
 	): TypeName(_id, _location), m_type(_elem), m_stateMutability(_stateMutability)
 	{
-		solAssert(!_stateMutability.has_value() || _elem.token() == Token::Address, "");
+		hypAssert(!_stateMutability.has_value() || _elem.token() == Token::Address, "");
 	}
 
 	void accept(ASTVisitor& _visitor) override;
@@ -1405,7 +1405,7 @@ public:
 	UserDefinedTypeName(int64_t _id, SourceLocation const& _location, ASTPointer<IdentifierPath> _namePath):
 		TypeName(_id, _location), m_namePath(std::move(_namePath))
 	{
-		solAssert(m_namePath != nullptr, "Name cannot be null.");
+		hypAssert(m_namePath != nullptr, "Name cannot be null.");
 	}
 	void accept(ASTVisitor& _visitor) override;
 	void accept(ASTConstVisitor& _visitor) const override;
@@ -1873,7 +1873,7 @@ public:
 	):
 		Statement(_id, _location, _docString), m_errorCall(std::move(_functionCall))
 	{
-		solAssert(m_errorCall, "");
+		hypAssert(m_errorCall, "");
 	}
 	void accept(ASTVisitor& _visitor) override;
 	void accept(ASTConstVisitor& _visitor) const override;
@@ -2026,7 +2026,7 @@ public:
 		m_assigmentOperator(_assignmentOperator),
 		m_rightHandSide(std::move(_rightHandSide))
 	{
-		solAssert(TokenTraits::isAssignmentOp(_assignmentOperator), "");
+		hypAssert(TokenTraits::isAssignmentOp(_assignmentOperator), "");
 	}
 	void accept(ASTVisitor& _visitor) override;
 	void accept(ASTConstVisitor& _visitor) const override;
@@ -2091,7 +2091,7 @@ public:
 		m_subExpression(std::move(_subExpression)),
 		m_isPrefix(_isPrefix)
 	{
-		solAssert(TokenTraits::isUnaryOp(_operator), "");
+		hypAssert(TokenTraits::isUnaryOp(_operator), "");
 	}
 	void accept(ASTVisitor& _visitor) override;
 	void accept(ASTConstVisitor& _visitor) const override;
@@ -2126,7 +2126,7 @@ public:
 	):
 		Expression(_id, _location), m_left(std::move(_left)), m_operator(_operator), m_right(std::move(_right))
 	{
-		solAssert(TokenTraits::isBinaryOp(_operator) || TokenTraits::isCompareOp(_operator), "");
+		hypAssert(TokenTraits::isBinaryOp(_operator) || TokenTraits::isCompareOp(_operator), "");
 	}
 	void accept(ASTVisitor& _visitor) override;
 	void accept(ASTConstVisitor& _visitor) const override;
@@ -2161,7 +2161,7 @@ public:
 	):
 		Expression(_id, _location), m_expression(std::move(_expression)), m_arguments(std::move(_arguments)), m_names(std::move(_names)), m_nameLocations(std::move(_nameLocations))
 	{
-		solAssert(m_nameLocations.size() == m_names.size());
+		hypAssert(m_nameLocations.size() == m_names.size());
 	}
 
 	void accept(ASTVisitor& _visitor) override;

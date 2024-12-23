@@ -1,26 +1,26 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 #pragma once
 
-#include <libsolidity/lsp/Transport.h>
-#include <libsolidity/lsp/FileRepository.h>
-#include <libsolidity/interface/CompilerStack.h>
-#include <libsolidity/interface/FileReader.h>
+#include <libhyperion/lsp/Transport.h>
+#include <libhyperion/lsp/FileRepository.h>
+#include <libhyperion/interface/CompilerStack.h>
+#include <libhyperion/interface/FileReader.h>
 
 #include <json/value.h>
 
@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-namespace solidity::lsp
+namespace hyperion::lsp
 {
 
 class RenameSymbol;
@@ -45,7 +45,7 @@ enum class FileLoadStrategy
 	/// that have been directly or indirectly imported.
 	DirectlyOpenedAndOnImported = 0,
 
-	/// Takes all Solidity (.sol) files within the project root into account.
+	/// Takes all Hyperion (.hyp) files within the project root into account.
 	/// Symbolic links will be followed, even if they lead outside of the project directory
 	/// (`--allowed-paths` is currently ignored by the LSP).
 	///
@@ -54,7 +54,7 @@ enum class FileLoadStrategy
 };
 
 /**
- * Solidity Language Server, managing one LSP client.
+ * Hyperion Language Server, managing one LSP client.
  * This implements a subset of LSP version 3.16 that can be found at:
  * https://microsoft.github.io/language-server-protocol/specifications/specification-3-16/
  */
@@ -102,7 +102,7 @@ private:
 	/// Compile everything until after analysis phase.
 	void compile();
 
-	std::vector<boost::filesystem::path> allSolidityFilesFromProject() const;
+	std::vector<boost::filesystem::path> allHyperionFilesFromProject() const;
 
 	using MessageHandler = std::function<void(MessageID, Json::Value const&)>;
 
@@ -126,7 +126,7 @@ private:
 
 	frontend::CompilerStack m_compilerStack;
 
-	/// User-supplied custom configuration settings (such as EVM version).
+	/// User-supplied custom configuration settings (such as ZVM version).
 	Json::Value m_settingsObject;
 };
 

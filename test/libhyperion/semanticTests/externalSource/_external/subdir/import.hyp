@@ -1,1 +1,1 @@
-import "sub_external.sol";
+import "sub_external.hyp";

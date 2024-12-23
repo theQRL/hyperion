@@ -50,14 +50,14 @@ function buildHeader() {
 
   const homeLink = document.createElement("a");
   homeLink.classList.add("home-link");
-  homeLink.href = SOLIDITY_HOME_URL;
-  homeLink.ariaLabel = "Solidity home";
+  homeLink.href = HYPERION_HOME_URL;
+  homeLink.ariaLabel = "Hyperion home";
   innerHeader.appendChild(homeLink);
 
   const logo = document.createElement("img");
-  logo.classList.add(SOLIDITY_LOGO_CLASS);
+  logo.classList.add(HYPERION_LOGO_CLASS);
   logo.src = getLogoSrc(isDarkMode);
-  logo.alt = "Solidity logo";
+  logo.alt = "Hyperion logo";
   homeLink.appendChild(logo);
 
   const skipToContent = document.createElement("a");
@@ -165,7 +165,7 @@ function initialize() {
   // Check link for search param "color"... it may be "light" or "dark"
   var urlParams = new URLSearchParams(window.location.search);
   if (urlParams.size > 0) {
-    // This is used for color mode continuity between the main Solidity Lang site and the docs
+    // This is used for color mode continuity between the main Hyperion Lang site and the docs
     var colorSchemeParam = urlParams.get("color");
     // If present, overwrite prefersDark accordingly
     if (colorSchemeParam) {
@@ -226,7 +226,7 @@ const handleClick = (e) => {
   if (e.target.closest("a")) {
     const target = e.target.closest("a");
     const href = target.getAttribute("href");
-    if (href.includes(SOLIDITY_HOME_URL)) {
+    if (href.includes(HYPERION_HOME_URL)) {
       const url = new URL(href);
       const params = new URLSearchParams(url.search);
       params.set("color", localStorage.getItem(LS_COLOR_SCHEME));

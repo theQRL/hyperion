@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -31,11 +31,11 @@
 
 #include <liblangutil/ErrorReporter.h>
 
-#include <libsolutil/CommonData.h>
-#include <libsolutil/StringUtils.h>
-#include <libsolutil/Visitor.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/StringUtils.h>
+#include <libhyputil/Visitor.h>
 
-#include <libevmasm/Instruction.h>
+#include <libzvmasm/Instruction.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -45,10 +45,10 @@
 #include <functional>
 
 using namespace std::string_literals;
-using namespace solidity;
-using namespace solidity::yul;
-using namespace solidity::util;
-using namespace solidity::langutil;
+using namespace hyperion;
+using namespace hyperion::yul;
+using namespace hyperion::util;
+using namespace hyperion::langutil;
 
 namespace
 {
@@ -662,20 +662,20 @@ void AsmAnalyzer::expectType(YulString _expectedType, YulString _givenType, Sour
 
 bool AsmAnalyzer::validateInstructions(std::string const& _instructionIdentifier, langutil::SourceLocation const& _location)
 {
-	auto const builtin = EVMDialect::strictAssemblyForEVM(EVMVersion{}).builtin(YulString(_instructionIdentifier));
+	auto const builtin = ZVMDialect::strictAssemblyForZVM(ZVMVersion{}).builtin(YulString(_instructionIdentifier));
 	if (builtin && builtin->instruction.has_value())
 		return validateInstructions(builtin->instruction.value(), _location);
 	else
 		return false;
 }
 
-bool AsmAnalyzer::validateInstructions(evmasm::Instruction _instr, SourceLocation const& _location)
+bool AsmAnalyzer::validateInstructions(zvmasm::Instruction _instr, SourceLocation const& _location)
 {
 	// These instructions are disabled in the dialect.
 	yulAssert(
-		_instr != evmasm::Instruction::JUMP &&
-		_instr != evmasm::Instruction::JUMPI &&
-		_instr != evmasm::Instruction::JUMPDEST,
+		_instr != zvmasm::Instruction::JUMP &&
+		_instr != zvmasm::Instruction::JUMPI &&
+		_instr != zvmasm::Instruction::JUMPDEST,
 	"");
 
 	// NOTE(rgeraldes24): unused for now
@@ -687,17 +687,17 @@ bool AsmAnalyzer::validateInstructions(evmasm::Instruction _instr, SourceLocatio
 	// 			"The \"{instruction}\" instruction is {kind} VMs (you are currently compiling for \"{version}\").",
 	// 			fmt::arg("instruction", boost::to_lower_copy(instructionInfo(_instr).name)),
 	// 			fmt::arg("kind", vmKindMessage),
-	// 			fmt::arg("version", m_evmVersion.name())
+	// 			fmt::arg("version", m_zvmVersion.name())
 	// 		)
 	// 	);
 	// };
 
-	if (_instr == evmasm::Instruction::PC)
+	if (_instr == zvmasm::Instruction::PC)
 		m_errorReporter.error(
 			2450_error,
 			Error::Type::SyntaxError,
 			_location,
-			"PC instruction is a low-level EVM feature. "
+			"PC instruction is a low-level ZVM feature. "
 			"Because of that PC is disallowed in strict assembly."
 		);
 	else

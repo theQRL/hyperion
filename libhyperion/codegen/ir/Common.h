@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,12 +21,12 @@
 
 #pragma once
 
-#include <libsolidity/ast/AST.h>
+#include <libhyperion/ast/AST.h>
 
 #include <algorithm>
 #include <string>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 class IRGenerationContext;
@@ -84,9 +84,9 @@ std::string dispenseLocationComment(ASTNode const& _node, IRGenerationContext& _
 // instead but such an operator would be a bit ambiguous (e.g. YulArity{2, 2} would be be greater than
 // YulArity{1, 10} in lexicographical order but the latter has greater total number of inputs and outputs).
 template<>
-struct std::less<solidity::frontend::YulArity>
+struct std::less<hyperion::frontend::YulArity>
 {
-	bool operator() (solidity::frontend::YulArity const& _lhs, solidity::frontend::YulArity const& _rhs) const
+	bool operator() (hyperion::frontend::YulArity const& _lhs, hyperion::frontend::YulArity const& _rhs) const
 	{
 		return _lhs.in < _rhs.in || (_lhs.in == _rhs.in && _lhs.out < _rhs.out);
 	}

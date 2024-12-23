@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
@@ -26,10 +26,10 @@
 #endif
 #include <libsmtutil/SMTLib2Interface.h>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::frontend;
-using namespace solidity::smtutil;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::frontend;
+using namespace hyperion::smtutil;
 
 SMTPortfolio::SMTPortfolio(
 	std::map<h256, std::string> _smtlib2Responses,
@@ -40,7 +40,7 @@ SMTPortfolio::SMTPortfolio(
 ):
 	SolverInterface(_queryTimeout)
 {
-	solAssert(!_printQuery || _enabledSolvers == smtutil::SMTSolverChoice::SMTLIB2(), "Only SMTLib2 solver can be enabled to print queries");
+	hypAssert(!_printQuery || _enabledSolvers == smtutil::SMTSolverChoice::SMTLIB2(), "Only SMTLib2 solver can be enabled to print queries");
 	if (_enabledSolvers.smtlib2)
 		m_solvers.emplace_back(std::make_unique<SMTLib2Interface>(std::move(_smtlib2Responses), std::move(_smtCallback), m_queryTimeout));
 #ifdef HAVE_Z3
@@ -162,6 +162,6 @@ std::string SMTPortfolio::dumpQuery(std::vector<Expression> const& _expressionsT
 	// This code assumes that the constructor guarantees that
 	// SmtLib2Interface is in position 0, if enabled.
 	auto smtlib2 = dynamic_cast<SMTLib2Interface*>(m_solvers.front().get());
-	solAssert(smtlib2, "Must use SMTLib2 solver to dump queries");
+	hypAssert(smtlib2, "Must use SMTLib2 solver to dump queries");
 	return smtlib2->dumpQuery(_expressionsToEvaluate);
 }

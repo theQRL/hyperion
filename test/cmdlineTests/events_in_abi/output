@@ -1,5 +1,5 @@
 
-======= events_in_abi/input.sol:C =======
+======= events_in_abi/input.hyp:C =======
 Contract JSON ABI
 [
     {
@@ -39,7 +39,7 @@ Contract JSON ABI
     }
 ]
 
-======= events_in_abi/input.sol:L =======
+======= events_in_abi/input.hyp:L =======
 Contract JSON ABI
 [
     {

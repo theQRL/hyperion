@@ -4,7 +4,7 @@
     pop(loadimmutable(false))
 }
 // ====
-// dialect: evm
+// dialect: zvm
 // ----
 // TypeError 5859: (24-25): Function expects string literal.
 // TypeError 5859: (50-54): Function expects string literal.

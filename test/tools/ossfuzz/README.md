@@ -10,24 +10,24 @@ We have multiple fuzzers, some based on string input and others on protobuf inpu
 
 ```
 $ cd .circleci/docker
-$ docker build -t solidity-ossfuzz-local -f Dockerfile.ubuntu.clang.ossfuzz .
+$ docker build -t hyperion-ossfuzz-local -f Dockerfile.ubuntu.clang.ossfuzz .
 ```
 
-- Login to the docker container sourced from the image built in the previous step from the solidity parent directory
+- Login to the docker container sourced from the image built in the previous step from the hyperion parent directory
 
 ```
 ## Host
-$ cd solidity
-$ docker run -v `pwd`:/src/solidity -ti solidity-ossfuzz-local /bin/bash
+$ cd hyperion
+$ docker run -v `pwd`:/src/hyperion -ti hyperion-ossfuzz-local /bin/bash
 ## Docker shell
-$ cd /src/solidity
+$ cd /src/hyperion
 ```
 
 - Run cmake and build fuzzer harnesses
 
 ```
 ## Docker shell
-$ cd /src/solidity
+$ cd /src/hyperion
 $ rm -rf fuzzer-build && mkdir fuzzer-build && cd fuzzer-build
 ## Compile protobuf C++ bindings
 $ protoc --proto_path=../test/tools/ossfuzz yulProto.proto --cpp_out=../test/tools/ossfuzz
@@ -45,17 +45,17 @@ For the following reasons:
 - Fuzzing binaries **must** link against libc++ and not libstdc++
   - This is [because][2] (1) MemorySanitizer (which flags uses of uninitialized memory) depends on libc++; and (2) because libc++ is instrumented (to check for memory and type errors) and libstdc++ not, the former may find more bugs.
 
-- Linking against libc++ requires us to compile everything solidity depends on from source (and link these against libc++ as well)
+- Linking against libc++ requires us to compile everything hyperion depends on from source (and link these against libc++ as well)
 
 - To reproduce the compiler versions used by upstream oss-fuzz bots, we need to reuse their docker image containing the said compiler versions
 
-- Some fuzzers depend on libprotobuf, libprotobuf-mutator, libevmone etc. which may not be available locally; even if they were they might not be the right versions
+- Some fuzzers depend on libprotobuf, libprotobuf-mutator, libzvmone etc. which may not be available locally; even if they were they might not be the right versions
 
 ## What is LIB\_FUZZING\_ENGINE?
 
 oss-fuzz contains multiple fuzzer back-ends i.e., fuzzers. Each back-end may require different linker flags. oss-fuzz builder bot defines the correct linker flags via a bash environment variable called `LIB_FUZZING_ENGINE`.
 
-For the solidity ossfuzz CI build, we use the libFuzzer back-end. This back-end requires us to manually set the `LIB_FUZZING_ENGINE` to `-fsanitize=fuzzer`.
+For the hyperion ossfuzz CI build, we use the libFuzzer back-end. This back-end requires us to manually set the `LIB_FUZZING_ENGINE` to `-fsanitize=fuzzer`.
 
 ## What does the ossfuzz directory contain?
 
@@ -63,9 +63,9 @@ To help oss-fuzz do this, we (as project maintainers) need to provide the follow
 
 - test harnesses: C/C++ tests that define the `LLVMFuzzerTestOneInput` API. This determines what is to be fuzz tested.
 - build infrastructure: (c)make targets per fuzzing binary. Fuzzing requires coverage and memory instrumentation of the code to be fuzzed.
-- configuration files: These are files with the `.options` extension that are parsed by oss-fuzz. The only option that we use currently is the `dictionary` option that asks the fuzzing engines behind oss-fuzz to use the specified dictionary. The specified dictionary happens to be `solidity.dict.`
+- configuration files: These are files with the `.options` extension that are parsed by oss-fuzz. The only option that we use currently is the `dictionary` option that asks the fuzzing engines behind oss-fuzz to use the specified dictionary. The specified dictionary happens to be `hyperion.dict.`
 
-`solidity.dict` contains Solidity-specific syntactical tokens that are more likely to guide the fuzzer towards generating parseable and varied Solidity input.
+`hyperion.dict` contains Hyperion-specific syntactical tokens that are more likely to guide the fuzzer towards generating parseable and varied Hyperion input.
 
 To be consistent and aid better evaluation of the utility of the fuzzing dictionary, we stick to the following rules-of-thumb:
   - Full tokens such as `block.number` are preceded and followed by a whitespace

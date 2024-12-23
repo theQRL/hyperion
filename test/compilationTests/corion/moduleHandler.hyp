@@ -1,15 +1,15 @@
-pragma solidity >=0.0;
+pragma hyperion >=0.0;
 
-import "./module.sol";
-import "./announcementTypes.sol";
-import "./multiOwner.sol";
+import "./module.hyp";
+import "./announcementTypes.hyp";
+import "./multiOwner.hyp";
 
-import "./publisher.sol";
-import "./token.sol";
-import "./provider.sol";
-import "./schelling.sol";
-import "./premium.sol";
-import "./ico.sol";
+import "./publisher.hyp";
+import "./token.hyp";
+import "./provider.hyp";
+import "./schelling.hyp";
+import "./premium.hyp";
+import "./ico.hyp";
 
 contract abstractModule {
     function connectModule() external returns (bool success) {}

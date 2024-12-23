@@ -1,29 +1,29 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #include <stdexcept>
 #include <iostream>
 #include <test/Common.h>
-#include <test/EVMHost.h>
-#include <test/libsolidity/util/SoltestErrors.h>
+#include <test/ZVMHost.h>
+#include <test/libhyperion/util/HyptestErrors.h>
 
-#include <libsolutil/Assertions.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/Assertions.h>
+#include <libhyputil/StringUtils.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
@@ -34,21 +34,21 @@ namespace po = boost::program_options;
 
 using namespace std;
 
-namespace solidity::test
+namespace hyperion::test
 {
 
 namespace
 {
 
-/// If non-empty returns the value of the env. variable ETH_TEST_PATH, otherwise
-/// it tries to find a path that contains the directories "libsolidity/syntaxTests"
+/// If non-empty returns the value of the env. variable ZOND_TEST_PATH, otherwise
+/// it tries to find a path that contains the directories "libhyperion/syntaxTests"
 /// and returns it if found.
 /// The routine searches in the current directory, and inside the "test" directory
 /// starting from the current directory and up to three levels up.
 /// @returns the path of the first match or an empty path if not found.
 boost::filesystem::path testPath()
 {
-	if (auto path = getenv("ETH_TEST_PATH"))
+	if (auto path = getenv("ZOND_TEST_PATH"))
 		return path;
 
 	auto const searchPath =
@@ -61,7 +61,7 @@ boost::filesystem::path testPath()
 	};
 	for (auto const& basePath: searchPath)
 	{
-		fs::path syntaxTestPath = basePath / "libsolidity" / "syntaxTests";
+		fs::path syntaxTestPath = basePath / "libhyperion" / "syntaxTests";
 		if (fs::exists(syntaxTestPath) && fs::is_directory(syntaxTestPath))
 			return basePath;
 	}
@@ -103,9 +103,9 @@ CommonOptions::CommonOptions(std::string _caption):
 void CommonOptions::addOptions()
 {
 	options.add_options()
-		("evm-version", po::value(&evmVersionString), "which EVM version to use")
-		("testpath", po::value<fs::path>(&this->testPath)->default_value(solidity::test::testPath()), "path to test files")
-		("vm", po::value<std::vector<fs::path>>(&vmPaths), "path to evmc library, can be supplied multiple times.")
+		("zvm-version", po::value(&zvmVersionString), "which ZVM version to use")
+		("testpath", po::value<fs::path>(&this->testPath)->default_value(hyperion::test::testPath()), "path to test files")
+		("vm", po::value<std::vector<fs::path>>(&vmPaths), "path to zvmc library, can be supplied multiple times.")
 		("batches", po::value<size_t>(&this->batches)->default_value(1), "set number of batches to split the tests into")
 		("selected-batch", po::value<size_t>(&this->selectedBatch)->default_value(0), "zero-based number of batch to execute")
 		("no-semantic-tests", po::bool_switch(&disableSemanticTests)->default_value(disableSemanticTests), "disable semantic tests")
@@ -144,9 +144,9 @@ void CommonOptions::validate() const
 	if (enforceGasTest)
 	{
 		assertThrow(
-			evmVersion() == langutil::EVMVersion{},
+			zvmVersion() == langutil::ZVMVersion{},
 			ConfigException,
-			"Gas costs can only be enforced on latest evm version."
+			"Gas costs can only be enforced on latest zvm version."
 		);
 		assertThrow(
 			useABIEncoderV1 == false,
@@ -186,17 +186,17 @@ bool CommonOptions::parse(int argc, char const* const* argv)
 	}
 	catch (po::error const& exception)
 	{
-		solThrow(ConfigException, exception.what());
+		hypThrow(ConfigException, exception.what());
 	}
 
 	if (vmPaths.empty())
 	{
-		if (auto envPath = getenv("ETH_EVMONE"))
+		if (auto envPath = getenv("ZOND_ZVMONE"))
 			vmPaths.emplace_back(envPath);
-		else if (auto repoPath = findInDefaultPath(evmoneFilename))
+		else if (auto repoPath = findInDefaultPath(zvmoneFilename))
 			vmPaths.emplace_back(*repoPath);
 		else
-			vmPaths.emplace_back(evmoneFilename);
+			vmPaths.emplace_back(zvmoneFilename);
 	}
 
 	return true;
@@ -210,7 +210,7 @@ string CommonOptions::toString(vector<string> const& _selectedOptions) const
 	auto boolToString = [](bool _value) -> string { return _value ? "true" : "false"; };
 	// Using std::map to avoid if-else/switch-case block
 	map<string, string> optionValueMap = {
-		{"evmVersion", evmVersion().name()},
+		{"zvmVersion", zvmVersion().name()},
 		{"optimize", boolToString(optimize)},
 		{"useABIEncoderV1", boolToString(useABIEncoderV1)},
 		{"batch", to_string(selectedBatch + 1) + "/" + to_string(batches)},
@@ -222,13 +222,13 @@ string CommonOptions::toString(vector<string> const& _selectedOptions) const
 		{"showMetadata", boolToString(showMetadata)}
 	};
 
-	soltestAssert(ranges::all_of(_selectedOptions, [&optionValueMap](string const& _option) { return optionValueMap.count(_option) > 0; }));
+	hyptestAssert(ranges::all_of(_selectedOptions, [&optionValueMap](string const& _option) { return optionValueMap.count(_option) > 0; }));
 
 	vector<string> optionsWithValues = _selectedOptions |
 		ranges::views::transform([&optionValueMap](string const& _option) { return _option + "=" + optionValueMap.at(_option); }) |
 		ranges::to<vector>();
 
-	return solidity::util::joinHumanReadable(optionsWithValues);
+	return hyperion::util::joinHumanReadable(optionsWithValues);
 }
 
 void CommonOptions::printSelectedOptions(ostream& _stream, string const& _linePrefix, vector<string> const& _selectedOptions) const
@@ -236,17 +236,17 @@ void CommonOptions::printSelectedOptions(ostream& _stream, string const& _linePr
 	_stream << _linePrefix << "Run Settings: " << toString(_selectedOptions) << endl;
 }
 
-langutil::EVMVersion CommonOptions::evmVersion() const
+langutil::ZVMVersion CommonOptions::zvmVersion() const
 {
-	if (!evmVersionString.empty())
+	if (!zvmVersionString.empty())
 	{
-		auto version = langutil::EVMVersion::fromString(evmVersionString);
+		auto version = langutil::ZVMVersion::fromString(zvmVersionString);
 		if (!version)
-			BOOST_THROW_EXCEPTION(std::runtime_error("Invalid EVM version: " + evmVersionString));
+			BOOST_THROW_EXCEPTION(std::runtime_error("Invalid ZVM version: " + zvmVersionString));
 		return *version;
 	}
 	else
-		return langutil::EVMVersion();
+		return langutil::ZVMVersion();
 }
 
 CommonOptions const& CommonOptions::get()
@@ -271,7 +271,7 @@ bool isValidSemanticTestPath(boost::filesystem::path const& _testPath)
 	for (auto const& element: _testPath)
 	{
 		testPathPrefix /= element;
-		if (boost::ends_with(canonical(testPathPrefix).generic_string(), "/test/libsolidity/semanticTests"))
+		if (boost::ends_with(canonical(testPathPrefix).generic_string(), "/test/libhyperion/semanticTests"))
 			insideSemanticTests = true;
 		if (insideSemanticTests && boost::starts_with(element.string(), "_"))
 			return false;
@@ -284,13 +284,13 @@ bool loadVMs(CommonOptions const& _options)
 	if (_options.disableSemanticTests)
 		return true;
 
-	bool evmSupported = solidity::test::EVMHost::checkVmPaths(_options.vmPaths);
-	if (!_options.disableSemanticTests && !evmSupported)
+	bool zvmSupported = hyperion::test::ZVMHost::checkVmPaths(_options.vmPaths);
+	if (!_options.disableSemanticTests && !zvmSupported)
 	{
-		std::cerr << "Unable to find " << solidity::test::evmoneFilename;
+		std::cerr << "Unable to find " << hyperion::test::zvmoneFilename;
 		std::cerr << ". Please disable semantics tests with --no-semantic-tests or provide a path using --vm <path>." << std::endl;
 		std::cerr << "You can download it at" << std::endl;
-		std::cerr << solidity::test::evmoneDownloadLink << std::endl;
+		std::cerr << hyperion::test::zvmoneDownloadLink << std::endl;
 		return false;
 	}
 	return true;

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.0;
+pragma hyperion >=0.8.0;
 
 contract C
 {
@@ -30,7 +30,7 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/functionCall.sol": [
+//         "rename/functionCall.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ParameterAInCall
@@ -52,7 +52,7 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/functionCall.sol": [
+//         "rename/functionCall.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ParameterAInCall
@@ -74,7 +74,7 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/functionCall.sol": [
+//         "rename/functionCall.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ParameterAInCall
@@ -96,7 +96,7 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/functionCall.sol": [
+//         "rename/functionCall.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ParameterCInCall
@@ -118,7 +118,7 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/functionCall.sol": [
+//         "rename/functionCall.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ParameterCInCall
@@ -140,7 +140,7 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/functionCall.sol": [
+//         "rename/functionCall.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ParameterCInCall
@@ -162,7 +162,7 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/functionCall.sol": [
+//         "rename/functionCall.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ParameterBInCall
@@ -184,7 +184,7 @@ contract C
 // }
 // <- {
 //     "changes": {
-//         "rename/functionCall.sol": [
+//         "rename/functionCall.hyp": [
 //             {
 //                 "newText": "Renamed",
 //                 "range": @ParameterBInCall

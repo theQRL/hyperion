@@ -1,24 +1,24 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/formal/BMC.h>
+#include <libhyperion/formal/BMC.h>
 
-#include <libsolidity/formal/SymbolicTypes.h>
+#include <libhyperion/formal/SymbolicTypes.h>
 
 #include <libsmtutil/SMTPortfolio.h>
 
@@ -31,10 +31,10 @@
 #include <z3_version.h>
 #endif
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
 BMC::BMC(
 	smt::EncodingContext& _context,
@@ -50,14 +50,14 @@ BMC::BMC(
 		_smtlib2Responses, _smtCallback, _settings.solvers, _settings.timeout, _settings.printQuery
 	))
 {
-	solAssert(!_settings.printQuery || _settings.solvers == smtutil::SMTSolverChoice::SMTLIB2(), "Only SMTLib2 solver can be enabled to print queries");
+	hypAssert(!_settings.printQuery || _settings.solvers == smtutil::SMTSolverChoice::SMTLIB2(), "Only SMTLib2 solver can be enabled to print queries");
 #if defined (HAVE_Z3) || defined (HAVE_CVC4)
 	if (m_settings.solvers.cvc4 || m_settings.solvers.z3)
 		if (!_smtlib2Responses.empty())
 			m_errorReporter.warning(
 				5622_error,
 				"SMT-LIB2 query responses were given in the auxiliary input, "
-				"but this Solidity binary uses an SMT solver (Z3/CVC4) directly."
+				"but this Hyperion binary uses an SMT solver (Z3/CVC4) directly."
 				"These responses will be ignored."
 				"Consider disabling Z3/CVC4 at compilation time in order to use SMT-LIB2 responses."
 			);
@@ -212,7 +212,7 @@ bool BMC::visit(FunctionDefinition const& _function)
 
 	if (_function.isConstructor())
 	{
-		solAssert(contract, "");
+		hypAssert(contract, "");
 		inlineConstructorHierarchy(*contract);
 	}
 
@@ -497,7 +497,7 @@ smtutil::Expression BMC::mergeVariablesFromLoopCheckpoints()
 bool BMC::visit(TryStatement const& _tryStatement)
 {
 	FunctionCall const* externalCall = dynamic_cast<FunctionCall const*>(&_tryStatement.externalCall());
-	solAssert(externalCall && externalCall->annotation().tryCall, "");
+	hypAssert(externalCall && externalCall->annotation().tryCall, "");
 
 	externalCall->accept(*this);
 	if (_tryStatement.successClause()->parameters())
@@ -506,7 +506,7 @@ bool BMC::visit(TryStatement const& _tryStatement)
 	smtutil::Expression clauseId = m_context.newVariable("clause_choice_" + std::to_string(m_context.newUniqueId()), smtutil::SortProvider::uintSort);
 	auto const& clauses = _tryStatement.clauses();
 	m_context.addAssertion(clauseId >= 0 && clauseId < clauses.size());
-	solAssert(clauses[0].get() == _tryStatement.successClause(), "First clause of TryStatement should be the success clause");
+	hypAssert(clauses[0].get() == _tryStatement.successClause(), "First clause of TryStatement should be the success clause");
 	std::vector<std::pair<VariableIndices, smtutil::Expression>> clausesVisitResults;
 	for (size_t i = 0; i < clauses.size(); ++i)
 		clausesVisitResults.push_back(visitBranch(clauses[i].get()));
@@ -627,7 +627,7 @@ void BMC::endVisit(FunctionCall const& _funCall)
 	case FunctionType::Kind::Transfer:
 	{
 		auto value = _funCall.arguments().front();
-		solAssert(value, "");
+		hypAssert(value, "");
 		smtutil::Expression thisBalance = state().balance();
 
 		addVerificationTarget(
@@ -665,8 +665,8 @@ void BMC::endVisit(Return const& _return)
 void BMC::visitAssert(FunctionCall const& _funCall)
 {
 	auto const& args = _funCall.arguments();
-	solAssert(args.size() == 1, "");
-	solAssert(args.front()->annotation().type->category() == Type::Category::Bool, "");
+	hypAssert(args.size() == 1, "");
+	hypAssert(args.front()->annotation().type->category() == Type::Category::Bool, "");
 	addVerificationTarget(
 		VerificationTargetType::Assert,
 		expr(*args.front()),
@@ -677,8 +677,8 @@ void BMC::visitAssert(FunctionCall const& _funCall)
 void BMC::visitRequire(FunctionCall const& _funCall)
 {
 	auto const& args = _funCall.arguments();
-	solAssert(args.size() >= 1, "");
-	solAssert(args.front()->annotation().type->category() == Type::Category::Bool, "");
+	hypAssert(args.size() >= 1, "");
+	hypAssert(args.front()->annotation().type->category() == Type::Category::Bool, "");
 	if (isRootFunction() && !isInsideLoop())
 		addVerificationTarget(
 			VerificationTargetType::ConstantCondition,
@@ -689,7 +689,7 @@ void BMC::visitRequire(FunctionCall const& _funCall)
 
 void BMC::visitAddMulMod(FunctionCall const& _funCall)
 {
-	solAssert(_funCall.arguments().at(2), "");
+	hypAssert(_funCall.arguments().at(2), "");
 	addVerificationTarget(
 		VerificationTargetType::DivByZero,
 		expr(*_funCall.arguments().at(2)),
@@ -706,7 +706,7 @@ void BMC::inlineFunctionCall(
 	std::vector<Expression const*> const& _arguments
 )
 {
-	solAssert(_funDef, "");
+	hypAssert(_funDef, "");
 
 	if (visitedFunction(_funDef))
 	{
@@ -736,7 +736,7 @@ void BMC::inlineFunctionCall(
 
 void BMC::inlineFunctionCall(FunctionCall const& _funCall)
 {
-	solAssert(shouldInlineFunctionCall(_funCall, currentScopeContract(), m_currentContract), "");
+	hypAssert(shouldInlineFunctionCall(_funCall, currentScopeContract(), m_currentContract), "");
 
 	auto funDef = functionCallToDefinition(_funCall, currentScopeContract(), m_currentContract);
 	Expression const* expr = &_funCall.expression();
@@ -830,7 +830,7 @@ std::pair<smtutil::Expression, smtutil::Expression> BMC::arithmeticOperation(
 	else if (_op == Token::Add || _op == Token::Mul)
 		type = VerificationTargetType::Overflow;
 	else
-		solAssert(false, "");
+		hypAssert(false, "");
 
 	addVerificationTarget(
 		type,
@@ -906,7 +906,7 @@ std::string BMC::targetDescription(BMCVerificationTarget const& _target)
 		return "Assertion violation";
 	else if (_target.type == VerificationTargetType::Balance)
 		return "Insufficient funds";
-	solAssert(false);
+	hypAssert(false);
 }
 
 void BMC::checkVerificationTargets()
@@ -942,7 +942,7 @@ void BMC::checkVerificationTarget(BMCVerificationTarget& _target)
 			checkAssert(_target);
 			break;
 		default:
-			solAssert(false, "");
+			hypAssert(false, "");
 	}
 }
 
@@ -958,7 +958,7 @@ void BMC::checkConstantCondition(BMCVerificationTarget& _target)
 
 void BMC::checkUnderflow(BMCVerificationTarget& _target)
 {
-	solAssert(
+	hypAssert(
 		_target.type == VerificationTargetType::Underflow ||
 			_target.type == VerificationTargetType::UnderOverflow,
 		""
@@ -991,7 +991,7 @@ void BMC::checkUnderflow(BMCVerificationTarget& _target)
 
 void BMC::checkOverflow(BMCVerificationTarget& _target)
 {
-	solAssert(
+	hypAssert(
 		_target.type == VerificationTargetType::Overflow ||
 			_target.type == VerificationTargetType::UnderOverflow,
 		""
@@ -1024,7 +1024,7 @@ void BMC::checkOverflow(BMCVerificationTarget& _target)
 
 void BMC::checkDivByZero(BMCVerificationTarget& _target)
 {
-	solAssert(_target.type == VerificationTargetType::DivByZero, "");
+	hypAssert(_target.type == VerificationTargetType::DivByZero, "");
 
 	if (
 		m_solvedTargets.count(_target.expression) &&
@@ -1047,7 +1047,7 @@ void BMC::checkDivByZero(BMCVerificationTarget& _target)
 
 void BMC::checkBalance(BMCVerificationTarget& _target)
 {
-	solAssert(_target.type == VerificationTargetType::Balance, "");
+	hypAssert(_target.type == VerificationTargetType::Balance, "");
 	checkCondition(
 		_target,
 		_target.constraints && _target.value,
@@ -1062,7 +1062,7 @@ void BMC::checkBalance(BMCVerificationTarget& _target)
 
 void BMC::checkAssert(BMCVerificationTarget& _target)
 {
-	solAssert(_target.type == VerificationTargetType::Assert, "");
+	hypAssert(_target.type == VerificationTargetType::Assert, "");
 
 	if (
 		m_solvedTargets.count(_target.expression) &&
@@ -1156,7 +1156,7 @@ void BMC::checkCondition(
 	{
 	case smtutil::CheckResult::SATISFIABLE:
 	{
-		solAssert(!_callStack.empty(), "");
+		hypAssert(!_callStack.empty(), "");
 		std::ostringstream message;
 		message << "BMC: " << targetDescription(_target) << " happens here.";
 
@@ -1247,13 +1247,13 @@ void BMC::checkBooleanNotConstant(
 		std::string description;
 		if (positiveResult == smtutil::CheckResult::SATISFIABLE)
 		{
-			solAssert(negatedResult == smtutil::CheckResult::UNSATISFIABLE, "");
+			hypAssert(negatedResult == smtutil::CheckResult::UNSATISFIABLE, "");
 			description = "BMC: Condition is always true.";
 		}
 		else
 		{
-			solAssert(positiveResult == smtutil::CheckResult::UNSATISFIABLE, "");
-			solAssert(negatedResult == smtutil::CheckResult::SATISFIABLE, "");
+			hypAssert(positiveResult == smtutil::CheckResult::UNSATISFIABLE, "");
+			hypAssert(negatedResult == smtutil::CheckResult::SATISFIABLE, "");
 			description = "BMC: Condition is always false.";
 		}
 		m_errorReporter.warning(

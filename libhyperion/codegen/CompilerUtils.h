@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -23,13 +23,13 @@
 
 #pragma once
 
-#include <libsolidity/ast/ASTForward.h>
-#include <libsolidity/ast/TypeProvider.h>
-#include <libsolidity/interface/DebugSettings.h>
-#include <libsolidity/codegen/CompilerContext.h>
-#include <libsolidity/codegen/CompilerContext.h>
+#include <libhyperion/ast/ASTForward.h>
+#include <libhyperion/ast/TypeProvider.h>
+#include <libhyperion/interface/DebugSettings.h>
+#include <libhyperion/codegen/CompilerContext.h>
+#include <libhyperion/codegen/CompilerContext.h>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 class Type; // forward
@@ -77,7 +77,7 @@ public:
 	);
 
 	/// Allocates a new array and copies the return data to it.
-	/// If the EVM does not support return data, creates an empty array.
+	/// If the ZVM does not support return data, creates an empty array.
 	void returnDataToArray();
 
 	/// Computes the absolute calldata offset of a tail given a base reference and the (absolute)
@@ -277,7 +277,7 @@ public:
 	/// Pops slots from the stack such that its height is _toHeight.
 	/// Adds jump to _jumpTo.
 	/// Readjusts the stack offset to the original value.
-	void popAndJump(unsigned _toHeight, evmasm::AssemblyItem const& _jumpTo);
+	void popAndJump(unsigned _toHeight, zvmasm::AssemblyItem const& _jumpTo);
 
 	template <class T>
 	static unsigned sizeOnStack(std::vector<T> const& _variables);

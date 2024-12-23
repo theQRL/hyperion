@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -22,14 +22,14 @@
  * Container of the (implicit and explicit) global objects.
  */
 
-#include <libsolidity/analysis/GlobalContext.h>
+#include <libhyperion/analysis/GlobalContext.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/TypeProvider.h>
-#include <libsolidity/ast/Types.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/TypeProvider.h>
+#include <libhyperion/ast/Types.h>
 #include <memory>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 namespace
@@ -55,7 +55,7 @@ int magicVariableToID(std::string const& _name)
 	else if (_name == "type") return -27;
 	else if (_name == "this") return -28;
 	else
-		solAssert(false, "Unknown magic variable: \"" + _name + "\".");
+		hypAssert(false, "Unknown magic variable: \"" + _name + "\".");
 }
 
 inline std::vector<std::shared_ptr<MagicVariableDeclaration const>> constructMagicVariables()

@@ -1,6 +1,6 @@
 function safe() pure returns (uint256 x) {
     assembly { x := 42 }
-    assembly "evmasm" ("memory-safe") { mstore(0, 0) }
+    assembly "zvmasm" ("memory-safe") { mstore(0, 0) }
 }
 function unsafe() pure returns (uint256 x) {
     assembly { pop(mload(0)) }

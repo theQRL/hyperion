@@ -1,9 +1,9 @@
-pragma solidity >=0.0;
+pragma hyperion >=0.0;
 
-import "./safeMath.sol";
-import "./token.sol";
-import "./premium.sol";
-import "./moduleHandler.sol";
+import "./safeMath.hyp";
+import "./token.hyp";
+import "./premium.hyp";
+import "./moduleHandler.hyp";
 
 contract ico is safeMath {
 

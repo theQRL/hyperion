@@ -7,7 +7,7 @@ then
     echo "Usage: $0 <tag/branch>"
     exit 1
 fi
-image="ethereum/solc"
+image="theqrl/hypc"
 branch="$1"
 
 #docker login
@@ -16,8 +16,8 @@ DIR=$(mktemp -d)
 (
 cd "$DIR"
 
-git clone --depth 2 https://github.com/ethereum/solidity.git -b "$branch"
-cd solidity
+git clone --depth 2 https://github.com/theQRL/hyperion.git -b "$branch"
+cd hyperion
 commithash=$(git rev-parse --short=8 HEAD)
 echo -n "$commithash" > commit_hash.txt
 version=$("$(dirname "$0")/get_version.sh")
@@ -40,7 +40,7 @@ tmp_container=$(docker create "$image":build sh)
 
 # Alpine image
 mkdir -p upload
-docker cp "${tmp_container}":/usr/bin/solc upload/solc-static-linux
+docker cp "${tmp_container}":/usr/bin/hypc upload/hypc-static-linux
 docker build -t "$image":build-alpine -f scripts/Dockerfile_alpine .
 
 if [ "$branch" = "develop" ]

@@ -5,61 +5,6 @@
         {
             "C":
             {
-                "evm":
-                {
-                    "assembly": "    /* \"C\":60:101  contract C {... */
-  mstore(0x40, 0x80)
-  callvalue
-  dup1
-  iszero
-  tag_1
-  jumpi
-  0x00
-  dup1
-  revert
-tag_1:
-  pop
-  dataSize(sub_0)
-  dup1
-  dataOffset(sub_0)
-  0x00
-  codecopy
-  0x00
-  return
-stop
-
-sub_0: assembly {
-        /* \"C\":60:101  contract C {... */
-      mstore(0x40, 0x80)
-      callvalue
-      dup1
-      iszero
-      tag_1
-      jumpi
-      0x00
-      dup1
-      revert
-    tag_1:
-      pop
-      jumpi(tag_2, lt(calldatasize, 0x04))
-      shr(0xe0, calldataload(0x00))
-      dup1
-      0x26121ff0
-      eq
-      tag_3
-      jumpi
-    tag_2:
-      0x00
-      dup1
-      revert
-        /* \"C\":77:99  function f() public {} */
-    tag_3:
-      stop
-
-    auxdata: <AUXDATA REMOVED>
-}
-"
-                },
                 "ir": "
 /// @use-src 0:\"C\"
 object \"C_6\" {
@@ -205,7 +150,62 @@ object \"C_6\" {
         data \".metadata\" hex\"<BYTECODE REMOVED>\"
     }
 }
+",
+                "zvm":
+                {
+                    "assembly": "    /* \"C\":60:101  contract C {... */
+  mstore(0x40, 0x80)
+  callvalue
+  dup1
+  iszero
+  tag_1
+  jumpi
+  0x00
+  dup1
+  revert
+tag_1:
+  pop
+  dataSize(sub_0)
+  dup1
+  dataOffset(sub_0)
+  0x00
+  codecopy
+  0x00
+  return
+stop
+
+sub_0: assembly {
+        /* \"C\":60:101  contract C {... */
+      mstore(0x40, 0x80)
+      callvalue
+      dup1
+      iszero
+      tag_1
+      jumpi
+      0x00
+      dup1
+      revert
+    tag_1:
+      pop
+      jumpi(tag_2, lt(calldatasize, 0x04))
+      shr(0xe0, calldataload(0x00))
+      dup1
+      0x26121ff0
+      eq
+      tag_3
+      jumpi
+    tag_2:
+      0x00
+      dup1
+      revert
+        /* \"C\":77:99  function f() public {} */
+    tag_3:
+      stop
+
+    auxdata: <AUXDATA REMOVED>
+}
 "
+                }
             }
         }
     },

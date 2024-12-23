@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -24,8 +24,8 @@
 #include <libyul/AST.h>
 #include <libyul/Exceptions.h>
 
-#include <libsolutil/CommonData.h>
-#include <libsolutil/FixedHash.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/FixedHash.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -33,11 +33,11 @@
 #include <sstream>
 #include <vector>
 
-using namespace solidity;
-using namespace solidity::yul;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::yul;
+using namespace hyperion::util;
 
-std::string solidity::yul::reindent(std::string const& _code)
+std::string hyperion::yul::reindent(std::string const& _code)
 {
 	int constexpr indentationWidth = 4;
 
@@ -86,7 +86,7 @@ std::string solidity::yul::reindent(std::string const& _code)
 	return out.str();
 }
 
-u256 solidity::yul::valueOfNumberLiteral(Literal const& _literal)
+u256 hyperion::yul::valueOfNumberLiteral(Literal const& _literal)
 {
 	yulAssert(_literal.kind == LiteralKind::Number, "Expected number literal!");
 
@@ -103,7 +103,7 @@ u256 solidity::yul::valueOfNumberLiteral(Literal const& _literal)
 	return it->second;
 }
 
-u256 solidity::yul::valueOfStringLiteral(Literal const& _literal)
+u256 hyperion::yul::valueOfStringLiteral(Literal const& _literal)
 {
 	yulAssert(_literal.kind == LiteralKind::String, "Expected string literal!");
 	yulAssert(_literal.value.str().size() <= 32, "Literal string too long!");
@@ -123,7 +123,7 @@ u256 yul::valueOfBoolLiteral(Literal const& _literal)
 	yulAssert(false, "Unexpected bool literal value!");
 }
 
-u256 solidity::yul::valueOfLiteral(Literal const& _literal)
+u256 hyperion::yul::valueOfLiteral(Literal const& _literal)
 {
 	switch (_literal.kind)
 	{

@@ -1,26 +1,26 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/analysis/SyntaxChecker.h>
+#include <libhyperion/analysis/SyntaxChecker.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/ExperimentalFeatures.h>
-#include <libsolidity/interface/Version.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/ExperimentalFeatures.h>
+#include <libhyperion/interface/Version.h>
 
 #include <libyul/optimiser/Semantics.h>
 #include <libyul/AST.h>
@@ -28,14 +28,14 @@
 #include <liblangutil/ErrorReporter.h>
 #include <liblangutil/SemVerHandler.h>
 
-#include <libsolutil/UTF8.h>
+#include <libhyputil/UTF8.h>
 
 #include <string>
 
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
+using namespace hyperion::util;
 
 bool SyntaxChecker::checkSyntax(ASTNode const& _astRoot)
 {
@@ -58,7 +58,7 @@ void SyntaxChecker::endVisit(SourceUnit const& _sourceUnit)
 		SemVerVersion recommendedVersion{std::string(VersionString)};
 		if (!recommendedVersion.isPrerelease())
 			errorString +=
-				" Consider adding \"pragma solidity ^" +
+				" Consider adding \"pragma hyperion ^" +
 				std::to_string(recommendedVersion.major()) +
 				std::string(".") +
 				std::to_string(recommendedVersion.minor()) +
@@ -76,13 +76,13 @@ void SyntaxChecker::endVisit(SourceUnit const& _sourceUnit)
 
 bool SyntaxChecker::visit(PragmaDirective const& _pragma)
 {
-	solAssert(!_pragma.tokens().empty(), "");
-	solAssert(_pragma.tokens().size() == _pragma.literals().size(), "");
+	hypAssert(!_pragma.tokens().empty(), "");
+	hypAssert(_pragma.tokens().size() == _pragma.literals().size(), "");
 	if (_pragma.tokens()[0] != Token::Identifier)
 		m_errorReporter.syntaxError(5226_error, _pragma.location(), "Invalid pragma \"" + _pragma.literals()[0] + "\"");
 	else if (_pragma.literals()[0] == "experimental")
 	{
-		solAssert(m_sourceUnit, "");
+		hypAssert(m_sourceUnit, "");
 		std::vector<std::string> literals(_pragma.literals().begin() + 1, _pragma.literals().end());
 		if (literals.empty())
 			m_errorReporter.syntaxError(
@@ -131,7 +131,7 @@ bool SyntaxChecker::visit(PragmaDirective const& _pragma)
 	}
 	else if (_pragma.literals()[0] == "abicoder")
 	{
-		solAssert(m_sourceUnit, "");
+		hypAssert(m_sourceUnit, "");
 		if (
 			_pragma.literals().size() != 2 ||
 			!std::set<std::string>{"v1", "v2"}.count(_pragma.literals()[1])
@@ -150,7 +150,7 @@ bool SyntaxChecker::visit(PragmaDirective const& _pragma)
 		else
 			m_sourceUnit->annotation().useABICoderV2 = (_pragma.literals()[1] == "v2");
 	}
-	else if (_pragma.literals()[0] == "solidity")
+	else if (_pragma.literals()[0] == "hyperion")
 	{
 		try
 		{
@@ -159,13 +159,13 @@ bool SyntaxChecker::visit(PragmaDirective const& _pragma)
 			SemVerMatchExpressionParser parser(tokens, literals);
 			SemVerMatchExpression matchExpression = parser.parse();
 			static SemVerVersion const currentVersion{std::string(VersionString)};
-			solAssert(matchExpression.matches(currentVersion));
+			hypAssert(matchExpression.matches(currentVersion));
 			m_versionPragmaFound = true;
 		}
 		catch (SemVerError const&)
 		{
 			// An unparsable version pragma is an unrecoverable fatal error in the parser.
-			solAssert(false);
+			hypAssert(false);
 		}
 	}
 	else
@@ -278,7 +278,7 @@ bool SyntaxChecker::visit(Literal const& _literal)
 		return true;
 
 	ASTString const& value = _literal.value();
-	solAssert(!value.empty(), "");
+	hypAssert(!value.empty(), "");
 
 	// Generic checks no matter what base this number literal is of:
 	if (value.back() == '_')
@@ -313,7 +313,7 @@ bool SyntaxChecker::visit(Literal const& _literal)
 
 bool SyntaxChecker::visit(UnaryOperation const& _operation)
 {
-	solAssert(_operation.getOperator() != Token::Add);
+	hypAssert(_operation.getOperator() != Token::Add);
 	return true;
 }
 
@@ -391,7 +391,7 @@ void SyntaxChecker::endVisit(ContractDefinition const&)
 bool SyntaxChecker::visit(UsingForDirective const& _usingFor)
 {
 	if (!_usingFor.usesBraces())
-		solAssert(
+		hypAssert(
 			_usingFor.functionsAndOperators().size() == 1 &&
 			!std::get<1>(_usingFor.functionsAndOperators().front())
 		);
@@ -432,7 +432,7 @@ bool SyntaxChecker::visit(UsingForDirective const& _usingFor)
 
 bool SyntaxChecker::visit(FunctionDefinition const& _function)
 {
-	solAssert(_function.isFree() == (m_currentContractKind == std::nullopt), "");
+	hypAssert(_function.isFree() == (m_currentContractKind == std::nullopt), "");
 
 	if (!_function.isFree() && !_function.isConstructor() && _function.noVisibilitySpecified())
 	{

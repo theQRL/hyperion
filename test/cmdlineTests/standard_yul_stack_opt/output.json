@@ -5,7 +5,7 @@
         {
             "object":
             {
-                "evm":
+                "zvm":
                 {
                     "assembly": "    /* \"A\":16:17   */
   0x01

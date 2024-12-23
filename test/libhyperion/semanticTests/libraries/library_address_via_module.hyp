@@ -1,6 +1,6 @@
-==== Source: a.sol ====
+==== Source: a.hyp ====
 
-import "a.sol" as M;
+import "a.hyp" as M;
 
 library L {
     function f(uint256 v) external pure returns (uint) {
@@ -39,7 +39,7 @@ contract C {
     }
 }
 // ----
-// library: "a.sol":L
+// library: "a.hyp":L
 // addr() -> false
 // g(uint256): 1 -> 1
 // g(uint256): 2 -> 4

@@ -27,10 +27,10 @@ can sometimes be cheaper than immutable values.
 Not all types for constants and immutables are implemented at this time. The only supported types are
 :ref:`strings <strings>` (only for constants) and :ref:`value types <value-types>`.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.21;
+    pragma hyperion ^0.8.21;
 
     uint constant X = 32**22 + 8;
 
@@ -88,7 +88,7 @@ This excludes all modifier definitions and functions other than constructors.
 
 There are no restrictions on reading immutable variables.
 The read is even allowed to happen before the variable is written to for the first time because variables in
-Solidity always have a well-defined initial value.
+Hyperion always have a well-defined initial value.
 For this reason it is also allowed to never explicitly assign a value to an immutable.
 
 .. warning::
@@ -98,7 +98,7 @@ For this reason it is also allowed to never explicitly assign a value to an immu
     that initializer, especially when they are at a different level in inheritance hierarchy.
 
 .. note::
-    Before Solidity 0.8.21 initialization of immutable variables was more restrictive.
+    Before Hyperion 0.8.21 initialization of immutable variables was more restrictive.
     Such variables had to be initialized exactly once at construction time and could not be read
     before then.
 

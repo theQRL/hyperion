@@ -1,25 +1,25 @@
 # vim:syntax=dockerfile
 #------------------------------------------------------------------------------
-# Dockerfile for building and testing Solidity Compiler on CI
+# Dockerfile for building and testing Hyperion Compiler on CI
 # Target: Ubuntu 19.04 (Disco Dingo)
-# URL: https://hub.docker.com/r/ethereum/solidity-buildpack-deps
+# URL: https://hub.docker.com/r/theqrl/solidity-buildpack-deps
 #
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2016-2019 solidity contributors.
+# (c) 2016-2019 hyperion contributors.
 #------------------------------------------------------------------------------
 FROM buildpack-deps:jammy AS base
 LABEL version="5"
@@ -28,7 +28,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN set -ex; \
         dist=$(grep DISTRIB_CODENAME /etc/lsb-release | cut -d= -f2); \
-        echo "deb http://ppa.launchpad.net/ethereum/cpp-build-deps/ubuntu $dist main" >> /etc/apt/sources.list ; \
+        echo "deb http://ppa.launchpad.net/theqrl/cpp-build-deps/ubuntu $dist main" >> /etc/apt/sources.list ; \
         apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 1c52189c923f6ca9 ; \
 	apt-get update; \
 	apt-get install -qqy --no-install-recommends \
@@ -45,17 +45,17 @@ RUN set -ex; \
 
 FROM base AS libraries
 
-# EVMONE
+# ZVMONE
 RUN set -ex; \
 	cd /usr/src; \
-	git clone --branch="v0.10.0" --recurse-submodules https://github.com/ethereum/evmone.git; \
-	cd evmone; \
+	git clone --branch="v0.10.0" --recurse-submodules https://github.com/theQRL/zvmone.git; \
+	cd zvmone; \
 	mkdir build; \
 	cd build; \
 	cmake -G Ninja -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX="/usr" ..; \
 	ninja; \
 	ninja install/strip; \
-	rm -rf /usr/src/evmone
+	rm -rf /usr/src/zvmone
 
 FROM base
 COPY --from=libraries /usr/lib /usr/lib

@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,21 +21,21 @@
  * Static analyzer and checker.
  */
 
-#include <libsolidity/analysis/StaticAnalyzer.h>
+#include <libhyperion/analysis/StaticAnalyzer.h>
 
-#include <libsolidity/analysis/ConstantEvaluator.h>
-#include <libsolidity/ast/AST.h>
+#include <libhyperion/analysis/ConstantEvaluator.h>
+#include <libhyperion/ast/AST.h>
 #include <liblangutil/ErrorReporter.h>
 #include <memory>
 
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
 /**
  * Helper class that determines whether a contract's constructor uses inline assembly.
  */
-class solidity::frontend::ConstructorUsesAssembly
+class hyperion::frontend::ConstructorUsesAssembly
 {
 public:
 	/// @returns true if and only if the contract's or any of its bases' constructors
@@ -106,8 +106,8 @@ bool StaticAnalyzer::visit(FunctionDefinition const& _function)
 	if (_function.isImplemented())
 		m_currentFunction = &_function;
 	else
-		solAssert(!m_currentFunction, "");
-	solAssert(m_localVarUseCount.empty(), "");
+		hypAssert(!m_currentFunction, "");
+	hypAssert(m_localVarUseCount.empty(), "");
 	m_constructor = _function.isConstructor();
 	return true;
 }
@@ -139,7 +139,7 @@ bool StaticAnalyzer::visit(Identifier const& _identifier)
 	if (m_currentFunction)
 		if (auto var = dynamic_cast<VariableDeclaration const*>(_identifier.annotation().referencedDeclaration))
 		{
-			solAssert(!var->name().empty(), "");
+			hypAssert(!var->name().empty(), "");
 			if (var->isLocalVariable())
 				m_localVarUseCount[std::make_pair(var->id(), var)] += 1;
 		}
@@ -150,7 +150,7 @@ bool StaticAnalyzer::visit(VariableDeclaration const& _variable)
 {
 	if (m_currentFunction)
 	{
-		solAssert(_variable.isLocalVariable(), "");
+		hypAssert(_variable.isLocalVariable(), "");
 		if (_variable.name() != "")
 			// This is not a no-op, the entry might pre-exist.
 			m_localVarUseCount[std::make_pair(_variable.id(), &_variable)] += 0;
@@ -264,7 +264,7 @@ bool StaticAnalyzer::visit(InlineAssembly const& _inlineAssembly)
 	{
 		if (auto var = dynamic_cast<VariableDeclaration const*>(ref.second.declaration))
 		{
-			solAssert(!var->name().empty(), "");
+			hypAssert(!var->name().empty(), "");
 			if (var->isLocalVariable())
 				m_localVarUseCount[std::make_pair(var->id(), var)] += 1;
 		}
@@ -295,10 +295,10 @@ bool StaticAnalyzer::visit(FunctionCall const& _functionCall)
 	if (*_functionCall.annotation().kind == FunctionCallKind::FunctionCall)
 	{
 		auto functionType = dynamic_cast<FunctionType const*>(_functionCall.expression().annotation().type);
-		solAssert(functionType, "");
+		hypAssert(functionType, "");
 		if (functionType->kind() == FunctionType::Kind::AddMod || functionType->kind() == FunctionType::Kind::MulMod)
 		{
-			solAssert(_functionCall.arguments().size() == 3, "");
+			hypAssert(_functionCall.arguments().size() == 3, "");
 			if (*_functionCall.arguments()[2]->annotation().isPure)
 				if (auto lastArg = ConstantEvaluator::evaluate(m_errorReporter, *(_functionCall.arguments())[2]))
 					if (lastArg->value == 0)

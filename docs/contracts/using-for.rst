@@ -104,17 +104,17 @@ Let us rewrite the set example from the
 :ref:`libraries` section in this way, using file-level functions
 instead of library functions.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.13;
+    pragma hyperion ^0.8.13;
 
     struct Data { mapping(uint => bool) flags; }
     // Now we attach functions to the type.
     // The attached functions can be used throughout the rest of the module.
     // If you import the module, you have to
     // repeat the using directive there, for example as
-    //   import "flags.sol" as Flags;
+    //   import "flags.hyp" as Flags;
     //   using {Flags.insert, Flags.remove, Flags.contains}
     //     for Flags.Data;
     using {insert, remove, contains} for Data;
@@ -160,10 +160,10 @@ instead of library functions.
 It is also possible to extend built-in types in that way.
 In this example, we will use a library.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.13;
+    pragma hyperion ^0.8.13;
 
     library Search {
         function indexOf(uint[] storage self, uint value)
@@ -195,7 +195,7 @@ In this example, we will use a library.
         }
     }
 
-Note that all external library calls are actual EVM function calls. This means that
+Note that all external library calls are actual ZVM function calls. This means that
 if you pass memory or value types, a copy will be performed, even in case of the
 ``self`` variable. The only situation where no copy will be performed
 is when storage reference variables are used or when internal library
@@ -203,10 +203,10 @@ functions are called.
 
 Another example shows how to define a custom operator for a user-defined type:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.19;
+    pragma hyperion ^0.8.19;
 
     type UFixed16x2 is uint16;
 

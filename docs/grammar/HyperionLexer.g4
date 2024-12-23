@@ -1,7 +1,7 @@
-lexer grammar SolidityLexer;
+lexer grammar HyperionLexer;
 
 /**
- * Keywords reserved for future use in Solidity.
+ * Keywords reserved for future use in Hyperion.
  */
 ReservedKeywords:
 	'after' | 'alias' | 'apply' | 'auto' | 'byte' | 'case' | 'copyof' | 'default' | 'define' | 'final'
@@ -223,7 +223,7 @@ fragment HexCharacter: [0-9A-Fa-f];
 
 /**
  * Scanned but not used by any rule, i.e, disallowed.
- * solc parser considers number starting with '0', not immediately followed by '.' or 'x' as
+ * hypc parser considers number starting with '0', not immediately followed by '.' or 'x' as
  * octal, even if non octal digits '8' and '9' are present.
  */
 OctalNumber: '0' DecimalDigits ('.' DecimalDigits)?;
@@ -246,7 +246,7 @@ DecimalNumberFollowedByIdentifier: DecimalNumber Identifier;
 
 
 /**
- * An identifier in solidity has to start with a letter, a dollar-sign or an underscore and
+ * An identifier in hyperion has to start with a letter, a dollar-sign or an underscore and
  * may additionally contain numbers after the first symbol.
  */
 Identifier: IdentifierStart IdentifierPart*;
@@ -262,7 +262,7 @@ LINE_COMMENT: '//' ~[\r\n]* -> channel(HIDDEN);
 mode AssemblyBlockMode;
 
 //@doc:inline
-AssemblyDialect: '"evmasm"';
+AssemblyDialect: '"zvmasm"';
 AssemblyLBrace: '{' -> popMode, pushMode(YulMode);
 
 AssemblyFlagString: '"' DoubleQuotedStringCharacter+ '"';
@@ -292,9 +292,9 @@ YulTrue: 'true';
 YulHex: 'hex';
 
 /**
- * Builtin functions in the EVM Yul dialect.
+ * Builtin functions in the ZVM Yul dialect.
  */
-YulEVMBuiltin:
+YulZVMBuiltin:
 	'stop' | 'add' | 'sub' | 'mul' | 'div' | 'sdiv' | 'mod' | 'smod' | 'exp' | 'not'
 	| 'lt' | 'gt' | 'slt' | 'sgt' | 'eq' | 'iszero' | 'and' | 'or' | 'xor' | 'byte'
 	| 'shl' | 'shr' | 'sar' | 'addmod' | 'mulmod' | 'signextend' | 'keccak256'
@@ -353,7 +353,7 @@ mode PragmaMode;
 
 /**
  * Pragma token. Can contain any kind of symbol except a semicolon.
- * Note that currently the solidity parser only allows a subset of this.
+ * Note that currently the hyperion parser only allows a subset of this.
  */
 //@doc:name pragma-token
 //@doc:no-diagram

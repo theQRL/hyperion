@@ -3,26 +3,26 @@
 #------------------------------------------------------------------------------
 # Script used for cross-platform comparison as part of the travis automation.
 # Splits all test source code into multiple files, generates bytecode and
-# uploads the bytecode into github.com/ethereum/solidity-test-bytecode where
+# uploads the bytecode into github.com/theQRL/hyperion-test-bytecode where
 # another travis job is triggered to do the actual comparison.
 #
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2017 solidity contributors.
+# (c) 2017 hyperion contributors.
 #------------------------------------------------------------------------------
 
 set -e
@@ -37,12 +37,12 @@ TMPDIR=$(mktemp -d)
     cd "${TMPDIR}"
     "${SCRIPTDIR}/isolate_tests.py" /src/test/
 
-    cat > solc <<EOF
+    cat > hypc <<EOF
 #!/usr/bin/env node
 var process = require('process')
 var fs = require('fs')
 
-var compiler = require('/root/solc-js/wrapper.js')(require("${1}"))
+var compiler = require('/root/hypc-js/wrapper.js')(require("${1}"))
 
 for (var optimize of [false, true])
 {
@@ -53,7 +53,7 @@ for (var optimize of [false, true])
             var inputs = {}
             inputs[filename] = { content: fs.readFileSync(filename).toString() }
             var input = {
-                language: 'Solidity',
+                language: 'Hyperion',
                 sources: inputs,
                 settings: {
                     optimizer: { enabled: optimize },
@@ -76,8 +76,8 @@ for (var optimize of [false, true])
                         for (var contractName in result['contracts'][outputName])
                         {
                             var contractData = result['contracts'][outputName][contractName];
-                            if (contractData.evm !== undefined && contractData.evm.bytecode !== undefined)
-                                console.log(filename + ':' + contractName + ' ' + contractData.evm.bytecode.object)
+                            if (contractData.zvm !== undefined && contractData.zvm.bytecode !== undefined)
+                                console.log(filename + ':' + contractName + ' ' + contractData.zvm.bytecode.object)
                             else
                                 console.log(filename + ':' + contractName + ' NO BYTECODE')
                             console.log(filename + ':' + contractName + ' ' + contractData.metadata)
@@ -92,7 +92,7 @@ for (var optimize of [false, true])
     }
 }
 EOF
-    chmod +x solc
-    ./solc -- *.sol > /tmp/report.txt
+    chmod +x hypc
+    ./hypc -- *.hyp > /tmp/report.txt
 )
 rm -rf "$TMPDIR"

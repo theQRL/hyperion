@@ -1,30 +1,30 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolutil/IpfsHash.h>
+#include <libhyputil/IpfsHash.h>
 
-#include <libsolutil/Exceptions.h>
-#include <libsolutil/picosha2.h>
-#include <libsolutil/CommonData.h>
-#include <libsolutil/Numeric.h>
+#include <libhyputil/Exceptions.h>
+#include <libhyputil/picosha2.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/Numeric.h>
 
-using namespace solidity;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::util;
 
 namespace
 {
@@ -152,7 +152,7 @@ bytes groupChunksBottomUp(Chunks _currentLevel)
 }
 }
 
-bytes solidity::util::ipfsHash(std::string _data)
+bytes hyperion::util::ipfsHash(std::string _data)
 {
 	size_t const maxChunkSize = 1024 * 256;
 	size_t chunkCount = _data.length() / maxChunkSize + (_data.length() % maxChunkSize > 0 ? 1 : 0);
@@ -196,7 +196,7 @@ bytes solidity::util::ipfsHash(std::string _data)
 	return groupChunksBottomUp(std::move(allChunks));
 }
 
-std::string solidity::util::ipfsHashBase58(std::string _data)
+std::string hyperion::util::ipfsHashBase58(std::string _data)
 {
 	return base58Encode(ipfsHash(std::move(_data)));
 }

@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * @date 2017
@@ -21,16 +21,16 @@
 
 #include <test/Metadata.h>
 #include <test/Common.h>
-#include <libsolidity/interface/CompilerStack.h>
-#include <libsolidity/interface/Version.h>
-#include <libsolutil/SwarmHash.h>
-#include <libsolutil/IpfsHash.h>
-#include <libsolutil/JSON.h>
+#include <libhyperion/interface/CompilerStack.h>
+#include <libhyperion/interface/Version.h>
+#include <libhyputil/SwarmHash.h>
+#include <libhyputil/IpfsHash.h>
+#include <libhyputil/JSON.h>
 
 #include <boost/test/unit_test.hpp>
 
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 namespace
@@ -38,11 +38,11 @@ namespace
 
 std::map<std::string, std::string> requireParsedCBORMetadata(bytes const& _bytecode, CompilerStack::MetadataFormat _metadataFormat)
 {
-	bytes cborMetadata = solidity::test::onlyMetadata(_bytecode);
+	bytes cborMetadata = hyperion::test::onlyMetadata(_bytecode);
 	if (_metadataFormat != CompilerStack::MetadataFormat::NoMetadata)
 	{
 		BOOST_REQUIRE(!cborMetadata.empty());
-		std::optional<std::map<std::string, std::string>> tmp = solidity::test::parseCBORMetadata(cborMetadata);
+		std::optional<std::map<std::string, std::string>> tmp = hyperion::test::parseCBORMetadata(cborMetadata);
 		BOOST_REQUIRE(tmp);
 		return *tmp;
 	}
@@ -53,21 +53,21 @@ std::map<std::string, std::string> requireParsedCBORMetadata(bytes const& _bytec
 std::optional<std::string> compileAndCheckLicenseMetadata(std::string const& _contractName, char const* _sourceCode)
 {
 	CompilerStack compilerStack;
-	compilerStack.setSources({{"A.sol", _sourceCode}});
+	compilerStack.setSources({{"A.hyp", _sourceCode}});
 	BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");
 
 	std::string const& serialisedMetadata = compilerStack.metadata(_contractName);
 	Json::Value metadata;
 	BOOST_REQUIRE(util::jsonParseStrict(serialisedMetadata, metadata));
-	BOOST_CHECK(solidity::test::isValidMetadata(metadata));
+	BOOST_CHECK(hyperion::test::isValidMetadata(metadata));
 
 	BOOST_CHECK_EQUAL(metadata["sources"].size(), 1);
-	BOOST_REQUIRE(metadata["sources"].isMember("A.sol"));
+	BOOST_REQUIRE(metadata["sources"].isMember("A.hyp"));
 
-	if (metadata["sources"]["A.sol"].isMember("license"))
+	if (metadata["sources"]["A.hyp"].isMember("license"))
 	{
-		BOOST_REQUIRE(metadata["sources"]["A.sol"]["license"].isString());
-		return metadata["sources"]["A.sol"]["license"].asString();
+		BOOST_REQUIRE(metadata["sources"]["A.hyp"]["license"].isString());
+		return metadata["sources"]["A.hyp"]["license"].asString();
 	}
 	else
 		return std::nullopt;
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(metadata_stamp)
 {
 	// Check that the metadata stamp is at the end of the runtime bytecode.
 	char const* sourceCode = R"(
-		pragma solidity >=0.0;
+		pragma hyperion >=0.0;
 		pragma experimental __testOnlyAnalysis;
 		contract test {
 			function g(function(uint) external returns (uint) x) public {}
@@ -101,13 +101,13 @@ BOOST_AUTO_TEST_CASE(metadata_stamp)
 			CompilerStack compilerStack;
 			compilerStack.setMetadataFormat(metadataFormat);
 			compilerStack.setSources({{"", sourceCode}});
-			compilerStack.setEVMVersion(solidity::test::CommonOptions::get().evmVersion());
-			compilerStack.setOptimiserSettings(solidity::test::CommonOptions::get().optimize);
+			compilerStack.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+			compilerStack.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 			compilerStack.setMetadataHash(metadataHash);
 			BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");
 			bytes const& bytecode = compilerStack.runtimeObject("test").bytecode;
 			std::string const& metadata = compilerStack.metadata("test");
-			BOOST_CHECK(solidity::test::isValidMetadata(metadata));
+			BOOST_CHECK(hyperion::test::isValidMetadata(metadata));
 
 			auto const cborMetadata = requireParsedCBORMetadata(bytecode, metadataFormat);
 			if (metadataHash == CompilerStack::MetadataHash::None)
@@ -138,14 +138,14 @@ BOOST_AUTO_TEST_CASE(metadata_stamp)
 			}
 
 			if (metadataFormat == CompilerStack::MetadataFormat::NoMetadata)
-				BOOST_CHECK(cborMetadata.count("solc") == 0);
+				BOOST_CHECK(cborMetadata.count("hypc") == 0);
 			else
 			{
-				BOOST_CHECK(cborMetadata.count("solc") == 1);
+				BOOST_CHECK(cborMetadata.count("hypc") == 1);
 				if (metadataFormat == CompilerStack::MetadataFormat::WithReleaseVersionTag)
-					BOOST_CHECK(cborMetadata.at("solc") == util::toHex(VersionCompactBytes));
+					BOOST_CHECK(cborMetadata.at("hypc") == util::toHex(VersionCompactBytes));
 				else
-					BOOST_CHECK(cborMetadata.at("solc") == VersionStringStrict);
+					BOOST_CHECK(cborMetadata.at("hypc") == VersionStringStrict);
 			}
 		}
 }
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(metadata_stamp_experimental)
 {
 	// Check that the metadata stamp is at the end of the runtime bytecode.
 	char const* sourceCode = R"(
-		pragma solidity >=0.0;
+		pragma hyperion >=0.0;
 		pragma experimental __test;
 		contract test {
 			function g(function(uint) external returns (uint) x) public {}
@@ -174,13 +174,13 @@ BOOST_AUTO_TEST_CASE(metadata_stamp_experimental)
 			CompilerStack compilerStack;
 			compilerStack.setMetadataFormat(metadataFormat);
 			compilerStack.setSources({{"", sourceCode}});
-			compilerStack.setEVMVersion(solidity::test::CommonOptions::get().evmVersion());
-			compilerStack.setOptimiserSettings(solidity::test::CommonOptions::get().optimize);
+			compilerStack.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+			compilerStack.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 			compilerStack.setMetadataHash(metadataHash);
 			BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");
 			bytes const& bytecode = compilerStack.runtimeObject("test").bytecode;
 			std::string const& metadata = compilerStack.metadata("test");
-			BOOST_CHECK(solidity::test::isValidMetadata(metadata));
+			BOOST_CHECK(hyperion::test::isValidMetadata(metadata));
 
 			auto const cborMetadata = requireParsedCBORMetadata(bytecode, metadataFormat);
 			if (metadataHash == CompilerStack::MetadataHash::None)
@@ -211,14 +211,14 @@ BOOST_AUTO_TEST_CASE(metadata_stamp_experimental)
 			}
 
 			if (metadataFormat == CompilerStack::MetadataFormat::NoMetadata)
-				BOOST_CHECK(cborMetadata.count("solc") == 0);
+				BOOST_CHECK(cborMetadata.count("hypc") == 0);
 			else
 			{
-				BOOST_CHECK(cborMetadata.count("solc") == 1);
+				BOOST_CHECK(cborMetadata.count("hypc") == 1);
 				if (metadataFormat == CompilerStack::MetadataFormat::WithReleaseVersionTag)
-					BOOST_CHECK(cborMetadata.at("solc") == util::toHex(VersionCompactBytes));
+					BOOST_CHECK(cborMetadata.at("hypc") == util::toHex(VersionCompactBytes));
 				else
-					BOOST_CHECK(cborMetadata.at("solc") == VersionStringStrict);
+					BOOST_CHECK(cborMetadata.at("hypc") == VersionStringStrict);
 				BOOST_CHECK(cborMetadata.count("experimental") == 1);
 				BOOST_CHECK(cborMetadata.at("experimental") == "true");
 			}
@@ -229,13 +229,13 @@ BOOST_AUTO_TEST_CASE(metadata_relevant_sources)
 {
 	CompilerStack compilerStack;
 	char const* sourceCodeA = R"(
-		pragma solidity >=0.0;
+		pragma hyperion >=0.0;
 		contract A {
 			function g(function(uint) external returns (uint) x) public {}
 		}
 	)";
 	char const* sourceCodeB = R"(
-		pragma solidity >=0.0;
+		pragma hyperion >=0.0;
 		contract B {
 			function g(function(uint) external returns (uint) x) public {}
 		}
@@ -244,14 +244,14 @@ BOOST_AUTO_TEST_CASE(metadata_relevant_sources)
 		{"A", sourceCodeA},
 		{"B", sourceCodeB},
 	});
-	compilerStack.setEVMVersion(solidity::test::CommonOptions::get().evmVersion());
-	compilerStack.setOptimiserSettings(solidity::test::CommonOptions::get().optimize);
+	compilerStack.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+	compilerStack.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 	BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");
 
 	std::string const& serialisedMetadata = compilerStack.metadata("A");
 	Json::Value metadata;
 	BOOST_REQUIRE(util::jsonParseStrict(serialisedMetadata, metadata));
-	BOOST_CHECK(solidity::test::isValidMetadata(metadata));
+	BOOST_CHECK(hyperion::test::isValidMetadata(metadata));
 
 	BOOST_CHECK_EQUAL(metadata["sources"].size(), 1);
 	BOOST_CHECK(metadata["sources"].isMember("A"));
@@ -261,20 +261,20 @@ BOOST_AUTO_TEST_CASE(metadata_relevant_sources_imports)
 {
 	CompilerStack compilerStack;
 	char const* sourceCodeA = R"(
-		pragma solidity >=0.0;
+		pragma hyperion >=0.0;
 		contract A {
 			function g(function(uint) external returns (uint) x) public virtual {}
 		}
 	)";
 	char const* sourceCodeB = R"(
-		pragma solidity >=0.0;
+		pragma hyperion >=0.0;
 		import "./A";
 		contract B is A {
 			function g(function(uint) external returns (uint) x) public virtual override {}
 		}
 	)";
 	char const* sourceCodeC = R"(
-		pragma solidity >=0.0;
+		pragma hyperion >=0.0;
 		import "./B";
 		contract C is B {
 			function g(function(uint) external returns (uint) x) public override {}
@@ -285,14 +285,14 @@ BOOST_AUTO_TEST_CASE(metadata_relevant_sources_imports)
 		{"B", sourceCodeB},
 		{"C", sourceCodeC}
 	});
-	compilerStack.setEVMVersion(solidity::test::CommonOptions::get().evmVersion());
-	compilerStack.setOptimiserSettings(solidity::test::CommonOptions::get().optimize);
+	compilerStack.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+	compilerStack.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 	BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");
 
 	std::string const& serialisedMetadata = compilerStack.metadata("C");
 	Json::Value metadata;
 	BOOST_REQUIRE(util::jsonParseStrict(serialisedMetadata, metadata));
-	BOOST_CHECK(solidity::test::isValidMetadata(metadata));
+	BOOST_CHECK(hyperion::test::isValidMetadata(metadata));
 
 	BOOST_CHECK_EQUAL(metadata["sources"].size(), 3);
 	BOOST_CHECK(metadata["sources"].isMember("A"));
@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE(metadata_useLiteralContent)
 {
 	// Check that the metadata contains "useLiteralContent"
 	char const* sourceCode = R"(
-		pragma solidity >=0.0;
+		pragma hyperion >=0.0;
 		contract test {
 		}
 	)";
@@ -313,14 +313,14 @@ BOOST_AUTO_TEST_CASE(metadata_useLiteralContent)
 	{
 		CompilerStack compilerStack;
 		compilerStack.setSources({{"", _src}});
-		compilerStack.setEVMVersion(solidity::test::CommonOptions::get().evmVersion());
-		compilerStack.setOptimiserSettings(solidity::test::CommonOptions::get().optimize);
+		compilerStack.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+		compilerStack.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 		compilerStack.useMetadataLiteralSources(_literal);
 		BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");
 		std::string metadata_str = compilerStack.metadata("test");
 		Json::Value metadata;
 		BOOST_REQUIRE(util::jsonParseStrict(metadata_str, metadata));
-		BOOST_CHECK(solidity::test::isValidMetadata(metadata));
+		BOOST_CHECK(hyperion::test::isValidMetadata(metadata));
 		BOOST_CHECK(metadata.isMember("settings"));
 		BOOST_CHECK(metadata["settings"].isMember("metadata"));
 		BOOST_CHECK(metadata["settings"]["metadata"].isMember("bytecodeHash"));
@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE(metadata_useLiteralContent)
 BOOST_AUTO_TEST_CASE(metadata_viair)
 {
 	char const* sourceCode = R"(
-		pragma solidity >=0.0;
+		pragma hyperion >=0.0;
 		contract test {
 		}
 	)";
@@ -347,14 +347,14 @@ BOOST_AUTO_TEST_CASE(metadata_viair)
 	{
 		CompilerStack compilerStack;
 		compilerStack.setSources({{"", _src}});
-		compilerStack.setEVMVersion(solidity::test::CommonOptions::get().evmVersion());
-		compilerStack.setOptimiserSettings(solidity::test::CommonOptions::get().optimize);
+		compilerStack.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+		compilerStack.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 		compilerStack.setViaIR(_viaIR);
 		BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");
 
 		Json::Value metadata;
 		BOOST_REQUIRE(util::jsonParseStrict(compilerStack.metadata("test"), metadata));
-		BOOST_CHECK(solidity::test::isValidMetadata(metadata));
+		BOOST_CHECK(hyperion::test::isValidMetadata(metadata));
 		BOOST_CHECK(metadata.isMember("settings"));
 		if (_viaIR)
 		{
@@ -383,7 +383,7 @@ BOOST_AUTO_TEST_CASE(metadata_revert_strings)
 {
 	CompilerStack compilerStack;
 	char const* sourceCodeA = R"(
-		pragma solidity >=0.0;
+		pragma hyperion >=0.0;
 		contract A {
 		}
 	)";
@@ -394,7 +394,7 @@ BOOST_AUTO_TEST_CASE(metadata_revert_strings)
 	std::string const& serialisedMetadata = compilerStack.metadata("A");
 	Json::Value metadata;
 	BOOST_REQUIRE(util::jsonParseStrict(serialisedMetadata, metadata));
-	BOOST_CHECK(solidity::test::isValidMetadata(metadata));
+	BOOST_CHECK(hyperion::test::isValidMetadata(metadata));
 
 	BOOST_CHECK_EQUAL(metadata["settings"]["debug"]["revertStrings"], "strip");
 }
@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE(metadata_revert_strings)
 BOOST_AUTO_TEST_CASE(metadata_optimiser_sequence)
 {
 	char const* sourceCode = R"(
-		pragma solidity >=0.0;
+		pragma hyperion >=0.0;
 		contract C {
 		}
 	)";
@@ -424,7 +424,7 @@ BOOST_AUTO_TEST_CASE(metadata_optimiser_sequence)
 		optimizerSettings.yulOptimiserCleanupSteps = _optimizerCleanupSequence;
 		CompilerStack compilerStack;
 		compilerStack.setSources({{"", sourceCode}});
-		compilerStack.setEVMVersion(solidity::test::CommonOptions::get().evmVersion());
+		compilerStack.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
 		compilerStack.setOptimiserSettings(optimizerSettings);
 
 		BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");
@@ -432,7 +432,7 @@ BOOST_AUTO_TEST_CASE(metadata_optimiser_sequence)
 		std::string const& serialisedMetadata = compilerStack.metadata("C");
 		Json::Value metadata;
 		BOOST_REQUIRE(util::jsonParseStrict(serialisedMetadata, metadata));
-		BOOST_CHECK(solidity::test::isValidMetadata(metadata));
+		BOOST_CHECK(hyperion::test::isValidMetadata(metadata));
 		BOOST_CHECK(metadata["settings"]["optimizer"].isMember("details"));
 		BOOST_CHECK(metadata["settings"]["optimizer"]["details"].isMember("yulDetails"));
 		BOOST_CHECK(metadata["settings"]["optimizer"]["details"]["yulDetails"].isMember("optimizerSteps"));
@@ -449,7 +449,7 @@ BOOST_AUTO_TEST_CASE(metadata_optimiser_sequence)
 BOOST_AUTO_TEST_CASE(metadata_license_missing)
 {
 	char const* sourceCode = R"(
-		pragma solidity >=0.0;
+		pragma hyperion >=0.0;
 		contract C {
 		}
 	)";
@@ -462,7 +462,7 @@ BOOST_AUTO_TEST_CASE(metadata_license_gpl3)
 	char const* sourceCode =
 		"// NOTE: we also add trailing whitespace after the license, to see it is trimmed.\n"
 		"// SPDX-License-Identifier: GPL-3.0    \n"
-		"pragma solidity >=0.0;\n"
+		"pragma hyperion >=0.0;\n"
 		"contract C {\n"
 		"}\n";
 	BOOST_CHECK(compileAndCheckLicenseMetadata("C", sourceCode) == "GPL-3.0");
@@ -490,7 +490,7 @@ BOOST_AUTO_TEST_CASE(metadata_license_gpl3_or_apache2)
 {
 	char const* sourceCode = R"(
 		// SPDX-License-Identifier: GPL-3.0 OR Apache-2.0
-		pragma solidity >=0.0;
+		pragma hyperion >=0.0;
 		contract C {
 		}
 	)";
@@ -600,7 +600,7 @@ BOOST_AUTO_TEST_CASE(metadata_license_no_whitespace_multiline)
 BOOST_AUTO_TEST_CASE(metadata_license_nonempty_line)
 {
 	char const* sourceCode = R"(
-		pragma solidity >= 0.0; // SPDX-License-Identifier: GPL-3.0
+		pragma hyperion >= 0.0; // SPDX-License-Identifier: GPL-3.0
 		contract C {}
 	)";
 	BOOST_CHECK(compileAndCheckLicenseMetadata("C", sourceCode) == "GPL-3.0");

@@ -1,35 +1,35 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Tests for the Solidity optimizer.
+ * Tests for the Hyperion optimizer.
  */
 
 #include <test/Common.h>
 
-#include <libevmasm/CommonSubexpressionEliminator.h>
-#include <libevmasm/PeepholeOptimiser.h>
-#include <libevmasm/Inliner.h>
-#include <libevmasm/JumpdestRemover.h>
-#include <libevmasm/ControlFlowGraph.h>
-#include <libevmasm/BlockDeduplicator.h>
-#include <libevmasm/Assembly.h>
+#include <libzvmasm/CommonSubexpressionEliminator.h>
+#include <libzvmasm/PeepholeOptimiser.h>
+#include <libzvmasm/Inliner.h>
+#include <libzvmasm/JumpdestRemover.h>
+#include <libzvmasm/ControlFlowGraph.h>
+#include <libzvmasm/BlockDeduplicator.h>
+#include <libzvmasm/Assembly.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -39,10 +39,10 @@
 #include <tuple>
 #include <memory>
 
-using namespace solidity::langutil;
-using namespace solidity::evmasm;
+using namespace hyperion::langutil;
+using namespace hyperion::zvmasm;
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 namespace
@@ -56,22 +56,22 @@ namespace
 		return input;
 	}
 
-	evmasm::KnownState createInitialState(AssemblyItems const& _input)
+	zvmasm::KnownState createInitialState(AssemblyItems const& _input)
 	{
-		evmasm::KnownState state;
+		zvmasm::KnownState state;
 		for (auto const& item: addDummyLocations(_input))
 			state.feedItem(item, true);
 		return state;
 	}
 
-	AssemblyItems CSE(AssemblyItems const& _input, evmasm::KnownState const& _state = evmasm::KnownState())
+	AssemblyItems CSE(AssemblyItems const& _input, zvmasm::KnownState const& _state = zvmasm::KnownState())
 	{
 		AssemblyItems input = addDummyLocations(_input);
 
 		bool usesMsize = ranges::any_of(_input, [](AssemblyItem const& _i) {
 			return _i == AssemblyItem{Instruction::MSIZE} || _i.type() == VerbatimBytecode;
 		});
-		evmasm::CommonSubexpressionEliminator cse(_state);
+		zvmasm::CommonSubexpressionEliminator cse(_state);
 		BOOST_REQUIRE(cse.feedItems(input.begin(), input.end(), usesMsize) == input.end());
 		AssemblyItems output = cse.getOptimizedItems();
 
@@ -85,7 +85,7 @@ namespace
 	void checkCSE(
 		AssemblyItems const& _input,
 		AssemblyItems const& _expectation,
-		KnownState const& _state = evmasm::KnownState()
+		KnownState const& _state = zvmasm::KnownState()
 	)
 	{
 		AssemblyItems output = CSE(_input, _state);
@@ -189,15 +189,15 @@ BOOST_AUTO_TEST_CASE(cse_assign_immutable_breaks)
 		Instruction::ORIGIN
 	});
 
-	evmasm::CommonSubexpressionEliminator cse{evmasm::KnownState()};
+	zvmasm::CommonSubexpressionEliminator cse{zvmasm::KnownState()};
 	// Make sure CSE breaks after AssignImmutable.
 	BOOST_REQUIRE(cse.feedItems(input.begin(), input.end(), false) == input.begin() + 2);
 }
 
 BOOST_AUTO_TEST_CASE(cse_intermediate_swap)
 {
-	evmasm::KnownState state;
-	evmasm::CommonSubexpressionEliminator cse(state);
+	zvmasm::KnownState state;
+	zvmasm::CommonSubexpressionEliminator cse(state);
 	AssemblyItems input{
 		Instruction::SWAP1, Instruction::POP, Instruction::ADD, u256(0), Instruction::SWAP1,
 		Instruction::SLOAD, Instruction::SWAP1, u256(100), Instruction::EXP, Instruction::SWAP1,
@@ -723,7 +723,7 @@ BOOST_AUTO_TEST_CASE(cse_keccak256_twice_same_content_noninterfering_store_in_be
 
 BOOST_AUTO_TEST_CASE(cse_with_initially_known_stack)
 {
-	evmasm::KnownState state = createInitialState(AssemblyItems{
+	zvmasm::KnownState state = createInitialState(AssemblyItems{
 		u256(0x12),
 		u256(0x20),
 		Instruction::ADD
@@ -736,7 +736,7 @@ BOOST_AUTO_TEST_CASE(cse_with_initially_known_stack)
 
 BOOST_AUTO_TEST_CASE(cse_equality_on_initially_known_stack)
 {
-	evmasm::KnownState state = createInitialState(AssemblyItems{Instruction::DUP1});
+	zvmasm::KnownState state = createInitialState(AssemblyItems{Instruction::DUP1});
 	AssemblyItems input{
 		Instruction::EQ
 	};
@@ -749,7 +749,7 @@ BOOST_AUTO_TEST_CASE(cse_access_previous_sequence)
 {
 	// Tests that the code generator detects whether it tries to access SLOAD instructions
 	// from a sequenced expression which is not in its scope.
-	evmasm::KnownState state = createInitialState(AssemblyItems{
+	zvmasm::KnownState state = createInitialState(AssemblyItems{
 		u256(0),
 		Instruction::SLOAD,
 		u256(1),
@@ -1250,11 +1250,11 @@ BOOST_AUTO_TEST_CASE(jumpdest_removal_subassemblies)
 	settings.runDeduplicate = true;
 	settings.runCSE = true;
 	settings.runConstantOptimiser = true;
-	settings.evmVersion = solidity::test::CommonOptions::get().evmVersion();
+	settings.zvmVersion = hyperion::test::CommonOptions::get().zvmVersion();
 	settings.expectedExecutionsPerDeployment = OptimiserSettings{}.expectedExecutionsPerDeployment;
 
-	Assembly main{settings.evmVersion, false, {}};
-	AssemblyPointer sub = std::make_shared<Assembly>(settings.evmVersion, true, std::string{});
+	Assembly main{settings.zvmVersion, false, {}};
+	AssemblyPointer sub = std::make_shared<Assembly>(settings.zvmVersion, true, std::string{});
 
 	sub->append(u256(1));
 	auto t1 = sub->newTag();

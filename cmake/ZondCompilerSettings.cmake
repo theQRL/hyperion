@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# EthCompilerSettings.cmake
+# ZondCompilerSettings.cmake
 #
 # CMake file for cpp-ethereum project which specifies our compiler settings
 # for each supported platform and build configuration.
@@ -14,35 +14,35 @@
 #
 # These settings then end up spanning all POSIX platforms (Linux, OS X, BSD, etc)
 
-include(EthCheckCXXCompilerFlag)
+include(ZondCheckCXXCompilerFlag)
 
 if(NOT EMSCRIPTEN)
-	eth_add_cxx_compiler_flag_if_supported(-fstack-protector-strong have_stack_protector_strong_support)
+	zond_add_cxx_compiler_flag_if_supported(-fstack-protector-strong have_stack_protector_strong_support)
 	if(NOT have_stack_protector_strong_support)
-		eth_add_cxx_compiler_flag_if_supported(-fstack-protector)
+		zond_add_cxx_compiler_flag_if_supported(-fstack-protector)
 	endif()
 endif()
 
 if(PEDANTIC)
-	eth_add_cxx_compiler_flag_if_supported(-Wimplicit-fallthrough)
+	zond_add_cxx_compiler_flag_if_supported(-Wimplicit-fallthrough)
 endif()
 
 # Prevent the path of the source directory from ending up in the binary via __FILE__ macros.
-eth_add_cxx_compiler_flag_if_supported("-fmacro-prefix-map=${PROJECT_SOURCE_DIR}=/solidity")
+zond_add_cxx_compiler_flag_if_supported("-fmacro-prefix-map=${PROJECT_SOURCE_DIR}=/hyperion")
 
 # -Wpessimizing-move warns when a call to std::move would prevent copy elision
 # if the argument was not wrapped in a call.  This happens when moving a local
 # variable in a return statement when the variable is the same type as the
 # return type or using a move to create a new object from a temporary object.
 if(PEDANTIC)
-	eth_add_cxx_compiler_flag_if_supported(-Wpessimizing-move)
+	zond_add_cxx_compiler_flag_if_supported(-Wpessimizing-move)
 endif()
 
 # -Wredundant-move warns when an implicit move would already be made, so the
 # std::move call is not needed, such as when moving a local variable in a return
 # that is different from the return type.
 if(PEDANTIC)
-	eth_add_cxx_compiler_flag_if_supported(-Wredundant-move)
+	zond_add_cxx_compiler_flag_if_supported(-Wredundant-move)
 endif()
 
 if (("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang"))
@@ -72,17 +72,17 @@ if (("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MA
 		endif()
 
 
-		eth_add_cxx_compiler_flag_if_supported(-Wfinal-dtor-non-final-class)
-		eth_add_cxx_compiler_flag_if_supported(-Wnewline-eof)
-		eth_add_cxx_compiler_flag_if_supported(-Wsuggest-destructor-override)
-		eth_add_cxx_compiler_flag_if_supported(-Wduplicated-cond)
-		eth_add_cxx_compiler_flag_if_supported(-Wduplicate-enum)
-		eth_add_cxx_compiler_flag_if_supported(-Wlogical-op)
-		eth_add_cxx_compiler_flag_if_supported(-Wno-unknown-attributes)
+		zond_add_cxx_compiler_flag_if_supported(-Wfinal-dtor-non-final-class)
+		zond_add_cxx_compiler_flag_if_supported(-Wnewline-eof)
+		zond_add_cxx_compiler_flag_if_supported(-Wsuggest-destructor-override)
+		zond_add_cxx_compiler_flag_if_supported(-Wduplicated-cond)
+		zond_add_cxx_compiler_flag_if_supported(-Wduplicate-enum)
+		zond_add_cxx_compiler_flag_if_supported(-Wlogical-op)
+		zond_add_cxx_compiler_flag_if_supported(-Wno-unknown-attributes)
 	endif()
 
 	# Configuration-specific compiler settings.
-	set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g3 -DETH_DEBUG")
+	set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g3 -DZOND_DEBUG")
 	set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 	set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g3")
@@ -151,8 +151,8 @@ if (("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MA
 			# Disallow deprecated emscripten build options.
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s STRICT=1")
 			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s STRICT=1")
-			# Export the Emscripten-generated auxiliary methods which are needed by solc-js.
-			# Which methods of libsolc itself are exported is specified in libsolc/CMakeLists.txt.
+			# Export the Emscripten-generated auxiliary methods which are needed by hypc-js.
+			# Which methods of libhypc itself are exported is specified in libhypc/CMakeLists.txt.
 			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s EXTRA_EXPORTED_RUNTIME_METHODS=['cwrap','addFunction','removeFunction','UTF8ToString','lengthBytesUTF8','stringToUTF8','setValue']")
 			# Build for webassembly target.
 			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s WASM=1")

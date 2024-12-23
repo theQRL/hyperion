@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -22,8 +22,8 @@
 
 #include <libyul/optimiser/LoadResolver.h>
 
-#include <libyul/backends/evm/EVMDialect.h>
-#include <libyul/backends/evm/EVMMetrics.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/zvm/ZVMMetrics.h>
 #include <libyul/optimiser/Semantics.h>
 #include <libyul/optimiser/CallGraphGenerator.h>
 #include <libyul/optimiser/OptimizerUtilities.h>
@@ -31,15 +31,15 @@
 #include <libyul/AST.h>
 #include <libyul/Utilities.h>
 
-#include <libevmasm/GasMeter.h>
-#include <libsolutil/Keccak256.h>
+#include <libzvmasm/GasMeter.h>
+#include <libhyputil/Keccak256.h>
 
 #include <limits>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::evmasm;
-using namespace solidity::yul;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::zvmasm;
+using namespace hyperion::yul;
 
 void LoadResolver::run(OptimiserStepContext& _context, Block& _ast)
 {
@@ -114,7 +114,7 @@ void LoadResolver::tryEvaluateKeccak(
 
 	// The costs are only correct for hashes of 32 bytes or 1 word (when rounded up).
 	GasMeter gasMeter{
-		dynamic_cast<EVMDialect const&>(m_dialect),
+		dynamic_cast<ZVMDialect const&>(m_dialect),
 		!m_expectedExecutionsPerDeployment,
 		m_expectedExecutionsPerDeployment ? *m_expectedExecutionsPerDeployment : 1
 	};

@@ -1,24 +1,24 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Framework for executing Solidity contracts and testing them against C++ implementation.
+ * Framework for executing Hyperion contracts and testing them against C++ implementation.
  */
 
 #pragma once
@@ -27,26 +27,26 @@
 
 #include <test/ExecutionFramework.h>
 
-#include <libsolidity/interface/CompilerStack.h>
-#include <libsolidity/interface/DebugSettings.h>
+#include <libhyperion/interface/CompilerStack.h>
+#include <libhyperion/interface/DebugSettings.h>
 
 #include <libyul/YulStack.h>
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
-class SolidityExecutionFramework: public solidity::test::ExecutionFramework
+class HyperionExecutionFramework: public hyperion::test::ExecutionFramework
 {
 
 public:
-	SolidityExecutionFramework(): m_showMetadata(solidity::test::CommonOptions::get().showMetadata) {}
-	explicit SolidityExecutionFramework(
-		langutil::EVMVersion _evmVersion,
+	HyperionExecutionFramework(): m_showMetadata(hyperion::test::CommonOptions::get().showMetadata) {}
+	explicit HyperionExecutionFramework(
+		langutil::ZVMVersion _zvmVersion,
 		std::vector<boost::filesystem::path> const& _vmPaths,
 		bool _appendCBORMetadata = true
 	):
-		ExecutionFramework(_evmVersion, _vmPaths),
-		m_showMetadata(solidity::test::CommonOptions::get().showMetadata),
+		ExecutionFramework(_zvmVersion, _vmPaths),
+		m_showMetadata(hyperion::test::CommonOptions::get().showMetadata),
 		m_appendCBORMetadata(_appendCBORMetadata)
 	{}
 
@@ -55,7 +55,7 @@ public:
 		u256 const& _value = 0,
 		std::string const& _contractName = "",
 		bytes const& _arguments = {},
-		std::map<std::string, solidity::test::Address> const& _libraryAddresses = {},
+		std::map<std::string, hyperion::test::Address> const& _libraryAddresses = {},
 		std::optional<std::string> const& _sourceName = std::nullopt
 	) override
 	{
@@ -67,18 +67,18 @@ public:
 	bytes compileContract(
 		std::string const& _sourceCode,
 		std::string const& _contractName = "",
-		std::map<std::string, solidity::test::Address> const& _libraryAddresses = {}
+		std::map<std::string, hyperion::test::Address> const& _libraryAddresses = {}
 	);
 
 	bytes multiSourceCompileContract(
 		std::map<std::string, std::string> const& _sources,
 		std::optional<std::string> const& _mainSourceName = std::nullopt,
 		std::string const& _contractName = "",
-		std::map<std::string, solidity::test::Address> const& _libraryAddresses = {}
+		std::map<std::string, hyperion::test::Address> const& _libraryAddresses = {}
 	);
 
 protected:
-	using CompilerStack = solidity::frontend::CompilerStack;
+	using CompilerStack = hyperion::frontend::CompilerStack;
 	CompilerStack m_compiler;
 	bool m_compileViaYul = false;
 	bool m_showMetadata = false;

@@ -1,5 +1,5 @@
 // Sending zero ether to a contract should still invoke the receive ether function
-// (it previously did not because the gas stipend was not provided by the EVM)
+// (it previously did not because the gas stipend was not provided by the ZVM)
 contract Receiver {
     receive() external payable {}
 }

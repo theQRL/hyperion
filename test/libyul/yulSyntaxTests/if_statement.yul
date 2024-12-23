@@ -5,5 +5,5 @@
     { let x := 0 if eq(calldatasize(), 0) { x := 1 } mstore(0, x) }
 }
 // ====
-// dialect: evm
+// dialect: zvm
 // ----

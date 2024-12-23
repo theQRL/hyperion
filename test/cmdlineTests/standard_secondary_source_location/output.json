@@ -7,17 +7,17 @@
             "formattedMessage": "DeclarationError: Base constructor arguments given twice.
  --> A:2:105:
   |
-2 | pragma solidity >=0.0; contract A { constructor(uint) {} } contract B is A(2) { } contract C is A(3) {} contract D is B, C {}
+2 | pragma hyperion >=0.0; contract A { constructor(uint) {} } contract B is A(2) { } contract C is A(3) {} contract D is B, C {}
   |                                                                                                         ^^^^^^^^^^^^^^^^^^^^^
 Note: First constructor call is here:
  --> A:2:74:
   |
-2 | pragma solidity >=0.0; contract A { constructor(uint) {} } contract B is A(2) { } contract C is A(3) {} contract D is B, C {}
+2 | pragma hyperion >=0.0; contract A { constructor(uint) {} } contract B is A(2) { } contract C is A(3) {} contract D is B, C {}
   |                                                                          ^^^^
 Note: Second constructor call is here:
  --> A:2:97:
   |
-2 | pragma solidity >=0.0; contract A { constructor(uint) {} } contract B is A(2) { } contract C is A(3) {} contract D is B, C {}
+2 | pragma hyperion >=0.0; contract A { constructor(uint) {} } contract B is A(2) { } contract C is A(3) {} contract D is B, C {}
   |                                                                                                 ^^^^
 
 ",

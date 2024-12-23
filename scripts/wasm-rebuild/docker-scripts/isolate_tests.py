@@ -36,7 +36,7 @@ def extract_test_cases(path):
     return tests
 
 def extract_and_write(f, path):
-    if f.endswith('.sol'):
+    if f.endswith('.hyp'):
         with open(path, 'r', encoding='utf8') as _f:
             cases = [_f.read()]
     else:
@@ -48,7 +48,7 @@ def write_cases(f, tests):
     for test in tests:
         remainder = re.sub(r'^ {4}', '', test, 0, re.MULTILINE)
         source_code_hash = hashlib.sha256(test).hexdigest()
-        with open(f'test_{source_code_hash}_{cleaned_filename}.sol', 'w', encoding='utf8') as _f:
+        with open(f'test_{source_code_hash}_{cleaned_filename}.hyp', 'w', encoding='utf8') as _f:
             _f.write(remainder)
 
 

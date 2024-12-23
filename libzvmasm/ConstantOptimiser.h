@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /** @file ConstantOptimiser.cpp
@@ -22,16 +22,16 @@
 
 #pragma once
 
-#include <libevmasm/Exceptions.h>
+#include <libzvmasm/Exceptions.h>
 
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
-#include <libsolutil/Numeric.h>
-#include <libsolutil/Assertions.h>
+#include <libhyputil/Numeric.h>
+#include <libhyputil/Assertions.h>
 
 #include <vector>
 
-namespace solidity::evmasm
+namespace hyperion::zvmasm
 {
 
 class AssemblyItem;
@@ -50,7 +50,7 @@ public:
 	static unsigned optimiseConstants(
 		bool _isCreation,
 		size_t _runs,
-		langutil::EVMVersion _evmVersion,
+		langutil::ZVMVersion _zvmVersion,
 		Assembly& _assembly
 	);
 
@@ -62,7 +62,7 @@ protected:
 		bool isCreation; ///< Whether this is called during contract creation or runtime.
 		size_t runs; ///< Estimated number of calls per opcode oven the lifetime of the contract.
 		size_t multiplicity; ///< Number of times the constant appears in the code.
-		langutil::EVMVersion evmVersion; ///< Version of the EVM
+		langutil::ZVMVersion zvmVersion; ///< Version of the ZVM
 	};
 
 	explicit ConstantOptimisationMethod(Params const& _params, u256 const& _value):

@@ -1,18 +1,18 @@
 /*
-    This file is part of solidity.
+    This file is part of hyperion.
 
-    solidity is free software: you can redistribute it and/or modify
+    hyperion is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    solidity is distributed in the hope that it will be useful,
+    hyperion is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+    along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
  * @author Christian <c@ethdev.com>
@@ -22,9 +22,9 @@
 
 #include <test/Common.h>
 
-#include <test/libsolidity/ErrorCheck.h>
+#include <test/libhyperion/ErrorCheck.h>
 
-#include <libsolidity/ast/AST.h>
+#include <libhyperion/ast/AST.h>
 
 #include <libyul/YulStack.h>
 
@@ -33,7 +33,7 @@
 #include <liblangutil/Scanner.h>
 #include <liblangutil/SourceReferenceFormatter.h>
 
-#include <libevmasm/Assembly.h>
+#include <libzvmasm/Assembly.h>
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/test/unit_test.hpp>
@@ -42,10 +42,10 @@
 #include <optional>
 #include <string>
 
-using namespace solidity::langutil;
-using namespace solidity::yul;
+using namespace hyperion::langutil;
+using namespace hyperion::yul;
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 namespace
@@ -56,13 +56,13 @@ std::optional<Error> parseAndReturnFirstError(
 	bool _assemble = false,
 	bool _allowWarnings = true,
 	YulStack::Language _language = YulStack::Language::Assembly,
-	YulStack::Machine _machine = YulStack::Machine::EVM
+	YulStack::Machine _machine = YulStack::Machine::ZVM
 )
 {
 	YulStack stack(
-		solidity::test::CommonOptions::get().evmVersion(),
+		hyperion::test::CommonOptions::get().zvmVersion(),
 		_language,
-		solidity::frontend::OptimiserSettings::none(),
+		hyperion::frontend::OptimiserSettings::none(),
 		DebugInfoSelection::None()
 	);
 	bool success = false;
@@ -101,7 +101,7 @@ bool successParse(
 	bool _assemble = false,
 	bool _allowWarnings = true,
 	YulStack::Language _language = YulStack::Language::Assembly,
-	YulStack::Machine _machine = YulStack::Machine::EVM
+	YulStack::Machine _machine = YulStack::Machine::ZVM
 )
 {
 	return !parseAndReturnFirstError(_source, _assemble, _allowWarnings, _language, _machine);
@@ -110,7 +110,7 @@ bool successParse(
 bool successAssemble(std::string const& _source, bool _allowWarnings = true, YulStack::Language _language = YulStack::Language::Assembly)
 {
 	return
-		successParse(_source, true, _allowWarnings, _language, YulStack::Machine::EVM);
+		successParse(_source, true, _allowWarnings, _language, YulStack::Machine::ZVM);
 }
 
 Error expectError(
@@ -129,7 +129,7 @@ Error expectError(
 void parsePrintCompare(std::string const& _source, bool _canWarn = false)
 {
 	YulStack stack(
-		solidity::test::CommonOptions::get().evmVersion(),
+		hyperion::test::CommonOptions::get().zvmVersion(),
 		YulStack::Language::Assembly,
 		OptimiserSettings::none(),
 		DebugInfoSelection::None()
@@ -175,7 +175,7 @@ CHECK_ERROR(text, false, type, substring, false, YulStack::Language::StrictAssem
 do { successParse((text), false, false, YulStack::Language::StrictAssembly); } while (false)
 
 
-BOOST_AUTO_TEST_SUITE(SolidityInlineAssembly)
+BOOST_AUTO_TEST_SUITE(HyperionInlineAssembly)
 
 BOOST_AUTO_TEST_SUITE(Printing) // {{{
 
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE(print_string_literal_unicode)
 	std::string source = "{ let x := \"\\u1bac\" }";
 	std::string parsed = "object \"object\" {\n    code { let x := \"\\xe1\\xae\\xac\" }\n}\n";
 	YulStack stack(
-		solidity::test::CommonOptions::get().evmVersion(),
+		hyperion::test::CommonOptions::get().zvmVersion(),
 		YulStack::Language::Assembly,
 		OptimiserSettings::none(),
 		DebugInfoSelection::None()

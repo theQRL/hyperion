@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
@@ -23,10 +23,10 @@
 
 #include <iostream>
 
-using namespace solidity;
-using namespace solidity::langutil;
+using namespace hyperion;
+using namespace hyperion::langutil;
 
-SourceLocation solidity::langutil::parseSourceLocation(std::string const& _input, std::vector<std::shared_ptr<std::string const>> const& _sourceNames)
+SourceLocation hyperion::langutil::parseSourceLocation(std::string const& _input, std::vector<std::shared_ptr<std::string const>> const& _sourceNames)
 {
 	// Expected input: "start:length:sourceindex"
 	enum SrcElem: size_t { Start, Length, Index };
@@ -35,7 +35,7 @@ SourceLocation solidity::langutil::parseSourceLocation(std::string const& _input
 
 	boost::algorithm::split(pos, _input, boost::is_any_of(":"));
 
-	solAssert(pos.size() == 3, "SourceLocation string must have 3 colon separated numeric fields.");
+	hypAssert(pos.size() == 3, "SourceLocation string must have 3 colon separated numeric fields.");
 	auto const sourceIndex = stoi(pos[Index]);
 
 	astAssert(
@@ -52,7 +52,7 @@ SourceLocation solidity::langutil::parseSourceLocation(std::string const& _input
 	return result;
 }
 
-std::ostream& solidity::langutil::operator<<(std::ostream& _out, SourceLocation const& _location)
+std::ostream& hyperion::langutil::operator<<(std::ostream& _out, SourceLocation const& _location)
 {
 	if (!_location.isValid())
 		return _out << "NO_LOCATION_SPECIFIED";

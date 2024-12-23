@@ -1,33 +1,33 @@
 #!/usr/bin/env bash
 # ------------------------------------------------------------------------------
 # vim:ts=4:et
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) solidity contributors.
+# (c) hyperion contributors.
 # ------------------------------------------------------------------------------
 # Bash script to test the import/exports.
 #
 # ast import/export tests:
-#   - first exporting a .sol file to JSON, then loading it into the compiler
+#   - first exporting a .hyp file to JSON, then loading it into the compiler
 #     and exporting it again. The second JSON should be identical to the first.
 #
-# evm-assembly import/export tests:
-#   - first a .sol file will be compiled and the EVM Assembly will be exported
+# zvm-assembly import/export tests:
+#   - first a .hyp file will be compiled and the ZVM Assembly will be exported
 #     to JSON format using --asm-json command-line option.
-#     The EVM Assembly JSON output is then imported with --import-asm-json
+#     The ZVM Assembly JSON output is then imported with --import-asm-json
 #     and compiled again. The binary generated initially and after the import
 #     should be identical.
 
@@ -43,8 +43,8 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 REPO_ROOT=$(${READLINK} -f "$(dirname "$0")"/..)
-SOLIDITY_BUILD_DIR=${SOLIDITY_BUILD_DIR:-${REPO_ROOT}/build}
-SOLC="${SOLIDITY_BUILD_DIR}/solc/solc"
+HYPERION_BUILD_DIR=${HYPERION_BUILD_DIR:-${REPO_ROOT}/build}
+HYPC="${HYPERION_BUILD_DIR}/hypc/hypc"
 SPLITSOURCES="${REPO_ROOT}/scripts/splitSources.py"
 
 # shellcheck source=scripts/common.sh
@@ -54,7 +54,7 @@ source "${REPO_ROOT}/scripts/common_cmdline.sh"
 
 function print_usage
 {
-    echo "Usage: ${0} ast|evm-assembly [--exit-on-error|--help]."
+    echo "Usage: ${0} ast|zvm-assembly [--exit-on-error|--help]."
 }
 
 function print_used_commands
@@ -96,16 +96,16 @@ for PARAM in "$@"
 do
     case "$PARAM" in
         ast) check_import_test_type_unset ; IMPORT_TEST_TYPE="ast" ;;
-        evm-assembly) check_import_test_type_unset ; IMPORT_TEST_TYPE="evm-assembly" ;;
+        zvm-assembly) check_import_test_type_unset ; IMPORT_TEST_TYPE="zvm-assembly" ;;
         --help) print_usage ; exit 0 ;;
         --exit-on-error) EXIT_ON_ERROR=1 ;;
         *) fail "Unknown option '$PARAM'. Aborting. $(print_usage)" ;;
     esac
 done
 
-SYNTAXTESTS_DIR="${REPO_ROOT}/test/libsolidity/syntaxTests"
-ASTJSONTESTS_DIR="${REPO_ROOT}/test/libsolidity/ASTJSON"
-SEMANTICTESTS_DIR="${REPO_ROOT}/test/libsolidity/semanticTests"
+SYNTAXTESTS_DIR="${REPO_ROOT}/test/libhyperion/syntaxTests"
+ASTJSONTESTS_DIR="${REPO_ROOT}/test/libhyperion/ASTJSON"
+SEMANTICTESTS_DIR="${REPO_ROOT}/test/libhyperion/semanticTests"
 
 FAILED=0
 UNCOMPILABLE=0
@@ -116,9 +116,9 @@ function test_ast_import_export_equivalence
     local sol_file="$1"
     local input_files=( "${@:2}" )
 
-    local export_command=("$SOLC" --combined-json ast --pretty-json --json-indent 4 "${input_files[@]}")
-    local import_command=("$SOLC" --import-ast --combined-json ast --pretty-json --json-indent 4 expected.json)
-    local import_via_standard_json_command=("$SOLC" --combined-json ast --pretty-json --json-indent 4 --standard-json standard_json_input.json)
+    local export_command=("$HYPC" --combined-json ast --pretty-json --json-indent 4 "${input_files[@]}")
+    local import_command=("$HYPC" --import-ast --combined-json ast --pretty-json --json-indent 4 expected.json)
+    local import_via_standard_json_command=("$HYPC" --combined-json ast --pretty-json --json-indent 4 --standard-json standard_json_input.json)
 
     # export ast - save ast json as expected result (silently)
     if ! "${export_command[@]}" > expected.json 2> stderr_export.txt
@@ -139,7 +139,7 @@ function test_ast_import_export_equivalence
     echo ". += {\"sources\":" > _ast_json.json
     jq .sources expected.json >> _ast_json.json
     echo "}" >> _ast_json.json
-    echo "{\"language\": \"SolidityAST\", \"settings\": {\"outputSelection\": {\"*\": {\"\": [\"ast\"]}}}}" > standard_json.json
+    echo "{\"language\": \"HyperionAST\", \"settings\": {\"outputSelection\": {\"*\": {\"\": [\"ast\"]}}}}" > standard_json.json
     jq --from-file _ast_json.json standard_json.json > standard_json_input.json
 
     # (re)import ast via standard json - and export it again as obtained result (silently)
@@ -170,27 +170,27 @@ function test_ast_import_export_equivalence
     TESTED=$((TESTED + 1))
 }
 
-function run_solc
+function run_hypc
 {
     local parameters=( "${@}" )
 
-    if ! "${SOLC}" "${parameters[@]}" > /dev/null 2> solc_stderr
+    if ! "${HYPC}" "${parameters[@]}" > /dev/null 2> hypc_stderr
     then
         printError "ERROR: ${parameters[*]}"
         printError "${PWD}"
         # FIXME: EXIT_ON_ERROR seems to be ignored here and in some other places.
         # We just exit unconditionally instead.
-        fail "$(cat solc_stderr)"
+        fail "$(cat hypc_stderr)"
     fi
-    rm solc_stderr
+    rm hypc_stderr
 }
 
-function run_solc_store_stdout
+function run_hypc_store_stdout
 {
     local output_file=$1
     local parameters=( "${@:2}" )
 
-    if ! "${SOLC}" "${parameters[@]}" > "${output_file}" 2> "${output_file}.error"
+    if ! "${HYPC}" "${parameters[@]}" > "${output_file}" 2> "${output_file}.error"
     then
         printError "ERROR: ${parameters[*]}"
         printError "${PWD}"
@@ -199,15 +199,15 @@ function run_solc_store_stdout
     rm "${output_file}.error"
 }
 
-function test_evmjson_import_export_equivalence
+function test_zvmjson_import_export_equivalence
 {
     local sol_file="$1"
     local input_files=( "${@:2}" )
 
-    # Generate bytecode and EVM assembly JSON through normal complication
+    # Generate bytecode and ZVM assembly JSON through normal complication
     mkdir -p export/
     local export_options=(--bin --asm-json "${input_files[@]}" --output-dir export/)
-    run_solc "${export_options[@]}"
+    run_hypc "${export_options[@]}"
 
     # NOTE: If there is no bytecode, the compiler produces a JSON file that contains just 'null'.
     # This is not accepted by assembly import though so we must skip such contracts.
@@ -218,10 +218,10 @@ function test_evmjson_import_export_equivalence
 
     for asm_json_file in export/*.json
     do
-        mv "${asm_json_file}" "${asm_json_file/_evm/}"
+        mv "${asm_json_file}" "${asm_json_file/_zvm/}"
     done
 
-    # Import EVM assembly JSON
+    # Import ZVM assembly JSON
     mkdir -p import/
     for asm_json_file in export/*.json
     do
@@ -229,7 +229,7 @@ function test_evmjson_import_export_equivalence
         bin_file_from_asm_import="import/$(basename "${asm_json_file}" .json).bin"
 
         local import_options=(--bin --import-asm-json "${asm_json_file}")
-        run_solc_store_stdout "${bin_file_from_asm_import}" "${import_options[@]}"
+        run_hypc_store_stdout "${bin_file_from_asm_import}" "${import_options[@]}"
 
         stripCLIDecorations < "$bin_file_from_asm_import" > tmpfile
         mv tmpfile "$bin_file_from_asm_import"
@@ -241,13 +241,13 @@ function test_evmjson_import_export_equivalence
         local bin_file_from_asm_import=${bin_file/export/import}
         if ! diff --strip-trailing-cr --ignore-all-space "${bin_file}" "${bin_file_from_asm_import}" > diff_error
         then
-            printError "ERROR: Bytecode from compilation (${bin_file}) differs from bytecode from EVM asm import (${bin_file_from_asm_import}):"
+            printError "ERROR: Bytecode from compilation (${bin_file}) differs from bytecode from ZVM asm import (${bin_file_from_asm_import}):"
             printError "    $(cat diff_error)"
             if (( EXIT_ON_ERROR == 1 ))
             then
                 # NOTE: The import_options we print here refers to the wrong file (the last one
                 # processed by the previous loop) - but it's still a good starting point for debugging ;)
-                print_used_commands "${PWD}" "${SOLC} ${export_options[*]}" "${SOLC} ${import_options[*]}"
+                print_used_commands "${PWD}" "${HYPC} ${export_options[*]}" "${HYPC} ${import_options[*]}"
                 return 1
             fi
             FAILED=$((FAILED + 1))
@@ -266,37 +266,37 @@ function test_import_export_equivalence {
     local sol_file="$1"
     local input_files=( "${@:2}" )
     local output
-    local solc_return_code
+    local hypc_return_code
     local compile_test
 
     case "$IMPORT_TEST_TYPE" in
         ast) compile_test="--ast-compact-json" ;;
-        evm-assembly) compile_test="--bin" ;;
+        zvm-assembly) compile_test="--bin" ;;
         *) assertFail "Unknown import test type '${IMPORT_TEST_TYPE}'. Aborting." ;;
     esac
 
     set +e
-    output=$("$SOLC" "${compile_test}" "${input_files[@]}" 2>&1)
-    solc_return_code=$?
+    output=$("$HYPC" "${compile_test}" "${input_files[@]}" 2>&1)
+    hypc_return_code=$?
     set -e
 
     # if input files where compilable with success
-    if (( solc_return_code == 0 ))
+    if (( hypc_return_code == 0 ))
     then
         case "$IMPORT_TEST_TYPE" in
             ast) test_ast_import_export_equivalence "${sol_file}" "${input_files[@]}" ;;
-            evm-assembly) test_evmjson_import_export_equivalence "${sol_file}" "${input_files[@]}" ;;
+            zvm-assembly) test_zvmjson_import_export_equivalence "${sol_file}" "${input_files[@]}" ;;
             *) assertFail "Unknown import test type '${IMPORT_TEST_TYPE}'. Aborting." ;;
         esac
     else
         UNCOMPILABLE=$((UNCOMPILABLE + 1))
 
-        # solc will return exit code 2, if it was terminated by an uncaught exception.
+        # hypc will return exit code 2, if it was terminated by an uncaught exception.
         # This should normally not happen, so we terminate the test execution here
-        # and print some details about the corresponding solc invocation.
-        if (( solc_return_code == 2 ))
+        # and print some details about the corresponding hypc invocation.
+        if (( hypc_return_code == 2 ))
         then
-            # For the evm-assembly import/export tests, this script uses only the old code generator.
+            # For the zvm-assembly import/export tests, this script uses only the old code generator.
             # Some semantic tests can only be compiled with --via-ir (some need to be additionally
             # compiled with --optimize). The tests that are meant to be compiled with --via-ir are
             # throwing an UnimplementedFeatureError exception, e.g.:
@@ -306,30 +306,30 @@ function test_import_export_equivalence {
             # will be treated as a fatal error and the script execution will be terminated with an error.
             if [[ "${output}" != *"UnimplementedFeatureError"* ]]
             then
-                fail "\n\nERROR: Uncaught exception while executing '${SOLC} ${compile_test} ${input_files[*]}':\n${output}\n"
+                fail "\n\nERROR: Uncaught exception while executing '${HYPC} ${compile_test} ${input_files[*]}':\n${output}\n"
             fi
         fi
     fi
 }
 
-command_available "$SOLC" --version
+command_available "$HYPC" --version
 command_available jq --version
 command_available "$EXPR" --version
 command_available "$READLINK" --version
 
 case "$IMPORT_TEST_TYPE" in
     ast) TEST_DIRS=("${SYNTAXTESTS_DIR}" "${ASTJSONTESTS_DIR}") ;;
-    evm-assembly) TEST_DIRS=("${SEMANTICTESTS_DIR}") ;;
+    zvm-assembly) TEST_DIRS=("${SEMANTICTESTS_DIR}") ;;
     *) assertFail "Import test type not defined. $(print_usage)" ;;
 esac
 
 # boost_filesystem_bug specifically tests a local fix for a boost::filesystem
 # bug. Since the test involves a malformed path, there is no point in running
 # tests on it. See https://github.com/boostorg/filesystem/issues/176
-IMPORT_TEST_FILES=$(find "${TEST_DIRS[@]}" -name "*.sol" -and -not -name "boost_filesystem_bug.sol" -not -path "*/experimental/*")
+IMPORT_TEST_FILES=$(find "${TEST_DIRS[@]}" -name "*.hyp" -and -not -name "boost_filesystem_bug.hyp" -not -path "*/experimental/*")
 
 NSOURCES="$(echo "${IMPORT_TEST_FILES}" | wc -l)"
-echo "Looking at ${NSOURCES} .sol files..."
+echo "Looking at ${NSOURCES} .hyp files..."
 
 COUNTER=0
 TEST_DIR=$(mktemp -d -t "import-export-test-XXXXXX")

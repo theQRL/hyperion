@@ -27,14 +27,14 @@ class TestBenchmarkDiff(unittest.TestCase):
         report_after = json.loads(load_fixture(SUMMARIZED_BENCHMARKS_BRANCH_JSON_PATH))
         expected_diff = {
             "bleeps": {
-                "ir-optimize-evm+yul": {
+                "ir-optimize-zvm+yul": {
                     # Numerical difference -> negative/positive/zero.
                     # Zeros are not skipped to differentiate them from missing values.
                     "bytecode_size": 132868 - 132165,
                     "deployment_gas": 0,
                     "method_gas": 39289198 - 39289935,
                 },
-                "legacy-optimize-evm+yul": {
+                "legacy-optimize-zvm+yul": {
                     # No differences within preset -> zeros still present.
                     "bytecode_size": 0,
                     "deployment_gas": 0,
@@ -43,9 +43,9 @@ class TestBenchmarkDiff(unittest.TestCase):
             },
             "colony": {
                 # Preset missing on one side -> replace dict with string
-                "ir-optimize-evm+yul": "!A",
+                "ir-optimize-zvm+yul": "!A",
                 "legacy-no-optimize": "!B",
-                "legacy-optimize-evm+yul": {
+                "legacy-optimize-zvm+yul": {
                     "bytecode_size": 0,
                     # Attribute missing on both sides -> skip
                     #"deployment_gas":
@@ -60,7 +60,7 @@ class TestBenchmarkDiff(unittest.TestCase):
                     # Attribute null on both sides -> skip
                     #"method_gas":
                 },
-                "legacy-optimize-evm+yul": {
+                "legacy-optimize-zvm+yul": {
                     # Attributes missing on one side -> replace value with string
                     "bytecode_size": "!A",
                     "deployment_gas": "!B",
@@ -74,8 +74,8 @@ class TestBenchmarkDiff(unittest.TestCase):
                     "method_gas": 0,
                 },
                 # Empty preset missing on one side -> replace dict with string
-                "legacy-optimize-evm-only": "!A",
-                "ir-optimize-evm-only": "!B",
+                "legacy-optimize-zvm-only": "!A",
+                "ir-optimize-zvm-only": "!B",
             },
             "euler": {
                 # Matching versions -> show attributes, skip version
@@ -87,20 +87,20 @@ class TestBenchmarkDiff(unittest.TestCase):
                 # Different versions, different values -> replace whole preset with string
                 "legacy-no-optimize": "!V",
                 # Different versions, same values -> replace whole preset with string
-                "legacy-optimize-evm+yul": "!V",
+                "legacy-optimize-zvm+yul": "!V",
                 # Different versions (not a commit hash), different values -> replace whole preset with string
-                "legacy-optimize-evm-only": "!V",
+                "legacy-optimize-zvm-only": "!V",
                 # Version missing on one side -> replace whole preset with string
-                "ir-optimize-evm-only": "!V",
+                "ir-optimize-zvm-only": "!V",
                 # Version missing on both sides -> assume same version
-                "ir-optimize-evm+yul": {
+                "ir-optimize-zvm+yul": {
                     "bytecode_size": 205211 - 182190,
                     "deployment_gas": 39459629 - 35236828,
                     "method_gas": 0,
                 },
             },
             "zeppelin": {
-                "legacy-optimize-evm+yul": {
+                "legacy-optimize-zvm+yul": {
                     # Whole project identical -> attributes still present, with zeros
                     "bytecode_size": 0,
                     "deployment_gas": 0,

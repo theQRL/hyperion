@@ -1,5 +1,5 @@
 
-======= strict_asm_msize_with_optimizer/input.yul (EVM) =======
+======= strict_asm_msize_with_optimizer/input.yul (ZVM) =======
 
 Pretty printed source:
 object "object" {

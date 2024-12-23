@@ -5,16 +5,16 @@
         {
             "C_6_deployed":
             {
-                "evm":
+                "zvm":
                 {
-                    "assembly": "    /* \"input.sol\":60:101 */
+                    "assembly": "    /* \"input.hyp\":60:101 */
   mstore(0x40, 0x80)
   tag_2
   tag_1
   jump\t// in
 tag_2:
   stop
-    /* \"input.sol\":77:99 */
+    /* \"input.hyp\":77:99 */
 tag_1:
   sstore(0x00, 0x2a)
   jump\t// out

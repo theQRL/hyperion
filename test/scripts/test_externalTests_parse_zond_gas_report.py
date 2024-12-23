@@ -9,11 +9,11 @@ from unittest_helpers import FIXTURE_DIR, load_fixture
 
 # NOTE: This test file file only works with scripts/ added to PYTHONPATH so pylint can't find the imports
 # pragma pylint: disable=import-error
-from externalTests.parse_eth_gas_report import parse_report, ReportParsingError, ReportValidationError
+from externalTests.parse_zond_gas_report import parse_report, ReportParsingError, ReportValidationError
 # pragma pylint: enable=import-error
 
-ETH_GAS_REPORT_GNOSIS_RST_PATH = FIXTURE_DIR / 'eth_gas_report_gnosis.rst'
-ETH_GAS_REPORT_GNOSIS_RST_CONTENT = load_fixture(ETH_GAS_REPORT_GNOSIS_RST_PATH)
+ZOND_GAS_REPORT_GNOSIS_RST_PATH = FIXTURE_DIR / 'zond_gas_report_gnosis.rst'
+ZOND_GAS_REPORT_GNOSIS_RST_CONTENT = load_fixture(ZOND_GAS_REPORT_GNOSIS_RST_PATH)
 
 
 class TestEthGasReport(unittest.TestCase):
@@ -21,10 +21,10 @@ class TestEthGasReport(unittest.TestCase):
         self.maxDiff = 10000
 
     def test_parse_report(self):
-        parsed_report = parse_report(ETH_GAS_REPORT_GNOSIS_RST_CONTENT)
+        parsed_report = parse_report(ZOND_GAS_REPORT_GNOSIS_RST_CONTENT)
 
         expected_report = {
-            'solc_version': '0.8.10',
+            'hypc_version': '0.8.10',
             'optimize': True,
             'runs': 200,
             'block_limit': 100000000,
@@ -148,12 +148,12 @@ class TestEthGasReport(unittest.TestCase):
 
     def test_parse_report_should_fail_if_report_has_more_than_one_header(self):
         text_report = dedent("""
-            | Solc version: 0.8.10 · Optimizer enabled: true  · Runs: 200 · Block limit: 100000000 gas |
-            | Solc version: 0.8.9  · Optimizer enabled: false · Runs: 111 · Block limit: 999999999 gas |
+            | Hypc version: 0.8.10 · Optimizer enabled: true  · Runs: 200 · Block limit: 100000000 gas |
+            | Hypc version: 0.8.9  · Optimizer enabled: false · Runs: 111 · Block limit: 999999999 gas |
         """).strip('\n')
         expected_message = dedent("""
             Parsing error on line 2: Duplicate report header.
-            | Solc version: 0.8.9  | Optimizer enabled: false | Runs: 111 | Block limit: 999999999 gas |
+            | Hypc version: 0.8.9  | Optimizer enabled: false | Runs: 111 | Block limit: 999999999 gas |
         """).strip('\n')
 
         with self.assertRaises(ReportParsingError) as manager:

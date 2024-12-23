@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -26,8 +26,8 @@
 #include <libyul/Exceptions.h>
 #include <libyul/Dialect.h>
 
-#include <libsolutil/CommonData.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/StringUtils.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -37,10 +37,10 @@
 #include <memory>
 #include <functional>
 
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::util;
-using namespace solidity::yul;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::util;
+using namespace hyperion::yul;
 
 std::string AsmPrinter::operator()(Literal const& _literal)
 {
@@ -261,7 +261,7 @@ std::string AsmPrinter::formatSourceLocation(
 	SourceLocation const& _location,
 	std::map<std::string, unsigned> const& _nameToSourceIndex,
 	DebugInfoSelection const& _debugInfoSelection,
-	CharStreamProvider const* _soliditySourceProvider
+	CharStreamProvider const* _hyperionSourceProvider
 )
 {
 	yulAssert(!_nameToSourceIndex.empty(), "");
@@ -272,25 +272,25 @@ std::string AsmPrinter::formatSourceLocation(
 		return "";
 
 	std::string sourceIndex = "-1";
-	std::string solidityCodeSnippet = "";
+	std::string hyperionCodeSnippet = "";
 	if (_location.sourceName)
 	{
 		sourceIndex = std::to_string(_nameToSourceIndex.at(*_location.sourceName));
 
 		if (
 			_debugInfoSelection.snippet &&
-			_soliditySourceProvider &&
-			!_soliditySourceProvider->charStream(*_location.sourceName).isImportedFromAST()
+			_hyperionSourceProvider &&
+			!_hyperionSourceProvider->charStream(*_location.sourceName).isImportedFromAST()
 		)
 		{
-			solidityCodeSnippet = escapeAndQuoteString(
-				_soliditySourceProvider->charStream(*_location.sourceName).singleLineSnippet(_location)
+			hyperionCodeSnippet = escapeAndQuoteString(
+				_hyperionSourceProvider->charStream(*_location.sourceName).singleLineSnippet(_location)
 			);
 
 			// On top of escaping quotes we also escape the slash inside any `*/` to guard against
 			// it prematurely terminating multi-line comment blocks. We do not escape all slashes
 			// because the ones without `*` are not dangerous and ignoring them reduces visual noise.
-			boost::replace_all(solidityCodeSnippet, "*/", "*\\/");
+			boost::replace_all(hyperionCodeSnippet, "*/", "*\\/");
 		}
 	}
 
@@ -302,7 +302,7 @@ std::string AsmPrinter::formatSourceLocation(
 		":" +
 		std::to_string(_location.end);
 
-	return sourceLocation + (solidityCodeSnippet.empty() ? "" : "  ") + solidityCodeSnippet;
+	return sourceLocation + (hyperionCodeSnippet.empty() ? "" : "  ") + hyperionCodeSnippet;
 }
 
 std::string AsmPrinter::formatDebugData(std::shared_ptr<DebugData const> const& _debugData, bool _statement)
@@ -326,7 +326,7 @@ std::string AsmPrinter::formatDebugData(std::shared_ptr<DebugData const> const& 
 			_debugData->originLocation,
 			m_nameToSourceIndex,
 			m_debugInfoSelection,
-			m_soliditySourceProvider
+			m_hyperionSourceProvider
 		));
 	}
 

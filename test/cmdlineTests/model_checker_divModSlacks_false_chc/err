@@ -1,11 +1,11 @@
 Warning: CHC: Error trying to invoke SMT solver.
- --> model_checker_divModSlacks_false_chc/input.sol:6:11:
+ --> model_checker_divModSlacks_false_chc/input.hyp:6:11:
   |
 6 | 		return (a / b, a % b);
   | 		        ^^^^^
 
 Warning: CHC: Error trying to invoke SMT solver.
- --> model_checker_divModSlacks_false_chc/input.sol:6:18:
+ --> model_checker_divModSlacks_false_chc/input.hyp:6:18:
   |
 6 | 		return (a / b, a % b);
   | 		               ^^^^^

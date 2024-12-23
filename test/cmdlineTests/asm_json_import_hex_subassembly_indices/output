@@ -1,6 +1,6 @@
 Opcodes:
 PUSH0 INVALID 
-EVM assembly:
+ZVM assembly:
     /*   */
   0x00
 stop

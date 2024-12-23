@@ -1,18 +1,18 @@
 {
- "language": "Solidity",
+ "language": "Hyperion",
  "sources": {
-  "a.sol": {
+  "a.hyp": {
    "content": "// SPDX-License-Identifier: GPL-3.0\npragma abicoder v2; contract A { function f(uint[] memory) public view returns (uint256) { } }"
   }
  },
  "settings": {
-  "evmVersion": "shanghai",
+  "zvmVersion": "shanghai",
   "outputSelection": {
    "*": {
     "A": [
-     "evm.bytecode.object",
-     "evm.deployedBytecode.generatedSources",
-     "evm.bytecode.generatedSources"
+     "zvm.bytecode.object",
+     "zvm.deployedBytecode.generatedSources",
+     "zvm.bytecode.generatedSources"
     ]
    }
   }

@@ -1,26 +1,26 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #include <test/Common.h>
 #include <test/TestCase.h>
 
-#include <libsolutil/AnsiColorized.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/AnsiColorized.h>
+#include <libhyputil/StringUtils.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 
@@ -28,10 +28,10 @@
 #include <stdexcept>
 
 using namespace std;
-using namespace solidity;
-using namespace solidity::frontend;
-using namespace solidity::frontend::test;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::test;
+using namespace hyperion::util;
 
 void TestCase::printSettings(ostream& _stream, const string& _linePrefix, const bool)
 {
@@ -52,7 +52,7 @@ void TestCase::printUpdatedSettings(std::ostream& _stream, std::string const& _l
 bool TestCase::isTestFilename(boost::filesystem::path const& _filename)
 {
 	string extension = _filename.extension().string();
-	return (extension == ".sol" || extension == ".yul" || extension == ".stack") &&
+	return (extension == ".hyp" || extension == ".yul" || extension == ".stack") &&
 		   !boost::starts_with(_filename.string(), "~") &&
 			!boost::starts_with(_filename.string(), ".");
 }
@@ -97,10 +97,10 @@ TestCase::TestResult TestCase::checkResult(std::ostream& _stream, const std::str
 	return TestResult::Success;
 }
 
-EVMVersionRestrictedTestCase::EVMVersionRestrictedTestCase(string const& _filename):
+ZVMVersionRestrictedTestCase::ZVMVersionRestrictedTestCase(string const& _filename):
 	TestCase(_filename)
 {
-	string versionString = m_reader.stringSetting("EVMVersion", "any");
+	string versionString = m_reader.stringSetting("ZVMVersion", "any");
 	if (versionString == "any")
 		return;
 
@@ -116,26 +116,26 @@ EVMVersionRestrictedTestCase::EVMVersionRestrictedTestCase(string const& _filena
 			break;
 
 	versionString = versionString.substr(versionBegin);
-	std::optional<langutil::EVMVersion> version = langutil::EVMVersion::fromString(versionString);
+	std::optional<langutil::ZVMVersion> version = langutil::ZVMVersion::fromString(versionString);
 	if (!version)
-		BOOST_THROW_EXCEPTION(runtime_error{"Invalid EVM version: \"" + versionString + "\""});
+		BOOST_THROW_EXCEPTION(runtime_error{"Invalid ZVM version: \"" + versionString + "\""});
 
-	langutil::EVMVersion evmVersion = solidity::test::CommonOptions::get().evmVersion();
+	langutil::ZVMVersion zvmVersion = hyperion::test::CommonOptions::get().zvmVersion();
 	bool comparisonResult;
 	if (comparator == ">")
-		comparisonResult = evmVersion > version;
+		comparisonResult = zvmVersion > version;
 	else if (comparator == ">=")
-		comparisonResult = evmVersion >= version;
+		comparisonResult = zvmVersion >= version;
 	else if (comparator == "<")
-		comparisonResult = evmVersion < version;
+		comparisonResult = zvmVersion < version;
 	else if (comparator == "<=")
-		comparisonResult = evmVersion <= version;
+		comparisonResult = zvmVersion <= version;
 	else if (comparator == "=")
-		comparisonResult = evmVersion == version;
+		comparisonResult = zvmVersion == version;
 	else if (comparator == "!")
-		comparisonResult = !(evmVersion == version);
+		comparisonResult = !(zvmVersion == version);
 	else
-		BOOST_THROW_EXCEPTION(runtime_error{"Invalid EVM comparator: \"" + comparator + "\""});
+		BOOST_THROW_EXCEPTION(runtime_error{"Invalid ZVM comparator: \"" + comparator + "\""});
 
 	if (!comparisonResult)
 		m_shouldRun = false;

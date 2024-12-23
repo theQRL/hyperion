@@ -1,5 +1,5 @@
-pragma solidity >=0.0;
-import "../Oracles/FutarchyOracle.sol";
+pragma hyperion >=0.0;
+import "../Oracles/FutarchyOracle.hyp";
 
 
 /// @title Futarchy oracle factory contract - Allows to create Futarchy oracle contracts

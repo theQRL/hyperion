@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,16 +21,16 @@
  * Scope - object that holds declaration of names.
  */
 
-#include <libsolidity/analysis/DeclarationContainer.h>
+#include <libhyperion/analysis/DeclarationContainer.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyputil/StringUtils.h>
 
 #include <range/v3/view/filter.hpp>
 #include <range/v3/range/conversion.hpp>
 
-using namespace solidity;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::frontend;
 
 Declaration const* DeclarationContainer::conflictingDeclaration(
 	Declaration const& _declaration,
@@ -39,7 +39,7 @@ Declaration const* DeclarationContainer::conflictingDeclaration(
 {
 	if (!_name)
 		_name = &_declaration.name();
-	solAssert(!_name->empty(), "");
+	hypAssert(!_name->empty(), "");
 	std::vector<Declaration const*> declarations;
 	if (m_declarations.count(*_name))
 		declarations += m_declarations.at(*_name);
@@ -84,11 +84,11 @@ Declaration const* DeclarationContainer::conflictingDeclaration(
 
 void DeclarationContainer::activateVariable(ASTString const& _name)
 {
-	solAssert(
+	hypAssert(
 		m_invisibleDeclarations.count(_name) && m_invisibleDeclarations.at(_name).size() == 1,
 		"Tried to activate a non-inactive variable or multiple inactive variables with the same name."
 	);
-	solAssert(m_declarations.count(_name) == 0 || m_declarations.at(_name).empty(), "");
+	hypAssert(m_declarations.count(_name) == 0 || m_declarations.at(_name).empty(), "");
 	m_declarations[_name].emplace_back(m_invisibleDeclarations.at(_name).front());
 	m_invisibleDeclarations.erase(_name);
 }
@@ -113,7 +113,7 @@ bool DeclarationContainer::registerDeclaration(
 
 	if (_update)
 	{
-		solAssert(!dynamic_cast<FunctionDefinition const*>(&_declaration), "Attempt to update function definition.");
+		hypAssert(!dynamic_cast<FunctionDefinition const*>(&_declaration), "Attempt to update function definition.");
 		m_declarations.erase(*_name);
 		m_invisibleDeclarations.erase(*_name);
 	}
@@ -146,7 +146,7 @@ std::vector<Declaration const*> DeclarationContainer::resolveName(
 	ResolvingSettings _settings
 ) const
 {
-	solAssert(!_name.empty(), "Attempt to resolve empty name.");
+	hypAssert(!_name.empty(), "Attempt to resolve empty name.");
 	std::vector<Declaration const*> result;
 
 	if (m_declarations.count(_name))

@@ -1,33 +1,33 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/formal/SymbolicVariables.h>
+#include <libhyperion/formal/SymbolicVariables.h>
 
-#include <libsolidity/formal/EncodingContext.h>
-#include <libsolidity/formal/SymbolicTypes.h>
+#include <libhyperion/formal/EncodingContext.h>
+#include <libhyperion/formal/SymbolicTypes.h>
 
-#include <libsolutil/Algorithms.h>
+#include <libhyputil/Algorithms.h>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::smtutil;
-using namespace solidity::frontend;
-using namespace solidity::frontend::smt;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::smtutil;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::smt;
 
 SymbolicVariable::SymbolicVariable(
 	frontend::Type const* _type,
@@ -41,9 +41,9 @@ SymbolicVariable::SymbolicVariable(
 	m_context(_context),
 	m_ssa(std::make_unique<SSAVariable>())
 {
-	solAssert(m_type, "");
+	hypAssert(m_type, "");
 	m_sort = smtSort(*m_type);
-	solAssert(m_sort, "");
+	hypAssert(m_sort, "");
 }
 
 SymbolicVariable::SymbolicVariable(
@@ -56,7 +56,7 @@ SymbolicVariable::SymbolicVariable(
 	m_context(_context),
 	m_ssa(std::make_unique<SSAVariable>())
 {
-	solAssert(m_sort, "");
+	hypAssert(m_sort, "");
 }
 
 smtutil::Expression SymbolicVariable::currentValue(frontend::Type const*) const
@@ -109,7 +109,7 @@ SymbolicBoolVariable::SymbolicBoolVariable(
 ):
 	SymbolicVariable(_type, _type, std::move(_uniqueName), _context)
 {
-	solAssert(m_type->category() == frontend::Type::Category::Bool, "");
+	hypAssert(m_type->category() == frontend::Type::Category::Bool, "");
 }
 
 SymbolicIntVariable::SymbolicIntVariable(
@@ -120,7 +120,7 @@ SymbolicIntVariable::SymbolicIntVariable(
 ):
 	SymbolicVariable(_type, _originalType, std::move(_uniqueName), _context)
 {
-	solAssert(isNumber(*m_type), "");
+	hypAssert(isNumber(*m_type), "");
 }
 
 SymbolicAddressVariable::SymbolicAddressVariable(
@@ -149,7 +149,7 @@ SymbolicFunctionVariable::SymbolicFunctionVariable(
 	SymbolicVariable(_type, _type, std::move(_uniqueName), _context),
 	m_declaration(m_context.newVariable(currentName(), m_sort))
 {
-	solAssert(m_type->category() == frontend::Type::Category::Function, "");
+	hypAssert(m_type->category() == frontend::Type::Category::Function, "");
 }
 
 SymbolicFunctionVariable::SymbolicFunctionVariable(
@@ -160,7 +160,7 @@ SymbolicFunctionVariable::SymbolicFunctionVariable(
 	SymbolicVariable(std::move(_sort), std::move(_uniqueName), _context),
 	m_declaration(m_context.newVariable(currentName(), m_sort))
 {
-	solAssert(m_sort->kind == Kind::Function, "");
+	hypAssert(m_sort->kind == Kind::Function, "");
 }
 
 smtutil::Expression SymbolicFunctionVariable::currentValue(frontend::Type const* _targetType) const
@@ -220,7 +220,7 @@ SymbolicEnumVariable::SymbolicEnumVariable(
 ):
 	SymbolicVariable(_type, _type, std::move(_uniqueName), _context)
 {
-	solAssert(isEnum(*m_type), "");
+	hypAssert(isEnum(*m_type), "");
 }
 
 SymbolicTupleVariable::SymbolicTupleVariable(
@@ -230,7 +230,7 @@ SymbolicTupleVariable::SymbolicTupleVariable(
 ):
 	SymbolicVariable(_type, _type, std::move(_uniqueName), _context)
 {
-	solAssert(isTuple(*m_type), "");
+	hypAssert(isTuple(*m_type), "");
 }
 
 SymbolicTupleVariable::SymbolicTupleVariable(
@@ -240,7 +240,7 @@ SymbolicTupleVariable::SymbolicTupleVariable(
 ):
 	SymbolicVariable(std::move(_sort), std::move(_uniqueName), _context)
 {
-	solAssert(m_sort->kind == Kind::Tuple, "");
+	hypAssert(m_sort->kind == Kind::Tuple, "");
 }
 
 smtutil::Expression SymbolicTupleVariable::currentValue(frontend::Type const* _targetType) const
@@ -250,8 +250,8 @@ smtutil::Expression SymbolicTupleVariable::currentValue(frontend::Type const* _t
 
 	auto thisTuple = std::dynamic_pointer_cast<TupleSort>(sort());
 	auto otherTuple = std::dynamic_pointer_cast<TupleSort>(smtSort(*_targetType));
-	solAssert(thisTuple && otherTuple, "");
-	solAssert(thisTuple->components.size() == otherTuple->components.size(), "");
+	hypAssert(thisTuple && otherTuple, "");
+	hypAssert(thisTuple->components.size() == otherTuple->components.size(), "");
 	std::vector<smtutil::Expression> args;
 	for (size_t i = 0; i < thisTuple->components.size(); ++i)
 		args.emplace_back(component(i, type(), _targetType));
@@ -264,7 +264,7 @@ smtutil::Expression SymbolicTupleVariable::currentValue(frontend::Type const* _t
 std::vector<SortPointer> const& SymbolicTupleVariable::components() const
 {
 	auto tupleSort = std::dynamic_pointer_cast<TupleSort>(m_sort);
-	solAssert(tupleSort, "");
+	hypAssert(tupleSort, "");
 	return tupleSort->components;
 }
 
@@ -294,7 +294,7 @@ SymbolicArrayVariable::SymbolicArrayVariable(
 		m_context
 	)
 {
-	solAssert(isArray(*m_type) || isMapping(*m_type), "");
+	hypAssert(isArray(*m_type) || isMapping(*m_type), "");
 }
 
 SymbolicArrayVariable::SymbolicArrayVariable(
@@ -313,7 +313,7 @@ SymbolicArrayVariable::SymbolicArrayVariable(
 		m_context
 	)
 {
-	solAssert(m_sort->kind == Kind::Array, "");
+	hypAssert(m_sort->kind == Kind::Array, "");
 }
 
 smtutil::Expression SymbolicArrayVariable::currentValue(frontend::Type const* _targetType) const
@@ -347,13 +347,13 @@ SymbolicStructVariable::SymbolicStructVariable(
 ):
 	SymbolicVariable(_type, _type, std::move(_uniqueName), _context)
 {
-	solAssert(isNonRecursiveStruct(*m_type), "");
+	hypAssert(isNonRecursiveStruct(*m_type), "");
 	auto const* structType = dynamic_cast<StructType const*>(_type);
-	solAssert(structType, "");
+	hypAssert(structType, "");
 	auto const& members = structType->structDefinition().members();
 	for (unsigned i = 0; i < members.size(); ++i)
 	{
-		solAssert(members.at(i), "");
+		hypAssert(members.at(i), "");
 		m_memberIndices.emplace(members.at(i)->name(), i);
 	}
 }
@@ -366,7 +366,7 @@ smtutil::Expression SymbolicStructVariable::member(std::string const& _member) c
 smtutil::Expression SymbolicStructVariable::assignMember(std::string const& _member, smtutil::Expression const& _memberValue)
 {
 	auto const* structType = dynamic_cast<StructType const*>(m_type);
-	solAssert(structType, "");
+	hypAssert(structType, "");
 	auto const& structDef = structType->structDefinition();
 	auto const& structMembers = structDef.members();
 	auto oldMembers = applyMap(
@@ -387,11 +387,11 @@ smtutil::Expression SymbolicStructVariable::assignMember(std::string const& _mem
 smtutil::Expression SymbolicStructVariable::assignAllMembers(std::vector<smtutil::Expression> const& _memberValues)
 {
 	auto structType = dynamic_cast<StructType const*>(m_type);
-	solAssert(structType, "");
+	hypAssert(structType, "");
 
 	auto const& structDef = structType->structDefinition();
 	auto const& structMembers = structDef.members();
-	solAssert(_memberValues.size() == structMembers.size(), "");
+	hypAssert(_memberValues.size() == structMembers.size(), "");
 	increaseIndex();
 	for (unsigned i = 0; i < _memberValues.size(); ++i)
 		m_context.addAssertion(_memberValues[i] == member(structMembers[i]->name()));

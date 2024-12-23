@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
  * Optimisation stage that assigns memory offsets to variables that would become unreachable if
@@ -22,9 +22,9 @@
 #pragma once
 
 #include <libyul/optimiser/OptimiserStep.h>
-#include <libyul/backends/evm/StackLayoutGenerator.h>
+#include <libyul/backends/zvm/StackLayoutGenerator.h>
 
-namespace solidity::yul
+namespace hyperion::yul
 {
 
 struct Object;
@@ -53,7 +53,7 @@ class StackLimitEvader
 {
 public:
 	/// @a _unreachableVariables can be determined by the CompilabilityChecker.
-	/// Can only be run on the EVM dialect with objects.
+	/// Can only be run on the ZVM dialect with objects.
 	/// Abort and do nothing, if no ``memoryguard`` call or several ``memoryguard`` calls
 	/// with non-matching arguments are found, or if any of the @a _unreachableVariables
 	/// are contained in a recursive function.
@@ -63,7 +63,7 @@ public:
 		std::map<YulString, std::vector<YulString>> const& _unreachableVariables
 	);
 	/// @a _stackTooDeepErrors can be determined by the StackLayoutGenerator.
-	/// Can only be run on the EVM dialect with objects.
+	/// Can only be run on the ZVM dialect with objects.
 	/// Abort and do nothing, if no ``memoryguard`` call or several ``memoryguard`` calls
 	/// with non-matching arguments are found, or if any of the @a _stackTooDeepErrors
 	/// are contained in a recursive function.
@@ -73,7 +73,7 @@ public:
 		std::map<YulString, std::vector<StackLayoutGenerator::StackTooDeep>> const& _stackTooDeepErrors
 	);
 	/// Determines stack too deep errors using the appropriate code generation backend.
-	/// Can only be run on the EVM dialect with objects.
+	/// Can only be run on the ZVM dialect with objects.
 	/// Abort and do nothing, if no ``memoryguard`` call or several ``memoryguard`` calls
 	/// with non-matching arguments are found, or if any of the unreachable variables
 	/// are contained in a recursive function.

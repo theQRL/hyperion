@@ -1,5 +1,5 @@
-pragma solidity >=0.0;
-import "../Events/Event.sol";
+pragma hyperion >=0.0;
+import "../Events/Event.hyp";
 
 
 /// @title Categorical event contract - Categorical events resolve to an outcome from a set of outcomes

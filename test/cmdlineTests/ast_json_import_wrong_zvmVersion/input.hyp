@@ -1,19 +1,19 @@
 {
   "contracts":
   {
-    "test/cmdlineTests/ast_json_import_wrong_evmVersion/input.sol:C": {}
+    "test/cmdlineTests/ast_json_import_wrong_zvmVersion/input.hyp:C": {}
   },
   "sourceList":
   [
-    "test/cmdlineTests/ast_json_import_wrong_evmVersion/input.sol"
+    "test/cmdlineTests/ast_json_import_wrong_zvmVersion/input.hyp"
   ],
   "sources":
   {
-    "test/cmdlineTests/ast_json_import_wrong_evmVersion/input.sol":
+    "test/cmdlineTests/ast_json_import_wrong_zvmVersion/input.hyp":
     {
       "AST":
       {
-        "absolutePath": "test/cmdlineTests/ast_json_import_wrong_evmVersion/input.sol",
+        "absolutePath": "test/cmdlineTests/ast_json_import_wrong_zvmVersion/input.hyp",
         "exportedSymbols":
         {
           "C":
@@ -29,7 +29,7 @@
             "id": 1,
             "literals":
             [
-              "solidity",
+              "hyperion",
               ">=",
               "0.0"
             ],
@@ -68,7 +68,7 @@
                         "src": "78:2:0",
                         "statements": []
                       },
-                      "evmVersion": "shanghai",
+                      "zvmVersion": "shanghai",
                       "externalReferences": [],
                       "id": 4,
                       "nodeType": "InlineAssembly",

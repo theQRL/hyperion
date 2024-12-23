@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -25,31 +25,31 @@
 
 #include <libyul/ASTForward.h>
 
-#include <libsolutil/Common.h>
-#include <libsolutil/CommonData.h>
-#include <libsolutil/Numeric.h>
-#include <liblangutil/EVMVersion.h>
+#include <libhyputil/Common.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/Numeric.h>
+#include <liblangutil/ZVMVersion.h>
 
 #include <functional>
 #include <memory>
 #include <optional>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 struct SourceLocation;
 }
 
-namespace solidity::evmasm
+namespace hyperion::zvmasm
 {
 enum class Instruction: uint8_t;
 }
 
-namespace solidity::yul
+namespace hyperion::yul
 {
 struct Identifier;
 
 ///
-/// Assembly class that abstracts both the libevmasm assembly and the new Yul assembly.
+/// Assembly class that abstracts both the libzvmasm assembly and the new Yul assembly.
 ///
 class AbstractAssembly
 {
@@ -66,8 +66,8 @@ public:
 	/// at the beginning.
 	virtual int stackHeight() const = 0;
 	virtual void setStackHeight(int height) = 0;
-	/// Append an EVM instruction.
-	virtual void appendInstruction(evmasm::Instruction _instruction) = 0;
+	/// Append an ZVM instruction.
+	virtual void appendInstruction(zvmasm::Instruction _instruction) = 0;
 	/// Append a constant.
 	virtual void appendConstant(u256 const& _constant) = 0;
 	/// Append a label.
@@ -118,8 +118,8 @@ public:
 	/// Mark this assembly as invalid. Any attempt to request bytecode from it should throw.
 	virtual void markAsInvalid() = 0;
 
-	/// @returns the EVM version the assembly targets.
-	virtual langutil::EVMVersion evmVersion() const = 0;
+	/// @returns the ZVM version the assembly targets.
+	virtual langutil::ZVMVersion zvmVersion() const = 0;
 };
 
 enum class IdentifierContext { LValue, RValue, VariableDeclaration, NonExternal };

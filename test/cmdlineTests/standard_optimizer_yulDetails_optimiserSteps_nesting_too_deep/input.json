@@ -1,7 +1,7 @@
 {
-	"language": "Solidity",
+	"language": "Hyperion",
 	"sources": {
-		"A": {"urls": ["standard_optimizer_yulDetails_optimiserSteps_nesting_too_deep/in.sol"]}
+		"A": {"urls": ["standard_optimizer_yulDetails_optimiserSteps_nesting_too_deep/in.hyp"]}
 	},
 	"settings": {
 		"optimizer": {

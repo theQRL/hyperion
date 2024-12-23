@@ -1,8 +1,8 @@
 
-======= strict_asm_debug_info_print_all/input.yul (EVM) =======
+======= strict_asm_debug_info_print_all/input.yul (ZVM) =======
 
 Pretty printed source:
-/// @use-src 0:"input.sol"
+/// @use-src 0:"input.hyp"
 object "C_6_deployed" {
     code {
         {
@@ -21,14 +21,14 @@ Binary representation:
 6080604052600a600c565b005b602a5f5556
 
 Text representation:
-    /* "input.sol":60:101   */
+    /* "input.hyp":60:101   */
   mstore(0x40, 0x80)
   tag_2
   tag_1
   jump	// in
 tag_2:
   stop
-    /* "input.sol":77:99   */
+    /* "input.hyp":77:99   */
 tag_1:
   sstore(0x00, 0x2a)
   jump	// out

@@ -1,4 +1,4 @@
-import "notexisting.sol" as NotExisting;
+import "notexisting.hyp" as NotExisting;
 contract C is NotExisting.X
 {
 	NotExisting.SomeStruct public myStruct;

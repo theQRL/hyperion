@@ -1,22 +1,22 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
-#include <libsolidity/lsp/RenameSymbol.h>
-#include <libsolidity/lsp/Utils.h>
+#include <libhyperion/lsp/RenameSymbol.h>
+#include <libhyperion/lsp/Utils.h>
 
 #include <libyul/AST.h>
 
@@ -26,9 +26,9 @@
 #include <string>
 #include <vector>
 
-using namespace solidity::frontend;
-using namespace solidity::langutil;
-using namespace solidity::lsp;
+using namespace hyperion::frontend;
+using namespace hyperion::langutil;
+using namespace hyperion::lsp;
 
 namespace
 {
@@ -63,7 +63,7 @@ void RenameSymbol::operator()(MessageID _id, Json::Value const& _args)
 	std::optional<int> cursorBytePosition = charStreamProvider()
 		.charStream(sourceUnitName)
 		.translateLineColumnToPosition(lineColumn);
-	solAssert(cursorBytePosition.has_value(), "Expected source pos");
+	hypAssert(cursorBytePosition.has_value(), "Expected source pos");
 
 	extractNameAndDeclaration(*sourceNode, *cursorBytePosition);
 
@@ -97,7 +97,7 @@ void RenameSymbol::operator()(MessageID _id, Json::Value const& _args)
 
 	for (auto i = m_locations.rbegin(); i != m_locations.rend(); i++)
 	{
-		solAssert(i->isValid());
+		hypAssert(i->isValid());
 
 		// Replace in our file repository
 		std::string const uri = fileRepository().sourceUnitNameToUri(*i->sourceName);
@@ -154,7 +154,7 @@ void RenameSymbol::extractNameAndDeclaration(ASTNode const& _node, int _cursorBy
 	else if (auto const* inlineAssembly = dynamic_cast<InlineAssembly const*>(&_node))
 		extractNameAndDeclaration(*inlineAssembly, _cursorBytePosition);
 	else
-		solAssert(false, "Unexpected ASTNODE id: " + std::to_string(_node.id()));
+		hypAssert(false, "Unexpected ASTNODE id: " + std::to_string(_node.id()));
 
 	lspDebug(fmt::format("Goal: rename '{}', loc: {}-{}", m_symbolName, m_declarationToRename->nameLocation().start, m_declarationToRename->nameLocation().end));
 }
@@ -164,7 +164,7 @@ void RenameSymbol::extractNameAndDeclaration(ImportDirective const& _importDirec
 	for (ImportDirective::SymbolAlias const& symbolAlias: _importDirective.symbolAliases())
 		if (symbolAlias.location.containsOffset(_cursorBytePosition))
 		{
-			solAssert(symbolAlias.alias);
+			hypAssert(symbolAlias.alias);
 			m_symbolName = *symbolAlias.alias;
 			m_declarationToRename = symbolAlias.symbol->annotation().referencedDeclaration;
 			break;
@@ -251,8 +251,8 @@ void RenameSymbol::extractNameAndDeclaration(IdentifierPath const& _identifierPa
 
 		if (location.containsOffset(_cursorBytePosition))
 		{
-			solAssert(_identifierPath.annotation().pathDeclarations.size() == numIdentifiers);
-			solAssert(_identifierPath.path().size() == numIdentifiers);
+			hypAssert(_identifierPath.annotation().pathDeclarations.size() == numIdentifiers);
+			hypAssert(_identifierPath.path().size() == numIdentifiers);
 
 			m_declarationToRename = _identifierPath.annotation().pathDeclarations[i];
 			m_symbolName = _identifierPath.path()[i];
@@ -263,7 +263,7 @@ void RenameSymbol::extractNameAndDeclaration(IdentifierPath const& _identifierPa
 void RenameSymbol::Visitor::endVisit(IdentifierPath const& _node)
 {
 	std::vector<Declaration const*>& declarations = _node.annotation().pathDeclarations;
-	solAssert(declarations.size() == _node.path().size());
+	hypAssert(declarations.size() == _node.path().size());
 
 	for (size_t i = 0; i < _node.path().size(); i++)
 		if (

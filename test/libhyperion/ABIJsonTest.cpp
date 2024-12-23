@@ -1,37 +1,37 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * Unit tests for the solidity compiler ABI JSON Interface output.
+ * Unit tests for the hyperion compiler ABI JSON Interface output.
  */
 
-#include <test/libsolidity/ABIJsonTest.h>
+#include <test/libhyperion/ABIJsonTest.h>
 
 #include <test/Common.h>
 
-#include <libsolidity/interface/CompilerStack.h>
-#include <libsolutil/JSON.h>
-#include <libsolutil/AnsiColorized.h>
+#include <libhyperion/interface/CompilerStack.h>
+#include <libhyputil/JSON.h>
+#include <libhyputil/AnsiColorized.h>
 
 #include <fstream>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::frontend;
-using namespace solidity::frontend::test;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::test;
 
 ABIJsonTest::ABIJsonTest(std::string const& _filename):
 	TestCase(_filename)
@@ -46,10 +46,10 @@ TestCase::TestResult ABIJsonTest::run(std::ostream& _stream, std::string const& 
 
 	compiler.setSources({{
 		"",
-		"pragma solidity >=0.0;\n// SPDX-License-Identifier: GPL-3.0\n" + m_source
+		"pragma hyperion >=0.0;\n// SPDX-License-Identifier: GPL-3.0\n" + m_source
 	}});
-	compiler.setEVMVersion(solidity::test::CommonOptions::get().evmVersion());
-	compiler.setOptimiserSettings(solidity::test::CommonOptions::get().optimize);
+	compiler.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+	compiler.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 	if (!compiler.parseAndAnalyze())
 		BOOST_THROW_EXCEPTION(std::runtime_error("Parsing contract failed"));
 

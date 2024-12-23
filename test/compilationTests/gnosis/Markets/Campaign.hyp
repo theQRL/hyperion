@@ -1,7 +1,7 @@
-pragma solidity >=0.0;
-import "../Events/Event.sol";
-import "../Markets/StandardMarketFactory.sol";
-import "../Utils/Math.sol";
+pragma hyperion >=0.0;
+import "../Events/Event.hyp";
+import "../Markets/StandardMarketFactory.hyp";
+import "../Utils/Math.hyp";
 
 
 /// @title Campaign contract - Allows to crowdfund a market

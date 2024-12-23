@@ -1,6 +1,6 @@
 object "a" {
     code {
-        let addr := linkersymbol("contract/test.sol:L")
+        let addr := linkersymbol("contract/test.hyp:L")
         mstore(128, shl(227, 0x18530aaf))
         let success := call(gas(), addr, 0, 128, 4, 128, 0)
     }
@@ -16,7 +16,7 @@ object "a" {
 //     /* "source":44:79   */
 //   dup2
 //   dup4
-//   linkerSymbol("f919ba91ac99f96129544b80b9516b27a80e376b9dc693819d0b18b7e0395612")
+//   linkerSymbol("e1bdd8e66a10f051ad14c9b239f34f322067d4f4e2edf700498cb05b137f8dab")
 //     /* "source":109:119   */
 //   0x18530aaf
 //     /* "source":104:107   */

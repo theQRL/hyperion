@@ -2,7 +2,7 @@
 Using the Compiler
 ******************
 
-.. index:: ! commandline compiler, compiler;commandline, ! solc
+.. index:: ! commandline compiler, compiler;commandline, ! hypc
 
 .. _commandline-compiler:
 
@@ -10,19 +10,19 @@ Using the Commandline Compiler
 ******************************
 
 .. note::
-    This section does not apply to :ref:`solcjs <solcjs>`, not even if it is used in commandline mode.
+    This section does not apply to :ref:`hypcjs <hypcjs>`, not even if it is used in commandline mode.
 
 Basic Usage
 -----------
 
-One of the build targets of the Solidity repository is ``solc``, the Solidity commandline compiler.
-Using ``solc --help`` provides you with an explanation of all options. The compiler can produce various outputs, ranging from simple binaries and assembly over an abstract syntax tree (parse tree) to estimations of gas usage.
-If you only want to compile a single file, you run it as ``solc --bin sourceFile.sol`` and it will print the binary. If you want to get some of the more advanced output variants of ``solc``, it is probably better to tell it to output everything to separate files using ``solc -o outputDirectory --bin --ast-compact-json --asm sourceFile.sol``.
+One of the build targets of the Hyperion repository is ``hypc``, the Hyperion commandline compiler.
+Using ``hypc --help`` provides you with an explanation of all options. The compiler can produce various outputs, ranging from simple binaries and assembly over an abstract syntax tree (parse tree) to estimations of gas usage.
+If you only want to compile a single file, you run it as ``hypc --bin sourceFile.hyp`` and it will print the binary. If you want to get some of the more advanced output variants of ``hypc``, it is probably better to tell it to output everything to separate files using ``hypc -o outputDirectory --bin --ast-compact-json --asm sourceFile.hyp``.
 
 Optimizer Options
 -----------------
 
-Before you deploy your contract, activate the optimizer when compiling using ``solc --optimize --bin sourceFile.sol``.
+Before you deploy your contract, activate the optimizer when compiling using ``hypc --optimize --bin sourceFile.hyp``.
 By default, the optimizer will optimize the contract assuming it is called 200 times across its lifetime
 (more specifically, it assumes each opcode is executed around 200 times).
 If you want the initial contract deployment to be cheaper and the later function executions to be more expensive,
@@ -43,10 +43,10 @@ it is also possible to provide :ref:`path redirects <import-remapping>` using ``
 
 .. code-block:: bash
 
-    solc github.com/ethereum/dapp-bin/=/usr/local/lib/dapp-bin/ file.sol
+    hypc github.com/theQRL/dapp-bin/=/usr/local/lib/dapp-bin/ file.hyp
 
 This essentially instructs the compiler to search for anything starting with
-``github.com/ethereum/dapp-bin/`` under ``/usr/local/lib/dapp-bin``.
+``github.com/theQRL/dapp-bin/`` under ``/usr/local/lib/dapp-bin``.
 
 When accessing the filesystem to search for imports, :ref:`paths that do not start with ./
 or ../ <direct-imports>` are treated as relative to the directories specified using
@@ -76,19 +76,19 @@ The placeholder is a 34 character prefix of the hex encoding of the keccak256 ha
 The bytecode file will also contain lines of the form ``// <placeholder> -> <fq library name>`` at the end to help
 identify which libraries the placeholders represent. Note that the fully qualified library name
 is the path of its source file and the library name separated by ``:``.
-You can use ``solc`` as a linker meaning that it will insert the library addresses for you at those points:
+You can use ``hypc`` as a linker meaning that it will insert the library addresses for you at those points:
 
-Either add ``--libraries "file.sol:Math=0x1234567890123456789012345678901234567890 file.sol:Heap=0xabCD567890123456789012345678901234567890"`` to your command to provide an address for each library (use commas or spaces as separators) or store the string in a file (one library per line) and run ``solc`` using ``--libraries fileName``.
+Either add ``--libraries "file.hyp:Math=0x1234567890123456789012345678901234567890 file.hyp:Heap=0xabCD567890123456789012345678901234567890"`` to your command to provide an address for each library (use commas or spaces as separators) or store the string in a file (one library per line) and run ``hypc`` using ``--libraries fileName``.
 
 .. note::
-    Starting Solidity 0.8.1 accepts ``=`` as separator between library and address, and ``:`` as a separator is deprecated. It will be removed in the future. Currently ``--libraries "file.sol:Math:0x1234567890123456789012345678901234567890 file.sol:Heap:0xabCD567890123456789012345678901234567890"`` will work too.
+    Starting Hyperion 0.8.1 accepts ``=`` as separator between library and address, and ``:`` as a separator is deprecated. It will be removed in the future. Currently ``--libraries "file.hyp:Math:0x1234567890123456789012345678901234567890 file.hyp:Heap:0xabCD567890123456789012345678901234567890"`` will work too.
 
 .. index:: --standard-json, --base-path
 
-If ``solc`` is called with the option ``--standard-json``, it will expect a JSON input (as explained below) on the standard input, and return a JSON output on the standard output. This is the recommended interface for more complex and especially automated uses. The process will always terminate in a "success" state and report any errors via the JSON output.
+If ``hypc`` is called with the option ``--standard-json``, it will expect a JSON input (as explained below) on the standard input, and return a JSON output on the standard output. This is the recommended interface for more complex and especially automated uses. The process will always terminate in a "success" state and report any errors via the JSON output.
 The option ``--base-path`` is also processed in standard-json mode.
 
-If ``solc`` is called with the option ``--link``, all input files are interpreted to be unlinked binaries (hex-encoded) in the ``__$53aea86b7d70b31448b230b20ae141a537$__``-format given above and are linked in-place (if the input is read from stdin, it is written to stdout). All options except ``--libraries`` are ignored (including ``-o``) in this case.
+If ``hypc`` is called with the option ``--link``, all input files are interpreted to be unlinked binaries (hex-encoded) in the ``__$53aea86b7d70b31448b230b20ae141a537$__``-format given above and are linked in-place (if the input is read from stdin, it is written to stdout). All options except ``--libraries`` are ignored (including ``-o``) in this case.
 
 .. warning::
     Manually linking libraries on the generated bytecode is discouraged because it does not update
@@ -97,20 +97,20 @@ If ``solc`` is called with the option ``--link``, all input files are interprete
     on when linking is performed.
 
     You should ask the compiler to link the libraries at the time a contract is compiled by either
-    using the ``--libraries`` option of ``solc`` or the ``libraries`` key if you use the
+    using the ``--libraries`` option of ``hypc`` or the ``libraries`` key if you use the
     standard-JSON interface to the compiler.
 
 .. note::
     The library placeholder used to be the fully qualified name of the library itself
-    instead of the hash of it. This format is still supported by ``solc --link`` but
+    instead of the hash of it. This format is still supported by ``hypc --link`` but
     the compiler will no longer output it. This change was made to reduce
     the likelihood of a collision between libraries, since only the first 36 characters
     of the fully qualified library name could be used.
 
-.. _evm-version:
-.. index:: ! EVM version, compile target
+.. _zvm-version:
+.. index:: ! ZVM version, compile target
 
-Setting the EVM Version to Target
+Setting the ZVM Version to Target
 *********************************
 
 When you compile your contract code you can specify the Ethereum virtual machine
@@ -118,17 +118,17 @@ version to compile for to avoid particular features or behaviors.
 
 .. warning::
 
-   Compiling for the wrong EVM version can result in wrong, strange and failing
+   Compiling for the wrong ZVM version can result in wrong, strange and failing
    behavior. Please ensure, especially if running a private chain, that you
-   use matching EVM versions.
+   use matching ZVM versions.
 
-On the command-line, you can select the EVM version as follows:
+On the command-line, you can select the ZVM version as follows:
 
 .. code-block:: shell
 
-  solc --evm-version <VERSION> contract.sol
+  hypc --zvm-version <VERSION> contract.hyp
 
-In the :ref:`standard JSON interface <compiler-api>`, use the ``"evmVersion"``
+In the :ref:`standard JSON interface <compiler-api>`, use the ``"zvmVersion"``
 key in the ``"settings"`` field:
 
 .. code-block:: javascript
@@ -137,14 +137,14 @@ key in the ``"settings"`` field:
       "sources": {/* ... */},
       "settings": {
         "optimizer": {/* ... */},
-        "evmVersion": "<VERSION>"
+        "zvmVersion": "<VERSION>"
       }
     }
 
 Target Options
 --------------
 
-Below is a list of target EVM versions and the compiler-relevant changes introduced
+Below is a list of target ZVM versions and the compiler-relevant changes introduced
 at each version. Backward compatibility is not guaranteed between each version.
 
 - ``shanghai`` (**default**)
@@ -155,7 +155,7 @@ at each version. Backward compatibility is not guaranteed between each version.
 Compiler Input and Output JSON Description
 ******************************************
 
-The recommended way to interface with the Solidity compiler especially for
+The recommended way to interface with the Hyperion compiler especially for
 more complex and automated setups is the so-called JSON-input-output interface.
 The same interface is provided by all distributions of the compiler.
 
@@ -175,14 +175,14 @@ Input Description
 .. code-block:: javascript
 
     {
-      // Required: Source code language. Currently supported are "Solidity", "Yul" and "SolidityAST" (experimental).
-      "language": "Solidity",
+      // Required: Source code language. Currently supported are "Hyperion", "Yul" and "HyperionAST" (experimental).
+      "language": "Hyperion",
       // Required
       "sources":
       {
         // The keys here are the "global" names of the source files,
         // imports can use other files via remappings (see below).
-        "myFile.sol":
+        "myFile.hyp":
         {
           // Optional: keccak256 hash of the source file
           // It is used to verify the retrieved content if imported via URLs.
@@ -198,11 +198,11 @@ Input Description
           [
             "bzzr://56ab...",
             "ipfs://Qma...",
-            "/tmp/path/to/file.sol"
+            "/tmp/path/to/file.hyp"
             // If files are used, their directories should be added to the command-line via
             // `--allow-paths <path>`.
           ]
-          // If language is set to "SolidityAST", an AST needs to be supplied under the "ast" key.
+          // If language is set to "HyperionAST", an AST needs to be supplied under the "ast" key.
           // Note that importing ASTs is experimental and in particular that:
           // - importing invalid ASTs can produce undefined results and
           // - no proper error reporting is available on invalid ASTs.
@@ -266,7 +266,7 @@ Input Description
             // and inline assembly.
             // It is activated together with the global optimizer setting
             // and can be deactivated here.
-            // Before Solidity 0.6.0 it had to be activated through this switch.
+            // Before Hyperion 0.6.0 it had to be activated through this switch.
             "yul": false,
             // Tuning options for the Yul optimizer.
             "yulDetails": {
@@ -289,9 +289,9 @@ Input Description
             }
           }
         },
-        // Version of the EVM to compile for.
+        // Version of the ZVM to compile for.
         // Affects type checking and code generation. Can be shanghai (default)
-        "evmVersion": "shanghai",
+        "zvmVersion": "shanghai",
         // Optional: Change compilation pipeline to go through the Yul intermediate representation.
         // This is false by default.
         "viaIR": true,
@@ -304,10 +304,10 @@ Input Description
           // "debug" injects strings for compiler-generated internal reverts, implemented for ABI encoders V1 and V2 for now.
           // "verboseDebug" even appends further information to user-supplied revert strings (not yet implemented)
           "revertStrings": "default",
-          // Optional: How much extra debug information to include in comments in the produced EVM
+          // Optional: How much extra debug information to include in comments in the produced ZVM
           // assembly and Yul code. Available components are:
           // - `location`: Annotations of the form `@src <index>:<start>:<end>` indicating the
-          //    location of the corresponding element in the original Solidity file, where:
+          //    location of the corresponding element in the original Hyperion file, where:
           //     - `<index>` is the file index matching the `@use-src` annotation,
           //     - `<start>` is the index of the first byte at that location,
           //     - `<end>` is the index of the first byte after that location.
@@ -336,7 +336,7 @@ Input Description
           // If remappings are used, this source file should match the global path
           // after remappings were applied.
           // If this key is an empty string, that refers to a global level.
-          "myFile.sol": {
+          "myFile.hyp": {
             "MyLib": "0x123123..."
           }
         },
@@ -368,27 +368,27 @@ Input Description
         //   irOptimized - Intermediate representation after optimization
         //   irOptimizedAst - AST of intermediate representation after optimization
         //   storageLayout - Slots, offsets and types of the contract's state variables.
-        //   evm.assembly - New assembly format
-        //   evm.legacyAssembly - Old-style assembly format in JSON
-        //   evm.bytecode.functionDebugData - Debugging information at function level
-        //   evm.bytecode.object - Bytecode object
-        //   evm.bytecode.opcodes - Opcodes list
-        //   evm.bytecode.sourceMap - Source mapping (useful for debugging)
-        //   evm.bytecode.linkReferences - Link references (if unlinked object)
-        //   evm.bytecode.generatedSources - Sources generated by the compiler
-        //   evm.deployedBytecode* - Deployed bytecode (has all the options that evm.bytecode has)
-        //   evm.deployedBytecode.immutableReferences - Map from AST ids to bytecode ranges that reference immutables
-        //   evm.methodIdentifiers - The list of function hashes
-        //   evm.gasEstimates - Function gas estimates
+        //   zvm.assembly - New assembly format
+        //   zvm.legacyAssembly - Old-style assembly format in JSON
+        //   zvm.bytecode.functionDebugData - Debugging information at function level
+        //   zvm.bytecode.object - Bytecode object
+        //   zvm.bytecode.opcodes - Opcodes list
+        //   zvm.bytecode.sourceMap - Source mapping (useful for debugging)
+        //   zvm.bytecode.linkReferences - Link references (if unlinked object)
+        //   zvm.bytecode.generatedSources - Sources generated by the compiler
+        //   zvm.deployedBytecode* - Deployed bytecode (has all the options that zvm.bytecode has)
+        //   zvm.deployedBytecode.immutableReferences - Map from AST ids to bytecode ranges that reference immutables
+        //   zvm.methodIdentifiers - The list of function hashes
+        //   zvm.gasEstimates - Function gas estimates
         //
-        // Note that using `evm`, `evm.bytecode`, etc. will select every
+        // Note that using `zvm`, `zvm.bytecode`, etc. will select every
         // target part of that output. Additionally, `*` can be used as a wildcard to request everything.
         //
         "outputSelection": {
           "*": {
             "*": [
-              "metadata", "evm.bytecode" // Enable the metadata and bytecode outputs of every single contract.
-              , "evm.bytecode.sourceMap" // Enable the source map output of every single contract.
+              "metadata", "zvm.bytecode" // Enable the metadata and bytecode outputs of every single contract.
+              , "zvm.bytecode.sourceMap" // Enable the source map output of every single contract.
             ],
             "": [
               "ast" // Enable the AST output of every single file.
@@ -396,7 +396,7 @@ Input Description
           },
           // Enable the abi and opcodes output of MyContract defined in file def.
           "def": {
-            "MyContract": [ "abi", "evm.bytecode.opcodes" ]
+            "MyContract": [ "abi", "zvm.bytecode.opcodes" ]
           }
         },
         // The modelChecker object is experimental and subject to changes.
@@ -405,8 +405,8 @@ Input Description
           // Chose which contracts should be analyzed as the deployed one.
           "contracts":
           {
-            "source1.sol": ["contract1"],
-            "source2.sol": ["contract2", "contract3"]
+            "source1.hyp": ["contract1"],
+            "source2.hyp": ["contract2", "contract3"]
           },
           // Choose how division and modulo operations should be encoded.
           // When using `false` they are replaced by multiplication with slack
@@ -435,7 +435,7 @@ Input Description
           // Choose which targets should be checked: constantCondition,
           // underflow, overflow, divByZero, balance, assert, popEmptyArray, outOfBounds.
           // If the option is not given all targets are checked by default,
-          // except underflow/overflow for Solidity >=0.8.7.
+          // except underflow/overflow for Hyperion >=0.8.7.
           // See the Formal Verification section for the targets description.
           "targets": ["underflow", "overflow", "assert"],
           // Timeout for each SMT query in milliseconds.
@@ -459,14 +459,14 @@ Output Description
         {
           // Optional: Location within the source file.
           "sourceLocation": {
-            "file": "sourceFile.sol",
+            "file": "sourceFile.hyp",
             "start": 0,
             "end": 100
           },
           // Optional: Further locations (e.g. places of conflicting declarations)
           "secondarySourceLocations": [
             {
-              "file": "sourceFile.sol",
+              "file": "sourceFile.hyp",
               "start": 64,
               "end": 92,
               "message": "Other declaration is here:"
@@ -484,13 +484,13 @@ Output Description
           // Mandatory
           "message": "Invalid keyword",
           // Optional: the message formatted with source location
-          "formattedMessage": "sourceFile.sol:100: Invalid keyword"
+          "formattedMessage": "sourceFile.hyp:100: Invalid keyword"
         }
       ],
       // This contains the file-level outputs.
       // It can be limited/filtered by the outputSelection settings.
       "sources": {
-        "sourceFile.sol": {
+        "sourceFile.hyp": {
           // Identifier of the source (used in source maps)
           "id": 1,
           // The AST object
@@ -500,7 +500,7 @@ Output Description
       // This contains the contract-level outputs.
       // It can be limited/filtered by the outputSelection settings.
       "contracts": {
-        "sourceFile.sol": {
+        "sourceFile.hyp": {
           // If the language used has no contract names, this field should equal to an empty string.
           "ContractName": {
             // The Ethereum Contract ABI. If empty, it is represented as an empty array.
@@ -522,8 +522,8 @@ Output Description
             "irOptimizedAst": {/* ... */},
             // See the Storage Layout documentation.
             "storageLayout": {"storage": [/* ... */], "types": {/* ... */} },
-            // EVM-related outputs
-            "evm": {
+            // ZVM-related outputs
+            "zvm": {
               // Assembly (string)
               "assembly": "",
               // Old-style assembly (object)
@@ -537,8 +537,8 @@ Output Description
                   "@mint_13": { // Internal name of the function
                     "entryPoint": 128, // Byte offset into the bytecode where the function starts (optional)
                     "id": 13, // AST ID of the function definition or null for compiler-internal functions (optional)
-                    "parameterSlots": 2, // Number of EVM stack slots for the function parameters (optional)
-                    "returnSlots": 1 // Number of EVM stack slots for the return values (optional)
+                    "parameterSlots": 2, // Number of ZVM stack slots for the function parameters (optional)
+                    "returnSlots": 1 // Number of ZVM stack slots for the return values (optional)
                   }
                 },
                 // The bytecode as a hex string.
@@ -554,14 +554,14 @@ Output Description
                   "ast": {/* ... */},
                   // Source file in its text form (may contain comments)
                   "contents":"{ function abi_decode(start, end) -> data { data := calldataload(start) } }",
-                  // Source file ID, used for source references, same "namespace" as the Solidity source files
+                  // Source file ID, used for source references, same "namespace" as the Hyperion source files
                   "id": 2,
                   "language": "Yul",
                   "name": "#utility.yul"
                 }],
                 // If given, this is an unlinked object.
                 "linkReferences": {
-                  "libraryFile.sol": {
+                  "libraryFile.hyp": {
                     // Byte offsets into the bytecode.
                     // Linking replaces the 20 bytes located there.
                     "Library1": [

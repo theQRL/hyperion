@@ -1,10 +1,10 @@
 {
-	"language": "Solidity",
+	"language": "Hyperion",
 	"sources":
 	{
 		"A":
 		{
-			"content": "// SPDX-License-Identifier: GPL-3.0\npragma solidity >=0.0;\n\ncontract test {}"
+			"content": "// SPDX-License-Identifier: GPL-3.0\npragma hyperion >=0.0;\n\ncontract test {}"
 		}
 	},
 	"settings":
@@ -22,7 +22,7 @@
 		{
 			"A":
 			{
-				"test": ["evm.bytecode"]
+				"test": ["zvm.bytecode"]
 			}
 		}
 	}

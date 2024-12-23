@@ -1,4 +1,4 @@
-# Solidity Language Docs
+# Hyperion Language Docs
 
 ## Local environment setup
 

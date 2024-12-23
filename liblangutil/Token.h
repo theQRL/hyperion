@@ -25,20 +25,20 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Modifications as part of solidity under the following license:
+// Modifications as part of hyperion under the following license:
 //
-// solidity is free software: you can redistribute it and/or modify
+// hyperion is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// solidity is distributed in the hope that it will be useful,
+// hyperion is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+// along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -46,7 +46,7 @@
 #include <string>
 #include <tuple>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 
 // TOKEN_LIST takes a list of 3 macros M, all of which satisfy the
@@ -324,7 +324,7 @@ namespace TokenTraits
 			tok == Token::TrueLiteral || tok == Token::FalseLiteral || tok == Token::HexStringLiteral || tok == Token::Hex;
 	}
 
-	constexpr bool isExperimentalSolidityKeyword(Token token)
+	constexpr bool isExperimentalHyperionKeyword(Token token)
 	{
 		return
 			token == Token::Assembly ||
@@ -345,11 +345,11 @@ namespace TokenTraits
 			token == Token::For ||
 			token == Token::Continue ||
 			token == Token::Break;
-			// TODO: see isExperimentalSolidityKeyword below
+			// TODO: see isExperimentalHyperionKeyword below
 			// || (token > Token::NonExperimentalEnd && token < Token::ExperimentalEnd);
 	}
 
-	constexpr bool isExperimentalSolidityOnlyKeyword(Token)
+	constexpr bool isExperimentalHyperionOnlyKeyword(Token)
 	{
 		// TODO: use token > Token::NonExperimentalEnd && token < Token::ExperimentalEnd
 		// as soon as other experimental tokens are added. For now the comparison generates

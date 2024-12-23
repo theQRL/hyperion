@@ -1,2 +1,2 @@
-import "external.sol";
-import "other_external.sol";
+import "external.hyp";
+import "other_external.hyp";

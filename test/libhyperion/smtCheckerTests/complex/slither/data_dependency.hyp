@@ -40,7 +40,7 @@ contract Reference{
     }
 }
 
-contract SolidityVar{
+contract HyperionVar{
 
     address addr_1;
     address addr_2;

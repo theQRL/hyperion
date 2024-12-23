@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2021 solidity contributors.
+# (c) 2021 hyperion contributors.
 #------------------------------------------------------------------------------
 
 set -e
@@ -55,17 +55,17 @@ function trident_test
     local settings_presets=(
         "${compile_only_presets[@]}"
         ir-no-optimize
-        ir-optimize-evm-only
-        ir-optimize-evm+yul        # Needs memory-safe inline assembly patch
+        ir-optimize-zvm-only
+        ir-optimize-zvm+yul        # Needs memory-safe inline assembly patch
         legacy-no-optimize
-        legacy-optimize-evm-only
-        legacy-optimize-evm+yul
+        legacy-optimize-zvm-only
+        legacy-optimize-zvm+yul
     )
 
     [[ $SELECTED_PRESETS != "" ]] || SELECTED_PRESETS=$(circleci_select_steps_multiarg "${settings_presets[@]}")
     print_presets_or_exit "$SELECTED_PRESETS"
 
-    setup_solc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"
+    setup_hypc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"
     download_project "$repo" "$ref_type" "$ref" "$DIR"
 
     # TODO: Currently tests work only with the exact versions from yarn.lock.
@@ -78,16 +78,16 @@ function trident_test
     yarn install
 
     replace_version_pragmas
-    force_solc_modules "${DIR}/solc"
+    force_hypc_modules "${DIR}/hypc"
 
-    # BentoBoxV1Flat.sol requires a few small tweaks to compile on 0.8.x.
+    # BentoBoxV1Flat.hyp requires a few small tweaks to compile on 0.8.x.
     # TODO: Remove once https://github.com/sushiswap/trident/pull/282 gets merged.
-    sed -i 's|uint128(-1)|type(uint128).max|g' contracts/flat/BentoBoxV1Flat.sol
-    sed -i 's|uint64(-1)|type(uint64).max|g' contracts/flat/BentoBoxV1Flat.sol
-    sed -i 's|uint32(-1)|type(uint32).max|g' contracts/flat/BentoBoxV1Flat.sol
-    sed -i 's|IERC20(0)|IERC20(address(0))|g' contracts/flat/BentoBoxV1Flat.sol
-    sed -i 's|IStrategy(0)|IStrategy(address(0))|g' contracts/flat/BentoBoxV1Flat.sol
-    find contracts -name "*.sol" -exec sed -i -e 's/^\(\s*\)\(assembly\)/\1\/\/\/ @solidity memory-safe-assembly\n\1\2/' '{}' \;
+    sed -i 's|uint128(-1)|type(uint128).max|g' contracts/flat/BentoBoxV1Flat.hyp
+    sed -i 's|uint64(-1)|type(uint64).max|g' contracts/flat/BentoBoxV1Flat.hyp
+    sed -i 's|uint32(-1)|type(uint32).max|g' contracts/flat/BentoBoxV1Flat.hyp
+    sed -i 's|IERC20(0)|IERC20(address(0))|g' contracts/flat/BentoBoxV1Flat.hyp
+    sed -i 's|IStrategy(0)|IStrategy(address(0))|g' contracts/flat/BentoBoxV1Flat.hyp
+    find contracts -name "*.hyp" -exec sed -i -e 's/^\(\s*\)\(assembly\)/\1\/\/\/ @hyperion memory-safe-assembly\n\1\2/' '{}' \;
 
     # TODO: Remove this when https://github.com/NomicFoundation/hardhat/issues/3365 gets fixed.
     sed -i 's|it\(("Reverts on direct deployment via factory"\)|it.skip\1|g' test/MasterDeployer.test.ts

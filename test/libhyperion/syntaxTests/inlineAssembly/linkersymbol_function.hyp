@@ -3,7 +3,7 @@ contract C {
     assembly {
       function linkersymbol(a) {}
 
-      linkersymbol("contract/library.sol:L")
+      linkersymbol("contract/library.hyp:L")
     }
   }
 }

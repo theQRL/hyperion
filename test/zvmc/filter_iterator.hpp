@@ -1,11 +1,11 @@
-// EVMC: Ethereum Client-VM Connector API.
-// Copyright 2022 The EVMC Authors.
+// ZVMC: Zond Client-VM Connector API.
+// Copyright 2022 The ZVMC Authors.
 // Licensed under the Apache License, Version 2.0.
 #pragma once
 
 #include <iterator>
 
-namespace evmc
+namespace zvmc
 {
 /// The constexpr variant of std::isspace().
 inline constexpr bool isspace(char ch) noexcept
@@ -102,4 +102,4 @@ struct skip_space_iterator : filter_iterator<BaseIterator, is_not_space>
 /// Class template argument deduction guide.
 template <typename BaseIterator>
 skip_space_iterator(BaseIterator, BaseIterator) -> skip_space_iterator<BaseIterator>;
-}  // namespace evmc
+}  // namespace zvmc

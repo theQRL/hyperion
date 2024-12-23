@@ -1,35 +1,35 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/ast/TypeProvider.h>
-#include <libsolidity/codegen/ir/Common.h>
-#include <libsolidity/codegen/ir/IRGenerationContext.h>
+#include <libhyperion/ast/TypeProvider.h>
+#include <libhyperion/codegen/ir/Common.h>
+#include <libhyperion/codegen/ir/IRGenerationContext.h>
 
-#include <libsolutil/CommonIO.h>
+#include <libhyputil/CommonIO.h>
 
 #include <libyul/AsmPrinter.h>
 
-using namespace solidity::langutil;
-using namespace solidity::frontend;
-using namespace solidity::util;
-using namespace solidity::yul;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
+using namespace hyperion::util;
+using namespace hyperion::yul;
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 YulArity YulArity::fromType(FunctionType const& _functionType)
@@ -43,7 +43,7 @@ YulArity YulArity::fromType(FunctionType const& _functionType)
 std::string IRNames::externalFunctionABIWrapper(Declaration const& _functionOrVarDecl)
 {
 	if (auto const* function = dynamic_cast<FunctionDefinition const*>(&_functionOrVarDecl))
-		solAssert(!function->isConstructor());
+		hypAssert(!function->isConstructor());
 
 	return "external_fun_" + _functionOrVarDecl.name() + "_" + std::to_string(_functionOrVarDecl.id());
 }
@@ -65,9 +65,9 @@ std::string IRNames::modifierInvocation(ModifierInvocation const& _modifierInvoc
 {
 	// This uses the ID of the modifier invocation because it has to be unique
 	// for each invocation.
-	solAssert(!_modifierInvocation.name().path().empty(), "");
+	hypAssert(!_modifierInvocation.name().path().empty(), "");
 	std::string const& modifierName = _modifierInvocation.name().path().back();
-	solAssert(!modifierName.empty(), "");
+	hypAssert(!modifierName.empty(), "");
 	return "modifier_" + modifierName + "_" + std::to_string(_modifierInvocation.id());
 }
 
@@ -105,7 +105,7 @@ std::string IRNames::libraryAddressImmutable()
 
 std::string IRNames::constantValueFunction(VariableDeclaration const& _constant)
 {
-	solAssert(_constant.isConstant(), "");
+	hypAssert(_constant.isConstant(), "");
 	return "constant_" + _constant.name() + "_" + std::to_string(_constant.id());
 }
 
@@ -122,8 +122,8 @@ std::string IRNames::localVariable(Expression const& _expression)
 std::string IRNames::trySuccessConditionVariable(Expression const& _expression)
 {
 	auto annotation = dynamic_cast<FunctionCallAnnotation const*>(&_expression.annotation());
-	solAssert(annotation, "");
-	solAssert(annotation->tryCall, "Parameter must be a FunctionCall with tryCall-annotation set.");
+	hypAssert(annotation, "");
+	hypAssert(annotation->tryCall, "Parameter must be a FunctionCall with tryCall-annotation set.");
 
 	return "trySuccessCondition_" + std::to_string(_expression.id());
 }
@@ -140,14 +140,14 @@ std::string IRNames::zeroValue(Type const& _type, std::string const& _variableNa
 
 std::string dispenseLocationComment(langutil::SourceLocation const& _location, IRGenerationContext& _context)
 {
-	solAssert(_location.sourceName, "");
+	hypAssert(_location.sourceName, "");
 	_context.markSourceUsed(*_location.sourceName);
 
 	std::string debugInfo = AsmPrinter::formatSourceLocation(
 		_location,
 		_context.sourceIndices(),
 		_context.debugInfoSelection(),
-		_context.soliditySourceProvider()
+		_context.hyperionSourceProvider()
 	);
 
 	return debugInfo.empty() ? "" : "/// " + debugInfo;

@@ -1,31 +1,31 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #include <liblangutil/CharStreamProvider.h>
 #include <liblangutil/Exceptions.h>
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/lsp/FileRepository.h>
-#include <libsolidity/lsp/Utils.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/lsp/FileRepository.h>
+#include <libhyperion/lsp/Utils.h>
 
 #include <regex>
 #include <fstream>
 
-namespace solidity::lsp
+namespace hyperion::lsp
 {
 
 using namespace frontend;
@@ -109,7 +109,7 @@ std::optional<SourceLocation> parseRange(FileRepository const& _fileRepository, 
 	std::optional<SourceLocation> end = parsePosition(_fileRepository, _sourceUnitName, _range["end"]);
 	if (!start || !end)
 		return std::nullopt;
-	solAssert(*start->sourceName == *end->sourceName);
+	hypAssert(*start->sourceName == *end->sourceName);
 	start->end = end->end;
 	return start;
 }

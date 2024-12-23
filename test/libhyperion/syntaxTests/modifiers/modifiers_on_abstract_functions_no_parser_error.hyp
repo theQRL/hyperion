@@ -1,4 +1,4 @@
-// Previous versions of Solidity turned this
+// Previous versions of Hyperion turned this
 // into a parser error (they wrongly recognized
 // these functions as state variables of
 // function type).

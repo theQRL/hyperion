@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,22 +21,22 @@
 
 #pragma once
 
-#include <test/libsolidity/ErrorCheck.h>
+#include <test/libhyperion/ErrorCheck.h>
 
-#include <libsolidity/interface/CompilerStack.h>
+#include <libhyperion/interface/CompilerStack.h>
 
 #include <functional>
 #include <string>
 #include <memory>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 class Type;
 class FunctionType;
 using FunctionTypePointer = FunctionType const*;
 }
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 enum class PipelineStage {
@@ -125,7 +125,7 @@ public:
 	}
 
 	/// @returns reference to lazy-instantiated CompilerStack.
-	solidity::frontend::CompilerStack& compiler()
+	hyperion::frontend::CompilerStack& compiler()
 	{
 		if (!m_compiler)
 			m_compiler = createStack();
@@ -133,7 +133,7 @@ public:
 	}
 
 	/// @returns reference to lazy-instantiated CompilerStack.
-	solidity::frontend::CompilerStack const& compiler() const
+	hyperion::frontend::CompilerStack const& compiler() const
 	{
 		if (!m_compiler)
 			m_compiler = createStack();
@@ -157,7 +157,7 @@ protected:
 	std::vector<std::string> m_messagesToCut = {"Source file requires different compiler version (current compiler is"};
 
 private:
-	mutable std::unique_ptr<solidity::frontend::CompilerStack> m_compiler;
+	mutable std::unique_ptr<hyperion::frontend::CompilerStack> m_compiler;
 	PipelineStage m_targetStage = PipelineStage::Compilation;
 };
 

@@ -1,45 +1,45 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Christian <c@ethdev.com>
  * @author Gav Wood <g@ethdev.com>
  * @date 2014
- * Solidity AST to EVM bytecode compiler for expressions.
+ * Hyperion AST to ZVM bytecode compiler for expressions.
  */
 
 #pragma once
 
-#include <libsolidity/ast/ASTVisitor.h>
-#include <libsolidity/codegen/LValue.h>
-#include <libsolidity/interface/DebugSettings.h>
+#include <libhyperion/ast/ASTVisitor.h>
+#include <libhyperion/codegen/LValue.h>
+#include <libhyperion/interface/DebugSettings.h>
 #include <liblangutil/Exceptions.h>
 #include <liblangutil/SourceLocation.h>
-#include <libsolutil/Common.h>
+#include <libhyputil/Common.h>
 
 #include <functional>
 #include <memory>
 
-namespace solidity::evmasm
+namespace hyperion::zvmasm
 {
 class AssemblyItem; // forward
 }
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 // forward declarations
@@ -51,7 +51,7 @@ class ArrayType;
 
 /**
  * Compiler for expressions, i.e. converts an AST tree whose root is an Expression into a stream
- * of EVM instructions. It needs a compiler context that is the same for the whole compilation
+ * of ZVM instructions. It needs a compiler context that is the same for the whole compilation
  * unit.
  */
 class ExpressionCompiler: private ASTConstVisitor
@@ -148,7 +148,7 @@ private:
 template <class LValueType, class... Arguments>
 void ExpressionCompiler::setLValue(Expression const& _expression, Arguments const&... _arguments)
 {
-	solAssert(!m_currentLValue, "Current LValue not reset before trying to set new one.");
+	hypAssert(!m_currentLValue, "Current LValue not reset before trying to set new one.");
 	std::unique_ptr<LValueType> lvalue = std::make_unique<LValueType>(m_context, _arguments...);
 	if (_expression.annotation().willBeWrittenTo)
 		m_currentLValue = std::move(lvalue);

@@ -1,33 +1,33 @@
 /*
-    This file is part of solidity.
+    This file is part of hyperion.
 
-    solidity is free software: you can redistribute it and/or modify
+    hyperion is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    solidity is distributed in the hope that it will be useful,
+    hyperion is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+    along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Unit tests for the solidity scanner.
+ * Unit tests for the hyperion scanner.
  */
 
 #include <liblangutil/Scanner.h>
 
 #include <boost/test/unit_test.hpp>
 
-using namespace solidity::langutil;
+using namespace hyperion::langutil;
 using namespace std::string_literals;
 
-namespace solidity::langutil::test
+namespace hyperion::langutil::test
 {
 
 BOOST_AUTO_TEST_SUITE(ScannerTest)
@@ -895,7 +895,7 @@ BOOST_AUTO_TEST_CASE(irregular_line_breaks_in_strings)
 	}
 }
 
-BOOST_AUTO_TEST_CASE(solidity_keywords)
+BOOST_AUTO_TEST_CASE(hyperion_keywords)
 {
 	// These are tokens which have a different meaning in Yul.
 	std::string keywords = "return byte bool address var in true false leave switch case default";

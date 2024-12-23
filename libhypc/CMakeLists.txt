@@ -1,21 +1,21 @@
 if (EMSCRIPTEN)
 	CreateExportedFunctionsForEMSDK(
 		ExportedFunctions
-		solidity_license
-		solidity_version
-		solidity_compile
-		solidity_alloc
-		solidity_free
-		solidity_reset
+		hyperion_license
+		hyperion_version
+		hyperion_compile
+		hyperion_alloc
+		hyperion_free
+		hyperion_reset
 	)
-	# Specify which functions to export in soljson.js.
-	# Note that additional Emscripten-generated methods needed by solc-js are
-	# defined to be exported in cmake/EthCompilerSettings.cmake.
+	# Specify which functions to export in hypjson.js.
+	# Note that additional Emscripten-generated methods needed by hypc-js are
+	# defined to be exported in cmake/ZondCompilerSettings.cmake.
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s EXPORTED_FUNCTIONS='${ExportedFunctions}'")
-	add_executable(soljson libsolc.cpp libsolc.h)
-	target_link_libraries(soljson PRIVATE solidity)
+	add_executable(hypjson libhypc.cpp libhypc.h)
+	target_link_libraries(hypjson PRIVATE hyperion)
 else()
-	add_library(libsolc libsolc.cpp libsolc.h)
-	set_target_properties(libsolc PROPERTIES OUTPUT_NAME solc)
-	target_link_libraries(libsolc PRIVATE solidity)
+	add_library(libhypc libhypc.cpp libhypc.h)
+	set_target_properties(libhypc PROPERTIES OUTPUT_NAME hypc)
+	target_link_libraries(libhypc PRIVATE hyperion)
 endif()

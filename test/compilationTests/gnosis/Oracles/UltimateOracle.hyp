@@ -1,7 +1,7 @@
-pragma solidity >=0.0;
-import "../Oracles/Oracle.sol";
-import "../Tokens/Token.sol";
-import "../Utils/Math.sol";
+pragma hyperion >=0.0;
+import "../Oracles/Oracle.hyp";
+import "../Tokens/Token.hyp";
+import "../Utils/Math.hyp";
 
 
 /// @title Ultimate oracle contract - Allows to swap oracle result for ultimate oracle result

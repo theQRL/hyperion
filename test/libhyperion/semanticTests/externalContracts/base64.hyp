@@ -1,9 +1,9 @@
-==== ExternalSource: _base64/base64_inline_asm.sol ====
-==== ExternalSource: _base64/base64_no_inline_asm.sol ====
-==== Source: base64.sol ====
+==== ExternalSource: _base64/base64_inline_asm.hyp ====
+==== ExternalSource: _base64/base64_no_inline_asm.hyp ====
+==== Source: base64.hyp ====
 
-import "_base64/base64_inline_asm.sol";
-import "_base64/base64_no_inline_asm.sol";
+import "_base64/base64_inline_asm.hyp";
+import "_base64/base64_no_inline_asm.hyp";
 
 contract test {
     function encode_inline_asm(bytes memory data) external pure returns (string memory) {

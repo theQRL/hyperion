@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /** @file GasMeter.cpp
@@ -27,16 +27,16 @@
 
 #pragma once
 
-#include <libevmasm/ExpressionClasses.h>
-#include <libevmasm/AssemblyItem.h>
+#include <libzvmasm/ExpressionClasses.h>
+#include <libzvmasm/AssemblyItem.h>
 
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
 #include <ostream>
 #include <tuple>
 #include <utility>
 
-namespace solidity::evmasm
+namespace hyperion::zvmasm
 {
 
 class KnownState;
@@ -129,8 +129,8 @@ public:
 	};
 
 	/// Constructs a new gas meter given the current state.
-	GasMeter(std::shared_ptr<KnownState>  _state, langutil::EVMVersion _evmVersion, u256  _largestMemoryAccess = 0):
-		m_state(std::move(_state)), m_evmVersion(_evmVersion), m_largestMemoryAccess(std::move(_largestMemoryAccess)) {}
+	GasMeter(std::shared_ptr<KnownState>  _state, langutil::ZVMVersion _zvmVersion, u256  _largestMemoryAccess = 0):
+		m_state(std::move(_state)), m_zvmVersion(_zvmVersion), m_largestMemoryAccess(std::move(_largestMemoryAccess)) {}
 
 	/// @returns an upper bound on the gas consumed by the given instruction and updates
 	/// the state.
@@ -140,7 +140,7 @@ public:
 	u256 const& largestMemoryAccess() const { return m_largestMemoryAccess; }
 
 	/// @returns gas costs for simple instructions with constant gas costs (that do not
-	/// change with EVM versions)
+	/// change with ZVM versions)
 	static unsigned runGas(Instruction _instruction);
 
 	/// @returns the gas cost of the supplied data, depending whether it is in creation code, or not.
@@ -164,7 +164,7 @@ private:
 	GasConsumption memoryGas(int _stackPosOffset, int _stackPosSize);
 
 	std::shared_ptr<KnownState> m_state;
-	langutil::EVMVersion m_evmVersion;
+	langutil::ZVMVersion m_zvmVersion;
 	/// Largest point where memory was accessed since the creation of this object.
 	u256 m_largestMemoryAccess;
 };

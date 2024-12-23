@@ -1,4 +1,4 @@
-==== Source: mod.sol ====
+==== Source: mod.hyp ====
 function longdata() pure returns (bytes memory) {
     return
         "xasopca.pngaibngidak.jbtnudak.cAP.BRRSMCPJAGPD KIAJDOMHUKR,SCPID"
@@ -14,8 +14,8 @@ function longdata() pure returns (bytes memory) {
         "apibakrpidbacnidkacjadtnpdkylca.,jda,r.kuadc,jdlkjd',c'dj, ncg d"
         "anosumantkudkc,djntudkantuadnc,ui,c.ud,.nujdncud,j.rsch'pkl.'pih";
 }
-==== Source: main.sol ====
-import "mod.sol" as M;
+==== Source: main.hyp ====
+import "mod.hyp" as M;
 
 contract C {
     bytes data;

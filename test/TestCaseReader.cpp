@@ -1,30 +1,30 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #include <test/TestCaseReader.h>
 
-#include <libsolutil/CommonIO.h>
+#include <libhyputil/CommonIO.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
 using namespace std;
-using namespace solidity::frontend::test;
+using namespace hyperion::frontend::test;
 
 namespace fs = boost::filesystem;
 
@@ -158,7 +158,7 @@ pair<SourceMap, size_t> TestCaseReader::parseSourcesAndSettingsWithLineNumber(is
 				else
 					externalSourceName = externalSourceString;
 
-				soltestAssert(!externalSourceName.empty(), "");
+				hyptestAssert(!externalSourceName.empty(), "");
 				fs::path externalSourceTarget(externalSourceString);
 				fs::path testCaseParentDir = m_fileName.parent_path();
 				if (!externalSourceTarget.is_relative() || !externalSourceTarget.root_path().empty())

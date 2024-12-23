@@ -1,22 +1,22 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolutil/TemporaryDirectory.h>
+#include <libhyputil/TemporaryDirectory.h>
 
 #include <liblangutil/Exceptions.h>
 
@@ -26,8 +26,8 @@
 #include <regex>
 #include <iostream>
 
-using namespace solidity;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::util;
 
 namespace fs = boost::filesystem;
 
@@ -35,7 +35,7 @@ TemporaryDirectory::TemporaryDirectory(std::string const& _prefix):
 	m_path(fs::temp_directory_path() / fs::unique_path(_prefix + "-%%%%-%%%%-%%%%-%%%%"))
 {
 	// Prefix should just be a file name and not contain anything that would make us step out of /tmp.
-	solAssert(fs::path(_prefix) == fs::path(_prefix).stem(), "");
+	hypAssert(fs::path(_prefix) == fs::path(_prefix).stem(), "");
 
 	fs::create_directory(m_path);
 }
@@ -48,8 +48,8 @@ TemporaryDirectory::TemporaryDirectory(
 {
 	for (boost::filesystem::path const& subdirectory: _subdirectories)
 	{
-		solAssert(!subdirectory.is_absolute() && subdirectory.root_path() != "/", "");
-		solAssert(
+		hypAssert(!subdirectory.is_absolute() && subdirectory.root_path() != "/", "");
+		hypAssert(
 			m_path.lexically_relative(subdirectory).empty() ||
 			*m_path.lexically_relative(subdirectory).begin() != "..",
 			""
@@ -61,10 +61,10 @@ TemporaryDirectory::TemporaryDirectory(
 TemporaryDirectory::~TemporaryDirectory()
 {
 	// A few paranoid sanity checks just to be extra sure we're not deleting someone's homework.
-	solAssert(m_path.string().find(fs::temp_directory_path().string()) == 0, "");
-	solAssert(!fs::equivalent(m_path, fs::temp_directory_path()), "");
-	solAssert(!fs::equivalent(m_path, m_path.root_path()), "");
-	solAssert(!m_path.empty(), "");
+	hypAssert(m_path.string().find(fs::temp_directory_path().string()) == 0, "");
+	hypAssert(!fs::equivalent(m_path, fs::temp_directory_path()), "");
+	hypAssert(!fs::equivalent(m_path, m_path.root_path()), "");
+	hypAssert(!m_path.empty(), "");
 
 	boost::system::error_code errorCode;
 	uintmax_t numRemoved = fs::remove_all(m_path, errorCode);

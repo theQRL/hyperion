@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
@@ -26,7 +26,7 @@
 #include <exception>
 #include <string>
 
-namespace solidity::util
+namespace hyperion::util
 {
 
 /// Base class for all exceptions.
@@ -45,11 +45,11 @@ struct Exception: virtual std::exception, virtual boost::exception
 /// exception was thrown from.
 /// @param _exceptionType The type of the exception to throw (not an instance).
 /// @param _description The message that describes the error.
-#define solThrow(_exceptionType, _description) \
+#define hypThrow(_exceptionType, _description) \
 	::boost::throw_exception( \
 		_exceptionType() << \
-		::solidity::util::errinfo_comment((_description)) << \
-		::boost::throw_function(ETH_FUNC) << \
+		::hyperion::util::errinfo_comment((_description)) << \
+		::boost::throw_function(ZOND_FUNC) << \
 		::boost::throw_file(__FILE__) << \
 		::boost::throw_line(__LINE__) \
 	)
@@ -61,13 +61,13 @@ struct Exception: virtual std::exception, virtual boost::exception
 /// @param _description The message that describes the error.
 #define solRequire(_condition, _exceptionType, _description) \
 	if (!(_condition)) \
-		solThrow(_exceptionType, (_description))
+		hypThrow(_exceptionType, (_description))
 
 /// Defines an exception type that's meant to signal a specific condition and be caught rather than
 /// unwind the stack all the way to the top-level exception handler and interrupt the program.
 /// As such it does not carry a message - the code catching it is expected to handle it without
 /// letting it escape.
-#define DEV_SIMPLE_EXCEPTION(X) struct X: virtual ::solidity::util::Exception { const char* what() const noexcept override { return #X; } }
+#define DEV_SIMPLE_EXCEPTION(X) struct X: virtual ::hyperion::util::Exception { const char* what() const noexcept override { return #X; } }
 
 DEV_SIMPLE_EXCEPTION(InvalidAddress);
 DEV_SIMPLE_EXCEPTION(BadHexCharacter);

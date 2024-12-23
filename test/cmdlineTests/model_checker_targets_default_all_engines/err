@@ -8,7 +8,7 @@ Transaction trace:
 test.constructor()
 State: arr = []
 test.f(0x0, 1)
- --> model_checker_targets_default_all_engines/input.sol:9:3:
+ --> model_checker_targets_default_all_engines/input.hyp:9:3:
   |
 9 | 		2 / x;
   | 		^^^^^
@@ -23,7 +23,7 @@ Transaction trace:
 test.constructor()
 State: arr = []
 test.f(0x0, 1)
-  --> model_checker_targets_default_all_engines/input.sol:11:3:
+  --> model_checker_targets_default_all_engines/input.hyp:11:3:
    |
 11 | 		assert(x > 0);
    | 		^^^^^^^^^^^^^
@@ -38,7 +38,7 @@ Transaction trace:
 test.constructor()
 State: arr = []
 test.f(0x0, 1)
-  --> model_checker_targets_default_all_engines/input.sol:12:3:
+  --> model_checker_targets_default_all_engines/input.hyp:12:3:
    |
 12 | 		arr.pop();
    | 		^^^^^^^^^
@@ -53,20 +53,20 @@ Transaction trace:
 test.constructor()
 State: arr = []
 test.f(0x0, 1)
-  --> model_checker_targets_default_all_engines/input.sol:13:3:
+  --> model_checker_targets_default_all_engines/input.hyp:13:3:
    |
 13 | 		arr[x];
    | 		^^^^^^
 
 Warning: BMC: Condition is always true.
- --> model_checker_targets_default_all_engines/input.sol:6:11:
+ --> model_checker_targets_default_all_engines/input.hyp:6:11:
   |
 6 | 		require(x >= 0);
   | 		        ^^^^^^
 Note: Callstack:
 
 Warning: BMC: Insufficient funds happens here.
-  --> model_checker_targets_default_all_engines/input.sol:10:3:
+  --> model_checker_targets_default_all_engines/input.hyp:10:3:
    |
 10 | 		a.transfer(x);
    | 		^^^^^^^^^^^^^

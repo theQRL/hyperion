@@ -1,29 +1,29 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/formal/Predicate.h>
+#include <libhyperion/formal/Predicate.h>
 
-#include <libsolidity/formal/SMTEncoder.h>
+#include <libhyperion/formal/SMTEncoder.h>
 
 #include <liblangutil/CharStreamProvider.h>
 #include <liblangutil/CharStream.h>
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/TypeProvider.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/TypeProvider.h>
 
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string.hpp>
@@ -32,10 +32,10 @@
 #include <utility>
 
 using boost::algorithm::starts_with;
-using namespace solidity;
-using namespace solidity::smtutil;
-using namespace solidity::frontend;
-using namespace solidity::frontend::smt;
+using namespace hyperion;
+using namespace hyperion::smtutil;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::smt;
 
 std::map<std::string, Predicate> Predicate::m_predicates;
 
@@ -51,7 +51,7 @@ Predicate const* Predicate::create(
 {
 	smt::SymbolicFunctionVariable predicate{_sort, std::move(_name), _context};
 	std::string functorName = predicate.currentName();
-	solAssert(!m_predicates.count(functorName), "");
+	hypAssert(!m_predicates.count(functorName), "");
 	return &m_predicates.emplace(
 		std::piecewise_construct,
 		std::forward_as_tuple(functorName),
@@ -216,7 +216,7 @@ std::string Predicate::formatSummaryCall(
 	bool _appendTxVars
 ) const
 {
-	solAssert(isSummary(), "");
+	hypAssert(isSummary(), "");
 
 	if (programVariable())
 		return {};
@@ -239,7 +239,7 @@ std::string Predicate::formatSummaryCall(
 		std::set<std::string> txVars;
 		if (isFunctionSummary())
 		{
-			solAssert(programFunction(), "");
+			hypAssert(programFunction(), "");
 			if (programFunction()->isPayable())
 				txVars.insert("msg.value");
 		}
@@ -257,7 +257,7 @@ std::string Predicate::formatSummaryCall(
 				Expression const* memberExpr = SMTEncoder::innermostTuple(_memberAccess.expression());
 
 				Type const* exprType = memberExpr->annotation().type;
-				solAssert(exprType, "");
+				hypAssert(exprType, "");
 				if (exprType->category() == Type::Category::Magic)
 					if (auto const* identifier = dynamic_cast<Identifier const*>(memberExpr))
 					{
@@ -295,20 +295,20 @@ std::string Predicate::formatSummaryCall(
 		return contract->name() + ".constructor()" + txModel;
 
 	auto stateVars = stateVariables();
-	solAssert(stateVars.has_value(), "");
+	hypAssert(stateVars.has_value(), "");
 	auto const* fun = programFunction();
-	solAssert(fun, "");
+	hypAssert(fun, "");
 
 	auto first = _args.begin() + 6 + static_cast<int>(stateVars->size());
 	auto last = first + static_cast<int>(fun->parameters().size());
-	solAssert(first >= _args.begin() && first <= _args.end(), "");
-	solAssert(last >= _args.begin() && last <= _args.end(), "");
+	hypAssert(first >= _args.begin() && first <= _args.end(), "");
+	hypAssert(last >= _args.begin() && last <= _args.end(), "");
 	auto inTypes = SMTEncoder::replaceUserTypes(FunctionType(*fun).parameterTypes());
 	std::vector<std::optional<std::string>> functionArgsCex = formatExpressions(std::vector<smtutil::Expression>(first, last), inTypes);
 	std::vector<std::string> functionArgs;
 
 	auto const& params = fun->parameters();
-	solAssert(params.size() == functionArgsCex.size(), "");
+	hypAssert(params.size() == functionArgsCex.size(), "");
 	for (unsigned i = 0; i < params.size(); ++i)
 		if (params.at(i) && functionArgsCex.at(i))
 			functionArgs.emplace_back(*functionArgsCex.at(i));
@@ -325,7 +325,7 @@ std::string Predicate::formatSummaryCall(
 		prefix = !fun->sourceUnitName().empty() ? (fun->sourceUnitName() + ":") : "";
 	else
 	{
-		solAssert(fun->annotation().contract, "");
+		hypAssert(fun->annotation().contract, "");
 		prefix = fun->annotation().contract->name() + ".";
 	}
 	return prefix + fName + "(" + boost::algorithm::join(functionArgs, ", ") + ")" + txModel;
@@ -337,7 +337,7 @@ std::vector<std::optional<std::string>> Predicate::summaryStateValues(std::vecto
 	/// The signature of the summary predicate of a contract without constructor is: summary(error, this, abiFunctions, cryptoFunctions, txData, preBlockchainState, postBlockchainState, preStateVars, postStateVars).
 	/// Here we are interested in postStateVars.
 	auto stateVars = stateVariables();
-	solAssert(stateVars.has_value(), "");
+	hypAssert(stateVars.has_value(), "");
 
 	std::vector<smtutil::Expression>::const_iterator stateFirst;
 	std::vector<smtutil::Expression>::const_iterator stateLast;
@@ -354,13 +354,13 @@ std::vector<std::optional<std::string>> Predicate::summaryStateValues(std::vecto
 	else if (programVariable())
 		return {};
 	else
-		solAssert(false, "");
+		hypAssert(false, "");
 
-	solAssert(stateFirst >= _args.begin() && stateFirst <= _args.end(), "");
-	solAssert(stateLast >= _args.begin() && stateLast <= _args.end(), "");
+	hypAssert(stateFirst >= _args.begin() && stateFirst <= _args.end(), "");
+	hypAssert(stateLast >= _args.begin() && stateLast <= _args.end(), "");
 
 	std::vector<smtutil::Expression> stateArgs(stateFirst, stateLast);
-	solAssert(stateArgs.size() == stateVars->size(), "");
+	hypAssert(stateArgs.size() == stateVars->size(), "");
 	auto stateTypes = util::applyMap(*stateVars, [&](auto const& _var) { return _var->type(); });
 	return formatExpressions(stateArgs, stateTypes);
 }
@@ -370,21 +370,21 @@ std::vector<std::optional<std::string>> Predicate::summaryPostInputValues(std::v
 	/// The signature of a function summary predicate is: summary(error, this, abiFunctions, cryptoFunctions, txData, preBlockchainState, preStateVars, preInputVars, postBlockchainState, postStateVars, postInputVars, outputVars).
 	/// Here we are interested in postInputVars.
 	auto const* function = programFunction();
-	solAssert(function, "");
+	hypAssert(function, "");
 
 	auto stateVars = stateVariables();
-	solAssert(stateVars.has_value(), "");
+	hypAssert(stateVars.has_value(), "");
 
 	auto const& inParams = function->parameters();
 
 	auto first = _args.begin() + 6 + static_cast<int>(stateVars->size()) * 2 + static_cast<int>(inParams.size()) + 1;
 	auto last = first + static_cast<int>(inParams.size());
 
-	solAssert(first >= _args.begin() && first <= _args.end(), "");
-	solAssert(last >= _args.begin() && last <= _args.end(), "");
+	hypAssert(first >= _args.begin() && first <= _args.end(), "");
+	hypAssert(last >= _args.begin() && last <= _args.end(), "");
 
 	std::vector<smtutil::Expression> inValues(first, last);
-	solAssert(inValues.size() == inParams.size(), "");
+	hypAssert(inValues.size() == inParams.size(), "");
 	auto inTypes = SMTEncoder::replaceUserTypes(FunctionType(*function).parameterTypes());
 	return formatExpressions(inValues, inTypes);
 }
@@ -394,19 +394,19 @@ std::vector<std::optional<std::string>> Predicate::summaryPostOutputValues(std::
 	/// The signature of a function summary predicate is: summary(error, this, abiFunctions, cryptoFunctions, txData, preBlockchainState, preStateVars, preInputVars, postBlockchainState, postStateVars, postInputVars, outputVars).
 	/// Here we are interested in outputVars.
 	auto const* function = programFunction();
-	solAssert(function, "");
+	hypAssert(function, "");
 
 	auto stateVars = stateVariables();
-	solAssert(stateVars.has_value(), "");
+	hypAssert(stateVars.has_value(), "");
 
 	auto const& inParams = function->parameters();
 
 	auto first = _args.begin() + 6 + static_cast<int>(stateVars->size()) * 2 + static_cast<int>(inParams.size()) * 2 + 1;
 
-	solAssert(first >= _args.begin() && first <= _args.end(), "");
+	hypAssert(first >= _args.begin() && first <= _args.end(), "");
 
 	std::vector<smtutil::Expression> outValues(first, _args.end());
-	solAssert(outValues.size() == function->returnParameters().size(), "");
+	hypAssert(outValues.size() == function->returnParameters().size(), "");
 	auto outTypes = SMTEncoder::replaceUserTypes(FunctionType(*function).returnParameterTypes());
 	return formatExpressions(outValues, outTypes);
 }
@@ -417,7 +417,7 @@ std::pair<std::vector<std::optional<std::string>>, std::vector<VariableDeclarati
 	/// block(error, this, abiFunctions, cryptoFunctions, txData, preBlockchainState, preStateVars, preInputVars, postBlockchainState, postStateVars, postInputVars, outputVars, localVars).
 	/// Here we are interested in localVars.
 	auto const* function = programFunction();
-	solAssert(function, "");
+	hypAssert(function, "");
 
 	auto const& localVars = SMTEncoder::localVariablesIncludingModifiers(*function, m_contractContext);
 	auto first = _args.end() - static_cast<int>(localVars.size());
@@ -442,7 +442,7 @@ std::map<std::string, std::string> Predicate::expressionSubstitution(smtutil::Ex
 	std::map<std::string, std::string> subst;
 	std::string predName = functor().name;
 
-	solAssert(contextContract(), "");
+	hypAssert(contextContract(), "");
 	auto const& stateVars = SMTEncoder::stateVariablesIncludingInheritedAndPrivate(*contextContract());
 
 	auto nArgs = _predExpr.arguments.size();
@@ -453,9 +453,9 @@ std::map<std::string, std::string> Predicate::expressionSubstitution(smtutil::Ex
 	// invariant over its state, for example `x <= 0`.
 	if (isInterface())
 	{
-		solAssert(starts_with(predName, "interface"), "");
+		hypAssert(starts_with(predName, "interface"), "");
 		subst[_predExpr.arguments.at(0).name] = "address(this)";
-		solAssert(nArgs == stateVars.size() + 4, "");
+		hypAssert(nArgs == stateVars.size() + 4, "");
 		for (size_t i = nArgs - stateVars.size(); i < nArgs; ++i)
 			subst[_predExpr.arguments.at(i).name] = stateVars.at(i - 4)->name();
 	}
@@ -468,10 +468,10 @@ std::map<std::string, std::string> Predicate::expressionSubstitution(smtutil::Ex
 	// `(x <= 0) => (x' <= 100)`.
 	else if (isNondetInterface())
 	{
-		solAssert(starts_with(predName, "nondet_interface"), "");
+		hypAssert(starts_with(predName, "nondet_interface"), "");
 		subst[_predExpr.arguments.at(0).name] = "<errorCode>";
 		subst[_predExpr.arguments.at(1).name] = "address(this)";
-		solAssert(nArgs == stateVars.size() * 2 + 6, "");
+		hypAssert(nArgs == stateVars.size() * 2 + 6, "");
 		for (size_t i = nArgs - stateVars.size(), s = 0; i < nArgs; ++i, ++s)
 			subst[_predExpr.arguments.at(i).name] = stateVars.at(s)->name() + "'";
 		for (size_t i = nArgs - (stateVars.size() * 2 + 1), s = 0; i < nArgs - (stateVars.size() + 1); ++i, ++s)
@@ -483,7 +483,7 @@ std::map<std::string, std::string> Predicate::expressionSubstitution(smtutil::Ex
 
 std::vector<std::optional<std::string>> Predicate::formatExpressions(std::vector<smtutil::Expression> const& _exprs, std::vector<Type const*> const& _types) const
 {
-	solAssert(_exprs.size() == _types.size(), "");
+	hypAssert(_exprs.size() == _types.size(), "");
 	std::vector<std::optional<std::string>> strExprs;
 	for (unsigned i = 0; i < _exprs.size(); ++i)
 		strExprs.push_back(expressionToString(_exprs.at(i), _types.at(i)));
@@ -494,8 +494,8 @@ std::optional<std::string> Predicate::expressionToString(smtutil::Expression con
 {
 	if (smt::isNumber(*_type))
 	{
-		solAssert(_expr.sort->kind == Kind::Int, "");
-		solAssert(_expr.arguments.empty(), "");
+		hypAssert(_expr.sort->kind == Kind::Int, "");
+		hypAssert(_expr.arguments.empty(), "");
 
 		if (
 			_type->category() == Type::Category::Address ||
@@ -521,14 +521,14 @@ std::optional<std::string> Predicate::expressionToString(smtutil::Expression con
 	}
 	if (smt::isBool(*_type))
 	{
-		solAssert(_expr.sort->kind == Kind::Bool, "");
-		solAssert(_expr.arguments.empty(), "");
-		solAssert(_expr.name == "true" || _expr.name == "false", "");
+		hypAssert(_expr.sort->kind == Kind::Bool, "");
+		hypAssert(_expr.arguments.empty(), "");
+		hypAssert(_expr.name == "true" || _expr.name == "false", "");
 		return _expr.name;
 	}
 	if (smt::isFunction(*_type))
 	{
-		solAssert(_expr.arguments.empty(), "");
+		hypAssert(_expr.arguments.empty(), "");
 		return _expr.name;
 	}
 	if (smt::isArray(*_type))
@@ -538,7 +538,7 @@ std::optional<std::string> Predicate::expressionToString(smtutil::Expression con
 			return {};
 
 		auto const& tupleSort = dynamic_cast<TupleSort const&>(*_expr.sort);
-		solAssert(tupleSort.components.size() == 2, "");
+		hypAssert(tupleSort.components.size() == 2, "");
 
 		unsigned long length;
 		try
@@ -575,11 +575,11 @@ std::optional<std::string> Predicate::expressionToString(smtutil::Expression con
 	if (smt::isNonRecursiveStruct(*_type))
 	{
 		auto const& structType = dynamic_cast<StructType const&>(*_type);
-		solAssert(_expr.name == "tuple_constructor", "");
+		hypAssert(_expr.name == "tuple_constructor", "");
 		auto const& tupleSort = dynamic_cast<TupleSort const&>(*_expr.sort);
 		auto members = structType.structDefinition().members();
-		solAssert(tupleSort.components.size() == members.size(), "");
-		solAssert(_expr.arguments.size() == members.size(), "");
+		hypAssert(tupleSort.components.size() == members.size(), "");
+		hypAssert(_expr.arguments.size() == members.size(), "");
 		std::vector<std::string> elements;
 		for (unsigned i = 0; i < members.size(); ++i)
 		{
@@ -644,7 +644,7 @@ bool Predicate::fillArray(smtutil::Expression const& _expr, std::vector<std::str
 		return false;
 	}
 
-	solAssert(false, "");
+	hypAssert(false, "");
 }
 
 std::map<std::string, std::optional<std::string>> Predicate::readTxVars(smtutil::Expression const& _tx) const

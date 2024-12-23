@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.0;
+pragma hyperion >=0.0;
 
 function unsafe_add(uint x, uint y) pure returns (uint)
 {

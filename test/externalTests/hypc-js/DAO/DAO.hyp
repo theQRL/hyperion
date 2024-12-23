@@ -21,8 +21,8 @@ Standard smart contract for a Decentralized Autonomous Organization (DAO)
 to automate organizational governance and decision-making.
 */
 
-import "./TokenCreation.sol";
-import "./ManagedAccount.sol";
+import "./TokenCreation.hyp";
+import "./ManagedAccount.hyp";
 
 abstract contract DAOInterface {
 

@@ -1,10 +1,10 @@
-pragma solidity >=0.0;
+pragma hyperion >=0.0;
 
-import "./announcementTypes.sol";
-import "./safeMath.sol";
-import "./module.sol";
-import "./moduleHandler.sol";
-import "./tokenDB.sol";
+import "./announcementTypes.hyp";
+import "./safeMath.hyp";
+import "./module.hyp";
+import "./moduleHandler.hyp";
+import "./tokenDB.hyp";
 
 contract thirdPartyContractAbstract {
     function receiveCorionToken(address, uint256, bytes calldata) external returns (bool, uint256) {}

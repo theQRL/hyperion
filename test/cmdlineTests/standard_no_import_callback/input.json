@@ -1,8 +1,8 @@
 {
-    "language": "Solidity",
+    "language": "Hyperion",
     "sources": {
         "A": {
-            "content": "// SPDX-License-Identifier: GPL-3.0\npragma solidity >=0.0; import 'standard_no_import_callback/B.sol';"
+            "content": "// SPDX-License-Identifier: GPL-3.0\npragma hyperion >=0.0; import 'standard_no_import_callback/B.hyp';"
         }
     }
 }

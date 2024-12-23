@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include <libsolidity/interface/CompilerStack.h>
-#include <libsolutil/JSON.h>
+#include <libhyperion/interface/CompilerStack.h>
+#include <libhyputil/JSON.h>
 
 #include <liblangutil/DebugInfoSelection.h>
 
@@ -32,7 +32,7 @@
 #include <utility>
 #include <variant>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 /**
@@ -64,7 +64,7 @@ public:
 	std::string compile(std::string const& _input) noexcept;
 
 	static Json::Value formatFunctionDebugData(
-		std::map<std::string, evmasm::LinkerObject::FunctionDebugData> const& _debugInfo
+		std::map<std::string, zvmasm::LinkerObject::FunctionDebugData> const& _debugInfo
 	);
 
 private:
@@ -75,7 +75,7 @@ private:
 		CompilerStack::State stopAfter = CompilerStack::State::CompilationSuccessful;
 		std::map<std::string, std::string> sources;
 		std::map<util::h256, std::string> smtLib2Responses;
-		langutil::EVMVersion evmVersion;
+		langutil::ZVMVersion zvmVersion;
 		std::vector<ImportRemapper::Remapping> remappings;
 		RevertStrings revertStrings = RevertStrings::Default;
 		OptimiserSettings optimiserSettings = OptimiserSettings::minimal();
@@ -94,7 +94,7 @@ private:
 	std::variant<InputsAndSettings, Json::Value> parseInput(Json::Value const& _input);
 
 	std::map<std::string, Json::Value> parseAstFromInput(StringMap const& _sources);
-	Json::Value compileSolidity(InputsAndSettings _inputsAndSettings);
+	Json::Value compileHyperion(InputsAndSettings _inputsAndSettings);
 	Json::Value compileYul(InputsAndSettings _inputsAndSettings);
 
 	ReadCallback::Callback m_readFile;

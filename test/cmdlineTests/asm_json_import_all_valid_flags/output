@@ -33,7 +33,7 @@
                 },
                 "sourceList":
                 [
-                    "contract.sol",
+                    "contract.hyp",
                     "#utility.yul"
                 ]
             },
@@ -46,7 +46,7 @@
     },
     "sourceList":
     [
-        "contract.sol",
+        "contract.hyp",
         "#utility.yul"
     ],
     "version": "<VERSION REMOVED>"
@@ -55,7 +55,7 @@ Binary:
 5ffe
 Binary of the runtime part:
 6001
-EVM assembly:
+ZVM assembly:
 {
     ".code":
     [
@@ -85,7 +85,7 @@ EVM assembly:
     },
     "sourceList":
     [
-        "contract.sol",
+        "contract.hyp",
         "#utility.yul"
     ]
 }

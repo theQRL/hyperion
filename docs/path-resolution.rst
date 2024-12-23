@@ -4,11 +4,11 @@
 Import Path Resolution
 **********************
 
-In order to be able to support reproducible builds on all platforms, the Solidity compiler has to
+In order to be able to support reproducible builds on all platforms, the Hyperion compiler has to
 abstract away the details of the filesystem where source files are stored.
 Paths used in imports must work the same way everywhere while the command-line interface must be
 able to work with platform-specific paths to provide good user experience.
-This section aims to explain in detail how Solidity reconciles these requirements.
+This section aims to explain in detail how Hyperion reconciles these requirements.
 
 .. index:: ! virtual filesystem, ! VFS, ! source unit name
 .. _virtual-filesystem:
@@ -39,7 +39,7 @@ compilation fails.
 By default, the command-line compiler provides the *Host Filesystem Loader* - a rudimentary callback
 that interprets a source unit name as a path in the local filesystem.
 This callback can be disabled using the ``--no-import-callback`` command-line option.
-The `JavaScript interface <https://github.com/ethereum/solc-js>`_ does not provide any by default,
+The `JavaScript interface <https://github.com/theQRL/hypc-js>`_ does not provide any by default,
 but one can be provided by the user.
 This mechanism can be used to obtain source code from locations other then the local filesystem
 (which may not even be accessible, e.g. when the compiler is running in a browser).
@@ -63,14 +63,14 @@ Initial Content of the Virtual Filesystem
 
 The initial content of the VFS depends on how you invoke the compiler:
 
-#. **solc / command-line interface**
+#. **hypc / command-line interface**
 
    When you compile a file using the command-line interface of the compiler, you provide one or
-   more paths to files containing Solidity code:
+   more paths to files containing Hyperion code:
 
    .. code-block:: bash
 
-       solc contract.sol /usr/local/dapp-bin/token.sol
+       hypc contract.hyp /usr/local/dapp-bin/token.hyp
 
    The source unit name of a file loaded this way is constructed by converting its path to a
    canonical form and, if possible, making it relative to either the base path or one of the
@@ -83,26 +83,26 @@ The initial content of the VFS depends on how you invoke the compiler:
 #. **Standard JSON**
 
    When using the :ref:`Standard JSON <compiler-api>` API (via either the `JavaScript interface
-   <https://github.com/ethereum/solc-js>`_ or the ``--standard-json`` command-line option)
+   <https://github.com/theQRL/hypc-js>`_ or the ``--standard-json`` command-line option)
    you provide input in JSON format, containing, among other things, the content of all your source
    files:
 
    .. code-block:: json
 
        {
-           "language": "Solidity",
+           "language": "Hyperion",
            "sources": {
-               "contract.sol": {
-                   "content": "import \"./util.sol\";\ncontract C {}"
+               "contract.hyp": {
+                   "content": "import \"./util.hyp\";\ncontract C {}"
                },
-               "util.sol": {
+               "util.hyp": {
                    "content": "library Util {}"
                },
-               "/usr/local/dapp-bin/token.sol": {
+               "/usr/local/dapp-bin/token.hyp": {
                    "content": "contract Token {}"
                }
            },
-           "settings": {"outputSelection": {"*": { "*": ["metadata", "evm.bytecode"]}}}
+           "settings": {"outputSelection": {"*": { "*": ["metadata", "zvm.bytecode"]}}}
        }
 
    The ``sources`` dictionary becomes the initial content of the virtual filesystem and its keys
@@ -118,16 +118,16 @@ The initial content of the VFS depends on how you invoke the compiler:
    .. code-block:: json
 
        {
-           "language": "Solidity",
+           "language": "Hyperion",
            "sources": {
-               "/usr/local/dapp-bin/token.sol": {
+               "/usr/local/dapp-bin/token.hyp": {
                    "urls": [
-                       "/projects/mytoken.sol",
-                       "https://example.com/projects/mytoken.sol"
+                       "/projects/mytoken.hyp",
+                       "https://example.com/projects/mytoken.hyp"
                    ]
                }
            },
-           "settings": {"outputSelection": {"*": { "*": ["metadata", "evm.bytecode"]}}}
+           "settings": {"outputSelection": {"*": { "*": ["metadata", "zvm.bytecode"]}}}
        }
 
    If an import callback is available, the compiler will give it the strings specified in
@@ -145,7 +145,7 @@ The initial content of the VFS depends on how you invoke the compiler:
 
    .. code-block:: bash
 
-       echo 'import "./util.sol"; contract C {}' | solc -
+       echo 'import "./util.hyp"; contract C {}' | hypc -
 
    ``-`` used as one of the arguments instructs the compiler to place the content of the standard
    input in the virtual filesystem under a special source unit name: ``<stdin>``.
@@ -166,14 +166,14 @@ Based on how the import path is specified, we can divide imports into two catego
   to be combined with the source unit name of the importing file.
 
 
-.. code-block:: solidity
-    :caption: contracts/contract.sol
+.. code-block:: hyperion
+    :caption: contracts/contract.hyp
 
-    import "./math/math.sol";
-    import "contracts/tokens/token.sol";
+    import "./math/math.hyp";
+    import "contracts/tokens/token.hyp";
 
-In the above ``./math/math.sol`` and ``contracts/tokens/token.sol`` are import paths while the
-source unit names they translate to are ``contracts/math/math.sol`` and ``contracts/tokens/token.sol``
+In the above ``./math/math.hyp`` and ``contracts/tokens/token.hyp`` are import paths while the
+source unit names they translate to are ``contracts/math/math.hyp`` and ``contracts/tokens/token.hyp``
 respectively.
 
 .. index:: ! direct import, import; direct
@@ -184,12 +184,12 @@ Direct Imports
 
 An import that does not start with ``./`` or ``../`` is a *direct import*.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
-    import "/project/lib/util.sol";         // source unit name: /project/lib/util.sol
-    import "lib/util.sol";                  // source unit name: lib/util.sol
-    import "@openzeppelin/address.sol";     // source unit name: @openzeppelin/address.sol
-    import "https://example.com/token.sol"; // source unit name: https://example.com/token.sol
+    import "/project/lib/util.hyp";         // source unit name: /project/lib/util.hyp
+    import "lib/util.hyp";                  // source unit name: lib/util.hyp
+    import "@openzeppelin/address.hyp";     // source unit name: @openzeppelin/address.hyp
+    import "https://example.com/token.hyp"; // source unit name: https://example.com/token.hyp
 
 After applying any :ref:`import remappings <import-remapping>` the import path simply becomes the
 source unit name.
@@ -207,7 +207,7 @@ to the import callback.
 The Host Filesystem Loader will attempt to use it as a path and look up the file on disk.
 At this point the platform-specific normalization rules kick in and names that were considered
 different in the VFS may actually result in the same file being loaded.
-For example ``/project/lib/math.sol`` and ``/project/lib/../lib///math.sol`` are considered
+For example ``/project/lib/math.hyp`` and ``/project/lib/../lib///math.hyp`` are considered
 completely different in the VFS even though they refer to the same file on disk.
 
 .. note::
@@ -225,23 +225,23 @@ Relative Imports
 An import starting with ``./`` or ``../`` is a *relative import*.
 Such imports specify a path relative to the source unit name of the importing source unit:
 
-.. code-block:: solidity
-    :caption: /project/lib/math.sol
+.. code-block:: hyperion
+    :caption: /project/lib/math.hyp
 
-    import "./util.sol" as util;    // source unit name: /project/lib/util.sol
-    import "../token.sol" as token; // source unit name: /project/token.sol
+    import "./util.hyp" as util;    // source unit name: /project/lib/util.hyp
+    import "../token.hyp" as token; // source unit name: /project/token.hyp
 
-.. code-block:: solidity
-    :caption: lib/math.sol
+.. code-block:: hyperion
+    :caption: lib/math.hyp
 
-    import "./util.sol" as util;    // source unit name: lib/util.sol
-    import "../token.sol" as token; // source unit name: token.sol
+    import "./util.hyp" as util;    // source unit name: lib/util.hyp
+    import "../token.hyp" as token; // source unit name: token.hyp
 
 .. note::
 
-    Relative imports **always** start with ``./`` or ``../`` so ``import "util.sol"``, unlike
-    ``import "./util.sol"``, is a direct import.
-    While both paths would be considered relative in the host filesystem, ``util.sol`` is actually
+    Relative imports **always** start with ``./`` or ``../`` so ``import "util.hyp"``, unlike
+    ``import "./util.hyp"``, is a direct import.
+    While both paths would be considered relative in the host filesystem, ``util.hyp`` is actually
     absolute in the VFS.
 
 Let us define a *path segment* as any non-empty part of the path that does not contain a separator
@@ -262,7 +262,7 @@ The compiler resolves the import into a source unit name based on the import pat
 The removal of the last path segment with preceding slashes is understood to
 work as follows:
 
-1. Everything past the last slash is removed (i.e. ``a/b//c.sol`` becomes ``a/b//``).
+1. Everything past the last slash is removed (i.e. ``a/b//c.hyp`` becomes ``a/b//``).
 2. All trailing slashes are removed (i.e. ``a/b//`` becomes ``a/b``).
 
 Note that the process normalizes the part of the resolved source unit name that comes from the import path according
@@ -276,14 +276,14 @@ If your import paths are already normalized, you can expect the above algorithm 
 intuitive results.
 Here are some examples of what you can expect if they are not:
 
-.. code-block:: solidity
-    :caption: lib/src/../contract.sol
+.. code-block:: hyperion
+    :caption: lib/src/../contract.hyp
 
-    import "./util/./util.sol";         // source unit name: lib/src/../util/util.sol
-    import "./util//util.sol";          // source unit name: lib/src/../util/util.sol
-    import "../util/../array/util.sol"; // source unit name: lib/src/array/util.sol
-    import "../.././../util.sol";       // source unit name: util.sol
-    import "../../.././../util.sol";    // source unit name: util.sol
+    import "./util/./util.hyp";         // source unit name: lib/src/../util/util.hyp
+    import "./util//util.hyp";          // source unit name: lib/src/../util/util.hyp
+    import "../util/../array/util.hyp"; // source unit name: lib/src/array/util.hyp
+    import "../.././../util.hyp";       // source unit name: util.hyp
+    import "../../.././../util.hyp";    // source unit name: util.hyp
 
 .. note::
 
@@ -307,12 +307,12 @@ specify additional locations that may contain libraries your project depends on.
 This lets you import from these libraries in a uniform way, no matter where they are located in the
 filesystem relative to your project.
 For example, if you use npm to install packages and your contract imports
-``@openzeppelin/contracts/utils/Strings.sol``, you can use these options to tell the compiler that
+``@openzeppelin/contracts/utils/Strings.hyp``, you can use these options to tell the compiler that
 the library can be found in one of the npm package directories:
 
 .. code-block:: bash
 
-    solc contract.sol \
+    hypc contract.hyp \
         --base-path . \
         --include-path node_modules/ \
         --include-path /usr/local/lib/node_modules/
@@ -398,11 +398,11 @@ The resulting file path becomes the source unit name.
 
     The relative path produced by stripping must remain unique within the base path and include paths.
     For example the compiler will issue an error for the following command if both
-    ``/project/contract.sol`` and ``/lib/contract.sol`` exist:
+    ``/project/contract.hyp`` and ``/lib/contract.hyp`` exist:
 
     .. code-block:: bash
 
-        solc /project/contract.sol --base-path /project --include-path /lib
+        hypc /project/contract.hyp --base-path /project --include-path /lib
 
 .. note::
 
@@ -438,8 +438,8 @@ The option accepts a comma-separated list of paths:
 .. code-block:: bash
 
     cd /home/user/project/
-    solc token/contract.sol \
-        lib/util.sol=libs/util.sol \
+    hypc token/contract.hyp \
+        lib/util.hyp=libs/util.hyp \
         --base-path=token/ \
         --include-path=/lib/ \
         --allow-paths=../utils/,/tmp/libraries
@@ -469,13 +469,13 @@ importing files from the following directories:
 
     Allowed paths are case-sensitive even if the filesystem is not.
     The case must exactly match the one used in your imports.
-    For example ``--allow-paths tokens`` will not match ``import "Tokens/IERC20.sol"``.
+    For example ``--allow-paths tokens`` will not match ``import "Tokens/IERC20.hyp"``.
 
 .. warning::
 
     Files and directories only reachable through symbolic links from allowed directories are not
     automatically whitelisted.
-    For example if ``token/contract.sol`` in the example above was actually a symlink pointing at
+    For example if ``token/contract.hyp`` in the example above was actually a symlink pointing at
     ``/etc/passwd`` the compiler would refuse to load it unless ``/etc/`` was one of the allowed
     paths too.
 
@@ -488,7 +488,7 @@ Import Remapping
 Import remapping allows you to redirect imports to a different location in the virtual filesystem.
 The mechanism works by changing the translation between import paths and source unit names.
 For example you can set up a remapping so that any import from the virtual directory
-``github.com/ethereum/dapp-bin/library/`` would be seen as an import from ``dapp-bin/library/`` instead.
+``github.com/theQRL/dapp-bin/library/`` would be seen as an import from ``dapp-bin/library/`` instead.
 
 You can limit the scope of a remapping by specifying a *context*.
 This allows creating remappings that apply only to imports located in a specific library or a specific file.
@@ -501,22 +501,22 @@ Import remappings have the form of ``context:prefix=target``:
 - ``prefix`` must match the beginning of the source unit name resulting from the import.
 - ``target`` is the value the prefix is replaced with.
 
-For example, if you clone https://github.com/ethereum/dapp-bin/ locally to ``/project/dapp-bin``
+For example, if you clone https://github.com/theQRL/dapp-bin/ locally to ``/project/dapp-bin``
 and run the compiler with:
 
 .. code-block:: bash
 
-    solc github.com/ethereum/dapp-bin/=dapp-bin/ --base-path /project source.sol
+    hypc github.com/theQRL/dapp-bin/=dapp-bin/ --base-path /project source.hyp
 
 you can use the following in your source file:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
-    import "github.com/ethereum/dapp-bin/library/math.sol"; // source unit name: dapp-bin/library/math.sol
+    import "github.com/theQRL/dapp-bin/library/math.hyp"; // source unit name: dapp-bin/library/math.hyp
 
-The compiler will look for the file in the VFS under ``dapp-bin/library/math.sol``.
+The compiler will look for the file in the VFS under ``dapp-bin/library/math.hyp``.
 If the file is not available there, the source unit name will be passed to the Host Filesystem
-Loader, which will then look in ``/project/dapp-bin/library/math.sol``.
+Loader, which will then look in ``/project/dapp-bin/library/math.hyp``.
 
 .. warning::
 
@@ -525,7 +525,7 @@ Loader, which will then look in ``/project/dapp-bin/library/math.sol``.
     modification to the remappings will result in different bytecode.
 
     For this reason you should be careful not to include any local information in remapping targets.
-    For example if your library is located in ``/home/user/packages/mymath/math.sol``, a remapping
+    For example if your library is located in ``/home/user/packages/mymath/math.hyp``, a remapping
     like ``@math/=/home/user/packages/mymath/`` would result in your home directory being included in
     the metadata.
     To be able to reproduce the same bytecode with such a remapping on a different machine, you
@@ -544,10 +544,10 @@ you checked out to ``/project/dapp-bin_old``, then you can run:
 
 .. code-block:: bash
 
-    solc module1:github.com/ethereum/dapp-bin/=dapp-bin/ \
-         module2:github.com/ethereum/dapp-bin/=dapp-bin_old/ \
+    hypc module1:github.com/theQRL/dapp-bin/=dapp-bin/ \
+         module2:github.com/theQRL/dapp-bin/=dapp-bin_old/ \
          --base-path /project \
-         source.sol
+         source.hyp
 
 This means that all imports in ``module2`` point to the old version but imports in ``module1``
 point to the new version.
@@ -562,10 +562,10 @@ Here are the detailed rules governing the behavior of remappings:
 
    .. code-block:: bash
 
-       solc /project/=/contracts/ /project/contract.sol # source unit name: /project/contract.sol
+       hypc /project/=/contracts/ /project/contract.hyp # source unit name: /project/contract.hyp
 
-   In the example above the compiler will load the source code from ``/project/contract.sol`` and
-   place it under that exact source unit name in the VFS, not under ``/contract/contract.sol``.
+   In the example above the compiler will load the source code from ``/project/contract.hyp`` and
+   place it under that exact source unit name in the VFS, not under ``/contract/contract.hyp``.
 
 #. **Context and prefix must match source unit names, not import paths.**
 
@@ -575,24 +575,24 @@ Here are the detailed rules governing the behavior of remappings:
 
      .. code-block:: bash
 
-         solc ./=a/ /project/=b/ /project/contract.sol # source unit name: /project/contract.sol
+         hypc ./=a/ /project/=b/ /project/contract.hyp # source unit name: /project/contract.hyp
 
-     .. code-block:: solidity
-         :caption: /project/contract.sol
+     .. code-block:: hyperion
+         :caption: /project/contract.hyp
 
-         import "./util.sol" as util; // source unit name: b/util.sol
+         import "./util.hyp" as util; // source unit name: b/util.hyp
 
    - You cannot remap base path or any other part of the path that is only added internally by an
      import callback:
 
      .. code-block:: bash
 
-         solc /project/=/contracts/ /project/contract.sol --base-path /project # source unit name: contract.sol
+         hypc /project/=/contracts/ /project/contract.hyp --base-path /project # source unit name: contract.hyp
 
-     .. code-block:: solidity
-         :caption: /project/contract.sol
+     .. code-block:: hyperion
+         :caption: /project/contract.hyp
 
-         import "util.sol" as util; // source unit name: util.sol
+         import "util.hyp" as util; // source unit name: util.hyp
 
 #. **Target is inserted directly into the source unit name and does not necessarily have to be a valid path.**
 
@@ -605,27 +605,27 @@ Here are the detailed rules governing the behavior of remappings:
      This means that targets starting with ``./`` and ``../`` have no special meaning and are
      relative to the base path rather than to the location of the source file.
 
-   - Remapping targets are not normalized so ``@root/=./a/b//`` will remap ``@root/contract.sol``
-     to ``./a/b//contract.sol`` and not ``a/b/contract.sol``.
+   - Remapping targets are not normalized so ``@root/=./a/b//`` will remap ``@root/contract.hyp``
+     to ``./a/b//contract.hyp`` and not ``a/b/contract.hyp``.
 
    - If the target does not end with a slash, the compiler will not add one automatically:
 
      .. code-block:: bash
 
-         solc /project/=/contracts /project/contract.sol # source unit name: /project/contract.sol
+         hypc /project/=/contracts /project/contract.hyp # source unit name: /project/contract.hyp
 
-     .. code-block:: solidity
-         :caption: /project/contract.sol
+     .. code-block:: hyperion
+         :caption: /project/contract.hyp
 
-         import "/project/util.sol" as util; // source unit name: /contractsutil.sol
+         import "/project/util.hyp" as util; // source unit name: /contractsutil.hyp
 
 #. **Context and prefix are patterns and matches must be exact.**
 
    - ``a//b=c`` will not match ``a/b``.
    - source unit names are not normalized so ``a/b=c`` will not match ``a//b`` either.
    - Parts of file and directory names can match as well.
-     ``/newProject/con:/new=old`` will match ``/newProject/contract.sol`` and remap it to
-     ``oldProject/contract.sol``.
+     ``/newProject/con:/new=old`` will match ``/newProject/contract.hyp`` and remap it to
+     ``oldProject/contract.hyp``.
 
 #. **At most one remapping is applied to a single import.**
 
@@ -654,7 +654,7 @@ local path:
 
 .. code-block:: bash
 
-    solc :https://github.com/ethereum/dapp-bin=/usr/local/dapp-bin contract.sol
+    hypc :https://github.com/theQRL/dapp-bin=/usr/local/dapp-bin contract.hyp
 
 Note the leading ``:``, which is necessary when the remapping context is empty.
 Otherwise the ``https:`` part would be interpreted by the compiler as the context.

@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -62,16 +62,16 @@
 #include <libyul/optimiser/LoopInvariantCodeMotion.h>
 #include <libyul/optimiser/Metrics.h>
 #include <libyul/optimiser/NameSimplifier.h>
-#include <libyul/backends/evm/ConstantOptimiser.h>
+#include <libyul/backends/zvm/ConstantOptimiser.h>
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AsmAnalysisInfo.h>
 #include <libyul/AsmPrinter.h>
 #include <libyul/AST.h>
 #include <libyul/Object.h>
 
-#include <libyul/backends/evm/NoOutputAssembly.h>
+#include <libyul/backends/zvm/NoOutputAssembly.h>
 
-#include <libsolutil/CommonData.h>
+#include <libhyputil/CommonData.h>
 
 #include <libyul/CompilabilityChecker.h>
 
@@ -86,8 +86,8 @@
 #include <fmt/format.h>
 #endif
 
-using namespace solidity;
-using namespace solidity::yul;
+using namespace hyperion;
+using namespace hyperion::yul;
 #ifdef PROFILE_OPTIMIZER_STEPS
 using namespace std::chrono;
 #endif
@@ -142,11 +142,11 @@ void OptimiserSuite::run(
 	std::set<YulString> const& _externallyUsedIdentifiers
 )
 {
-	EVMDialect const* evmDialect = dynamic_cast<EVMDialect const*>(&_dialect);
+	ZVMDialect const* zvmDialect = dynamic_cast<ZVMDialect const*>(&_dialect);
 	bool usesOptimizedCodeGenerator =
 		_optimizeStackAllocation &&
-		evmDialect &&
-		evmDialect->providesObjectAccess();
+		zvmDialect &&
+		zvmDialect->providesObjectAccess();
 	std::set<YulString> reservedIdentifiers = _externallyUsedIdentifiers;
 	reservedIdentifiers += _dialect.fixedFunctionNames();
 
@@ -191,10 +191,10 @@ void OptimiserSuite::run(
 	// aforementioned form, thus causing the StackCompressor/StackLimitEvader to throw.
 	suite.runSequence("g", ast);
 
-	if (evmDialect)
+	if (zvmDialect)
 	{
 		yulAssert(_meter, "");
-		ConstantOptimiser{*evmDialect, *_meter}(ast);
+		ConstantOptimiser{*zvmDialect, *_meter}(ast);
 		if (usesOptimizedCodeGenerator)
 		{
 			StackCompressor::run(
@@ -203,10 +203,10 @@ void OptimiserSuite::run(
 				_optimizeStackAllocation,
 				stackCompressorMaxIterations
 			);
-			if (evmDialect->providesObjectAccess())
+			if (zvmDialect->providesObjectAccess())
 				StackLimitEvader::run(suite.m_context, _object);
 		}
-		else if (evmDialect->providesObjectAccess() && _optimizeStackAllocation)
+		else if (zvmDialect->providesObjectAccess() && _optimizeStackAllocation)
 			StackLimitEvader::run(suite.m_context, _object);
 	}
 

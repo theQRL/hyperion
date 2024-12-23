@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
@@ -20,7 +20,7 @@
 
 #include <liblangutil/Exceptions.h>
 
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/StringUtils.h>
 
 #include <boost/algorithm/string/trim.hpp>
 
@@ -30,9 +30,9 @@
 
 #include <vector>
 
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::util;
 
 DebugInfoSelection const DebugInfoSelection::All(bool _value) noexcept
 {
@@ -52,8 +52,8 @@ DebugInfoSelection const DebugInfoSelection::Only(bool DebugInfoSelection::* _me
 std::optional<DebugInfoSelection> DebugInfoSelection::fromString(std::string_view _input)
 {
 	// TODO: Make more stuff constexpr and make it a static_assert().
-	solAssert(componentMap().count("all") == 0, "");
-	solAssert(componentMap().count("none") == 0, "");
+	hypAssert(componentMap().count("all") == 0, "");
+	hypAssert(componentMap().count("none") == 0, "");
 
 	if (_input == "all")
 		return All();
@@ -68,7 +68,7 @@ std::optional<DebugInfoSelection> DebugInfoSelection::fromComponents(
 	bool _acceptWildcards
 )
 {
-	solAssert(componentMap().count("*") == 0, "");
+	hypAssert(componentMap().count("*") == 0, "");
 
 	DebugInfoSelection selection;
 	for (auto const& component: _componentNames)

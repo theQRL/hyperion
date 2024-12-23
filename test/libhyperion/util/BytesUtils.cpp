@@ -1,28 +1,28 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <test/libsolidity/util/BytesUtils.h>
-#include <test/libsolidity/util/ContractABIUtils.h>
-#include <test/libsolidity/util/SoltestErrors.h>
+#include <test/libhyperion/util/BytesUtils.h>
+#include <test/libhyperion/util/ContractABIUtils.h>
+#include <test/libhyperion/util/HyptestErrors.h>
 
-#include <libsolutil/CommonData.h>
-#include <libsolutil/CommonIO.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/CommonIO.h>
+#include <libhyputil/StringUtils.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -33,21 +33,21 @@
 #include <regex>
 #include <stdexcept>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::frontend;
-using namespace solidity::frontend::test;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::test;
 
 bytes BytesUtils::alignLeft(bytes _bytes)
 {
-	soltestAssert(_bytes.size() <= 32, "");
+	hyptestAssert(_bytes.size() <= 32, "");
 	size_t size = _bytes.size();
 	return std::move(_bytes) + bytes(32 - size, 0);
 }
 
 bytes BytesUtils::alignRight(bytes _bytes)
 {
-	soltestAssert(_bytes.size() <= 32, "");
+	hyptestAssert(_bytes.size() <= 32, "");
 	return bytes(32 - _bytes.size(), 0) + std::move(_bytes);
 }
 
@@ -147,7 +147,7 @@ std::string BytesUtils::formatUnsigned(bytes const& _bytes)
 {
 	std::stringstream os;
 
-	soltestAssert(!_bytes.empty() && _bytes.size() <= 32, "");
+	hyptestAssert(!_bytes.empty() && _bytes.size() <= 32, "");
 
 	return fromBigEndian<u256>(_bytes).str();
 }
@@ -156,7 +156,7 @@ std::string BytesUtils::formatSigned(bytes const& _bytes)
 {
 	std::stringstream os;
 
-	soltestAssert(!_bytes.empty() && _bytes.size() <= 32, "");
+	hyptestAssert(!_bytes.empty() && _bytes.size() <= 32, "");
 
 	if (*_bytes.begin() & 0x80)
 		os << u2s(fromBigEndian<u256>(_bytes));
@@ -183,7 +183,7 @@ std::string BytesUtils::formatBoolean(bytes const& _bytes)
 
 std::string BytesUtils::formatHex(bytes const& _bytes, bool _shorten)
 {
-	soltestAssert(!_bytes.empty() && _bytes.size() <= 32, "");
+	hyptestAssert(!_bytes.empty() && _bytes.size() <= 32, "");
 	u256 value = fromBigEndian<u256>(_bytes);
 	std::string output = toCompactHexWithPrefix(value);
 
@@ -253,7 +253,7 @@ std::string BytesUtils::formatFixedPoint(bytes const& _bytes, bool _signed, size
 
 std::string BytesUtils::formatRawBytes(
 	bytes const& _bytes,
-	solidity::frontend::test::ParameterList const& _parameters,
+	hyperion::frontend::test::ParameterList const& _parameters,
 	std::string _linePrefix
 )
 {
@@ -278,7 +278,7 @@ std::string BytesUtils::formatRawBytes(
 	}
 	else
 		parameters = _parameters;
-	soltestAssert(ContractABIUtils::encodingSize(parameters) >= _bytes.size());
+	hyptestAssert(ContractABIUtils::encodingSize(parameters) >= _bytes.size());
 
 	for (auto const& parameter: parameters)
 	{
@@ -377,7 +377,7 @@ std::string BytesUtils::formatBytes(
 
 std::string BytesUtils::formatBytesRange(
 	bytes _bytes,
-	solidity::frontend::test::ParameterList const& _parameters,
+	hyperion::frontend::test::ParameterList const& _parameters,
 	bool _highlight
 )
 {
@@ -402,7 +402,7 @@ std::string BytesUtils::formatBytesRange(
 	}
 	else
 		parameters = _parameters;
-	soltestAssert(ContractABIUtils::encodingSize(parameters) >= _bytes.size());
+	hyptestAssert(ContractABIUtils::encodingSize(parameters) >= _bytes.size());
 
 	for (auto const& parameter: parameters)
 	{

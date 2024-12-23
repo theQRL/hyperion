@@ -1,9 +1,9 @@
-==== Source: s1.sol ====
+==== Source: s1.hyp ====
 function f() pure returns (uint) { return 1337; }
 contract C {}
-==== Source: s2.sol ====
-import "s1.sol";
+==== Source: s2.hyp ====
+import "s1.hyp";
 function f() pure returns (uint) { return 42; }
 contract D is C {}
 // ----
-// DeclarationError 1686: (s2.sol:17-64): Function with same name and parameter types defined twice.
+// DeclarationError 1686: (s2.hyp:17-64): Function with same name and parameter types defined twice.

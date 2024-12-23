@@ -3,5 +3,5 @@
     let y:bool := false:bool
 }
 // ====
-// dialect: evmTyped
+// dialect: zvmTyped
 // ----

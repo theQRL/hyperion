@@ -44,7 +44,7 @@ access the minimum and maximum value representable by the type.
 
 .. warning::
 
-  Integers in Solidity are restricted to a certain range. For example, with ``uint32``, this is ``0`` up to ``2**32 - 1``.
+  Integers in Hyperion are restricted to a certain range. For example, with ``uint32``, this is ``0`` up to ``2**32 - 1``.
   There are two modes in which arithmetic is performed on these types: The "wrapping" or "unchecked" mode and the "checked" mode.
   By default, arithmetic is always "checked", meaning that if an operation's result falls outside the value range
   of the type, the call is reverted through a :ref:`failing assertion<assert-and-require>`. You can switch to "unchecked" mode
@@ -107,7 +107,7 @@ Division
 
 Since the type of the result of an operation is always the type of one of
 the operands, division on integers always results in an integer.
-In Solidity, division rounds towards zero. This means that ``int256(-5) / int256(2) == int256(-2)``.
+In Hyperion, division rounds towards zero. This means that ``int256(-5) / int256(2) == int256(-2)``.
 
 Note that in contrast, division on :ref:`literals<rational_literals>` results in fractional values
 of arbitrary precision.
@@ -148,7 +148,7 @@ large enough to hold the result and prepare for potential assertion failures or 
   In any case, gas cost tests and the use of the optimizer are advisable.
 
 .. note::
-  Note that ``0**0`` is defined by the EVM as ``1``.
+  Note that ``0**0`` is defined by the ZVM as ``1``.
 
 .. index:: ! ufixed, ! fixed, ! fixed point number
 
@@ -156,7 +156,7 @@ Fixed Point Numbers
 -------------------
 
 .. warning::
-    Fixed point numbers are not fully supported by Solidity yet. They can be declared, but
+    Fixed point numbers are not fully supported by Hyperion yet. They can be declared, but
     cannot be assigned to or from.
 
 ``fixed`` / ``ufixed``: Signed and unsigned fixed point number of various sizes. Keywords ``ufixedMxN`` and ``fixedMxN``, where ``M`` represents the number of bits taken by
@@ -241,7 +241,7 @@ For a quick reference of all members of address, see :ref:`address_related`.
 It is possible to query the balance of an address using the property ``balance``
 and to send Ether (in units of wei) to a payable address using the ``transfer`` function:
 
-.. code-block:: solidity
+.. code-block:: hyperion
     :force:
 
     address payable x = payable(0x123);
@@ -253,7 +253,7 @@ or if the Ether transfer is rejected by the receiving account. The ``transfer`` 
 reverts on failure.
 
 .. note::
-    If ``x`` is a contract address, its code (more specifically: its :ref:`receive-ether-function`, if present, or otherwise its :ref:`fallback-function`, if present) will be executed together with the ``transfer`` call (this is a feature of the EVM and cannot be prevented). If that execution runs out of gas or fails in any way, the Ether transfer will be reverted and the current contract will stop with an exception.
+    If ``x`` is a contract address, its code (more specifically: its :ref:`receive-ether-function`, if present, or otherwise its :ref:`fallback-function`, if present) will be executed together with the ``transfer`` call (this is a feature of the ZVM and cannot be prevented). If that execution runs out of gas or fails in any way, the Ether transfer will be reverted and the current contract will stop with an exception.
 
 * ``send``
 
@@ -278,7 +278,7 @@ and ``abi.encodeWithSignature`` can be used to encode structured data.
 
 Example:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     bytes memory payload = abi.encodeWithSignature("register(string)", "MyName");
     (bool success, bytes memory returnData) = address(nameReg).call(payload);
@@ -293,25 +293,25 @@ Example:
     is to call a function on a contract object (``x.f()``).
 
 .. note::
-    Previous versions of Solidity allowed these functions to receive
+    Previous versions of Hyperion allowed these functions to receive
     arbitrary arguments and would also handle a first argument of type
     ``bytes4`` differently. These edge cases were removed in version 0.5.0.
 
 It is possible to adjust the supplied gas with the ``gas`` modifier:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     address(nameReg).call{gas: 1000000}(abi.encodeWithSignature("register(string)", "MyName"));
 
 Similarly, the supplied Ether value can be controlled too:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     address(nameReg).call{value: 1 ether}(abi.encodeWithSignature("register(string)", "MyName"));
 
 Lastly, these modifiers can be combined. Their order does not matter:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     address(nameReg).call{gas: 1000000, value: 1 ether}(abi.encodeWithSignature("register(string)", "MyName"));
 
@@ -319,7 +319,7 @@ In a similar way, the function ``delegatecall`` can be used: the difference is t
 
 Function ``staticcall`` can be used as well. This is basically the same as ``call``, but will revert if the called function modifies the state in any way.
 
-All three functions ``call``, ``delegatecall`` and ``staticcall`` are very low-level functions and should only be used as a *last resort* as they break the type-safety of Solidity.
+All three functions ``call``, ``delegatecall`` and ``staticcall`` are very low-level functions and should only be used as a *last resort* as they break the type-safety of Hyperion.
 
 The ``gas`` option is available on all three methods, while the ``value`` option is only available
 on ``call``.
@@ -331,7 +331,7 @@ on ``call``.
 
 * ``code`` and ``codehash``
 
-You can query the deployed code for any smart contract. Use ``.code`` to get the EVM bytecode as a
+You can query the deployed code for any smart contract. Use ``.code`` to get the ZVM bytecode as a
 ``bytes memory``, which might be empty. Use ``.codehash`` to get the Keccak-256 hash of that code
 (as a ``bytes32``). Note that ``addr.codehash`` is cheaper than using ``keccak256(addr.code)``.
 
@@ -445,7 +445,7 @@ Rational and Integer Literals
 
 Integer literals are formed from a sequence of digits in the range 0-9.
 They are interpreted as decimals. For example, ``69`` means sixty nine.
-Octal literals do not exist in Solidity and leading zeros are invalid.
+Octal literals do not exist in Hyperion and leading zeros are invalid.
 
 Decimal fractional literals are formed by a ``.`` with at least one number after the decimal point.
 Examples include ``.1`` and ``1.3`` (but not ``1.``).
@@ -490,10 +490,10 @@ in the ``uint256`` (for non-negative literals) or ``int256`` (for a negative lit
 regardless of the type of the right (exponent) operand.
 
 .. warning::
-    Division on integer literals used to truncate in Solidity prior to version 0.4.0, but it now converts into a rational number, i.e. ``5 / 2`` is not equal to ``2``, but to ``2.5``.
+    Division on integer literals used to truncate in Hyperion prior to version 0.4.0, but it now converts into a rational number, i.e. ``5 / 2`` is not equal to ``2``, but to ``2.5``.
 
 .. note::
-    Solidity has a number literal type for each rational number.
+    Hyperion has a number literal type for each rational number.
     Integer literals and rational number literals belong to number literal types.
     Moreover, all number literal expressions (i.e. the expressions that
     contain only number literals and operators) belong to number literal
@@ -506,10 +506,10 @@ regardless of the type of the right (exponent) operand.
     expressions. Disregarding types, the value of the expression assigned to ``b``
     below evaluates to an integer. Because ``a`` is of type ``uint128``, the
     expression ``2.5 + a`` has to have a proper type, though. Since there is no common type
-    for the type of ``2.5`` and ``uint128``, the Solidity compiler does not accept
+    for the type of ``2.5`` and ``uint128``, the Hyperion compiler does not accept
     this code.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     uint128 a = 1;
     uint128 b = 2.5 + a + 0.5;
@@ -552,7 +552,7 @@ It starts with a newline byte, followed by a double quote, a single
 quote a backslash character and then (without separator) the
 character sequence ``abcdef``.
 
-.. code-block:: solidity
+.. code-block:: hyperion
     :force:
 
     "\n\"\'\\abc\
@@ -569,7 +569,7 @@ Unicode Literals
 While regular string literals can only contain ASCII, Unicode literals – prefixed with the keyword ``unicode`` – can contain any valid UTF-8 sequence.
 They also support the very same escape sequences as regular string literals.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     string memory a = unicode"Hello 😃";
 
@@ -597,7 +597,7 @@ implicitly convertible to the ``string`` type.
 Enums
 -----
 
-Enums are one way to create a user-defined type in Solidity. They are explicitly convertible
+Enums are one way to create a user-defined type in Hyperion. They are explicitly convertible
 to and from all integer types but implicit conversion is not allowed.  The explicit conversion
 from integer checks at runtime that the value lies inside the range of the enum and causes a
 :ref:`Panic error<assert-and-require>` otherwise.
@@ -611,10 +611,10 @@ Using ``type(NameOfEnum).min`` and ``type(NameOfEnum).max`` you can get the
 smallest and respectively largest value of the given enum.
 
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.8;
+    pragma hyperion ^0.8.8;
 
     contract test {
         enum ActionChoices { GoLeft, GoRight, GoStraight, SitStill }
@@ -627,7 +627,7 @@ smallest and respectively largest value of the given enum.
 
         // Since enum types are not part of the ABI, the signature of "getChoice"
         // will automatically be changed to "getChoice() returns (uint8)"
-        // for all matters external to Solidity.
+        // for all matters external to Hyperion.
         function getChoice() public view returns (ActionChoices) {
             return choice;
         }
@@ -674,10 +674,10 @@ The following example illustrates a custom type ``UFixed256x18`` representing a 
 type with 18 decimals and a minimal library to do arithmetic operations on the type.
 
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.8;
+    pragma hyperion ^0.8.8;
 
     // Represent a 18 decimal, 256 bit wide fixed point type using a user-defined value type.
     type UFixed256x18 is uint256;
@@ -737,7 +737,7 @@ be passed via and returned from external function calls.
 
 Function types are notated as follows:
 
-.. code-block:: solidity
+.. code-block:: hyperion
     :force:
 
     function (<parameter types>) {internal|external} [pure|view|payable] [returns (<return types>)]
@@ -784,7 +784,7 @@ If a function type variable is not initialised, calling it results
 in a :ref:`Panic error<assert-and-require>`. The same happens if you call a function after using ``delete``
 on it.
 
-If external function types are used outside of the context of Solidity,
+If external function types are used outside of the context of Hyperion,
 they are treated as the ``function`` type, which encodes the address
 followed by the function identifier together in a single ``bytes24`` type.
 
@@ -823,10 +823,10 @@ External (or public) functions have the following members:
 
 Example that shows how to use the members:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.6.4 <0.9.0;
+    pragma hyperion >=0.6.4 <0.9.0;
 
     contract Example {
         function f() public payable returns (bytes4) {
@@ -841,10 +841,10 @@ Example that shows how to use the members:
 
 Example that shows how to use internal function types:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     library ArrayUtils {
         // internal functions can be used in internal library functions because
@@ -901,10 +901,10 @@ Example that shows how to use internal function types:
 
 Another example that uses external function types:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.22 <0.9.0;
+    pragma hyperion >=0.4.22 <0.9.0;
 
 
     contract Oracle {

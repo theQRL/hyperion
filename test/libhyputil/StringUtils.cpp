@@ -1,36 +1,36 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * Unit tests for the StringUtils routines.
  */
 
-#include <libsolutil/CommonData.h>
-#include <libsolutil/FixedHash.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/FixedHash.h>
+#include <libhyputil/StringUtils.h>
 
-#include <libsolidity/ast/Types.h>  // for IntegerType
+#include <libhyperion/ast/Types.h>  // for IntegerType
 
 #include <test/Common.h>
 
 #include <boost/test/unit_test.hpp>
 
 
-namespace solidity::util::test
+namespace hyperion::util::test
 {
 
 BOOST_AUTO_TEST_SUITE(StringUtils, *boost::unit_test::label("nooptions"))

@@ -30,7 +30,7 @@ k = Int('k')
 diff = Int('diff')
 solver.add(diff == start2 - start1 + k * 2**n_bits)
 restrict(diff)
-# diff is the result of sub(start2, start1) in EVM
+# diff is the result of sub(start2, start1) in ZVM
 
 # These are the conditions in the code.
 solver.add(diff >= length1)
@@ -44,7 +44,7 @@ solver.add(diff <= 2**(n_bits-1))
 # x is a potential point where the memory operations
 # overlap.
 # Note that we do not use wrapping arithmetic
-# here, because it is not done in the EVM either.
+# here, because it is not done in the ZVM either.
 # For example calldatacopy(2**256 - 2, 0, 10)
 # (copy 10 bytes from calldata position zero to memory
 # position 2**256 - 2) would not write to memory position

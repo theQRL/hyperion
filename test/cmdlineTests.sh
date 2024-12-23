@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
 
 #------------------------------------------------------------------------------
-# Bash script to run commandline Solidity tests.
+# Bash script to run commandline Hyperion tests.
 #
-# The documentation for solidity is hosted at:
+# The documentation for hyperion is hosted at:
 #
 #     https://docs.soliditylang.org
 #
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2016 solidity contributors.
+# (c) 2016 hyperion contributors.
 #------------------------------------------------------------------------------
 
 set -eo pipefail
@@ -31,8 +31,8 @@ set -eo pipefail
 ## GLOBAL VARIABLES
 
 REPO_ROOT=$(cd "$(dirname "$0")/.." && pwd)
-SOLIDITY_BUILD_DIR=${SOLIDITY_BUILD_DIR:-${REPO_ROOT}/build}
-export REPO_ROOT SOLIDITY_BUILD_DIR
+HYPERION_BUILD_DIR=${HYPERION_BUILD_DIR:-${REPO_ROOT}/build}
+export REPO_ROOT HYPERION_BUILD_DIR
 
 # shellcheck source=scripts/common.sh
 source "${REPO_ROOT}/scripts/common.sh"
@@ -100,17 +100,17 @@ popd > /dev/null
 
 case "$OSTYPE" in
     msys)
-        SOLC="${SOLIDITY_BUILD_DIR}/solc/Release/solc.exe"
+        HYPC="${HYPERION_BUILD_DIR}/hypc/Release/hypc.exe"
 
         # prevents msys2 path translation for a remapping test
         export MSYS2_ARG_CONV_EXCL="="
         ;;
     *)
-        SOLC="${SOLIDITY_BUILD_DIR}/solc/solc"
+        HYPC="${HYPERION_BUILD_DIR}/hypc/hypc"
         ;;
 esac
-echo "Using solc binary at ${SOLC}"
-export SOLC
+echo "Using hypc binary at ${HYPC}"
+export HYPC
 
 INTERACTIVE=true
 if ! tty -s || [ "$CI" ]
@@ -175,15 +175,15 @@ function ask_expectation_update
     fi
 }
 
-# General helper function for testing SOLC behaviour, based on file name, compile opts, exit code, stdout and stderr.
+# General helper function for testing HYPC behaviour, based on file name, compile opts, exit code, stdout and stderr.
 # An failure is expected.
-function test_solc_behaviour
+function test_hypc_behaviour
 {
     local filename="${1}"
-    local solc_args
-    IFS=" " read -r -a solc_args <<< "${2}"
-    local solc_stdin="${3}"
-    [ -z "$solc_stdin"  ] && solc_stdin="/dev/stdin"
+    local hypc_args
+    IFS=" " read -r -a hypc_args <<< "${2}"
+    local hypc_stdin="${3}"
+    [ -z "$hypc_stdin"  ] && hypc_stdin="/dev/stdin"
     local stdout_expected="${4}"
     local exit_code_expected="${5}"
     local exit_code_expectation_file="${6}"
@@ -201,15 +201,15 @@ function test_solc_behaviour
         exit_code_expected="0"
     fi
 
-    [[ $filename == "" ]] || solc_args+=("$filename")
+    [[ $filename == "" ]] || hypc_args+=("$filename")
 
-    local solc_command="$SOLC ${solc_args[*]} <$solc_stdin"
+    local hypc_command="$HYPC ${hypc_args[*]} <$hypc_stdin"
     set +e
-    "$SOLC" "${solc_args[@]}" <"$solc_stdin" >"$stdout_path" 2>"$stderr_path"
+    "$HYPC" "${hypc_args[@]}" <"$hypc_stdin" >"$stdout_path" 2>"$stderr_path"
     exitCode=$?
     set -e
 
-    if [[ " ${solc_args[*]} " == *" --standard-json "* ]] && [[ -s $stdout_path ]]
+    if [[ " ${hypc_args[*]} " == *" --standard-json "* ]] && [[ -s $stdout_path ]]
     then
         python3 - <<EOF
 import re, sys
@@ -220,7 +220,7 @@ json = re.sub("\n\\s*\n", "\n", json)                                           
 json = re.sub(r"},(\n{0,1})\n*(\s*(]|}))", r"}\1\2", json)                          # Remove trailing comma
 open("$stdout_path", "w").write(json)
 EOF
-        sed -i.bak -E -e 's/ Consider adding \\"pragma solidity \^[0-9.]*;\\"//g' "$stdout_path"
+        sed -i.bak -E -e 's/ Consider adding \\"pragma hyperion \^[0-9.]*;\\"//g' "$stdout_path"
         sed -i.bak -E -e 's/\"opcodes\":[[:space:]]*\"[^"]+\"/\"opcodes\":\"<OPCODES REMOVED>\"/g' "$stdout_path"
         sed -i.bak -E -e 's/\"sourceMap\":[[:space:]]*\"[0-9:;-]+\"/\"sourceMap\":\"<SOURCEMAP REMOVED>\"/g' "$stdout_path"
 
@@ -231,7 +231,7 @@ EOF
         # shellcheck disable=SC2016
         sed -i.bak -E -e 's/([0-9a-f]{34}\$__)[0-9a-f]+(__\$[0-9a-f]{17})/\1<BYTECODE REMOVED>\2/g' "$stdout_path"
         # Remove metadata in assembly output (see below about the magic numbers)
-        sed -i.bak -E -e 's/"[0-9a-f]+64697066735822[0-9a-f]+64736f6c63[0-9a-f]+/"<BYTECODE REMOVED>/g' "$stdout_path"
+        sed -i.bak -E -e 's/"[0-9a-f]+64697066735822[0-9a-f]+6468797063[0-9a-f]+/"<BYTECODE REMOVED>/g' "$stdout_path"
 
         # Replace escaped newlines by actual newlines for readability
         # shellcheck disable=SC1003
@@ -257,8 +257,8 @@ EOF
         # use metadata markers for detection to have some confidence that it's actually bytecode
         # and not some random word.
         # 64697066735822 = hex encoding of 0x64 'i' 'p' 'f' 's' 0x58 0x22
-        # 64736f6c63     = hex encoding of 0x64 's' 'o' 'l' 'c'
-        sed -i.bak -E -e 's/[0-9a-f]*64697066735822[0-9a-f]+64736f6c63[0-9a-f]+/<BYTECODE REMOVED>/g' "$stdout_path"
+        # 6468797063     = hex encoding of 0x64 'h' 'y' 'p' 'c'
+        sed -i.bak -E -e 's/[0-9a-f]*64697066735822[0-9a-f]+6468797063[0-9a-f]+/<BYTECODE REMOVED>/g' "$stdout_path"
         # shellcheck disable=SC2016
         sed -i.bak -E -e 's/([0-9a-f]{17}\$__)[0-9a-f]+(__\$[0-9a-f]{17})/\1<BYTECODE REMOVED>\2/g' "$stdout_path"
         # shellcheck disable=SC2016
@@ -291,7 +291,7 @@ EOF
         printError "But got:"
         echo -e "$(cat "$stdout_path")"
 
-        printError "When running $solc_command"
+        printError "When running $hypc_command"
 
         [[ $stdout_expectation_file != "" ]] && ask_expectation_update "$(cat "$stdout_path")" "$stdout_expectation_file"
         [[ $stdout_expectation_file == "" ]] && fail
@@ -305,7 +305,7 @@ EOF
         printError "But got:"
         echo -e "$(cat "$stderr_path")"
 
-        printError "When running $solc_command"
+        printError "When running $hypc_command"
 
         [[ $stderr_expectation_file != "" ]] && ask_expectation_update "$(cat "$stderr_path")" "$stderr_expectation_file"
         [[ $stderr_expectation_file == "" ]] && fail
@@ -318,14 +318,14 @@ EOF
 ## RUN
 
 printTask "Testing passing files that are not found..."
-test_solc_behaviour "file_not_found.sol" "" "" "" 1 "" "Error: \"file_not_found.sol\" is not found." "" ""
+test_hypc_behaviour "file_not_found.hyp" "" "" "" 1 "" "Error: \"file_not_found.hyp\" is not found." "" ""
 
 printTask "Testing passing files that are not files..."
-test_solc_behaviour "." "" "" "" 1 "" "Error: \".\" is not a valid file." "" ""
+test_hypc_behaviour "." "" "" "" 1 "" "Error: \".\" is not a valid file." "" ""
 
 printTask "Testing passing empty remappings..."
-test_solc_behaviour "${0}" "=/some/remapping/target" "" "" 1 "" "Error: Invalid remapping: \"=/some/remapping/target\"." "" ""
-test_solc_behaviour "${0}" "ctx:=/some/remapping/target" "" "" 1 "" "Error: Invalid remapping: \"ctx:=/some/remapping/target\"." "" ""
+test_hypc_behaviour "${0}" "=/some/remapping/target" "" "" 1 "" "Error: Invalid remapping: \"=/some/remapping/target\"." "" ""
+test_hypc_behaviour "${0}" "ctx:=/some/remapping/target" "" "" 1 "" "Error: Invalid remapping: \"ctx:=/some/remapping/target\"." "" ""
 
 printTask "Running general commandline tests..."
 (
@@ -410,7 +410,7 @@ printTask "Running general commandline tests..."
         exitCode=$(cat "$exitCodeExpectationFile" 2>/dev/null || true)
         err="$(cat "${tdir}/err" 2>/dev/null || true)"
         stderrExpectationFile="${tdir}/err"
-        test_solc_behaviour "$inputFile" \
+        test_hypc_behaviour "$inputFile" \
                             "$command_args" \
                             "$stdin" \
                             "$stdout" \

@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -22,13 +22,13 @@
 
 #include <string>
 #include <iostream>
-#include <libsolutil/Assertions.h>
-#include <libsolutil/CommonData.h>
+#include <libhyputil/Assertions.h>
+#include <libhyputil/CommonData.h>
 #include <test/Metadata.h>
 
 using namespace std;
 
-namespace solidity::test
+namespace hyperion::test
 {
 
 bytes onlyMetadata(bytes const& _bytecode)
@@ -191,7 +191,7 @@ bool isValidMetadata(Json::Value const& _metadata)
 		!_metadata.isMember("settings") ||
 		!_metadata.isMember("sources") ||
 		!_metadata.isMember("output") ||
-		!_metadata["settings"].isMember("evmVersion") ||
+		!_metadata["settings"].isMember("zvmVersion") ||
 		!_metadata["settings"].isMember("metadata") ||
 		!_metadata["settings"]["metadata"].isMember("bytecodeHash")
 	)
@@ -200,7 +200,7 @@ bool isValidMetadata(Json::Value const& _metadata)
 	if (!_metadata["version"].isNumeric() || _metadata["version"] != 1)
 		return false;
 
-	if (!_metadata["language"].isString() || _metadata["language"].asString() != "Solidity")
+	if (!_metadata["language"].isString() || _metadata["language"].asString() != "Hyperion")
 		return false;
 
 	/// @TODO add more strict checks

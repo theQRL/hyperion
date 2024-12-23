@@ -5,7 +5,31 @@
         {
             "NamedObject":
             {
-                "evm":
+                "ir": "object \"NamedObject\" {
+    code {
+        let x := dataoffset(\"DataName\")
+        sstore(add(x, 0), 0)
+    }
+    data \"DataName\" hex\"616263\"
+    object \"OtherObject\" {
+        code { revert(0, 0) }
+    }
+}
+",
+                "irOptimized": "object \"NamedObject\" {
+    code {
+        {
+            let x := dataoffset(\"DataName\")
+            sstore(add(x, 0), 0)
+        }
+    }
+    data \"DataName\" hex\"616263\"
+    object \"OtherObject\" {
+        code { { revert(0, 0) } }
+    }
+}
+",
+                "zvm":
                 {
                     "assembly": "    /* \"A\":80:81   */
   0x00
@@ -48,31 +72,7 @@ sub_0: assembly {
                         "opcodes":"<OPCODES REMOVED>",
                         "sourceMap":"<SOURCEMAP REMOVED>"
                     }
-                },
-                "ir": "object \"NamedObject\" {
-    code {
-        let x := dataoffset(\"DataName\")
-        sstore(add(x, 0), 0)
-    }
-    data \"DataName\" hex\"616263\"
-    object \"OtherObject\" {
-        code { revert(0, 0) }
-    }
-}
-",
-                "irOptimized": "object \"NamedObject\" {
-    code {
-        {
-            let x := dataoffset(\"DataName\")
-            sstore(add(x, 0), 0)
-        }
-    }
-    data \"DataName\" hex\"616263\"
-    object \"OtherObject\" {
-        code { { revert(0, 0) } }
-    }
-}
-"
+                }
             }
         }
     },

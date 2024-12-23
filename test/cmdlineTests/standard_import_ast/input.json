@@ -1,5 +1,5 @@
 {
-	"language": "SolidityAST",
+	"language": "HyperionAST",
 	"sources": {
 		"A": {
 			"ast": {
@@ -16,7 +16,7 @@
 					{
 						"id": 1,
 						"literals": [
-							"solidity",
+							"hyperion",
 							">=",
 							"0.0"
 						],

@@ -8,5 +8,5 @@
 	x, y := f(x)
 }
 // ====
-// dialect: evmTyped
+// dialect: zvmTyped
 // ----

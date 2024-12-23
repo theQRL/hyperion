@@ -1,30 +1,30 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <test/libsolidity/ASTPropertyTest.h>
+#include <test/libhyperion/ASTPropertyTest.h>
 #include <test/Common.h>
 
-#include <libsolidity/ast/ASTJsonExporter.h>
-#include <libsolidity/interface/CompilerStack.h>
+#include <libhyperion/ast/ASTJsonExporter.h>
+#include <libhyperion/interface/CompilerStack.h>
 
 #include <liblangutil/Common.h>
 #include <liblangutil/SourceReferenceFormatter.h>
-#include <libsolutil/JSON.h>
+#include <libhyputil/JSON.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/throw_exception.hpp>
@@ -35,22 +35,22 @@
 
 #include <queue>
 
-using namespace solidity::util;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
-using namespace solidity::frontend::test;
-using namespace solidity;
+using namespace hyperion::util;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::test;
+using namespace hyperion;
 using namespace std::string_literals;
 
 ASTPropertyTest::ASTPropertyTest(std::string const& _filename):
 	TestCase(_filename)
 {
-	if (!boost::algorithm::ends_with(_filename, ".sol"))
-		BOOST_THROW_EXCEPTION(std::runtime_error("Not a Solidity file: \"" + _filename + "\"."));
+	if (!boost::algorithm::ends_with(_filename, ".hyp"))
+		BOOST_THROW_EXCEPTION(std::runtime_error("Not a Hyperion file: \"" + _filename + "\"."));
 
 	m_source = m_reader.source();
 	readExpectations();
-	soltestAssert(m_tests.size() > 0, "No tests specified in " + _filename);
+	hyptestAssert(m_tests.size() > 0, "No tests specified in " + _filename);
 }
 
 std::string ASTPropertyTest::formatExpectations(bool _obtainedResult)
@@ -58,7 +58,7 @@ std::string ASTPropertyTest::formatExpectations(bool _obtainedResult)
 	std::string expectations;
 	for (std::string const& testId: m_testOrder)
 	{
-		soltestAssert(m_tests.count(testId) > 0);
+		hyptestAssert(m_tests.count(testId) > 0);
 		expectations +=
 			testId +
 			": " +
@@ -77,20 +77,20 @@ std::vector<StringPair> ASTPropertyTest::readKeyValuePairs(std::string const& _i
 		if (line.empty())
 			continue;
 
-		soltestAssert(
+		hyptestAssert(
 			ranges::all_of(line, [](char c) { return isprint(c); }),
 			"Non-printable character(s) found in property test: " + line
 		);
 
 		auto colonPosition = line.find_first_of(':');
-		soltestAssert(colonPosition != std::string::npos, "Property test is missing a colon: " + line);
+		hyptestAssert(colonPosition != std::string::npos, "Property test is missing a colon: " + line);
 
 		StringPair pair{
 			boost::trim_copy(line.substr(0, colonPosition)),
 			boost::trim_copy(line.substr(colonPosition + 1))
 		};
-		soltestAssert(!std::get<0>(pair).empty() != false, "Empty key in property test: " + line);
-		soltestAssert(!std::get<1>(pair).empty() != false, "Empty value in property test: " + line);
+		hyptestAssert(!std::get<0>(pair).empty() != false, "Empty key in property test: " + line);
+		hyptestAssert(!std::get<1>(pair).empty() != false, "Empty value in property test: " + line);
 
 		result.push_back(pair);
 	}
@@ -101,7 +101,7 @@ void ASTPropertyTest::readExpectations()
 {
 	for (auto const& [testId, testExpectation]: readKeyValuePairs(m_reader.simpleExpectations()))
 	{
-		soltestAssert(m_tests.count(testId) == 0, "More than one expectation for test \"" + testId + "\"");
+		hyptestAssert(m_tests.count(testId) == 0, "More than one expectation for test \"" + testId + "\"");
 		m_tests.emplace(testId, Test{"", testExpectation, ""});
 		m_testOrder.push_back(testId);
 	}
@@ -132,7 +132,7 @@ void ASTPropertyTest::extractTestsFromAST(Json::Value const& _astJson)
 				std::string nodeDocstring = node["documentation"].isObject() ?
 					node["documentation"]["text"].asString() :
 					node["documentation"].asString();
-				soltestAssert(!nodeDocstring.empty());
+				hyptestAssert(!nodeDocstring.empty());
 
 				std::vector<StringPair> pairs = readKeyValuePairs(nodeDocstring);
 				if (pairs.empty())
@@ -140,23 +140,23 @@ void ASTPropertyTest::extractTestsFromAST(Json::Value const& _astJson)
 
 				for (auto const& [testId, testedProperty]: pairs)
 				{
-					soltestAssert(
+					hyptestAssert(
 						m_tests.count(testId) > 0,
 						"Test \"" + testId + "\" does not have a corresponding expected value."
 					);
-					soltestAssert(
+					hyptestAssert(
 						m_tests[testId].property.empty(),
 						"Test \"" + testId + "\" was already defined before."
 					);
 					m_tests[testId].property = testedProperty;
 
-					soltestAssert(node.isMember("nodeType"));
+					hyptestAssert(node.isMember("nodeType"));
 					std::optional<Json::Value> propertyNode = jsonValueByPath(node, testedProperty);
-					soltestAssert(
+					hyptestAssert(
 						propertyNode.has_value(),
 						node["nodeType"].asString() + " node does not have a property named \""s + testedProperty + "\""
 					);
-					soltestAssert(
+					hyptestAssert(
 						!propertyNode->isObject() && !propertyNode->isArray(),
 						"Property \"" + testedProperty + "\" is an object or an array."
 					);
@@ -171,7 +171,7 @@ void ASTPropertyTest::extractTestsFromAST(Json::Value const& _astJson)
 		m_tests,
 		[&](auto const& _testCase) { return _testCase.second.property.empty(); }
 	);
-	soltestAssert(
+	hyptestAssert(
 		firstTestWithoutProperty == ranges::end(m_tests),
 		"AST property not defined for test \"" + firstTestWithoutProperty->first + "\""
 	);
@@ -185,10 +185,10 @@ TestCase::TestResult ASTPropertyTest::run(std::ostream& _stream, std::string con
 
 	compiler.setSources({{
 		"A",
-		"pragma solidity >=0.0;\n// SPDX-License-Identifier: GPL-3.0\n" + m_source
+		"pragma hyperion >=0.0;\n// SPDX-License-Identifier: GPL-3.0\n" + m_source
 	}});
-	compiler.setEVMVersion(solidity::test::CommonOptions::get().evmVersion());
-	compiler.setOptimiserSettings(solidity::test::CommonOptions::get().optimize);
+	compiler.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+	compiler.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 	if (!compiler.parseAndAnalyze())
 		BOOST_THROW_EXCEPTION(std::runtime_error(
 			"Parsing contract failed" +
@@ -196,7 +196,7 @@ TestCase::TestResult ASTPropertyTest::run(std::ostream& _stream, std::string con
 		));
 
 	Json::Value astJson = ASTJsonExporter(compiler.state()).toJson(compiler.ast("A"));
-	soltestAssert(astJson);
+	hyptestAssert(astJson);
 
 	extractTestsFromAST(astJson);
 

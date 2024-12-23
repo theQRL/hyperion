@@ -1,6 +1,6 @@
 // something else
 /*-- another unrelated comment --*/
-/// @use-src 3: "abc.sol" , 2: "def.sol"
+/// @use-src 3: "abc.hyp" , 2: "def.hyp"
 object "a" {
   code {
     /// @src 3:0:2
@@ -10,7 +10,7 @@ object "a" {
       datasize("sub")
     )
   }
-  /// @use-src 3: "abc.sol" , 2: "def.sol"
+  /// @use-src 3: "abc.hyp" , 2: "def.hyp"
   object "sub" {
     code {
       /// @src 2:70:72
@@ -30,21 +30,21 @@ object "a" {
 }
 // ----
 // Assembly:
-//     /* "abc.sol":0:2   */
+//     /* "abc.hyp":0:2   */
 //   codecopy(0x00, dataOffset(sub_0), dataSize(sub_0))
-//     /* "def.sol":5:6   */
+//     /* "def.hyp":5:6   */
 //   dataSize(sub_0)
-//     /* "abc.sol":0:2   */
+//     /* "abc.hyp":0:2   */
 //   0x00
 //   return
 // stop
 //
 // sub_0: assembly {
-//         /* "def.sol":70:72   */
+//         /* "def.hyp":70:72   */
 //       0x00
 //       dup1
 //       sstore
-//         /* "abc.sol":2:5   */
+//         /* "abc.hyp":2:5   */
 //       mstore(0x00, 0x0d)
 //       stop
 //     stop

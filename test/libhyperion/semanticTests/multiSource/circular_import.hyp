@@ -1,8 +1,8 @@
-==== Source: s1.sol ====
-import {f as g} from "s2.sol";
+==== Source: s1.hyp ====
+import {f as g} from "s2.hyp";
 function f() pure returns (uint) { return 1; }
-==== Source: s2.sol ====
-import {f as g} from "s1.sol";
+==== Source: s2.hyp ====
+import {f as g} from "s1.hyp";
 function f() pure returns (uint) { return 2; }
 contract C {
   function foo() public pure returns (uint) {

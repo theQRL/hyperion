@@ -1,11 +1,11 @@
 {
-	"language": "Solidity",
+	"language": "Hyperion",
 	"sources":
 	{
 		"Source":
 		{
 			"content": "// SPDX-License-Identifier: GPL-3.0
-			pragma solidity >=0.0;
+			pragma hyperion >=0.0;
 			contract C
 			{
 				function f(uint x) public pure {

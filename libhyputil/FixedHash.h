@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /** @file FixedHash.h
@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include <libsolutil/CommonData.h>
-#include <libsolutil/Numeric.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/Numeric.h>
 
 #include <boost/functional/hash.hpp>
 #include <boost/io/ios_state.hpp>
@@ -34,7 +34,7 @@
 #include <cstdint>
 #include <algorithm>
 
-namespace solidity::util
+namespace hyperion::util
 {
 
 /// Fixed-size raw-byte array container type, with an API optimised for storing hashes.
@@ -114,7 +114,7 @@ public:
 
 	/// Explicitly construct, copying from a string.
 	explicit FixedHash(std::string const& _s, ConstructFromStringType _t = FromHex, ConstructFromHashType _ht = FailIfDifferent):
-		FixedHash(_t == FromHex ? fromHex(_s, WhenError::Throw) : solidity::util::asBytes(_s), _ht)
+		FixedHash(_t == FromHex ? fromHex(_s, WhenError::Throw) : hyperion::util::asBytes(_s), _ht)
 	{}
 
 	/// Convert to arithmetic type.

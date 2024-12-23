@@ -1,5 +1,5 @@
-pragma solidity >=0.0;
-import "../Markets/Market.sol";
+pragma hyperion >=0.0;
+import "../Markets/Market.hyp";
 
 
 /// @title Abstract market maker contract - Functions to be implemented by market maker contracts

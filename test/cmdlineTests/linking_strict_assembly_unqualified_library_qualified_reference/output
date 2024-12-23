@@ -1,5 +1,5 @@
 
-======= linking_strict_assembly_unqualified_library_qualified_reference/input.yul (EVM) =======
+======= linking_strict_assembly_unqualified_library_qualified_reference/input.yul (ZVM) =======
 
 Pretty printed source:
 object "a" {

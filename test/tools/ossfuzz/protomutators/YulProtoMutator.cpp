@@ -4,7 +4,7 @@
 
 #include <src/text_format.h>
 
-using namespace solidity::yul::test::yul_fuzzer;
+using namespace hyperion::yul::test::yul_fuzzer;
 using namespace protobuf_mutator;
 using namespace std;
 

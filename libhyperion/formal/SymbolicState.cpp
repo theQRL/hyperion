@@ -1,35 +1,35 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/formal/SymbolicState.h>
+#include <libhyperion/formal/SymbolicState.h>
 
-#include <libsolidity/formal/SymbolicTypes.h>
-#include <libsolidity/formal/EncodingContext.h>
-#include <libsolidity/formal/SMTEncoder.h>
+#include <libhyperion/formal/SymbolicTypes.h>
+#include <libhyperion/formal/EncodingContext.h>
+#include <libhyperion/formal/SMTEncoder.h>
 
 #include <libsmtutil/Sorts.h>
 
 #include <range/v3/view.hpp>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::smtutil;
-using namespace solidity::frontend::smt;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::smtutil;
+using namespace hyperion::frontend::smt;
 
 BlockchainVariable::BlockchainVariable(
 	std::string _name,
@@ -115,7 +115,7 @@ void SymbolicState::transfer(smtutil::Expression _from, smtutil::Expression _to,
 	addBalance(_from, 0 - _value);
 	addBalance(_to, std::move(_value));
 	unsigned indexAfter = m_state->index();
-	solAssert(indexAfter > indexBefore, "");
+	hypAssert(indexAfter > indexBefore, "");
 	m_state->newVar();
 	/// Do not apply the transfer operation if _from == _to.
 	auto newState = smtutil::Expression::ite(
@@ -211,16 +211,10 @@ smtutil::Expression SymbolicState::txMember(std::string const& _member) const
 	return m_tx.member(_member);
 }
 
-smtutil::Expression SymbolicState::evmParisConstraints() const
-{
-	// Ensure prevrandao range as defined by EIP-4399.
-	return txMember("block.prevrandao") > (u256(1) << 64);
-}
-
 smtutil::Expression SymbolicState::txTypeConstraints() const
 {
 	return
-		evmParisConstraints() &&
+		txMember("block.prevrandao") > (u256(1) << 64) &&
 		smt::symbolicUnknownConstraints(m_tx.member("block.basefee"), TypeProvider::uint256()) &&
 		smt::symbolicUnknownConstraints(m_tx.member("block.chainid"), TypeProvider::uint256()) &&
 		smt::symbolicUnknownConstraints(m_tx.member("block.coinbase"), TypeProvider::address()) &&
@@ -379,25 +373,25 @@ void SymbolicState::buildABIFunctions(std::set<FunctionCall const*, ASTCompareBy
 		if (t->kind() == FunctionType::Kind::ABIDecode)
 		{
 			/// abi.decode : (bytes, tuple_of_types(return_types)) -> (return_types)
-			solAssert(args.size() == 2, "Unexpected number of arguments for abi.decode");
+			hypAssert(args.size() == 2, "Unexpected number of arguments for abi.decode");
 			inTypes.emplace_back(TypeProvider::bytesMemory());
 			auto argType = args.at(1)->annotation().type;
 			if (auto const* tupleType = dynamic_cast<TupleType const*>(argType))
 				for (auto componentType: tupleType->components())
 				{
 					auto typeType = dynamic_cast<TypeType const*>(componentType);
-					solAssert(typeType, "");
+					hypAssert(typeType, "");
 					outTypes.emplace_back(typeType->actualType());
 				}
 			else if (auto const* typeType = dynamic_cast<TypeType const*>(argType))
 				outTypes.emplace_back(typeType->actualType());
 			else
-				solAssert(false, "Unexpected argument of abi.decode");
+				hypAssert(false, "Unexpected argument of abi.decode");
 		}
 		else if (t->kind() == FunctionType::Kind::ABIEncodeCall)
 		{
 			// abi.encodeCall : (functionPointer, tuple_of_args_or_one_non_tuple_arg(arguments)) -> bytes
-			solAssert(args.size() == 2, "Unexpected number of arguments for abi.encodeCall");
+			hypAssert(args.size() == 2, "Unexpected number of arguments for abi.encodeCall");
 
 			outTypes.emplace_back(TypeProvider::bytesMemory());
 			inTypes.emplace_back(args.at(0)->annotation().type);
@@ -419,7 +413,7 @@ void SymbolicState::buildABIFunctions(std::set<FunctionCall const*, ASTCompareBy
 			else
 			{
 				/// abi.encode/abi.encodePacked : one_or_more_types -> bytes
-				solAssert(
+				hypAssert(
 					t->kind() == FunctionType::Kind::ABIEncode ||
 					t->kind() == FunctionType::Kind::ABIEncodePacked,
 					""
@@ -485,7 +479,7 @@ void SymbolicState::buildABIFunctions(std::set<FunctionCall const*, ASTCompareBy
 
 smtutil::Expression SymbolicState::abiFunction(frontend::FunctionCall const* _funCall)
 {
-	solAssert(m_abi, "");
+	hypAssert(m_abi, "");
 	return m_abi->member(std::get<0>(m_abiMembers.at(_funCall)));
 }
 

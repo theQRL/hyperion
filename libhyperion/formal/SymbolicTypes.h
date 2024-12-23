@@ -1,40 +1,40 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
-#include <libsolidity/formal/SymbolicVariables.h>
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/Types.h>
+#include <libhyperion/formal/SymbolicVariables.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/Types.h>
 
-namespace solidity::frontend::smt
+namespace hyperion::frontend::smt
 {
 
 class EncodingContext;
 
-/// Returns the SMT sort that models the Solidity type _type.
+/// Returns the SMT sort that models the Hyperion type _type.
 smtutil::SortPointer smtSort(frontend::Type const& _type);
 std::vector<smtutil::SortPointer> smtSort(std::vector<frontend::Type const*> const& _types);
 /// If _type has type Function, abstract it to Integer.
 /// Otherwise return smtSort(_type).
 smtutil::SortPointer smtSortAbstractFunction(frontend::Type const& _type);
 std::vector<smtutil::SortPointer> smtSortAbstractFunction(std::vector<frontend::Type const*> const& _types);
-/// Returns the SMT kind that models the Solidity type type category _category.
+/// Returns the SMT kind that models the Hyperion type type category _category.
 smtutil::Kind smtKind(frontend::Type const& _type);
 
 /// Returns true if type is fully supported (declaration and operations).

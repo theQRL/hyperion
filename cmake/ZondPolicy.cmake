@@ -1,6 +1,6 @@
 # it must be a macro cause policies have scopes
 # http://www.cmake.org/cmake/help/v3.0/command/cmake_policy.html
-macro (eth_policy)
+macro (zond_policy)
 	# link_directories() treats paths relative to the source dir.
 	cmake_policy(SET CMP0015 NEW)
 

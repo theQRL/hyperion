@@ -1,27 +1,27 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
-/** @file IsolTestOptions.cpp
+/** @file IhypTestOptions.cpp
 * @date 2019
 */
 
-#include <test/tools/IsolTestOptions.h>
+#include <test/tools/IhypTestOptions.h>
 
-#include <libsolutil/Assertions.h>
+#include <libhyputil/Assertions.h>
 
 #include <boost/filesystem.hpp>
 
@@ -32,14 +32,14 @@
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
-namespace solidity::test
+namespace hyperion::test
 {
 
 namespace
 {
 
-auto const description = R"(isoltest, tool for interactively managing test contracts.
-Usage: isoltest [Options]
+auto const description = R"(ihyptest, tool for interactively managing test contracts.
+Usage: ihyptest [Options]
 Interactively validates test contracts.
 
 Allowed options)";
@@ -56,12 +56,12 @@ std::string editorPath()
 
 }
 
-IsolTestOptions::IsolTestOptions():
+IhypTestOptions::IhypTestOptions():
 	CommonOptions(description)
 {
 }
 
-void IsolTestOptions::addOptions()
+void IhypTestOptions::addOptions()
 {
 	CommonOptions::addOptions();
 	options.add_options()
@@ -72,7 +72,7 @@ void IsolTestOptions::addOptions()
 		("test,t", po::value<std::string>(&testFilter)->default_value("*/*"), "Filters which test units to include.");
 }
 
-bool IsolTestOptions::parse(int _argc, char const* const* _argv)
+bool IhypTestOptions::parse(int _argc, char const* const* _argv)
 {
 	bool const shouldContinue = CommonOptions::parse(_argc, _argv);
 
@@ -82,12 +82,12 @@ bool IsolTestOptions::parse(int _argc, char const* const* _argv)
 		return false;
 	}
 
-	enforceGasTest = enforceGasTest || (evmVersion() == langutil::EVMVersion{} && !useABIEncoderV1);
+	enforceGasTest = enforceGasTest || (zvmVersion() == langutil::ZVMVersion{} && !useABIEncoderV1);
 
 	return shouldContinue;
 }
 
-void IsolTestOptions::validate() const
+void IhypTestOptions::validate() const
 {
 	CommonOptions::validate();
 	static std::string filterString{"[a-zA-Z0-9_/*]*"};

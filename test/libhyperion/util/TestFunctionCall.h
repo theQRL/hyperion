@@ -1,27 +1,27 @@
 /*
-	This file is part of solidity.
-	solidity is free software: you can redistribute it and/or modify
+	This file is part of hyperion.
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
 
-#include <test/libsolidity/util/TestFileParser.h>
-#include <test/libsolidity/util/SoltestErrors.h>
-#include <test/libsolidity/util/ContractABIUtils.h>
+#include <test/libhyperion/util/TestFileParser.h>
+#include <test/libhyperion/util/HyptestErrors.h>
+#include <test/libhyperion/util/ContractABIUtils.h>
 
 #include <liblangutil/Exceptions.h>
-#include <libsolutil/AnsiColorized.h>
-#include <libsolutil/CommonData.h>
-#include <libsolutil/JSON.h>
+#include <libhyputil/AnsiColorized.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/JSON.h>
 
 #include <json/json.h>
 
@@ -31,13 +31,13 @@
 #include <string>
 #include <vector>
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 /**
  * Represents a function call and the result it returned. It stores the call
  * representation itself, the actual byte result (if any) and a string representation
- * used for the interactive update routine provided by isoltest. It also provides
+ * used for the interactive update routine provided by ihyptest. It also provides
  * functionality to compare the actual result with the expectations attached to the
  * call object, as well as a way to reset the result if executed multiple times.
  */
@@ -86,7 +86,7 @@ public:
 	}
 
 	/// Resets current results in case the function was called and the result
-	/// stored already (e.g. if test case was updated via isoltest).
+	/// stored already (e.g. if test case was updated via ihyptest).
 	void reset();
 
 	FunctionCall const& call() const { return m_call; }

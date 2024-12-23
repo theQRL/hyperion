@@ -1,14 +1,14 @@
 {
-	"language": "Solidity",
+	"language": "Hyperion",
 	"sources": {
 		"fileA": {
-			"content": "//SPDX-License-Identifier: GPL-3.0\npragma solidity >=0.0;\ncontract A { }"
+			"content": "//SPDX-License-Identifier: GPL-3.0\npragma hyperion >=0.0;\ncontract A { }"
 		}
 	},
 	"settings": {
 		"outputSelection": {
 			"fileA": {
-				"A": [ "abi", "devdoc", "userdoc", "evm.bytecode", "evm.assembly", "evm.gasEstimates", "evm.legacyAssembly", "metadata" ],
+				"A": [ "abi", "devdoc", "userdoc", "zvm.bytecode", "zvm.assembly", "zvm.gasEstimates", "zvm.legacyAssembly", "metadata" ],
 				"": [ "ast" ]
 			}
 		},

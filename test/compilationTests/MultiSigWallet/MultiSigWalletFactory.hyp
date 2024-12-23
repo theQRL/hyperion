@@ -1,6 +1,6 @@
-pragma solidity >=0.0;
-import "Factory.sol";
-import "MultiSigWallet.sol";
+pragma hyperion >=0.0;
+import "Factory.hyp";
+import "MultiSigWallet.hyp";
 
 
 /// @title Multisignature wallet factory - Allows creation of multisig wallet.

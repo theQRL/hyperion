@@ -15,10 +15,10 @@ inheritable properties of contracts and may be overridden by derived contracts, 
 if they are marked ``virtual``. For details, please see
 :ref:`Modifier Overriding <modifier-overriding>`.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.7.1 <0.9.0;
+    pragma hyperion >=0.7.1 <0.9.0;
 
     contract owned {
         constructor() { owner = payable(msg.sender); }
@@ -121,7 +121,7 @@ modifier or function body. Return variables are assigned and
 control flow continues after the ``_`` in the preceding modifier.
 
 .. warning::
-    In an earlier version of Solidity, ``return`` statements in functions
+    In an earlier version of Hyperion, ``return`` statements in functions
     having modifiers behaved differently.
 
 An explicit return from a modifier with ``return;`` does not affect the values returned by the function.

@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,24 +21,24 @@
 
 #pragma once
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/codegen/ir/IRVariable.h>
-#include <libsolidity/interface/DebugSettings.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/codegen/ir/IRVariable.h>
+#include <libhyperion/interface/DebugSettings.h>
 
-#include <libsolidity/codegen/MultiUseYulFunctionCollector.h>
-#include <libsolidity/codegen/ir/Common.h>
+#include <libhyperion/codegen/MultiUseYulFunctionCollector.h>
+#include <libhyperion/codegen/ir/Common.h>
 
 #include <liblangutil/CharStreamProvider.h>
 #include <liblangutil/DebugInfoSelection.h>
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
-#include <libsolutil/Common.h>
+#include <libhyputil/Common.h>
 
 #include <set>
 #include <string>
 #include <memory>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 class YulUtilFunctions;
@@ -56,24 +56,24 @@ public:
 	enum class ExecutionContext { Creation, Deployed };
 
 	IRGenerationContext(
-		langutil::EVMVersion _evmVersion,
+		langutil::ZVMVersion _zvmVersion,
 		ExecutionContext _executionContext,
 		RevertStrings _revertStrings,
 		std::map<std::string, unsigned> _sourceIndices,
 		langutil::DebugInfoSelection const& _debugInfoSelection,
-		langutil::CharStreamProvider const* _soliditySourceProvider
+		langutil::CharStreamProvider const* _hyperionSourceProvider
 	):
-		m_evmVersion(_evmVersion),
+		m_zvmVersion(_zvmVersion),
 		m_executionContext(_executionContext),
 		m_revertStrings(_revertStrings),
 		m_sourceIndices(std::move(_sourceIndices)),
 		m_debugInfoSelection(_debugInfoSelection),
-		m_soliditySourceProvider(_soliditySourceProvider)
+		m_hyperionSourceProvider(_hyperionSourceProvider)
 	{}
 
 	MultiUseYulFunctionCollector& functionCollector() { return m_functions; }
 
-	/// Adds a Solidity function to the function generation queue and returns the name of the
+	/// Adds a Hyperion function to the function generation queue and returns the name of the
 	/// corresponding Yul function.
 	std::string enqueueFunctionForCodeGeneration(FunctionDefinition const& _function);
 
@@ -110,7 +110,7 @@ public:
 	bool isStateVariable(VariableDeclaration const& _varDecl) const { return m_stateVariables.count(&_varDecl); }
 	std::pair<u256, unsigned> storageLocationOfStateVariable(VariableDeclaration const& _varDecl) const
 	{
-		solAssert(isStateVariable(_varDecl), "");
+		hypAssert(isStateVariable(_varDecl), "");
 		return m_stateVariables.at(&_varDecl);
 	}
 
@@ -132,7 +132,7 @@ public:
 	/// @returns a new copy of the utility function generator (but using the same function set).
 	YulUtilFunctions utils();
 
-	langutil::EVMVersion evmVersion() const { return m_evmVersion; }
+	langutil::ZVMVersion zvmVersion() const { return m_zvmVersion; }
 	ExecutionContext executionContext() const { return m_executionContext; }
 
 	void setArithmetic(Arithmetic _value) { m_arithmetic = _value; }
@@ -154,10 +154,10 @@ public:
 	bool immutableRegistered(VariableDeclaration const& _varDecl) const { return m_immutableVariables.count(&_varDecl); }
 
 	langutil::DebugInfoSelection debugInfoSelection() const { return m_debugInfoSelection; }
-	langutil::CharStreamProvider const* soliditySourceProvider() const { return m_soliditySourceProvider; }
+	langutil::CharStreamProvider const* hyperionSourceProvider() const { return m_hyperionSourceProvider; }
 
 private:
-	langutil::EVMVersion m_evmVersion;
+	langutil::ZVMVersion m_zvmVersion;
 	ExecutionContext m_executionContext;
 	RevertStrings m_revertStrings;
 	std::map<std::string, unsigned> m_sourceIndices;
@@ -180,7 +180,7 @@ private:
 	/// Flag indicating whether any memory-unsafe inline assembly block was seen.
 	bool m_memoryUnsafeInlineAssemblySeen = false;
 
-	/// Function definitions queued for code generation. They're the Solidity functions whose calls
+	/// Function definitions queued for code generation. They're the Hyperion functions whose calls
 	/// were discovered by the IR generator during AST traversal.
 	/// Note that the queue gets filled in a lazy way - new definitions can be added while the
 	/// collected ones get removed and traversed.
@@ -197,7 +197,7 @@ private:
 	std::set<ContractDefinition const*, ASTNode::CompareByID> m_subObjects;
 
 	langutil::DebugInfoSelection m_debugInfoSelection = {};
-	langutil::CharStreamProvider const* m_soliditySourceProvider = nullptr;
+	langutil::CharStreamProvider const* m_hyperionSourceProvider = nullptr;
 };
 
 }

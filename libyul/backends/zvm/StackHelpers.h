@@ -1,27 +1,27 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
-#include <libyul/backends/evm/ControlFlowGraph.h>
+#include <libyul/backends/zvm/ControlFlowGraph.h>
 #include <libyul/Exceptions.h>
 
-#include <libsolutil/Visitor.h>
+#include <libhyputil/Visitor.h>
 
 #include <range/v3/algorithm/all_of.hpp>
 #include <range/v3/algorithm/any_of.hpp>
@@ -30,7 +30,7 @@
 #include <range/v3/view/reverse.hpp>
 #include <range/v3/view/take.hpp>
 
-namespace solidity::yul
+namespace hyperion::yul
 {
 
 inline std::string stackSlotToString(StackSlot const& _slot)
@@ -88,11 +88,11 @@ concept ShuffleOperationConcept = requires(ShuffleOperations ops, size_t sourceO
 	// Returns the number of slots in the target layout.
 	{ ops.targetSize() } -> std::convertible_to<size_t>;
 	// Swaps the top most slot in the source with the slot `depth` slots below the top.
-	// In terms of EVM opcodes this is supposed to be a `SWAP<depth>`.
+	// In terms of ZVM opcodes this is supposed to be a `SWAP<depth>`.
 	// In terms of vectors this is supposed to be `std::swap(source.at(source.size() - depth - 1, source.top))`.
 	{ ops.swap(depth) };
 	// Pops the top most slot in the source, i.e. the slot at offset ops.sourceSize() - 1.
-	// In terms of EVM opcodes this is `POP`.
+	// In terms of ZVM opcodes this is `POP`.
 	// In terms of vectors this is `source.pop();`.
 	{ ops.pop() };
 	// Dups or pushes the slot that is supposed to end up at the given target offset.
@@ -425,7 +425,7 @@ private:
 /// Transforms @a _currentStack to @a _targetStack, invoking the provided shuffling operations.
 /// Modifies @a _currentStack itself after each invocation of the shuffling operations.
 /// @a _swap is a function with signature void(unsigned) that is called when the top most slot is swapped with
-/// the slot `depth` slots below the top. In terms of EVM opcodes this is supposed to be a `SWAP<depth>`.
+/// the slot `depth` slots below the top. In terms of ZVM opcodes this is supposed to be a `SWAP<depth>`.
 /// @a _pushOrDup is a function with signature void(StackSlot const&) that is called to push or dup the slot given as
 /// its argument to the stack top.
 /// @a _pop is a function with signature void() that is called when the top most slot is popped.

@@ -1,44 +1,44 @@
 /*
-    This file is part of solidity.
+    This file is part of hyperion.
 
-    solidity is free software: you can redistribute it and/or modify
+    hyperion is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    solidity is distributed in the hope that it will be useful,
+    hyperion is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+    along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Unit tests for the name and type resolution of the solidity parser.
+ * Unit tests for the name and type resolution of the hyperion parser.
  */
 
-#include <test/libsolidity/AnalysisFramework.h>
-#include <test/libsolidity/util/SoltestErrors.h>
+#include <test/libhyperion/AnalysisFramework.h>
+#include <test/libhyperion/util/HyptestErrors.h>
 
 #include <test/Common.h>
 
-#include <libsolidity/ast/AST.h>
+#include <libhyperion/ast/AST.h>
 
-#include <libsolutil/Keccak256.h>
+#include <libhyputil/Keccak256.h>
 
 #include <boost/test/unit_test.hpp>
 
 #include <string>
 
-using namespace solidity::langutil;
+using namespace hyperion::langutil;
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
-BOOST_FIXTURE_TEST_SUITE(SolidityNameAndTypeResolution, AnalysisFramework)
+BOOST_FIXTURE_TEST_SUITE(HyperionNameAndTypeResolution, AnalysisFramework)
 
 BOOST_AUTO_TEST_CASE(function_no_implementation)
 {
@@ -48,8 +48,8 @@ BOOST_AUTO_TEST_CASE(function_no_implementation)
 		}
 	)";
 	auto [sourceUnit, errors] = runAnalysisAndExpectNoParsingErrors(text);
-	soltestAssert(sourceUnit);
-	soltestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
+	hyptestAssert(sourceUnit);
+	hyptestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
 
 	std::vector<ASTPointer<ASTNode>> nodes = sourceUnit->nodes();
 	ContractDefinition* contract = dynamic_cast<ContractDefinition*>(nodes[1].get());
@@ -65,8 +65,8 @@ BOOST_AUTO_TEST_CASE(abstract_contract)
 		contract derived is base { function foo() public override {} }
 	)";
 	auto [sourceUnit, errors] = runAnalysisAndExpectNoParsingErrors(text);
-	soltestAssert(sourceUnit);
-	soltestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
+	hyptestAssert(sourceUnit);
+	hyptestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
 
 	std::vector<ASTPointer<ASTNode>> nodes = sourceUnit->nodes();
 	ContractDefinition* base = dynamic_cast<ContractDefinition*>(nodes[1].get());
@@ -86,8 +86,8 @@ BOOST_AUTO_TEST_CASE(abstract_contract_with_overload)
 		abstract contract derived is base { function foo(uint) public {} }
 	)";
 	auto [sourceUnit, errors] = runAnalysisAndExpectNoParsingErrors(text);
-	soltestAssert(sourceUnit);
-	soltestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
+	hyptestAssert(sourceUnit);
+	hyptestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
 
 	std::vector<ASTPointer<ASTNode>> nodes = sourceUnit->nodes();
 	ContractDefinition* base = dynamic_cast<ContractDefinition*>(nodes[1].get());
@@ -105,8 +105,8 @@ BOOST_AUTO_TEST_CASE(implement_abstract_via_constructor)
 		abstract contract foo is base { constructor() {} }
 	)";
 	auto [sourceUnit, errors] = runAnalysisAndExpectNoParsingErrors(text);
-	soltestAssert(sourceUnit);
-	soltestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
+	hyptestAssert(sourceUnit);
+	hyptestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
 
 	std::vector<ASTPointer<ASTNode>> nodes = sourceUnit->nodes();
 	BOOST_CHECK_EQUAL(nodes.size(), 3);
@@ -125,8 +125,8 @@ BOOST_AUTO_TEST_CASE(function_canonical_signature)
 		}
 	)";
 	auto [sourceUnit, errors] = runAnalysisAndExpectNoParsingErrors(text);
-	soltestAssert(sourceUnit);
-	soltestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
+	hyptestAssert(sourceUnit);
+	hyptestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
 
 	for (ASTPointer<ASTNode> const& node: sourceUnit->nodes())
 		if (ContractDefinition* contract = dynamic_cast<ContractDefinition*>(node.get()))
@@ -146,8 +146,8 @@ BOOST_AUTO_TEST_CASE(function_canonical_signature_type_aliases)
 		}
 	)";
 	auto [sourceUnit, errors] = runAnalysisAndExpectNoParsingErrors(text);
-	soltestAssert(sourceUnit);
-	soltestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
+	hyptestAssert(sourceUnit);
+	hyptestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
 
 	for (ASTPointer<ASTNode> const& node: sourceUnit->nodes())
 		if (ContractDefinition* contract = dynamic_cast<ContractDefinition*>(node.get()))
@@ -172,8 +172,8 @@ BOOST_AUTO_TEST_CASE(function_external_types)
 		}
 	)";
 	auto [sourceUnit, errors] = runAnalysisAndExpectNoParsingErrors(text);
-	soltestAssert(sourceUnit);
-	soltestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
+	hyptestAssert(sourceUnit);
+	hyptestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
 
 	for (ASTPointer<ASTNode> const& node: sourceUnit->nodes())
 		if (ContractDefinition* contract = dynamic_cast<ContractDefinition*>(node.get()))
@@ -197,8 +197,8 @@ BOOST_AUTO_TEST_CASE(enum_external_type)
 		}
 	)";
 	auto [sourceUnit, errors] = runAnalysisAndExpectNoParsingErrors(text);
-	soltestAssert(sourceUnit);
-	soltestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
+	hyptestAssert(sourceUnit);
+	hyptestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
 
 	for (ASTPointer<ASTNode> const& node: sourceUnit->nodes())
 		if (ContractDefinition* contract = dynamic_cast<ContractDefinition*>(node.get()))
@@ -282,8 +282,8 @@ BOOST_AUTO_TEST_CASE(struct_with_mapping_in_library)
 		}
 	)";
 	auto [sourceUnit, errors] = runAnalysisAndExpectNoParsingErrors(text);
-	soltestAssert(sourceUnit);
-	soltestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
+	hyptestAssert(sourceUnit);
+	hyptestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
 
 	for (ASTPointer<ASTNode> const& node: sourceUnit->nodes())
 		if (ContractDefinition* contract = dynamic_cast<ContractDefinition*>(node.get()))
@@ -308,8 +308,8 @@ BOOST_AUTO_TEST_CASE(state_variable_accessors)
 	)";
 
 	auto [sourceUnit, errors] = runAnalysisAndExpectNoParsingErrors(text);
-	soltestAssert(sourceUnit);
-	soltestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
+	hyptestAssert(sourceUnit);
+	hyptestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
 
 	ContractDefinition const* contract;
 	BOOST_REQUIRE((contract = retrieveContractByName(*sourceUnit, "test")) != nullptr);
@@ -350,8 +350,8 @@ BOOST_AUTO_TEST_CASE(private_state_variable)
 	)";
 
 	auto [sourceUnit, errors] = runAnalysisAndExpectNoParsingErrors(text);
-	soltestAssert(sourceUnit);
-	soltestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
+	hyptestAssert(sourceUnit);
+	hyptestAssert(errors.empty(), "Unexpected error: " + formatErrors(errors));
 
 	ContractDefinition const* contract;
 	BOOST_CHECK((contract = retrieveContractByName(*sourceUnit, "test")) != nullptr);

@@ -1,4 +1,4 @@
-/// @use-src 0:"input.sol"
+/// @use-src 0:"input.hyp"
 object "C" {
     code {
         let x, y := 1

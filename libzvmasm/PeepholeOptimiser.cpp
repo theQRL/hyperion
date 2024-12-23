@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -20,13 +20,13 @@
  * Performs local optimising code changes to assembly.
  */
 
-#include <libevmasm/PeepholeOptimiser.h>
+#include <libzvmasm/PeepholeOptimiser.h>
 
-#include <libevmasm/AssemblyItem.h>
-#include <libevmasm/SemanticInformation.h>
+#include <libzvmasm/AssemblyItem.h>
+#include <libzvmasm/SemanticInformation.h>
 
-using namespace solidity;
-using namespace solidity::evmasm;
+using namespace hyperion;
+using namespace hyperion::zvmasm;
 
 // TODO: Extend this to use the tools from ExpressionClasses.cpp
 
@@ -508,7 +508,7 @@ size_t numberOfPops(AssemblyItems const& _items)
 bool PeepholeOptimiser::optimise()
 {
 	// Avoid referencing immutables too early by using approx. counting in bytesRequired()
-	auto const approx = evmasm::Precision::Approximate;
+	auto const approx = zvmasm::Precision::Approximate;
 	OptimiserState state {m_items, 0, back_inserter(m_optimisedItems)};
 	while (state.i < m_items.size())
 		applyMethods(
@@ -519,7 +519,7 @@ bool PeepholeOptimiser::optimise()
 		);
 	if (m_optimisedItems.size() < m_items.size() || (
 		m_optimisedItems.size() == m_items.size() && (
-			evmasm::bytesRequired(m_optimisedItems, 3, approx) < evmasm::bytesRequired(m_items, 3, approx) ||
+			zvmasm::bytesRequired(m_optimisedItems, 3, approx) < zvmasm::bytesRequired(m_items, 3, approx) ||
 			numberOfPops(m_optimisedItems) > numberOfPops(m_items)
 		)
 	))

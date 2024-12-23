@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -27,9 +27,9 @@
 #include <stddef.h>
 
 #ifdef __cplusplus
-#define SOLC_NOEXCEPT noexcept
+#define HYPC_NOEXCEPT noexcept
 #else
-#define SOLC_NOEXCEPT
+#define HYPC_NOEXCEPT
 #endif
 
 #ifdef __cplusplus
@@ -38,14 +38,14 @@ extern "C" {
 
 /// Callback used to retrieve additional source files or data.
 ///
-/// @param _context The readContext passed to solidity_compile. Can be NULL.
+/// @param _context The readContext passed to hyperion_compile. Can be NULL.
 /// @param _kind The kind of callback (a string).
 /// @param _data The data for the callback (a string).
-/// @param o_contents A pointer to the contents of the file, if found. Allocated via solidity_alloc().
+/// @param o_contents A pointer to the contents of the file, if found. Allocated via hyperion_alloc().
 /// @param o_error A pointer to an error message, if there is one.
 ///
 /// The file (as well as error) contents that is to be allocated by the callback
-/// implementor must use the solidity_alloc() API to allocate its underlying
+/// implementor must use the hyperion_alloc() API to allocate its underlying
 /// storage. Ownership is then transferred to the compiler which will take care
 /// of the deallocation.
 ///
@@ -55,28 +55,28 @@ typedef void (*CStyleReadFileCallback)(void* _context, char const* _kind, char c
 /// Returns the complete license document.
 ///
 /// The pointer returned must NOT be freed by the caller.
-char const* solidity_license() SOLC_NOEXCEPT;
+char const* hyperion_license() HYPC_NOEXCEPT;
 
 /// Returns the compiler version.
 ///
 /// The pointer returned must NOT be freed by the caller.
-char const* solidity_version() SOLC_NOEXCEPT;
+char const* hyperion_version() HYPC_NOEXCEPT;
 
 /// Allocates a chunk of memory of @p _size bytes.
 ///
 /// Use this function inside callbacks to allocate data that is to be passed to
-/// the compiler. You may use solidity_free() or solidity_reset() to free this
+/// the compiler. You may use hyperion_free() or hyperion_reset() to free this
 /// memory again but it is not required as the compiler takes ownership for any
 /// data passed to it via callbacks.
 ///
 /// This function will return NULL if the requested memory region could not be allocated.
-char* solidity_alloc(size_t _size) SOLC_NOEXCEPT;
+char* hyperion_alloc(size_t _size) HYPC_NOEXCEPT;
 
-/// Explicitly frees the memory (@p _data) that was being allocated with solidity_alloc()
-/// or returned by a call to solidity_compile().
+/// Explicitly frees the memory (@p _data) that was being allocated with hyperion_alloc()
+/// or returned by a call to hyperion_compile().
 ///
 /// Important, this call will abort() in case of any invalid argument being passed to this call.
-void solidity_free(char* _data) SOLC_NOEXCEPT;
+void hyperion_free(char* _data) HYPC_NOEXCEPT;
 
 /// Takes a "Standard Input JSON" and an optional callback (can be set to null). Returns
 /// a "Standard Output JSON". Both are to be UTF-8 encoded.
@@ -87,14 +87,14 @@ void solidity_free(char* _data) SOLC_NOEXCEPT;
 ///                      Please see the documentation of the type for details.
 /// @param _readContext An optional context pointer passed to _readCallback. Can be NULL.
 ///
-/// @returns A pointer to the result. The pointer returned must be freed by the caller using solidity_free() or solidity_reset().
-char* solidity_compile(char const* _input, CStyleReadFileCallback _readCallback, void* _readContext) SOLC_NOEXCEPT;
+/// @returns A pointer to the result. The pointer returned must be freed by the caller using hyperion_free() or hyperion_reset().
+char* hyperion_compile(char const* _input, CStyleReadFileCallback _readCallback, void* _readContext) HYPC_NOEXCEPT;
 
 /// Frees up any allocated memory.
 ///
-/// NOTE: the pointer returned by solidity_compile as well as any other pointer retrieved via solidity_alloc()
+/// NOTE: the pointer returned by hyperion_compile as well as any other pointer retrieved via hyperion_alloc()
 /// is invalid after calling this!
-void solidity_reset() SOLC_NOEXCEPT;
+void hyperion_reset() HYPC_NOEXCEPT;
 
 #ifdef __cplusplus
 }

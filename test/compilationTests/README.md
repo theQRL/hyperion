@@ -1,4 +1,4 @@
-This directory contains various Solidity contract source code files
+This directory contains various Hyperion contract source code files
 that are compiled as part of the regular tests.
 
 These contracts are externally contributed and their presence in this

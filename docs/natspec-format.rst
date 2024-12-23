@@ -4,7 +4,7 @@
 NatSpec Format
 ##############
 
-Solidity contracts can use a special form of comments to provide rich
+Hyperion contracts can use a special form of comments to provide rich
 documentation for functions, return variables and more. This special form is
 named the Ethereum Natural Language Specification Format (NatSpec).
 
@@ -19,12 +19,12 @@ This documentation is segmented into developer-focused messages and end-user-fac
 messages. These messages may be shown to the end user (the human) at the
 time that they will interact with the contract (i.e. sign a transaction).
 
-It is recommended that Solidity contracts are fully annotated using NatSpec for
+It is recommended that Hyperion contracts are fully annotated using NatSpec for
 all public interfaces (everything in the ABI).
 
 NatSpec includes the formatting for comments that the smart contract author will
-use, and which are understood by the Solidity compiler. Also detailed below is
-output of the Solidity compiler, which extracts these comments into a machine-readable
+use, and which are understood by the Hyperion compiler. Also detailed below is
+output of the Hyperion compiler, which extracts these comments into a machine-readable
 format.
 
 NatSpec may also include annotations used by third-party tools. These are most likely
@@ -41,7 +41,7 @@ Documentation is inserted above each ``contract``, ``interface``, ``library``,
 A ``public`` state variable is equivalent to a ``function``
 for the purposes of NatSpec.
 
--  For Solidity you may choose ``///`` for single or multi-line
+-  For Hyperion you may choose ``///`` for single or multi-line
    comments, or ``/**`` and ending with ``*/``.
 
 -  For Vyper, use ``"""`` indented to the inner contents with bare
@@ -52,16 +52,16 @@ The following example shows a contract and a function using all available tags.
 
 .. note::
 
-  The Solidity compiler only interprets tags if they are external or
+  The Hyperion compiler only interprets tags if they are external or
   public. You are welcome to use similar comments for your internal and
   private functions, but those will not be parsed.
 
   This may change in the future.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.8.2 < 0.9.0;
+    pragma hyperion >=0.8.2 < 0.9.0;
 
     /// @title A simulator for trees
     /// @author Larry A. Gardner
@@ -109,7 +109,7 @@ Tags
 
 All tags are optional. The following table explains the purpose of each
 NatSpec tag and where it may be used. As a special case, if no tags are
-used then the Solidity compiler will interpret a ``///`` or ``/**`` comment
+used then the Hyperion compiler will interpret a ``///`` or ``/**`` comment
 in the same way as if it were tagged with ``@notice``.
 
 =============== ====================================================================================== =============================
@@ -136,13 +136,13 @@ It cannot start with a hyphen however. They can be used everywhere and are part 
 Dynamic expressions
 -------------------
 
-The Solidity compiler will pass through NatSpec documentation from your Solidity
+The Hyperion compiler will pass through NatSpec documentation from your Hyperion
 source code to the JSON output as described in this guide. The consumer of this
 JSON output, for example the end-user client software, may present this to the end-user directly or it may apply some pre-processing.
 
 For example, some client software will render:
 
-.. code:: Solidity
+.. code:: Hyperion
 
    /// @notice This function will multiply `a` by 7
 
@@ -176,17 +176,17 @@ above example will produce two different JSON files. One is meant to be
 consumed by the end user as a notice when a function is executed and the
 other to be used by the developer.
 
-If the above contract is saved as ``ex1.sol`` then you can generate the
+If the above contract is saved as ``ex1.hyp`` then you can generate the
 documentation using:
 
 .. code-block:: shell
 
-   solc --userdoc --devdoc ex1.sol
+   hypc --userdoc --devdoc ex1.hyp
 
 And the output is below.
 
 .. note::
-    Starting Solidity version 0.6.11 the NatSpec output also contains a ``version`` and a ``kind`` field.
+    Starting Hyperion version 0.6.11 the NatSpec output also contains a ``version`` and a ``kind`` field.
     Currently the ``version`` is set to ``1`` and ``kind`` must be one of ``user`` or ``dev``.
     In the future it is possible that new versions will be introduced, deprecating older ones.
 

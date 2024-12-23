@@ -5,7 +5,18 @@
         {
             "object":
             {
-                "evm":
+                "ir": "object \"object\" {
+    code {
+        let x := mload(0)
+        sstore(add(x, 0), 0)
+    }
+}
+",
+                "irOptimized": "object \"object\" {
+    code { { sstore(mload(0), 0) } }
+}
+",
+                "zvm":
                 {
                     "assembly": "    /* \"A\":17:18   */
   0x00
@@ -26,18 +37,7 @@
                         "opcodes":"<OPCODES REMOVED>",
                         "sourceMap":"<SOURCEMAP REMOVED>"
                     }
-                },
-                "ir": "object \"object\" {
-    code {
-        let x := mload(0)
-        sstore(add(x, 0), 0)
-    }
-}
-",
-                "irOptimized": "object \"object\" {
-    code { { sstore(mload(0), 0) } }
-}
-"
+                }
             }
         }
     },

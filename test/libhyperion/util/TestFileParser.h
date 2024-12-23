@@ -1,22 +1,22 @@
 /*
-	This file is part of solidity.
-	solidity is free software: you can redistribute it and/or modify
+	This file is part of hyperion.
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
 
 #include <liblangutil/Exceptions.h>
-#include <libsolutil/CommonData.h>
-#include <test/libsolidity/util/SoltestTypes.h>
+#include <libhyputil/CommonData.h>
+#include <test/libhyperion/util/HyptestTypes.h>
 
 #include <iosfwd>
 #include <iterator>
@@ -26,11 +26,11 @@
 #include <vector>
 #include <utility>
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 /**
- * Class that is able to parse an additional and well-formed comment section in a Solidity
+ * Class that is able to parse an additional and well-formed comment section in a Hyperion
  * source file used by the file-based unit test environment. For now, it parses function
  * calls and their expected result after the call was made.
  *
@@ -41,7 +41,7 @@ namespace solidity::frontend::test
  * // g(), 1 wei                # (Optional) Wei to be sent with the call #
  * // -> 2, 3
  * // h(uint256), 1 ether: 42
- * // -> FAILURE                # If REVERT or other EVM failure was detected #
+ * // -> FAILURE                # If REVERT or other ZVM failure was detected #
  * // ()                        # Call fallback function #
  * // (), 1 ether               # Call receive ether function #
  * // EMPTY_STORAGE             # Check that storage is empty
@@ -82,7 +82,7 @@ private:
 		/// Reads character stream and creates token.
 		void scanNextToken();
 
-		soltest::Token currentToken() { return m_currentToken; }
+		hyptest::Token currentToken() { return m_currentToken; }
 		std::string currentLiteral() { return m_currentLiteral; }
 
 		std::string scanComment();
@@ -97,7 +97,7 @@ private:
 		/// Advances current position in the input stream.
 		void advance(unsigned n = 1)
 		{
-			solAssert(m_char != m_source.end(), "Cannot advance beyond end.");
+			hypAssert(m_char != m_source.end(), "Cannot advance beyond end.");
 			m_char = std::next(m_char, static_cast<int>(n));
 		}
 
@@ -121,11 +121,11 @@ private:
 		std::string::const_iterator m_char;
 
 		std::string m_currentLiteral;
-		soltest::Token m_currentToken = soltest::Token::Unknown;
+		hyptest::Token m_currentToken = hyptest::Token::Unknown;
 	};
 
-	bool accept(soltest::Token _token, bool const _expect = false);
-	bool expect(soltest::Token _token, bool const _advance = true);
+	bool accept(hyptest::Token _token, bool const _expect = false);
+	bool expect(hyptest::Token _token, bool const _advance = true);
 
 	/// Parses a function call signature in the form of `f(uint256, ...)` and
 	/// returns the signature and a flag that indicates if the function name was

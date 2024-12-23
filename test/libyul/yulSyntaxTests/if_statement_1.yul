@@ -2,5 +2,5 @@
 	if true:bool {}
 }
 // ====
-// dialect: evmTyped
+// dialect: zvmTyped
 // ----

@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2019 solidity contributors.
+# (c) 2019 hyperion contributors.
 #------------------------------------------------------------------------------
 
 # Disable shellcheck errors on quoted special chars like backticks. Too many false-positives.
@@ -48,20 +48,20 @@ function zeppelin_test
 
     local compile_only_presets=(
         #ir-no-optimize           # Compilation fails with "Contract initcode size is 49410 bytes and exceeds 49152 bytes."
-        ir-optimize-evm-only      # FIXME: A few tests fail with "Transaction: ... exited with an error (status 0) after consuming all gas."
+        ir-optimize-zvm-only      # FIXME: A few tests fail with "Transaction: ... exited with an error (status 0) after consuming all gas."
 )
     local settings_presets=(
         "${compile_only_presets[@]}"
-        ir-optimize-evm+yul
+        ir-optimize-zvm+yul
         legacy-no-optimize
-        legacy-optimize-evm-only
-        legacy-optimize-evm+yul
+        legacy-optimize-zvm-only
+        legacy-optimize-zvm+yul
     )
 
     [[ $SELECTED_PRESETS != "" ]] || SELECTED_PRESETS=$(circleci_select_steps_multiarg "${settings_presets[@]}")
     print_presets_or_exit "$SELECTED_PRESETS"
 
-    setup_solc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"
+    setup_hypc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"
     download_project "$repo" "$ref_type" "$ref" "$DIR"
 
     # Disable tests that won't pass on the ir presets due to Hardhat heuristics. Note that this also disables

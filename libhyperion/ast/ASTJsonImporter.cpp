@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,13 +21,13 @@
  *Component that imports an AST from json format to the internal format
  */
 
-#include <libsolidity/ast/ASTJsonImporter.h>
-#include <libsolidity/ast/UserDefinableOperators.h>
+#include <libhyperion/ast/ASTJsonImporter.h>
+#include <libhyperion/ast/UserDefinableOperators.h>
 
 #include <libyul/AsmJsonImporter.h>
 #include <libyul/AST.h>
 #include <libyul/Dialect.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 
 #include <liblangutil/Exceptions.h>
 #include <liblangutil/Scanner.h>
@@ -37,7 +37,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string.hpp>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 using SourceLocation = langutil::SourceLocation;
@@ -91,7 +91,7 @@ SourceLocation const ASTJsonImporter::createSourceLocation(Json::Value const& _n
 {
 	astAssert(member(_node, "src").isString(), "'src' must be a string");
 
-	return solidity::langutil::parseSourceLocation(_node["src"].asString(), m_sourceNames);
+	return hyperion::langutil::parseSourceLocation(_node["src"].asString(), m_sourceNames);
 }
 
 std::optional<std::vector<SourceLocation>> ASTJsonImporter::createSourceLocations(Json::Value const& _node) const
@@ -112,21 +112,21 @@ SourceLocation ASTJsonImporter::createNameSourceLocation(Json::Value const& _nod
 {
 	astAssert(member(_node, "nameLocation").isString(), "'nameLocation' must be a string");
 
-	return solidity::langutil::parseSourceLocation(_node["nameLocation"].asString(), m_sourceNames);
+	return hyperion::langutil::parseSourceLocation(_node["nameLocation"].asString(), m_sourceNames);
 }
 
 SourceLocation ASTJsonImporter::createKeyNameSourceLocation(Json::Value const& _node)
 {
 	astAssert(member(_node, "keyNameLocation").isString(), "'keyNameLocation' must be a string");
 
-	return solidity::langutil::parseSourceLocation(_node["keyNameLocation"].asString(), m_sourceNames);
+	return hyperion::langutil::parseSourceLocation(_node["keyNameLocation"].asString(), m_sourceNames);
 }
 
 SourceLocation ASTJsonImporter::createValueNameSourceLocation(Json::Value const& _node)
 {
 	astAssert(member(_node, "valueNameLocation").isString(), "'valueNameLocation' must be a string");
 
-	return solidity::langutil::parseSourceLocation(_node["valueNameLocation"].asString(), m_sourceNames);
+	return hyperion::langutil::parseSourceLocation(_node["valueNameLocation"].asString(), m_sourceNames);
 }
 
 template<class T>
@@ -267,15 +267,15 @@ ASTPointer<SourceUnit> ASTJsonImporter::createSourceUnit(Json::Value const& _nod
 	if (_node.isMember("license") && !_node["license"].isNull())
 		license = _node["license"].asString();
 
-	bool experimentalSolidity = false;
-	if (_node.isMember("experimentalSolidity") && !_node["experimentalSolidity"].isNull())
-		experimentalSolidity = _node["experimentalSolidity"].asBool();
+	bool experimentalHyperion = false;
+	if (_node.isMember("experimentalHyperion") && !_node["experimentalHyperion"].isNull())
+		experimentalHyperion = _node["experimentalHyperion"].asBool();
 
 	std::vector<ASTPointer<ASTNode>> nodes;
 	for (auto& child: member(_node, "nodes"))
 		nodes.emplace_back(convertJsonToASTNode(child));
 
-	ASTPointer<SourceUnit> tmp = createASTNode<SourceUnit>(_node, license, nodes, experimentalSolidity);
+	ASTPointer<SourceUnit> tmp = createASTNode<SourceUnit>(_node, license, nodes, experimentalHyperion);
 	tmp->annotation().path = _srcName;
 	return tmp;
 }
@@ -711,12 +711,12 @@ ASTPointer<ArrayTypeName> ASTJsonImporter::createArrayTypeName(Json::Value const
 
 ASTPointer<InlineAssembly> ASTJsonImporter::createInlineAssembly(Json::Value const& _node)
 {
-	astAssert(_node["evmVersion"].isString(), "Expected evmVersion to be a string!");
-	auto evmVersion = langutil::EVMVersion::fromString(_node["evmVersion"].asString());
-	astAssert(evmVersion.has_value(), "Invalid EVM version!");
-	astAssert(m_evmVersion == evmVersion, "Imported tree evm version differs from configured evm version!");
+	astAssert(_node["zvmVersion"].isString(), "Expected zvmVersion to be a string!");
+	auto zvmVersion = langutil::ZVMVersion::fromString(_node["zvmVersion"].asString());
+	astAssert(zvmVersion.has_value(), "Invalid ZVM version!");
+	astAssert(m_zvmVersion == zvmVersion, "Imported tree zvm version differs from configured zvm version!");
 
-	yul::Dialect const& dialect = yul::EVMDialect::strictAssemblyForEVM(evmVersion.value());
+	yul::Dialect const& dialect = yul::ZVMDialect::strictAssemblyForZVM(zvmVersion.value());
 	ASTPointer<std::vector<ASTPointer<ASTString>>> flags;
 	if (_node.isMember("flags"))
 	{
@@ -993,7 +993,7 @@ ASTPointer<MemberAccess> ASTJsonImporter::createMemberAccess(Json::Value const& 
 {
 	SourceLocation memberLocation;
 	if (member(_node, "memberLocation").isString())
-		memberLocation = solidity::langutil::parseSourceLocation(_node["memberLocation"].asString(), m_sourceNames);
+		memberLocation = hyperion::langutil::parseSourceLocation(_node["memberLocation"].asString(), m_sourceNames);
 
 	return createASTNode<MemberAccess>(
 		_node,

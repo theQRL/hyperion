@@ -1,5 +1,5 @@
-pragma solidity >=0.0;
-import "../Tokens/StandardToken.sol";
+pragma hyperion >=0.0;
+import "../Tokens/StandardToken.hyp";
 
 
 /// @title Outcome token contract - Issuing and revoking outcome tokens

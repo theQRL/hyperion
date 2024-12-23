@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -23,19 +23,19 @@
 
 #include <libyul/AST.h>
 #include <libyul/Utilities.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 #include <libyul/optimiser/ASTCopier.h>
 #include <libyul/optimiser/DataFlowAnalyzer.h>
 #include <libyul/optimiser/Semantics.h>
 #include <libyul/optimiser/SyntacticalEquality.h>
 
-#include <libevmasm/RuleList.h>
-#include <libsolutil/StringUtils.h>
+#include <libzvmasm/RuleList.h>
+#include <libhyputil/StringUtils.h>
 
-using namespace solidity;
-using namespace solidity::evmasm;
-using namespace solidity::langutil;
-using namespace solidity::yul;
+using namespace hyperion;
+using namespace hyperion::zvmasm;
+using namespace hyperion::langutil;
+using namespace hyperion::yul;
 
 SimplificationRules::Rule const* SimplificationRules::findFirstMatch(
 	Expression const& _expr,
@@ -47,16 +47,16 @@ SimplificationRules::Rule const* SimplificationRules::findFirstMatch(
 	if (!instruction)
 		return nullptr;
 
-	static std::map<std::optional<EVMVersion>, std::unique_ptr<SimplificationRules>> evmRules;
+	static std::map<std::optional<ZVMVersion>, std::unique_ptr<SimplificationRules>> zvmRules;
 
-	std::optional<EVMVersion> version;
-	if (yul::EVMDialect const* evmDialect = dynamic_cast<yul::EVMDialect const*>(&_dialect))
-		version = evmDialect->evmVersion();
+	std::optional<ZVMVersion> version;
+	if (yul::ZVMDialect const* zvmDialect = dynamic_cast<yul::ZVMDialect const*>(&_dialect))
+		version = zvmDialect->zvmVersion();
 
-	if (!evmRules[version])
-		evmRules[version] = std::make_unique<SimplificationRules>(version);
+	if (!zvmRules[version])
+		zvmRules[version] = std::make_unique<SimplificationRules>(version);
 
-	SimplificationRules& rules = *evmRules[version];
+	SimplificationRules& rules = *zvmRules[version];
 	assertThrow(rules.isInitialized(), OptimizerException, "Rule list not properly initialized.");
 
 	for (auto const& rule: rules.m_rules[uint8_t(instruction->first)])
@@ -71,14 +71,14 @@ SimplificationRules::Rule const* SimplificationRules::findFirstMatch(
 
 bool SimplificationRules::isInitialized() const
 {
-	return !m_rules[uint8_t(evmasm::Instruction::ADD)].empty();
+	return !m_rules[uint8_t(zvmasm::Instruction::ADD)].empty();
 }
 
-std::optional<std::pair<evmasm::Instruction, std::vector<Expression> const*>>
+std::optional<std::pair<zvmasm::Instruction, std::vector<Expression> const*>>
 	SimplificationRules::instructionAndArguments(Dialect const& _dialect, Expression const& _expr)
 {
 	if (std::holds_alternative<FunctionCall>(_expr))
-		if (auto const* dialect = dynamic_cast<EVMDialect const*>(&_dialect))
+		if (auto const* dialect = dynamic_cast<ZVMDialect const*>(&_dialect))
 			if (auto const* builtin = dialect->builtin(std::get<FunctionCall>(_expr).functionName.name))
 				if (builtin->instruction)
 					return std::make_pair(*builtin->instruction, &std::get<FunctionCall>(_expr).arguments);
@@ -97,7 +97,7 @@ void SimplificationRules::addRule(Rule const& _rule)
 	m_rules[uint8_t(_rule.pattern.instruction())].push_back(_rule);
 }
 
-SimplificationRules::SimplificationRules(std::optional<langutil::EVMVersion> _evmVersion)
+SimplificationRules::SimplificationRules(std::optional<langutil::ZVMVersion> _zvmVersion)
 {
 	// Multiple occurrences of one of these inside one rule must match the same equivalence class.
 	// Constants.
@@ -117,11 +117,11 @@ SimplificationRules::SimplificationRules(std::optional<langutil::EVMVersion> _ev
 	Y.setMatchGroup(6, m_matchGroups);
 	Z.setMatchGroup(7, m_matchGroups);
 
-	addRules(simplificationRuleList(_evmVersion, A, B, C, W, X, Y, Z));
+	addRules(simplificationRuleList(_zvmVersion, A, B, C, W, X, Y, Z));
 	assertThrow(isInitialized(), OptimizerException, "Rule list not properly initialized.");
 }
 
-yul::Pattern::Pattern(evmasm::Instruction _instruction, std::initializer_list<Pattern> _arguments):
+yul::Pattern::Pattern(zvmasm::Instruction _instruction, std::initializer_list<Pattern> _arguments):
 	m_kind(PatternKind::Operation),
 	m_instruction(_instruction),
 	m_arguments(_arguments)
@@ -228,13 +228,13 @@ bool Pattern::matches(
 	return true;
 }
 
-evmasm::Instruction Pattern::instruction() const
+zvmasm::Instruction Pattern::instruction() const
 {
 	assertThrow(m_kind == PatternKind::Operation, OptimizerException, "");
 	return m_instruction;
 }
 
-Expression Pattern::toExpression(std::shared_ptr<DebugData const> const& _debugData, langutil::EVMVersion _evmVersion) const
+Expression Pattern::toExpression(std::shared_ptr<DebugData const> const& _debugData, langutil::ZVMVersion _zvmVersion) const
 {
 	if (matchGroup())
 		return ASTCopier().translate(matchGroupValue());
@@ -247,7 +247,7 @@ Expression Pattern::toExpression(std::shared_ptr<DebugData const> const& _debugD
 	{
 		std::vector<Expression> arguments;
 		for (auto const& arg: m_arguments)
-			arguments.emplace_back(arg.toExpression(_debugData, _evmVersion));
+			arguments.emplace_back(arg.toExpression(_debugData, _zvmVersion));
 
 		std::string name = util::toLower(instructionInfo(m_instruction).name);
 

@@ -1,6 +1,6 @@
 function safe() pure returns (uint256 x) {
     assembly { x := 42 }
-    /// @solidity memory-safe-assembly
+    /// @hyperion memory-safe-assembly
     assembly { mstore(0, 0) }
 }
 function unsafe() pure returns (uint256 x) {

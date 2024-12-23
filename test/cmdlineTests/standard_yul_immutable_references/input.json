@@ -12,9 +12,9 @@
 		"outputSelection": {
 			"A": {
 				"*": [
-					"evm.deployedBytecode.immutableReferences",
-					"evm.bytecode",
-					"evm.deployedBytecode"
+					"zvm.deployedBytecode.immutableReferences",
+					"zvm.bytecode",
+					"zvm.deployedBytecode"
 				]
 			}
 		}

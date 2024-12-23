@@ -1,8 +1,8 @@
 {
-    "language": "Solidity",
+    "language": "Hyperion",
     "sources": {
-        "/project/../C.sol": {"content": "//SPDX-License-Identifier: GPL-2.0\npragma solidity >=0.0;\nimport \"../L.sol\";"},
-        "/lib/L.sol": {"content": "//SPDX-License-Identifier: GPL-2.0\npragma solidity >=0.0;\n"}
+        "/project/../C.hyp": {"content": "//SPDX-License-Identifier: GPL-2.0\npragma hyperion >=0.0;\nimport \"../L.hyp\";"},
+        "/lib/L.hyp": {"content": "//SPDX-License-Identifier: GPL-2.0\npragma hyperion >=0.0;\n"}
     },
     "settings": {
         "stopAfter": "parsing",

@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,27 +21,27 @@
  * Component that resolves type names to types and annotates the AST accordingly.
  */
 
-#include <libsolidity/analysis/ReferencesResolver.h>
-#include <libsolidity/analysis/NameAndTypeResolver.h>
-#include <libsolidity/ast/AST.h>
+#include <libhyperion/analysis/ReferencesResolver.h>
+#include <libhyperion/analysis/NameAndTypeResolver.h>
+#include <libhyperion/ast/AST.h>
 
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AsmAnalysisInfo.h>
 #include <libyul/AST.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 
 #include <liblangutil/ErrorReporter.h>
 #include <liblangutil/Exceptions.h>
 
-#include <libsolutil/StringUtils.h>
-#include <libsolutil/CommonData.h>
+#include <libhyputil/StringUtils.h>
+#include <libhyputil/CommonData.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
 
 bool ReferencesResolver::resolve(ASTNode const& _root)
@@ -150,7 +150,7 @@ bool ReferencesResolver::visit(FunctionDefinition const& _functionDefinition)
 
 void ReferencesResolver::endVisit(FunctionDefinition const&)
 {
-	solAssert(!m_returnParameters.empty(), "");
+	hypAssert(!m_returnParameters.empty(), "");
 	m_returnParameters.pop_back();
 }
 
@@ -166,7 +166,7 @@ bool ReferencesResolver::visit(ModifierDefinition const& _modifierDefinition)
 
 void ReferencesResolver::endVisit(ModifierDefinition const&)
 {
-	solAssert(!m_returnParameters.empty(), "");
+	hypAssert(!m_returnParameters.empty(), "");
 	m_returnParameters.pop_back();
 }
 
@@ -227,18 +227,18 @@ bool ReferencesResolver::visit(InlineAssembly const& _inlineAssembly)
 
 bool ReferencesResolver::visit(Return const& _return)
 {
-	solAssert(!m_returnParameters.empty(), "");
+	hypAssert(!m_returnParameters.empty(), "");
 	_return.annotation().functionReturnParameters = m_returnParameters.back();
 	return true;
 }
 
 void ReferencesResolver::operator()(yul::FunctionDefinition const& _function)
 {
-	solAssert(nativeLocationOf(_function) == originLocationOf(_function), "");
+	hypAssert(nativeLocationOf(_function) == originLocationOf(_function), "");
 	validateYulIdentifierName(_function.name, nativeLocationOf(_function));
 	for (yul::TypedName const& varName: _function.parameters + _function.returnVariables)
 	{
-		solAssert(nativeLocationOf(varName) == originLocationOf(varName), "");
+		hypAssert(nativeLocationOf(varName) == originLocationOf(varName), "");
 		validateYulIdentifierName(varName.name, nativeLocationOf(varName));
 	}
 
@@ -250,7 +250,7 @@ void ReferencesResolver::operator()(yul::FunctionDefinition const& _function)
 
 void ReferencesResolver::operator()(yul::Identifier const& _identifier)
 {
-	solAssert(nativeLocationOf(_identifier) == originLocationOf(_identifier), "");
+	hypAssert(nativeLocationOf(_identifier) == originLocationOf(_identifier), "");
 
 	static std::set<std::string> suffixes{"slot", "offset", "length", "address", "selector"};
 	std::string suffix;
@@ -269,11 +269,11 @@ void ReferencesResolver::operator()(yul::Identifier const& _identifier)
 			// the special identifier exists itself, we should not allow that.
 			return;
 		std::string realName = _identifier.name.str().substr(0, _identifier.name.str().size() - suffix.size() - 1);
-		solAssert(!realName.empty(), "Empty name.");
+		hypAssert(!realName.empty(), "Empty name.");
 		declarations = m_resolver.nameFromCurrentScope(realName);
 		if (!declarations.empty())
 			// To support proper path resolution, we have to use pathFromCurrentScope.
-			solAssert(!util::contains(realName, '.'), "");
+			hypAssert(!util::contains(realName, '.'), "");
 	}
 	if (declarations.size() > 1)
 	{
@@ -303,7 +303,7 @@ void ReferencesResolver::operator()(yul::Identifier const& _identifier)
 			m_errorReporter.declarationError(
 				6578_error,
 				nativeLocationOf(_identifier),
-				"Cannot access local Solidity variables from inside an inline assembly function."
+				"Cannot access local Hyperion variables from inside an inline assembly function."
 			);
 			return;
 		}
@@ -316,7 +316,7 @@ void ReferencesResolver::operator()(yul::VariableDeclaration const& _varDecl)
 {
 	for (auto const& identifier: _varDecl.variables)
 	{
-		solAssert(nativeLocationOf(identifier) == originLocationOf(identifier), "");
+		hypAssert(nativeLocationOf(identifier) == originLocationOf(identifier), "");
 		validateYulIdentifierName(identifier.name, nativeLocationOf(identifier));
 
 		if (

@@ -1,31 +1,31 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
-#include <libsolidity/formal/SymbolicState.h>
-#include <libsolidity/formal/SymbolicVariables.h>
+#include <libhyperion/formal/SymbolicState.h>
+#include <libhyperion/formal/SymbolicVariables.h>
 
 #include <libsmtutil/SolverInterface.h>
 
 #include <map>
 
-namespace solidity::frontend::smt
+namespace hyperion::frontend::smt
 {
 
 /**
@@ -52,7 +52,7 @@ public:
 	/// SMT variable declaration.
 	void setSolver(smtutil::SolverInterface* _solver)
 	{
-		solAssert(_solver, "");
+		hypAssert(_solver, "");
 		m_solver = _solver;
 	}
 
@@ -62,7 +62,7 @@ public:
 	/// Forwards variable creation to the solver.
 	smtutil::Expression newVariable(std::string _name, smtutil::SortPointer _sort)
 	{
-		solAssert(m_solver, "");
+		hypAssert(m_solver, "");
 		return m_solver->newVariable(std::move(_name), std::move(_sort));
 	}
 
@@ -145,7 +145,7 @@ public:
 	size_t solverStackHeigh() { return m_assertions.size(); } const
 	smtutil::SolverInterface* solver()
 	{
-		solAssert(m_solver, "");
+		hypAssert(m_solver, "");
 		return m_solver;
 	}
 	//@}

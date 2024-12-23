@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <libyul/optimiser/StackLimitEvader.h>
@@ -21,23 +21,23 @@
 #include <libyul/optimiser/NameDispenser.h>
 #include <libyul/optimiser/NameCollector.h>
 #include <libyul/optimiser/StackToMemoryMover.h>
-#include <libyul/backends/evm/ControlFlowGraphBuilder.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ControlFlowGraphBuilder.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AST.h>
 #include <libyul/CompilabilityChecker.h>
 #include <libyul/Exceptions.h>
 #include <libyul/Object.h>
 #include <libyul/Utilities.h>
-#include <libsolutil/Algorithms.h>
-#include <libsolutil/CommonData.h>
+#include <libhyputil/Algorithms.h>
+#include <libhyputil/CommonData.h>
 
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/concat.hpp>
 #include <range/v3/view/take.hpp>
 
-using namespace solidity;
-using namespace solidity::yul;
+using namespace hyperion;
+using namespace hyperion::yul;
 
 namespace
 {
@@ -122,15 +122,15 @@ void StackLimitEvader::run(
 	Object& _object
 )
 {
-	auto const* evmDialect = dynamic_cast<EVMDialect const*>(&_context.dialect);
+	auto const* zvmDialect = dynamic_cast<ZVMDialect const*>(&_context.dialect);
 	yulAssert(
-		evmDialect && evmDialect->providesObjectAccess(),
-		"StackLimitEvader can only be run on objects using the EVMDialect with object access."
+		zvmDialect && zvmDialect->providesObjectAccess(),
+		"StackLimitEvader can only be run on objects using the ZVMDialect with object access."
 	);
-	if (evmDialect)
+	if (zvmDialect)
 	{
-		yul::AsmAnalysisInfo analysisInfo = yul::AsmAnalyzer::analyzeStrictAssertCorrect(*evmDialect, _object);
-		std::unique_ptr<CFG> cfg = ControlFlowGraphBuilder::build(analysisInfo, *evmDialect, *_object.code);
+		yul::AsmAnalysisInfo analysisInfo = yul::AsmAnalyzer::analyzeStrictAssertCorrect(*zvmDialect, _object);
+		std::unique_ptr<CFG> cfg = ControlFlowGraphBuilder::build(analysisInfo, *zvmDialect, *_object.code);
 		run(_context, _object, StackLayoutGenerator::reportStackTooDeep(*cfg));
 	}
 	else
@@ -168,10 +168,10 @@ void StackLimitEvader::run(
 )
 {
 	yulAssert(_object.code, "");
-	auto const* evmDialect = dynamic_cast<EVMDialect const*>(&_context.dialect);
+	auto const* zvmDialect = dynamic_cast<ZVMDialect const*>(&_context.dialect);
 	yulAssert(
-		evmDialect && evmDialect->providesObjectAccess(),
-		"StackLimitEvader can only be run on objects using the EVMDialect with object access."
+		zvmDialect && zvmDialect->providesObjectAccess(),
+		"StackLimitEvader can only be run on objects using the ZVMDialect with object access."
 	);
 
 	std::vector<FunctionCall*> memoryGuardCalls = FunctionCallFinder::run(

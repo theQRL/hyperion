@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,33 +21,33 @@
  * Standard JSON compiler interface.
  */
 
-#include <libsolidity/interface/StandardCompiler.h>
-#include <libsolidity/interface/ImportRemapper.h>
+#include <libhyperion/interface/StandardCompiler.h>
+#include <libhyperion/interface/ImportRemapper.h>
 
-#include <libsolidity/ast/ASTJsonExporter.h>
+#include <libhyperion/ast/ASTJsonExporter.h>
 #include <libyul/YulStack.h>
 #include <libyul/Exceptions.h>
 #include <libyul/optimiser/Suite.h>
 
-#include <libevmasm/Disassemble.h>
+#include <libzvmasm/Disassemble.h>
 
 #include <libsmtutil/Exceptions.h>
 
 #include <liblangutil/SourceReferenceFormatter.h>
 
-#include <libsolutil/JSON.h>
-#include <libsolutil/Keccak256.h>
-#include <libsolutil/CommonData.h>
+#include <libhyputil/JSON.h>
+#include <libhyputil/Keccak256.h>
+#include <libhyputil/CommonData.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 
 #include <algorithm>
 #include <optional>
 
-using namespace solidity;
-using namespace solidity::yul;
-using namespace solidity::frontend;
-using namespace solidity::langutil;
+using namespace hyperion;
+using namespace hyperion::yul;
+using namespace hyperion::frontend;
+using namespace hyperion::langutil;
 using namespace std::string_literals;
 
 namespace
@@ -243,14 +243,14 @@ bool isArtifactRequested(Json::Value const& _outputSelection, std::string const&
 	return false;
 }
 
-/// @returns all artifact names of the EVM object, either for creation or deploy time.
-std::vector<std::string> evmObjectComponents(std::string const& _objectKind)
+/// @returns all artifact names of the ZVM object, either for creation or deploy time.
+std::vector<std::string> zvmObjectComponents(std::string const& _objectKind)
 {
-	solAssert(_objectKind == "bytecode" || _objectKind == "deployedBytecode", "");
+	hypAssert(_objectKind == "bytecode" || _objectKind == "deployedBytecode", "");
 	std::vector<std::string> components{"", ".object", ".opcodes", ".sourceMap", ".functionDebugData", ".generatedSources", ".linkReferences"};
 	if (_objectKind == "deployedBytecode")
 		components.push_back(".immutableReferences");
-	return util::applyMap(components, [&](auto const& _s) { return "evm." + _objectKind + _s; });
+	return util::applyMap(components, [&](auto const& _s) { return "zvm." + _objectKind + _s; });
 }
 
 /// @returns true if any binary was requested, i.e. we actually have to perform compilation.
@@ -259,12 +259,12 @@ bool isBinaryRequested(Json::Value const& _outputSelection)
 	if (!_outputSelection.isObject())
 		return false;
 
-	// This does not include "evm.methodIdentifiers" on purpose!
+	// This does not include "zvm.methodIdentifiers" on purpose!
 	static std::vector<std::string> const outputsThatRequireBinaries = std::vector<std::string>{
 		"*",
 		"ir", "irAst", "irOptimized", "irOptimizedAst",
-		"evm.gasEstimates", "evm.legacyAssembly", "evm.assembly"
-	} + evmObjectComponents("bytecode") + evmObjectComponents("deployedBytecode");
+		"zvm.gasEstimates", "zvm.legacyAssembly", "zvm.assembly"
+	} + zvmObjectComponents("bytecode") + zvmObjectComponents("deployedBytecode");
 
 	for (auto const& fileRequests: _outputSelection)
 		for (auto const& requests: fileRequests)
@@ -274,20 +274,20 @@ bool isBinaryRequested(Json::Value const& _outputSelection)
 	return false;
 }
 
-/// @returns true if EVM bytecode was requested, i.e. we have to run the old code generator.
-bool isEvmBytecodeRequested(Json::Value const& _outputSelection)
+/// @returns true if ZVM bytecode was requested, i.e. we have to run the old code generator.
+bool isZvmBytecodeRequested(Json::Value const& _outputSelection)
 {
 	if (!_outputSelection.isObject())
 		return false;
 
-	static std::vector<std::string> const outputsThatRequireEvmBinaries = std::vector<std::string>{
+	static std::vector<std::string> const outputsThatRequireZvmBinaries = std::vector<std::string>{
 		"*",
-		"evm.gasEstimates", "evm.legacyAssembly", "evm.assembly"
-	} + evmObjectComponents("bytecode") + evmObjectComponents("deployedBytecode");
+		"zvm.gasEstimates", "zvm.legacyAssembly", "zvm.assembly"
+	} + zvmObjectComponents("bytecode") + zvmObjectComponents("deployedBytecode");
 
 	for (auto const& fileRequests: _outputSelection)
 		for (auto const& requests: fileRequests)
-			for (auto const& output: outputsThatRequireEvmBinaries)
+			for (auto const& output: outputsThatRequireZvmBinaries)
 				if (isArtifactRequested(requests, output, false))
 					return true;
 	return false;
@@ -364,8 +364,8 @@ Json::Value formatImmutableReferences(std::map<u256, std::pair<std::string, std:
 	return ret;
 }
 
-Json::Value collectEVMObject(
-	evmasm::LinkerObject const& _object,
+Json::Value collectZVMObject(
+	zvmasm::LinkerObject const& _object,
 	std::string const* _sourceMap,
 	Json::Value _generatedSources,
 	bool _runtimeObject,
@@ -376,7 +376,7 @@ Json::Value collectEVMObject(
 	if (_artifactRequested("object"))
 		output["object"] = _object.toHex();
 	if (_artifactRequested("opcodes"))
-		output["opcodes"] = evmasm::disassemble(_object.bytecode);
+		output["opcodes"] = zvmasm::disassemble(_object.bytecode);
 	if (_artifactRequested("sourceMap"))
 		output["sourceMap"] = _sourceMap ? *_sourceMap : "";
 	if (_artifactRequested("functionDebugData"))
@@ -422,7 +422,7 @@ std::optional<Json::Value> checkAuxiliaryInputKeys(Json::Value const& _input)
 
 std::optional<Json::Value> checkSettingsKeys(Json::Value const& _input)
 {
-	static std::set<std::string> keys{"debug", "evmVersion", "libraries", "metadata", "modelChecker", "optimizer", "outputSelection", "remappings", "stopAfter", "viaIR"};
+	static std::set<std::string> keys{"debug", "zvmVersion", "libraries", "metadata", "modelChecker", "optimizer", "outputSelection", "remappings", "stopAfter", "viaIR"};
 	return checkKeys(_input, keys, "settings");
 }
 
@@ -483,7 +483,7 @@ std::optional<Json::Value> checkOptimizerDetailSteps(Json::Value const& _details
 			if (delimiterPos != std::string::npos)
 				_cleanupSetting = fullSequence.substr(delimiterPos + 1);
 			else
-				solAssert(_cleanupSetting == OptimiserSettings::DefaultYulOptimiserCleanupSteps);
+				hypAssert(_cleanupSetting == OptimiserSettings::DefaultYulOptimiserCleanupSteps);
 		}
 		else
 			return formatFatalError(Error::Type::JSONError, "\"settings.optimizer.details." + _name + "\" must be a string");
@@ -650,7 +650,7 @@ std::variant<StandardCompiler::InputsAndSettings, Json::Value> StandardCompiler:
 
 	ret.errors = Json::arrayValue;
 
-	if (ret.language == "Solidity" || ret.language == "Yul")
+	if (ret.language == "Hyperion" || ret.language == "Yul")
 	{
 		for (auto const& sourceName: sources.getMemberNames())
 		{
@@ -724,7 +724,7 @@ std::variant<StandardCompiler::InputsAndSettings, Json::Value> StandardCompiler:
 				return formatFatalError(Error::Type::JSONError, "Invalid input source specified.");
 		}
 	}
-	else if (ret.language == "SolidityAST")
+	else if (ret.language == "HyperionAST")
 	{
 		for (auto const& sourceName: sources.getMemberNames())
 			ret.sources[sourceName] = util::jsonCompactPrint(sources[sourceName]);
@@ -789,14 +789,14 @@ std::variant<StandardCompiler::InputsAndSettings, Json::Value> StandardCompiler:
 		ret.viaIR = settings["viaIR"].asBool();
 	}
 
-	if (settings.isMember("evmVersion"))
+	if (settings.isMember("zvmVersion"))
 	{
-		if (!settings["evmVersion"].isString())
-			return formatFatalError(Error::Type::JSONError, "evmVersion must be a string.");
-		std::optional<langutil::EVMVersion> version = langutil::EVMVersion::fromString(settings["evmVersion"].asString());
+		if (!settings["zvmVersion"].isString())
+			return formatFatalError(Error::Type::JSONError, "zvmVersion must be a string.");
+		std::optional<langutil::ZVMVersion> version = langutil::ZVMVersion::fromString(settings["zvmVersion"].asString());
 		if (!version)
-			return formatFatalError(Error::Type::JSONError, "Invalid EVM version requested.");
-		ret.evmVersion = *version;
+			return formatFatalError(Error::Type::JSONError, "Invalid ZVM version requested.");
+		ret.zvmVersion = *version;
 	}
 
 	if (settings.isMember("debug"))
@@ -912,7 +912,7 @@ std::variant<StandardCompiler::InputsAndSettings, Json::Value> StandardCompiler:
 	if (auto result = checkMetadataKeys(metadataSettings))
 		return *result;
 
-	solAssert(CompilerStack::defaultMetadataFormat() != CompilerStack::MetadataFormat::NoMetadata, "");
+	hypAssert(CompilerStack::defaultMetadataFormat() != CompilerStack::MetadataFormat::NoMetadata, "");
 	ret.metadataFormat =
 		metadataSettings.get("appendCBOR", Json::Value(true)).asBool() ?
 		CompilerStack::defaultMetadataFormat() :
@@ -1147,17 +1147,17 @@ std::map<std::string, Json::Value> StandardCompiler::parseAstFromInput(StringMap
 	return sourceJsons;
 }
 
-Json::Value StandardCompiler::compileSolidity(StandardCompiler::InputsAndSettings _inputsAndSettings)
+Json::Value StandardCompiler::compileHyperion(StandardCompiler::InputsAndSettings _inputsAndSettings)
 {
 	CompilerStack compilerStack(m_readFile);
 
 	StringMap sourceList = std::move(_inputsAndSettings.sources);
-	if (_inputsAndSettings.language == "Solidity")
+	if (_inputsAndSettings.language == "Hyperion")
 		compilerStack.setSources(sourceList);
 	for (auto const& smtLib2Response: _inputsAndSettings.smtLib2Responses)
 		compilerStack.addSMTLib2Response(smtLib2Response.first, smtLib2Response.second);
 	compilerStack.setViaIR(_inputsAndSettings.viaIR);
-	compilerStack.setEVMVersion(_inputsAndSettings.evmVersion);
+	compilerStack.setZVMVersion(_inputsAndSettings.zvmVersion);
 	compilerStack.setRemappings(std::move(_inputsAndSettings.remappings));
 	compilerStack.setOptimiserSettings(std::move(_inputsAndSettings.optimiserSettings));
 	compilerStack.setRevertStringBehaviour(_inputsAndSettings.revertStrings);
@@ -1170,7 +1170,7 @@ Json::Value StandardCompiler::compileSolidity(StandardCompiler::InputsAndSetting
 	compilerStack.setRequestedContractNames(requestedContractNames(_inputsAndSettings.outputSelection));
 	compilerStack.setModelCheckerSettings(_inputsAndSettings.modelCheckerSettings);
 
-	compilerStack.enableEvmBytecodeGeneration(isEvmBytecodeRequested(_inputsAndSettings.outputSelection));
+	compilerStack.enableZvmBytecodeGeneration(isZvmBytecodeRequested(_inputsAndSettings.outputSelection));
 	compilerStack.enableIRGeneration(isIRRequested(_inputsAndSettings.outputSelection));
 
 	Json::Value errors = std::move(_inputsAndSettings.errors);
@@ -1179,7 +1179,7 @@ Json::Value StandardCompiler::compileSolidity(StandardCompiler::InputsAndSetting
 
 	try
 	{
-		if (_inputsAndSettings.language == "SolidityAST")
+		if (_inputsAndSettings.language == "HyperionAST")
 		{
 			try
 			{
@@ -1191,7 +1191,7 @@ Json::Value StandardCompiler::compileSolidity(StandardCompiler::InputsAndSetting
 			}
 			catch (util::Exception const& _exc)
 			{
-				solThrow(util::Exception, "Failed to import AST: "s + _exc.what());
+				hypThrow(util::Exception, "Failed to import AST: "s + _exc.what());
 			}
 		}
 		else
@@ -1352,7 +1352,7 @@ Json::Value StandardCompiler::compileSolidity(StandardCompiler::InputsAndSetting
 	for (std::string const& contractName: analysisSuccess ? compilerStack.contractNames() : std::vector<std::string>())
 	{
 		size_t colon = contractName.rfind(':');
-		solAssert(colon != std::string::npos, "");
+		hypAssert(colon != std::string::npos, "");
 		std::string file = contractName.substr(0, colon);
 		std::string name = contractName.substr(colon + 1);
 
@@ -1379,25 +1379,25 @@ Json::Value StandardCompiler::compileSolidity(StandardCompiler::InputsAndSetting
 		if (compilationSuccess && isArtifactRequested(_inputsAndSettings.outputSelection, file, name, "irOptimizedAst", wildcardMatchesExperimental))
 			contractData["irOptimizedAst"] = compilerStack.yulIROptimizedAst(contractName);
 
-		// EVM
-		Json::Value evmData(Json::objectValue);
-		if (compilationSuccess && isArtifactRequested(_inputsAndSettings.outputSelection, file, name, "evm.assembly", wildcardMatchesExperimental))
-			evmData["assembly"] = compilerStack.assemblyString(contractName, sourceList);
-		if (compilationSuccess && isArtifactRequested(_inputsAndSettings.outputSelection, file, name, "evm.legacyAssembly", wildcardMatchesExperimental))
-			evmData["legacyAssembly"] = compilerStack.assemblyJSON(contractName);
-		if (isArtifactRequested(_inputsAndSettings.outputSelection, file, name, "evm.methodIdentifiers", wildcardMatchesExperimental))
-			evmData["methodIdentifiers"] = compilerStack.interfaceSymbols(contractName)["methods"];
-		if (compilationSuccess && isArtifactRequested(_inputsAndSettings.outputSelection, file, name, "evm.gasEstimates", wildcardMatchesExperimental))
-			evmData["gasEstimates"] = compilerStack.gasEstimates(contractName);
+		// ZVM
+		Json::Value zvmData(Json::objectValue);
+		if (compilationSuccess && isArtifactRequested(_inputsAndSettings.outputSelection, file, name, "zvm.assembly", wildcardMatchesExperimental))
+			zvmData["assembly"] = compilerStack.assemblyString(contractName, sourceList);
+		if (compilationSuccess && isArtifactRequested(_inputsAndSettings.outputSelection, file, name, "zvm.legacyAssembly", wildcardMatchesExperimental))
+			zvmData["legacyAssembly"] = compilerStack.assemblyJSON(contractName);
+		if (isArtifactRequested(_inputsAndSettings.outputSelection, file, name, "zvm.methodIdentifiers", wildcardMatchesExperimental))
+			zvmData["methodIdentifiers"] = compilerStack.interfaceSymbols(contractName)["methods"];
+		if (compilationSuccess && isArtifactRequested(_inputsAndSettings.outputSelection, file, name, "zvm.gasEstimates", wildcardMatchesExperimental))
+			zvmData["gasEstimates"] = compilerStack.gasEstimates(contractName);
 
 		if (compilationSuccess && isArtifactRequested(
 			_inputsAndSettings.outputSelection,
 			file,
 			name,
-			evmObjectComponents("bytecode"),
+			zvmObjectComponents("bytecode"),
 			wildcardMatchesExperimental
 		))
-			evmData["bytecode"] = collectEVMObject(
+			zvmData["bytecode"] = collectZVMObject(
 				compilerStack.object(contractName),
 				compilerStack.sourceMapping(contractName),
 				compilerStack.generatedSources(contractName),
@@ -1406,7 +1406,7 @@ Json::Value StandardCompiler::compileSolidity(StandardCompiler::InputsAndSetting
 					_inputsAndSettings.outputSelection,
 					file,
 					name,
-					"evm.bytecode." + _element,
+					"zvm.bytecode." + _element,
 					wildcardMatchesExperimental
 				); }
 			);
@@ -1415,10 +1415,10 @@ Json::Value StandardCompiler::compileSolidity(StandardCompiler::InputsAndSetting
 			_inputsAndSettings.outputSelection,
 			file,
 			name,
-			evmObjectComponents("deployedBytecode"),
+			zvmObjectComponents("deployedBytecode"),
 			wildcardMatchesExperimental
 		))
-			evmData["deployedBytecode"] = collectEVMObject(
+			zvmData["deployedBytecode"] = collectZVMObject(
 				compilerStack.runtimeObject(contractName),
 				compilerStack.runtimeSourceMapping(contractName),
 				compilerStack.generatedSources(contractName, true),
@@ -1427,13 +1427,13 @@ Json::Value StandardCompiler::compileSolidity(StandardCompiler::InputsAndSetting
 					_inputsAndSettings.outputSelection,
 					file,
 					name,
-					"evm.deployedBytecode." + _element,
+					"zvm.deployedBytecode." + _element,
 					wildcardMatchesExperimental
 				); }
 			);
 
-		if (!evmData.empty())
-			contractData["evm"] = evmData;
+		if (!zvmData.empty())
+			contractData["zvm"] = zvmData;
 
 		if (!contractData.empty())
 		{
@@ -1492,7 +1492,7 @@ Json::Value StandardCompiler::compileYul(InputsAndSettings _inputsAndSettings)
 	}
 
 	YulStack stack(
-		_inputsAndSettings.evmVersion,
+		_inputsAndSettings.zvmVersion,
 		YulStack::Language::StrictAssembly,
 		_inputsAndSettings.optimiserSettings,
 		_inputsAndSettings.debugInfoSelection.has_value() ?
@@ -1559,14 +1559,14 @@ Json::Value StandardCompiler::compileYul(InputsAndSettings _inputsAndSettings)
 			_inputsAndSettings.outputSelection,
 			sourceName,
 			contractName,
-			evmObjectComponents(kind),
+			zvmObjectComponents(kind),
 			wildcardMatchesExperimental
 		))
 		{
 			MachineAssemblyObject const& o = isDeployed ? deployedObject : object;
 			if (o.bytecode)
-				output["contracts"][sourceName][contractName]["evm"][kind] =
-					collectEVMObject(
+				output["contracts"][sourceName][contractName]["zvm"][kind] =
+					collectZVMObject(
 						*o.bytecode,
 						o.sourceMappings.get(),
 						Json::arrayValue,
@@ -1575,7 +1575,7 @@ Json::Value StandardCompiler::compileYul(InputsAndSettings _inputsAndSettings)
 							_inputsAndSettings.outputSelection,
 							sourceName,
 							contractName,
-							"evm." + kind + "." + _element,
+							"zvm." + kind + "." + _element,
 							wildcardMatchesExperimental
 						); }
 					);
@@ -1583,8 +1583,8 @@ Json::Value StandardCompiler::compileYul(InputsAndSettings _inputsAndSettings)
 
 	if (isArtifactRequested(_inputsAndSettings.outputSelection, sourceName, contractName, "irOptimized", wildcardMatchesExperimental))
 		output["contracts"][sourceName][contractName]["irOptimized"] = stack.print();
-	if (isArtifactRequested(_inputsAndSettings.outputSelection, sourceName, contractName, "evm.assembly", wildcardMatchesExperimental))
-		output["contracts"][sourceName][contractName]["evm"]["assembly"] = object.assembly;
+	if (isArtifactRequested(_inputsAndSettings.outputSelection, sourceName, contractName, "zvm.assembly", wildcardMatchesExperimental))
+		output["contracts"][sourceName][contractName]["zvm"]["assembly"] = object.assembly;
 
 	return output;
 }
@@ -1600,14 +1600,14 @@ Json::Value StandardCompiler::compile(Json::Value const& _input) noexcept
 		if (std::holds_alternative<Json::Value>(parsed))
 			return std::get<Json::Value>(std::move(parsed));
 		InputsAndSettings settings = std::get<InputsAndSettings>(std::move(parsed));
-		if (settings.language == "Solidity")
-			return compileSolidity(std::move(settings));
+		if (settings.language == "Hyperion")
+			return compileHyperion(std::move(settings));
 		else if (settings.language == "Yul")
 			return compileYul(std::move(settings));
-		else if (settings.language == "SolidityAST")
-			return compileSolidity(std::move(settings));
+		else if (settings.language == "HyperionAST")
+			return compileHyperion(std::move(settings));
 		else
-			return formatFatalError(Error::Type::JSONError, "Only \"Solidity\", \"Yul\" or \"SolidityAST\" is supported as a language.");
+			return formatFatalError(Error::Type::JSONError, "Only \"Hyperion\", \"Yul\" or \"HyperionAST\" is supported as a language.");
 	}
 	catch (Json::LogicError const& _exception)
 	{
@@ -1656,7 +1656,7 @@ std::string StandardCompiler::compile(std::string const& _input) noexcept
 }
 
 Json::Value StandardCompiler::formatFunctionDebugData(
-	std::map<std::string, evmasm::LinkerObject::FunctionDebugData> const& _debugInfo
+	std::map<std::string, zvmasm::LinkerObject::FunctionDebugData> const& _debugInfo
 )
 {
 	Json::Value ret(Json::objectValue);

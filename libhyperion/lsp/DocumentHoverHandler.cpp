@@ -1,31 +1,31 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/lsp/DocumentHoverHandler.h>
-#include <libsolidity/lsp/Utils.h>
+#include <libhyperion/lsp/DocumentHoverHandler.h>
+#include <libhyperion/lsp/Utils.h>
 
 #include <fmt/format.h>
 
-namespace solidity::lsp
+namespace hyperion::lsp
 {
-using namespace solidity::lsp;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion::lsp;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
 namespace
 {
@@ -34,10 +34,10 @@ struct MarkdownBuilder
 {
 	std::stringstream result;
 
-	MarkdownBuilder& solidityCode(std::string const& _code)
+	MarkdownBuilder& hyperionCode(std::string const& _code)
 	{
-		auto constexpr SolidityLanguageId = "solidity";
-		result << "```" << SolidityLanguageId << '\n' << _code << "\n```\n\n";
+		auto constexpr HyperionLanguageId = "hyperion";
+		result << "```" << HyperionLanguageId << '\n' << _code << "\n```\n\n";
 		return *this;
 	}
 
@@ -68,12 +68,12 @@ void DocumentHoverHandler::operator()(MessageID _id, Json::Value const& _args)
 	{
 		if (auto const* declaration = ASTNode::referencedDeclaration(*expression))
 			if (declaration->type())
-				markdown.solidityCode(declaration->type()->toString(false));
+				markdown.hyperionCode(declaration->type()->toString(false));
 	}
 	else if (auto const* declaration = dynamic_cast<Declaration const*>(sourceNode))
 	{
 		if (declaration->type())
-			markdown.solidityCode(declaration->type()->toString(false));
+			markdown.hyperionCode(declaration->type()->toString(false));
 	}
 	else if (auto const* identifierPath = dynamic_cast<IdentifierPath const*>(sourceNode))
 	{
@@ -87,7 +87,7 @@ void DocumentHoverHandler::operator()(MessageID _id, Json::Value const& _args)
 				{
 					Declaration const* declaration = identifierPath->annotation().pathDeclarations[i];
 					if (declaration && declaration->type())
-						markdown.solidityCode(declaration->type()->toString(false));
+						markdown.hyperionCode(declaration->type()->toString(false));
 					if (auto const* structurallyDocumented = dynamic_cast<StructurallyDocumented const*>(declaration))
 						if (structurallyDocumented->documentation()->text())
 							markdown.paragraph(*structurallyDocumented->documentation()->text());

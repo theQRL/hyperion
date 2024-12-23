@@ -5,11 +5,11 @@
 
 #include "libstdlib/stub.h"
 
-namespace solidity::stdlib
+namespace hyperion::stdlib
 {
 
 static std::map<std::string, std::string> sources = {
 	{ "std.stub", stub }
 };
 
-} // namespace solidity::stdlib
+} // namespace hyperion::stdlib

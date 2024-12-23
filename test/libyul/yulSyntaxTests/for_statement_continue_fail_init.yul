@@ -5,6 +5,6 @@
 	}
 }
 // ====
-// dialect: evmTyped
+// dialect: zvmTyped
 // ----
 // SyntaxError 9615: (31-39): Keyword "continue" in for-loop init block is not allowed.

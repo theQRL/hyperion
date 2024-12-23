@@ -14,6 +14,6 @@ source "${REPO_ROOT}/scripts/common_cmdline.sh"
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 YUL_SOURCE="${SCRIPT_DIR}/verbatim_inside_identical_blocks.yul"
 
-VERBATIM_OCCURRENCES=$(< "$YUL_SOURCE" "$SOLC" --strict-assembly - --optimize --asm | grep -e "verbatim" -c)
+VERBATIM_OCCURRENCES=$(< "$YUL_SOURCE" "$HYPC" --strict-assembly - --optimize --asm | grep -e "verbatim" -c)
 
 [[ $VERBATIM_OCCURRENCES == 2 ]] || assertFail "Incorrect number of verbatim items in assembly."

@@ -1,16 +1,16 @@
 {
-	"language": "Solidity",
+	"language": "Hyperion",
 	"sources":
 	{
 		"A":
 		{
-			"content": "//SPDX-License-Identifier: GPL-3.0\npragma solidity >=0.0; contract C { function f() public pure {} }"
+			"content": "//SPDX-License-Identifier: GPL-3.0\npragma hyperion >=0.0; contract C { function f() public pure {} }"
 		}
 	},
 	"settings":
 	{
 		"optimizer": 1,
-		"evmVersion": "shanghai",
+		"zvmVersion": "shanghai",
 		"metadata": {
 			"useLiteralContent": true
 		}

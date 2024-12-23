@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: WTFPL
-pragma solidity >=0.8.0;
+pragma hyperion >=0.8.0;
 
-import "./PRBMathCommon.sol";
+import "./PRBMathCommon.hyp";
 
 /// @title PRBMathUD60x18
 /// @author Paul Razvan Berg
 /// @notice Smart contract library for advanced fixed-point math. It works with uint256 numbers considered to have 18
 /// trailing decimals. We call this number representation unsigned 60.18-decimal fixed-point, since there can be up to 60
 /// digits in the integer part and up to 18 decimals in the fractional part. The numbers are bound by the minimum and the
-/// maximum values permitted by the Solidity type uint256.
+/// maximum values permitted by the Hyperion type uint256.
 library PRBMathUD60x18 {
     /// @dev Half the SCALE number.
     uint256 internal constant HALF_SCALE = 5e17;
@@ -165,7 +165,7 @@ library PRBMathUD60x18 {
         }
 
         unchecked {
-            // Checking for overflow this way is faster than letting Solidity do it.
+            // Checking for overflow this way is faster than letting Hyperion do it.
             uint256 xy = x * y;
             require(xy / x == y);
 

@@ -1,13 +1,13 @@
 {
-	"language": "Solidity",
+	"language": "Hyperion",
 	"sources": {
-		"C": {"urls": ["standard_debug_info_in_yul_and_evm_asm_print_snippet_only/in.sol"]}
+		"C": {"urls": ["standard_debug_info_in_yul_and_zvm_asm_print_snippet_only/in.hyp"]}
 	},
 	"settings": {
 		"debug": {"debugInfo": ["snippet"]},
 		"optimizer": {"enabled": true},
 		"outputSelection": {
-			"*": {"*": ["ir", "irOptimized", "evm.assembly"]}
+			"*": {"*": ["ir", "irOptimized", "zvm.assembly"]}
 		}
 	}
 }

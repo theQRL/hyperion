@@ -1,6 +1,6 @@
-pragma solidity >=0.0;
+pragma hyperion >=0.0;
 
-import "./safeMath.sol";
+import "./safeMath.hyp";
 
 contract multiOwner is safeMath {
 

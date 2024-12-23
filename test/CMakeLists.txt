@@ -1,11 +1,11 @@
 set(sources
-    soltest.cpp
+    hyptest.cpp
     Common.cpp
     Common.h
     CommonSyntaxTest.cpp
     CommonSyntaxTest.h
-    EVMHost.cpp
-    EVMHost.h
+    ZVMHost.cpp
+    ZVMHost.h
     ExecutionFramework.cpp
     ExecutionFramework.h
     FilesystemUtils.cpp
@@ -27,31 +27,31 @@ set(contracts_sources
 )
 detect_stray_source_files("${contracts_sources}" "contracts/")
 
-set(libsolutil_sources
-    libsolutil/Checksum.cpp
-    libsolutil/CommonData.cpp
-    libsolutil/CommonIO.cpp
-    libsolutil/FixedHash.cpp
-    libsolutil/FunctionSelector.cpp
-    libsolutil/IpfsHash.cpp
-    libsolutil/IterateReplacing.cpp
-    libsolutil/JSON.cpp
-    libsolutil/Keccak256.cpp
-    libsolutil/LazyInit.cpp
-    libsolutil/LEB128.cpp
-    libsolutil/StringUtils.cpp
-    libsolutil/SwarmHash.cpp
-    libsolutil/TemporaryDirectoryTest.cpp
-    libsolutil/UTF8.cpp
-    libsolutil/Whiskers.cpp
+set(libhyputil_sources
+    libhyputil/Checksum.cpp
+    libhyputil/CommonData.cpp
+    libhyputil/CommonIO.cpp
+    libhyputil/FixedHash.cpp
+    libhyputil/FunctionSelector.cpp
+    libhyputil/IpfsHash.cpp
+    libhyputil/IterateReplacing.cpp
+    libhyputil/JSON.cpp
+    libhyputil/Keccak256.cpp
+    libhyputil/LazyInit.cpp
+    libhyputil/LEB128.cpp
+    libhyputil/StringUtils.cpp
+    libhyputil/SwarmHash.cpp
+    libhyputil/TemporaryDirectoryTest.cpp
+    libhyputil/UTF8.cpp
+    libhyputil/Whiskers.cpp
 )
-detect_stray_source_files("${libsolutil_sources}" "libsolutil/")
+detect_stray_source_files("${libhyputil_sources}" "libhyputil/")
 
-set(libevmasm_sources
-    libevmasm/Assembler.cpp
-    libevmasm/Optimiser.cpp
+set(libzvmasm_sources
+    libzvmasm/Assembler.cpp
+    libzvmasm/Optimiser.cpp
 )
-detect_stray_source_files("${libevmasm_sources}" "libevmasm/")
+detect_stray_source_files("${libzvmasm_sources}" "libzvmasm/")
 
 set(liblangutil_sources
     liblangutil/CharStream.cpp
@@ -60,74 +60,74 @@ set(liblangutil_sources
 )
 detect_stray_source_files("${liblangutil_sources}" "liblangutil/")
 
-set(libsolidity_sources
-    libsolidity/ABIDecoderTests.cpp
-    libsolidity/ABIEncoderTests.cpp
-    libsolidity/ABIJsonTest.cpp
-    libsolidity/ABIJsonTest.h
-    libsolidity/ABITestsCommon.h
-    libsolidity/AnalysisFramework.cpp
-    libsolidity/AnalysisFramework.h
-    libsolidity/Assembly.cpp
-    libsolidity/ASTJSONTest.cpp
-    libsolidity/ASTJSONTest.h
-    libsolidity/ErrorCheck.cpp
-    libsolidity/ErrorCheck.h
-    libsolidity/GasCosts.cpp
-    libsolidity/GasMeter.cpp
-    libsolidity/GasTest.cpp
-    libsolidity/GasTest.h
-    libsolidity/Imports.cpp
-    libsolidity/InlineAssembly.cpp
-    libsolidity/LibSolc.cpp
-    libsolidity/Metadata.cpp
-    libsolidity/MemoryGuardTest.cpp
-    libsolidity/MemoryGuardTest.h
-    libsolidity/NatspecJSONTest.cpp
-    libsolidity/NatspecJSONTest.h
-    libsolidity/SemanticTest.cpp
-    libsolidity/SemanticTest.h
-    libsolidity/SemVerMatcher.cpp
-    libsolidity/SMTCheckerTest.cpp
-    libsolidity/SMTCheckerTest.h
-    libsolidity/SolidityCompiler.cpp
-    libsolidity/SolidityEndToEndTest.cpp
-    libsolidity/SolidityExecutionFramework.cpp
-    libsolidity/SolidityExecutionFramework.h
-    libsolidity/SolidityExpressionCompiler.cpp
-    libsolidity/SolidityNameAndTypeResolution.cpp
-    libsolidity/SolidityOptimizer.cpp
-    libsolidity/SolidityParser.cpp
-    libsolidity/SolidityTypes.cpp
-    libsolidity/StandardCompiler.cpp
-    libsolidity/SyntaxTest.cpp
-    libsolidity/SyntaxTest.h
-    libsolidity/ViewPureChecker.cpp
-    libsolidity/analysis/FunctionCallGraph.cpp
-    libsolidity/interface/FileReader.cpp
-    libsolidity/ASTPropertyTest.h
-    libsolidity/ASTPropertyTest.cpp
+set(libhyperion_sources
+    libhyperion/ABIDecoderTests.cpp
+    libhyperion/ABIEncoderTests.cpp
+    libhyperion/ABIJsonTest.cpp
+    libhyperion/ABIJsonTest.h
+    libhyperion/ABITestsCommon.h
+    libhyperion/AnalysisFramework.cpp
+    libhyperion/AnalysisFramework.h
+    libhyperion/Assembly.cpp
+    libhyperion/ASTJSONTest.cpp
+    libhyperion/ASTJSONTest.h
+    libhyperion/ErrorCheck.cpp
+    libhyperion/ErrorCheck.h
+    libhyperion/GasCosts.cpp
+    libhyperion/GasMeter.cpp
+    libhyperion/GasTest.cpp
+    libhyperion/GasTest.h
+    libhyperion/Imports.cpp
+    libhyperion/InlineAssembly.cpp
+    libhyperion/LibHypc.cpp
+    libhyperion/Metadata.cpp
+    libhyperion/MemoryGuardTest.cpp
+    libhyperion/MemoryGuardTest.h
+    libhyperion/NatspecJSONTest.cpp
+    libhyperion/NatspecJSONTest.h
+    libhyperion/SemanticTest.cpp
+    libhyperion/SemanticTest.h
+    libhyperion/SemVerMatcher.cpp
+    libhyperion/SMTCheckerTest.cpp
+    libhyperion/SMTCheckerTest.h
+    libhyperion/HyperionCompiler.cpp
+    libhyperion/HyperionEndToEndTest.cpp
+    libhyperion/HyperionExecutionFramework.cpp
+    libhyperion/HyperionExecutionFramework.h
+    libhyperion/HyperionExpressionCompiler.cpp
+    libhyperion/HyperionNameAndTypeResolution.cpp
+    libhyperion/HyperionOptimizer.cpp
+    libhyperion/HyperionParser.cpp
+    libhyperion/HyperionTypes.cpp
+    libhyperion/StandardCompiler.cpp
+    libhyperion/SyntaxTest.cpp
+    libhyperion/SyntaxTest.h
+    libhyperion/ViewPureChecker.cpp
+    libhyperion/analysis/FunctionCallGraph.cpp
+    libhyperion/interface/FileReader.cpp
+    libhyperion/ASTPropertyTest.h
+    libhyperion/ASTPropertyTest.cpp
 )
-detect_stray_source_files("${libsolidity_sources}" "libsolidity/")
+detect_stray_source_files("${libhyperion_sources}" "libhyperion/")
 
-set(libsolidity_util_sources
-    libsolidity/util/BytesUtils.cpp
-    libsolidity/util/BytesUtilsTests.cpp
-    libsolidity/util/BytesUtils.h
-    libsolidity/util/Common.cpp
-    libsolidity/util/Common.h
-    libsolidity/util/ContractABIUtils.cpp
-    libsolidity/util/ContractABIUtils.h
-    libsolidity/util/SoltestErrors.h
-    libsolidity/util/SoltestTypes.h
-    libsolidity/util/TestFileParser.cpp
-    libsolidity/util/TestFileParser.h
-    libsolidity/util/TestFileParserTests.cpp
-    libsolidity/util/TestFunctionCall.cpp
-    libsolidity/util/TestFunctionCall.h
-    libsolidity/util/TestFunctionCallTests.cpp
+set(libhyperion_util_sources
+    libhyperion/util/BytesUtils.cpp
+    libhyperion/util/BytesUtilsTests.cpp
+    libhyperion/util/BytesUtils.h
+    libhyperion/util/Common.cpp
+    libhyperion/util/Common.h
+    libhyperion/util/ContractABIUtils.cpp
+    libhyperion/util/ContractABIUtils.h
+    libhyperion/util/HyptestErrors.h
+    libhyperion/util/HyptestTypes.h
+    libhyperion/util/TestFileParser.cpp
+    libhyperion/util/TestFileParser.h
+    libhyperion/util/TestFileParserTests.cpp
+    libhyperion/util/TestFunctionCall.cpp
+    libhyperion/util/TestFunctionCall.h
+    libhyperion/util/TestFunctionCallTests.cpp
 )
-detect_stray_source_files("${libsolidity_util_sources}" "libsolidity/util/")
+detect_stray_source_files("${libhyperion_util_sources}" "libhyperion/util/")
 
 set(libyul_sources
     libyul/Common.cpp
@@ -137,8 +137,8 @@ set(libyul_sources
     libyul/ControlFlowGraphTest.h
     libyul/ControlFlowSideEffectsTest.cpp
     libyul/ControlFlowSideEffectsTest.h
-    libyul/EVMCodeTransformTest.cpp
-    libyul/EVMCodeTransformTest.h
+    libyul/ZVMCodeTransformTest.cpp
+    libyul/ZVMCodeTransformTest.h
     libyul/FunctionSideEffects.cpp
     libyul/FunctionSideEffects.h
     libyul/Inliner.cpp
@@ -163,14 +163,14 @@ set(libyul_sources
 )
 detect_stray_source_files("${libyul_sources}" "libyul/")
 
-set(solcli_sources
-    solc/Common.cpp
-    solc/Common.h
-    solc/CommandLineInterface.cpp
-    solc/CommandLineInterfaceAllowPaths.cpp
-    solc/CommandLineParser.cpp
+set(hypcli_sources
+    hypc/Common.cpp
+    hypc/Common.h
+    hypc/CommandLineInterface.cpp
+    hypc/CommandLineInterfaceAllowPaths.cpp
+    hypc/CommandLineParser.cpp
 )
-detect_stray_source_files("${solcli_sources}" "solc/")
+detect_stray_source_files("${hypcli_sources}" "hypc/")
 
 set(yul_phaser_sources
     yulPhaser/TestHelpers.h
@@ -192,31 +192,31 @@ set(yul_phaser_sources
 )
 detect_stray_source_files("${yul_phaser_sources}" "yulPhaser/")
 
-add_executable(soltest ${sources}
+add_executable(hyptest ${sources}
     ${contracts_sources}
-    ${libsolutil_sources}
+    ${libhyputil_sources}
     ${liblangutil_sources}
-    ${libevmasm_sources}
+    ${libzvmasm_sources}
     ${libyul_sources}
-    ${libsolidity_sources}
-    ${libsolidity_util_sources}
-    ${solcli_sources}
+    ${libhyperion_sources}
+    ${libhyperion_util_sources}
+    ${hypcli_sources}
     ${yul_phaser_sources}
 )
-target_link_libraries(soltest PRIVATE solcli libsolc yul solidity smtutil solutil phaser Boost::boost yulInterpreter evmasm Boost::filesystem Boost::program_options Boost::unit_test_framework evmc)
+target_link_libraries(hyptest PRIVATE hypcli libhypc yul hyperion smtutil hyputil phaser Boost::boost yulInterpreter zvmasm Boost::filesystem Boost::program_options Boost::unit_test_framework zvmc)
 
 
 # Special compilation flag for Visual Studio (version 2019 at least affected)
-# in order to compile SolidityEndToEndTest.cpp, which is quite huge.
+# in order to compile HyperionEndToEndTest.cpp, which is quite huge.
 # We can remove this flag once we've extracted the tests.
-# TODO: Remove this option as soon as we have reduced the SLoC's in SolidityEndToEndTest.cpp
+# TODO: Remove this option as soon as we have reduced the SLoC's in HyperionEndToEndTest.cpp
 if (MSVC)
-    target_compile_options(soltest PUBLIC "/bigobj")
+    target_compile_options(hyptest PUBLIC "/bigobj")
 endif()
 
 if (NOT Boost_USE_STATIC_LIBS)
-    target_compile_definitions(soltest PUBLIC -DBOOST_TEST_DYN_LINK)
+    target_compile_definitions(hyptest PUBLIC -DBOOST_TEST_DYN_LINK)
 endif()
 
 add_subdirectory(tools)
-add_subdirectory(evmc)
+add_subdirectory(zvmc)

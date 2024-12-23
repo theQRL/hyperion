@@ -1,46 +1,46 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * Framework for testing features from the analysis phase of compiler.
  */
 
-#include <test/libsolidity/AnalysisFramework.h>
+#include <test/libhyperion/AnalysisFramework.h>
 
-#include <test/libsolidity/util/Common.h>
-#include <test/libsolidity/util/SoltestErrors.h>
+#include <test/libhyperion/util/Common.h>
+#include <test/libhyperion/util/HyptestErrors.h>
 #include <test/Common.h>
 
-#include <libsolidity/interface/CompilerStack.h>
+#include <libhyperion/interface/CompilerStack.h>
 #include <liblangutil/SourceReferenceFormatter.h>
 
-#include <libsolidity/ast/AST.h>
+#include <libhyperion/ast/AST.h>
 
 #include <liblangutil/Scanner.h>
 
-#include <libsolutil/FunctionSelector.h>
+#include <libhyputil/FunctionSelector.h>
 
 #include <boost/test/unit_test.hpp>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
-using namespace solidity::frontend::test;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::test;
 
 std::pair<SourceUnit const*, ErrorList> AnalysisFramework::runAnalysisAndExpectNoParsingErrors(
 	std::string const& _source,
@@ -65,7 +65,7 @@ bool AnalysisFramework::runFramework(StringMap _sources, PipelineStage _targetSt
 {
 	resetFramework();
 	m_targetStage = _targetStage;
-	soltestAssert(m_compiler);
+	hyptestAssert(m_compiler);
 
 	m_compiler->setSources(std::move(_sources));
 	setupCompiler(*m_compiler);
@@ -89,34 +89,34 @@ void AnalysisFramework::setupCompiler(CompilerStack& _compiler)
 	// These are just defaults based on the (global) CLI options.
 	// Technically, every TestCase should override these with values passed to it in TestCase::Config.
 	// In practice TestCase::Config always matches global config so most test cases don't care.
-	_compiler.setEVMVersion(solidity::test::CommonOptions::get().evmVersion());
-	_compiler.setOptimiserSettings(solidity::test::CommonOptions::get().optimize);
+	_compiler.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+	_compiler.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 }
 
 void AnalysisFramework::executeCompilationPipeline()
 {
-	soltestAssert(m_compiler);
+	hyptestAssert(m_compiler);
 
 	// If you add a new stage, remember to handle it below.
-	soltestAssert(
+	hyptestAssert(
 		m_targetStage == PipelineStage::Parsing ||
 		m_targetStage == PipelineStage::Analysis ||
 		m_targetStage == PipelineStage::Compilation
 	);
 
 	bool parsingSuccessful = m_compiler->parse();
-	soltestAssert(parsingSuccessful || !filteredErrors(false /* _includeWarningsAndInfos */).empty());
+	hyptestAssert(parsingSuccessful || !filteredErrors(false /* _includeWarningsAndInfos */).empty());
 	if (!parsingSuccessful || stageSuccessful(m_targetStage))
 		return;
 
 	bool analysisSuccessful = m_compiler->analyze();
-	soltestAssert(analysisSuccessful || !filteredErrors(false /* _includeWarningsAndInfos */).empty());
+	hyptestAssert(analysisSuccessful || !filteredErrors(false /* _includeWarningsAndInfos */).empty());
 	if (!analysisSuccessful || stageSuccessful(m_targetStage))
 		return;
 
 	bool compilationSuccessful = m_compiler->compile();
-	soltestAssert(compilationSuccessful || !filteredErrors(false /* _includeWarningsAndInfos */).empty());
-	soltestAssert(stageSuccessful(m_targetStage) == compilationSuccessful);
+	hyptestAssert(compilationSuccessful || !filteredErrors(false /* _includeWarningsAndInfos */).empty());
+	hyptestAssert(stageSuccessful(m_targetStage) == compilationSuccessful);
 }
 
 ErrorList AnalysisFramework::filterErrors(ErrorList const& _errorList, bool _includeWarningsAndInfos) const
@@ -124,7 +124,7 @@ ErrorList AnalysisFramework::filterErrors(ErrorList const& _errorList, bool _inc
 	ErrorList errors;
 	for (auto const& currentError: _errorList)
 	{
-		solAssert(currentError->comment(), "");
+		hypAssert(currentError->comment(), "");
 		if (!Error::isError(currentError->type()))
 		{
 			if (!_includeWarningsAndInfos)

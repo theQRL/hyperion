@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity *;
+pragma hyperion *;
 
 contract C {
     // This will trigger a fatal error at the analysis stage, of the kind that terminates analysis

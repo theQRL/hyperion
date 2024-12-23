@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -35,21 +35,21 @@
 #include <ostream>
 #include <string>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 
 class CharStream;
 
 }
 
-namespace solidity::yul
+namespace hyperion::yul
 {
 
 struct CodeWeights;
 
 }
 
-namespace solidity::phaser
+namespace hyperion::phaser
 {
 
 class FitnessMetric;
@@ -86,16 +86,16 @@ enum class MetricAggregatorChoice
 	Minimum,
 };
 
-std::istream& operator>>(std::istream& _inputStream, solidity::phaser::PhaserMode& _phaserMode);
-std::ostream& operator<<(std::ostream& _outputStream, solidity::phaser::PhaserMode _phaserMode);
-std::istream& operator>>(std::istream& _inputStream, solidity::phaser::Algorithm& _algorithm);
-std::ostream& operator<<(std::ostream& _outputStream, solidity::phaser::Algorithm _algorithm);
-std::istream& operator>>(std::istream& _inputStream, solidity::phaser::MetricChoice& _metric);
-std::ostream& operator<<(std::ostream& _outputStream, solidity::phaser::MetricChoice _metric);
-std::istream& operator>>(std::istream& _inputStream, solidity::phaser::MetricAggregatorChoice& _aggregator);
-std::ostream& operator<<(std::ostream& _outputStream, solidity::phaser::MetricAggregatorChoice _aggregator);
-std::istream& operator>>(std::istream& _inputStream, solidity::phaser::CrossoverChoice& _crossover);
-std::ostream& operator<<(std::ostream& _outputStream, solidity::phaser::CrossoverChoice _crossover);
+std::istream& operator>>(std::istream& _inputStream, hyperion::phaser::PhaserMode& _phaserMode);
+std::ostream& operator<<(std::ostream& _outputStream, hyperion::phaser::PhaserMode _phaserMode);
+std::istream& operator>>(std::istream& _inputStream, hyperion::phaser::Algorithm& _algorithm);
+std::ostream& operator<<(std::ostream& _outputStream, hyperion::phaser::Algorithm _algorithm);
+std::istream& operator>>(std::istream& _inputStream, hyperion::phaser::MetricChoice& _metric);
+std::ostream& operator<<(std::ostream& _outputStream, hyperion::phaser::MetricChoice _metric);
+std::istream& operator>>(std::istream& _inputStream, hyperion::phaser::MetricAggregatorChoice& _aggregator);
+std::ostream& operator<<(std::ostream& _outputStream, hyperion::phaser::MetricAggregatorChoice _aggregator);
+std::istream& operator>>(std::istream& _inputStream, hyperion::phaser::CrossoverChoice& _crossover);
+std::ostream& operator<<(std::ostream& _outputStream, hyperion::phaser::CrossoverChoice _crossover);
 
 /**
  * Builds and validates instances of @a GeneticAlgorithm and its derived classes.

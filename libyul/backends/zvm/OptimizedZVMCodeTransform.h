@@ -1,46 +1,46 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Code generator for translating Yul / inline assembly to EVM.
+ * Code generator for translating Yul / inline assembly to ZVM.
  */
 
 #pragma once
 
 #include <libyul/AST.h>
-#include <libyul/backends/evm/EVMDialect.h>
-#include <libyul/backends/evm/ControlFlowGraph.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/zvm/ControlFlowGraph.h>
 #include <libyul/Exceptions.h>
 #include <libyul/Scope.h>
 
 #include <optional>
 #include <stack>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 class ErrorReporter;
 }
 
-namespace solidity::yul
+namespace hyperion::yul
 {
 struct AsmAnalysisInfo;
 struct StackLayout;
 
-class OptimizedEVMCodeTransform
+class OptimizedZVMCodeTransform
 {
 public:
 	/// Use named labels for functions 1) Yes and check that the names are unique
@@ -51,7 +51,7 @@ public:
 		AbstractAssembly& _assembly,
 		AsmAnalysisInfo& _analysisInfo,
 		Block const& _block,
-		EVMDialect const& _dialect,
+		ZVMDialect const& _dialect,
 		BuiltinContext& _builtinContext,
 		UseNamedLabels _useNamedLabelsForFunctions
 	);
@@ -63,7 +63,7 @@ public:
 	/// Generate code for the assignment @a _assignment. Only public for using with std::visit.
 	void operator()(CFG::Assignment const& _assignment);
 private:
-	OptimizedEVMCodeTransform(
+	OptimizedZVMCodeTransform(
 		AbstractAssembly& _assembly,
 		BuiltinContext& _builtinContext,
 		UseNamedLabels _useNamedLabelsForFunctions,

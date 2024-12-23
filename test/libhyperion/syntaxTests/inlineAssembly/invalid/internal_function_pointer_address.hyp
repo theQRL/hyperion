@@ -9,7 +9,7 @@ contract C {
 			adr := fp.address
 		}
 	}
-	function testSol() public returns (address) {
+	function testHyp() public returns (address) {
 		return testFunction.address;
 	}
 }

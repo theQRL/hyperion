@@ -1,10 +1,10 @@
 {
-	"language": "Solidity",
+	"language": "Hyperion",
 	"sources":
 	{
 		"A":
 		{
-			"content": "// SPDX-License-Identifier: GPL-3.0\npragma solidity >=0.0; pragma abicoder v2; contract C {} contract D { function f() public { C c = new C(); } }"
+			"content": "// SPDX-License-Identifier: GPL-3.0\npragma hyperion >=0.0; pragma abicoder v2; contract C {} contract D { function f() public { C c = new C(); } }"
 		}
 	},
 	"settings":
@@ -14,7 +14,7 @@
 		},
 		"outputSelection":
 		{
-			"*": { "*": ["ir", "evm.bytecode.object", "evm.bytecode.generatedSources", "evm.deployedBytecode.object"] }
+			"*": { "*": ["ir", "zvm.bytecode.object", "zvm.bytecode.generatedSources", "zvm.deployedBytecode.object"] }
 		},
 		"viaIR": true
 	}

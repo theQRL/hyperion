@@ -1,15 +1,15 @@
 /**
- * EVMC: Ethereum Client-VM Connector API
+ * ZVMC: Zond Client-VM Connector API
  *
  * @copyright
- * Copyright 2016 The EVMC Authors.
+ * Copyright 2016 The ZVMC Authors.
  * Licensed under the Apache License, Version 2.0.
  *
- * @defgroup EVMC EVMC
+ * @defgroup ZVMC ZVMC
  * @{
  */
-#ifndef EVMC_H
-#define EVMC_H
+#ifndef ZVMC_H
+#define ZVMC_H
 
 #if defined(__clang__) || (defined(__GNUC__) && __GNUC__ >= 6)
 /**
@@ -18,9 +18,9 @@
  * Available for clang and GCC 6+ compilers. The older GCC compilers know
  * this attribute, but it cannot be applied to enum elements.
  */
-#define EVMC_DEPRECATED __attribute__((deprecated))
+#define ZVMC_DEPRECATED __attribute__((deprecated))
 #else
-#define EVMC_DEPRECATED
+#define ZVMC_DEPRECATED
 #endif
 
 
@@ -37,14 +37,14 @@ extern "C" {
 enum
 {
     /**
-     * The EVMC ABI version number of the interface declared in this file.
+     * The ZVMC ABI version number of the interface declared in this file.
      *
-     * The EVMC ABI version always equals the major version number of the EVMC project.
+     * The ZVMC ABI version always equals the major version number of the ZVMC project.
      * The Host SHOULD check if the ABI versions match when dynamically loading VMs.
      *
      * @see @ref versioning
      */
-    EVMC_ABI_VERSION = 10
+    ZVMC_ABI_VERSION = 10
 };
 
 
@@ -53,53 +53,53 @@ enum
  *
  * 32 bytes of data capable of storing e.g. 256-bit hashes.
  */
-typedef struct evmc_bytes32
+typedef struct zvmc_bytes32
 {
     /** The 32 bytes. */
     uint8_t bytes[32];
-} evmc_bytes32;
+} zvmc_bytes32;
 
 /**
- * The alias for evmc_bytes32 to represent a big-endian 256-bit integer.
+ * The alias for zvmc_bytes32 to represent a big-endian 256-bit integer.
  */
-typedef struct evmc_bytes32 evmc_uint256be;
+typedef struct zvmc_bytes32 zvmc_uint256be;
 
 /** Big-endian 160-bit hash suitable for keeping an Ethereum address. */
-typedef struct evmc_address
+typedef struct zvmc_address
 {
     /** The 20 bytes of the hash. */
     uint8_t bytes[20];
-} evmc_address;
+} zvmc_address;
 
 /** The kind of call-like instruction. */
-enum evmc_call_kind
+enum zvmc_call_kind
 {
-    EVMC_CALL = 0,         /**< Request CALL. */
-    EVMC_DELEGATECALL = 1, /**< Request DELEGATECALL.
+    ZVMC_CALL = 0,         /**< Request CALL. */
+    ZVMC_DELEGATECALL = 1, /**< Request DELEGATECALL.
                                 The value param ignored. */
-    EVMC_CREATE = 3,       /**< Request CREATE. */
-    EVMC_CREATE2 = 4       /**< Request CREATE2. */
+    ZVMC_CREATE = 3,       /**< Request CREATE. */
+    ZVMC_CREATE2 = 4       /**< Request CREATE2. */
 };
 
-/** The flags for ::evmc_message. */
-enum evmc_flags
+/** The flags for ::zvmc_message. */
+enum zvmc_flags
 {
-    EVMC_STATIC = 1 /**< Static call mode. */
+    ZVMC_STATIC = 1 /**< Static call mode. */
 };
 
 /**
- * The message describing an EVM call, including a zero-depth calls from a transaction origin.
+ * The message describing an ZVM call, including a zero-depth calls from a transaction origin.
  *
  * Most of the fields are modelled by the section 8. Message Call of the Ethereum Yellow Paper.
  */
-struct evmc_message
+struct zvmc_message
 {
-    /** The kind of the call. For zero-depth calls ::EVMC_CALL SHOULD be used. */
-    enum evmc_call_kind kind;
+    /** The kind of the call. For zero-depth calls ::ZVMC_CALL SHOULD be used. */
+    enum zvmc_call_kind kind;
 
     /**
      * Additional flags modifying the call execution behavior.
-     * In the current version the only valid values are ::EVMC_STATIC or 0.
+     * In the current version the only valid values are ::ZVMC_STATIC or 0.
      */
     uint32_t flags;
 
@@ -121,24 +121,24 @@ struct evmc_message
      * The recipient of the message.
      *
      * This is the address of the account which storage/balance/nonce is going to be modified
-     * by the message execution. In case of ::EVMC_CALL, this is also the account where the
-     * message value evmc_message::value is going to be transferred.
-     * For ::EVMC_DELEGATECALL, this may be different from
-     * the evmc_message::code_address.
+     * by the message execution. In case of ::ZVMC_CALL, this is also the account where the
+     * message value zvmc_message::value is going to be transferred.
+     * For ::ZVMC_DELEGATECALL, this may be different from
+     * the zvmc_message::code_address.
      *
      * Defined as `r` in the Yellow Paper.
      */
-    evmc_address recipient;
+    zvmc_address recipient;
 
     /**
      * The sender of the message.
      *
      * The address of the sender of a message call defined as `s` in the Yellow Paper.
      * This must be the message recipient of the message at the previous (lower) depth,
-     * except for the ::EVMC_DELEGATECALL where recipient is the 2 levels above the present depth.
+     * except for the ::ZVMC_DELEGATECALL where recipient is the 2 levels above the present depth.
      * At the depth 0 this must be the transaction origin.
      */
-    evmc_address sender;
+    zvmc_address sender;
 
     /**
      * The message input data.
@@ -159,67 +159,67 @@ struct evmc_message
     /**
      * The amount of Ether transferred with the message.
      *
-     * This is transferred value for ::EVMC_CALL or apparent value for ::EVMC_DELEGATECALL.
+     * This is transferred value for ::ZVMC_CALL or apparent value for ::ZVMC_DELEGATECALL.
      * Defined as `v` or `v~` in the Yellow Paper.
      */
-    evmc_uint256be value;
+    zvmc_uint256be value;
 
     /**
      * The optional value used in new contract address construction.
      *
-     * Needed only for a Host to calculate created address when kind is ::EVMC_CREATE2.
-     * Ignored in evmc_execute_fn().
+     * Needed only for a Host to calculate created address when kind is ::ZVMC_CREATE2.
+     * Ignored in zvmc_execute_fn().
      */
-    evmc_bytes32 create2_salt;
+    zvmc_bytes32 create2_salt;
 
     /**
      * The address of the code to be executed.
      *
-     * For ::EVMC_DELEGATECALL this may be different from
-     * the evmc_message::recipient.
-     * Not required when invoking evmc_execute_fn(), only when invoking evmc_call_fn().
-     * Ignored if kind is ::EVMC_CREATE or ::EVMC_CREATE2.
+     * For ::ZVMC_DELEGATECALL this may be different from
+     * the zvmc_message::recipient.
+     * Not required when invoking zvmc_execute_fn(), only when invoking zvmc_call_fn().
+     * Ignored if kind is ::ZVMC_CREATE or ::ZVMC_CREATE2.
      *
-     * In case of ::EVMC_CAPABILITY_PRECOMPILES implementation, this fields should be inspected
+     * In case of ::ZVMC_CAPABILITY_PRECOMPILES implementation, this fields should be inspected
      * to identify the requested precompile.
      *
      * Defined as `c` in the Yellow Paper.
      */
-    evmc_address code_address;
+    zvmc_address code_address;
 };
 
 
 /** The transaction and block data for execution. */
-struct evmc_tx_context
+struct zvmc_tx_context
 {
-    evmc_uint256be tx_gas_price;      /**< The transaction gas price. */
-    evmc_address tx_origin;           /**< The transaction origin account. */
-    evmc_address block_coinbase;      /**< The miner of the block. */
+    zvmc_uint256be tx_gas_price;      /**< The transaction gas price. */
+    zvmc_address tx_origin;           /**< The transaction origin account. */
+    zvmc_address block_coinbase;      /**< The miner of the block. */
     int64_t block_number;             /**< The block number. */
     int64_t block_timestamp;          /**< The block timestamp. */
     int64_t block_gas_limit;          /**< The block gas limit. */
-    evmc_uint256be block_prev_randao; /**< The block previous RANDAO (EIP-4399). */
-    evmc_uint256be chain_id;          /**< The blockchain's ChainID. */
-    evmc_uint256be block_base_fee;    /**< The block base fee per gas (EIP-1559, EIP-3198). */
+    zvmc_uint256be block_prev_randao; /**< The block previous RANDAO (EIP-4399). */
+    zvmc_uint256be chain_id;          /**< The blockchain's ChainID. */
+    zvmc_uint256be block_base_fee;    /**< The block base fee per gas (EIP-1559, EIP-3198). */
 };
 
 /**
- * @struct evmc_host_context
+ * @struct zvmc_host_context
  * The opaque data type representing the Host execution context.
- * @see evmc_execute_fn().
+ * @see zvmc_execute_fn().
  */
-struct evmc_host_context;
+struct zvmc_host_context;
 
 /**
  * Get transaction context callback function.
  *
- *  This callback function is used by an EVM to retrieve the transaction and
+ *  This callback function is used by an ZVM to retrieve the transaction and
  *  block context.
  *
  *  @param      context  The pointer to the Host execution context.
  *  @return              The transaction context.
  */
-typedef struct evmc_tx_context (*evmc_get_tx_context_fn)(struct evmc_host_context* context);
+typedef struct zvmc_tx_context (*zvmc_get_tx_context_fn)(struct zvmc_host_context* context);
 
 /**
  * Get block hash callback function.
@@ -233,46 +233,46 @@ typedef struct evmc_tx_context (*evmc_get_tx_context_fn)(struct evmc_host_contex
  * @return         The block hash or null bytes
  *                 if the information about the block is not available.
  */
-typedef evmc_bytes32 (*evmc_get_block_hash_fn)(struct evmc_host_context* context, int64_t number);
+typedef zvmc_bytes32 (*zvmc_get_block_hash_fn)(struct zvmc_host_context* context, int64_t number);
 
 /**
  * The execution status code.
  *
- * Successful execution is represented by ::EVMC_SUCCESS having value 0.
+ * Successful execution is represented by ::ZVMC_SUCCESS having value 0.
  *
  * Positive values represent failures defined by VM specifications with generic
- * ::EVMC_FAILURE code of value 1.
+ * ::ZVMC_FAILURE code of value 1.
  *
  * Status codes with negative values represent VM internal errors
- * not provided by EVM specifications. These errors MUST not be passed back
+ * not provided by ZVM specifications. These errors MUST not be passed back
  * to the caller. They MAY be handled by the Client in predefined manner
- * (see e.g. ::EVMC_REJECTED), otherwise internal errors are not recoverable.
- * The generic representant of errors is ::EVMC_INTERNAL_ERROR but
- * an EVM implementation MAY return negative status codes that are not defined
- * in the EVMC documentation.
+ * (see e.g. ::ZVMC_REJECTED), otherwise internal errors are not recoverable.
+ * The generic representant of errors is ::ZVMC_INTERNAL_ERROR but
+ * an ZVM implementation MAY return negative status codes that are not defined
+ * in the ZVMC documentation.
  *
  * @note
  * In case new status codes are needed, please create an issue or pull request
- * in the EVMC repository (https://github.com/ethereum/evmc).
+ * in the ZVMC repository (https://github.com/theQRL/zvmc).
  */
-enum evmc_status_code
+enum zvmc_status_code
 {
     /** Execution finished with success. */
-    EVMC_SUCCESS = 0,
+    ZVMC_SUCCESS = 0,
 
     /** Generic execution failure. */
-    EVMC_FAILURE = 1,
+    ZVMC_FAILURE = 1,
 
     /**
      * Execution terminated with REVERT opcode.
      *
      * In this case the amount of gas left MAY be non-zero and additional output
-     * data MAY be provided in ::evmc_result.
+     * data MAY be provided in ::zvmc_result.
      */
-    EVMC_REVERT = 2,
+    ZVMC_REVERT = 2,
 
     /** The execution has run out of gas. */
-    EVMC_OUT_OF_GAS = 3,
+    ZVMC_OUT_OF_GAS = 3,
 
     /**
      * The designated INVALID instruction has been hit during execution.
@@ -282,91 +282,91 @@ enum evmc_status_code
      * abortion coming from high-level languages. This status code is reported
      * in case this INVALID instruction has been encountered.
      */
-    EVMC_INVALID_INSTRUCTION = 4,
+    ZVMC_INVALID_INSTRUCTION = 4,
 
     /** An undefined instruction has been encountered. */
-    EVMC_UNDEFINED_INSTRUCTION = 5,
+    ZVMC_UNDEFINED_INSTRUCTION = 5,
 
     /**
-     * The execution has attempted to put more items on the EVM stack
+     * The execution has attempted to put more items on the ZVM stack
      * than the specified limit.
      */
-    EVMC_STACK_OVERFLOW = 6,
+    ZVMC_STACK_OVERFLOW = 6,
 
-    /** Execution of an opcode has required more items on the EVM stack. */
-    EVMC_STACK_UNDERFLOW = 7,
+    /** Execution of an opcode has required more items on the ZVM stack. */
+    ZVMC_STACK_UNDERFLOW = 7,
 
     /** Execution has violated the jump destination restrictions. */
-    EVMC_BAD_JUMP_DESTINATION = 8,
+    ZVMC_BAD_JUMP_DESTINATION = 8,
 
     /**
      * Tried to read outside memory bounds.
      *
      * An example is RETURNDATACOPY reading past the available buffer.
      */
-    EVMC_INVALID_MEMORY_ACCESS = 9,
+    ZVMC_INVALID_MEMORY_ACCESS = 9,
 
     /** Call depth has exceeded the limit (if any) */
-    EVMC_CALL_DEPTH_EXCEEDED = 10,
+    ZVMC_CALL_DEPTH_EXCEEDED = 10,
 
     /** Tried to execute an operation which is restricted in static mode. */
-    EVMC_STATIC_MODE_VIOLATION = 11,
+    ZVMC_STATIC_MODE_VIOLATION = 11,
 
     /**
      * A call to a precompiled or system contract has ended with a failure.
      *
      * An example: elliptic curve functions handed invalid EC points.
      */
-    EVMC_PRECOMPILE_FAILURE = 12,
+    ZVMC_PRECOMPILE_FAILURE = 12,
 
     /**
-     * Contract validation has failed (e.g. due to EVM 1.5 jump validity,
+     * Contract validation has failed (e.g. due to ZVM 1.5 jump validity,
      * Casper's purity checker or ewasm contract rules).
      */
-    EVMC_CONTRACT_VALIDATION_FAILURE = 13,
+    ZVMC_CONTRACT_VALIDATION_FAILURE = 13,
 
     /**
      * An argument to a state accessing method has a value outside of the
      * accepted range of values.
      */
-    EVMC_ARGUMENT_OUT_OF_RANGE = 14,
+    ZVMC_ARGUMENT_OUT_OF_RANGE = 14,
 
     /**
      * A WebAssembly `unreachable` instruction has been hit during execution.
      */
-    EVMC_WASM_UNREACHABLE_INSTRUCTION = 15,
+    ZVMC_WASM_UNREACHABLE_INSTRUCTION = 15,
 
     /**
      * A WebAssembly trap has been hit during execution. This can be for many
      * reasons, including division by zero, validation errors, etc.
      */
-    EVMC_WASM_TRAP = 16,
+    ZVMC_WASM_TRAP = 16,
 
     /** The caller does not have enough funds for value transfer. */
-    EVMC_INSUFFICIENT_BALANCE = 17,
+    ZVMC_INSUFFICIENT_BALANCE = 17,
 
-    /** EVM implementation generic internal error. */
-    EVMC_INTERNAL_ERROR = -1,
+    /** ZVM implementation generic internal error. */
+    ZVMC_INTERNAL_ERROR = -1,
 
     /**
      * The execution of the given code and/or message has been rejected
-     * by the EVM implementation.
+     * by the ZVM implementation.
      *
-     * This error SHOULD be used to signal that the EVM is not able to or
+     * This error SHOULD be used to signal that the ZVM is not able to or
      * willing to execute the given code type or message.
-     * If an EVM returns the ::EVMC_REJECTED status code,
-     * the Client MAY try to execute it in other EVM implementation.
-     * For example, the Client tries running a code in the EVM 1.5. If the
-     * code is not supported there, the execution falls back to the EVM 1.0.
+     * If an ZVM returns the ::ZVMC_REJECTED status code,
+     * the Client MAY try to execute it in other ZVM implementation.
+     * For example, the Client tries running a code in the ZVM 1.5. If the
+     * code is not supported there, the execution falls back to the ZVM 1.0.
      */
-    EVMC_REJECTED = -2,
+    ZVMC_REJECTED = -2,
 
     /** The VM failed to allocate the amount of memory needed for execution. */
-    EVMC_OUT_OF_MEMORY = -3
+    ZVMC_OUT_OF_MEMORY = -3
 };
 
 /* Forward declaration. */
-struct evmc_result;
+struct zvmc_result;
 
 /**
  * Releases resources assigned to an execution result.
@@ -380,22 +380,22 @@ struct evmc_result;
  *                This MUST NOT be NULL.
  *
  * @note
- * The result is passed by pointer to avoid (shallow) copy of the ::evmc_result
+ * The result is passed by pointer to avoid (shallow) copy of the ::zvmc_result
  * struct. Think of this as the best possible C language approximation to
  * passing objects by reference.
  */
-typedef void (*evmc_release_result_fn)(const struct evmc_result* result);
+typedef void (*zvmc_release_result_fn)(const struct zvmc_result* result);
 
-/** The EVM code execution result. */
-struct evmc_result
+/** The ZVM code execution result. */
+struct zvmc_result
 {
     /** The execution status code. */
-    enum evmc_status_code status_code;
+    enum zvmc_status_code status_code;
 
     /**
      * The amount of gas left after the execution.
      *
-     * If evmc_result::status_code is neither ::EVMC_SUCCESS nor ::EVMC_REVERT
+     * If zvmc_result::status_code is neither ::ZVMC_SUCCESS nor ::ZVMC_REVERT
      * the value MUST be 0.
      */
     int64_t gas_left;
@@ -404,28 +404,28 @@ struct evmc_result
      * The refunded gas accumulated from this execution and its sub-calls.
      *
      * The transaction gas refund limit is not applied.
-     * If evmc_result::status_code is other than ::EVMC_SUCCESS the value MUST be 0.
+     * If zvmc_result::status_code is other than ::ZVMC_SUCCESS the value MUST be 0.
      */
     int64_t gas_refund;
 
     /**
      * The reference to output data.
      *
-     * The output contains data coming from RETURN opcode (iff evmc_result::code
-     * field is ::EVMC_SUCCESS) or from REVERT opcode.
+     * The output contains data coming from RETURN opcode (iff zvmc_result::code
+     * field is ::ZVMC_SUCCESS) or from REVERT opcode.
      *
-     * The memory containing the output data is owned by EVM and has to be
-     * freed with evmc_result::release().
+     * The memory containing the output data is owned by ZVM and has to be
+     * freed with zvmc_result::release().
      *
      * This pointer MAY be NULL.
-     * If evmc_result::output_size is 0 this pointer MUST NOT be dereferenced.
+     * If zvmc_result::output_size is 0 this pointer MUST NOT be dereferenced.
      */
     const uint8_t* output_data;
 
     /**
      * The size of the output data.
      *
-     * If evmc_result::output_data is NULL this MUST be 0.
+     * If zvmc_result::output_data is NULL this MUST be 0.
      */
     size_t output_size;
 
@@ -439,7 +439,7 @@ struct evmc_result
      *
      * The suggested code pattern for releasing execution results:
      * @code
-     * struct evmc_result result = ...;
+     * struct zvmc_result result = ...;
      * if (result.release)
      *     result.release(&result);
      * @endcode
@@ -448,28 +448,28 @@ struct evmc_result
      * It works similarly to C++ virtual destructor. Attaching the release
      * function to the result itself allows VM composition.
      */
-    evmc_release_result_fn release;
+    zvmc_release_result_fn release;
 
     /**
      * The address of the possibly created contract.
      *
      * The create address may be provided even though the contract creation has failed
-     * (evmc_result::status_code is not ::EVMC_SUCCESS). This is useful in situations
+     * (zvmc_result::status_code is not ::ZVMC_SUCCESS). This is useful in situations
      * when the address is observable, e.g. access to it remains warm.
      * In all other cases the address MUST be null bytes.
      */
-    evmc_address create_address;
+    zvmc_address create_address;
 
     /**
-     * Reserved data that MAY be used by a evmc_result object creator.
+     * Reserved data that MAY be used by a zvmc_result object creator.
      *
      * This reserved 4 bytes together with 20 bytes from create_address form
-     * 24 bytes of memory called "optional data" within evmc_result struct
-     * to be optionally used by the evmc_result object creator.
+     * 24 bytes of memory called "optional data" within zvmc_result struct
+     * to be optionally used by the zvmc_result object creator.
      *
-     * @see evmc_result_optional_data, evmc_get_optional_data().
+     * @see zvmc_result_optional_data, zvmc_get_optional_data().
      *
-     * Also extends the size of the evmc_result to 64 bytes (full cache line).
+     * Also extends the size of the zvmc_result to 64 bytes (full cache line).
      */
     uint8_t padding[4];
 };
@@ -484,8 +484,8 @@ struct evmc_result
  * @param address  The address of the account the query is about.
  * @return         true if exists, false otherwise.
  */
-typedef bool (*evmc_account_exists_fn)(struct evmc_host_context* context,
-                                       const evmc_address* address);
+typedef bool (*zvmc_account_exists_fn)(struct zvmc_host_context* context,
+                                       const zvmc_address* address);
 
 /**
  * Get storage callback function.
@@ -498,9 +498,9 @@ typedef bool (*evmc_account_exists_fn)(struct evmc_host_context* context,
  * @return         The storage value at the given storage key or null bytes
  *                 if the account does not exist.
  */
-typedef evmc_bytes32 (*evmc_get_storage_fn)(struct evmc_host_context* context,
-                                            const evmc_address* address,
-                                            const evmc_bytes32* key);
+typedef zvmc_bytes32 (*zvmc_get_storage_fn)(struct zvmc_host_context* context,
+                                            const zvmc_address* address,
+                                            const zvmc_bytes32* key);
 
 
 /**
@@ -524,7 +524,7 @@ typedef evmc_bytes32 (*evmc_get_storage_fn)(struct evmc_host_context* context,
  * - EIP-2200: https://eips.ethereum.org/EIPS/eip-2200,
  * - EIP-1283: https://eips.ethereum.org/EIPS/eip-1283.
  */
-enum evmc_storage_status
+enum zvmc_storage_status
 {
     /**
      * The new/same value is assigned to the storage item without affecting the cost structure.
@@ -540,63 +540,63 @@ enum evmc_storage_status
      * This is "catch all remaining" status. I.e. if all other statuses are correctly matched
      * this status should be assigned to all remaining cases.
      */
-    EVMC_STORAGE_ASSIGNED = 0,
+    ZVMC_STORAGE_ASSIGNED = 0,
 
     /**
      * A new storage item is added by changing
      * the current clean zero to a nonzero value.
      * 0 -> 0 -> Z
      */
-    EVMC_STORAGE_ADDED = 1,
+    ZVMC_STORAGE_ADDED = 1,
 
     /**
      * A storage item is deleted by changing
      * the current clean nonzero to the zero value.
      * X -> X -> 0
      */
-    EVMC_STORAGE_DELETED = 2,
+    ZVMC_STORAGE_DELETED = 2,
 
     /**
      * A storage item is modified by changing
      * the current clean nonzero to other nonzero value.
      * X -> X -> Z
      */
-    EVMC_STORAGE_MODIFIED = 3,
+    ZVMC_STORAGE_MODIFIED = 3,
 
     /**
      * A storage item is added by changing
      * the current dirty zero to a nonzero value other than the original value.
      * X -> 0 -> Z
      */
-    EVMC_STORAGE_DELETED_ADDED = 4,
+    ZVMC_STORAGE_DELETED_ADDED = 4,
 
     /**
      * A storage item is deleted by changing
      * the current dirty nonzero to the zero value and the original value is not zero.
      * X -> Y -> 0
      */
-    EVMC_STORAGE_MODIFIED_DELETED = 5,
+    ZVMC_STORAGE_MODIFIED_DELETED = 5,
 
     /**
      * A storage item is added by changing
      * the current dirty zero to the original value.
      * X -> 0 -> X
      */
-    EVMC_STORAGE_DELETED_RESTORED = 6,
+    ZVMC_STORAGE_DELETED_RESTORED = 6,
 
     /**
      * A storage item is deleted by changing
      * the current dirty nonzero to the original zero value.
      * 0 -> Y -> 0
      */
-    EVMC_STORAGE_ADDED_DELETED = 7,
+    ZVMC_STORAGE_ADDED_DELETED = 7,
 
     /**
      * A storage item is modified by changing
      * the current dirty nonzero to the original nonzero value other than the current value.
      * X -> Y -> X
      */
-    EVMC_STORAGE_MODIFIED_RESTORED = 8
+    ZVMC_STORAGE_MODIFIED_RESTORED = 8
 };
 
 
@@ -606,7 +606,7 @@ enum evmc_storage_status
  * This callback function is used by a VM to update the given account storage entry.
  * The VM MUST make sure that the account exists. This requirement is only a formality because
  * VM implementations only modify storage of the account of the current execution context
- * (i.e. referenced by evmc_message::recipient).
+ * (i.e. referenced by zvmc_message::recipient).
  *
  * @param context  The pointer to the Host execution context.
  * @param address  The address of the account.
@@ -614,10 +614,10 @@ enum evmc_storage_status
  * @param value    The value to be stored.
  * @return         The effect on the storage item.
  */
-typedef enum evmc_storage_status (*evmc_set_storage_fn)(struct evmc_host_context* context,
-                                                        const evmc_address* address,
-                                                        const evmc_bytes32* key,
-                                                        const evmc_bytes32* value);
+typedef enum zvmc_storage_status (*zvmc_set_storage_fn)(struct zvmc_host_context* context,
+                                                        const zvmc_address* address,
+                                                        const zvmc_bytes32* key,
+                                                        const zvmc_bytes32* value);
 
 /**
  * Get balance callback function.
@@ -628,8 +628,8 @@ typedef enum evmc_storage_status (*evmc_set_storage_fn)(struct evmc_host_context
  * @param address  The address of the account.
  * @return         The balance of the given account or 0 if the account does not exist.
  */
-typedef evmc_uint256be (*evmc_get_balance_fn)(struct evmc_host_context* context,
-                                              const evmc_address* address);
+typedef zvmc_uint256be (*zvmc_get_balance_fn)(struct zvmc_host_context* context,
+                                              const zvmc_address* address);
 
 /**
  * Get code size callback function.
@@ -641,8 +641,8 @@ typedef evmc_uint256be (*evmc_get_balance_fn)(struct evmc_host_context* context,
  * @param address  The address of the account.
  * @return         The size of the code in the account or 0 if the account does not exist.
  */
-typedef size_t (*evmc_get_code_size_fn)(struct evmc_host_context* context,
-                                        const evmc_address* address);
+typedef size_t (*zvmc_get_code_size_fn)(struct zvmc_host_context* context,
+                                        const zvmc_address* address);
 
 /**
  * Get code hash callback function.
@@ -655,28 +655,28 @@ typedef size_t (*evmc_get_code_size_fn)(struct evmc_host_context* context,
  * @param address  The address of the account.
  * @return         The hash of the code in the account or null bytes if the account does not exist.
  */
-typedef evmc_bytes32 (*evmc_get_code_hash_fn)(struct evmc_host_context* context,
-                                              const evmc_address* address);
+typedef zvmc_bytes32 (*zvmc_get_code_hash_fn)(struct zvmc_host_context* context,
+                                              const zvmc_address* address);
 
 /**
  * Copy code callback function.
  *
- * This callback function is used by an EVM to request a copy of the code
- * of the given account to the memory buffer provided by the EVM.
+ * This callback function is used by an ZVM to request a copy of the code
+ * of the given account to the memory buffer provided by the ZVM.
  * The Client MUST copy the requested code, starting with the given offset,
  * to the provided memory buffer up to the size of the buffer or the size of
  * the code, whichever is smaller.
  *
- * @param context      The pointer to the Host execution context. See ::evmc_host_context.
+ * @param context      The pointer to the Host execution context. See ::zvmc_host_context.
  * @param address      The address of the account.
  * @param code_offset  The offset of the code to copy.
- * @param buffer_data  The pointer to the memory buffer allocated by the EVM
+ * @param buffer_data  The pointer to the memory buffer allocated by the ZVM
  *                     to store a copy of the requested code.
  * @param buffer_size  The size of the memory buffer.
  * @return             The number of bytes copied to the buffer by the Client.
  */
-typedef size_t (*evmc_copy_code_fn)(struct evmc_host_context* context,
-                                    const evmc_address* address,
+typedef size_t (*zvmc_copy_code_fn)(struct zvmc_host_context* context,
+                                    const zvmc_address* address,
                                     size_t code_offset,
                                     uint8_t* buffer_data,
                                     size_t buffer_size);
@@ -684,37 +684,37 @@ typedef size_t (*evmc_copy_code_fn)(struct evmc_host_context* context,
 /**
  * Log callback function.
  *
- * This callback function is used by an EVM to inform about a LOG that happened
- * during an EVM bytecode execution.
+ * This callback function is used by an ZVM to inform about a LOG that happened
+ * during an ZVM bytecode execution.
  *
- * @param context       The pointer to the Host execution context. See ::evmc_host_context.
+ * @param context       The pointer to the Host execution context. See ::zvmc_host_context.
  * @param address       The address of the contract that generated the log.
  * @param data          The pointer to unindexed data attached to the log.
  * @param data_size     The length of the data.
  * @param topics        The pointer to the array of topics attached to the log.
  * @param topics_count  The number of the topics. Valid values are between 0 and 4 inclusively.
  */
-typedef void (*evmc_emit_log_fn)(struct evmc_host_context* context,
-                                 const evmc_address* address,
+typedef void (*zvmc_emit_log_fn)(struct zvmc_host_context* context,
+                                 const zvmc_address* address,
                                  const uint8_t* data,
                                  size_t data_size,
-                                 const evmc_bytes32 topics[],
+                                 const zvmc_bytes32 topics[],
                                  size_t topics_count);
 
 /**
  * Access status per EIP-2929: Gas cost increases for state access opcodes.
  */
-enum evmc_access_status
+enum zvmc_access_status
 {
     /**
      * The entry hasn't been accessed before – it's the first access.
      */
-    EVMC_ACCESS_COLD = 0,
+    ZVMC_ACCESS_COLD = 0,
 
     /**
      * The entry is already in accessed_addresses or accessed_storage_keys.
      */
-    EVMC_ACCESS_WARM = 1
+    ZVMC_ACCESS_WARM = 1
 };
 
 /**
@@ -725,11 +725,11 @@ enum evmc_access_status
  *
  * @param context  The Host execution context.
  * @param address  The address of the account.
- * @return         EVMC_ACCESS_WARM if accessed_addresses already contained the address
- *                 or EVMC_ACCESS_COLD otherwise.
+ * @return         ZVMC_ACCESS_WARM if accessed_addresses already contained the address
+ *                 or ZVMC_ACCESS_COLD otherwise.
  */
-typedef enum evmc_access_status (*evmc_access_account_fn)(struct evmc_host_context* context,
-                                                          const evmc_address* address);
+typedef enum zvmc_access_status (*zvmc_access_account_fn)(struct zvmc_host_context* context,
+                                                          const zvmc_address* address);
 
 /**
  * Access storage callback function.
@@ -740,22 +740,22 @@ typedef enum evmc_access_status (*evmc_access_account_fn)(struct evmc_host_conte
  * @param context  The Host execution context.
  * @param address  The address of the account.
  * @param key      The index of the account's storage entry.
- * @return         EVMC_ACCESS_WARM if accessed_storage_keys already contained the key
- *                 or EVMC_ACCESS_COLD otherwise.
+ * @return         ZVMC_ACCESS_WARM if accessed_storage_keys already contained the key
+ *                 or ZVMC_ACCESS_COLD otherwise.
  */
-typedef enum evmc_access_status (*evmc_access_storage_fn)(struct evmc_host_context* context,
-                                                          const evmc_address* address,
-                                                          const evmc_bytes32* key);
+typedef enum zvmc_access_status (*zvmc_access_storage_fn)(struct zvmc_host_context* context,
+                                                          const zvmc_address* address,
+                                                          const zvmc_bytes32* key);
 
 /**
- * Pointer to the callback function supporting EVM calls.
+ * Pointer to the callback function supporting ZVM calls.
  *
  * @param context  The pointer to the Host execution context.
  * @param msg      The call parameters.
  * @return         The result of the call.
  */
-typedef struct evmc_result (*evmc_call_fn)(struct evmc_host_context* context,
-                                           const struct evmc_message* msg);
+typedef struct zvmc_result (*zvmc_call_fn)(struct zvmc_host_context* context,
+                                           const struct zvmc_message* msg);
 
 /**
  * The Host interface.
@@ -765,67 +765,67 @@ typedef struct evmc_result (*evmc_call_fn)(struct evmc_host_context* context,
  * Host implementations SHOULD create constant singletons of this (similarly
  * to vtables) to lower the maintenance and memory management cost.
  */
-struct evmc_host_interface
+struct zvmc_host_interface
 {
     /** Check account existence callback function. */
-    evmc_account_exists_fn account_exists;
+    zvmc_account_exists_fn account_exists;
 
     /** Get storage callback function. */
-    evmc_get_storage_fn get_storage;
+    zvmc_get_storage_fn get_storage;
 
     /** Set storage callback function. */
-    evmc_set_storage_fn set_storage;
+    zvmc_set_storage_fn set_storage;
 
     /** Get balance callback function. */
-    evmc_get_balance_fn get_balance;
+    zvmc_get_balance_fn get_balance;
 
     /** Get code size callback function. */
-    evmc_get_code_size_fn get_code_size;
+    zvmc_get_code_size_fn get_code_size;
 
     /** Get code hash callback function. */
-    evmc_get_code_hash_fn get_code_hash;
+    zvmc_get_code_hash_fn get_code_hash;
 
     /** Copy code callback function. */
-    evmc_copy_code_fn copy_code;
+    zvmc_copy_code_fn copy_code;
 
     /** Call callback function. */
-    evmc_call_fn call;
+    zvmc_call_fn call;
 
     /** Get transaction context callback function. */
-    evmc_get_tx_context_fn get_tx_context;
+    zvmc_get_tx_context_fn get_tx_context;
 
     /** Get block hash callback function. */
-    evmc_get_block_hash_fn get_block_hash;
+    zvmc_get_block_hash_fn get_block_hash;
 
     /** Emit log callback function. */
-    evmc_emit_log_fn emit_log;
+    zvmc_emit_log_fn emit_log;
 
     /** Access account callback function. */
-    evmc_access_account_fn access_account;
+    zvmc_access_account_fn access_account;
 
     /** Access storage callback function. */
-    evmc_access_storage_fn access_storage;
+    zvmc_access_storage_fn access_storage;
 };
 
 
 /* Forward declaration. */
-struct evmc_vm;
+struct zvmc_vm;
 
 /**
  * Destroys the VM instance.
  *
  * @param vm  The VM instance to be destroyed.
  */
-typedef void (*evmc_destroy_fn)(struct evmc_vm* vm);
+typedef void (*zvmc_destroy_fn)(struct zvmc_vm* vm);
 
 /**
- * Possible outcomes of evmc_set_option.
+ * Possible outcomes of zvmc_set_option.
  */
-enum evmc_set_option_result
+enum zvmc_set_option_result
 {
-    EVMC_SET_OPTION_SUCCESS = 0,
-    EVMC_SET_OPTION_INVALID_NAME = 1,
-    EVMC_SET_OPTION_INVALID_VALUE = 2
+    ZVMC_SET_OPTION_SUCCESS = 0,
+    ZVMC_SET_OPTION_INVALID_NAME = 1,
+    ZVMC_SET_OPTION_INVALID_VALUE = 2
 };
 
 /**
@@ -841,35 +841,35 @@ enum evmc_set_option_result
  * @param value  The new option value. NULL-terminated string. Cannot be NULL.
  * @return       The outcome of the operation.
  */
-typedef enum evmc_set_option_result (*evmc_set_option_fn)(struct evmc_vm* vm,
+typedef enum zvmc_set_option_result (*zvmc_set_option_fn)(struct zvmc_vm* vm,
                                                           char const* name,
                                                           char const* value);
 
 
 /**
- * EVM revision.
+ * ZVM revision.
  *
- * The revision of the EVM specification based on the Ethereum
+ * The revision of the ZVM specification based on the Ethereum
  * upgrade / hard fork codenames.
  */
-enum evmc_revision
+enum zvmc_revision
 {
     /**
      * The Shanghai revision.
      *
      * The one Zond launched with.
      */
-    EVMC_SHANGHAI = 11,
+    ZVMC_SHANGHAI = 11,
 
-    /** The maximum EVM revision supported. */
-    EVMC_MAX_REVISION = EVMC_SHANGHAI,
+    /** The maximum ZVM revision supported. */
+    ZVMC_MAX_REVISION = ZVMC_SHANGHAI,
 
     /**
-     * The latest known EVM revision with finalized specification.
+     * The latest known ZVM revision with finalized specification.
      *
-     * This is handy for EVM tools to always use the latest revision available.
+     * This is handy for ZVM tools to always use the latest revision available.
      */
-    EVMC_LATEST_STABLE_REVISION = EVMC_SHANGHAI
+    ZVMC_LATEST_STABLE_REVISION = ZVMC_SHANGHAI
 };
 
 
@@ -880,39 +880,39 @@ enum evmc_revision
  *
  * @param vm         The VM instance. This argument MUST NOT be NULL.
  * @param host       The Host interface. This argument MUST NOT be NULL unless
- *                   the @p vm has the ::EVMC_CAPABILITY_PRECOMPILES capability.
+ *                   the @p vm has the ::ZVMC_CAPABILITY_PRECOMPILES capability.
  * @param context    The opaque pointer to the Host execution context.
  *                   This argument MAY be NULL. The VM MUST pass the same
  *                   pointer to the methods of the @p host interface.
  *                   The VM MUST NOT dereference the pointer.
- * @param rev        The requested EVM specification revision.
- * @param msg        The call parameters. See ::evmc_message. This argument MUST NOT be NULL.
+ * @param rev        The requested ZVM specification revision.
+ * @param msg        The call parameters. See ::zvmc_message. This argument MUST NOT be NULL.
  * @param code       The reference to the code to be executed. This argument MAY be NULL.
  * @param code_size  The length of the code. If @p code is NULL this argument MUST be 0.
  * @return           The execution result.
  */
-typedef struct evmc_result (*evmc_execute_fn)(struct evmc_vm* vm,
-                                              const struct evmc_host_interface* host,
-                                              struct evmc_host_context* context,
-                                              enum evmc_revision rev,
-                                              const struct evmc_message* msg,
+typedef struct zvmc_result (*zvmc_execute_fn)(struct zvmc_vm* vm,
+                                              const struct zvmc_host_interface* host,
+                                              struct zvmc_host_context* context,
+                                              enum zvmc_revision rev,
+                                              const struct zvmc_message* msg,
                                               uint8_t const* code,
                                               size_t code_size);
 
 /**
  * Possible capabilities of a VM.
  */
-enum evmc_capabilities
+enum zvmc_capabilities
 {
     /**
-     * The VM is capable of executing EVM1 bytecode.
+     * The VM is capable of executing ZVM1 bytecode.
      */
-    EVMC_CAPABILITY_EVM1 = (1u << 0),
+    ZVMC_CAPABILITY_ZVM1 = (1u << 0),
 
     /**
      * The VM is capable of executing ewasm bytecode.
      */
-    EVMC_CAPABILITY_EWASM = (1u << 1),
+    ZVMC_CAPABILITY_EWASM = (1u << 1),
 
     /**
      * The VM is capable of executing the precompiled contracts
@@ -924,26 +924,26 @@ enum evmc_capabilities
      *
      * This capability is **experimental** and MAY be removed without notice.
      */
-    EVMC_CAPABILITY_PRECOMPILES = (1u << 2)
+    ZVMC_CAPABILITY_PRECOMPILES = (1u << 2)
 };
 
 /**
- * Alias for unsigned integer representing a set of bit flags of EVMC capabilities.
+ * Alias for unsigned integer representing a set of bit flags of ZVMC capabilities.
  *
- * @see evmc_capabilities
+ * @see zvmc_capabilities
  */
-typedef uint32_t evmc_capabilities_flagset;
+typedef uint32_t zvmc_capabilities_flagset;
 
 /**
  * Return the supported capabilities of the VM instance.
  *
  * This function MAY be invoked multiple times for a single VM instance,
- * and its value MAY be influenced by calls to evmc_vm::set_option.
+ * and its value MAY be influenced by calls to zvmc_vm::set_option.
  *
  * @param vm  The VM instance.
- * @return    The supported capabilities of the VM. @see evmc_capabilities.
+ * @return    The supported capabilities of the VM. @see zvmc_capabilities.
  */
-typedef evmc_capabilities_flagset (*evmc_get_capabilities_fn)(struct evmc_vm* vm);
+typedef zvmc_capabilities_flagset (*zvmc_get_capabilities_fn)(struct zvmc_vm* vm);
 
 
 /**
@@ -951,18 +951,18 @@ typedef evmc_capabilities_flagset (*evmc_get_capabilities_fn)(struct evmc_vm* vm
  *
  * Defines the base struct of the VM implementation.
  */
-struct evmc_vm
+struct zvmc_vm
 {
     /**
-     * EVMC ABI version implemented by the VM instance.
+     * ZVMC ABI version implemented by the VM instance.
      *
      * Can be used to detect ABI incompatibilities.
-     * The EVMC ABI version represented by this file is in ::EVMC_ABI_VERSION.
+     * The ZVMC ABI version represented by this file is in ::ZVMC_ABI_VERSION.
      */
     const int abi_version;
 
     /**
-     * The name of the EVMC VM implementation.
+     * The name of the ZVMC VM implementation.
      *
      * It MUST be a NULL-terminated not empty string.
      * The content MUST be UTF-8 encoded (this implies ASCII encoding is also allowed).
@@ -970,7 +970,7 @@ struct evmc_vm
     const char* name;
 
     /**
-     * The version of the EVMC VM implementation, e.g. "1.2.3b4".
+     * The version of the ZVMC VM implementation, e.g. "1.2.3b4".
      *
      * It MUST be a NULL-terminated not empty string.
      * The content MUST be UTF-8 encoded (this implies ASCII encoding is also allowed).
@@ -982,14 +982,14 @@ struct evmc_vm
      *
      * This is a mandatory method and MUST NOT be set to NULL.
      */
-    evmc_destroy_fn destroy;
+    zvmc_destroy_fn destroy;
 
     /**
      * Pointer to function executing a code by the VM instance.
      *
      * This is a mandatory method and MUST NOT be set to NULL.
      */
-    evmc_execute_fn execute;
+    zvmc_execute_fn execute;
 
     /**
      * A method returning capabilities supported by the VM instance.
@@ -1001,24 +1001,24 @@ struct evmc_vm
      *
      * This is a mandatory method and MUST NOT be set to NULL.
      */
-    evmc_get_capabilities_fn get_capabilities;
+    zvmc_get_capabilities_fn get_capabilities;
 
     /**
      * Optional pointer to function modifying VM's options.
      *
      * If the VM does not support this feature the pointer can be NULL.
      */
-    evmc_set_option_fn set_option;
+    zvmc_set_option_fn set_option;
 };
 
 /* END Python CFFI declarations */
 
-#ifdef EVMC_DOCUMENTATION
+#ifdef ZVMC_DOCUMENTATION
 /**
- * Example of a function creating an instance of an example EVM implementation.
+ * Example of a function creating an instance of an example ZVM implementation.
  *
- * Each EVM implementation MUST provide a function returning an EVM instance.
- * The function SHOULD be named `evmc_create_<vm-name>(void)`. If the VM name contains hyphens
+ * Each ZVM implementation MUST provide a function returning an ZVM instance.
+ * The function SHOULD be named `zvmc_create_<vm-name>(void)`. If the VM name contains hyphens
  * replaces them with underscores in the function names.
  *
  * @par Binaries naming convention
@@ -1029,7 +1029,7 @@ struct evmc_vm
  *
  * @return  The VM instance or NULL indicating instance creation failure.
  */
-struct evmc_vm* evmc_create_example_vm(void);
+struct zvmc_vm* zvmc_create_example_vm(void);
 #endif
 
 #ifdef __cplusplus

@@ -1,2 +1,2 @@
-import {A} from "./a.sol";
-import {B} from "../b.sol";
+import {A} from "./a.hyp";
+import {B} from "../b.hyp";

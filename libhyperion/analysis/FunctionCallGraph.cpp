@@ -1,36 +1,36 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/analysis/FunctionCallGraph.h>
+#include <libhyperion/analysis/FunctionCallGraph.h>
 
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/StringUtils.h>
 
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/reverse.hpp>
 #include <range/v3/view/transform.hpp>
 
-using namespace solidity::frontend;
-using namespace solidity::util;
+using namespace hyperion::frontend;
+using namespace hyperion::util;
 
 CallGraph FunctionCallGraphBuilder::buildCreationGraph(ContractDefinition const& _contract)
 {
 	FunctionCallGraphBuilder builder(_contract);
-	solAssert(builder.m_currentNode == CallGraph::Node(CallGraph::SpecialNode::Entry), "");
+	hypAssert(builder.m_currentNode == CallGraph::Node(CallGraph::SpecialNode::Entry), "");
 
 	// Create graph for constructor, state vars, etc
 	for (ContractDefinition const* base: _contract.annotation().linearizedBaseContracts | ranges::views::reverse)
@@ -69,7 +69,7 @@ CallGraph FunctionCallGraphBuilder::buildDeployedGraph(
 )
 {
 	FunctionCallGraphBuilder builder(_contract);
-	solAssert(builder.m_currentNode == CallGraph::Node(CallGraph::SpecialNode::Entry), "");
+	hypAssert(builder.m_currentNode == CallGraph::Node(CallGraph::SpecialNode::Entry), "");
 
 	auto getSecondElement = [](auto const& _tuple){ return std::get<1>(_tuple); };
 
@@ -83,7 +83,7 @@ CallGraph FunctionCallGraphBuilder::buildDeployedGraph(
 			builder.functionReferenced(*function);
 		else
 			// If it's not a function, it must be a getter of a public variable; we ignore those
-			solAssert(variable, "");
+			hypAssert(variable, "");
 	}
 
 	if (_contract.fallbackFunction())
@@ -98,8 +98,8 @@ CallGraph FunctionCallGraphBuilder::buildDeployedGraph(
 	std::set<CallGraph::Node, CallGraph::CompareByID> defaultNode;
 	for (CallGraph::Node const& dispatchTarget: util::valueOrDefault(_creationGraph.edges, CallGraph::SpecialNode::InternalDispatch, defaultNode))
 	{
-		solAssert(!std::holds_alternative<CallGraph::SpecialNode>(dispatchTarget), "");
-		solAssert(std::get<CallableDeclaration const*>(dispatchTarget) != nullptr, "");
+		hypAssert(!std::holds_alternative<CallGraph::SpecialNode>(dispatchTarget), "");
+		hypAssert(std::get<CallableDeclaration const*>(dispatchTarget) != nullptr, "");
 
 		// Visit the callable to add not only it but also everything it calls too
 		builder.functionReferenced(*std::get<CallableDeclaration const*>(dispatchTarget), false);
@@ -117,7 +117,7 @@ bool FunctionCallGraphBuilder::visit(FunctionCall const& _functionCall)
 		return true;
 
 	auto const* functionType = dynamic_cast<FunctionType const*>(_functionCall.expression().annotation().type);
-	solAssert(functionType, "");
+	hypAssert(functionType, "");
 
 	if (functionType->kind() == FunctionType::Kind::Internal && !_functionCall.expression().annotation().calledDirectly)
 		// If it's not a direct call, we don't really know which function will be called (it may even
@@ -133,7 +133,7 @@ bool FunctionCallGraphBuilder::visit(FunctionCall const& _functionCall)
 bool FunctionCallGraphBuilder::visit(EmitStatement const& _emitStatement)
 {
 	auto const* functionType = dynamic_cast<FunctionType const*>(_emitStatement.eventCall().expression().annotation().type);
-	solAssert(functionType, "");
+	hypAssert(functionType, "");
 
 	m_graph.emittedEvents.insert(&dynamic_cast<EventDefinition const&>(functionType->declaration()));
 
@@ -146,13 +146,13 @@ bool FunctionCallGraphBuilder::visit(Identifier const& _identifier)
 	{
 		if (variable->isConstant())
 		{
-			solAssert(variable->isStateVariable() || variable->isFileLevelVariable(), "");
+			hypAssert(variable->isStateVariable() || variable->isFileLevelVariable(), "");
 			variable->accept(*this);
 		}
 	}
 	else if (auto const* callable = dynamic_cast<CallableDeclaration const*>(_identifier.annotation().referencedDeclaration))
 	{
-		solAssert(*_identifier.annotation().requiredLookup == VirtualLookup::Virtual, "");
+		hypAssert(*_identifier.annotation().requiredLookup == VirtualLookup::Virtual, "");
 
 		auto funType = dynamic_cast<FunctionType const*>(_identifier.annotation().type);
 
@@ -189,7 +189,7 @@ bool FunctionCallGraphBuilder::visit(MemberAccess const& _memberAccess)
 		if (auto const* typeType = dynamic_cast<TypeType const*>(exprType))
 			if (auto const contractType = dynamic_cast<ContractType const*>(typeType->actualType()))
 			{
-				solAssert(contractType->isSuper(), "");
+				hypAssert(contractType->isSuper(), "");
 				functionDef = &functionDef->resolveVirtual(
 					m_contract,
 					contractType->contractDefinition().superContract(m_contract)
@@ -197,7 +197,7 @@ bool FunctionCallGraphBuilder::visit(MemberAccess const& _memberAccess)
 			}
 	}
 	else
-		solAssert(*_memberAccess.annotation().requiredLookup == VirtualLookup::Static, "");
+		hypAssert(*_memberAccess.annotation().requiredLookup == VirtualLookup::Static, "");
 
 	functionReferenced(*functionDef, _memberAccess.annotation().calledDirectly);
 	return true;
@@ -227,7 +227,7 @@ bool FunctionCallGraphBuilder::visit(ModifierInvocation const& _modifierInvocati
 			functionReferenced(modifier->resolveVirtual(m_contract));
 		else
 		{
-			solAssert(requiredLookup == VirtualLookup::Static, "");
+			hypAssert(requiredLookup == VirtualLookup::Static, "");
 			functionReferenced(*modifier);
 		}
 	}
@@ -256,12 +256,12 @@ void FunctionCallGraphBuilder::enqueueCallable(CallableDeclaration const& _calla
 
 void FunctionCallGraphBuilder::processQueue()
 {
-	solAssert(m_currentNode == CallGraph::Node(CallGraph::SpecialNode::Entry), "Visit queue is already being processed.");
+	hypAssert(m_currentNode == CallGraph::Node(CallGraph::SpecialNode::Entry), "Visit queue is already being processed.");
 
 	while (!m_visitQueue.empty())
 	{
 		m_currentNode = m_visitQueue.front();
-		solAssert(std::holds_alternative<CallableDeclaration const*>(m_currentNode), "");
+		hypAssert(std::holds_alternative<CallableDeclaration const*>(m_currentNode), "");
 
 		m_visitQueue.pop_front();
 		std::get<CallableDeclaration const*>(m_currentNode)->accept(*this);
@@ -279,7 +279,7 @@ void FunctionCallGraphBuilder::functionReferenced(CallableDeclaration const& _ca
 {
 	if (_calledDirectly)
 	{
-		solAssert(
+		hypAssert(
 			std::holds_alternative<CallGraph::SpecialNode>(m_currentNode) || m_graph.edges.count(m_currentNode) > 0,
 			"Adding an edge from a node that has not been visited yet."
 		);
@@ -292,7 +292,7 @@ void FunctionCallGraphBuilder::functionReferenced(CallableDeclaration const& _ca
 	enqueueCallable(_callable);
 }
 
-std::ostream& solidity::frontend::operator<<(std::ostream& _out, CallGraph::Node const& _node)
+std::ostream& hyperion::frontend::operator<<(std::ostream& _out, CallGraph::Node const& _node)
 {
 	if (std::holds_alternative<CallGraph::SpecialNode>(_node))
 		switch (std::get<CallGraph::SpecialNode>(_node))
@@ -304,14 +304,14 @@ std::ostream& solidity::frontend::operator<<(std::ostream& _out, CallGraph::Node
 			_out << "Entry";
 			break;
 		default:
-			solAssert(false, "Invalid SpecialNode type");
+			hypAssert(false, "Invalid SpecialNode type");
 		}
 	else
 	{
-		solAssert(std::holds_alternative<CallableDeclaration const*>(_node), "");
+		hypAssert(std::holds_alternative<CallableDeclaration const*>(_node), "");
 
 		auto const* callableDeclaration = std::get<CallableDeclaration const*>(_node);
-		solAssert(callableDeclaration, "");
+		hypAssert(callableDeclaration, "");
 
 		auto const* function = dynamic_cast<FunctionDefinition const *>(callableDeclaration);
 		auto const* event = dynamic_cast<EventDefinition const *>(callableDeclaration);
@@ -323,9 +323,9 @@ std::ostream& solidity::frontend::operator<<(std::ostream& _out, CallGraph::Node
 		std::string scopeName;
 		if (!function || !function->isFree())
 		{
-			solAssert(callableDeclaration->annotation().scope, "");
+			hypAssert(callableDeclaration->annotation().scope, "");
 			auto const* parentContract = dynamic_cast<ContractDefinition const*>(callableDeclaration->annotation().scope);
-			solAssert(parentContract, "");
+			hypAssert(parentContract, "");
 			scopeName = parentContract->name();
 		}
 
@@ -344,7 +344,7 @@ std::ostream& solidity::frontend::operator<<(std::ostream& _out, CallGraph::Node
 		else if (modifier)
 			_out << "modifier " << scopeName << "." << modifier->name();
 		else
-			solAssert(false, "Unexpected AST node type in function call graph");
+			hypAssert(false, "Unexpected AST node type in function call graph");
 	}
 
 	return _out;

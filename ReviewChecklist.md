@@ -1,5 +1,5 @@
 # PR Review Checklist
-The Solidity compiler is a critical piece of infrastructure in the Ethereum ecosystem.
+The Hyperion compiler is a critical piece of infrastructure in the Ethereum ecosystem.
 For this reason, our review process is quite strict and all PRs have to fulfill certain quality
 expectations and guidelines.
 The list below is meant to reduce the workload on the core team by helping contributors self-identify
@@ -10,7 +10,7 @@ It is also meant to serve as a final checklist for reviewers to go through befor
 - [ ] **Do you have any other open PRs?**
     Work on a PR is not done until it is merged or closed.
     Our reviewing capacity is limited, so we require that external contributors work on **no more than one PR at a time**.
-    - If your PR is not getting reviewed, feel free to bring it to our attention on the [#solidity-dev](https://gitter.im/ethereum/solidity-dev) channel.
+    - If your PR is not getting reviewed, feel free to bring it to our attention on the [#hyperion-dev](https://gitter.im/theqrl/hyperion-dev) channel.
     - Unless they were requested, we are going to close any excess PRs, leaving only the earliest one open.
         You may reopen them, one at a time, when your current PR is done.
 - [ ] **Is the issue ready to be worked on?**
@@ -32,11 +32,11 @@ It is also meant to serve as a final checklist for reviewers to go through befor
     - [ ] Avoid basing PRs from forks on branches other than `develop` or `breaking` because
         GitHub closes them when the base branch gets merged.
         Do this only for PRs created directly in the main repo.
-- [ ] **Does the PR update test expectations to match the modified code?** If not, your PR will not pass some of the `_soltest_`,  jobs in CI.
+- [ ] **Does the PR update test expectations to match the modified code?** If not, your PR will not pass some of the `_hyptest_`,  jobs in CI.
     In many cases the expectations can be updated automatically:
     - `cmdlineTests.sh --update` for command-line tests.
-    - `isoltest --enforce-gas-cost --accept-updates` for soltest-based tests.
-        - If your PR affects gas costs, an extra run of `isoltest --enforce-gas-cost --optimize --accept-updates` is needed to update gas expectations with optimizer enabled.
+    - `ihyptest --enforce-gas-cost --accept-updates` for hyptest-based tests.
+        - If your PR affects gas costs, an extra run of `ihyptest --enforce-gas-cost --optimize --accept-updates` is needed to update gas expectations with optimizer enabled.
     - Review updated files before committing them.
         **Are expectations correct and do updated tests still serve their purpose?**
 
@@ -64,7 +64,7 @@ If the answers above are "Yes, Yes, No", thank the contributor for their effort 
 - [ ] Does the PR follow our [coding style](CODING_STYLE.md)?
 
 ### Reliability
-- [ ] **Use assertions liberally.** If you are certain your assumption will not be broken, prove it with `solAssert()`.
+- [ ] **Use assertions liberally.** If you are certain your assumption will not be broken, prove it with `hypAssert()`.
 - [ ] **Validate inputs and handle errors**. Note that assertions are **not** validation.
 
 ### Readability
@@ -132,10 +132,10 @@ The following points are all covered by the coding style but come up so often th
     problems that only occur in code generation, optimizer or assembler.
     - [ ] If you have to do it, at least mark positive cases inside the file with a short comment.
         - This way, when the test is updated, it is easier to verify that these cases still do not trigger an error.
-- [ ] New syntax: **does it have an [`ASTJSON`](test/libsolidity/ASTJSON/) test?**
+- [ ] New syntax: **does it have an [`ASTJSON`](test/libhyperion/ASTJSON/) test?**
 - [ ] New CLI or StandardJSON option:
     - [ ] **Does it have a [command-line test](test/cmdlineTests/)?**
-    - [ ] **Is the option listed for every input mode in [`CommandLineParser` tests](test/solc/CommandLineParser.cpp)?**
+    - [ ] **Is the option listed for every input mode in [`CommandLineParser` tests](test/hypc/CommandLineParser.cpp)?**
 - [ ] **Did you consider interactions with other language features?**
     - [ ] Are all types covered? Structs? Enums? Contracts/libraries/interfaces? User-defined value types?
         Value types: integers, fixed bytes, `address`, `address payable`, `bool`? Function pointers?
@@ -159,9 +159,9 @@ The following points are all covered by the coding style but come up so often th
         match your search actually fits your case is even harder.
 - [ ] **Do not include version pragma and the SPDX comment in semantic and syntax test cases**.
     In other test types include them if necessary to suppress warnings.
-- [ ] **If you have to use a version pragma, avoid hard-coding version.** Use `pragma solidity *`.
+- [ ] **If you have to use a version pragma, avoid hard-coding version.** Use `pragma hyperion *`.
 - [ ] **When writing StandardJSON command-line tests, use `urls` instead of `content`** and put
-    the Solidity or Yul code in a separate file.
+    the Hyperion or Yul code in a separate file.
 
 ## Compiler-specific
 - [ ] **Are error messages sensible and understandable to users?**

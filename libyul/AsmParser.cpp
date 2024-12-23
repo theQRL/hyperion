@@ -1,24 +1,24 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Christian <c@ethdev.com>
  * @date 2016
- * Solidity inline assembly parser.
+ * Hyperion inline assembly parser.
  */
 
 #include <libyul/AST.h>
@@ -27,8 +27,8 @@
 #include <liblangutil/ErrorReporter.h>
 #include <liblangutil/Exceptions.h>
 #include <liblangutil/Scanner.h>
-#include <libsolutil/Common.h>
-#include <libsolutil/Visitor.h>
+#include <libhyputil/Common.h>
+#include <libhyputil/Visitor.h>
 
 #include <range/v3/view/subrange.hpp>
 
@@ -37,10 +37,10 @@
 #include <algorithm>
 #include <regex>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::langutil;
-using namespace solidity::yul;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::langutil;
+using namespace hyperion::yul;
 
 namespace
 {
@@ -70,7 +70,7 @@ std::shared_ptr<DebugData const> Parser::createDebugData() const
 		case UseSourceLocationFrom::Comments:
 			return DebugData::create(ParserBase::currentLocation(), m_locationFromComment, m_astIDFromComment);
 	}
-	solAssert(false, "");
+	hypAssert(false, "");
 }
 
 void Parser::updateLocationEndFrom(
@@ -78,7 +78,7 @@ void Parser::updateLocationEndFrom(
 	SourceLocation const& _location
 ) const
 {
-	solAssert(_debugData, "");
+	hypAssert(_debugData, "");
 
 	switch (m_useSourceLocationFrom)
 	{
@@ -144,7 +144,7 @@ langutil::Token Parser::advance()
 
 void Parser::fetchDebugDataFromComment()
 {
-	solAssert(m_sourceNames.has_value(), "");
+	hypAssert(m_sourceNames.has_value(), "");
 
 	static std::regex const tagRegex = std::regex(
 		R"~~((?:^|\s+)(@[a-zA-Z0-9\-_]+)(?:\s+|$))~~", // tag, e.g: @src
@@ -160,7 +160,7 @@ void Parser::fetchDebugDataFromComment()
 
 	while (regex_search(commentLiteral.cbegin(), commentLiteral.cend(), match, tagRegex))
 	{
-		solAssert(match.size() == 2, "");
+		hypAssert(match.size() == 2, "");
 		commentLiteral = commentLiteral.substr(static_cast<size_t>(match.position() + match.length()));
 
 		if (match[1] == "@src")
@@ -207,7 +207,7 @@ std::optional<std::pair<std::string_view, SourceLocation>> Parser::parseSrcComme
 		return std::nullopt;
 	}
 
-	solAssert(match.size() == 5, "");
+	hypAssert(match.size() == 5, "");
 	std::string_view tail = _arguments.substr(static_cast<size_t>(match.position() + match.length()));
 
 	if (match[4].matched && (
@@ -245,7 +245,7 @@ std::optional<std::pair<std::string_view, SourceLocation>> Parser::parseSrcComme
 	else
 	{
 		std::shared_ptr<std::string const> sourceName = m_sourceNames->at(static_cast<unsigned>(sourceIndex.value()));
-		solAssert(sourceName, "");
+		hypAssert(sourceName, "");
 		return {{tail, SourceLocation{start.value(), end.value(), std::move(sourceName)}}};
 	}
 	return {{tail, SourceLocation{}}};
@@ -266,7 +266,7 @@ std::optional<std::pair<std::string_view, std::optional<int>>> Parser::parseASTI
 	std::string_view tail = _arguments;
 	if (matched)
 	{
-		solAssert(match.size() == 2, "");
+		hypAssert(match.size() == 2, "");
 		tail = _arguments.substr(static_cast<size_t>(match.position() + match.length()));
 
 		astID = toInt(match[1].str());

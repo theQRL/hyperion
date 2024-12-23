@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -23,13 +23,13 @@
 
 #pragma once
 
-#include <libsolidity/ast/ASTAnnotations.h>
-#include <libsolidity/ast/ASTVisitor.h>
-#include <libsolidity/interface/CompilerStack.h>
+#include <libhyperion/ast/ASTAnnotations.h>
+#include <libhyperion/ast/ASTVisitor.h>
+#include <libhyperion/interface/CompilerStack.h>
 #include <liblangutil/Exceptions.h>
 
 #include <json/json.h>
-#include <libsolutil/JSON.h>
+#include <libhyputil/JSON.h>
 
 #include <algorithm>
 #include <optional>
@@ -37,12 +37,12 @@
 #include <stack>
 #include <vector>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 struct SourceLocation;
 }
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 /**
@@ -171,7 +171,7 @@ private:
 
 		for (auto const& element: _container)
 		{
-			solAssert(element, "");
+			hypAssert(element, "");
 			tmp.push_back(nodeId(*element));
 		}
 		if (_order)
@@ -191,7 +191,7 @@ private:
 	);
 	static void appendMove(Json::Value& _array, Json::Value&& _value)
 	{
-		solAssert(_array.isArray(), "");
+		hypAssert(_array.isArray(), "");
 		_array.append(std::move(_value));
 	}
 

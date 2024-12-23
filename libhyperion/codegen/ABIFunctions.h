@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -23,18 +23,18 @@
 
 #pragma once
 
-#include <libsolidity/codegen/MultiUseYulFunctionCollector.h>
-#include <libsolidity/codegen/YulUtilFunctions.h>
+#include <libhyperion/codegen/MultiUseYulFunctionCollector.h>
+#include <libhyperion/codegen/YulUtilFunctions.h>
 
-#include <libsolidity/interface/DebugSettings.h>
+#include <libhyperion/interface/DebugSettings.h>
 
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
 #include <functional>
 #include <map>
 #include <vector>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 class Type;
@@ -55,14 +55,14 @@ class ABIFunctions
 {
 public:
 	explicit ABIFunctions(
-		langutil::EVMVersion _evmVersion,
+		langutil::ZVMVersion _zvmVersion,
 		RevertStrings _revertStrings,
 		MultiUseYulFunctionCollector& _functionCollector
 	):
-		m_evmVersion(_evmVersion),
+		m_zvmVersion(_zvmVersion),
 		m_revertStrings(_revertStrings),
 		m_functionCollector(_functionCollector),
-		m_utils(_evmVersion, m_revertStrings, m_functionCollector)
+		m_utils(_zvmVersion, m_revertStrings, m_functionCollector)
 	{}
 
 	/// @returns name of an assembly function to ABI-encode values of @a _givenTypes
@@ -277,7 +277,7 @@ private:
 	/// if m_revertStrings is debug.
 	std::string revertReasonIfDebugFunction(std::string const& _message = "");
 
-	langutil::EVMVersion m_evmVersion;
+	langutil::ZVMVersion m_zvmVersion;
 	RevertStrings const m_revertStrings;
 	MultiUseYulFunctionCollector& m_functionCollector;
 	YulUtilFunctions m_utils;

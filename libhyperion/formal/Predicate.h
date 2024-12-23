@@ -1,27 +1,27 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
-#include <libsolidity/formal/SymbolicVariables.h>
-#include <libsolidity/formal/SymbolicVariables.h>
+#include <libhyperion/formal/SymbolicVariables.h>
+#include <libhyperion/formal/SymbolicVariables.h>
 
-#include <libsolidity/ast/AST.h>
+#include <libhyperion/ast/AST.h>
 
 #include <libsmtutil/Sorts.h>
 
@@ -29,12 +29,12 @@
 #include <optional>
 #include <vector>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 class CharStreamProvider;
 }
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 enum class PredicateType
@@ -178,14 +178,14 @@ public:
 	std::pair<std::vector<std::optional<std::string>>, std::vector<VariableDeclaration const*>> localVariableValues(std::vector<smtutil::Expression> const& _args) const;
 
 	/// @returns a substitution map from the arguments of _predExpr
-	/// to a Solidity-like expression.
+	/// to a Hyperion-like expression.
 	std::map<std::string, std::string> expressionSubstitution(smtutil::Expression const& _predExpr) const;
 
 private:
 	/// @returns the formatted version of the given SMT expressions. Those expressions must be SMT constants.
 	std::vector<std::optional<std::string>> formatExpressions(std::vector<smtutil::Expression> const& _exprs, std::vector<Type const*> const& _types) const;
 
-	/// @returns a string representation of the SMT expression based on a Solidity type.
+	/// @returns a string representation of the SMT expression based on a Hyperion type.
 	std::optional<std::string> expressionToString(smtutil::Expression const& _expr, Type const* _type) const;
 
 	/// Recursively fills _array from _expr.

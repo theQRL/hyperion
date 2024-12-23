@@ -1,29 +1,29 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/TypeProvider.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/TypeProvider.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 
-using namespace solidity;
-using namespace solidity::frontend;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::frontend;
+using namespace hyperion::util;
 
 BoolType const TypeProvider::m_boolean{};
 InaccessibleDynamicType const TypeProvider::m_inaccessibleDynamic{};
@@ -205,7 +205,7 @@ inline T const* TypeProvider::createAndGet(Args&& ... _args)
 
 Type const* TypeProvider::fromElementaryTypeName(ElementaryTypeNameToken const& _type, std::optional<StateMutability> _stateMutability)
 {
-	solAssert(
+	hypAssert(
 		TokenTraits::isElementaryTypeName(_type.token()),
 		"Expected an elementary type name but got " + _type.toString()
 	);
@@ -239,7 +239,7 @@ Type const* TypeProvider::fromElementaryTypeName(ElementaryTypeNameToken const& 
 	{
 		if (_stateMutability)
 		{
-			solAssert(*_stateMutability == StateMutability::Payable, "");
+			hypAssert(*_stateMutability == StateMutability::Payable, "");
 			return payableAddress();
 		}
 		return address();
@@ -251,7 +251,7 @@ Type const* TypeProvider::fromElementaryTypeName(ElementaryTypeNameToken const& 
 	case Token::String:
 		return stringStorage();
 	default:
-		solAssert(
+		hypAssert(
 			false,
 			"Unable to convert elementary typename " + _type.toString() + " to type."
 		);
@@ -262,7 +262,7 @@ Type const* TypeProvider::fromElementaryTypeName(std::string const& _name)
 {
 	std::vector<std::string> nameParts;
 	boost::split(nameParts, _name, boost::is_any_of(" "));
-	solAssert(nameParts.size() == 1 || nameParts.size() == 2, "Cannot parse elementary type: " + _name);
+	hypAssert(nameParts.size() == 1 || nameParts.size() == 2, "Cannot parse elementary type: " + _name);
 
 	Token token;
 	unsigned short firstNum, secondNum;
@@ -281,7 +281,7 @@ Type const* TypeProvider::fromElementaryTypeName(std::string const& _name)
 			else if (nameParts[1] == "memory")
 				location = DataLocation::Memory;
 			else
-				solAssert(false, "Unknown data location: " + nameParts[1]);
+				hypAssert(false, "Unknown data location: " + nameParts[1]);
 		}
 		return withLocation(ref, location, true);
 	}
@@ -292,13 +292,13 @@ Type const* TypeProvider::fromElementaryTypeName(std::string const& _name)
 			if (nameParts[1] == "payable")
 				return payableAddress();
 			else
-				solAssert(false, "Invalid state mutability for address type: " + nameParts[1]);
+				hypAssert(false, "Invalid state mutability for address type: " + nameParts[1]);
 		}
 		return address();
 	}
 	else
 	{
-		solAssert(nameParts.size() == 1, "Storage location suffix only allowed for reference types");
+		hypAssert(nameParts.size() == 1, "Storage location suffix only allowed for reference types");
 		return t;
 	}
 }
@@ -358,7 +358,7 @@ Type const* TypeProvider::forLiteral(Literal const& _literal)
 
 RationalNumberType const* TypeProvider::rationalNumber(Literal const& _literal)
 {
-	solAssert(_literal.token() == Token::Number, "");
+	hypAssert(_literal.token() == Token::Number, "");
 	std::tuple<bool, rational> validLiteral = RationalNumberType::isValidLiteral(_literal);
 	if (std::get<0>(validLiteral))
 	{
@@ -449,7 +449,7 @@ FunctionType const* TypeProvider::function(
 )
 {
 	// Can only use this constructor for "arbitraryParameters".
-	solAssert(!_options.valueSet && !_options.gasSet && !_options.saltSet && !_options.hasBoundFirstArgument);
+	hypAssert(!_options.valueSet && !_options.gasSet && !_options.saltSet && !_options.hasBoundFirstArgument);
 	return createAndGet<FunctionType>(
 		_parameterTypes,
 		_returnParameterTypes,
@@ -553,13 +553,13 @@ ModifierType const* TypeProvider::modifier(ModifierDefinition const& _def)
 
 MagicType const* TypeProvider::magic(MagicType::Kind _kind)
 {
-	solAssert(_kind != MagicType::Kind::MetaType, "MetaType is handled separately");
+	hypAssert(_kind != MagicType::Kind::MetaType, "MetaType is handled separately");
 	return m_magics.at(static_cast<size_t>(_kind)).get();
 }
 
 MagicType const* TypeProvider::meta(Type const* _type)
 {
-	solAssert(
+	hypAssert(
 		_type && (
 			_type->category() == Type::Category::Contract ||
 			_type->category() == Type::Category::Integer ||

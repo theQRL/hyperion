@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /** @file PathGasMeter.cpp
@@ -22,15 +22,15 @@
 
 #pragma once
 
-#include <libevmasm/GasMeter.h>
+#include <libzvmasm/GasMeter.h>
 
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
 #include <set>
 #include <vector>
 #include <memory>
 
-namespace solidity::evmasm
+namespace hyperion::zvmasm
 {
 
 class KnownState;
@@ -52,18 +52,18 @@ struct GasPath
 class PathGasMeter
 {
 public:
-	explicit PathGasMeter(AssemblyItems const& _items, langutil::EVMVersion _evmVersion);
+	explicit PathGasMeter(AssemblyItems const& _items, langutil::ZVMVersion _zvmVersion);
 
 	GasMeter::GasConsumption estimateMax(size_t _startIndex, std::shared_ptr<KnownState> const& _state);
 
 	static GasMeter::GasConsumption estimateMax(
 		AssemblyItems const& _items,
-		langutil::EVMVersion _evmVersion,
+		langutil::ZVMVersion _zvmVersion,
 		size_t _startIndex,
 		std::shared_ptr<KnownState> const& _state
 	)
 	{
-		return PathGasMeter(_items, _evmVersion).estimateMax(_startIndex, _state);
+		return PathGasMeter(_items, _zvmVersion).estimateMax(_startIndex, _state);
 	}
 
 private:
@@ -80,7 +80,7 @@ private:
 	std::map<size_t, GasMeter::GasConsumption> m_highestGasUsagePerJumpdest;
 	std::map<u256, size_t> m_tagPositions;
 	AssemblyItems const& m_items;
-	langutil::EVMVersion m_evmVersion;
+	langutil::ZVMVersion m_zvmVersion;
 };
 
 }

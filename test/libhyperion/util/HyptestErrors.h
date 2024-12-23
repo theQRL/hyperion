@@ -1,48 +1,48 @@
 /*
-	This file is part of solidity.
-	solidity is free software: you can redistribute it and/or modify
+	This file is part of hyperion.
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
 
-#include <libsolutil/AnsiColorized.h>
-#include <libsolutil/Assertions.h>
-#include <libsolutil/CommonData.h>
-#include <libsolutil/Exceptions.h>
+#include <libhyputil/AnsiColorized.h>
+#include <libhyputil/Assertions.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/Exceptions.h>
 
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/facilities/empty.hpp>
 #include <boost/preprocessor/facilities/overload.hpp>
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
-struct InternalSoltestError: virtual util::Exception {};
+struct InternalHyptestError: virtual util::Exception {};
 
 #if !BOOST_PP_VARIADICS_MSVC
-#define soltestAssert(...) BOOST_PP_OVERLOAD(soltestAssert_,__VA_ARGS__)(__VA_ARGS__)
+#define hyptestAssert(...) BOOST_PP_OVERLOAD(hyptestAssert_,__VA_ARGS__)(__VA_ARGS__)
 #else
-#define soltestAssert(...) BOOST_PP_CAT(BOOST_PP_OVERLOAD(soltestAssert_,__VA_ARGS__)(__VA_ARGS__),BOOST_PP_EMPTY())
+#define hyptestAssert(...) BOOST_PP_CAT(BOOST_PP_OVERLOAD(hyptestAssert_,__VA_ARGS__)(__VA_ARGS__),BOOST_PP_EMPTY())
 #endif
 
-#define soltestAssert_1(CONDITION) \
-	soltestAssert_2((CONDITION), "")
+#define hyptestAssert_1(CONDITION) \
+	hyptestAssert_2((CONDITION), "")
 
-#define soltestAssert_2(CONDITION, DESCRIPTION) \
+#define hyptestAssert_2(CONDITION, DESCRIPTION) \
 	assertThrowWithDefaultDescription( \
 		(CONDITION), \
-		::solidity::frontend::test::InternalSoltestError, \
+		::hyperion::frontend::test::InternalHyptestError, \
 		(DESCRIPTION), \
-		"Soltest assertion failed" \
+		"Hyptest assertion failed" \
 	)
 
 class TestParserError: virtual public util::Exception
@@ -80,8 +80,8 @@ using FormatErrors = std::vector<FormatError>;
 /**
  * Utility class that collects notices, warnings and errors and is able
  * to format them for ANSI colorized output during the interactive update
- * process in isoltest.
- * Its purpose is to help users of isoltest to automatically
+ * process in ihyptest.
+ * Its purpose is to help users of ihyptest to automatically
  * update test files and always keep track of what is happening.
  */
 class ErrorReporter

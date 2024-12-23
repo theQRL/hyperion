@@ -1,41 +1,41 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-/// Unit tests for libsolidity/interface/FileReader.h
+/// Unit tests for libhyperion/interface/FileReader.h
 
-#include <libsolidity/interface/FileReader.h>
+#include <libhyperion/interface/FileReader.h>
 
 #include <test/Common.h>
 #include <test/FilesystemUtils.h>
-#include <test/libsolidity/util/SoltestErrors.h>
+#include <test/libhyperion/util/HyptestErrors.h>
 
-#include <libsolutil/TemporaryDirectory.h>
+#include <libhyputil/TemporaryDirectory.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 
-using namespace solidity::util;
-using namespace solidity::test;
+using namespace hyperion::util;
+using namespace hyperion::test;
 
 #define TEST_CASE_NAME (boost::unit_test::framework::current_test_case().p_name)
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 using SymlinkResolution = FileReader::SymlinkResolution;
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(normalizeCLIPathForVFS_relative_path)
 	boost::filesystem::path expectedPrefix = boost::filesystem::current_path().parent_path().parent_path().parent_path();
 	// On Windows tempDir.path() normally contains the drive letter while the normalized path should not.
 	expectedPrefix = "/" / expectedPrefix.relative_path();
-	soltestAssert(expectedPrefix.is_absolute() || expectedPrefix.root_path() == "/", "");
+	hyptestAssert(expectedPrefix.is_absolute() || expectedPrefix.root_path() == "/", "");
 
 	for (SymlinkResolution resolveSymlinks: {SymlinkResolution::Enabled, SymlinkResolution::Disabled})
 	{
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(normalizeCLIPathForVFS_unc_path)
 
 	// On Windows tempDir.path() normally contains the drive letter while the normalized path should not.
 	boost::filesystem::path expectedWorkDir = "/" / boost::filesystem::current_path().relative_path();
-	soltestAssert(expectedWorkDir.is_absolute() || expectedWorkDir.root_path() == "/", "");
+	hyptestAssert(expectedWorkDir.is_absolute() || expectedWorkDir.root_path() == "/", "");
 
 	for (SymlinkResolution resolveSymlinks: {SymlinkResolution::Enabled, SymlinkResolution::Disabled})
 	{
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE(normalizeCLIPathForVFS_root_name_only)
 	TemporaryWorkingDirectory tempWorkDir(tempDir);
 
 	boost::filesystem::path expectedWorkDir = "/" / boost::filesystem::current_path().relative_path();
-	soltestAssert(expectedWorkDir.is_absolute() || expectedWorkDir.root_path() == "/", "");
+	hyptestAssert(expectedWorkDir.is_absolute() || expectedWorkDir.root_path() == "/", "");
 
 	// A root **path** consists of a directory name (typically / or \) and the root name (drive
 	// letter (C:), UNC host name (//host), etc.). Either can be empty. Root path as a whole may be
@@ -197,8 +197,8 @@ BOOST_AUTO_TEST_CASE(normalizeCLIPathForVFS_root_name_only)
 
 #if defined(_WIN32)
 		boost::filesystem::path driveLetter = boost::filesystem::current_path().root_name();
-		soltestAssert(!driveLetter.empty(), "");
-		soltestAssert(driveLetter.is_relative(), "");
+		hyptestAssert(!driveLetter.empty(), "");
+		hyptestAssert(driveLetter.is_relative(), "");
 
 		BOOST_CHECK_EQUAL(FileReader::normalizeCLIPathForVFS(driveLetter, resolveSymlinks), expectedWorkDir);
 #endif
@@ -210,9 +210,9 @@ BOOST_AUTO_TEST_CASE(normalizeCLIPathForVFS_stripping_root_name)
 	TemporaryDirectory tempDir(TEST_CASE_NAME);
 	TemporaryWorkingDirectory tempWorkDir(tempDir);
 
-	soltestAssert(boost::filesystem::current_path().is_absolute(), "");
+	hyptestAssert(boost::filesystem::current_path().is_absolute(), "");
 #if defined(_WIN32)
-	soltestAssert(!boost::filesystem::current_path().root_name().empty(), "");
+	hyptestAssert(!boost::filesystem::current_path().root_name().empty(), "");
 #endif
 
 	for (SymlinkResolution resolveSymlinks: {SymlinkResolution::Enabled, SymlinkResolution::Disabled})
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE(normalizeCLIPathForVFS_stripping_root_name)
 
 #if defined(_WIN32)
 		std::string root = workDir.root_path().string();
-		soltestAssert(root.length() == 3 && root[1] == ':' && root[2] == '\\', "");
+		hyptestAssert(root.length() == 3 && root[1] == ':' && root[2] == '\\', "");
 
 		for (auto convert: {boost::to_lower_copy<std::string>, boost::to_upper_copy<std::string>})
 		{
@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE(normalizeCLIPathForVFS_path_separators)
 BOOST_AUTO_TEST_CASE(normalizeCLIPathForVFS_should_not_resolve_symlinks_unless_requested)
 {
 	TemporaryDirectory tempDir({"abc/"}, TEST_CASE_NAME);
-	soltestAssert(tempDir.path().is_absolute(), "");
+	hyptestAssert(tempDir.path().is_absolute(), "");
 
 	if (!createSymlinkIfSupportedByFilesystem(tempDir.path() / "abc", tempDir.path() / "sym", true))
 		return;
@@ -322,96 +322,96 @@ BOOST_AUTO_TEST_CASE(normalizeCLIPathForVFS_should_not_resolve_symlinks_unless_r
 	boost::filesystem::path expectedPrefixWithoutSymlinks = expectedRootPath / boost::filesystem::weakly_canonical(tempDir).relative_path();
 
 	BOOST_CHECK_EQUAL(
-		FileReader::normalizeCLIPathForVFS(tempDir.path() / "sym/contract.sol", SymlinkResolution::Disabled),
-		expectedPrefixWithSymlinks / "sym/contract.sol"
+		FileReader::normalizeCLIPathForVFS(tempDir.path() / "sym/contract.hyp", SymlinkResolution::Disabled),
+		expectedPrefixWithSymlinks / "sym/contract.hyp"
 	);
 	BOOST_CHECK_EQUAL(
-		FileReader::normalizeCLIPathForVFS(tempDir.path() / "abc/contract.sol", SymlinkResolution::Disabled),
-		expectedPrefixWithSymlinks / "abc/contract.sol"
+		FileReader::normalizeCLIPathForVFS(tempDir.path() / "abc/contract.hyp", SymlinkResolution::Disabled),
+		expectedPrefixWithSymlinks / "abc/contract.hyp"
 	);
 
 	BOOST_CHECK_EQUAL(
-		FileReader::normalizeCLIPathForVFS(tempDir.path() / "sym/contract.sol", SymlinkResolution::Enabled),
-		expectedPrefixWithoutSymlinks / "abc/contract.sol"
+		FileReader::normalizeCLIPathForVFS(tempDir.path() / "sym/contract.hyp", SymlinkResolution::Enabled),
+		expectedPrefixWithoutSymlinks / "abc/contract.hyp"
 	);
 	BOOST_CHECK_EQUAL(
-		FileReader::normalizeCLIPathForVFS(tempDir.path() / "abc/contract.sol", SymlinkResolution::Enabled),
-		expectedPrefixWithoutSymlinks / "abc/contract.sol"
+		FileReader::normalizeCLIPathForVFS(tempDir.path() / "abc/contract.hyp", SymlinkResolution::Enabled),
+		expectedPrefixWithoutSymlinks / "abc/contract.hyp"
 	);
 }
 
 BOOST_AUTO_TEST_CASE(normalizeCLIPathForVFS_should_resolve_symlinks_in_workdir_when_path_is_relative)
 {
 	TemporaryDirectory tempDir({"abc/"}, TEST_CASE_NAME);
-	soltestAssert(tempDir.path().is_absolute(), "");
+	hyptestAssert(tempDir.path().is_absolute(), "");
 
 	if (!createSymlinkIfSupportedByFilesystem(tempDir.path() / "abc", tempDir.path() / "sym", true))
 		return;
 
 	TemporaryWorkingDirectory tempWorkDir(tempDir.path() / "sym");
 	boost::filesystem::path expectedWorkDir = "/" / boost::filesystem::weakly_canonical(boost::filesystem::current_path()).relative_path();
-	soltestAssert(expectedWorkDir.is_absolute() || expectedWorkDir.root_path() == "/", "");
+	hyptestAssert(expectedWorkDir.is_absolute() || expectedWorkDir.root_path() == "/", "");
 
 	boost::filesystem::path expectedPrefix = "/" / tempDir.path().relative_path();
-	soltestAssert(expectedPrefix.is_absolute() || expectedPrefix.root_path() == "/", "");
+	hyptestAssert(expectedPrefix.is_absolute() || expectedPrefix.root_path() == "/", "");
 
 	for (SymlinkResolution resolveSymlinks: {SymlinkResolution::Enabled, SymlinkResolution::Disabled})
 	{
 		BOOST_CHECK_EQUAL(
-			FileReader::normalizeCLIPathForVFS("contract.sol", resolveSymlinks),
-			expectedWorkDir / "contract.sol"
+			FileReader::normalizeCLIPathForVFS("contract.hyp", resolveSymlinks),
+			expectedWorkDir / "contract.hyp"
 		);
 	}
 
 	BOOST_CHECK_EQUAL(
-		FileReader::normalizeCLIPathForVFS(tempDir.path() / "sym/contract.sol", SymlinkResolution::Disabled),
-		expectedPrefix / "sym/contract.sol"
+		FileReader::normalizeCLIPathForVFS(tempDir.path() / "sym/contract.hyp", SymlinkResolution::Disabled),
+		expectedPrefix / "sym/contract.hyp"
 	);
 	BOOST_CHECK_EQUAL(
-		FileReader::normalizeCLIPathForVFS(tempDir.path() / "abc/contract.sol", SymlinkResolution::Disabled),
-		expectedPrefix / "abc/contract.sol"
+		FileReader::normalizeCLIPathForVFS(tempDir.path() / "abc/contract.hyp", SymlinkResolution::Disabled),
+		expectedPrefix / "abc/contract.hyp"
 	);
 
 	BOOST_CHECK_EQUAL(
-		FileReader::normalizeCLIPathForVFS(tempDir.path() / "sym/contract.sol", SymlinkResolution::Enabled),
-		expectedWorkDir / "contract.sol"
+		FileReader::normalizeCLIPathForVFS(tempDir.path() / "sym/contract.hyp", SymlinkResolution::Enabled),
+		expectedWorkDir / "contract.hyp"
 	);
 	BOOST_CHECK_EQUAL(
-		FileReader::normalizeCLIPathForVFS(tempDir.path() / "abc/contract.sol", SymlinkResolution::Enabled),
-		expectedWorkDir / "contract.sol"
+		FileReader::normalizeCLIPathForVFS(tempDir.path() / "abc/contract.hyp", SymlinkResolution::Enabled),
+		expectedWorkDir / "contract.hyp"
 	);
 }
 
 BOOST_AUTO_TEST_CASE(isPathPrefix_file_prefix)
 {
-	BOOST_TEST(FileReader::isPathPrefix("/", "/contract.sol"));
-	BOOST_TEST(FileReader::isPathPrefix("/contract.sol", "/contract.sol"));
-	BOOST_TEST(FileReader::isPathPrefix("/contract.sol/", "/contract.sol"));
-	BOOST_TEST(FileReader::isPathPrefix("/contract.sol/.", "/contract.sol"));
+	BOOST_TEST(FileReader::isPathPrefix("/", "/contract.hyp"));
+	BOOST_TEST(FileReader::isPathPrefix("/contract.hyp", "/contract.hyp"));
+	BOOST_TEST(FileReader::isPathPrefix("/contract.hyp/", "/contract.hyp"));
+	BOOST_TEST(FileReader::isPathPrefix("/contract.hyp/.", "/contract.hyp"));
 
-	BOOST_TEST(FileReader::isPathPrefix("/", "/a/bc/def/contract.sol"));
-	BOOST_TEST(FileReader::isPathPrefix("/a", "/a/bc/def/contract.sol"));
-	BOOST_TEST(FileReader::isPathPrefix("/a/", "/a/bc/def/contract.sol"));
-	BOOST_TEST(FileReader::isPathPrefix("/a/bc", "/a/bc/def/contract.sol"));
-	BOOST_TEST(FileReader::isPathPrefix("/a/bc/def/contract.sol", "/a/bc/def/contract.sol"));
+	BOOST_TEST(FileReader::isPathPrefix("/", "/a/bc/def/contract.hyp"));
+	BOOST_TEST(FileReader::isPathPrefix("/a", "/a/bc/def/contract.hyp"));
+	BOOST_TEST(FileReader::isPathPrefix("/a/", "/a/bc/def/contract.hyp"));
+	BOOST_TEST(FileReader::isPathPrefix("/a/bc", "/a/bc/def/contract.hyp"));
+	BOOST_TEST(FileReader::isPathPrefix("/a/bc/def/contract.hyp", "/a/bc/def/contract.hyp"));
 
-	BOOST_TEST(FileReader::isPathPrefix("/", "/a/bc/def/contract.sol"));
-	BOOST_TEST(FileReader::isPathPrefix("/a", "/a/bc/def/contract.sol"));
-	BOOST_TEST(FileReader::isPathPrefix("/a/", "/a/bc/def/contract.sol"));
-	BOOST_TEST(FileReader::isPathPrefix("/a/bc", "/a/bc/def/contract.sol"));
-	BOOST_TEST(FileReader::isPathPrefix("/a/bc/def/contract.sol", "/a/bc/def/contract.sol"));
+	BOOST_TEST(FileReader::isPathPrefix("/", "/a/bc/def/contract.hyp"));
+	BOOST_TEST(FileReader::isPathPrefix("/a", "/a/bc/def/contract.hyp"));
+	BOOST_TEST(FileReader::isPathPrefix("/a/", "/a/bc/def/contract.hyp"));
+	BOOST_TEST(FileReader::isPathPrefix("/a/bc", "/a/bc/def/contract.hyp"));
+	BOOST_TEST(FileReader::isPathPrefix("/a/bc/def/contract.hyp", "/a/bc/def/contract.hyp"));
 
-	BOOST_TEST(!FileReader::isPathPrefix("/contract.sol", "/token.sol"));
-	BOOST_TEST(!FileReader::isPathPrefix("/contract", "/contract.sol"));
-	BOOST_TEST(!FileReader::isPathPrefix("/contract.sol", "/contract"));
-	BOOST_TEST(!FileReader::isPathPrefix("/contract.so", "/contract.sol"));
-	BOOST_TEST(!FileReader::isPathPrefix("/contract.sol", "/contract.so"));
+	BOOST_TEST(!FileReader::isPathPrefix("/contract.hyp", "/token.hyp"));
+	BOOST_TEST(!FileReader::isPathPrefix("/contract", "/contract.hyp"));
+	BOOST_TEST(!FileReader::isPathPrefix("/contract.hyp", "/contract"));
+	BOOST_TEST(!FileReader::isPathPrefix("/contract.so", "/contract.hyp"));
+	BOOST_TEST(!FileReader::isPathPrefix("/contract.hyp", "/contract.so"));
 
-	BOOST_TEST(!FileReader::isPathPrefix("/a/b/c/contract.sol", "/a/b/contract.sol"));
-	BOOST_TEST(!FileReader::isPathPrefix("/a/b/contract.sol", "/a/b/c/contract.sol"));
-	BOOST_TEST(!FileReader::isPathPrefix("/a/b/c/contract.sol", "/a/b/c/d/contract.sol"));
-	BOOST_TEST(!FileReader::isPathPrefix("/a/b/c/d/contract.sol", "/a/b/c/contract.sol"));
-	BOOST_TEST(!FileReader::isPathPrefix("/a/b/c/contract.sol", "/contract.sol"));
+	BOOST_TEST(!FileReader::isPathPrefix("/a/b/c/contract.hyp", "/a/b/contract.hyp"));
+	BOOST_TEST(!FileReader::isPathPrefix("/a/b/contract.hyp", "/a/b/c/contract.hyp"));
+	BOOST_TEST(!FileReader::isPathPrefix("/a/b/c/contract.hyp", "/a/b/c/d/contract.hyp"));
+	BOOST_TEST(!FileReader::isPathPrefix("/a/b/c/d/contract.hyp", "/a/b/c/contract.hyp"));
+	BOOST_TEST(!FileReader::isPathPrefix("/a/b/c/contract.hyp", "/contract.hyp"));
 }
 
 BOOST_AUTO_TEST_CASE(isPathPrefix_directory_prefix)
@@ -428,7 +428,7 @@ BOOST_AUTO_TEST_CASE(isPathPrefix_directory_prefix)
 
 	BOOST_TEST(!FileReader::isPathPrefix("/a", "/b/"));
 	BOOST_TEST(!FileReader::isPathPrefix("/a/", "/b/"));
-	BOOST_TEST(!FileReader::isPathPrefix("/a/contract.sol", "/a/b/"));
+	BOOST_TEST(!FileReader::isPathPrefix("/a/contract.hyp", "/a/b/"));
 
 	BOOST_TEST(!FileReader::isPathPrefix("/a/b/c/", "/a/b/"));
 	BOOST_TEST(!FileReader::isPathPrefix("/a/b/c", "/a/b/"));
@@ -453,33 +453,33 @@ BOOST_AUTO_TEST_CASE(isPathPrefix_unc_path)
 
 BOOST_AUTO_TEST_CASE(isPathPrefix_case_sensitivity)
 {
-	BOOST_TEST(!FileReader::isPathPrefix("/a.sol", "/A.sol"));
-	BOOST_TEST(!FileReader::isPathPrefix("/A.sol", "/a.sol"));
+	BOOST_TEST(!FileReader::isPathPrefix("/a.hyp", "/A.hyp"));
+	BOOST_TEST(!FileReader::isPathPrefix("/A.hyp", "/a.hyp"));
 	BOOST_TEST(!FileReader::isPathPrefix("/A/", "/a/"));
 	BOOST_TEST(!FileReader::isPathPrefix("/a/", "/A/"));
-	BOOST_TEST(!FileReader::isPathPrefix("/a/BC/def/", "/a/bc/def/contract.sol"));
+	BOOST_TEST(!FileReader::isPathPrefix("/a/BC/def/", "/a/bc/def/contract.hyp"));
 }
 
 BOOST_AUTO_TEST_CASE(stripPrefixIfPresent_file_prefix)
 {
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/", "/contract.sol"), "contract.sol");
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/contract.sol", "/contract.sol"), ".");
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/contract.sol/", "/contract.sol"), ".");
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/contract.sol/.", "/contract.sol"), ".");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/", "/contract.hyp"), "contract.hyp");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/contract.hyp", "/contract.hyp"), ".");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/contract.hyp/", "/contract.hyp"), ".");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/contract.hyp/.", "/contract.hyp"), ".");
 
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/", "/a/bc/def/contract.sol"), "a/bc/def/contract.sol");
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/a", "/a/bc/def/contract.sol"), "bc/def/contract.sol");
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/a/", "/a/bc/def/contract.sol"), "bc/def/contract.sol");
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/a/bc", "/a/bc/def/contract.sol"), "def/contract.sol");
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/a/bc/def/", "/a/bc/def/contract.sol"), "contract.sol");
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/a/bc/def/contract.sol", "/a/bc/def/contract.sol"), ".");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/", "/a/bc/def/contract.hyp"), "a/bc/def/contract.hyp");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/a", "/a/bc/def/contract.hyp"), "bc/def/contract.hyp");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/a/", "/a/bc/def/contract.hyp"), "bc/def/contract.hyp");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/a/bc", "/a/bc/def/contract.hyp"), "def/contract.hyp");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/a/bc/def/", "/a/bc/def/contract.hyp"), "contract.hyp");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/a/bc/def/contract.hyp", "/a/bc/def/contract.hyp"), ".");
 
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/contract.sol", "/token.sol"), "/token.sol");
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/contract", "/contract.sol"), "/contract.sol");
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/contract.sol", "/contract"), "/contract");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/contract.hyp", "/token.hyp"), "/token.hyp");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/contract", "/contract.hyp"), "/contract.hyp");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/contract.hyp", "/contract"), "/contract");
 
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/a/b/c/contract.sol", "/a/b/contract.sol"), "/a/b/contract.sol");
-	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/a/b/contract.sol", "/a/b/c/contract.sol"), "/a/b/c/contract.sol");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/a/b/c/contract.hyp", "/a/b/contract.hyp"), "/a/b/contract.hyp");
+	BOOST_CHECK_EQUAL(FileReader::stripPrefixIfPresent("/a/b/contract.hyp", "/a/b/c/contract.hyp"), "/a/b/c/contract.hyp");
 }
 
 BOOST_AUTO_TEST_CASE(stripPrefixIfPresent_directory_prefix)
@@ -536,9 +536,9 @@ BOOST_AUTO_TEST_CASE(isUNCPath)
 	BOOST_TEST(!FileReader::isUNCPath("/"));
 	BOOST_TEST(!FileReader::isUNCPath("a"));
 	BOOST_TEST(!FileReader::isUNCPath("a/b/c"));
-	BOOST_TEST(!FileReader::isUNCPath("contract.sol"));
+	BOOST_TEST(!FileReader::isUNCPath("contract.hyp"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
 
-} // namespace solidity::frontend::test
+} // namespace hyperion::frontend::test

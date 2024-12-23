@@ -1,11 +1,11 @@
-==== Source: s1.sol ====
+==== Source: s1.hyp ====
 uint constant a = 89;
-==== Source: s2.sol ====
+==== Source: s2.hyp ====
 uint constant a = 88;
 
-==== Source: s3.sol ====
-import "s1.sol" as M;
-import "s2.sol" as N;
+==== Source: s3.hyp ====
+import "s1.hyp" as M;
+import "s2.hyp" as N;
 
 contract C {
 	function f() internal pure returns (uint, uint) {
@@ -22,6 +22,6 @@ contract C {
 // ====
 // SMTEngine: chc
 // ----
-// Warning 6328: (s3.sol:223-238): CHC: Assertion violation happens here.
-// Warning 6328: (s3.sol:291-306): CHC: Assertion violation happens here.
+// Warning 6328: (s3.hyp:223-238): CHC: Assertion violation happens here.
+// Warning 6328: (s3.hyp:291-306): CHC: Assertion violation happens here.
 // Info 1391: CHC: 2 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.

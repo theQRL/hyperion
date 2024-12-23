@@ -1,23 +1,23 @@
 /*
-	This file is part of solidity.
-	solidity is free software: you can redistribute it and/or modify
+	This file is part of hyperion.
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <test/libsolidity/SemanticTest.h>
+#include <test/libhyperion/SemanticTest.h>
 
-#include <libsolutil/Whiskers.h>
+#include <libhyputil/Whiskers.h>
 #include <libyul/Exceptions.h>
 #include <test/Common.h>
-#include <test/libsolidity/util/BytesUtils.h>
+#include <test/libhyperion/util/BytesUtils.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -34,18 +34,18 @@
 #include <string>
 #include <utility>
 
-using namespace solidity;
-using namespace solidity::yul;
-using namespace solidity::langutil;
-using namespace solidity::util;
-using namespace solidity::util::formatting;
-using namespace solidity::frontend::test;
+using namespace hyperion;
+using namespace hyperion::yul;
+using namespace hyperion::langutil;
+using namespace hyperion::util;
+using namespace hyperion::util::formatting;
+using namespace hyperion::frontend::test;
 using namespace boost::algorithm;
 using namespace boost::unit_test;
 using namespace std::string_literals;
 namespace fs = boost::filesystem;
 
-std::ostream& solidity::frontend::test::operator<<(std::ostream& _output, RequiresYulOptimizer _requiresYulOptimizer)
+std::ostream& hyperion::frontend::test::operator<<(std::ostream& _output, RequiresYulOptimizer _requiresYulOptimizer)
 {
 	switch (_requiresYulOptimizer)
 	{
@@ -58,13 +58,13 @@ std::ostream& solidity::frontend::test::operator<<(std::ostream& _output, Requir
 
 SemanticTest::SemanticTest(
 	std::string const& _filename,
-	langutil::EVMVersion _evmVersion,
+	langutil::ZVMVersion _zvmVersion,
 	std::vector<boost::filesystem::path> const& _vmPaths,
 	bool _enforceGasCost,
 	u256 _enforceGasCostMinValue
 ):
-	SolidityExecutionFramework(_evmVersion, _vmPaths, false),
-	EVMVersionRestrictedTestCase(_filename),
+	HyperionExecutionFramework(_zvmVersion, _vmPaths, false),
+	ZVMVersionRestrictedTestCase(_filename),
 	m_sources(m_reader.sources()),
 	m_lineOffset(m_reader.lineNumber()),
 	m_builtins(makeBuiltins()),
@@ -87,7 +87,7 @@ SemanticTest::SemanticTest(
 	);
 
 	m_runWithABIEncoderV1Only = m_reader.boolSetting("ABIEncoderV1Only", false);
-	if (m_runWithABIEncoderV1Only && !solidity::test::CommonOptions::get().useABIEncoderV1)
+	if (m_runWithABIEncoderV1Only && !hyperion::test::CommonOptions::get().useABIEncoderV1)
 		m_shouldRun = false;
 
 	std::string compileViaYul = m_reader.stringSetting("compileViaYul", "also");
@@ -102,13 +102,13 @@ SemanticTest::SemanticTest(
 	m_testCaseWantsLegacyRun = util::contains(legacyRunTriggers, compileViaYul);
 
 	auto revertStrings = revertStringsFromString(m_reader.stringSetting("revertStrings", "default"));
-	soltestAssert(revertStrings, "Invalid revertStrings setting.");
+	hyptestAssert(revertStrings, "Invalid revertStrings setting.");
 	m_revertStrings = revertStrings.value();
 
 	m_allowNonExistingFunctions = m_reader.boolSetting("allowNonExistingFunctions", false);
 
 	parseExpectations(m_reader.stream());
-	soltestAssert(!m_tests.empty(), "No tests specified in " + _filename);
+	hyptestAssert(!m_tests.empty(), "No tests specified in " + _filename);
 
 	if (m_enforceGasCost)
 	{
@@ -121,14 +121,14 @@ std::map<std::string, Builtin> SemanticTest::makeBuiltins()
 {
 	return {
 		{
-			"isoltest_builtin_test",
+			"ihyptest_builtin_test",
 			[](FunctionCall const&) -> std::optional<bytes>
 			{
 				return toBigEndian(u256(0x1234));
 			}
 		},
 		{
-			"isoltest_side_effects_test",
+			"ihyptest_side_effects_test",
 			[](FunctionCall const& _call) -> std::optional<bytes>
 			{
 				if (_call.arguments.parameters.empty())
@@ -141,7 +141,7 @@ std::map<std::string, Builtin> SemanticTest::makeBuiltins()
 			"balance",
 			[this](FunctionCall const& _call) -> std::optional<bytes>
 			{
-				soltestAssert(_call.arguments.parameters.size() <= 1, "Account address expected.");
+				hyptestAssert(_call.arguments.parameters.size() <= 1, "Account address expected.");
 				h160 address;
 				if (_call.arguments.parameters.size() == 1)
 					address = h160(_call.arguments.parameters.at(0).rawString);
@@ -154,7 +154,7 @@ std::map<std::string, Builtin> SemanticTest::makeBuiltins()
 			"storageEmpty",
 			[this](FunctionCall const& _call) -> std::optional<bytes>
 			{
-				soltestAssert(_call.arguments.parameters.empty(), "No arguments expected.");
+				hyptestAssert(_call.arguments.parameters.empty(), "No arguments expected.");
 				return toBigEndian(u256(storageEmpty(m_contractAddress) ? 1 : 0));
 		 	}
 		},
@@ -162,7 +162,7 @@ std::map<std::string, Builtin> SemanticTest::makeBuiltins()
 			"account",
 			[this](FunctionCall const& _call) -> std::optional<bytes>
 			{
-				soltestAssert(_call.arguments.parameters.size() == 1, "Account number expected.");
+				hyptestAssert(_call.arguments.parameters.size() == 1, "Account number expected.");
 				size_t accountNumber = static_cast<size_t>(stoi(_call.arguments.parameters.at(0).rawString));
 				// Need to pad it to 32-bytes to workaround limitations in BytesUtils::formatHex.
 				return toBigEndian(h256(ExecutionFramework::setAccount(accountNumber).asBytes(), h256::AlignRight));
@@ -177,7 +177,7 @@ std::vector<SideEffectHook> SemanticTest::makeSideEffectHooks() const
 	return {
 		[](FunctionCall const& _call) -> std::vector<std::string>
 		{
-			if (_call.signature == "isoltest_side_effects_test")
+			if (_call.signature == "ihyptest_side_effects_test")
 			{
 				std::vector<std::string> result;
 				for (auto const& argument: _call.arguments.parameters)
@@ -251,7 +251,7 @@ std::vector<std::string> SemanticTest::eventSideEffectHook(FunctionCall const&) 
 			++index;
 		}
 
-		soltestAssert(log.data.size() % 32 == 0, "");
+		hyptestAssert(log.data.size() % 32 == 0, "");
 		for (size_t index = 0; index < log.data.size() / 32; ++index)
 		{
 			auto begin = log.data.begin() + static_cast<long>(index * 32);
@@ -320,17 +320,17 @@ TestCase::TestResult SemanticTest::run(std::ostream& _stream, std::string const&
 
 	if (m_testCaseWantsYulRun && result == TestResult::Success)
 	{
-		if (solidity::test::CommonOptions::get().optimize)
+		if (hyperion::test::CommonOptions::get().optimize)
 			result = runTest(_stream, _linePrefix, _formatted, true /* _isYulRun */);
 		else
 			result = tryRunTestWithYulOptimizer(_stream, _linePrefix, _formatted);
 	}
 
 	if (result != TestResult::Success)
-		solidity::test::CommonOptions::get().printSelectedOptions(
+		hyperion::test::CommonOptions::get().printSelectedOptions(
 			_stream,
 			_linePrefix,
-			{"evmVersion", "optimize", "useABIEncoderV1", "batch"}
+			{"zvmVersion", "optimize", "useABIEncoderV1", "batch"}
 		);
 
 	return result;
@@ -346,7 +346,7 @@ TestCase::TestResult SemanticTest::runTest(
 	bool success = true;
 	m_gasCostFailure = false;
 
-	selectVM(evmc_capabilities::EVMC_CAPABILITY_EVM1);
+	selectVM(zvmc_capabilities::ZVMC_CAPABILITY_ZVM1);
 
 	reset();
 
@@ -358,7 +358,7 @@ TestCase::TestResult SemanticTest::runTest(
 	for (TestFunctionCall& test: m_tests)
 		test.reset();
 
-	std::map<std::string, solidity::test::Address> libraries;
+	std::map<std::string, hyperion::test::Address> libraries;
 
 	bool constructed = false;
 
@@ -366,18 +366,18 @@ TestCase::TestResult SemanticTest::runTest(
 	{
 		if (constructed)
 		{
-			soltestAssert(
+			hyptestAssert(
 				test.call().kind != FunctionCall::Kind::Library,
 				"Libraries have to be deployed before any other call."
 			);
-			soltestAssert(
+			hyptestAssert(
 				test.call().kind != FunctionCall::Kind::Constructor,
 				"Constructor has to be the first function call expect for library deployments."
 			);
 		}
 		else if (test.call().kind == FunctionCall::Kind::Library)
 		{
-			soltestAssert(
+			hyptestAssert(
 				deploy(test.call().signature, 0, {}, libraries) && m_transactionSuccessful,
 				"Failed to deploy library " + test.call().signature);
 			// For convenience, in semantic tests we assume that an unqualified name like `L` is equivalent to one
@@ -391,7 +391,7 @@ TestCase::TestResult SemanticTest::runTest(
 			if (test.call().kind == FunctionCall::Kind::Constructor)
 				deploy("", test.call().value.value, test.call().arguments.rawBytes(), libraries);
 			else
-				soltestAssert(deploy("", 0, bytes(), libraries), "Failed to deploy contract.");
+				hyptestAssert(deploy("", 0, bytes(), libraries), "Failed to deploy contract.");
 			constructed = true;
 		}
 
@@ -426,7 +426,7 @@ TestCase::TestResult SemanticTest::runTest(
 			}
 			else
 			{
-				soltestAssert(
+				hyptestAssert(
 					m_allowNonExistingFunctions ||
 					m_compiler.interfaceSymbols(m_compiler.lastContractName(m_sources.mainSourceFile))["methods"].isMember(test.call().signature),
 					"The function " + test.call().signature + " is not known to the compiler"
@@ -543,7 +543,7 @@ TestCase::TestResult SemanticTest::tryRunTestWithYulOptimizer(
 
 		if (m_requiresYulOptimizer != requiresYulOptimizer && result != TestResult::FatalError)
 		{
-			soltestAssert(result == TestResult::Success || result == TestResult::Failure);
+			hyptestAssert(result == TestResult::Success || result == TestResult::Failure);
 
 			AnsiColorized(_stream, _formatted, {BOLD, YELLOW})
 				<< _linePrefix << std::endl
@@ -569,7 +569,7 @@ bool SemanticTest::checkGasCostExpectation(TestFunctionCall& io_test, bool _comp
 	// or gas used less than threshold for enforcing feature
 	// or the test has used up all available gas (test will fail anyway)
 	// or setting is "ir" and it's not included in expectations
-	// or if the called function is an isoltest builtin e.g. `smokeTest` or `storageEmpty`
+	// or if the called function is an ihyptest builtin e.g. `smokeTest` or `storageEmpty`
 	if (
 		!m_enforceGasCost ||
 		m_gasUsed < m_enforceGasCostMinValue ||
@@ -579,7 +579,7 @@ bool SemanticTest::checkGasCostExpectation(TestFunctionCall& io_test, bool _comp
 	)
 		return true;
 
-	solAssert(!m_runWithABIEncoderV1Only, "");
+	hypAssert(!m_runWithABIEncoderV1Only, "");
 
 	io_test.setGasCost(setting, m_gasUsed);
 	return
@@ -682,7 +682,7 @@ bool SemanticTest::deploy(
 	std::string const& _contractName,
 	u256 const& _value,
 	bytes const& _arguments,
-	std::map<std::string, solidity::test::Address> const& _libraries
+	std::map<std::string, hyperion::test::Address> const& _libraries
 )
 {
 	auto output = compileAndRunWithoutCheck(m_sources.sources, _value, _contractName, _arguments, _libraries, m_sources.mainSourceFile);

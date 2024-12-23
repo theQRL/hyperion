@@ -1,25 +1,25 @@
-// EVMC: Ethereum Client-VM Connector API.
-// Copyright 2018 The EVMC Authors.
+// ZVMC: Zond Client-VM Connector API.
+// Copyright 2018 The ZVMC Authors.
 // Licensed under the Apache License, Version 2.0.
 
-#include <evmc/loader.h>
+#include <zvmc/loader.h>
 
-#include <evmc/evmc.h>
-#include <evmc/helpers.h>
+#include <zvmc/zvmc.h>
+#include <zvmc/helpers.h>
 
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#if defined(EVMC_LOADER_MOCK)
+#if defined(ZVMC_LOADER_MOCK)
 #include "../../test/unittests/loader_mock.h"
 #elif defined(_WIN32)
 #include <Windows.h>
 #define DLL_HANDLE HMODULE
 #define DLL_OPEN(filename) LoadLibrary(filename)
 #define DLL_CLOSE(handle) FreeLibrary(handle)
-#define DLL_GET_CREATE_FN(handle, name) (evmc_create_fn)(uintptr_t) GetProcAddress(handle, name)
+#define DLL_GET_CREATE_FN(handle, name) (zvmc_create_fn)(uintptr_t) GetProcAddress(handle, name)
 #define DLL_GET_ERROR_MSG() NULL
 #else
 #include <dlfcn.h>
@@ -27,7 +27,7 @@
 #define DLL_OPEN(filename) dlopen(filename, RTLD_LAZY)
 #define DLL_CLOSE(handle) dlclose(handle)
 // NOLINTNEXTLINE(performance-no-int-to-ptr)
-#define DLL_GET_CREATE_FN(handle, name) (evmc_create_fn)(uintptr_t) dlsym(handle, name)
+#define DLL_GET_CREATE_FN(handle, name) (zvmc_create_fn)(uintptr_t) dlsym(handle, name)
 #define DLL_GET_ERROR_MSG() dlerror()
 #endif
 
@@ -45,7 +45,7 @@
 /*
  * Limited variant of strcpy_s().
  */
-#if !defined(EVMC_LOADER_MOCK)
+#if !defined(ZVMC_LOADER_MOCK)
 static
 #endif
     int
@@ -79,7 +79,7 @@ static const char* last_error_msg = NULL;
 static char last_error_msg_buffer[LAST_ERROR_MSG_BUFFER_SIZE + 1];
 
 ATTR_FORMAT(printf, 2, 3)
-static enum evmc_loader_error_code set_error(enum evmc_loader_error_code error_code,
+static enum zvmc_loader_error_code set_error(enum zvmc_loader_error_code error_code,
                                              const char* format,
                                              ...)
 {
@@ -94,27 +94,27 @@ static enum evmc_loader_error_code set_error(enum evmc_loader_error_code error_c
 }
 
 
-evmc_create_fn evmc_load(const char* filename, enum evmc_loader_error_code* error_code)
+zvmc_create_fn zvmc_load(const char* filename, enum zvmc_loader_error_code* error_code)
 {
     last_error_msg = NULL;  // Reset last error.
-    enum evmc_loader_error_code ec = EVMC_LOADER_SUCCESS;
-    evmc_create_fn create_fn = NULL;
+    enum zvmc_loader_error_code ec = ZVMC_LOADER_SUCCESS;
+    zvmc_create_fn create_fn = NULL;
 
     if (!filename)
     {
-        ec = set_error(EVMC_LOADER_INVALID_ARGUMENT, "invalid argument: file name cannot be null");
+        ec = set_error(ZVMC_LOADER_INVALID_ARGUMENT, "invalid argument: file name cannot be null");
         goto exit;
     }
 
     const size_t length = strlen(filename);
     if (length == 0)
     {
-        ec = set_error(EVMC_LOADER_INVALID_ARGUMENT, "invalid argument: file name cannot be empty");
+        ec = set_error(ZVMC_LOADER_INVALID_ARGUMENT, "invalid argument: file name cannot be empty");
         goto exit;
     }
     else if (length > PATH_MAX_LENGTH)
     {
-        ec = set_error(EVMC_LOADER_INVALID_ARGUMENT,
+        ec = set_error(ZVMC_LOADER_INVALID_ARGUMENT,
                        "invalid argument: file name is too long (%d, maximum allowed length is %d)",
                        (int)length, PATH_MAX_LENGTH);
         goto exit;
@@ -126,14 +126,14 @@ evmc_create_fn evmc_load(const char* filename, enum evmc_loader_error_code* erro
         // Get error message if available.
         last_error_msg = DLL_GET_ERROR_MSG();
         if (last_error_msg)
-            ec = EVMC_LOADER_CANNOT_OPEN;
+            ec = ZVMC_LOADER_CANNOT_OPEN;
         else
-            ec = set_error(EVMC_LOADER_CANNOT_OPEN, "cannot open %s", filename);
+            ec = set_error(ZVMC_LOADER_CANNOT_OPEN, "cannot open %s", filename);
         goto exit;
     }
 
     // Create name buffer with the prefix.
-    const char prefix[] = "evmc_create_";
+    const char prefix[] = "zvmc_create_";
     const size_t prefix_length = strlen(prefix);
     char prefixed_name[sizeof(prefix) + PATH_MAX_LENGTH];
     strcpy_sx(prefixed_name, sizeof(prefixed_name), prefix);
@@ -170,12 +170,12 @@ evmc_create_fn evmc_load(const char* filename, enum evmc_loader_error_code* erro
     create_fn = DLL_GET_CREATE_FN(handle, prefixed_name);
 
     if (!create_fn)
-        create_fn = DLL_GET_CREATE_FN(handle, "evmc_create");
+        create_fn = DLL_GET_CREATE_FN(handle, "zvmc_create");
 
     if (!create_fn)
     {
         DLL_CLOSE(handle);
-        ec = set_error(EVMC_LOADER_SYMBOL_NOT_FOUND, "EVMC create function not found in %s",
+        ec = set_error(ZVMC_LOADER_SYMBOL_NOT_FOUND, "ZVMC create function not found in %s",
                        filename);
     }
 
@@ -185,37 +185,37 @@ exit:
     return create_fn;
 }
 
-const char* evmc_last_error_msg(void)
+const char* zvmc_last_error_msg(void)
 {
     const char* m = last_error_msg;
     last_error_msg = NULL;
     return m;
 }
 
-struct evmc_vm* evmc_load_and_create(const char* filename, enum evmc_loader_error_code* error_code)
+struct zvmc_vm* zvmc_load_and_create(const char* filename, enum zvmc_loader_error_code* error_code)
 {
     // First load the DLL. This also resets the last_error_msg;
-    evmc_create_fn create_fn = evmc_load(filename, error_code);
+    zvmc_create_fn create_fn = zvmc_load(filename, error_code);
 
     if (!create_fn)
         return NULL;
 
-    enum evmc_loader_error_code ec = EVMC_LOADER_SUCCESS;
+    enum zvmc_loader_error_code ec = ZVMC_LOADER_SUCCESS;
 
-    struct evmc_vm* vm = create_fn();
+    struct zvmc_vm* vm = create_fn();
     if (!vm)
     {
-        ec = set_error(EVMC_LOADER_VM_CREATION_FAILURE, "creating EVMC VM of %s has failed",
+        ec = set_error(ZVMC_LOADER_VM_CREATION_FAILURE, "creating ZVMC VM of %s has failed",
                        filename);
         goto exit;
     }
 
-    if (!evmc_is_abi_compatible(vm))
+    if (!zvmc_is_abi_compatible(vm))
     {
-        ec = set_error(EVMC_LOADER_ABI_VERSION_MISMATCH,
-                       "EVMC ABI version %d of %s mismatches the expected version %d",
-                       vm->abi_version, filename, EVMC_ABI_VERSION);
-        evmc_destroy(vm);
+        ec = set_error(ZVMC_LOADER_ABI_VERSION_MISMATCH,
+                       "ZVMC ABI version %d of %s mismatches the expected version %d",
+                       vm->abi_version, filename, ZVMC_ABI_VERSION);
+        zvmc_destroy(vm);
         vm = NULL;
         goto exit;
     }
@@ -250,15 +250,15 @@ static char* get_token(char** str_ptr, char delim)
     return str;
 }
 
-struct evmc_vm* evmc_load_and_configure(const char* config, enum evmc_loader_error_code* error_code)
+struct zvmc_vm* zvmc_load_and_configure(const char* config, enum zvmc_loader_error_code* error_code)
 {
-    enum evmc_loader_error_code ec = EVMC_LOADER_SUCCESS;
-    struct evmc_vm* vm = NULL;
+    enum zvmc_loader_error_code ec = ZVMC_LOADER_SUCCESS;
+    struct zvmc_vm* vm = NULL;
 
     char config_copy_buffer[PATH_MAX_LENGTH];
     if (strcpy_sx(config_copy_buffer, sizeof(config_copy_buffer), config) != 0)
     {
-        ec = set_error(EVMC_LOADER_INVALID_ARGUMENT,
+        ec = set_error(ZVMC_LOADER_INVALID_ARGUMENT,
                        "invalid argument: configuration is too long (maximum allowed length is %d)",
                        (int)sizeof(config_copy_buffer));
         goto exit;
@@ -267,7 +267,7 @@ struct evmc_vm* evmc_load_and_configure(const char* config, enum evmc_loader_err
     char* options = config_copy_buffer;
     const char* path = get_token(&options, ',');
 
-    vm = evmc_load_and_create(path, error_code);
+    vm = zvmc_load_and_create(path, error_code);
     if (!vm)
         return NULL;
 
@@ -275,7 +275,7 @@ struct evmc_vm* evmc_load_and_configure(const char* config, enum evmc_loader_err
     {
         if (vm->set_option == NULL)
         {
-            ec = set_error(EVMC_LOADER_INVALID_OPTION_NAME, "%s (%s) does not support any options",
+            ec = set_error(ZVMC_LOADER_INVALID_OPTION_NAME, "%s (%s) does not support any options",
                            vm->name, path);
             goto exit;
         }
@@ -286,23 +286,23 @@ struct evmc_vm* evmc_load_and_configure(const char* config, enum evmc_loader_err
         // The option variable will have the value, can be empty.
         const char* name = get_token(&option, '=');
 
-        enum evmc_set_option_result r = vm->set_option(vm, name, option);
+        enum zvmc_set_option_result r = vm->set_option(vm, name, option);
         switch (r)
         {
-        case EVMC_SET_OPTION_SUCCESS:
+        case ZVMC_SET_OPTION_SUCCESS:
             break;
-        case EVMC_SET_OPTION_INVALID_NAME:
-            ec = set_error(EVMC_LOADER_INVALID_OPTION_NAME, "%s (%s): unknown option '%s'",
+        case ZVMC_SET_OPTION_INVALID_NAME:
+            ec = set_error(ZVMC_LOADER_INVALID_OPTION_NAME, "%s (%s): unknown option '%s'",
                            vm->name, path, name);
             goto exit;
-        case EVMC_SET_OPTION_INVALID_VALUE:
-            ec = set_error(EVMC_LOADER_INVALID_OPTION_VALUE,
+        case ZVMC_SET_OPTION_INVALID_VALUE:
+            ec = set_error(ZVMC_LOADER_INVALID_OPTION_VALUE,
                            "%s (%s): unsupported value '%s' for option '%s'", vm->name, path,
                            option, name);
             goto exit;
 
         default:
-            ec = set_error(EVMC_LOADER_INVALID_OPTION_VALUE,
+            ec = set_error(ZVMC_LOADER_INVALID_OPTION_VALUE,
                            "%s (%s): unknown error when setting value '%s' for option '%s'",
                            vm->name, path, option, name);
             goto exit;
@@ -313,10 +313,10 @@ exit:
     if (error_code)
         *error_code = ec;
 
-    if (ec == EVMC_LOADER_SUCCESS)
+    if (ec == ZVMC_LOADER_SUCCESS)
         return vm;
 
     if (vm)
-        evmc_destroy(vm);
+        zvmc_destroy(vm);
     return NULL;
 }

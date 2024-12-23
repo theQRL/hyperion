@@ -13,7 +13,7 @@ coverage:
         paths: "!test/"
       syntax:
         target: auto
-        paths: "libsolidity/analysis"
+        paths: "libhyperion/analysis"
         flags: syntax
       tests:
         target: auto

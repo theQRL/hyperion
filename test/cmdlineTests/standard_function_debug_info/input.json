@@ -1,16 +1,16 @@
 {
-    "language": "Solidity",
+    "language": "Hyperion",
     "sources": {
-        "a.sol": {
-            "content": "// SPDX-License-Identifier: GPL-3.0\npragma solidity >=0.0; pragma abicoder v2; contract A { function f(uint[] memory x) public pure returns (uint256) { return x[0] + x[1];} }"
+        "a.hyp": {
+            "content": "// SPDX-License-Identifier: GPL-3.0\npragma hyperion >=0.0; pragma abicoder v2; contract A { function f(uint[] memory x) public pure returns (uint256) { return x[0] + x[1];} }"
         }
     },
     "settings": {
         "outputSelection": {
             "*": {
                 "A": [
-                    "evm.deployedBytecode.functionDebugData",
-                    "evm.bytecode.functionDebugData"
+                    "zvm.deployedBytecode.functionDebugData",
+                    "zvm.bytecode.functionDebugData"
                 ]
             }
         }

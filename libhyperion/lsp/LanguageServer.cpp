@@ -1,41 +1,41 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/ASTUtils.h>
-#include <libsolidity/ast/ASTVisitor.h>
-#include <libsolidity/interface/ReadFile.h>
-#include <libsolidity/interface/StandardCompiler.h>
-#include <libsolidity/lsp/LanguageServer.h>
-#include <libsolidity/lsp/HandlerBase.h>
-#include <libsolidity/lsp/Utils.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/ASTUtils.h>
+#include <libhyperion/ast/ASTVisitor.h>
+#include <libhyperion/interface/ReadFile.h>
+#include <libhyperion/interface/StandardCompiler.h>
+#include <libhyperion/lsp/LanguageServer.h>
+#include <libhyperion/lsp/HandlerBase.h>
+#include <libhyperion/lsp/Utils.h>
 
 // LSP feature implementations
-#include <libsolidity/lsp/DocumentHoverHandler.h>
-#include <libsolidity/lsp/GotoDefinition.h>
-#include <libsolidity/lsp/RenameSymbol.h>
-#include <libsolidity/lsp/SemanticTokensBuilder.h>
+#include <libhyperion/lsp/DocumentHoverHandler.h>
+#include <libhyperion/lsp/GotoDefinition.h>
+#include <libhyperion/lsp/RenameSymbol.h>
+#include <libhyperion/lsp/SemanticTokensBuilder.h>
 
 #include <liblangutil/SourceReferenceExtractor.h>
 #include <liblangutil/CharStream.h>
 
-#include <libsolutil/CommonIO.h>
-#include <libsolutil/Visitor.h>
-#include <libsolutil/JSON.h>
+#include <libhyputil/CommonIO.h>
+#include <libhyputil/Visitor.h>
+#include <libhyputil/JSON.h>
 
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/filesystem.hpp>
@@ -49,9 +49,9 @@
 using namespace std::string_literals;
 using namespace std::placeholders;
 
-using namespace solidity::lsp;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion::lsp;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
 namespace fs = boost::filesystem;
 
@@ -81,7 +81,7 @@ int toDiagnosticSeverity(Error::Type _errorType)
 	case Error::Severity::Warning: return 2;
 	case Error::Severity::Info: return 3;
 	}
-	solAssert(false);
+	hypAssert(false);
 	return -1;
 }
 
@@ -170,7 +170,7 @@ void LanguageServer::changeConfiguration(Json::Value const& _settings)
 	// The settings item: "file-load-strategy" (enum) defaults to "project-directory" if not (or not correctly) set.
 	// It can be overridden during client's handshake or at runtime, as usual.
 	//
-	// If this value is set to "project-directory" (default), all .sol files located inside the project directory or reachable through symbolic links will be subject to operations.
+	// If this value is set to "project-directory" (default), all .hyp files located inside the project directory or reachable through symbolic links will be subject to operations.
 	//
 	// Operations include compiler analysis, but also finding all symbolic references or symbolic renaming.
 	//
@@ -213,7 +213,7 @@ void LanguageServer::changeConfiguration(Json::Value const& _settings)
 	}
 }
 
-std::vector<boost::filesystem::path> LanguageServer::allSolidityFilesFromProject() const
+std::vector<boost::filesystem::path> LanguageServer::allHyperionFilesFromProject() const
 {
 	std::vector<fs::path> collectedPaths{};
 
@@ -227,7 +227,7 @@ std::vector<boost::filesystem::path> LanguageServer::allSolidityFilesFromProject
 #endif
 	for (fs::directory_entry const& dirEntry: directoryIterator)
 		if (
-			dirEntry.path().extension() == ".sol" &&
+			dirEntry.path().extension() == ".hyp" &&
 			(dirEntry.status().type() == fs::file_type::regular_file || resolvesToRegularFile(dirEntry.path()))
 		)
 			collectedPaths.push_back(dirEntry.path());
@@ -243,9 +243,9 @@ void LanguageServer::compile()
 	FileRepository oldRepository(m_fileRepository.basePath(), m_fileRepository.includePaths());
 	std::swap(oldRepository, m_fileRepository);
 
-	// Load all solidity files from project.
+	// Load all hyperion files from project.
 	if (m_fileLoadStrategy == FileLoadStrategy::ProjectDirectory)
-		for (auto const& projectFile: allSolidityFilesFromProject())
+		for (auto const& projectFile: allHyperionFilesFromProject())
 		{
 			lspDebug(fmt::format("adding project file: {}", projectFile.generic_string()));
 			m_fileRepository.setSourceByUri(
@@ -288,7 +288,7 @@ void LanguageServer::compileAndUpdateDiagnostics()
 			continue;
 
 		Json::Value jsonDiag;
-		jsonDiag["source"] = "solc";
+		jsonDiag["source"] = "hypc";
 		jsonDiag["severity"] = toDiagnosticSeverity(error->type());
 		jsonDiag["code"] = Json::UInt64{error->errorId().error};
 		std::string message = Error::formatErrorType(error->type()) + ":";
@@ -412,7 +412,7 @@ void LanguageServer::handleInitialize(MessageID _id, Json::Value const& _args)
 		changeConfiguration(_args["initializationOptions"]);
 
 	Json::Value replyArgs;
-	replyArgs["serverInfo"]["name"] = "solc";
+	replyArgs["serverInfo"]["name"] = "hypc";
 	replyArgs["serverInfo"]["version"] = std::string(VersionNumber);
 	replyArgs["capabilities"]["definitionProvider"] = true;
 	replyArgs["capabilities"]["implementationProvider"] = true;

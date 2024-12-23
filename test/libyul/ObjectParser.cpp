@@ -1,18 +1,18 @@
 /*
-    This file is part of solidity.
+    This file is part of hyperion.
 
-    solidity is free software: you can redistribute it and/or modify
+    hyperion is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    solidity is distributed in the hope that it will be useful,
+    hyperion is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+    along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
  * @date 2018
@@ -21,15 +21,15 @@
 
 #include <test/Common.h>
 
-#include <test/libsolidity/ErrorCheck.h>
+#include <test/libhyperion/ErrorCheck.h>
 
 #include <liblangutil/DebugInfoSelection.h>
 #include <liblangutil/Scanner.h>
 
 #include <libyul/YulStack.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 
-#include <libsolidity/interface/OptimiserSettings.h>
+#include <libhyperion/interface/OptimiserSettings.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -44,10 +44,10 @@
 #include <sstream>
 
 using namespace std;
-using namespace solidity::frontend;
-using namespace solidity::langutil;
+using namespace hyperion::frontend;
+using namespace hyperion::langutil;
 
-namespace solidity::yul::test
+namespace hyperion::yul::test
 {
 
 namespace
@@ -58,9 +58,9 @@ pair<bool, ErrorList> parse(string const& _source)
 	try
 	{
 		YulStack asmStack(
-			solidity::test::CommonOptions::get().evmVersion(),
+			hyperion::test::CommonOptions::get().zvmVersion(),
 			YulStack::Language::StrictAssembly,
-			solidity::frontend::OptimiserSettings::none(),
+			hyperion::frontend::OptimiserSettings::none(),
 			DebugInfoSelection::All()
 		);
 		bool success = asmStack.parseAndAnalyze("source", _source);
@@ -119,7 +119,7 @@ tuple<optional<SourceNameMap>, ErrorList> tryGetSourceLocationMapping(string _so
 
 	ErrorList errors;
 	ErrorReporter reporter(errors);
-	Dialect const& dialect = yul::EVMDialect::strictAssemblyForEVM(EVMVersion::shanghai());
+	Dialect const& dialect = yul::ZVMDialect::strictAssemblyForZVM(ZVMVersion::shanghai());
 	ObjectParser objectParser{reporter, dialect};
 	CharStream stream(std::move(source), "");
 	auto object = objectParser.parse(make_shared<Scanner>(stream), false);
@@ -134,7 +134,7 @@ do \
 { \
 	Error err = expectError((text), false); \
 	BOOST_CHECK(err.type() == (Error::Type::typ)); \
-	BOOST_CHECK(::solidity::frontend::test::searchErrorMessage(err, (substring))); \
+	BOOST_CHECK(::hyperion::frontend::test::searchErrorMessage(err, (substring))); \
 } while(0)
 
 BOOST_AUTO_TEST_SUITE(YulObjectParser)
@@ -180,9 +180,9 @@ BOOST_AUTO_TEST_CASE(to_string)
 )";
 	expectation = boost::replace_all_copy(expectation, "\t", "    ");
 	YulStack asmStack(
-		solidity::test::CommonOptions::get().evmVersion(),
+		hyperion::test::CommonOptions::get().zvmVersion(),
 		YulStack::Language::StrictAssembly,
-		solidity::frontend::OptimiserSettings::none(),
+		hyperion::frontend::OptimiserSettings::none(),
 		DebugInfoSelection::All()
 	);
 	BOOST_REQUIRE(asmStack.parseAndAnalyze("source", code));
@@ -197,30 +197,30 @@ BOOST_AUTO_TEST_CASE(use_src_empty)
 
 BOOST_AUTO_TEST_CASE(use_src_simple)
 {
-	auto const [mapping, _] = tryGetSourceLocationMapping(R"(@use-src 0:"contract.sol")");
+	auto const [mapping, _] = tryGetSourceLocationMapping(R"(@use-src 0:"contract.hyp")");
 	BOOST_REQUIRE(mapping.has_value());
 	BOOST_REQUIRE_EQUAL(mapping->size(), 1);
-	BOOST_REQUIRE_EQUAL(*mapping->at(0), "contract.sol");
+	BOOST_REQUIRE_EQUAL(*mapping->at(0), "contract.hyp");
 }
 
 BOOST_AUTO_TEST_CASE(use_src_multiple)
 {
-	auto const [mapping, _] = tryGetSourceLocationMapping(R"(@use-src 0:"contract.sol", 1:"misc.yul")");
+	auto const [mapping, _] = tryGetSourceLocationMapping(R"(@use-src 0:"contract.hyp", 1:"misc.yul")");
 	BOOST_REQUIRE(mapping);
 	BOOST_REQUIRE_EQUAL(mapping->size(), 2);
-	BOOST_REQUIRE_EQUAL(*mapping->at(0), "contract.sol");
+	BOOST_REQUIRE_EQUAL(*mapping->at(0), "contract.hyp");
 	BOOST_REQUIRE_EQUAL(*mapping->at(1), "misc.yul");
 }
 
 BOOST_AUTO_TEST_CASE(use_src_escaped_filenames)
 {
 	auto const [mapping, _] = tryGetSourceLocationMapping(
-		R"(@use-src 42:"con\"tract@\".sol")"
+		R"(@use-src 42:"con\"tract@\".hyp")"
 	);
 	BOOST_REQUIRE(mapping);
 	BOOST_REQUIRE_EQUAL(mapping->size(), 1);
 	BOOST_REQUIRE(mapping->count(42));
-	BOOST_REQUIRE_EQUAL(*mapping->at(42), "con\"tract@\".sol");
+	BOOST_REQUIRE_EQUAL(*mapping->at(42), "con\"tract@\".hyp");
 }
 
 BOOST_AUTO_TEST_CASE(use_src_invalid_syntax_malformed_param_1)
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE(use_src_invalid_syntax_malformed_param_2)
 BOOST_AUTO_TEST_CASE(use_src_error_unexpected_trailing_tokens)
 {
 	auto const [mapping, errors] = tryGetSourceLocationMapping(
-		R"(@use-src 1:"file.sol" @use-src 2:"foo.sol")"
+		R"(@use-src 1:"file.hyp" @use-src 2:"foo.hyp")"
 	);
 
 	BOOST_REQUIRE_EQUAL(errors.size(), 1);
@@ -254,11 +254,11 @@ BOOST_AUTO_TEST_CASE(use_src_error_unexpected_trailing_tokens)
 BOOST_AUTO_TEST_CASE(use_src_multiline)
 {
 	auto const [mapping, _] = tryGetSourceLocationMapping(
-		" @use-src \n  0:\"contract.sol\" \n , \n 1:\"misc.yul\""
+		" @use-src \n  0:\"contract.hyp\" \n , \n 1:\"misc.yul\""
 	);
 	BOOST_REQUIRE(mapping);
 	BOOST_REQUIRE_EQUAL(mapping->size(), 2);
-	BOOST_REQUIRE_EQUAL(*mapping->at(0), "contract.sol");
+	BOOST_REQUIRE_EQUAL(*mapping->at(0), "contract.hyp");
 	BOOST_REQUIRE_EQUAL(*mapping->at(1), "misc.yul");
 }
 
@@ -272,13 +272,13 @@ BOOST_AUTO_TEST_CASE(use_src_empty_body)
 BOOST_AUTO_TEST_CASE(use_src_leading_text)
 {
 	auto const [mapping, _] = tryGetSourceLocationMapping(
-		"@something else @use-src 0:\"contract.sol\", 1:\"misc.sol\""s
+		"@something else @use-src 0:\"contract.hyp\", 1:\"misc.hyp\""s
 	);
 	BOOST_REQUIRE(mapping);
 	BOOST_REQUIRE_EQUAL(mapping->size(), 2);
 	BOOST_REQUIRE(mapping->find(0) != mapping->end());
-	BOOST_REQUIRE_EQUAL(*mapping->at(0), "contract.sol");
-	BOOST_REQUIRE_EQUAL(*mapping->at(1), "misc.sol");
+	BOOST_REQUIRE_EQUAL(*mapping->at(0), "contract.hyp");
+	BOOST_REQUIRE_EQUAL(*mapping->at(1), "misc.hyp");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

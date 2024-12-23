@@ -1,29 +1,29 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /** @file SwarmHash.cpp
  */
 
-#include <libsolutil/SwarmHash.h>
+#include <libhyputil/SwarmHash.h>
 
-#include <libsolutil/Keccak256.h>
+#include <libhyputil/Keccak256.h>
 
-using namespace solidity;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::util;
 
 namespace
 {
@@ -103,13 +103,13 @@ h256 chunkHash(bytesConstRef const _data, bool _forceHigherLevel = false)
 
 }
 
-h256 solidity::util::bzzr0Hash(std::string const& _input)
+h256 hyperion::util::bzzr0Hash(std::string const& _input)
 {
 	return swarmHashIntermediate(_input, 0, _input.size());
 }
 
 
-h256 solidity::util::bzzr1Hash(bytes const& _input)
+h256 hyperion::util::bzzr1Hash(bytes const& _input)
 {
 	if (_input.empty())
 		return h256{};

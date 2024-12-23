@@ -30,7 +30,7 @@
 		},
 		"outputSelection":
 		{
-			"*": {"*": ["evm.assembly"]}
+			"*": {"*": ["zvm.assembly"]}
 		}
 	}
 }

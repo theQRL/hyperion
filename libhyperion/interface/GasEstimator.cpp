@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,26 +21,26 @@
  * Gas consumption estimator working alongside the AST.
  */
 
-#include <libsolidity/interface/GasEstimator.h>
+#include <libhyperion/interface/GasEstimator.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/ASTVisitor.h>
-#include <libsolidity/codegen/CompilerUtils.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/ASTVisitor.h>
+#include <libhyperion/codegen/CompilerUtils.h>
 
-#include <libevmasm/ControlFlowGraph.h>
-#include <libevmasm/KnownState.h>
-#include <libevmasm/PathGasMeter.h>
-#include <libsolutil/FunctionSelector.h>
-#include <libsolutil/Keccak256.h>
+#include <libzvmasm/ControlFlowGraph.h>
+#include <libzvmasm/KnownState.h>
+#include <libzvmasm/PathGasMeter.h>
+#include <libhyputil/FunctionSelector.h>
+#include <libhyputil/Keccak256.h>
 
 #include <functional>
 #include <map>
 #include <memory>
 
-using namespace solidity;
-using namespace solidity::evmasm;
-using namespace solidity::frontend;
-using namespace solidity::langutil;
+using namespace hyperion;
+using namespace hyperion::zvmasm;
+using namespace hyperion::frontend;
+using namespace hyperion::langutil;
 
 GasEstimator::GasConsumption GasEstimator::functionalEstimation(
 	AssemblyItems const& _items,
@@ -70,7 +70,7 @@ GasEstimator::GasConsumption GasEstimator::functionalEstimation(
 		);
 	}
 
-	return PathGasMeter::estimateMax(_items, m_evmVersion, 0, state);
+	return PathGasMeter::estimateMax(_items, m_zvmVersion, 0, state);
 }
 
 GasEstimator::GasConsumption GasEstimator::functionalEstimation(
@@ -92,7 +92,7 @@ GasEstimator::GasConsumption GasEstimator::functionalEstimation(
 	if (parametersSize > 0)
 		state->feedItem(swapInstruction(parametersSize));
 
-	return PathGasMeter::estimateMax(_items, m_evmVersion, _offset, state);
+	return PathGasMeter::estimateMax(_items, m_zvmVersion, _offset, state);
 }
 
 std::set<ASTNode const*> GasEstimator::finestNodesAtLocation(

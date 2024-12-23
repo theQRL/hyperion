@@ -6,7 +6,7 @@ Contract Metadata
 
 .. index:: metadata, contract verification
 
-The Solidity compiler automatically generates a JSON file.
+The Hyperion compiler automatically generates a JSON file.
 The file contains two kinds of information about the compiled contract:
 
 - How to interact with the contract: ABI, and NatSpec documentation.
@@ -21,7 +21,7 @@ the Swarm hash and not appending the metadata hash to the bytecode. These can be
 configured via the :ref:`Standard JSON Interface<compiler-api>`.
 
 You have to publish the metadata file to IPFS, Swarm, or another service so
-that others can access it. You create the file by using the ``solc --metadata``
+that others can access it. You create the file by using the ``hypc --metadata``
 command together with the ``--output-dir`` parameter. Without the parameter,
 the metadata will be written to standard output.
 The metadata contains IPFS and Swarm references to the source code, so you have to
@@ -43,12 +43,12 @@ explanatory purposes.
       "compiler": {
         // Optional: Hash of the compiler binary which produced this output
         "keccak256": "0x123...",
-        // Required for Solidity: Version of the compiler
+        // Required for Hyperion: Version of the compiler
         "version": "0.8.2+commit.661d1103"
       },
       // Required: Source code language, basically selects a "sub-version"
       // of the specification
-      "language": "Solidity",
+      "language": "Hyperion",
       // Required: Generated information about the contract.
       "output": {
         // Required: ABI definition of the contract. See "Contract ABI Specification"
@@ -127,14 +127,14 @@ explanatory purposes.
       // Required: Compiler settings. Reflects the settings in the JSON input during compilation.
       // Check the documentation of standard JSON input's "settings" field
       "settings": {
-        // Required for Solidity: File path and the name of the contract or library this
+        // Required for Hyperion: File path and the name of the contract or library this
         // metadata is created for.
         "compilationTarget": {
-          "myDirectory/myFile.sol": "MyContract"
+          "myDirectory/myFile.hyp": "MyContract"
         },
-        // Required for Solidity.
-        "evmVersion": "shanghai",
-        // Required for Solidity: Addresses for libraries used.
+        // Required for Hyperion.
+        "zvmVersion": "shanghai",
+        // Required for Hyperion: Addresses for libraries used.
         "libraries": {
           "MyLib": "0x123123..."
         },
@@ -170,7 +170,7 @@ explanatory purposes.
           "enabled": true,
           "runs": 500
         },
-        // Required for Solidity: Sorted list of import remappings.
+        // Required for Hyperion: Sorted list of import remappings.
         "remappings": [ ":g=/dir" ]
       },
       // Required: Compilation source files/source units, keys are file paths
@@ -181,7 +181,7 @@ explanatory purposes.
           // Required: keccak256 hash of the source file
           "keccak256": "0x234..."
         },
-        "myDirectory/myFile.sol": {
+        "myDirectory/myFile.hyp": {
           // Required: keccak256 hash of the source file
           "keccak256": "0x123...",
           // Optional: SPDX license identifier as given in the source file
@@ -205,7 +205,7 @@ explanatory purposes.
 
 .. note::
     The ABI definition above has no fixed order. It can change with compiler versions.
-    Starting from Solidity version 0.5.12, though, the array maintains a certain
+    Starting from Hyperion version 0.5.12, though, the array maintains a certain
     order.
 
 .. _encoding-of-the-metadata-hash-in-the-bytecode:
@@ -229,7 +229,7 @@ Below are all the possible fields:
       "bzzr0": "<metadata hash>",
       // If any experimental features that affect code generation are used
       "experimental": true,
-      "solc": "<compiler version>"
+      "hypc": "<compiler version>"
     }
 
 Because we might support other ways to retrieve the
@@ -240,7 +240,7 @@ relevant part of the bytecode can be decoded with a CBOR decoder.
 
 Check the `Metadata Playground <https://playground.sourcify.dev/>`_ to see it in action.
 
-Whereas release builds of solc use a 3 byte encoding of the version as shown
+Whereas release builds of hypc use a 3 byte encoding of the version as shown
 above (one byte each for major, minor and patch version number), pre-release builds
 will instead use a complete version string including commit hash and build date.
 

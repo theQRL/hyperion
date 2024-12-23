@@ -1,38 +1,38 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Solidity parser.
+ * Hyperion parser.
  */
 
-#include <libsolidity/parsing/Parser.h>
+#include <libhyperion/parsing/Parser.h>
 
-#include <libsolidity/ast/UserDefinableOperators.h>
-#include <libsolidity/interface/Version.h>
+#include <libhyperion/ast/UserDefinableOperators.h>
+#include <libhyperion/interface/Version.h>
 #include <libyul/AST.h>
 #include <libyul/AsmParser.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 #include <liblangutil/ErrorReporter.h>
 #include <liblangutil/Scanner.h>
 #include <liblangutil/SemVerHandler.h>
 #include <liblangutil/SourceLocation.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -43,10 +43,10 @@
 #include <tuple>
 #include <vector>
 
-using namespace solidity::langutil;
+using namespace hyperion::langutil;
 using namespace std::string_literals;
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 /// AST node factory that also tracks the begin and end position of an AST node
@@ -73,7 +73,7 @@ public:
 	template <class NodeType, typename... Args>
 	ASTPointer<NodeType> createNode(Args&& ... _args)
 	{
-		solAssert(m_location.sourceName, "");
+		hypAssert(m_location.sourceName, "");
 		if (m_location.end < 0)
 			markEndPosition();
 		return std::make_shared<NodeType>(m_parser.nextID(), m_location, std::forward<Args>(_args)...);
@@ -88,13 +88,13 @@ private:
 
 ASTPointer<SourceUnit> Parser::parse(CharStream& _charStream)
 {
-	solAssert(!m_insideModifier, "");
+	hypAssert(!m_insideModifier, "");
 	try
 	{
 		m_recursionDepth = 0;
 		m_scanner = std::make_shared<Scanner>(_charStream);
 		ASTNodeFactory nodeFactory(*this);
-		m_experimentalSolidityEnabledInCurrentSourceUnit = false;
+		m_experimentalHyperionEnabledInCurrentSourceUnit = false;
 
 		std::vector<ASTPointer<ASTNode>> nodes;
 		while (m_scanner->currentToken() == Token::Pragma)
@@ -156,8 +156,8 @@ ASTPointer<SourceUnit> Parser::parse(CharStream& _charStream)
 					fatalParserError(7858_error, "Expected pragma, import directive or contract/interface/library/struct/enum/constant/function/error definition.");
 			}
 		}
-		solAssert(m_recursionDepth == 0, "");
-		return nodeFactory.createNode<SourceUnit>(findLicenseString(nodes), nodes, m_experimentalSolidityEnabledInCurrentSourceUnit);
+		hypAssert(m_recursionDepth == 0, "");
+		return nodeFactory.createNode<SourceUnit>(findLicenseString(nodes), nodes, m_experimentalHyperionEnabledInCurrentSourceUnit);
 	}
 	catch (FatalError const&)
 	{
@@ -212,7 +212,7 @@ ASTPointer<PragmaDirective> Parser::parsePragmaDirective(bool const _finishedPar
 	RecursionGuard recursionGuard(*this);
 	// pragma anything* ;
 	// Currently supported:
-	// pragma solidity ^0.4.0 || ^0.3.0;
+	// pragma hyperion ^0.4.0 || ^0.3.0;
 	ASTNodeFactory nodeFactory(*this);
 	expectToken(Token::Pragma);
 	std::vector<std::string> literals;
@@ -222,7 +222,7 @@ ASTPointer<PragmaDirective> Parser::parsePragmaDirective(bool const _finishedPar
 	{
 		Token token = m_scanner->currentToken();
 		if (token == Token::Illegal)
-			parserError(6281_error, "Token incompatible with Solidity parser as part of pragma directive.");
+			parserError(6281_error, "Token incompatible with Hyperion parser as part of pragma directive.");
 		else
 		{
 			std::string literal = m_scanner->currentLiteral();
@@ -237,7 +237,7 @@ ASTPointer<PragmaDirective> Parser::parsePragmaDirective(bool const _finishedPar
 	nodeFactory.markEndPosition();
 	expectToken(Token::Semicolon);
 
-	if (literals.size() >= 1 && literals[0] == "solidity")
+	if (literals.size() >= 1 && literals[0] == "hyperion")
 	{
 		parsePragmaVersion(
 			nodeFactory.location(),
@@ -246,11 +246,11 @@ ASTPointer<PragmaDirective> Parser::parsePragmaDirective(bool const _finishedPar
 		);
 	}
 
-	if (literals.size() >= 2 && literals[0] == "experimental" && literals[1] == "solidity")
+	if (literals.size() >= 2 && literals[0] == "experimental" && literals[1] == "hyperion")
 	{
 		if (_finishedParsingTopLevelPragmas)
-			fatalParserError(8185_error, "Experimental pragma \"solidity\" can only be set at the beginning of the source unit.");
-		m_experimentalSolidityEnabledInCurrentSourceUnit = true;
+			fatalParserError(8185_error, "Experimental pragma \"hyperion\" can only be set at the beginning of the source unit.");
+		m_experimentalHyperionEnabledInCurrentSourceUnit = true;
 	}
 
 	return nodeFactory.createNode<PragmaDirective>(tokens, literals);
@@ -466,7 +466,7 @@ Visibility Parser::parseVisibilitySpecifier()
 			visibility = Visibility::External;
 			break;
 		default:
-			solAssert(false, "Invalid visibility specifier.");
+			hypAssert(false, "Invalid visibility specifier.");
 	}
 	advance();
 	return visibility;
@@ -474,7 +474,7 @@ Visibility Parser::parseVisibilitySpecifier()
 
 ASTPointer<OverrideSpecifier> Parser::parseOverrideSpecifier()
 {
-	solAssert(m_scanner->currentToken() == Token::Override, "");
+	hypAssert(m_scanner->currentToken() == Token::Override, "");
 
 	ASTNodeFactory nodeFactory(*this);
 	std::vector<ASTPointer<IdentifierPath>> overrides;
@@ -518,7 +518,7 @@ StateMutability Parser::parseStateMutability()
 			stateMutability = StateMutability::Pure;
 			break;
 		default:
-			solAssert(false, "Invalid state mutability specifier.");
+			hypAssert(false, "Invalid state mutability specifier.");
 	}
 	advance();
 	return stateMutability;
@@ -641,7 +641,7 @@ ASTPointer<ASTNode> Parser::parseFunctionDefinition(bool _freeFunction)
 	}
 	else
 	{
-		solAssert(kind == Token::Constructor || kind == Token::Fallback || kind == Token::Receive, "");
+		hypAssert(kind == Token::Constructor || kind == Token::Fallback || kind == Token::Receive, "");
 		advance();
 		name = std::make_shared<ASTString>();
 	}
@@ -823,7 +823,7 @@ ASTPointer<VariableDeclaration> Parser::parseVariableDeclaration(
 						location = VariableDeclaration::Location::CallData;
 						break;
 					default:
-						solAssert(false, "Unknown data location.");
+						hypAssert(false, "Unknown data location.");
 					}
 				}
 			}
@@ -960,7 +960,7 @@ ASTPointer<ErrorDefinition> Parser::parseErrorDefinition()
 	ASTNodeFactory nodeFactory(*this);
 	ASTPointer<StructuredDocumentation> documentation = parseStructuredDocumentation();
 
-	solAssert(*expectIdentifierToken() == "error", "");
+	hypAssert(*expectIdentifierToken() == "error", "");
 	auto&& [name, nameLocation] = expectIdentifierWithLocation();
 
 	ASTPointer<ParameterList> parameters = parseParameterList({});
@@ -1179,7 +1179,7 @@ ASTPointer<TypeName> Parser::parseTypeName()
 	else
 		fatalParserError(3546_error, "Expected type name");
 
-	solAssert(type, "");
+	hypAssert(type, "");
 	// Parse "[...]" postfixes for arrays.
 	type = parseTypeNameSuffix(type, nodeFactory);
 
@@ -1356,11 +1356,11 @@ ASTPointer<InlineAssembly> Parser::parseInlineAssembly(ASTPointer<ASTString> con
 	SourceLocation location = currentLocation();
 
 	expectToken(Token::Assembly);
-	yul::Dialect const& dialect = yul::EVMDialect::strictAssemblyForEVM(m_evmVersion);
+	yul::Dialect const& dialect = yul::ZVMDialect::strictAssemblyForZVM(m_zvmVersion);
 	if (m_scanner->currentToken() == Token::StringLiteral)
 	{
-		if (m_scanner->currentLiteral() != "evmasm")
-			fatalParserError(4531_error, "Only \"evmasm\" supported.");
+		if (m_scanner->currentLiteral() != "zvmasm")
+			fatalParserError(4531_error, "Only \"zvmasm\" supported.");
 		// This can be used in the future to set the dialect.
 		advance();
 	}
@@ -1568,11 +1568,11 @@ ASTPointer<EmitStatement> Parser::parseEmitStatement(ASTPointer<ASTString> const
 ASTPointer<RevertStatement> Parser::parseRevertStatement(ASTPointer<ASTString> const& _docString)
 {
 	ASTNodeFactory nodeFactory(*this);
-	solAssert(*expectIdentifierToken() == "revert", "");
+	hypAssert(*expectIdentifierToken() == "revert", "");
 
 	ASTNodeFactory errorCallNodeFactory(*this);
 
-	solAssert(m_scanner->currentToken() == Token::Identifier, "");
+	hypAssert(m_scanner->currentToken() == Token::Identifier, "");
 
 	IndexAccessedPath iap;
 	while (true)
@@ -1663,7 +1663,7 @@ ASTPointer<Statement> Parser::parseSimpleStatement(ASTPointer<ASTString> const& 
 			return parseExpressionStatement(_docString, nodeFactory.createNode<TupleExpression>(components, false));
 		}
 		default:
-			solAssert(false);
+			hypAssert(false);
 		}
 	}
 	else
@@ -1676,7 +1676,7 @@ ASTPointer<Statement> Parser::parseSimpleStatement(ASTPointer<ASTString> const& 
 		case LookAheadInfo::Expression:
 			return parseExpressionStatement(_docString, expressionFromIndexAccessStructure(iap));
 		default:
-			solAssert(false);
+			hypAssert(false);
 		}
 	}
 
@@ -1687,7 +1687,7 @@ ASTPointer<Statement> Parser::parseSimpleStatement(ASTPointer<ASTString> const& 
 bool Parser::IndexAccessedPath::empty() const
 {
 	if (!indices.empty())
-		solAssert(!path.empty());
+		hypAssert(!path.empty());
 
 	return path.empty() && indices.empty();
 }
@@ -1993,7 +1993,7 @@ ASTPointer<Expression> Parser::parseLiteral()
 		break;
 	}
 	default:
-		solAssert(false);
+		hypAssert(false);
 	}
 
 	if (initialToken == Token::Number && (
@@ -2333,7 +2333,7 @@ ASTPointer<TypeName> Parser::typeNameFromIndexAccessStructure(Parser::IndexAcces
 	ASTPointer<TypeName> type;
 	if (auto typeName = dynamic_cast<ElementaryTypeNameExpression const*>(_iap.path.front().get()))
 	{
-		solAssert(_iap.path.size() == 1, "");
+		hypAssert(_iap.path.size() == 1, "");
 		type = nodeFactory.createNode<ElementaryTypeName>(typeName->type().typeName());
 	}
 	else
@@ -2437,7 +2437,7 @@ bool Parser::isQuotedPath() const
 
 bool Parser::isStdlibPath() const
 {
-	return m_experimentalSolidityEnabledInCurrentSourceUnit
+	return m_experimentalHyperionEnabledInCurrentSourceUnit
 		&& m_scanner->currentToken() == Token::Identifier
 		&& m_scanner->currentLiteral() == "std";
 }

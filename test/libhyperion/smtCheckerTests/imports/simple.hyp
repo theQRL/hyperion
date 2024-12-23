@@ -1,7 +1,7 @@
-==== Source: A.sol ====
+==== Source: A.hyp ====
 contract A { function f() public {} }
-==== Source: B.sol ====
-import "A.sol";
+==== Source: B.hyp ====
+import "A.hyp";
 contract C is A {}
 // ====
 // SMTEngine: all

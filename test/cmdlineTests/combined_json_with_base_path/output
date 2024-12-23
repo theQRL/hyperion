@@ -1,20 +1,20 @@
 {
   "contracts":
   {
-    "combined_json_with_base_path/c.sol:C": {}
+    "combined_json_with_base_path/c.hyp:C": {}
   },
   "sourceList":
   [
-    "combined_json_with_base_path/c.sol",
-    "combined_json_with_base_path/input.sol"
+    "combined_json_with_base_path/c.hyp",
+    "combined_json_with_base_path/input.hyp"
   ],
   "sources":
   {
-    "combined_json_with_base_path/c.sol":
+    "combined_json_with_base_path/c.hyp":
     {
       "AST":
       {
-        "absolutePath": "combined_json_with_base_path/c.sol",
+        "absolutePath": "combined_json_with_base_path/c.hyp",
         "exportedSymbols":
         {
           "C":
@@ -31,7 +31,7 @@
             "id": 4,
             "literals":
             [
-              "solidity",
+              "hyperion",
               ">=",
               "0.0"
             ],
@@ -64,11 +64,11 @@
       },
       "id": 0
     },
-    "combined_json_with_base_path/input.sol":
+    "combined_json_with_base_path/input.hyp":
     {
       "AST":
       {
-        "absolutePath": "combined_json_with_base_path/input.sol",
+        "absolutePath": "combined_json_with_base_path/input.hyp",
         "exportedSymbols":
         {
           "C":
@@ -85,7 +85,7 @@
             "id": 1,
             "literals":
             [
-              "solidity",
+              "hyperion",
               ">=",
               "0.0"
             ],
@@ -93,8 +93,8 @@
             "src": "36:22:1"
           },
           {
-            "absolutePath": "combined_json_with_base_path/c.sol",
-            "file": "./c.sol",
+            "absolutePath": "combined_json_with_base_path/c.hyp",
+            "file": "./c.hyp",
             "id": 2,
             "nameLocation": "-1:-1:-1",
             "nodeType": "ImportDirective",

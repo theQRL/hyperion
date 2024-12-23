@@ -1,61 +1,61 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Lefteris <lefteris@ethdev.com>
  * @author Gav Wood <g@ethdev.com>
  * @date 2014
- * Solidity command line interface.
+ * Hyperion command line interface.
  */
-#include <solc/CommandLineInterface.h>
+#include <hypc/CommandLineInterface.h>
 
-#include <solc/Exceptions.h>
+#include <hypc/Exceptions.h>
 
 #include "license.h"
-#include "solidity/BuildInfo.h"
+#include "hyperion/BuildInfo.h"
 
-#include <libsolidity/interface/Version.h>
-#include <libsolidity/ast/ASTJsonExporter.h>
-#include <libsolidity/ast/ASTJsonImporter.h>
-#include <libsolidity/analysis/NameAndTypeResolver.h>
-#include <libsolidity/interface/CompilerStack.h>
-#include <libsolidity/interface/StandardCompiler.h>
-#include <libsolidity/interface/GasEstimator.h>
-#include <libsolidity/interface/DebugSettings.h>
-#include <libsolidity/interface/ImportRemapper.h>
-#include <libsolidity/interface/StorageLayout.h>
-#include <libsolidity/lsp/LanguageServer.h>
-#include <libsolidity/lsp/Transport.h>
+#include <libhyperion/interface/Version.h>
+#include <libhyperion/ast/ASTJsonExporter.h>
+#include <libhyperion/ast/ASTJsonImporter.h>
+#include <libhyperion/analysis/NameAndTypeResolver.h>
+#include <libhyperion/interface/CompilerStack.h>
+#include <libhyperion/interface/StandardCompiler.h>
+#include <libhyperion/interface/GasEstimator.h>
+#include <libhyperion/interface/DebugSettings.h>
+#include <libhyperion/interface/ImportRemapper.h>
+#include <libhyperion/interface/StorageLayout.h>
+#include <libhyperion/lsp/LanguageServer.h>
+#include <libhyperion/lsp/Transport.h>
 
 #include <libyul/YulStack.h>
 
-#include <libevmasm/Instruction.h>
-#include <libevmasm/Disassemble.h>
-#include <libevmasm/GasMeter.h>
+#include <libzvmasm/Instruction.h>
+#include <libzvmasm/Disassemble.h>
+#include <libzvmasm/GasMeter.h>
 
 #include <liblangutil/Exceptions.h>
 #include <liblangutil/SourceReferenceFormatter.h>
 
 #include <libsmtutil/Exceptions.h>
 
-#include <libsolutil/Common.h>
-#include <libsolutil/CommonData.h>
-#include <libsolutil/CommonIO.h>
-#include <libsolutil/JSON.h>
+#include <libhyputil/Common.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/CommonIO.h>
+#include <libhyputil/JSON.h>
 
 #include <algorithm>
 #include <fstream>
@@ -82,9 +82,9 @@
 #endif
 
 using namespace std::string_literals;
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::langutil;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::langutil;
 
 namespace
 {
@@ -96,7 +96,7 @@ std::set<frontend::InputMode> const CompilerInputModes{
 
 } // anonymous namespace
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 std::ostream& CommandLineInterface::sout(bool _markAsUsed)
@@ -166,12 +166,12 @@ static bool coloredOutput(CommandLineOptions const& _options)
 		(_options.formatting.coloredOutput.has_value() && _options.formatting.coloredOutput.value());
 }
 
-void CommandLineInterface::handleEVMAssembly(std::string const& _contract)
+void CommandLineInterface::handleZVMAssembly(std::string const& _contract)
 {
-	solAssert(m_assemblyStack);
-	solAssert(
+	hypAssert(m_assemblyStack);
+	hypAssert(
 		CompilerInputModes.count(m_options.input.mode) == 1 ||
-		m_options.input.mode == frontend::InputMode::EVMAssemblerJSON
+		m_options.input.mode == frontend::InputMode::ZVMAssemblerJSON
 	);
 
 	if (!m_options.compiler.outputs.asm_ && !m_options.compiler.outputs.asmJson)
@@ -186,19 +186,19 @@ void CommandLineInterface::handleEVMAssembly(std::string const& _contract)
 	if (!m_options.output.dir.empty())
 		createFile(
 			m_compiler->filesystemFriendlyName(_contract) +
-			(m_options.compiler.outputs.asmJson ? "_evm.json" : ".evm"),
+			(m_options.compiler.outputs.asmJson ? "_zvm.json" : ".zvm"),
 			assembly
 		);
 	else
-		sout() << "EVM assembly:" << std::endl << assembly << std::endl;
+		sout() << "ZVM assembly:" << std::endl << assembly << std::endl;
 }
 
 void CommandLineInterface::handleBinary(std::string const& _contract)
 {
-	solAssert(m_assemblyStack);
-	solAssert(
+	hypAssert(m_assemblyStack);
+	hypAssert(
 		CompilerInputModes.count(m_options.input.mode) == 1 ||
-		m_options.input.mode == frontend::InputMode::EVMAssemblerJSON
+		m_options.input.mode == frontend::InputMode::ZVMAssemblerJSON
 	);
 
 	std::string binary;
@@ -232,13 +232,13 @@ void CommandLineInterface::handleBinary(std::string const& _contract)
 
 void CommandLineInterface::handleOpcode(std::string const& _contract)
 {
-	solAssert(m_assemblyStack);
-	solAssert(
+	hypAssert(m_assemblyStack);
+	hypAssert(
 		CompilerInputModes.count(m_options.input.mode) == 1 ||
-		m_options.input.mode == frontend::InputMode::EVMAssemblerJSON
+		m_options.input.mode == frontend::InputMode::ZVMAssemblerJSON
 	);
 
-	std::string opcodes{evmasm::disassemble(m_assemblyStack->object(_contract).bytecode)};
+	std::string opcodes{zvmasm::disassemble(m_assemblyStack->object(_contract).bytecode)};
 
 	if (!m_options.output.dir.empty())
 		createFile(m_assemblyStack->filesystemFriendlyName(_contract) + ".opcode", opcodes);
@@ -252,7 +252,7 @@ void CommandLineInterface::handleOpcode(std::string const& _contract)
 
 void CommandLineInterface::handleIR(std::string const& _contractName)
 {
-	solAssert(CompilerInputModes.count(m_options.input.mode) == 1);
+	hypAssert(CompilerInputModes.count(m_options.input.mode) == 1);
 
 	if (!m_options.compiler.outputs.ir)
 		return;
@@ -268,7 +268,7 @@ void CommandLineInterface::handleIR(std::string const& _contractName)
 
 void CommandLineInterface::handleIRAst(std::string const& _contractName)
 {
-	solAssert(CompilerInputModes.count(m_options.input.mode) == 1);
+	hypAssert(CompilerInputModes.count(m_options.input.mode) == 1);
 
 	if (!m_options.compiler.outputs.irAstJson)
 		return;
@@ -293,7 +293,7 @@ void CommandLineInterface::handleIRAst(std::string const& _contractName)
 
 void CommandLineInterface::handleIROptimized(std::string const& _contractName)
 {
-	solAssert(CompilerInputModes.count(m_options.input.mode) == 1);
+	hypAssert(CompilerInputModes.count(m_options.input.mode) == 1);
 
 	if (!m_options.compiler.outputs.irOptimized)
 		return;
@@ -312,7 +312,7 @@ void CommandLineInterface::handleIROptimized(std::string const& _contractName)
 
 void CommandLineInterface::handleIROptimizedAst(std::string const& _contractName)
 {
-	solAssert(CompilerInputModes.count(m_options.input.mode) == 1);
+	hypAssert(CompilerInputModes.count(m_options.input.mode) == 1);
 
 	if (!m_options.compiler.outputs.irOptimizedAstJson)
 		return;
@@ -337,9 +337,9 @@ void CommandLineInterface::handleIROptimizedAst(std::string const& _contractName
 
 void CommandLineInterface::handleBytecode(std::string const& _contract)
 {
-	solAssert(
+	hypAssert(
 		CompilerInputModes.count(m_options.input.mode) == 1 ||
-		m_options.input.mode == frontend::InputMode::EVMAssemblerJSON
+		m_options.input.mode == frontend::InputMode::ZVMAssemblerJSON
 	);
 
 	if (m_options.compiler.outputs.opcodes)
@@ -350,7 +350,7 @@ void CommandLineInterface::handleBytecode(std::string const& _contract)
 
 void CommandLineInterface::handleSignatureHashes(std::string const& _contract)
 {
-	solAssert(CompilerInputModes.count(m_options.input.mode) == 1);
+	hypAssert(CompilerInputModes.count(m_options.input.mode) == 1);
 
 	if (!m_options.compiler.outputs.signatureHashes)
 		return;
@@ -382,7 +382,7 @@ void CommandLineInterface::handleSignatureHashes(std::string const& _contract)
 
 void CommandLineInterface::handleMetadata(std::string const& _contract)
 {
-	solAssert(CompilerInputModes.count(m_options.input.mode) == 1);
+	hypAssert(CompilerInputModes.count(m_options.input.mode) == 1);
 
 	if (!m_options.compiler.outputs.metadata)
 		return;
@@ -396,7 +396,7 @@ void CommandLineInterface::handleMetadata(std::string const& _contract)
 
 void CommandLineInterface::handleABI(std::string const& _contract)
 {
-	solAssert(CompilerInputModes.count(m_options.input.mode) == 1);
+	hypAssert(CompilerInputModes.count(m_options.input.mode) == 1);
 
 	if (!m_options.compiler.outputs.abi)
 		return;
@@ -410,7 +410,7 @@ void CommandLineInterface::handleABI(std::string const& _contract)
 
 void CommandLineInterface::handleStorageLayout(std::string const& _contract)
 {
-	solAssert(CompilerInputModes.count(m_options.input.mode) == 1);
+	hypAssert(CompilerInputModes.count(m_options.input.mode) == 1);
 
 	if (!m_options.compiler.outputs.storageLayout)
 		return;
@@ -424,7 +424,7 @@ void CommandLineInterface::handleStorageLayout(std::string const& _contract)
 
 void CommandLineInterface::handleNatspec(bool _natspecDev, std::string const& _contract)
 {
-	solAssert(CompilerInputModes.count(m_options.input.mode) == 1);
+	hypAssert(CompilerInputModes.count(m_options.input.mode) == 1);
 
 	bool enabled = false;
 	std::string suffix;
@@ -467,7 +467,7 @@ void CommandLineInterface::handleNatspec(bool _natspecDev, std::string const& _c
 
 void CommandLineInterface::handleGasEstimation(std::string const& _contract)
 {
-	solAssert(CompilerInputModes.count(m_options.input.mode) == 1);
+	hypAssert(CompilerInputModes.count(m_options.input.mode) == 1);
 
 	Json::Value estimates = m_compiler->gasEstimates(_contract);
 	sout() << "Gas estimation:" << std::endl;
@@ -509,7 +509,7 @@ void CommandLineInterface::handleGasEstimation(std::string const& _contract)
 
 void CommandLineInterface::readInputFiles()
 {
-	solAssert(!m_standardJsonInput.has_value());
+	hypAssert(!m_standardJsonInput.has_value());
 
 	if (m_options.input.noImportCallback)
 		m_universalCallback.resetImportCallback();
@@ -528,10 +528,10 @@ void CommandLineInterface::readInputFiles()
 	if (m_fileReader.basePath() != "")
 	{
 		if (!boost::filesystem::exists(m_fileReader.basePath()))
-			solThrow(CommandLineValidationError, "Base path does not exist: \"" + m_fileReader.basePath().string() + '"');
+			hypThrow(CommandLineValidationError, "Base path does not exist: \"" + m_fileReader.basePath().string() + '"');
 
 		if (!boost::filesystem::is_directory(m_fileReader.basePath()))
-			solThrow(CommandLineValidationError, "Base path is not a directory: \"" + m_fileReader.basePath().string() + '"');
+			hypThrow(CommandLineValidationError, "Base path is not a directory: \"" + m_fileReader.basePath().string() + '"');
 	}
 
 	for (boost::filesystem::path const& includePath: m_options.input.includePaths)
@@ -557,7 +557,7 @@ void CommandLineInterface::readInputFiles()
 			message += util::joinHumanReadable(normalizedInputPaths | ranges::views::transform(pathToQuotedString)) + "\n";
 		}
 
-		solThrow(CommandLineValidationError, message);
+		hypThrow(CommandLineValidationError, message);
 	}
 
 	for (boost::filesystem::path const& infile: m_options.input.paths)
@@ -565,7 +565,7 @@ void CommandLineInterface::readInputFiles()
 		if (!boost::filesystem::exists(infile))
 		{
 			if (!m_options.input.ignoreMissingFiles)
-				solThrow(CommandLineValidationError, '"' + infile.string() + "\" is not found.");
+				hypThrow(CommandLineValidationError, '"' + infile.string() + "\" is not found.");
 			else
 				report(Error::Severity::Info, fmt::format("\"{}\" is not found. Skipping.", infile.string()));
 
@@ -575,7 +575,7 @@ void CommandLineInterface::readInputFiles()
 		if (!boost::filesystem::is_regular_file(infile))
 		{
 			if (!m_options.input.ignoreMissingFiles)
-				solThrow(CommandLineValidationError, '"' + infile.string() + "\" is not a valid file.");
+				hypThrow(CommandLineValidationError, '"' + infile.string() + "\" is not a valid file.");
 			else
 				report(Error::Severity::Info, fmt::format("\"{}\" is not a valid file. Skipping.", infile.string()));
 
@@ -586,7 +586,7 @@ void CommandLineInterface::readInputFiles()
 		std::string fileContent = readFileAsString(infile);
 		if (m_options.input.mode == InputMode::StandardJson)
 		{
-			solAssert(!m_standardJsonInput.has_value());
+			hypAssert(!m_standardJsonInput.has_value());
 			m_standardJsonInput = std::move(fileContent);
 		}
 		else
@@ -600,7 +600,7 @@ void CommandLineInterface::readInputFiles()
 	{
 		if (m_options.input.mode == InputMode::StandardJson)
 		{
-			solAssert(!m_standardJsonInput.has_value());
+			hypAssert(!m_standardJsonInput.has_value());
 			m_standardJsonInput = readUntilEnd(m_sin);
 		}
 		else
@@ -612,12 +612,12 @@ void CommandLineInterface::readInputFiles()
 		m_fileReader.sourceUnits().empty() &&
 		!m_standardJsonInput.has_value()
 	)
-		solThrow(CommandLineValidationError, "All specified input files either do not exist or are not regular files.");
+		hypThrow(CommandLineValidationError, "All specified input files either do not exist or are not regular files.");
 }
 
 std::map<std::string, Json::Value> CommandLineInterface::parseAstFromInput()
 {
-	solAssert(m_options.input.mode == InputMode::CompilerWithASTImport);
+	hypAssert(m_options.input.mode == InputMode::CompilerWithASTImport);
 
 	std::map<std::string, Json::Value> sourceJsons;
 	std::map<std::string, std::string> tmpSources;
@@ -649,7 +649,7 @@ void CommandLineInterface::createFile(std::string const& _fileName, std::string 
 {
 	namespace fs = boost::filesystem;
 
-	solAssert(!m_options.output.dir.empty());
+	hypAssert(!m_options.output.dir.empty());
 
 	// NOTE: create_directories() raises an exception if the path consists solely of '.' or '..'
 	// (or equivalent such as './././.'). Paths like 'a/b/.' and 'a/b/..' are fine though.
@@ -658,12 +658,12 @@ void CommandLineInterface::createFile(std::string const& _fileName, std::string 
 
 	std::string pathName = (m_options.output.dir / _fileName).string();
 	if (fs::exists(pathName) && !m_options.output.overwriteFiles)
-		solThrow(CommandLineOutputError, "Refusing to overwrite existing file \"" + pathName + "\" (use --overwrite to force).");
+		hypThrow(CommandLineOutputError, "Refusing to overwrite existing file \"" + pathName + "\" (use --overwrite to force).");
 
 	std::ofstream outFile(pathName);
 	outFile << _data;
 	if (!outFile)
-		solThrow(CommandLineOutputError, "Could not write to file \"" + pathName + "\".");
+		hypThrow(CommandLineOutputError, "Could not write to file \"" + pathName + "\".");
 }
 
 void CommandLineInterface::createJson(std::string const& _fileName, std::string const& _json)
@@ -741,7 +741,7 @@ void CommandLineInterface::processInput()
 		break;
 	case InputMode::StandardJson:
 	{
-		solAssert(m_standardJsonInput.has_value());
+		hypAssert(m_standardJsonInput.has_value());
 
 		StandardCompiler compiler(m_universalCallback.callback(), m_options.formatting.json);
 		sout() << compiler.compile(std::move(m_standardJsonInput.value())) << std::endl;
@@ -763,19 +763,19 @@ void CommandLineInterface::processInput()
 		compile();
 		outputCompilationResults();
 		break;
-	case InputMode::EVMAssemblerJSON:
-		assembleFromEVMAssemblyJSON();
+	case InputMode::ZVMAssemblerJSON:
+		assembleFromZVMAssemblyJSON();
 		handleCombinedJSON();
 		handleBytecode(m_assemblyStack->contractNames().front());
-		handleEVMAssembly(m_assemblyStack->contractNames().front());
+		handleZVMAssembly(m_assemblyStack->contractNames().front());
 		break;
 	}
 }
 
 void CommandLineInterface::printVersion()
 {
-	sout() << "solc, the solidity compiler commandline interface" << std::endl;
-	sout() << "Version: " << solidity::frontend::VersionString << std::endl;
+	sout() << "hypc, the hyperion compiler commandline interface" << std::endl;
+	sout() << "Version: " << hyperion::frontend::VersionString << std::endl;
 }
 
 void CommandLineInterface::printLicense()
@@ -785,38 +785,38 @@ void CommandLineInterface::printLicense()
 	sout() << licenseText << std::endl;
 }
 
-void CommandLineInterface::assembleFromEVMAssemblyJSON()
+void CommandLineInterface::assembleFromZVMAssemblyJSON()
 {
-	solAssert(m_options.input.mode == InputMode::EVMAssemblerJSON);
-	solAssert(!m_assemblyStack);
-	solAssert(!m_evmAssemblyStack && !m_compiler);
+	hypAssert(m_options.input.mode == InputMode::ZVMAssemblerJSON);
+	hypAssert(!m_assemblyStack);
+	hypAssert(!m_zvmAssemblyStack && !m_compiler);
 
-	solAssert(m_fileReader.sourceUnits().size() == 1);
+	hypAssert(m_fileReader.sourceUnits().size() == 1);
 	auto&& [sourceUnitName, source] = *m_fileReader.sourceUnits().begin();
 
-	auto evmAssemblyStack = std::make_unique<evmasm::EVMAssemblyStack>(m_options.output.evmVersion);
+	auto zvmAssemblyStack = std::make_unique<zvmasm::ZVMAssemblyStack>(m_options.output.zvmVersion);
 	try
 	{
-		evmAssemblyStack->parseAndAnalyze(sourceUnitName, source);
+		zvmAssemblyStack->parseAndAnalyze(sourceUnitName, source);
 	}
-	catch (evmasm::AssemblyImportException const& _exception)
+	catch (zvmasm::AssemblyImportException const& _exception)
 	{
-		solThrow(CommandLineExecutionError, "Assembly Import Error: "s + _exception.what());
+		hypThrow(CommandLineExecutionError, "Assembly Import Error: "s + _exception.what());
 	}
 
 	if (m_options.output.debugInfoSelection.has_value())
-		evmAssemblyStack->selectDebugInfo(m_options.output.debugInfoSelection.value());
-	evmAssemblyStack->assemble();
+		zvmAssemblyStack->selectDebugInfo(m_options.output.debugInfoSelection.value());
+	zvmAssemblyStack->assemble();
 
-	m_evmAssemblyStack = std::move(evmAssemblyStack);
-	m_assemblyStack = m_evmAssemblyStack.get();
+	m_zvmAssemblyStack = std::move(zvmAssemblyStack);
+	m_assemblyStack = m_zvmAssemblyStack.get();
 }
 
 void CommandLineInterface::compile()
 {
-	solAssert(CompilerInputModes.count(m_options.input.mode) == 1);
-	solAssert(!m_assemblyStack);
-	solAssert(!m_evmAssemblyStack && !m_compiler);
+	hypAssert(CompilerInputModes.count(m_options.input.mode) == 1);
+	hypAssert(!m_assemblyStack);
+	hypAssert(!m_zvmAssemblyStack && !m_compiler);
 
 	m_compiler = std::make_unique<CompilerStack>(m_universalCallback.callback());
 	m_assemblyStack = m_compiler.get();
@@ -834,7 +834,7 @@ void CommandLineInterface::compile()
 		m_compiler->setRemappings(m_options.input.remappings);
 		m_compiler->setLibraries(m_options.linker.libraries);
 		m_compiler->setViaIR(m_options.output.viaIR);
-		m_compiler->setEVMVersion(m_options.output.evmVersion);
+		m_compiler->setZVMVersion(m_options.output.zvmVersion);
 		m_compiler->setRevertStringBehaviour(m_options.output.revertStrings);
 		if (m_options.output.debugInfoSelection.has_value())
 			m_compiler->selectDebugInfo(m_options.output.debugInfoSelection.value());
@@ -845,7 +845,7 @@ void CommandLineInterface::compile()
 			m_options.compiler.outputs.irAstJson ||
 			m_options.compiler.outputs.irOptimizedAstJson
 		);
-		m_compiler->enableEvmBytecodeGeneration(
+		m_compiler->enableZvmBytecodeGeneration(
 			m_options.compiler.estimateGas ||
 			m_options.compiler.outputs.asm_ ||
 			m_options.compiler.outputs.asmJson ||
@@ -884,7 +884,7 @@ void CommandLineInterface::compile()
 			{
 				// FIXME: AST import is missing proper validations. This hack catches failing
 				// assertions and presents them as if they were compiler errors.
-				solThrow(CommandLineExecutionError, "Failed to import AST: "s + _exc.what());
+				hypThrow(CommandLineExecutionError, "Failed to import AST: "s + _exc.what());
 			}
 		}
 		else
@@ -899,7 +899,7 @@ void CommandLineInterface::compile()
 		}
 
 		if (!successful)
-			solThrow(CommandLineExecutionError, "");
+			hypThrow(CommandLineExecutionError, "");
 	}
 	catch (CompilerError const& _exception)
 	{
@@ -908,30 +908,30 @@ void CommandLineInterface::compile()
 			_exception,
 			Error::errorSeverity(Error::Type::CompilerError)
 		);
-		solThrow(CommandLineExecutionError, "");
+		hypThrow(CommandLineExecutionError, "");
 	}
 	catch (Error const& _error)
 	{
 		if (_error.type() == Error::Type::DocstringParsingError)
 		{
 			report(Error::Severity::Error, *boost::get_error_info<errinfo_comment>(_error));
-			solThrow(CommandLineExecutionError, "Documentation parsing failed.");
+			hypThrow(CommandLineExecutionError, "Documentation parsing failed.");
 		}
 		else
 		{
 			m_hasOutput = true;
 			formatter.printErrorInformation(_error);
-			solThrow(CommandLineExecutionError, "");
+			hypThrow(CommandLineExecutionError, "");
 		}
 	}
 }
 
 void CommandLineInterface::handleCombinedJSON()
 {
-	solAssert(m_assemblyStack);
-	solAssert(
+	hypAssert(m_assemblyStack);
+	hypAssert(
 		CompilerInputModes.count(m_options.input.mode) == 1 ||
-		m_options.input.mode == frontend::InputMode::EVMAssemblerJSON
+		m_options.input.mode == frontend::InputMode::ZVMAssemblerJSON
 	);
 
 	if (!m_options.compiler.combinedJsonRequests.has_value())
@@ -977,7 +977,7 @@ void CommandLineInterface::handleCombinedJSON()
 			if (m_options.compiler.combinedJsonRequests->binaryRuntime)
 				contractData[g_strBinaryRuntime] = m_assemblyStack->runtimeObject(contractName).toHex();
 			if (m_options.compiler.combinedJsonRequests->opcodes)
-				contractData[g_strOpcodes] = evmasm::disassemble(m_assemblyStack->object(contractName).bytecode);
+				contractData[g_strOpcodes] = zvmasm::disassemble(m_assemblyStack->object(contractName).bytecode);
 			if (m_options.compiler.combinedJsonRequests->asm_)
 				contractData[g_strAsm] = m_assemblyStack->assemblyJSON(contractName);
 			if (m_options.compiler.combinedJsonRequests->srcMap)
@@ -1016,7 +1016,7 @@ void CommandLineInterface::handleCombinedJSON()
 
 	if (m_options.compiler.combinedJsonRequests->ast)
 	{
-		solAssert(m_compiler);
+		hypAssert(m_compiler);
 		output[g_strSources] = Json::Value(Json::objectValue);
 		for (auto const& sourceCode: m_fileReader.sourceUnits())
 		{
@@ -1038,7 +1038,7 @@ void CommandLineInterface::handleCombinedJSON()
 
 void CommandLineInterface::handleAst()
 {
-	solAssert(CompilerInputModes.count(m_options.input.mode) == 1);
+	hypAssert(CompilerInputModes.count(m_options.input.mode) == 1);
 
 	if (!m_options.compiler.outputs.astCompactJson)
 		return;
@@ -1074,12 +1074,12 @@ void CommandLineInterface::serveLSP()
 {
 	lsp::StdioTransport transport;
 	if (!lsp::LanguageServer{transport}.run())
-		solThrow(CommandLineExecutionError, "LSP terminated abnormally.");
+		hypThrow(CommandLineExecutionError, "LSP terminated abnormally.");
 }
 
 void CommandLineInterface::link()
 {
-	solAssert(m_options.input.mode == InputMode::Linker);
+	hypAssert(m_options.input.mode == InputMode::Linker);
 
 	// Map from how the libraries will be named inside the bytecode to their addresses.
 	std::map<std::string, h160> librariesReplacements;
@@ -1092,7 +1092,7 @@ void CommandLineInterface::link()
 		// be just the cropped or '_'-padded library name, but this changed to
 		// the cropped hex representation of the hash of the library name.
 		// We support both ways of linking here.
-		librariesReplacements["__" + evmasm::LinkerObject::libraryPlaceholder(name) + "__"] = library.second;
+		librariesReplacements["__" + zvmasm::LinkerObject::libraryPlaceholder(name) + "__"] = library.second;
 
 		std::string replacement = "__";
 		for (size_t i = 0; i < placeholderSize - 4; ++i)
@@ -1115,7 +1115,7 @@ void CommandLineInterface::link()
 				*(it + placeholderSize - 2) != '_' ||
 				*(it + placeholderSize - 1) != '_'
 			)
-				solThrow(
+				hypThrow(
 					CommandLineExecutionError,
 					"Error in binary object file " + src.first + " at position " + std::to_string(it - src.second.begin()) + "\n" +
 					'"' + std::string(it, it + std::min(placeholderSize, static_cast<int>(end - it))) + "\" is not a valid link reference."
@@ -1145,7 +1145,7 @@ void CommandLineInterface::link()
 
 void CommandLineInterface::writeLinkedFiles()
 {
-	solAssert(m_options.input.mode == InputMode::Linker);
+	hypAssert(m_options.input.mode == InputMode::Linker);
 
 	for (auto const& src: m_fileReader.sourceUnits())
 		if (src.first == g_stdinFileName)
@@ -1155,17 +1155,17 @@ void CommandLineInterface::writeLinkedFiles()
 			std::ofstream outFile(src.first);
 			outFile << src.second;
 			if (!outFile)
-				solThrow(CommandLineOutputError, "Could not write to file " + src.first + ". Aborting.");
+				hypThrow(CommandLineOutputError, "Could not write to file " + src.first + ". Aborting.");
 		}
 	sout() << "Linking completed." << std::endl;
 }
 
 std::string CommandLineInterface::libraryPlaceholderHint(std::string const& _libraryName)
 {
-	return "// " + evmasm::LinkerObject::libraryPlaceholder(_libraryName) + " -> " + _libraryName;
+	return "// " + zvmasm::LinkerObject::libraryPlaceholder(_libraryName) + " -> " + _libraryName;
 }
 
-std::string CommandLineInterface::objectWithLinkRefsHex(evmasm::LinkerObject const& _obj)
+std::string CommandLineInterface::objectWithLinkRefsHex(zvmasm::LinkerObject const& _obj)
 {
 	std::string out = _obj.toHex();
 	if (!_obj.linkReferences.empty())
@@ -1179,14 +1179,14 @@ std::string CommandLineInterface::objectWithLinkRefsHex(evmasm::LinkerObject con
 
 void CommandLineInterface::assembleYul(yul::YulStack::Language _language, yul::YulStack::Machine _targetMachine)
 {
-	solAssert(m_options.input.mode == InputMode::Assembler);
+	hypAssert(m_options.input.mode == InputMode::Assembler);
 
 	bool successful = true;
 	std::map<std::string, yul::YulStack> yulStacks;
 	for (auto const& src: m_fileReader.sourceUnits())
 	{
 		auto& stack = yulStacks[src.first] = yul::YulStack(
-			m_options.output.evmVersion,
+			m_options.output.zvmVersion,
 			_language,
 			m_options.optimiserSettings(),
 			m_options.output.debugInfoSelection.has_value() ?
@@ -1216,14 +1216,14 @@ void CommandLineInterface::assembleYul(yul::YulStack::Language _language, yul::Y
 
 	if (!successful)
 	{
-		solAssert(m_hasOutput);
-		solThrow(CommandLineExecutionError, "");
+		hypAssert(m_hasOutput);
+		hypThrow(CommandLineExecutionError, "");
 	}
 
 	for (auto const& src: m_fileReader.sourceUnits())
 	{
-		solAssert(_targetMachine == yul::YulStack::Machine::EVM);
-		std::string machine = "EVM";
+		hypAssert(_targetMachine == yul::YulStack::Machine::ZVM);
+		std::string machine = "ZVM";
 		sout() << std::endl << "======= " << src.first << " (" << machine << ") =======" << std::endl;
 
 		yul::YulStack& stack = yulStacks[src.first];
@@ -1253,7 +1253,7 @@ void CommandLineInterface::assembleYul(yul::YulStack::Language _language, yul::Y
 			sout() << "AST:" << std::endl << std::endl;
 			sout() << util::jsonPrint(stack.astJson(), m_options.formatting.json) << std::endl;
 		}
-		solAssert(_targetMachine == yul::YulStack::Machine::EVM, "");
+		hypAssert(_targetMachine == yul::YulStack::Machine::ZVM, "");
 		if (m_options.compiler.outputs.asm_)
 		{
 			sout() << std::endl << "Text representation:" << std::endl;
@@ -1267,7 +1267,7 @@ void CommandLineInterface::assembleYul(yul::YulStack::Language _language, yul::Y
 
 void CommandLineInterface::outputCompilationResults()
 {
-	solAssert(CompilerInputModes.count(m_options.input.mode) == 1);
+	hypAssert(CompilerInputModes.count(m_options.input.mode) == 1);
 
 	handleCombinedJSON();
 
@@ -1280,14 +1280,14 @@ void CommandLineInterface::outputCompilationResults()
 	{
 		// Currently AST is the only output allowed with --stop-after parsing. For all of the others
 		// we can safely assume that full compilation was performed and successful.
-		solAssert(m_options.output.stopAfter >= CompilerStack::State::CompilationSuccessful);
+		hypAssert(m_options.output.stopAfter >= CompilerStack::State::CompilationSuccessful);
 
 		for (std::string const& contract: m_compiler->contractNames())
 		{
 			if (needsHumanTargetedStdout(m_options))
 				sout() << std::endl << "======= " << contract << " =======" << std::endl;
 
-			handleEVMAssembly(contract);
+			handleZVMAssembly(contract);
 
 			if (m_options.compiler.estimateGas)
 				handleGasEstimation(contract);

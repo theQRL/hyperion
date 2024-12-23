@@ -1,70 +1,70 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * Optimisation stage that replaces constants by expressions that compute them.
  */
 
-#include <libyul/backends/evm/ConstantOptimiser.h>
+#include <libyul/backends/zvm/ConstantOptimiser.h>
 
 #include <libyul/optimiser/ASTCopier.h>
-#include <libyul/backends/evm/EVMMetrics.h>
+#include <libyul/backends/zvm/ZVMMetrics.h>
 #include <libyul/AST.h>
 #include <libyul/Utilities.h>
 
-#include <libsolutil/CommonData.h>
+#include <libhyputil/CommonData.h>
 
 #include <variant>
 
-using namespace solidity;
-using namespace solidity::yul;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::yul;
+using namespace hyperion::util;
 
 using Representation = ConstantOptimiser::Representation;
 
 namespace
 {
-struct MiniEVMInterpreter
+struct MiniZVMInterpreter
 {
-	explicit MiniEVMInterpreter(EVMDialect const& _dialect): m_dialect(_dialect) {}
+	explicit MiniZVMInterpreter(ZVMDialect const& _dialect): m_dialect(_dialect) {}
 
 	u256 eval(Expression const& _expr)
 	{
 		return std::visit(*this, _expr);
 	}
 
-	u256 eval(evmasm::Instruction _instr, std::vector<Expression> const& _arguments)
+	u256 eval(zvmasm::Instruction _instr, std::vector<Expression> const& _arguments)
 	{
 		std::vector<u256> args;
 		for (auto const& arg: _arguments)
 			args.emplace_back(eval(arg));
 		switch (_instr)
 		{
-		case evmasm::Instruction::ADD:
+		case zvmasm::Instruction::ADD:
 			return args.at(0) + args.at(1);
-		case evmasm::Instruction::SUB:
+		case zvmasm::Instruction::SUB:
 			return args.at(0) - args.at(1);
-		case evmasm::Instruction::MUL:
+		case zvmasm::Instruction::MUL:
 			return args.at(0) * args.at(1);
-		case evmasm::Instruction::EXP:
+		case zvmasm::Instruction::EXP:
 			return exp256(args.at(0), args.at(1));
-		case evmasm::Instruction::SHL:
+		case zvmasm::Instruction::SHL:
 			return args.at(0) > 255 ? 0 : (args.at(1) << unsigned(args.at(0)));
-		case evmasm::Instruction::NOT:
+		case zvmasm::Instruction::NOT:
 			return ~args.at(0);
 		default:
 			yulAssert(false, "Invalid operation generated in constant optimizer.");
@@ -74,9 +74,9 @@ struct MiniEVMInterpreter
 
 	u256 operator()(FunctionCall const& _funCall)
 	{
-		BuiltinFunctionForEVM const* fun = m_dialect.builtin(_funCall.functionName.name);
+		BuiltinFunctionForZVM const* fun = m_dialect.builtin(_funCall.functionName.name);
 		yulAssert(fun, "Expected builtin function.");
-		yulAssert(fun->instruction, "Expected EVM instruction.");
+		yulAssert(fun->instruction, "Expected ZVM instruction.");
 		return eval(*fun->instruction, _funCall.arguments);
 	}
 	u256 operator()(Literal const& _literal)
@@ -85,7 +85,7 @@ struct MiniEVMInterpreter
 	}
 	u256 operator()(Identifier const&) { yulAssert(false, ""); }
 
-	EVMDialect const& m_dialect;
+	ZVMDialect const& m_dialect;
 };
 }
 
@@ -165,7 +165,7 @@ Representation const& RepresentationFinder::findRepresentation(u256 const& _valu
 			m_maxSteps--;
 		routine = min(std::move(routine), std::move(newRoutine));
 	}
-	yulAssert(MiniEVMInterpreter{m_dialect}.eval(*routine.expression) == _value, "Invalid expression generated.");
+	yulAssert(MiniZVMInterpreter{m_dialect}.eval(*routine.expression) == _value, "Invalid expression generated.");
 	return m_cache[_value] = std::move(routine);
 }
 

@@ -1,5 +1,5 @@
 ********************************
-Layout of a Solidity Source File
+Layout of a Hyperion Source File
 ********************************
 
 Source files can contain an arbitrary number of
@@ -15,7 +15,7 @@ SPDX License Identifier
 
 Trust in smart contracts can be better established if their source code
 is available. Since making source code available always touches on legal problems
-with regards to copyright, the Solidity compiler encourages the use
+with regards to copyright, the Hyperion compiler encourages the use
 of machine-readable `SPDX license identifiers <https://spdx.org>`_.
 Every source file should start with a comment indicating its license:
 
@@ -29,7 +29,7 @@ If you do not want to specify a license or if the source code is
 not open-source, please use the special value ``UNLICENSED``.
 Note that ``UNLICENSED`` (no usage allowed, not present in SPDX license list)
 is different from ``UNLICENSE`` (grants all rights to everyone).
-Solidity follows `the npm recommendation <https://docs.npmjs.com/cli/v7/configuring-npm/package-json#license>`_.
+Hyperion follows `the npm recommendation <https://docs.npmjs.com/cli/v7/configuring-npm/package-json#license>`_.
 
 Supplying this comment of course does not free you from other
 obligations related to licensing like having to mention
@@ -72,7 +72,7 @@ a good idea to read through the changelog at least for releases that contain
 breaking changes. These releases always have versions of the form
 ``0.x.0`` or ``x.0.0``.
 
-The version pragma is used as follows: ``pragma solidity ^0.5.2;``
+The version pragma is used as follows: ``pragma hyperion ^0.5.2;``
 
 A source file with the line above does not compile with a compiler earlier than version 0.5.2,
 and it also does not work on a compiler starting from version 0.6.0 (this
@@ -104,8 +104,8 @@ The new ABI coder (v2) is able to encode and decode arbitrarily nested
 arrays and structs. Apart from supporting more types, it involves more extensive
 validation and safety checks, which may result in higher gas costs, but also heightened
 security. It is considered
-non-experimental as of Solidity 0.6.0 and it is enabled by default starting
-with Solidity 0.8.0. The old ABI coder can still be selected using ``pragma abicoder v1;``.
+non-experimental as of Hyperion 0.6.0 and it is enabled by default starting
+with Hyperion 0.8.0. The old ABI coder can still be selected using ``pragma abicoder v1;``.
 
 The set of types supported by the new encoder is a strict superset of
 the ones supported by the old one. Contracts that use it can interact with ones
@@ -124,7 +124,7 @@ enough to make the error go away.
   used internally and not in external function signatures.
 
 .. note::
-  Up to Solidity 0.7.4, it was possible to select the ABI coder v2
+  Up to Hyperion 0.7.4, it was possible to select the ABI coder v2
   by using ``pragma experimental ABIEncoderV2``, but it was not possible
   to explicitly select coder v1 because it was the default.
 
@@ -145,7 +145,7 @@ ABIEncoderV2
 
 Because the ABI coder v2 is not considered experimental anymore,
 it can be selected via ``pragma abicoder v2`` (please see above)
-since Solidity 0.7.4.
+since Hyperion 0.7.4.
 
 .. index:: ! pragma; SMTChecker
 .. _smt_checker:
@@ -153,19 +153,19 @@ since Solidity 0.7.4.
 SMTChecker
 ~~~~~~~~~~
 
-This component has to be enabled when the Solidity compiler is built
-and therefore it is not available in all Solidity binaries.
+This component has to be enabled when the Hyperion compiler is built
+and therefore it is not available in all Hyperion binaries.
 The :ref:`build instructions<smt_solvers_build>` explain how to activate this option.
 It is activated for the Ubuntu PPA releases in most versions,
 but not for the Docker images, Windows binaries or the
-statically-built Linux binaries. It can be activated for solc-js via the
-`smtCallback <https://github.com/ethereum/solc-js#example-usage-with-smtsolver-callback>`_ if you have an SMT solver
-installed locally and run solc-js via node (not via the browser).
+statically-built Linux binaries. It can be activated for hypc-js via the
+`smtCallback <https://github.com/theQRL/hypc-js#example-usage-with-smtsolver-callback>`_ if you have an SMT solver
+installed locally and run hypc-js via node (not via the browser).
 
 If you use ``pragma experimental SMTChecker;``, then you get additional
 :ref:`safety warnings<formal_verification>` which are obtained by querying an
 SMT solver.
-The component does not yet support all features of the Solidity language and
+The component does not yet support all features of the Hyperion language and
 likely outputs many warnings. In case it reports unsupported features, the
 analysis may not be fully sound.
 
@@ -179,20 +179,20 @@ Importing other Source Files
 Syntax and Semantics
 --------------------
 
-Solidity supports import statements to help modularise your code that
+Hyperion supports import statements to help modularise your code that
 are similar to those available in JavaScript
-(from ES6 on). However, Solidity does not support the concept of
+(from ES6 on). However, Hyperion does not support the concept of
 a `default export <https://developer.mozilla.org/en-US/docs/web/javascript/reference/statements/export#description>`_.
 
 At a global level, you can use import statements of the following form:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     import "filename";
 
 The ``filename`` part is called an *import path*.
 This statement imports all global symbols from "filename" (and symbols imported there) into the
-current global scope (different than in ES6 but backwards-compatible for Solidity).
+current global scope (different than in ES6 but backwards-compatible for Hyperion).
 This form is not recommended for use, because it unpredictably pollutes the namespace.
 If you add new top-level items inside "filename", they automatically
 appear in all files that import like this from "filename". It is better to import specific
@@ -201,7 +201,7 @@ symbols explicitly.
 The following example creates a new global symbol ``symbolName`` whose members are all
 the global symbols from ``"filename"``:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     import * as symbolName from "filename";
 
@@ -209,7 +209,7 @@ which results in all global symbols being available in the format ``symbolName.s
 
 A variant of this syntax that is not part of ES6, but possibly useful is:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
   import "filename" as symbolName;
 
@@ -219,7 +219,7 @@ If there is a naming collision, you can rename symbols while importing. For exam
 the code below creates new global symbols ``alias`` and ``symbol2`` which reference
 ``symbol1`` and ``symbol2`` from inside ``"filename"``, respectively.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     import {symbol1 as alias, symbol2} from "filename";
 
@@ -228,7 +228,7 @@ the code below creates new global symbols ``alias`` and ``symbol2`` which refere
 Import Paths
 ------------
 
-In order to be able to support reproducible builds on all platforms, the Solidity compiler has to
+In order to be able to support reproducible builds on all platforms, the Hyperion compiler has to
 abstract away the details of the filesystem where source files are stored.
 For this reason import paths do not refer directly to files in the host filesystem.
 Instead the compiler maintains an internal database (*virtual filesystem* or *VFS* for short) where
@@ -259,7 +259,7 @@ Comments
 
 Single-line comments (``//``) and multi-line comments (``/*...*/``) are possible.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // This is a single-line comment.
 

@@ -1,26 +1,26 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <test/libsolidity/GasTest.h>
-#include <test/libsolidity/util/Common.h>
+#include <test/libhyperion/GasTest.h>
+#include <test/libhyperion/util/Common.h>
 #include <test/Common.h>
-#include <libsolutil/CommonIO.h>
-#include <libsolutil/JSON.h>
+#include <libhyputil/CommonIO.h>
+#include <libhyputil/JSON.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
@@ -29,10 +29,10 @@
 #include <fstream>
 #include <stdexcept>
 
-using namespace solidity::langutil;
-using namespace solidity::frontend;
-using namespace solidity::frontend::test;
-using namespace solidity;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::test;
+using namespace hyperion;
 using namespace boost::unit_test;
 
 GasTest::GasTest(std::string const& _filename):
@@ -114,9 +114,9 @@ void GasTest::setupCompiler(CompilerStack& _compiler)
 	settings.expectedExecutionsPerDeployment = m_optimiseRuns;
 	_compiler.setOptimiserSettings(settings);
 
-	// Intentionally ignoring EVM version specified on the command line.
+	// Intentionally ignoring ZVM version specified on the command line.
 	// Gas expectations are only valid for the default version.
-	_compiler.setEVMVersion(EVMVersion{});
+	_compiler.setZVMVersion(ZVMVersion{});
 }
 
 TestCase::TestResult GasTest::run(std::ostream& _stream, std::string const& _linePrefix, bool _formatted)

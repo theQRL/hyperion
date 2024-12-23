@@ -1,47 +1,47 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Yul interpreter module that evaluates EVM instructions.
+ * Yul interpreter module that evaluates ZVM instructions.
  */
 
 #pragma once
 
 #include <libyul/ASTForward.h>
 
-#include <libsolutil/CommonData.h>
-#include <libsolutil/Numeric.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/Numeric.h>
 
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
 #include <vector>
 
-namespace solidity::evmasm
+namespace hyperion::zvmasm
 {
 enum class Instruction: uint8_t;
 }
 
-namespace solidity::yul
+namespace hyperion::yul
 {
 class YulString;
-struct BuiltinFunctionForEVM;
+struct BuiltinFunctionForZVM;
 }
 
-namespace solidity::yul::test
+namespace hyperion::yul::test
 {
 
 /// Copy @a _size bytes of @a _source at offset @a _sourceOffset to
@@ -55,7 +55,7 @@ void copyZeroExtended(
 struct InterpreterState;
 
 /**
- * Interprets EVM instructions based on the current state and logs instructions with
+ * Interprets ZVM instructions based on the current state and logs instructions with
  * side-effects.
  *
  * Since this is mainly meant to be used for differential fuzz testing, it is focused
@@ -73,19 +73,19 @@ struct InterpreterState;
  * The main focus is that the generated execution trace is the same for equivalent executions
  * and likely to be different for non-equivalent executions.
  */
-class EVMInstructionInterpreter
+class ZVMInstructionInterpreter
 {
 public:
-	explicit EVMInstructionInterpreter(langutil::EVMVersion _evmVersion, InterpreterState& _state, bool _disableMemWriteTrace):
-		m_evmVersion(_evmVersion),
+	explicit ZVMInstructionInterpreter(langutil::ZVMVersion _zvmVersion, InterpreterState& _state, bool _disableMemWriteTrace):
+		m_zvmVersion(_zvmVersion),
 		m_state(_state),
 		m_disableMemoryWriteInstructions(_disableMemWriteTrace)
 	{}
 	/// Evaluate instruction
-	u256 eval(evmasm::Instruction _instruction, std::vector<u256> const& _arguments);
+	u256 eval(zvmasm::Instruction _instruction, std::vector<u256> const& _arguments);
 	/// Evaluate builtin function
 	u256 evalBuiltin(
-		BuiltinFunctionForEVM const& _fun,
+		BuiltinFunctionForZVM const& _fun,
 		std::vector<Expression> const& _arguments,
 		std::vector<u256> const& _evaluatedArguments
 	);
@@ -112,7 +112,7 @@ private:
 	void writeMemoryWord(u256 const& _offset, u256 const& _value);
 
 	void logTrace(
-		evmasm::Instruction _instruction,
+		zvmasm::Instruction _instruction,
 		std::vector<u256> const& _arguments = {},
 		bytes const& _data = {}
 	);
@@ -144,7 +144,7 @@ private:
 		return m_disableMemoryWriteInstructions;
 	}
 
-	langutil::EVMVersion m_evmVersion;
+	langutil::ZVMVersion m_zvmVersion;
 	InterpreterState& m_state;
 	/// Flag to disable trace of instructions that write to memory.
 	bool m_disableMemoryWriteInstructions;
@@ -153,4 +153,4 @@ public:
 	static constexpr unsigned s_maxRangeSize = 0xffff;
 };
 
-} // solidity::yul::test
+} // hyperion::yul::test

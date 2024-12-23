@@ -1,29 +1,29 @@
 /*
-	This file is part of solidity.
-	solidity is free software: you can redistribute it and/or modify
+	This file is part of hyperion.
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
 
-#include <test/libsolidity/util/SoltestTypes.h>
+#include <test/libhyperion/util/HyptestTypes.h>
 
-#include <libsolutil/CommonData.h>
+#include <libhyputil/CommonData.h>
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 /**
  * Utility class that aids conversions from parsed strings to an
- * isoltest-internal, ABI-based bytes representation and vice-versa.
+ * ihyptest-internal, ABI-based bytes representation and vice-versa.
  */
 class BytesUtils
 {
@@ -66,33 +66,33 @@ public:
 	/// representation of the string literal. Throws if conversion fails.
 	static bytes convertString(std::string const& _literal);
 
-	/// Converts \param _bytes to a soltest-compliant and human-readable
+	/// Converts \param _bytes to a hyptest-compliant and human-readable
 	/// string representation of a byte array which is assumed to hold
 	/// an unsigned value.
 	static std::string formatUnsigned(bytes const& _bytes);
 
-	/// Converts \param _bytes to a soltest-compliant and human-readable
+	/// Converts \param _bytes to a hyptest-compliant and human-readable
 	/// string representation of a byte array which is assumed to hold
 	/// a signed value.
 	static std::string formatSigned(bytes const& _bytes);
 
-	/// Converts \param _bytes to a soltest-compliant and human-readable
+	/// Converts \param _bytes to a hyptest-compliant and human-readable
 	/// string representation of a byte array which is assumed to hold
 	/// a boolean value.
 	static std::string formatBoolean(bytes const& _bytes);
 
-	/// Converts \param _bytes to a soltest-compliant and human-readable
+	/// Converts \param _bytes to a hyptest-compliant and human-readable
 	/// string representation of a byte array which is assumed to hold
 	/// a hex value.
 	/// The _shorten flag is used to trim leading and trailing zeros.
 	static std::string formatHex(bytes const& _bytes, bool _shorten = false);
 
-	/// Converts \param _bytes to a soltest-compliant and human-readable
+	/// Converts \param _bytes to a hyptest-compliant and human-readable
 	/// string representation of a byte array which is assumed to hold
 	/// a hexString value.
 	static std::string formatHexString(bytes const& _bytes);
 
-	/// Converts \param _bytes to a soltest-compliant and human-readable
+	/// Converts \param _bytes to a hyptest-compliant and human-readable
 	/// string representation of a byte array which is assumed to hold
 	/// a string value.
 	static std::string formatString(bytes const& _bytes, size_t _cutOff);
@@ -102,7 +102,7 @@ public:
 		return formatString(_bytes, _bytes.size());
 	}
 
-	/// Converts \param _bytes to a soltest-compliant and human-readable
+	/// Converts \param _bytes to a hyptest-compliant and human-readable
 	/// decimal string representation of a byte array. Format of \param _bytes is binary.
 	static std::string formatFixedPoint(bytes const& _bytes, bool _signed, size_t _fractionalDigits);
 

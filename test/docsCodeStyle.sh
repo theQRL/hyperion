@@ -18,23 +18,23 @@ else
 fi
 
 printTask "Checking docs examples style"
-SOLTMPDIR=$(mktemp -d)
+HYPTMPDIR=$(mktemp -d)
 (
     set -e
-    cd "$SOLTMPDIR"
+    cd "$HYPTMPDIR"
     "$REPO_ROOT"/scripts/isolate_tests.py "$REPO_ROOT"/docs/
 
     if npm -v >/dev/null 2>&1; then
         if npm list -g | grep solhint >/dev/null 2>&1; then
             echo "node is installed, setting up solhint"
-            cp "$REPO_ROOT"/test/.solhint.json "$SOLTMPDIR"/.solhint.json
-            cp "$REPO_ROOT"/test/.solhintignore "$SOLTMPDIR"/.solhintignore
+            cp "$REPO_ROOT"/test/.solhint.json "$HYPTMPDIR"/.solhint.json
+            cp "$REPO_ROOT"/test/.solhintignore "$HYPTMPDIR"/.solhintignore
 
-            for f in *.sol
+            for f in *.hyp
             do
                 echo "$f"
                 # Only report errors
-                solhint -f unix "$SOLTMPDIR/$f"
+                solhint -f unix "$HYPTMPDIR/$f"
             done
         else
             echo "node is installed, but not solhint"
@@ -45,5 +45,5 @@ SOLTMPDIR=$(mktemp -d)
         exit 1
     fi
 )
-rm -rf "$SOLTMPDIR"
+rm -rf "$HYPTMPDIR"
 echo "Done."

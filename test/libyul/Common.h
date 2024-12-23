@@ -1,18 +1,18 @@
 /*
-    This file is part of solidity.
+    This file is part of hyperion.
 
-    solidity is free software: you can redistribute it and/or modify
+    hyperion is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    solidity is distributed in the hope that it will be useful,
+    hyperion is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+    along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
  * @date 2017
@@ -21,19 +21,19 @@
 
 #pragma once
 
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
 #include <string>
 #include <vector>
 #include <memory>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 class Error;
 using ErrorList = std::vector<std::shared_ptr<Error const>>;
 }
 
-namespace solidity::yul
+namespace hyperion::yul
 {
 struct AsmAnalysisInfo;
 struct Block;
@@ -41,7 +41,7 @@ struct Object;
 struct Dialect;
 }
 
-namespace solidity::yul::test
+namespace hyperion::yul::test
 {
 
 std::pair<std::shared_ptr<Block>, std::shared_ptr<AsmAnalysisInfo>>
@@ -53,6 +53,6 @@ parse(std::string const& _source, Dialect const& _dialect, langutil::ErrorList& 
 Block disambiguate(std::string const& _source, bool _yul = true);
 std::string format(std::string const& _source, bool _yul = true);
 
-solidity::yul::Dialect const& dialect(std::string const& _name, langutil::EVMVersion _evmVersion);
+hyperion::yul::Dialect const& dialect(std::string const& _name, langutil::ZVMVersion _zvmVersion);
 
 }

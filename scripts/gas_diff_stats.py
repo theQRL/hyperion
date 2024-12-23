@@ -13,7 +13,7 @@ Run from root project dir.
 
 Note that the changes to semantic tests have to be committed.
 
-Assumes that there is a remote named ``origin`` pointing to the Solidity github
+Assumes that there is a remote named ``origin`` pointing to the Hyperion github
 repository. The changes are compared against ``origin/develop``.
 
 """
@@ -117,7 +117,7 @@ def semantictest_statistics():
 
     table = []
 
-    for path in Path("test/libsolidity/semanticTests").rglob("*.sol"):
+    for path in Path("test/libhyperion/semanticTests").rglob("*.hyp"):
         fname = path.as_posix()
         parsed = try_parse_git_diff(fname)
         if parsed is None:

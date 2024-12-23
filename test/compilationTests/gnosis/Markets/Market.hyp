@@ -1,6 +1,6 @@
-pragma solidity >=0.0;
-import "../Events/Event.sol";
-import "../MarketMakers/MarketMaker.sol";
+pragma hyperion >=0.0;
+import "../Events/Event.hyp";
+import "../MarketMakers/MarketMaker.hyp";
 
 
 /// @title Abstract market contract - Functions to be implemented by market contracts

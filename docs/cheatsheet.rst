@@ -124,7 +124,7 @@ Type Information
 Function Visibility Specifiers
 ==============================
 
-.. code-block:: solidity
+.. code-block:: hyperion
     :force:
 
     function myFunction() <visibility specifier> returns (bool) {

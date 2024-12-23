@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -22,11 +22,11 @@
  * Helper to provide semantic information about assembly items.
  */
 
-#include <libevmasm/SemanticInformation.h>
-#include <libevmasm/AssemblyItem.h>
+#include <libzvmasm/SemanticInformation.h>
+#include <libzvmasm/AssemblyItem.h>
 
-using namespace solidity;
-using namespace solidity::evmasm;
+using namespace hyperion;
+using namespace hyperion::zvmasm;
 
 std::vector<SemanticInformation::Operation> SemanticInformation::readWriteOperations(Instruction _instruction)
 {
@@ -168,7 +168,7 @@ bool SemanticInformation::breaksCSEAnalysisBlock(AssemblyItem const& _item, bool
 	case PushLibraryAddress:
 	case PushImmutable:
 		return false;
-	case evmasm::Operation:
+	case zvmasm::Operation:
 	{
 		if (isSwapInstruction(_item) || isDupInstruction(_item))
 			return false;
@@ -198,7 +198,7 @@ bool SemanticInformation::breaksCSEAnalysisBlock(AssemblyItem const& _item, bool
 
 bool SemanticInformation::isCommutativeOperation(AssemblyItem const& _item)
 {
-	if (_item.type() != evmasm::Operation)
+	if (_item.type() != zvmasm::Operation)
 		return false;
 	switch (_item.instruction())
 	{
@@ -216,16 +216,16 @@ bool SemanticInformation::isCommutativeOperation(AssemblyItem const& _item)
 
 bool SemanticInformation::isDupInstruction(AssemblyItem const& _item)
 {
-	if (_item.type() != evmasm::Operation)
+	if (_item.type() != zvmasm::Operation)
 		return false;
-	return evmasm::isDupInstruction(_item.instruction());
+	return zvmasm::isDupInstruction(_item.instruction());
 }
 
 bool SemanticInformation::isSwapInstruction(AssemblyItem const& _item)
 {
-	if (_item.type() != evmasm::Operation)
+	if (_item.type() != zvmasm::Operation)
 		return false;
-	return evmasm::isSwapInstruction(_item.instruction());
+	return zvmasm::isSwapInstruction(_item.instruction());
 }
 
 bool SemanticInformation::isJumpInstruction(AssemblyItem const& _item)
@@ -235,7 +235,7 @@ bool SemanticInformation::isJumpInstruction(AssemblyItem const& _item)
 
 bool SemanticInformation::altersControlFlow(AssemblyItem const& _item)
 {
-	if (_item.type() != evmasm::Operation)
+	if (_item.type() != zvmasm::Operation)
 		return false;
 	switch (_item.instruction())
 	{
@@ -283,7 +283,7 @@ bool SemanticInformation::isDeterministic(AssemblyItem const& _item)
 {
 	assertThrow(_item.type() != VerbatimBytecode, AssemblyException, "");
 
-	if (_item.type() != evmasm::Operation)
+	if (_item.type() != zvmasm::Operation)
 		return true;
 
 	switch (_item.instruction())
@@ -433,7 +433,7 @@ SemanticInformation::Effect SemanticInformation::otherState(Instruction _instruc
 	case Instruction::CREATE:
 	case Instruction::CREATE2:
 	case Instruction::STATICCALL: // because it can affect returndatasize
-		// Strictly speaking, log0, .., log4 writes to the state, but the EVM cannot read it, so they
+		// Strictly speaking, log0, .., log4 writes to the state, but the ZVM cannot read it, so they
 		// are just marked as having 'other side effects.'
 		return SemanticInformation::Write;
 

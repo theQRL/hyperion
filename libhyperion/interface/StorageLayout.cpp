@@ -1,38 +1,38 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/interface/StorageLayout.h>
+#include <libhyperion/interface/StorageLayout.h>
 
-#include <libsolidity/ast/TypeProvider.h>
+#include <libhyperion/ast/TypeProvider.h>
 
-using namespace solidity;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::frontend;
 
 Json::Value StorageLayout::generate(ContractDefinition const& _contractDef)
 {
-	solAssert(!m_contract, "");
+	hypAssert(!m_contract, "");
 	m_contract = &_contractDef;
 	m_types.clear();
 
 	auto typeType = dynamic_cast<TypeType const*>(_contractDef.type());
-	solAssert(typeType, "");
+	hypAssert(typeType, "");
 	auto contractType = dynamic_cast<ContractType const*>(typeType->actualType());
-	solAssert(contractType, "");
+	hypAssert(contractType, "");
 
 	Json::Value variables(Json::arrayValue);
 	for (auto [var, slot, offset]: contractType->stateVariables())
@@ -104,11 +104,11 @@ void StorageLayout::generate(Type const* _type)
 	}
 	else
 	{
-		solAssert(_type->isValueType(), "");
+		hypAssert(_type->isValueType(), "");
 		typeInfo["encoding"] = "inplace";
 	}
 
-	solAssert(typeInfo.isMember("encoding"), "");
+	hypAssert(typeInfo.isMember("encoding"), "");
 }
 
 std::string StorageLayout::typeKeyName(Type const* _type)

@@ -1,12 +1,12 @@
 {
-	"language": "Solidity",
+	"language": "Hyperion",
 	"sources": {
-		"C": {"urls": ["standard_stop_after_parsing_bytecode_requested/in.sol"]}
+		"C": {"urls": ["standard_stop_after_parsing_bytecode_requested/in.hyp"]}
 	},
 	"settings": {
 		"stopAfter": "parsing",
 		"outputSelection": {
-			"*": {"*": ["evm.bytecode.object"]}
+			"*": {"*": ["zvm.bytecode.object"]}
 		}
 	}
 }

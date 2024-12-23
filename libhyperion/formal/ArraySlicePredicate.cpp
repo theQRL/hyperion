@@ -1,44 +1,44 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/formal/ArraySlicePredicate.h>
+#include <libhyperion/formal/ArraySlicePredicate.h>
 
 #include <liblangutil/Exceptions.h>
 
-using namespace solidity;
-using namespace solidity::smtutil;
-using namespace solidity::frontend;
-using namespace solidity::frontend::smt;
+using namespace hyperion;
+using namespace hyperion::smtutil;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::smt;
 
 std::map<std::string, ArraySlicePredicate::SliceData> ArraySlicePredicate::m_slicePredicates;
 
 std::pair<bool, ArraySlicePredicate::SliceData const&> ArraySlicePredicate::create(SortPointer _sort, EncodingContext& _context)
 {
-	solAssert(_sort->kind == Kind::Tuple, "");
+	hypAssert(_sort->kind == Kind::Tuple, "");
 	auto tupleSort = std::dynamic_pointer_cast<TupleSort>(_sort);
-	solAssert(tupleSort, "");
+	hypAssert(tupleSort, "");
 
 	auto tupleName = tupleSort->name;
 	if (m_slicePredicates.count(tupleName))
 		return {true, m_slicePredicates.at(tupleName)};
 
 	auto sort = tupleSort->components.at(0);
-	solAssert(sort->kind == Kind::Array, "");
+	hypAssert(sort->kind == Kind::Array, "");
 
 	smt::SymbolicArrayVariable aVar{sort, "a_" + tupleName, _context };
 	smt::SymbolicArrayVariable bVar{sort, "b_" + tupleName, _context};

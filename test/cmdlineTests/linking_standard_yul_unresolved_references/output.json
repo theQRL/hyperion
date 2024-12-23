@@ -5,13 +5,13 @@
         {
             "a":
             {
-                "evm":
+                "zvm":
                 {
                     "bytecode":
                     {
                         "linkReferences":
                         {
-                            "contract/test.sol":
+                            "contract/test.hyp":
                             {
                                 "L2":
                                 [
@@ -22,7 +22,7 @@
                                 ]
                             }
                         },
-                        "object": "<BYTECODE REMOVED>__$fb58009a6b1ecea3b9d99bedd645df4ec3$__<BYTECODE REMOVED>"
+                        "object": "<BYTECODE REMOVED>__$44518d487bfd7a9642075c4306cd386dcf$__<BYTECODE REMOVED>"
                     }
                 }
             }

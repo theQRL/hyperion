@@ -11,7 +11,7 @@ contract C {
 
 		return uint32(bytes4(bytes32(selectorValue)));
 	}
-	function testSol() public returns (uint32) {
+	function testHyp() public returns (uint32) {
 		return uint32(testFunction.selector);
 	}
 }

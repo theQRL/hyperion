@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
@@ -20,17 +20,17 @@
 
 #include <test/TestCaseReader.h>
 
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
 #include <boost/filesystem.hpp>
 
 #include <string>
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 /**
- * Common superclass of anything that can be run via isoltest.
+ * Common superclass of anything that can be run via ihyptest.
  */
 class TestCase
 {
@@ -38,7 +38,7 @@ public:
 	struct Config
 	{
 		std::string filename;
-		langutil::EVMVersion evmVersion;
+		langutil::ZVMVersion zvmVersion;
 		std::vector<boost::filesystem::path> vmPaths;
 		bool enforceGasCost = false;
 		u256 enforceGasCostMinValue;
@@ -73,7 +73,7 @@ public:
 
 	/// Returns true, if the test case is supported in the current environment and false
 	/// otherwise which causes this test to be skipped.
-	/// This might check e.g. for restrictions on the EVM version.
+	/// This might check e.g. for restrictions on the ZVM version.
 	/// The function throws an exception if there are unread settings.
 	bool shouldRun();
 
@@ -109,10 +109,10 @@ protected:
 	bool m_shouldRun = true;
 };
 
-class EVMVersionRestrictedTestCase: public TestCase
+class ZVMVersionRestrictedTestCase: public TestCase
 {
 protected:
-	EVMVersionRestrictedTestCase(std::string const& _filename);
+	ZVMVersionRestrictedTestCase(std::string const& _filename);
 };
 
 }

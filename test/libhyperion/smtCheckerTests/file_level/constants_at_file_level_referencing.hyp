@@ -1,4 +1,4 @@
-==== Source: s1.sol ====
+==== Source: s1.hyp ====
 
 
 bytes constant a = b;
@@ -8,9 +8,9 @@ function fre() pure returns (bytes memory) {
 	return a;
 }
 
-==== Source: s2.sol ====
+==== Source: s2.hyp ====
 
-import "s1.sol";
+import "s1.hyp";
 
 uint256 constant c = uint8(a[0]) + 2;
 
@@ -59,8 +59,8 @@ contract C {
 // SMTEngine: all
 // SMTIgnoreCex: yes
 // ----
-// Warning 6328: (s2.sol:518-539): CHC: Assertion violation happens here.
-// Warning 6328: (s2.sol:704-725): CHC: Assertion violation happens here.
-// Warning 6328: (s2.sol:890-911): CHC: Assertion violation happens here.
-// Warning 6328: (s2.sol:980-994): CHC: Assertion violation happens here.
+// Warning 6328: (s2.hyp:518-539): CHC: Assertion violation happens here.
+// Warning 6328: (s2.hyp:704-725): CHC: Assertion violation happens here.
+// Warning 6328: (s2.hyp:890-911): CHC: Assertion violation happens here.
+// Warning 6328: (s2.hyp:980-994): CHC: Assertion violation happens here.
 // Info 1391: CHC: 24 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.

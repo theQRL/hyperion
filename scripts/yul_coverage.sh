@@ -20,35 +20,35 @@
 #                                   e.g. ./yul_coverage.sh --successful --list-files will just return a list of
 #                                   files where it's compilation result was successful
 #   Environment Variables
-#     SOLC can be set to change the used compiler.
+#     HYPC can be set to change the used compiler.
 #
 #   ./yul_coverage.sh
 #   run the script without any parameters to execute the tests will return stats.
 #
-#   SOLC=<path-to-solc> ./yul_coverage.sh
-#   To change the used compiler, just set the SOLC environment variable.
+#   HYPC=<path-to-hypc> ./yul_coverage.sh
+#   To change the used compiler, just set the HYPC environment variable.
 #
-# The documentation for solidity is hosted at:
+# The documentation for hyperion is hosted at:
 #
 #     https://docs.soliditylang.org
 #
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2020 solidity contributors.
+# (c) 2020 hyperion contributors.
 #------------------------------------------------------------------------------
 
 set -e
@@ -87,7 +87,7 @@ function show_output_if
 {
   local VAR=${1}
   if [ -n "${VAR}" ]; then
-    echo "${SOL_FILE}"
+    echo "${HYP_FILE}"
     if [ -z "${ONLY_LIST_FILES}" ]; then
       echo "${OUTPUT}"
       echo ""
@@ -97,49 +97,49 @@ function show_output_if
 
 FAILED=()
 SUCCESS=()
-SOLC=${SOLC:-"$(command -v -- solc)"}
-if [ ! -f "${SOLC}" ]; then
-  echo "error: solc '${SOLC}' not found."
+HYPC=${HYPC:-"$(command -v -- hypc)"}
+if [ ! -f "${HYPC}" ]; then
+  echo "error: hypc '${HYPC}' not found."
   exit 1
 fi
 
 function test_file
 {
-  local SOL_FILE
+  local HYP_FILE
   local OUTPUT
-  SOL_FILE=${1}
+  HYP_FILE=${1}
 
-  if OUTPUT=$("${SOLC}" --ir "${SOL_FILE}" 2>&1); then
-    SUCCESS+=("${SOL_FILE}")
+  if OUTPUT=$("${HYPC}" --ir "${HYP_FILE}" 2>&1); then
+    SUCCESS+=("${HYP_FILE}")
     show_output_if ${SHOW_SUCCESSFUL}
   else
-    FAILED+=("${SOL_FILE}")
+    FAILED+=("${HYP_FILE}")
     if [[ ${OUTPUT} == *"UnimplementedFeatureError"* ]]; then
-      UNIMPLEMENTED_FEATURE_ERRORS+=("${SOL_FILE}")
+      UNIMPLEMENTED_FEATURE_ERRORS+=("${HYP_FILE}")
       show_output_if ${SHOW_UNIMPLEMENTED_FEATURE_ERRORS}
     elif [[ ${OUTPUT} == *"InternalCompilerError"* ]]; then
-      INTERNAL_COMPILER_ERRORS+=("${SOL_FILE}")
+      INTERNAL_COMPILER_ERRORS+=("${HYP_FILE}")
       show_output_if ${SHOW_INTERNAL_COMPILER_ERRORS}
     else
-      OTHER_ERRORS+=("${SOL_FILE}")
+      OTHER_ERRORS+=("${HYP_FILE}")
       show_output_if ${SHOW_OTHER_ERRORS}
     fi
   fi
 }
 
 # we only want to use files that do not contain errors or multi-source files.
-SOL_FILES=()
+HYP_FILES=()
 while IFS='' read -r line; do
-  SOL_FILES+=("$line")
+  HYP_FILES+=("$line")
 done < <(
   grep -riL -E \
     "^\/\/ (DocstringParsing|Syntax|Type|Parser|Declaration)Error|^==== Source:" \
-    "${ROOT_DIR}/test/libsolidity/syntaxTests" \
-    "${ROOT_DIR}/test/libsolidity/semanticTests"
+    "${ROOT_DIR}/test/libhyperion/syntaxTests" \
+    "${ROOT_DIR}/test/libhyperion/semanticTests"
 )
 
-for SOL_FILE in "${SOL_FILES[@]}"; do
-  test_file "${SOL_FILE}"
+for HYP_FILE in "${HYP_FILES[@]}"; do
+  test_file "${HYP_FILE}"
 done
 
 if [ -z "${NO_STATS}" ]; then

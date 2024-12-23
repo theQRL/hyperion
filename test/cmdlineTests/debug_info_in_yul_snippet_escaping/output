@@ -1,6 +1,6 @@
 IR:
 
-/// @use-src 0:"debug_info_in_yul_snippet_escaping/input.sol"
+/// @use-src 0:"debug_info_in_yul_snippet_escaping/input.hyp"
 object "C_2" {
     code {
         /// @src 0:265:278  "contract C {}"
@@ -31,7 +31,7 @@ object "C_2" {
         /// @src 0:265:278  "contract C {}"
 
     }
-    /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.sol"
+    /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.hyp"
     object "C_2_deployed" {
         code {
             /// @src 0:265:278  "contract C {}"
@@ -61,7 +61,7 @@ object "C_2" {
 
 
 Optimized IR:
-/// @use-src 0:"debug_info_in_yul_snippet_escaping/input.sol"
+/// @use-src 0:"debug_info_in_yul_snippet_escaping/input.hyp"
 object "C_2" {
     code {
         {
@@ -74,7 +74,7 @@ object "C_2" {
             return(_1, _2)
         }
     }
-    /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.sol"
+    /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.hyp"
     object "C_2_deployed" {
         code {
             {
@@ -88,7 +88,7 @@ object "C_2" {
 
 IR:
 
-/// @use-src 0:"debug_info_in_yul_snippet_escaping/input.sol"
+/// @use-src 0:"debug_info_in_yul_snippet_escaping/input.hyp"
 object "D_27" {
     code {
         /// @src 0:279:599  "contract D /** @src 0:96:165  \"contract D {...\" *\/ {..."
@@ -119,7 +119,7 @@ object "D_27" {
         /// @src 0:279:599  "contract D /** @src 0:96:165  \"contract D {...\" *\/ {..."
 
     }
-    /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.sol"
+    /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.hyp"
     object "D_27_deployed" {
         code {
             /// @src 0:279:599  "contract D /** @src 0:96:165  \"contract D {...\" *\/ {..."
@@ -303,7 +303,7 @@ object "D_27" {
             }
 
             /// @ast-id 26
-            /// @src 0:336:597  "function f() /* @use-src 0:\"input.sol\", 1:\"#utility.yul\" @ast-id 15 *\/ public returns (string memory) { C c = new /// @src 0:149:156  \"new C()\"..."
+            /// @src 0:336:597  "function f() /* @use-src 0:\"input.hyp\", 1:\"#utility.yul\" @ast-id 15 *\/ public returns (string memory) { C c = new /// @src 0:149:156  \"new C()\"..."
             function fun_f_26() -> var__5_mpos {
                 /// @src 0:423:436  "string memory"
                 let zero_t_string_memory_ptr_1_mpos := zero_value_for_split_t_string_memory_ptr()
@@ -339,7 +339,7 @@ object "D_27" {
 
         }
 
-        /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.sol"
+        /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.hyp"
         object "C_2" {
             code {
                 /// @src 0:265:278  "contract C {}"
@@ -370,7 +370,7 @@ object "D_27" {
                 /// @src 0:265:278  "contract C {}"
 
             }
-            /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.sol"
+            /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.hyp"
             object "C_2_deployed" {
                 code {
                     /// @src 0:265:278  "contract C {}"
@@ -405,7 +405,7 @@ object "D_27" {
 
 
 Optimized IR:
-/// @use-src 0:"debug_info_in_yul_snippet_escaping/input.sol"
+/// @use-src 0:"debug_info_in_yul_snippet_escaping/input.hyp"
 object "D_27" {
     code {
         {
@@ -418,7 +418,7 @@ object "D_27" {
             return(_1, _2)
         }
     }
-    /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.sol"
+    /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.hyp"
     object "D_27_deployed" {
         code {
             {
@@ -492,7 +492,7 @@ object "D_27" {
                 revert(0, 0)
             }
         }
-        /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.sol"
+        /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.hyp"
         object "C_2" {
             code {
                 {
@@ -505,7 +505,7 @@ object "D_27" {
                     return(_1, _2)
                 }
             }
-            /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.sol"
+            /// @use-src 0:"debug_info_in_yul_snippet_escaping/input.hyp"
             object "C_2_deployed" {
                 code {
                     {

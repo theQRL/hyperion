@@ -4,6 +4,6 @@
 		"input.yul": {"content": "{}"}
 	},
 	"settings": {
-		"evmVersion": "shanghai"
+		"zvmVersion": "shanghai"
 	}
 }

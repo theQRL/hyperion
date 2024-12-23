@@ -5,7 +5,7 @@
         {
             "C_6_deployed":
             {
-                "evm":
+                "zvm":
                 {
                     "assembly": "  mstore(0x40, 0x80)
   tag_2

@@ -1,31 +1,31 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Tests for the Solidity optimizer.
+ * Tests for the Hyperion optimizer.
  */
 
 #include <test/Metadata.h>
-#include <test/libsolidity/SolidityExecutionFramework.h>
+#include <test/libhyperion/HyperionExecutionFramework.h>
 
-#include <libevmasm/Instruction.h>
-#include <libevmasm/Disassemble.h>
+#include <libzvmasm/Instruction.h>
+#include <libzvmasm/Disassemble.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -35,14 +35,14 @@
 #include <memory>
 #include <limits>
 
-using namespace solidity::util;
-using namespace solidity::evmasm;
-using namespace solidity::test;
+using namespace hyperion::util;
+using namespace hyperion::zvmasm;
+using namespace hyperion::test;
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
-class OptimizerTestFramework: public SolidityExecutionFramework
+class OptimizerTestFramework: public HyperionExecutionFramework
 {
 public:
 	bytes const& compileAndRunWithOptimizer(
@@ -71,9 +71,9 @@ public:
 		unsigned const _optimizeRuns = 200
 	)
 	{
-		m_nonOptimizedBytecode = compileAndRunWithOptimizer("pragma solidity >=0.0;\n" + _sourceCode, _value, _contractName, false, _optimizeRuns);
+		m_nonOptimizedBytecode = compileAndRunWithOptimizer("pragma hyperion >=0.0;\n" + _sourceCode, _value, _contractName, false, _optimizeRuns);
 		m_nonOptimizedContract = m_contractAddress;
-		m_optimizedBytecode = compileAndRunWithOptimizer("pragma solidity >=0.0;\n" + _sourceCode, _value, _contractName, true, _optimizeRuns);
+		m_optimizedBytecode = compileAndRunWithOptimizer("pragma hyperion >=0.0;\n" + _sourceCode, _value, _contractName, true, _optimizeRuns);
 		size_t nonOptimizedSize = numInstructions(m_nonOptimizedBytecode);
 		size_t optimizedSize = numInstructions(m_optimizedBytecode);
 		BOOST_CHECK_MESSAGE(
@@ -108,7 +108,7 @@ public:
 		bytes realCode = bytecodeSansMetadata(_bytecode);
 		BOOST_REQUIRE_MESSAGE(!realCode.empty(), "Invalid or missing metadata in bytecode.");
 		size_t instructions = 0;
-		evmasm::eachInstruction(realCode, [&](Instruction _instr, u256 const&) {
+		zvmasm::eachInstruction(realCode, [&](Instruction _instr, u256 const&) {
 			if (!_which || *_which == _instr)
 				instructions++;
 		});
@@ -124,7 +124,7 @@ protected:
 	h160 m_nonOptimizedContract;
 };
 
-BOOST_FIXTURE_TEST_SUITE(SolidityOptimizer, OptimizerTestFramework)
+BOOST_FIXTURE_TEST_SUITE(HyperionOptimizer, OptimizerTestFramework)
 
 BOOST_AUTO_TEST_CASE(smoke_test)
 {

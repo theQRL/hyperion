@@ -1,11 +1,11 @@
 {
     "contracts":
     {
-        "a.sol":
+        "a.hyp":
         {
             "A":
             {
-                "evm":
+                "zvm":
                 {
                     "bytecode":
                     {
@@ -177,7 +177,7 @@
     },
     "sources":
     {
-        "a.sol":
+        "a.hyp":
         {
             "id": 0
         }

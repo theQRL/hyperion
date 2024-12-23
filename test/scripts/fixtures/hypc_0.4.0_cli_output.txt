@@ -1,4 +1,4 @@
-contract.sol:1:1: Warning: Source file does not specify required compiler version! Consider adding "pragma solidity ^0.4.0;".
+contract.hyp:1:1: Warning: Source file does not specify required compiler version! Consider adding "pragma hyperion ^0.4.0;".
 contract C {}
 ^
 Spanning multiple lines.

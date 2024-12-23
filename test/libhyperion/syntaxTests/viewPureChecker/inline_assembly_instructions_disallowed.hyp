@@ -25,4 +25,4 @@ contract C {
 // DeclarationError 4619: (217-229): Function "linkersymbol" not found.
 // DeclarationError 4619: (247-258): Function "memoryguard" not found.
 // DeclarationError 4619: (274-288): Function "verbatim_1i_1o" not found.
-// SyntaxError 2450: (347-349): PC instruction is a low-level EVM feature. Because of that PC is disallowed in strict assembly.
+// SyntaxError 2450: (347-349): PC instruction is a low-level ZVM feature. Because of that PC is disallowed in strict assembly.

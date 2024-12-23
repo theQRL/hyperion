@@ -1,18 +1,18 @@
 /*(
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
  * Optimisation stage that aggressively rematerializes certain variables ina a function to free
@@ -27,9 +27,9 @@
 #include <libyul/optimiser/Metrics.h>
 #include <libyul/optimiser/Semantics.h>
 
-#include <libyul/backends/evm/ControlFlowGraphBuilder.h>
-#include <libyul/backends/evm/StackHelpers.h>
-#include <libyul/backends/evm/StackLayoutGenerator.h>
+#include <libyul/backends/zvm/ControlFlowGraphBuilder.h>
+#include <libyul/backends/zvm/StackHelpers.h>
+#include <libyul/backends/zvm/StackLayoutGenerator.h>
 
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AsmAnalysisInfo.h>
@@ -38,10 +38,10 @@
 
 #include <libyul/AST.h>
 
-#include <libsolutil/CommonData.h>
+#include <libhyputil/CommonData.h>
 
-using namespace solidity;
-using namespace solidity::yul;
+using namespace hyperion;
+using namespace hyperion::yul;
 
 namespace
 {
@@ -248,10 +248,10 @@ bool StackCompressor::run(
 		"Need to run the function grouper before the stack compressor."
 	);
 	bool usesOptimizedCodeGenerator = false;
-	if (auto evmDialect = dynamic_cast<EVMDialect const*>(&_dialect))
+	if (auto zvmDialect = dynamic_cast<ZVMDialect const*>(&_dialect))
 		usesOptimizedCodeGenerator =
 			_optimizeStackAllocation &&
-			evmDialect->providesObjectAccess();
+			zvmDialect->providesObjectAccess();
 	bool allowMSizeOptimzation = !MSizeFinder::containsMSize(_dialect, *_object.code);
 	if (usesOptimizedCodeGenerator)
 	{

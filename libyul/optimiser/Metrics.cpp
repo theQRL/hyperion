@@ -1,18 +1,18 @@
 /*(
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
 * Module providing metrics for the optimizer.
@@ -20,19 +20,19 @@
 
 #include <libyul/optimiser/Metrics.h>
 #include <libyul/optimiser/OptimizerUtilities.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 
 #include <libyul/AST.h>
 #include <libyul/Exceptions.h>
 #include <libyul/Utilities.h>
 
-#include <libevmasm/Instruction.h>
+#include <libzvmasm/Instruction.h>
 
-#include <libsolutil/CommonData.h>
+#include <libhyputil/CommonData.h>
 
-using namespace solidity;
-using namespace solidity::yul;
-using namespace solidity::util;
+using namespace hyperion;
+using namespace hyperion::yul;
+using namespace hyperion::util;
 
 size_t CodeWeights::costOf(Statement const& _statement) const
 {
@@ -137,7 +137,7 @@ void CodeCost::operator()(FunctionCall const& _funCall)
 {
 	ASTWalker::operator()(_funCall);
 
-	if (auto instruction = toEVMInstruction(m_dialect, _funCall.functionName.name))
+	if (auto instruction = toZVMInstruction(m_dialect, _funCall.functionName.name))
 	{
 		addInstructionCost(*instruction);
 		return;
@@ -180,12 +180,12 @@ void CodeCost::visit(Expression const& _expression)
 	ASTWalker::visit(_expression);
 }
 
-void CodeCost::addInstructionCost(evmasm::Instruction _instruction)
+void CodeCost::addInstructionCost(zvmasm::Instruction _instruction)
 {
-	evmasm::Tier gasPriceTier = evmasm::instructionInfo(_instruction).gasPriceTier;
-	if (gasPriceTier < evmasm::Tier::VeryLow)
+	zvmasm::Tier gasPriceTier = zvmasm::instructionInfo(_instruction).gasPriceTier;
+	if (gasPriceTier < zvmasm::Tier::VeryLow)
 		m_cost -= 1;
-	else if (gasPriceTier < evmasm::Tier::High)
+	else if (gasPriceTier < zvmasm::Tier::High)
 		m_cost += 1;
 	else
 		m_cost += 49;

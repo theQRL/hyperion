@@ -1,28 +1,28 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Code generator for translating Yul / inline assembly to EVM.
+ * Code generator for translating Yul / inline assembly to ZVM.
  */
 
 #pragma once
 
-#include <libyul/backends/evm/EVMDialect.h>
-#include <libyul/backends/evm/VariableReferenceCounter.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/zvm/VariableReferenceCounter.h>
 #include <libyul/optimiser/ASTWalker.h>
 #include <libyul/AST.h>
 #include <libyul/Scope.h>
@@ -30,12 +30,12 @@
 #include <optional>
 #include <stack>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 class ErrorReporter;
 }
 
-namespace solidity::yul
+namespace hyperion::yul
 {
 
 struct AsmAnalysisInfo;
@@ -78,7 +78,7 @@ public:
 		AbstractAssembly& _assembly,
 		AsmAnalysisInfo& _analysisInfo,
 		Block const& _block,
-		EVMDialect const& _dialect,
+		ZVMDialect const& _dialect,
 		BuiltinContext& _builtinContext,
 		bool _allowStackOpt = false,
 		ExternalIdentifierAccess::CodeGenerator const& _identifierAccessCodeGen = {},
@@ -109,7 +109,7 @@ protected:
 		AsmAnalysisInfo& _analysisInfo,
 		Block const& _block,
 		bool _allowStackOpt,
-		EVMDialect const& _dialect,
+		ZVMDialect const& _dialect,
 		BuiltinContext& _builtinContext,
 		ExternalIdentifierAccess::CodeGenerator _identifierAccessCodeGen,
 		UseNamedLabels _useNamedLabelsForFunctions,
@@ -194,7 +194,7 @@ private:
 	AbstractAssembly& m_assembly;
 	AsmAnalysisInfo& m_info;
 	Scope* m_scope = nullptr;
-	EVMDialect const& m_dialect;
+	ZVMDialect const& m_dialect;
 	BuiltinContext& m_builtinContext;
 	bool const m_allowStackOpt = true;
 	UseNamedLabels const m_useNamedLabelsForFunctions = UseNamedLabels::Never;

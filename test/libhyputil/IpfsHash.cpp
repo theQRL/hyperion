@@ -1,32 +1,32 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * Unit tests for the ipfs hash computation routine.
  */
 
-#include <libsolutil/IpfsHash.h>
+#include <libhyputil/IpfsHash.h>
 
 #include <test/Common.h>
 
 #include <boost/test/unit_test.hpp>
 
 
-namespace solidity::util::test
+namespace hyperion::util::test
 {
 
 BOOST_AUTO_TEST_SUITE(IpfsHash, *boost::unit_test::label("nooptions"))
@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(test_small)
 {
 	BOOST_CHECK_EQUAL(ipfsHashBase58({}), "QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH");
 	BOOST_CHECK_EQUAL(ipfsHashBase58("x"), "QmULKig5Fxrs2sC4qt9nNduucXfb92AFYQ6Hi3YRqDmrYC");
-	BOOST_CHECK_EQUAL(ipfsHashBase58("Solidity\n"), "QmSsm9M7PQRBnyiz1smizk8hZw3URfk8fSeHzeTo3oZidS");
+	BOOST_CHECK_EQUAL(ipfsHashBase58("Hyperion\n"), "Qmf2AibT6ur7w527jTJ8smU2gyW7iLamz1qtBkz76qR2oJ");
 	BOOST_CHECK_EQUAL(ipfsHashBase58(std::string(200ul, char(0))), "QmSXR1N23uWzsANi8wpxMPw5dmmhqBVUAb4hUrHVLpNaMr");
 	BOOST_CHECK_EQUAL(ipfsHashBase58(std::string(10250ul, char(0))), "QmVJJBB3gKKBWYC9QTywpH8ZL1bDeTDJ17B63Af5kino9i");
 	BOOST_CHECK_EQUAL(ipfsHashBase58(std::string(100000ul, char(0))), "QmYgKa25YqEGpQmmZtPPFMNK3kpqqneHk6nMSEUYryEX1C");

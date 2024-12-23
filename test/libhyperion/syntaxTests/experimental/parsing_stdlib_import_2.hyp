@@ -1,4 +1,4 @@
-pragma experimental solidity;
+pragma experimental hyperion;
 
 import std.stub as stub;
 // ====

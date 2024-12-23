@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma hyperion ^0.8.0;
 
 // This is an adapted version of StdCheats by foundry:
-// https://github.com/foundry-rs/forge-std/blob/master/src/StdCheats.sol
+// https://github.com/foundry-rs/forge-std/blob/master/src/StdCheats.hyp
 contract StdCheatsSafe {
     struct Chain {
         string name;

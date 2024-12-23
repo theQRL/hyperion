@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -22,9 +22,9 @@
  */
 #include <test/Common.h>
 
-#include <libevmasm/Assembly.h>
-#include <libsolutil/JSON.h>
-#include <libevmasm/Disassemble.h>
+#include <libzvmasm/Assembly.h>
+#include <libhyputil/JSON.h>
+#include <libzvmasm/Disassemble.h>
 #include <libyul/Exceptions.h>
 
 #include <boost/test/unit_test.hpp>
@@ -34,16 +34,16 @@
 #include <string>
 #include <tuple>
 
-using namespace solidity::langutil;
-using namespace solidity::evmasm;
+using namespace hyperion::langutil;
+using namespace hyperion::zvmasm;
 using namespace std::string_literals;
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 namespace
 {
-	void checkCompilation(evmasm::Assembly const& _assembly)
+	void checkCompilation(zvmasm::Assembly const& _assembly)
 	{
 		LinkerObject output = _assembly.assemble();
 		BOOST_CHECK(output.bytecode.size() > 0);
@@ -60,16 +60,16 @@ BOOST_AUTO_TEST_CASE(all_assembly_items)
 		{ "sub.asm", 1 },
 		{ "verbatim.asm", 2 }
 	};
-	EVMVersion evmVersion = solidity::test::CommonOptions::get().evmVersion();
-	Assembly _assembly{evmVersion, false, {}};
+	ZVMVersion zvmVersion = hyperion::test::CommonOptions::get().zvmVersion();
+	Assembly _assembly{zvmVersion, false, {}};
 	auto root_asm = std::make_shared<std::string>("root.asm");
 	_assembly.setSourceLocation({1, 3, root_asm});
 
-	Assembly _subAsm{evmVersion, false, {}};
+	Assembly _subAsm{zvmVersion, false, {}};
 	auto sub_asm = std::make_shared<std::string>("sub.asm");
 	_subAsm.setSourceLocation({6, 8, sub_asm});
 
-	Assembly _verbatimAsm(evmVersion, true, "");
+	Assembly _verbatimAsm(zvmVersion, true, "");
 	auto verbatim_asm = std::make_shared<std::string>("verbatim.asm");
 	_verbatimAsm.setSourceLocation({8, 18, verbatim_asm});
 
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(all_assembly_items)
 
 BOOST_AUTO_TEST_CASE(immutables_and_its_source_maps)
 {
-	EVMVersion evmVersion = solidity::test::CommonOptions::get().evmVersion();
+	ZVMVersion zvmVersion = hyperion::test::CommonOptions::get().zvmVersion();
 	// Tests for 1, 2, 3 number of immutables.
 	for (int numImmutables = 1; numImmutables <= 3; ++numImmutables)
 	{
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE(immutables_and_its_source_maps)
 				{ *subName, 1 }
 			};
 
-			auto subAsm = std::make_shared<Assembly>(evmVersion, false, std::string{});
+			auto subAsm = std::make_shared<Assembly>(zvmVersion, false, std::string{});
 			for (char i = 0; i < numImmutables; ++i)
 			{
 				for (int r = 0; r < numActualRefs; ++r)
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(immutables_and_its_source_maps)
 				}
 			}
 
-			Assembly assembly{evmVersion, true, {}};
+			Assembly assembly{zvmVersion, true, {}};
 			for (char i = 1; i <= numImmutables; ++i)
 			{
 				assembly.setSourceLocation({10*i, 10*i + 3+i, assemblyName});
@@ -305,12 +305,12 @@ BOOST_AUTO_TEST_CASE(immutable)
 		{ "root.asm", 0 },
 		{ "sub.asm", 1 }
 	};
-	EVMVersion evmVersion = solidity::test::CommonOptions::get().evmVersion();
-	Assembly _assembly{evmVersion, true, {}};
+	ZVMVersion zvmVersion = hyperion::test::CommonOptions::get().zvmVersion();
+	Assembly _assembly{zvmVersion, true, {}};
 	auto root_asm = std::make_shared<std::string>("root.asm");
 	_assembly.setSourceLocation({1, 3, root_asm});
 
-	Assembly _subAsm{evmVersion, false, {}};
+	Assembly _subAsm{zvmVersion, false, {}};
 	auto sub_asm = std::make_shared<std::string>("sub.asm");
 	_subAsm.setSourceLocation({6, 8, sub_asm});
 	_subAsm.appendImmutable("someImmutable");
@@ -403,18 +403,18 @@ BOOST_AUTO_TEST_CASE(immutable)
 
 BOOST_AUTO_TEST_CASE(subobject_encode_decode)
 {
-	EVMVersion evmVersion = solidity::test::CommonOptions::get().evmVersion();
-	Assembly assembly{evmVersion, true, {}};
+	ZVMVersion zvmVersion = hyperion::test::CommonOptions::get().zvmVersion();
+	Assembly assembly{zvmVersion, true, {}};
 
-	std::shared_ptr<Assembly> subAsmPtr = std::make_shared<Assembly>(evmVersion, false, std::string{});
-	std::shared_ptr<Assembly> subSubAsmPtr = std::make_shared<Assembly>(evmVersion, false, std::string{});
+	std::shared_ptr<Assembly> subAsmPtr = std::make_shared<Assembly>(zvmVersion, false, std::string{});
+	std::shared_ptr<Assembly> subSubAsmPtr = std::make_shared<Assembly>(zvmVersion, false, std::string{});
 
 	assembly.appendSubroutine(subAsmPtr);
 	subAsmPtr->appendSubroutine(subSubAsmPtr);
 
 	BOOST_CHECK(assembly.encodeSubPath({0}) == 0);
-	BOOST_REQUIRE_THROW(assembly.encodeSubPath({1}), solidity::evmasm::AssemblyException);
-	BOOST_REQUIRE_THROW(assembly.decodeSubPath(1), solidity::evmasm::AssemblyException);
+	BOOST_REQUIRE_THROW(assembly.encodeSubPath({1}), hyperion::zvmasm::AssemblyException);
+	BOOST_REQUIRE_THROW(assembly.decodeSubPath(1), hyperion::zvmasm::AssemblyException);
 
 	std::vector<size_t> subPath{0, 0};
 	BOOST_CHECK(assembly.decodeSubPath(assembly.encodeSubPath(subPath)) == subPath);

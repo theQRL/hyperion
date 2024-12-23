@@ -12,10 +12,10 @@ contract C {
 		// Value is right-aligned, we shift it so it can be compared
 		return uint32(bytes4(bytes32(selectorValue << (256 - 32))));
 	}
-	function testSol() public returns (uint32) {
+	function testHyp() public returns (uint32) {
 		return uint32(this.testFunction.selector);
 	}
 }
 // ----
 // testYul() -> 0xe16b4a9b
-// testSol() -> 0xe16b4a9b
+// testHyp() -> 0xe16b4a9b

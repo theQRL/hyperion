@@ -8,7 +8,7 @@ Libraries
 
 Libraries are similar to contracts, but their purpose is that they are deployed
 only once at a specific address and their code is reused using the ``DELEGATECALL``
-feature of the EVM. This means that if library functions are called, their code
+feature of the ZVM. This means that if library functions are called, their code
 is executed in the context of the calling contract, i.e. ``this`` points to the
 calling contract, and especially the storage from the calling contract can be
 accessed. As a library is an isolated piece of source code, it can only access
@@ -21,7 +21,7 @@ not possible to destroy a library.
 
 .. note::
     Until version 0.4.20, it was possible to destroy libraries by
-    circumventing Solidity's type system. Starting from that version,
+    circumventing Hyperion's type system. Starting from that version,
     libraries contain a :ref:`mechanism<call-protection>` that
     disallows state-modifying functions
     to be called directly (i.e. without ``DELEGATECALL``).
@@ -33,7 +33,7 @@ contracts (using qualified access like ``L.f()``).
 Of course, calls to internal functions
 use the internal calling convention, which means that all internal types
 can be passed and types :ref:`stored in memory <data-location>` will be passed by reference and not copied.
-To realize this in the EVM, the code of internal library functions
+To realize this in the ZVM, the code of internal library functions
 that are called from a contract
 and all functions called from therein will at compile time be included in the calling
 contract, and a regular ``JUMP`` call will be used instead of a ``DELEGATECALL``.
@@ -50,10 +50,10 @@ The following example illustrates how to use libraries (but using a manual metho
 be sure to check out :ref:`using for <using-for>` for a
 more advanced example to implement a set).
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.6.0 <0.9.0;
+    pragma hyperion >=0.6.0 <0.9.0;
 
 
     // We define a new struct datatype that will be used to
@@ -128,11 +128,11 @@ The following example shows how to use :ref:`types stored in memory <data-locati
 internal functions in libraries in order to implement
 custom types without the overhead of external function calls:
 
-.. code-block:: solidity
+.. code-block:: hyperion
     :force:
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.0;
+    pragma hyperion ^0.8.0;
 
     struct bigint {
         uint[] limbs;
@@ -196,8 +196,8 @@ the library type to the ``address`` type, i.e. using ``address(LibraryName)``.
 As the compiler does not know the address where the library will be deployed, the compiled hex code
 will contain placeholders of the form ``__$30bbc0abd4d6364515865950d3e0d10953$__``. The placeholder
 is a 34 character prefix of the hex encoding of the keccak256 hash of the fully qualified library
-name, which would be for example ``libraries/bigint.sol:BigInt`` if the library was stored in a file
-called ``bigint.sol`` in a ``libraries/`` directory. Such bytecode is incomplete and should not be
+name, which would be for example ``libraries/bigint.hyp:BigInt`` if the library was stored in a file
+called ``bigint.hyp`` in a ``libraries/`` directory. Such bytecode is incomplete and should not be
 deployed. Placeholders need to be replaced with actual addresses. You can do that by either passing
 them to the compiler when the library is being compiled or by using the linker to update an already
 compiled binary. See :ref:`library-linking` for information on how to use the commandline compiler
@@ -219,7 +219,7 @@ Function Signatures and Selectors in Libraries
 ==============================================
 
 While external calls to public or external library functions are possible, the calling convention for such calls
-is considered to be internal to Solidity and not the same as specified for the regular :ref:`contract ABI<ABI>`.
+is considered to be internal to Hyperion and not the same as specified for the regular :ref:`contract ABI<ABI>`.
 External library functions support more argument types than external contract functions, for example recursive structs
 and storage pointers. For that reason, the function signatures used to compute the 4-byte selector are computed
 following an internal naming schema and arguments of types not supported in the contract ABI use an internal encoding.
@@ -239,12 +239,12 @@ The argument encoding is the same as for the regular contract ABI, except for st
 ``uint256`` value referring to the storage slot to which they point.
 
 Similarly to the contract ABI, the selector consists of the first four bytes of the Keccak256-hash of the signature.
-Its value can be obtained from Solidity using the ``.selector`` member as follows:
+Its value can be obtained from Hyperion using the ``.selector`` member as follows:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.5.14 <0.9.0;
+    pragma hyperion >=0.5.14 <0.9.0;
 
     library L {
         function f(uint256) external {}
@@ -267,7 +267,7 @@ As mentioned in the introduction, if a library's code is executed
 using a ``CALL`` instead of a ``DELEGATECALL``, it will revert
 unless a ``view`` or ``pure`` function is called.
 
-The EVM does not provide a direct way for a contract to detect
+The ZVM does not provide a direct way for a contract to detect
 whether it was called using ``CALL`` or not, but a contract
 can use the ``ADDRESS`` opcode to find out "where" it is
 currently running. The generated code compares this address

@@ -1,41 +1,41 @@
 /*
-	This file is part of solidity.
-	solidity is free software: you can redistribute it and/or modify
+	This file is part of hyperion.
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
 
-#include <test/libsolidity/util/SoltestTypes.h>
+#include <test/libhyperion/util/HyptestTypes.h>
 
-#include <test/libsolidity/util/SoltestErrors.h>
+#include <test/libhyperion/util/HyptestErrors.h>
 
-#include <libsolutil/CommonData.h>
+#include <libhyputil/CommonData.h>
 
 #include <json/json.h>
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 using ABITypes = std::vector<ABIType>;
 
 /**
  * Utility class that aids conversions from contract ABI types stored in a
- * Json value to the internal ABIType representation of isoltest.
+ * Json value to the internal ABIType representation of ihyptest.
  */
 class ContractABIUtils
 {
 public:
-	/// Parses and translates Solidity's ABI types as Json string into
-	/// a list of internal type representations of isoltest.
+	/// Parses and translates Hyperion's ABI types as Json string into
+	/// a list of internal type representations of ihyptest.
 	/// Creates parameters from Contract ABI and is used to generate values for
 	/// auto-correction during interactive update routine.
 	static std::optional<ParameterList> parametersFromJsonOutputs(
@@ -77,7 +77,7 @@ public:
 
 private:
 	/// Parses and translates a single type and returns a list of
-	/// internal type representations of isoltest.
+	/// internal type representations of ihyptest.
 	/// Types defined by the ABI will translate to ABITypes
 	/// as follows:
 	/// `bool` -> [`Boolean`]

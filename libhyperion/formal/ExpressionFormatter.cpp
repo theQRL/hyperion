@@ -1,25 +1,25 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/formal/ExpressionFormatter.h>
+#include <libhyperion/formal/ExpressionFormatter.h>
 
-#include <libsolutil/Algorithms.h>
-#include <libsolutil/CommonData.h>
+#include <libhyputil/Algorithms.h>
+#include <libhyputil/CommonData.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -30,12 +30,12 @@
 #include <string>
 
 using boost::algorithm::starts_with;
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::smtutil;
-using namespace solidity::frontend::smt;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::smtutil;
+using namespace hyperion::frontend::smt;
 
-namespace solidity::frontend::smt
+namespace hyperion::frontend::smt
 {
 
 namespace
@@ -63,7 +63,7 @@ std::string formatDatatypeAccessor(smtutil::Expression const& _expr, std::vector
 	std::string accessorStr = "accessor_";
 	// Struct members have suffix "accessor_<memberName>".
 	std::string type = op.substr(op.rfind(accessorStr) + accessorStr.size());
-	solAssert(_expr.arguments.size() == 1, "");
+	hypAssert(_expr.arguments.size() == 1, "");
 
 	if (type == "length")
 		return _args.at(0) + ".length";
@@ -132,12 +132,12 @@ smtutil::Expression substitute(smtutil::Expression _from, std::map<std::string, 
 	return _from;
 }
 
-std::string toSolidityStr(smtutil::Expression const& _expr)
+std::string toHyperionStr(smtutil::Expression const& _expr)
 {
 	auto const& op = _expr.name;
 
 	auto const& args = _expr.arguments;
-	auto strArgs = util::applyMap(args, [](auto const& _arg) { return toSolidityStr(_arg); });
+	auto strArgs = util::applyMap(args, [](auto const& _arg) { return toHyperionStr(_arg); });
 
 	// Constant or variable.
 	if (args.empty())

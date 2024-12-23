@@ -1,32 +1,32 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-/// Unit tests for libsolidity/analysis/FunctionCallGraph.h
+/// Unit tests for libhyperion/analysis/FunctionCallGraph.h
 
-#include <libsolidity/analysis/FunctionCallGraph.h>
+#include <libhyperion/analysis/FunctionCallGraph.h>
 
 #include <test/Common.h>
-#include <test/libsolidity/util/SoltestErrors.h>
+#include <test/libhyperion/util/HyptestErrors.h>
 
-#include <libsolutil/CommonData.h>
+#include <libhyputil/CommonData.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/interface/CompilerStack.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/interface/CompilerStack.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -46,9 +46,9 @@
 #include <tuple>
 #include <vector>
 
-using namespace solidity::util;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion::util;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 using namespace std::string_literals;
 
 using EdgeMap = std::map<
@@ -66,7 +66,7 @@ std::unique_ptr<CompilerStack> parseAndAnalyzeContracts(std::string _sourceCode)
 {
 	ReadCallback::Callback fileReader = [](std::string const&, std::string const&)
 	{
-		soltestAssert(false, "For simplicity this test suite supports only files without imports.");
+		hyptestAssert(false, "For simplicity this test suite supports only files without imports.");
 		return ReadCallback::Result{true, ""};
 	};
 
@@ -76,9 +76,9 @@ std::unique_ptr<CompilerStack> parseAndAnalyzeContracts(std::string _sourceCode)
 	// NOTE: The code in test cases is expected to be correct so we can keep error handling simple
 	// here and just assert that there are no errors.
 	bool success = compilerStack->parseAndAnalyze();
-	soltestAssert(success, "");
+	hyptestAssert(success, "");
 
-	soltestAssert(
+	hyptestAssert(
 		ranges::all_of(
 			compilerStack->ast("").nodes(),
 			[](auto const& _node){ return !dynamic_cast<ImportDirective const*>(_node.get()); }
@@ -102,17 +102,17 @@ EdgeNames edgeNames(EdgeMap const& _edgeMap)
 
 std::tuple<CallGraphMap, CallGraphMap> collectGraphs(CompilerStack const& _compilerStack)
 {
-	soltestAssert(_compilerStack.state() >= CompilerStack::State::AnalysisSuccessful);
+	hyptestAssert(_compilerStack.state() >= CompilerStack::State::AnalysisSuccessful);
 
 	std::tuple<CallGraphMap, CallGraphMap> graphs;
 
 	for (std::string const& fullyQualifiedContractName: _compilerStack.contractNames())
 	{
-		soltestAssert(std::get<0>(graphs).count(fullyQualifiedContractName) == 0 && std::get<1>(graphs).count(fullyQualifiedContractName) == 0, "");
+		hyptestAssert(std::get<0>(graphs).count(fullyQualifiedContractName) == 0 && std::get<1>(graphs).count(fullyQualifiedContractName) == 0, "");
 
 		// This relies on two assumptions: (1) CompilerStack received an empty string as a path for
 		// the contract and (2) contracts used in test cases have no imports.
-		soltestAssert(fullyQualifiedContractName.size() > 0 && fullyQualifiedContractName[0] == ':', "");
+		hyptestAssert(fullyQualifiedContractName.size() > 0 && fullyQualifiedContractName[0] == ':', "");
 		std::string contractName = fullyQualifiedContractName.substr(1);
 
 		std::get<0>(graphs).emplace(contractName, _compilerStack.contractDefinition(fullyQualifiedContractName).annotation().creationCallGraph->get());
@@ -133,18 +133,18 @@ void checkCallGraphExpectations(
 	auto eventToString = [](EventDefinition const* _event){ return toString(CallGraph::Node(_event)); };
 	auto notEmpty = [](std::set<std::string> const& _set){ return !_set.empty(); };
 
-	soltestAssert(
+	hyptestAssert(
 		(_expectedCreatedContractSets | ranges::views::values | ranges::views::remove_if(notEmpty)).empty(),
 		"Contracts that are not expected to create other contracts should not be included in _expectedCreatedContractSets."
 	);
-	soltestAssert(
+	hyptestAssert(
 		(_expectedEdges | ranges::views::keys | ranges::to<std::set>()) == (_callGraphs | ranges::views::keys | ranges::to<std::set>()) &&
 		(ranges::views::set_difference(_expectedCreatedContractSets | ranges::views::keys, _expectedEdges | ranges::views::keys)).empty(),
 		"Contracts listed in expectations do not match contracts actually found in the source file or in other expectations."
 	);
 	for (std::string const& contractName: _expectedEdges | ranges::views::keys)
 	{
-		soltestAssert(
+		hyptestAssert(
 			(ranges::views::set_difference(valueOrDefault(_expectedCreatedContractSets, contractName, {}), _expectedEdges | ranges::views::keys)).empty(),
 			"Inconsistent expectations: contract expected to be created but not to be present in the source file."
 		);
@@ -155,7 +155,7 @@ void checkCallGraphExpectations(
 	std::map<std::string, std::set<std::string>> emittedEventSets;
 	for (std::string const& contractName: _expectedEdges | ranges::views::keys)
 	{
-		soltestAssert(_callGraphs.at(contractName) != nullptr, "");
+		hyptestAssert(_callGraphs.at(contractName) != nullptr, "");
 		CallGraph const& callGraph = *_callGraphs.at(contractName);
 
 		edges[contractName] = edgeNames(callGraph.edges);
@@ -245,7 +245,7 @@ struct print_log_value<std::map<std::string, std::set<std::string>>>
 
 } // namespace boost::test_tools::tt_detail
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
 BOOST_AUTO_TEST_SUITE(FunctionCallGraphTest)
@@ -2227,4 +2227,4 @@ BOOST_AUTO_TEST_CASE(function_selector_access)
 
 BOOST_AUTO_TEST_SUITE_END()
 
-} // namespace solidity::frontend::test
+} // namespace hyperion::frontend::test

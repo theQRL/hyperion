@@ -5,7 +5,7 @@
 Layout in Memory
 ****************
 
-Solidity reserves four 32-byte slots, with specific byte ranges (inclusive of endpoints) being used as follows:
+Hyperion reserves four 32-byte slots, with specific byte ranges (inclusive of endpoints) being used as follows:
 
 - ``0x00`` - ``0x3f`` (64 bytes): scratch space for hashing methods
 - ``0x40`` - ``0x5f`` (32 bytes): currently allocated memory size (aka. free memory pointer)
@@ -15,17 +15,17 @@ Scratch space can be used between statements (i.e. within inline assembly). The 
 is used as initial value for dynamic memory arrays and should never be written to
 (the free memory pointer points to ``0x80`` initially).
 
-Solidity always places new objects at the free memory pointer and
+Hyperion always places new objects at the free memory pointer and
 memory is never freed (this might change in the future).
 
-Elements in memory arrays in Solidity always occupy multiples of 32 bytes (this
+Elements in memory arrays in Hyperion always occupy multiples of 32 bytes (this
 is even true for ``bytes1[]``, but not for ``bytes`` and ``string``).
 Multi-dimensional memory arrays are pointers to memory arrays. The length of a
 dynamic array is stored at the first slot of the array and followed by the array
 elements.
 
 .. warning::
-  There are some operations in Solidity that need a temporary memory area
+  There are some operations in Hyperion that need a temporary memory area
   larger than 64 bytes and therefore will not fit into the scratch space.
   They will be placed where the free memory points to, but given their
   short lifetime, the pointer is not updated. The memory may or may not
@@ -49,7 +49,7 @@ Example for Difference in Arrays
 The following array occupies 32 bytes (1 slot) in storage, but 128
 bytes (4 items with 32 bytes each) in memory.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     uint8[4] a;
 
@@ -62,7 +62,7 @@ The following struct occupies 96 bytes (3 slots of 32 bytes) in storage,
 but 128 bytes (4 items with 32 bytes each) in memory.
 
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     struct S {
         uint a;

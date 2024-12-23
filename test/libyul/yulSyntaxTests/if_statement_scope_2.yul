@@ -3,6 +3,6 @@
 	x := 2
 }
 // ====
-// dialect: evm
+// dialect: zvm
 // ----
 // DeclarationError 4634: (25-26): Variable not found or variable not lvalue.

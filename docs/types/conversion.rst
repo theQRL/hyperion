@@ -32,7 +32,7 @@ in the ``uint16`` type. The resulting type of the expression ``y + z`` is ``uint
 Because it is assigned to a variable of type ``uint32`` another implicit conversion
 is performed after the addition.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     uint8 y;
     uint16 z;
@@ -50,7 +50,7 @@ result is what you want and expect!
 
 Take the following example that converts a negative ``int`` to a ``uint``:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     int  y = -3;
     uint x = uint(y);
@@ -61,7 +61,7 @@ characters), which is -3 in the two's complement representation of 256 bits.
 If an integer is explicitly converted to a smaller type, higher-order bits are
 cut off:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     uint32 a = 0x12345678;
     uint16 b = uint16(a); // b will be 0x5678 now
@@ -69,7 +69,7 @@ cut off:
 If an integer is explicitly converted to a larger type, it is padded on the left (i.e., at the higher order end).
 The result of the conversion will compare equal to the original integer:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     uint16 a = 0x1234;
     uint32 b = uint32(a); // b will be 0x00001234 now
@@ -79,7 +79,7 @@ Fixed-size bytes types behave differently during conversions. They can be though
 sequences of individual bytes and converting to a smaller type will cut off the
 sequence:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     bytes2 a = 0x1234;
     bytes1 b = bytes1(a); // b will be 0x12
@@ -88,7 +88,7 @@ If a fixed-size bytes type is explicitly converted to a larger type, it is padde
 the right. Accessing the byte at a fixed index will result in the same value before and
 after the conversion (if the index is still in range):
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     bytes2 a = 0x1234;
     bytes4 b = bytes4(a); // b will be 0x12340000
@@ -101,7 +101,7 @@ if both have the same size. If you want to convert between integers and fixed-si
 different size, you have to use intermediate conversions that make the desired truncation and padding
 rules explicit:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     bytes2 a = 0x1234;
     uint32 b = uint16(a); // b will be 0x00001234
@@ -113,10 +113,10 @@ rules explicit:
 In case the array is longer than the target fixed bytes type, truncation at the end will happen.
 If the array is shorter than the target type, it will be padded with zeros at the end.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.5;
+    pragma hyperion ^0.8.5;
 
     contract C {
         bytes s = "abcdefgh";
@@ -142,7 +142,7 @@ Integer Types
 Decimal and hexadecimal number literals can be implicitly converted to any integer type
 that is large enough to represent it without truncation:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     uint8 a = 12; // fine
     uint32 b = 1234; // fine
@@ -163,7 +163,7 @@ number literals can be, but only if the number of hex digits exactly fits the si
 type. As an exception both decimal and hexadecimal literals which have a value of zero can be
 converted to any fixed-size bytes type:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     bytes2 a = 54321; // not allowed
     bytes2 b = 0x12; // not allowed
@@ -176,7 +176,7 @@ converted to any fixed-size bytes type:
 String literals and hex string literals can be implicitly converted to fixed-size byte arrays,
 if their number of characters matches the size of the bytes type:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     bytes2 a = hex"1234"; // fine
     bytes2 b = "xy"; // fine

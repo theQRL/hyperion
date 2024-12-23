@@ -1,30 +1,30 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
-#include <libsolidity/formal/SymbolicTypes.h>
-#include <libsolidity/formal/SymbolicVariables.h>
+#include <libhyperion/formal/SymbolicTypes.h>
+#include <libhyperion/formal/SymbolicVariables.h>
 
 #include <libsmtutil/Sorts.h>
 #include <libsmtutil/SolverInterface.h>
 
-namespace solidity::frontend::smt
+namespace hyperion::frontend::smt
 {
 
 class EncodingContext;
@@ -106,10 +106,10 @@ public:
 
 	/// Blockchain state.
 	//@{
-	smtutil::Expression state() const { solAssert(m_state, ""); return m_state->value(); }
-	smtutil::Expression state(unsigned _idx) const { solAssert(m_state, ""); return m_state->value(_idx); }
-	smtutil::SortPointer const& stateSort() const { solAssert(m_state, ""); return m_state->sort(); }
-	void newState() { solAssert(m_state, ""); m_state->newVar(); }
+	smtutil::Expression state() const { hypAssert(m_state, ""); return m_state->value(); }
+	smtutil::Expression state(unsigned _idx) const { hypAssert(m_state, ""); return m_state->value(_idx); }
+	smtutil::SortPointer const& stateSort() const { hypAssert(m_state, ""); return m_state->sort(); }
+	void newState() { hypAssert(m_state, ""); m_state->newVar(); }
 
 	void newBalances();
 
@@ -149,7 +149,6 @@ public:
 	smtutil::Expression txTypeConstraints() const;
 	smtutil::Expression txNonPayableConstraint() const;
 	smtutil::Expression blockhash(smtutil::Expression _blockNumber) const;
-	smtutil::Expression evmParisConstraints() const;
 	//@}
 
 	/// Crypto functions.
@@ -179,10 +178,10 @@ public:
 	>;
 	SymbolicABIFunction const& abiFunctionTypes(FunctionCall const* _funCall) const;
 
-	smtutil::Expression abi() const { solAssert(m_abi, ""); return m_abi->value(); }
-	smtutil::Expression abi(unsigned _idx) const { solAssert(m_abi, ""); return m_abi->value(_idx); }
-	smtutil::SortPointer const& abiSort() const { solAssert(m_abi, ""); return m_abi->sort(); }
-	void newABI() { solAssert(m_abi, ""); m_abi->newVar(); }
+	smtutil::Expression abi() const { hypAssert(m_abi, ""); return m_abi->value(); }
+	smtutil::Expression abi(unsigned _idx) const { hypAssert(m_abi, ""); return m_abi->value(_idx); }
+	smtutil::SortPointer const& abiSort() const { hypAssert(m_abi, ""); return m_abi->sort(); }
+	void newABI() { hypAssert(m_abi, ""); m_abi->newVar(); }
 	//@}
 
 private:

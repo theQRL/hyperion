@@ -1,42 +1,42 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Alex Beregszaszi
  * @date 2017
- * Component that translates Solidity code into Yul.
+ * Component that translates Hyperion code into Yul.
  */
 
 #pragma once
 
-#include <libsolidity/ast/ASTForward.h>
-#include <libsolidity/ast/CallGraph.h>
-#include <libsolidity/codegen/ir/IRGenerationContext.h>
-#include <libsolidity/codegen/YulUtilFunctions.h>
-#include <libsolidity/interface/OptimiserSettings.h>
+#include <libhyperion/ast/ASTForward.h>
+#include <libhyperion/ast/CallGraph.h>
+#include <libhyperion/codegen/ir/IRGenerationContext.h>
+#include <libhyperion/codegen/YulUtilFunctions.h>
+#include <libhyperion/interface/OptimiserSettings.h>
 
 #include <liblangutil/CharStreamProvider.h>
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
 #include <json/json.h>
 
 #include <string>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 class SourceUnit;
@@ -47,23 +47,23 @@ public:
 	using ExecutionContext = IRGenerationContext::ExecutionContext;
 
 	IRGenerator(
-		langutil::EVMVersion _evmVersion,
+		langutil::ZVMVersion _zvmVersion,
 		RevertStrings _revertStrings,
 		std::map<std::string, unsigned> _sourceIndices,
 		langutil::DebugInfoSelection const& _debugInfoSelection,
-		langutil::CharStreamProvider const* _soliditySourceProvider,
+		langutil::CharStreamProvider const* _hyperionSourceProvider,
 		OptimiserSettings& _optimiserSettings
 	):
-		m_evmVersion(_evmVersion),
+		m_zvmVersion(_zvmVersion),
 		m_context(
-			_evmVersion,
+			_zvmVersion,
 			ExecutionContext::Creation,
 			_revertStrings,
 			std::move(_sourceIndices),
 			_debugInfoSelection,
-			_soliditySourceProvider
+			_hyperionSourceProvider
 		),
-		m_utils(_evmVersion, m_context.revertStrings(), m_context.functionCollector()),
+		m_utils(_zvmVersion, m_context.revertStrings(), m_context.functionCollector()),
 		m_optimiserSettings(_optimiserSettings)
 	{}
 
@@ -137,7 +137,7 @@ private:
 
 	std::string dispenseLocationComment(ASTNode const& _node);
 
-	langutil::EVMVersion const m_evmVersion;
+	langutil::ZVMVersion const m_zvmVersion;
 
 	IRGenerationContext m_context;
 	YulUtilFunctions m_utils;

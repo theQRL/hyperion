@@ -1,4 +1,4 @@
-/// @use-src 0:"input.sol"
+/// @use-src 0:"input.hyp"
 object "C" {
     code {
         /// @src 0:0:0

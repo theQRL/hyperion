@@ -64,10 +64,10 @@ Data locations are not only relevant for persistency of data, but also for the s
   variables of storage struct type, even if the local variable
   itself is just a reference.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.5.0 <0.9.0;
+    pragma hyperion >=0.5.0 <0.9.0;
 
     contract C {
         // The data location of x is storage.
@@ -112,7 +112,7 @@ and an array of dynamic size as ``T[]``.
 
 For example, an array of 5 dynamic arrays of ``uint`` is written as
 ``uint[][5]``. The notation is reversed compared to some other languages. In
-Solidity, ``X[3]`` is always an array containing three elements of type ``X``,
+Hyperion, ``X[3]`` is always an array containing three elements of type ``X``,
 even if ``X`` is itself an array. This is not the case in other languages such
 as C.
 
@@ -129,7 +129,7 @@ Array elements can be of any type, including mapping or struct. The general
 restrictions for types apply, in that mappings can only be stored in the
 ``storage`` data location and publicly-visible functions need parameters that are :ref:`ABI types <ABI>`.
 
-It is possible to mark state variable arrays ``public`` and have Solidity create a :ref:`getter <visibility-and-getters>`.
+It is possible to mark state variable arrays ``public`` and have Hyperion create a :ref:`getter <visibility-and-getters>`.
 The numeric index becomes a required parameter for the getter.
 
 Accessing an array past its end causes a failing assertion. Methods ``.push()`` and ``.push(value)`` can be used
@@ -153,7 +153,7 @@ Variables of type ``bytes`` and ``string`` are special arrays. The ``bytes`` typ
 but it is packed tightly in calldata and memory. ``string`` is equal to ``bytes`` but does not allow
 length or index access.
 
-Solidity does not have string manipulation functions, but there are
+Hyperion does not have string manipulation functions, but there are
 third-party string libraries. You can also compare two strings by their keccak256-hash using
 ``keccak256(abi.encodePacked(s1)) == keccak256(abi.encodePacked(s2))`` and
 concatenate two strings using ``string.concat(s1, s2)``.
@@ -188,10 +188,10 @@ The function returns a single ``bytes memory`` array that contains the contents 
 If you want to use string parameters or other types that are not implicitly convertible to ``bytes``, you need to convert them to ``bytes`` or ``bytes1``/.../``bytes32`` first.
 
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.12;
+    pragma hyperion ^0.8.12;
 
     contract C {
         string s = "Storage";
@@ -217,13 +217,13 @@ the ``.push`` member functions are not available).
 You either have to calculate the required size in advance
 or create a new memory array and copy every element.
 
-As all variables in Solidity, the elements of newly allocated arrays are always initialized
+As all variables in Hyperion, the elements of newly allocated arrays are always initialized
 with the :ref:`default value<default-value>`.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     contract C {
         function f(uint len) public pure {
@@ -259,10 +259,10 @@ In the example below, the type of ``[1, 2, 3]`` is
 you want the result to be a ``uint[3] memory`` type, you need to convert
 the first element to ``uint``.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     contract C {
         function f() public pure {
@@ -281,10 +281,10 @@ Since fixed-size memory arrays of different type cannot be converted into each o
 (even if the base types can), you always have to specify a common base type explicitly
 if you want to use two-dimensional array literals:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     contract C {
         function f() public pure returns (uint24[2][4] memory) {
@@ -298,10 +298,10 @@ if you want to use two-dimensional array literals:
 Fixed size memory arrays cannot be assigned to dynamically-sized
 memory arrays, i.e. the following is not possible:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.0 <0.9.0;
+    pragma hyperion >=0.4.0 <0.9.0;
 
     // This will not compile.
     contract C {
@@ -318,10 +318,10 @@ complications because of how arrays are passed in the ABI.
 If you want to initialize dynamically-sized arrays, you have to assign the
 individual elements:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     contract C {
         function f() public pure {
@@ -370,16 +370,16 @@ Array Members
     To use arrays of arrays in external (instead of public) functions, you need to
     activate ABI coder v2.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.6.0 <0.9.0;
+    pragma hyperion >=0.6.0 <0.9.0;
 
     contract ArrayContract {
         uint[2**20] aLotOfIntegers;
         // Note that the following is not a pair of dynamic arrays but a
         // dynamic array of pairs (i.e. of fixed size arrays of length two).
-        // In Solidity, T[k] and T[] are always arrays with elements of type T,
+        // In Hyperion, T[k] and T[] are always arrays with elements of type T,
         // even if T itself is an array.
         // Because of that, bool[2][] is a dynamic array of elements
         // that are bool[2]. This is different from other languages, like C.
@@ -480,10 +480,10 @@ A dangling reference is a reference that points to something that no longer exis
 moved without updating the reference. A dangling reference can for example occur, if you store a
 reference to an array element in a local variable and then ``.pop()`` from the containing array:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.8.0 <0.9.0;
+    pragma hyperion >=0.8.0 <0.9.0;
 
     contract C {
         uint[][] s;
@@ -508,14 +508,14 @@ is always zeroed, a subsequent ``s.push()`` will not explicitly write zeroes to 
 so the last element of ``s`` after that ``push()`` will have length ``1`` and contain
 ``0x42`` as its first element.
 
-Note that Solidity does not allow to declare references to value types in storage. These kinds
+Note that Hyperion does not allow to declare references to value types in storage. These kinds
 of explicit dangling references are restricted to nested reference types. However, dangling references
 can also occur temporarily when using complex expressions in tuple assignments:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.8.0 <0.9.0;
+    pragma hyperion >=0.8.0 <0.9.0;
 
     contract C {
         uint[] s;
@@ -552,10 +552,10 @@ You need to take particular care when dealing with references to elements of
 ``bytes`` arrays, since a ``.push()`` on a bytes array may switch :ref:`from short
 to long layout in storage<bytes-and-string>`.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.8.0 <0.9.0;
+    pragma hyperion >=0.8.0 <0.9.0;
 
     // This will report a warning
     contract C {
@@ -619,10 +619,10 @@ they only exist in intermediate expressions.
 
 Array slices are useful to ABI-decode secondary data passed in function parameters:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.8.5 <0.9.0;
+    pragma hyperion >=0.8.5 <0.9.0;
     contract Proxy {
         /// @dev Address of the client contract managed by proxy i.e., this contract
         address client;
@@ -655,13 +655,13 @@ Array slices are useful to ABI-decode secondary data passed in function paramete
 Structs
 -------
 
-Solidity provides a way to define new types in the form of structs, which is
+Hyperion provides a way to define new types in the form of structs, which is
 shown in the following example:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.6.0 <0.9.0;
+    pragma hyperion >=0.6.0 <0.9.0;
 
     // Defines a new type with two fields.
     // Declaring a struct outside of a contract allows
@@ -735,6 +735,6 @@ assigning it to a local variable, as in
 ``campaigns[campaignID].amount = 0``.
 
 .. note::
-    Until Solidity 0.7.0, memory-structs containing members of storage-only types (e.g. mappings)
+    Until Hyperion 0.7.0, memory-structs containing members of storage-only types (e.g. mappings)
     were allowed and assignments like ``campaigns[campaignID] = Campaign(beneficiary, goal, 0, 0)``
     in the example above would work and just silently skip those members.

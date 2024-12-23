@@ -1,24 +1,24 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/parsing/DocStringParser.h>
+#include <libhyperion/parsing/DocStringParser.h>
 
-#include <libsolidity/ast/AST.h>
+#include <libhyperion/ast/AST.h>
 
 #include <liblangutil/Common.h>
 #include <liblangutil/ErrorReporter.h>
@@ -28,9 +28,9 @@
 #include <range/v3/algorithm/find_if_not.hpp>
 #include <range/v3/view/subrange.hpp>
 
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
 namespace
 {
@@ -82,7 +82,7 @@ std::multimap<std::string, DocTag> DocStringParser::parse()
 	m_lastTag = nullptr;
 	m_docTags = {};
 
-	solAssert(m_node.text(), "");
+	hypAssert(m_node.text(), "");
 	iter currPos = m_node.text()->begin();
 	iter end = m_node.text()->end();
 
@@ -120,7 +120,7 @@ std::multimap<std::string, DocTag> DocStringParser::parse()
 
 DocStringParser::iter DocStringParser::parseDocTagLine(iter _pos, iter _end, bool _appending)
 {
-	solAssert(!!m_lastTag, "");
+	hypAssert(!!m_lastTag, "");
 	auto nlPos = find(_pos, _end, '\n');
 	if (_appending && _pos != _end && *_pos != ' ' && *_pos != '\t')
 		m_lastTag->content += " ";

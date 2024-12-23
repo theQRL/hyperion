@@ -1,22 +1,22 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Encodes Solidity into SMT expressions without creating
+ * Encodes Hyperion into SMT expressions without creating
  * any verification targets.
  * Also implements the SSA scheme for branches.
  */
@@ -24,14 +24,14 @@
 #pragma once
 
 
-#include <libsolidity/formal/EncodingContext.h>
-#include <libsolidity/formal/ModelCheckerSettings.h>
-#include <libsolidity/formal/SymbolicVariables.h>
-#include <libsolidity/formal/VariableUsage.h>
+#include <libhyperion/formal/EncodingContext.h>
+#include <libhyperion/formal/ModelCheckerSettings.h>
+#include <libhyperion/formal/SymbolicVariables.h>
+#include <libhyperion/formal/VariableUsage.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/ASTVisitor.h>
-#include <libsolidity/interface/ReadFile.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/ASTVisitor.h>
+#include <libhyperion/interface/ReadFile.h>
 #include <liblangutil/UniqueErrorReporter.h>
 
 #include <string>
@@ -39,14 +39,14 @@
 #include <vector>
 #include <utility>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 class ErrorReporter;
 struct SourceLocation;
 class CharStreamProvider;
 }
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 class SMTEncoder: public ASTConstVisitor

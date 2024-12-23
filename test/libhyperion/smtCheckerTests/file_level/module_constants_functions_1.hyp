@@ -1,19 +1,19 @@
-==== Source: s1.sol ====
+==== Source: s1.hyp ====
 uint constant a = 89;
 
 function fre() pure returns (uint) {
 	return a;
 }
 
-==== Source: s2.sol ====
+==== Source: s2.hyp ====
 function foo() pure returns (uint) {
 	return 42;
 }
 
-==== Source: s3.sol ====
-import {fre as foo} from "s1.sol";
-import "s1.sol" as M;
-import "s2.sol" as N;
+==== Source: s3.hyp ====
+import {fre as foo} from "s1.hyp";
+import "s1.hyp" as M;
+import "s2.hyp" as N;
 
 uint256 constant a = 13;
 
@@ -40,8 +40,8 @@ contract C {
 // ====
 // SMTEngine: all
 // ----
-// Warning 6328: (s3.sol:327-342): CHC: Assertion violation happens here.
-// Warning 6328: (s3.sol:396-411): CHC: Assertion violation happens here.
-// Warning 6328: (s3.sol:465-480): CHC: Assertion violation happens here.
-// Warning 6328: (s3.sol:534-549): CHC: Assertion violation happens here.
+// Warning 6328: (s3.hyp:327-342): CHC: Assertion violation happens here.
+// Warning 6328: (s3.hyp:396-411): CHC: Assertion violation happens here.
+// Warning 6328: (s3.hyp:465-480): CHC: Assertion violation happens here.
+// Warning 6328: (s3.hyp:534-549): CHC: Assertion violation happens here.
 // Info 1391: CHC: 4 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.

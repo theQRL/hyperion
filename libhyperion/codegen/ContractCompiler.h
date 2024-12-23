@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -23,15 +23,15 @@
 
 #pragma once
 
-#include <libsolidity/ast/ASTVisitor.h>
-#include <libsolidity/codegen/CompilerContext.h>
-#include <libsolidity/interface/DebugSettings.h>
-#include <libevmasm/Assembly.h>
+#include <libhyperion/ast/ASTVisitor.h>
+#include <libhyperion/codegen/CompilerContext.h>
+#include <libhyperion/interface/DebugSettings.h>
+#include <libzvmasm/Assembly.h>
 #include <functional>
 #include <ostream>
 #include <map>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 /**
@@ -90,9 +90,9 @@ private:
 	/// Appends the function selector. Is called recursively to create a binary search tree.
 	/// @a _runs the number of intended executions of the contract to tune the split point.
 	void appendInternalSelector(
-		std::map<util::FixedHash<4>, evmasm::AssemblyItem const> const& _entryPoints,
+		std::map<util::FixedHash<4>, zvmasm::AssemblyItem const> const& _entryPoints,
 		std::vector<util::FixedHash<4>> const& _ids,
-		evmasm::AssemblyItem const& _notFoundTag,
+		zvmasm::AssemblyItem const& _notFoundTag,
 		size_t _runs
 	);
 	void appendFunctionSelector(ContractDefinition const& _contract);
@@ -148,12 +148,12 @@ private:
 	CompilerContext& m_context;
 
 	/// Tag to jump to for a "break" statement and the stack height after freeing the local loop variables.
-	std::vector<std::pair<evmasm::AssemblyItem, unsigned>> m_breakTags;
+	std::vector<std::pair<zvmasm::AssemblyItem, unsigned>> m_breakTags;
 	/// Tag to jump to for a "continue" statement and the stack height after freeing the local loop variables.
-	std::vector<std::pair<evmasm::AssemblyItem, unsigned>> m_continueTags;
+	std::vector<std::pair<zvmasm::AssemblyItem, unsigned>> m_continueTags;
 	/// Tag to jump to for a "return" statement and the stack height after freeing the local function or modifier variables.
 	/// Needs to be stacked because of modifiers.
-	std::vector<std::pair<evmasm::AssemblyItem, unsigned>> m_returnTags;
+	std::vector<std::pair<zvmasm::AssemblyItem, unsigned>> m_returnTags;
 	unsigned m_modifierDepth = 0;
 	FunctionDefinition const* m_currentFunction = nullptr;
 

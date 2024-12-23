@@ -1,5 +1,5 @@
-pragma solidity >=0.0;
-import "../Events/Event.sol";
+pragma hyperion >=0.0;
+import "../Events/Event.hyp";
 
 
 /// @title Scalar event contract - Scalar events resolve to a number within a range

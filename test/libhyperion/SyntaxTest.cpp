@@ -1,24 +1,24 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <test/libsolidity/SyntaxTest.h>
+#include <test/libhyperion/SyntaxTest.h>
 
-#include <test/libsolidity/util/Common.h>
+#include <test/libhyperion/util/Common.h>
 #include <test/Common.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -28,21 +28,21 @@
 #include <memory>
 #include <stdexcept>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::util::formatting;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
-using namespace solidity::frontend::test;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::util::formatting;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::test;
 using namespace boost::unit_test;
 namespace fs = boost::filesystem;
 
 SyntaxTest::SyntaxTest(
 	std::string const& _filename,
-	langutil::EVMVersion _evmVersion,
+	langutil::ZVMVersion _zvmVersion,
 	Error::Severity _minSeverity
 ):
-	CommonSyntaxTest(_filename, _evmVersion),
+	CommonSyntaxTest(_filename, _zvmVersion),
 	m_minSeverity(_minSeverity)
 {
 	static std::set<std::string> const compileViaYulAllowedValues{"true", "false"};
@@ -57,7 +57,7 @@ void SyntaxTest::setupCompiler(CompilerStack& _compiler)
 {
 	AnalysisFramework::setupCompiler(_compiler);
 
-	_compiler.setEVMVersion(m_evmVersion);
+	_compiler.setZVMVersion(m_zvmVersion);
 	_compiler.setOptimiserSettings(
 		m_optimiseYul ?
 		OptimiserSettings::full() :
@@ -117,24 +117,24 @@ void SyntaxTest::filterObtainedErrors()
 		{
 			locationStart = location->start;
 			locationEnd = location->end;
-			solAssert(location->sourceName, "");
+			hypAssert(location->sourceName, "");
 			sourceName = *location->sourceName;
 			if(m_sources.sources.count(sourceName) == 1)
 			{
 				int preambleSize =
 						static_cast<int>(compiler().charStream(sourceName).size()) -
 						static_cast<int>(m_sources.sources[sourceName].size());
-				solAssert(preambleSize >= 0, "");
+				hypAssert(preambleSize >= 0, "");
 
 				// ignore the version & license pragma inserted by the testing tool when calculating locations.
 				if (location->start != -1)
 				{
-					solAssert(location->start >= preambleSize, "");
+					hypAssert(location->start >= preambleSize, "");
 					locationStart = location->start - preambleSize;
 				}
 				if (location->end != -1)
 				{
-					solAssert(location->end >= preambleSize, "");
+					hypAssert(location->end >= preambleSize, "");
 					locationEnd = location->end - preambleSize;
 				}
 			}

@@ -1,5 +1,5 @@
-pragma solidity >=0.0;
-import "../Oracles/MajorityOracle.sol";
+pragma hyperion >=0.0;
+import "../Oracles/MajorityOracle.hyp";
 
 
 /// @title Majority oracle factory contract - Allows to create majority oracle contracts

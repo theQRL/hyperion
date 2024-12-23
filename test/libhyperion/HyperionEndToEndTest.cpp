@@ -1,39 +1,39 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Christian <c@ethdev.com>
  * @author Gav Wood <g@ethdev.com>
  * @date 2014
- * Unit tests for the solidity expression compiler, testing the behaviour of the code.
+ * Unit tests for the hyperion expression compiler, testing the behaviour of the code.
  */
 
-#include <test/libsolidity/SolidityExecutionFramework.h>
+#include <test/libhyperion/HyperionExecutionFramework.h>
 
 #include <test/Common.h>
-#include <test/EVMHost.h>
+#include <test/ZVMHost.h>
 
 #include <liblangutil/Exceptions.h>
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
-#include <libevmasm/Assembly.h>
+#include <libzvmasm/Assembly.h>
 
-#include <libsolutil/Keccak256.h>
-#include <libsolutil/ErrorCodes.h>
+#include <libhyputil/Keccak256.h>
+#include <libhyputil/ErrorCodes.h>
 
 #include <libyul/Exceptions.h>
 
@@ -47,10 +47,10 @@
 #include <tuple>
 
 using namespace std::placeholders;
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::test;
-using namespace solidity::langutil;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::test;
+using namespace hyperion::langutil;
 
 #define ALSO_VIA_YUL(CODE)                                      \
 {                                                               \
@@ -78,14 +78,14 @@ using namespace solidity::langutil;
 }
 
 
-namespace solidity::frontend::test
+namespace hyperion::frontend::test
 {
 
-struct SolidityEndToEndTestExecutionFramework: public SolidityExecutionFramework
+struct HyperionEndToEndTestExecutionFramework: public HyperionExecutionFramework
 {
 };
 
-BOOST_FIXTURE_TEST_SUITE(SolidityEndToEndTest, SolidityEndToEndTestExecutionFramework)
+BOOST_FIXTURE_TEST_SUITE(HyperionEndToEndTest, HyperionEndToEndTestExecutionFramework)
 
 BOOST_AUTO_TEST_CASE(creation_code_optimizer)
 {
@@ -1699,7 +1699,7 @@ BOOST_AUTO_TEST_CASE(array_copy_storage_abi)
 //	ABI_CHECK(callContractFunction("f()"), encodeArgs(5));
 //}
 
-BOOST_AUTO_TEST_CASE(evm_exceptions_in_constructor_out_of_baund)
+BOOST_AUTO_TEST_CASE(zvm_exceptions_in_constructor_out_of_baund)
 {
 	char const* sourceCode = R"(
 		contract A {

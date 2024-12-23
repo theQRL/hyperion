@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 std::vector<langutil::Token> const userDefinableOperators = {

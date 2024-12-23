@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -29,7 +29,7 @@
 #include <string>
 #include <functional>
 
-namespace solidity::yul
+namespace hyperion::yul
 {
 
 /// Repository for YulStrings.
@@ -172,7 +172,7 @@ inline YulString operator "" _yulstring(char const* _string, std::size_t _size)
 namespace fmt
 {
 template <>
-struct formatter<solidity::yul::YulString>
+struct formatter<hyperion::yul::YulString>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& _context)
@@ -181,7 +181,7 @@ struct formatter<solidity::yul::YulString>
 	}
 
 	template <typename FormatContext>
-	auto format(solidity::yul::YulString _value, FormatContext& _context)
+	auto format(hyperion::yul::YulString _value, FormatContext& _context)
 	{
 		return format_to(_context.out(), "{}", _value.str());
 	}
@@ -190,9 +190,9 @@ struct formatter<solidity::yul::YulString>
 
 namespace std
 {
-template<> struct hash<solidity::yul::YulString>
+template<> struct hash<hyperion::yul::YulString>
 {
-	size_t operator()(solidity::yul::YulString const& x) const
+	size_t operator()(hyperion::yul::YulString const& x) const
 	{
 		return static_cast<size_t>(x.hash());
 	}

@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -23,17 +23,17 @@
 
 #pragma once
 
-#include <libsolutil/CommonData.h>
-#include <libsolutil/Exceptions.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/Exceptions.h>
 
 #include <liblangutil/Exceptions.h>
 #include <liblangutil/SourceLocation.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/StringUtils.h>
 
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/filter.hpp>
 
-namespace solidity::langutil
+namespace hyperion::langutil
 {
 
 class ErrorReporter
@@ -105,7 +105,7 @@ public:
 	void typeErrorConcatenateDescriptions(ErrorId _error, SourceLocation const& _location, Strings const&... _descriptions)
 	{
 		std::initializer_list<std::string> const descs = { _descriptions... };
-		solAssert(descs.size() > 0, "Need error descriptions!");
+		hypAssert(descs.size() > 0, "Need error descriptions!");
 
 		auto nonEmpty = [](std::string const& _s) { return !_s.empty(); };
 		std::string errorStr = util::joinHumanReadable(descs | ranges::views::filter(nonEmpty) | ranges::to_vector, " ");
@@ -146,7 +146,7 @@ public:
 		{}
 		bool ok() const
 		{
-			solAssert(m_initialErrorCount <= m_errorReporter.errorCount(), "Unexpected error count.");
+			hypAssert(m_initialErrorCount <= m_errorReporter.errorCount(), "Unexpected error count.");
 			return m_initialErrorCount == m_errorReporter.errorCount();
 		}
 	private:

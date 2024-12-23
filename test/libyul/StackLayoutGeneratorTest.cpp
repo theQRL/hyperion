@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
@@ -20,37 +20,37 @@
 #include <test/libyul/Common.h>
 #include <test/Common.h>
 
-#include <libyul/backends/evm/ControlFlowGraph.h>
-#include <libyul/backends/evm/ControlFlowGraphBuilder.h>
-#include <libyul/backends/evm/StackHelpers.h>
-#include <libyul/backends/evm/StackLayoutGenerator.h>
+#include <libyul/backends/zvm/ControlFlowGraph.h>
+#include <libyul/backends/zvm/ControlFlowGraphBuilder.h>
+#include <libyul/backends/zvm/StackHelpers.h>
+#include <libyul/backends/zvm/StackLayoutGenerator.h>
 #include <libyul/Object.h>
 #include <liblangutil/SourceReferenceFormatter.h>
 
-#include <libsolutil/AnsiColorized.h>
-#include <libsolutil/Visitor.h>
+#include <libhyputil/AnsiColorized.h>
+#include <libhyputil/Visitor.h>
 
 #include <range/v3/view/reverse.hpp>
 
-#ifdef ISOLTEST
+#ifdef IHYPTEST
 #include <boost/process.hpp>
 #endif
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::langutil;
-using namespace solidity::yul;
-using namespace solidity::yul::test;
-using namespace solidity::frontend;
-using namespace solidity::frontend::test;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::langutil;
+using namespace hyperion::yul;
+using namespace hyperion::yul::test;
+using namespace hyperion::frontend;
+using namespace hyperion::frontend::test;
 using namespace std;
 
 StackLayoutGeneratorTest::StackLayoutGeneratorTest(string const& _filename):
 	TestCase(_filename)
 {
 	m_source = m_reader.source();
-	auto dialectName = m_reader.stringSetting("dialect", "evm");
-	m_dialect = &dialect(dialectName, solidity::test::CommonOptions::get().evmVersion());
+	auto dialectName = m_reader.stringSetting("dialect", "zvm");
+	m_dialect = &dialect(dialectName, hyperion::test::CommonOptions::get().zvmVersion());
 	m_expectation = m_reader.simpleExpectations();
 }
 
@@ -115,18 +115,18 @@ private:
 			std::visit(util::GenericVisitor{
 				[&](CFG::BasicBlock::Jump const& _jump)
 				{
-					soltestAssert(_jump.target == &_block, "Invalid control flow graph.");
+					hyptestAssert(_jump.target == &_block, "Invalid control flow graph.");
 				},
 				[&](CFG::BasicBlock::ConditionalJump const& _conditionalJump)
 				{
-					soltestAssert(
+					hyptestAssert(
 						_conditionalJump.zero == &_block || _conditionalJump.nonZero == &_block,
 						"Invalid control flow graph."
 					);
 				},
 				[&](auto const&)
 				{
-					soltestAssert(false, "Invalid control flow graph.");
+					hyptestAssert(false, "Invalid control flow graph.");
 				}
 			}, entry->exit);
 
@@ -151,7 +151,7 @@ private:
 				}
 			}, operation.operation);
 			m_stream << "\\l\\\n";
-			soltestAssert(operation.input.size() <= entryLayout.size(), "Invalid Stack Layout.");
+			hyptestAssert(operation.input.size() <= entryLayout.size(), "Invalid Stack Layout.");
 			for (size_t i = 0; i < operation.input.size(); ++i)
 				entryLayout.pop_back();
 			entryLayout += operation.output;
@@ -239,12 +239,12 @@ TestCase::TestResult StackLayoutGeneratorTest::run(ostream& _stream, string cons
 
 	auto result = checkResult(_stream, _linePrefix, _formatted);
 
-#ifdef ISOLTEST
+#ifdef IHYPTEST
 	char* graphDisplayer = nullptr;
 	if (result == TestResult::Failure)
-		graphDisplayer = getenv("ISOLTEST_DISPLAY_GRAPHS_FAILURE");
+		graphDisplayer = getenv("IHYPTEST_DISPLAY_GRAPHS_FAILURE");
 	else if (result == TestResult::Success)
-		graphDisplayer = getenv("ISOLTEST_DISPLAY_GRAPHS_SUCCESS");
+		graphDisplayer = getenv("IHYPTEST_DISPLAY_GRAPHS_SUCCESS");
 
 	if (graphDisplayer)
 	{

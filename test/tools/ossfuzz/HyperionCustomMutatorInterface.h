@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,16 +21,16 @@
 
 #pragma once
 
-#include <test/tools/ossfuzz/SolidityGenerator.h>
+#include <test/tools/ossfuzz/HyperionGenerator.h>
 
 #include <memory>
 
-namespace solidity::test::fuzzer::mutator
+namespace hyperion::test::fuzzer::mutator
 {
-struct SolidityCustomMutatorInterface
+struct HyperionCustomMutatorInterface
 {
-	SolidityCustomMutatorInterface(uint8_t* _data, size_t _size, size_t _maxSize, unsigned _seed);
-	/// Generates Solidity test program, copies it into buffer
+	HyperionCustomMutatorInterface(uint8_t* _data, size_t _size, size_t _maxSize, unsigned _seed);
+	/// Generates Hyperion test program, copies it into buffer
 	/// provided by libFuzzer and @returns size of the test program.
 	size_t generate();
 
@@ -40,7 +40,7 @@ struct SolidityCustomMutatorInterface
 	size_t size;
 	/// Maximum length of mutant specified by libFuzzer
 	size_t maxMutantSize;
-	/// Solidity generator handle
-	std::shared_ptr<SolidityGenerator> generator;
+	/// Hyperion generator handle
+	std::shared_ptr<HyperionGenerator> generator;
 };
 }

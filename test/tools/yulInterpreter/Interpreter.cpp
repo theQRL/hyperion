@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -21,16 +21,16 @@
 
 #include <test/tools/yulInterpreter/Interpreter.h>
 
-#include <test/tools/yulInterpreter/EVMInstructionInterpreter.h>
+#include <test/tools/yulInterpreter/ZVMInstructionInterpreter.h>
 
 #include <libyul/AST.h>
 #include <libyul/Dialect.h>
 #include <libyul/Utilities.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 
 #include <liblangutil/Exceptions.h>
 
-#include <libsolutil/FixedHash.h>
+#include <libhyputil/FixedHash.h>
 
 #include <range/v3/view/reverse.hpp>
 
@@ -38,11 +38,11 @@
 #include <variant>
 
 using namespace std;
-using namespace solidity;
-using namespace solidity::yul;
-using namespace solidity::yul::test;
+using namespace hyperion;
+using namespace hyperion::yul;
+using namespace hyperion::yul::test;
 
-using solidity::util::h256;
+using hyperion::util::h256;
 
 void InterpreterState::dumpStorage(ostream& _out) const
 {
@@ -117,13 +117,13 @@ void Interpreter::operator()(ExpressionStatement const& _expressionStatement)
 
 void Interpreter::operator()(Assignment const& _assignment)
 {
-	solAssert(_assignment.value, "");
+	hypAssert(_assignment.value, "");
 	vector<u256> values = evaluateMulti(*_assignment.value);
-	solAssert(values.size() == _assignment.variableNames.size(), "");
+	hypAssert(values.size() == _assignment.variableNames.size(), "");
 	for (size_t i = 0; i < values.size(); ++i)
 	{
 		YulString varName = _assignment.variableNames.at(i).name;
-		solAssert(m_variables.count(varName), "");
+		hypAssert(m_variables.count(varName), "");
 		m_variables[varName] = values.at(i);
 	}
 }
@@ -134,11 +134,11 @@ void Interpreter::operator()(VariableDeclaration const& _declaration)
 	if (_declaration.value)
 		values = evaluateMulti(*_declaration.value);
 
-	solAssert(values.size() == _declaration.variables.size(), "");
+	hypAssert(values.size() == _declaration.variables.size(), "");
 	for (size_t i = 0; i < values.size(); ++i)
 	{
 		YulString varName = _declaration.variables.at(i).name;
-		solAssert(!m_variables.count(varName), "");
+		hypAssert(!m_variables.count(varName), "");
 		m_variables[varName] = values.at(i);
 		m_scope->names.emplace(varName, nullptr);
 	}
@@ -146,16 +146,16 @@ void Interpreter::operator()(VariableDeclaration const& _declaration)
 
 void Interpreter::operator()(If const& _if)
 {
-	solAssert(_if.condition, "");
+	hypAssert(_if.condition, "");
 	if (evaluate(*_if.condition) != 0)
 		(*this)(_if.body);
 }
 
 void Interpreter::operator()(Switch const& _switch)
 {
-	solAssert(_switch.expression, "");
+	hypAssert(_switch.expression, "");
 	u256 val = evaluate(*_switch.expression);
-	solAssert(!_switch.cases.empty(), "");
+	hypAssert(!_switch.cases.empty(), "");
 	for (auto const& c: _switch.cases)
 		// Default case has to be last.
 		if (!c.value || evaluate(*c.value) == val)
@@ -171,7 +171,7 @@ void Interpreter::operator()(FunctionDefinition const&)
 
 void Interpreter::operator()(ForLoop const& _forLoop)
 {
-	solAssert(_forLoop.condition, "");
+	hypAssert(_forLoop.condition, "");
 
 	enterScope(_forLoop.pre);
 	ScopeGuard g([this]{ leaveScope(); });
@@ -295,7 +295,7 @@ void ExpressionEvaluator::operator()(Literal const& _literal)
 
 void ExpressionEvaluator::operator()(Identifier const& _identifier)
 {
-	solAssert(m_variables.count(_identifier.name), "");
+	hypAssert(m_variables.count(_identifier.name), "");
 	incrementStep();
 	setValue(m_variables.at(_identifier.name));
 }
@@ -308,18 +308,18 @@ void ExpressionEvaluator::operator()(FunctionCall const& _funCall)
 			literalArguments = &builtin->literalArguments;
 	evaluateArgs(_funCall.arguments, literalArguments);
 
-	if (EVMDialect const* dialect = dynamic_cast<EVMDialect const*>(&m_dialect))
+	if (ZVMDialect const* dialect = dynamic_cast<ZVMDialect const*>(&m_dialect))
 	{
-		if (BuiltinFunctionForEVM const* fun = dialect->builtin(_funCall.functionName.name))
+		if (BuiltinFunctionForZVM const* fun = dialect->builtin(_funCall.functionName.name))
 		{
-			EVMInstructionInterpreter interpreter(dialect->evmVersion(), m_state, m_disableMemoryTrace);
+			ZVMInstructionInterpreter interpreter(dialect->zvmVersion(), m_state, m_disableMemoryTrace);
 
 			u256 const value = interpreter.evalBuiltin(*fun, _funCall.arguments, values());
 
 			if (
 				!m_disableExternalCalls &&
 				fun->instruction &&
-				evmasm::isCallInstruction(*fun->instruction)
+				zvmasm::isCallInstruction(*fun->instruction)
 			)
 				runExternalCall(*fun->instruction);
 
@@ -355,7 +355,7 @@ void ExpressionEvaluator::operator()(FunctionCall const& _funCall)
 
 u256 ExpressionEvaluator::value() const
 {
-	solAssert(m_values.size() == 1, "");
+	hypAssert(m_values.size() == 1, "");
 	return m_values.front();
 }
 
@@ -409,7 +409,7 @@ void ExpressionEvaluator::incrementStep()
 	}
 }
 
-void ExpressionEvaluator::runExternalCall(evmasm::Instruction _instruction)
+void ExpressionEvaluator::runExternalCall(zvmasm::Instruction _instruction)
 {
 	u256 memOutOffset = 0;
 	u256 memOutSize = 0;
@@ -419,7 +419,7 @@ void ExpressionEvaluator::runExternalCall(evmasm::Instruction _instruction)
 
 	// Setup memOut* values
 	if (
-		_instruction == evmasm::Instruction::CALL
+		_instruction == zvmasm::Instruction::CALL
 	)
 	{
 		memOutOffset = values()[5];
@@ -429,8 +429,8 @@ void ExpressionEvaluator::runExternalCall(evmasm::Instruction _instruction)
 		memInSize = values()[4];
 	}
 	else if (
-		_instruction == evmasm::Instruction::DELEGATECALL ||
-		_instruction == evmasm::Instruction::STATICCALL
+		_instruction == zvmasm::Instruction::DELEGATECALL ||
+		_instruction == zvmasm::Instruction::STATICCALL
 	)
 	{
 		memOutOffset = values()[4];

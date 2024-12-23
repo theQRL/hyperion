@@ -1,7 +1,7 @@
-==== Source: B.sol ====
+==== Source: B.hyp ====
 contract X {}
 ==== Source: b ====
-import * as msg from "B.sol";
+import * as msg from "B.hyp";
 contract C {
 }
 // ----

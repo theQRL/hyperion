@@ -2,9 +2,9 @@
 #
 # This script reads C++ or RST source files and writes all
 # multi-line strings into individual files.
-# This can be used to extract the Solidity test cases
+# This can be used to extract the Hyperion test cases
 # into files for e.g. fuzz testing as
-# scripts/isolate_tests.py test/libsolidity/*
+# scripts/isolate_tests.py test/libhyperion/*
 
 import re
 import os
@@ -36,10 +36,10 @@ def extract_test_cases(path):
 
     return tests
 
-def extract_solidity_docs_cases(path):
-    tests = extract_docs_cases(path, [".. code-block:: solidity", '::'])
+def extract_hyperion_docs_cases(path):
+    tests = extract_docs_cases(path, [".. code-block:: hyperion", '::'])
 
-    codeStart = "(// SPDX-License-Identifier:|pragma solidity|contract.*{|library.*{|interface.*{)"
+    codeStart = "(// SPDX-License-Identifier:|pragma hyperion|contract.*{|library.*{|interface.*{)"
 
     # Filter out tests that are not supposed to be compilable.
     return [
@@ -100,9 +100,9 @@ def extract_docs_cases(path, beginMarkers):
 
     return tests
 
-def write_cases(f, solidityTests, yulTests):
+def write_cases(f, hyperionTests, yulTests):
     cleaned_filename = f.replace(".","_").replace("-","_").replace(" ","_").lower()
-    for language, test in [("sol", t) for t in solidityTests] + [("yul", t) for t in yulTests]:
+    for language, test in [("hyp", t) for t in hyperionTests] + [("yul", t) for t in yulTests]:
         # When code examples are extracted they are indented by 8 spaces, which violates the style guide,
         # so before checking remove 4 spaces from each line.
         remainder = dedent(test)
@@ -112,18 +112,18 @@ def write_cases(f, solidityTests, yulTests):
             fi.write(remainder)
 
 def extract_and_write(path, language):
-    assert language in ["solidity", "yul", ""]
+    assert language in ["hyperion", "yul", ""]
     yulCases = []
     cases = []
 
     if path.lower().endswith('.rst'):
-        if language in ("solidity", ""):
-            cases = extract_solidity_docs_cases(path)
+        if language in ("hyperion", ""):
+            cases = extract_hyperion_docs_cases(path)
 
         if language in ("yul", ""):
             yulCases  = extract_yul_docs_cases(path)
-    elif path.endswith('.sol'):
-        if language in ("solidity", ""):
+    elif path.endswith('.hyp'):
+        if language in ("hyperion", ""):
             with open(path, mode='r', encoding='utf8', newline='') as f:
                 cases = [f.read()]
     else:
@@ -133,7 +133,7 @@ def extract_and_write(path, language):
 
 if __name__ == '__main__':
     script_description = (
-        "Reads Solidity, C++ or RST source files and extracts compilable solidity and yul code blocks from them. "
+        "Reads Hyperion, C++ or RST source files and extracts compilable hyperion and yul code blocks from them. "
         "Can be used to generate test cases to validate code examples. "
     )
 
@@ -142,7 +142,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-l', '--language',
         dest='language',
-        choices=["yul", "solidity"],
+        choices=["yul", "hyperion"],
         default="",
         action='store',
         help="Extract only code blocks in the given language"
@@ -159,7 +159,7 @@ if __name__ == '__main__':
             if 'compilationTests' in subdirs:
                 subdirs.remove('compilationTests')
             for f in files:
-                if basename(f) == "invalid_utf8_sequence.sol":
+                if basename(f) == "invalid_utf8_sequence.hyp":
                     continue  # ignore the test with broken utf-8 encoding
                 path = join(root, f)
                 extract_and_write(path, options.language)

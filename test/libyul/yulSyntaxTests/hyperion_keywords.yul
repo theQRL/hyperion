@@ -1,5 +1,5 @@
 {
-  // These are keywords of Solidity -- a copy from liblangutil/Token.h.
+  // These are keywords of Hyperion -- a copy from liblangutil/Token.h.
   let abstract := 1
   let anonymous := 1
   let as := 1
@@ -39,7 +39,7 @@
   let private := 1
   let pure := 1
   let receive := 1
-  // return is a builtin in EVMDialect
+  // return is a builtin in ZVMDialect
   return(0, 0)
   let returns := 1
   let storage := 1
@@ -64,10 +64,10 @@
   let int := 1
   let uint := 1
   let bytes := 1
-  // byte is a builtin in EVMDialect
+  // byte is a builtin in ZVMDialect
   pop(byte(1, 1))
   let string := 1
-  // address is a builtin in EVMDialect
+  // address is a builtin in ZVMDialect
   pop(address())
   let bool := 1
   let fixed := 1
@@ -105,5 +105,5 @@
   let var := 1
 }
 // ====
-// dialect: evm
+// dialect: zvm
 // ----

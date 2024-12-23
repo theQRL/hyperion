@@ -12,7 +12,7 @@ function toggleColorMode() {
 
   // Update logo
   document
-    .querySelector(`img.${SOLIDITY_LOGO_CLASS}`)
+    .querySelector(`img.${HYPERION_LOGO_CLASS}`)
     .setAttribute("src", newMode === LIGHT ? LIGHT_LOGO_PATH : DARK_LOGO_PATH);
 
   // Update color mode toggle icon

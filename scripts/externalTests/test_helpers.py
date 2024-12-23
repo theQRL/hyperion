@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2023 solidity contributors.
+# (c) 2023 hyperion contributors.
 # ------------------------------------------------------------------------------
 
 import os
@@ -36,35 +36,35 @@ sys.path.insert(0, f"{PROJECT_ROOT}/scripts/common")
 
 from git_helpers import git_commit_hash
 
-SOLC_FULL_VERSION_REGEX = re.compile(r"^[a-zA-Z: ]*(.*)$")
-SOLC_SHORT_VERSION_REGEX = re.compile(r"^([0-9.]+).*\+|\-$")
+HYPC_FULL_VERSION_REGEX = re.compile(r"^[a-zA-Z: ]*(.*)$")
+HYPC_SHORT_VERSION_REGEX = re.compile(r"^([0-9.]+).*\+|\-$")
 
 
 class SettingsPreset(Enum):
     LEGACY_NO_OPTIMIZE = 'legacy-no-optimize'
     IR_NO_OPTIMIZE = 'ir-no-optimize'
-    LEGACY_OPTIMIZE_EVM_ONLY = 'legacy-optimize-evm-only'
-    IR_OPTIMIZE_EVM_ONLY = 'ir-optimize-evm-only'
-    LEGACY_OPTIMIZE_EVM_YUL = 'legacy-optimize-evm+yul'
-    IR_OPTIMIZE_EVM_YUL = 'ir-optimize-evm+yul'
+    LEGACY_OPTIMIZE_ZVM_ONLY = 'legacy-optimize-zvm-only'
+    IR_OPTIMIZE_ZVM_ONLY = 'ir-optimize-zvm-only'
+    LEGACY_OPTIMIZE_ZVM_YUL = 'legacy-optimize-zvm+yul'
+    IR_OPTIMIZE_ZVM_YUL = 'ir-optimize-zvm+yul'
 
 
-def compiler_settings(evm_version: str, via_ir: bool = False, optimizer: bool = False, yul: bool = False) -> dict:
+def compiler_settings(zvm_version: str, via_ir: bool = False, optimizer: bool = False, yul: bool = False) -> dict:
     return {
         "optimizer": {"enabled": optimizer, "details": {"yul": yul}},
-        "evmVersion": evm_version,
+        "zvmVersion": zvm_version,
         "viaIR": via_ir,
     }
 
 
-def settings_from_preset(preset: SettingsPreset, evm_version: str) -> dict:
+def settings_from_preset(preset: SettingsPreset, zvm_version: str) -> dict:
     return {
-        SettingsPreset.LEGACY_NO_OPTIMIZE:       compiler_settings(evm_version),
-        SettingsPreset.IR_NO_OPTIMIZE:           compiler_settings(evm_version, via_ir=True),
-        SettingsPreset.LEGACY_OPTIMIZE_EVM_ONLY: compiler_settings(evm_version, optimizer=True),
-        SettingsPreset.IR_OPTIMIZE_EVM_ONLY:     compiler_settings(evm_version, via_ir=True, optimizer=True),
-        SettingsPreset.LEGACY_OPTIMIZE_EVM_YUL:  compiler_settings(evm_version, optimizer=True, yul=True),
-        SettingsPreset.IR_OPTIMIZE_EVM_YUL:      compiler_settings(evm_version, via_ir=True, optimizer=True, yul=True),
+        SettingsPreset.LEGACY_NO_OPTIMIZE:       compiler_settings(zvm_version),
+        SettingsPreset.IR_NO_OPTIMIZE:           compiler_settings(zvm_version, via_ir=True),
+        SettingsPreset.LEGACY_OPTIMIZE_ZVM_ONLY: compiler_settings(zvm_version, optimizer=True),
+        SettingsPreset.IR_OPTIMIZE_ZVM_ONLY:     compiler_settings(zvm_version, via_ir=True, optimizer=True),
+        SettingsPreset.LEGACY_OPTIMIZE_ZVM_YUL:  compiler_settings(zvm_version, optimizer=True, yul=True),
+        SettingsPreset.IR_OPTIMIZE_ZVM_YUL:      compiler_settings(zvm_version, via_ir=True, optimizer=True, yul=True),
     }[preset]
 
 
@@ -74,18 +74,18 @@ def parse_custom_presets(presets: List[str]) -> Set[SettingsPreset]:
 def parse_command_line(description: str, args: List[str]):
     arg_parser = ArgumentParser(description)
     arg_parser.add_argument(
-        "solc_binary_type",
-        metavar="solc-binary-type",
+        "hypc_binary_type",
+        metavar="hypc-binary-type",
         type=str,
         default="native",
-        choices=["native", "solcjs"],
-        help="""Solidity compiler binary type""",
+        choices=["native", "hypcjs"],
+        help="""Hyperion compiler binary type""",
     )
     arg_parser.add_argument(
-        "solc_binary_path",
-        metavar="solc-binary-path",
+        "hypc_binary_path",
+        metavar="hypc-binary-path",
         type=Path,
-        help="""Path to solc binary""",
+        help="""Path to hypc binary""",
     )
     arg_parser.add_argument(
         "selected_presets",
@@ -120,18 +120,18 @@ def download_project(test_dir: Path, repo_url: str, ref_type: str = "branch", re
     print(f"Current commit hash: {git_commit_hash()}")
 
 
-def parse_solc_version(solc_version_string: str) -> str:
-    solc_version_match = re.search(SOLC_FULL_VERSION_REGEX, solc_version_string)
-    if solc_version_match is None:
-        raise RuntimeError(f"Solc version could not be found in: {solc_version_string}.")
-    return solc_version_match.group(1)
+def parse_hypc_version(hypc_version_string: str) -> str:
+    hypc_version_match = re.search(HYPC_FULL_VERSION_REGEX, hypc_version_string)
+    if hypc_version_match is None:
+        raise RuntimeError(f"Hypc version could not be found in: {hypc_version_string}.")
+    return hypc_version_match.group(1)
 
 
-def get_solc_short_version(solc_full_version: str) -> str:
-    solc_short_version_match = re.search(SOLC_SHORT_VERSION_REGEX, solc_full_version)
-    if solc_short_version_match is None:
-        raise RuntimeError(f"Error extracting short version string from: {solc_full_version}.")
-    return solc_short_version_match.group(1)
+def get_hypc_short_version(hypc_full_version: str) -> str:
+    hypc_short_version_match = re.search(HYPC_SHORT_VERSION_REGEX, hypc_full_version)
+    if hypc_short_version_match is None:
+        raise RuntimeError(f"Error extracting short version string from: {hypc_full_version}.")
+    return hypc_short_version_match.group(1)
 
 
 def store_benchmark_report(self):
@@ -144,8 +144,8 @@ def replace_version_pragmas(test_dir: Path):
     Include all directories to also cover node dependencies.
     """
     print("Replacing fixed-version pragmas...")
-    for source in test_dir.glob("**/*.sol"):
+    for source in test_dir.glob("**/*.hyp"):
         content = source.read_text(encoding="utf-8")
-        content = re.sub(r"pragma solidity [^;]+;", r"pragma solidity >=0.0;", content)
+        content = re.sub(r"pragma hyperion [^;]+;", r"pragma hyperion >=0.0;", content)
         with open(source, "w", encoding="utf-8") as f:
             f.write(content)

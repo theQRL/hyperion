@@ -1,5 +1,5 @@
 ==== Source: A ====
-import "s1.sol" as M;
+import "s1.hyp" as M;
 contract D is M.C {
 	function f(uint _y) public {
 		g(_y);
@@ -7,7 +7,7 @@ contract D is M.C {
 		assert(x > 100); // should fail
 	}
 }
-==== Source: s1.sol ====
+==== Source: s1.hyp ====
 contract C {
 	uint x;
 	function g(uint _x) public {

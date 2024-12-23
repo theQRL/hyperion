@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
@@ -29,7 +29,7 @@
 #include <libyul/AST.h>
 #include <libyul/ObjectParser.h>
 #include <libyul/YulString.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 #include <libyul/optimiser/Disambiguator.h>
 #include <libyul/optimiser/ForLoopInitRewriter.h>
 #include <libyul/optimiser/FunctionGrouper.h>
@@ -38,21 +38,21 @@
 #include <libyul/optimiser/OptimiserStep.h>
 #include <libyul/optimiser/Suite.h>
 
-#include <libsolutil/JSON.h>
+#include <libhyputil/JSON.h>
 
-#include <libsolidity/interface/OptimiserSettings.h>
+#include <libhyperion/interface/OptimiserSettings.h>
 
 #include <cassert>
 #include <memory>
 
 using namespace std;
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::yul;
-using namespace solidity::util;
-using namespace solidity::phaser;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::yul;
+using namespace hyperion::util;
+using namespace hyperion::phaser;
 
-namespace solidity::phaser
+namespace hyperion::phaser
 {
 
 ostream& operator<<(ostream& _stream, Program const& _program);
@@ -69,7 +69,7 @@ Program::Program(Program const& program):
 variant<Program, ErrorList> Program::load(CharStream& _sourceCode)
 {
 	// ASSUMPTION: parseSource() rewinds the stream on its own
-	Dialect const& dialect = EVMDialect::strictAssemblyForEVMObjects(EVMVersion{});
+	Dialect const& dialect = ZVMDialect::strictAssemblyForZVMObjects(ZVMVersion{});
 
 	variant<unique_ptr<Block>, ErrorList> astOrErrors = parseObject(dialect, _sourceCode);
 	if (holds_alternative<ErrorList>(astOrErrors))
@@ -131,7 +131,7 @@ variant<unique_ptr<Block>, ErrorList> Program::parseObject(Dialect const& _diale
 	Object* deployedObject = nullptr;
 	if (object->subObjects.size() > 0)
 		for (auto& subObject: object->subObjects)
-			// solc --ir produces an object with a subobject of the same name as the outer object
+			// hypc --ir produces an object with a subobject of the same name as the outer object
 			// but suffixed with  "_deployed".
 			// The other object references the nested one which makes analysis fail. Below we try to
 			// extract just the nested one for that reason. This is just a heuristic. If there's no

@@ -8,7 +8,7 @@ import re
 import sys
 
 REPORT_HEADER_REGEX = re.compile(r'''
-    ^[|\s]+ Solc[ ]version:\s*(?P<solc_version>[\w\d.]+)
+    ^[|\s]+ Hypc[ ]version:\s*(?P<hypc_version>[\w\d.]+)
     [|\s]+ Optimizer[ ]enabled:\s*(?P<optimize>[\w]+)
     [|\s]+ Runs:\s*(?P<runs>[\d]+)
     [|\s]+ Block[ ]limit:\s*(?P<block_limit>[\d]+)\s*gas
@@ -90,7 +90,7 @@ class ContractGasReport:
 
 @dataclass(frozen=True)
 class GasReport:
-    solc_version: str
+    hypc_version: str
     optimize: bool
     runs: int
     block_limit: int
@@ -136,7 +136,7 @@ def parse_report_header(line: str) -> Optional[dict]:
         return None
 
     return {
-        'solc_version': match.group('solc_version'),
+        'hypc_version': match.group('hypc_version'),
         'optimize': parse_bool(match.group('optimize')),
         'runs': int(match.group('runs')),
         'block_limit': int(match.group('block_limit')),

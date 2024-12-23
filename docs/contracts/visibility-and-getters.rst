@@ -33,7 +33,7 @@ State Variable Visibility
 Function Visibility
 ===================
 
-Solidity knows two kinds of function calls: external ones that do create an actual EVM message call and internal ones that do not.
+Hyperion knows two kinds of function calls: external ones that do create an actual ZVM message call and internal ones that do not.
 Furthermore, internal functions can be made inaccessible to derived contracts.
 This gives rise to four types of visibility for functions.
 
@@ -63,10 +63,10 @@ The visibility specifier is given after the type for
 state variables and between parameter list and
 return parameter list for functions.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     contract C {
         function f(uint a) private pure returns (uint b) { return a + 1; }
@@ -78,10 +78,10 @@ In the following example, ``D``, can call ``c.getData()`` to retrieve the value 
 ``data`` in state storage, but is not able to call ``f``. Contract ``E`` is derived from
 ``C`` and, thus, can call ``compute``.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     contract C {
         uint private data;
@@ -123,10 +123,10 @@ arguments and returns a ``uint``, the value of the state
 variable ``data``. State variables can be initialized
 when they are declared.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     contract C {
         uint public data = 42;
@@ -144,10 +144,10 @@ symbol is accessed internally (i.e. without ``this.``),
 it evaluates to a state variable.  If it is accessed externally
 (i.e. with ``this.``), it evaluates to a function.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.0 <0.9.0;
+    pragma hyperion >=0.4.0 <0.9.0;
 
     contract C {
         uint public data;
@@ -164,10 +164,10 @@ arguments to specify which individual element to return, for example
 ``myArray(0)``. If you want to return an entire array in one call, then you need
 to write a function, for example:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     contract arrayExample {
         // public state variable
@@ -191,10 +191,10 @@ Now you can use ``getArray()`` to retrieve the entire array, instead of
 
 The next example is more complex:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.0 <0.9.0;
+    pragma hyperion >=0.4.0 <0.9.0;
 
     contract Complex {
         struct Data {
@@ -212,7 +212,7 @@ It generates a function of the following form. The mapping and arrays (with the
 exception of byte arrays) in the struct are omitted because there is no good way
 to select individual struct members or provide a key for the mapping:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function data(uint arg1, bool arg2, uint arg3)
         public

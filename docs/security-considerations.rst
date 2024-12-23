@@ -7,7 +7,7 @@ Security Considerations
 While it is usually quite easy to build software that works as expected,
 it is much harder to check that nobody can use it in a way that was **not** anticipated.
 
-In Solidity, this is even more important because you can use smart contracts to handle tokens or,
+In Hyperion, this is even more important because you can use smart contracts to handle tokens or,
 possibly, even more valuable things.
 Furthermore, every execution of a smart contract happens in public and,
 in addition to that, the source code is often available.
@@ -25,7 +25,7 @@ the compiler or the platform itself might have a bug.
 A list of some publicly known security-relevant bugs of the compiler can be found
 in the :ref:`list of known bugs<known_bugs>`, which is also machine-readable.
 Note that there is a `Bug Bounty Program <https://ethereum.org/en/bug-bounty/>`_
-that covers the code generator of the Solidity compiler.
+that covers the code generator of the Hyperion compiler.
 
 As always, with open-source documentation,
 please help us extend this section (especially, some examples would not hurt)!
@@ -54,10 +54,10 @@ and any transfer of Ether hands over control to that contract (B).
 This makes it possible for B to call back into A before this interaction is completed.
 To give an example, the following code contains a bug (it is just a snippet and not a complete contract):
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.6.0 <0.9.0;
+    pragma hyperion >=0.6.0 <0.9.0;
 
     // THIS CONTRACT CONTAINS A BUG - DO NOT USE
     contract Fund {
@@ -78,10 +78,10 @@ This would let it get multiple refunds and, basically, retrieve all the Ether in
 In particular, the following contract will allow an attacker to refund multiple times
 as it uses ``call`` which forwards all remaining gas by default:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.6.2 <0.9.0;
+    pragma hyperion >=0.6.2 <0.9.0;
 
     // THIS CONTRACT CONTAINS A BUG - DO NOT USE
     contract Fund {
@@ -97,10 +97,10 @@ as it uses ``call`` which forwards all remaining gas by default:
 
 To avoid reentrancy, you can use the Checks-Effects-Interactions pattern as demonstrated below:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.6.0 <0.9.0;
+    pragma hyperion >=0.6.0 <0.9.0;
 
     contract Fund {
         /// @dev Mapping of ether shares of the contract.
@@ -190,7 +190,7 @@ Call Stack Depth
 
 External function calls can fail at any time
 because they exceed the maximum call stack size limit of 1024.
-In such situations, Solidity throws an exception.
+In such situations, Hyperion throws an exception.
 Malicious actors might be able to force the call stack to a high value
 before they interact with your contract.
 Note that, since `Tangerine Whistle <https://eips.ethereum.org/EIPS/eip-608>`_ hardfork,
@@ -211,10 +211,10 @@ Even if you have other protective measures in place, it is best to build your co
 that the proxy does not have any permissions (not even for itself).
 If needed, you can accomplish that using a second proxy:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.0;
+    pragma hyperion ^0.8.0;
     contract ProxyWithMoreFunctionality {
         PermissionlessProxy proxy;
 
@@ -240,10 +240,10 @@ tx.origin
 Never use ``tx.origin`` for authorization.
 Let's say you have a wallet contract like this:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.7.0 <0.9.0;
+    pragma hyperion >=0.7.0 <0.9.0;
     // THIS CONTRACT CONTAINS A BUG - DO NOT USE
     contract TxUserWallet {
         address owner;
@@ -261,10 +261,10 @@ Let's say you have a wallet contract like this:
 
 Now someone tricks you into sending Ether to the address of this attack wallet:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.7.0 <0.9.0;
+    pragma hyperion >=0.7.0 <0.9.0;
     interface TxUserWallet {
         function transferTo(address payable dest, uint amount) external;
     }
@@ -292,19 +292,19 @@ The attack wallet instantly drains all your funds.
 Two's Complement / Underflows / Overflows
 =========================================
 
-As in many programming languages, Solidity's integer types are not actually integers.
+As in many programming languages, Hyperion's integer types are not actually integers.
 They resemble integers when the values are small, but cannot represent arbitrarily large numbers.
 
 The following code causes an overflow because the result of the addition is too large
 to be stored in the type ``uint8``:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
   uint8 x = 255;
   uint8 y = 1;
   return x + y;
 
-Solidity has two modes in which it deals with these overflows: Checked and Unchecked or "wrapping" mode.
+Hyperion has two modes in which it deals with these overflows: Checked and Unchecked or "wrapping" mode.
 
 The default checked mode will detect overflows and cause a failing assertion. You can disable this check
 using ``unchecked { ... }``, causing the overflow to be silently ignored. The above code would return
@@ -325,7 +325,7 @@ Try to use ``require`` to limit the size of inputs to a reasonable range and use
 Clearing Mappings
 =================
 
-The Solidity type ``mapping`` (see :ref:`mapping-types`) is a storage-only key-value data structure
+The Hyperion type ``mapping`` (see :ref:`mapping-types`) is a storage-only key-value data structure
 that does not keep track of the keys that were assigned a non-zero value.
 Because of that, cleaning a mapping without extra information about the written keys is not possible.
 If a ``mapping`` is used as the base type of a dynamic storage array,
@@ -334,10 +334,10 @@ The same happens, for example, if a ``mapping`` is used as the type of a member 
 that is the base type of a dynamic storage array.
 The ``mapping`` is also ignored in assignments of structs or arrays containing a ``mapping``.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.6.0 <0.9.0;
+    pragma hyperion >=0.6.0 <0.9.0;
 
     contract Map {
         mapping(uint => uint)[] array;
@@ -368,7 +368,7 @@ After deleting ``array``, calling ``allocate(5)`` allows us to access ``array[4]
 and calling ``readMap(4, 128)`` returns 256 even without another call to ``writeMap``.
 
 If your ``mapping`` information must be deleted, consider using a library similar to
-`iterable mapping <https://github.com/ethereum/dapp-bin/blob/master/library/iterable_mapping.sol>`_,
+`iterable mapping <https://github.com/theQRL/dapp-bin/blob/master/library/iterable_mapping.hyp>`_,
 allowing you to traverse the keys and delete their values in the appropriate ``mapping``.
 
 Minor Details

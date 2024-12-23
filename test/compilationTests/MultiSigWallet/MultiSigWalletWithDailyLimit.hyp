@@ -1,5 +1,5 @@
-pragma solidity >=0.0;
-import "MultiSigWallet.sol";
+pragma hyperion >=0.0;
+import "MultiSigWallet.hyp";
 
 
 /// @title Multisignature wallet with daily limit - Allows an owner to withdraw a daily limit without multisig.

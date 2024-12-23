@@ -1,33 +1,33 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Stack layout generator for Yul to EVM code generation.
+ * Stack layout generator for Yul to ZVM code generation.
  */
 
-#include <libyul/backends/evm/StackLayoutGenerator.h>
+#include <libyul/backends/zvm/StackLayoutGenerator.h>
 
-#include <libyul/backends/evm/StackHelpers.h>
+#include <libyul/backends/zvm/StackHelpers.h>
 
-#include <libevmasm/GasMeter.h>
+#include <libzvmasm/GasMeter.h>
 
-#include <libsolutil/Algorithms.h>
-#include <libsolutil/cxx20.h>
-#include <libsolutil/Visitor.h>
+#include <libhyputil/Algorithms.h>
+#include <libhyputil/cxx20.h>
+#include <libhyputil/Visitor.h>
 
 #include <range/v3/algorithm/any_of.hpp>
 #include <range/v3/algorithm/find.hpp>
@@ -44,8 +44,8 @@
 #include <range/v3/view/take_last.hpp>
 #include <range/v3/view/transform.hpp>
 
-using namespace solidity;
-using namespace solidity::yul;
+using namespace hyperion;
+using namespace hyperion::yul;
 
 StackLayout StackLayoutGenerator::run(CFG const& _cfg)
 {
@@ -748,18 +748,18 @@ void StackLayoutGenerator::fillInJunk(CFG::BasicBlock const& _block, CFG::Functi
 			if (_swapDepth > 16)
 				opGas += 1000;
 			else
-				opGas += evmasm::GasMeter::runGas(evmasm::swapInstruction(_swapDepth));
+				opGas += zvmasm::GasMeter::runGas(zvmasm::swapInstruction(_swapDepth));
 		};
 		auto dupOrPush = [&](StackSlot const& _slot)
 		{
 			if (canBeFreelyGenerated(_slot))
-				opGas += evmasm::GasMeter::runGas(evmasm::pushInstruction(32));
+				opGas += zvmasm::GasMeter::runGas(zvmasm::pushInstruction(32));
 			else
 			{
 				if (auto depth = util::findOffset(_source | ranges::views::reverse, _slot))
 				{
 					if (*depth < 16)
-						opGas += evmasm::GasMeter::runGas(evmasm::dupInstruction(static_cast<unsigned>(*depth + 1)));
+						opGas += zvmasm::GasMeter::runGas(zvmasm::dupInstruction(static_cast<unsigned>(*depth + 1)));
 					else
 						opGas += 1000;
 				}
@@ -769,13 +769,13 @@ void StackLayoutGenerator::fillInJunk(CFG::BasicBlock const& _block, CFG::Functi
 					// We at least sanity-check that it is among the return variables at all.
 					yulAssert(m_currentFunctionInfo && std::holds_alternative<VariableSlot>(_slot));
 					yulAssert(util::contains(m_currentFunctionInfo->returnVariables, std::get<VariableSlot>(_slot)));
-					// Strictly speaking the cost of the PUSH0 depends on the targeted EVM version, but the difference
+					// Strictly speaking the cost of the PUSH0 depends on the targeted ZVM version, but the difference
 					// will not matter here.
-					opGas += evmasm::GasMeter::runGas(evmasm::pushInstruction(0));;
+					opGas += zvmasm::GasMeter::runGas(zvmasm::pushInstruction(0));;
 				}
 			}
 		};
-		auto pop = [&]() { opGas += evmasm::GasMeter::runGas(evmasm::Instruction::POP); };
+		auto pop = [&]() { opGas += zvmasm::GasMeter::runGas(zvmasm::Instruction::POP); };
 		createStackLayout(_source, _target, swap, dupOrPush, pop);
 		return opGas;
 	};

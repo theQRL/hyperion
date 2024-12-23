@@ -1,8 +1,8 @@
-pragma solidity >=0.0;
-import "../Markets/Market.sol";
-import "../Tokens/Token.sol";
-import "../Events/Event.sol";
-import "../MarketMakers/MarketMaker.sol";
+pragma hyperion >=0.0;
+import "../Markets/Market.hyp";
+import "../Tokens/Token.hyp";
+import "../Events/Event.hyp";
+import "../MarketMakers/MarketMaker.hyp";
 
 
 /// @title Market factory contract - Allows to create market contracts

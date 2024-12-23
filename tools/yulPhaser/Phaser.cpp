@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
@@ -31,18 +31,18 @@
 #include <liblangutil/SourceReferenceFormatter.h>
 #include <liblangutil/Scanner.h>
 
-#include <libsolutil/Assertions.h>
-#include <libsolutil/CommonData.h>
-#include <libsolutil/CommonIO.h>
+#include <libhyputil/Assertions.h>
+#include <libhyputil/CommonData.h>
+#include <libhyputil/CommonIO.h>
 
 #include <iostream>
 
 using namespace std;
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::util;
-using namespace solidity::yul;
-using namespace solidity::phaser;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::util;
+using namespace hyperion::yul;
+using namespace hyperion::phaser;
 
 namespace po = boost::program_options;
 
@@ -187,7 +187,7 @@ unique_ptr<GeneticAlgorithm> GeneticAlgorithmFactory::build(
 			});
 		}
 		default:
-			assertThrow(false, solidity::util::Exception, "Invalid Algorithm value.");
+			assertThrow(false, hyperion::util::Exception, "Invalid Algorithm value.");
 	}
 }
 
@@ -260,7 +260,7 @@ unique_ptr<FitnessMetric> FitnessMetricFactory::build(
 			break;
 		}
 		default:
-			assertThrow(false, solidity::util::Exception, "Invalid MetricChoice value.");
+			assertThrow(false, hyperion::util::Exception, "Invalid MetricChoice value.");
 	}
 
 	switch (_options.metricAggregator)
@@ -274,7 +274,7 @@ unique_ptr<FitnessMetric> FitnessMetricFactory::build(
 		case MetricAggregatorChoice::Minimum:
 			return make_unique<FitnessMetricMinimum>(std::move(metrics));
 		default:
-			assertThrow(false, solidity::util::Exception, "Invalid MetricAggregatorChoice value.");
+			assertThrow(false, hyperion::util::Exception, "Invalid MetricAggregatorChoice value.");
 	}
 
 	// FIXME: Workaround for spurious GCC 12.1 warning (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105794)

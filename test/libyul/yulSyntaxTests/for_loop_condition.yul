@@ -3,5 +3,5 @@
     for {} x {} {}
 }
 // ====
-// dialect: evmTyped
+// dialect: zvmTyped
 // ----

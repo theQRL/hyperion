@@ -1,24 +1,24 @@
-==== Source: A.sol ====
+==== Source: A.hyp ====
 contract A {}
-==== Source: B.sol ====
-pragma experimental solidity;
-import "A.sol";
+==== Source: B.hyp ====
+pragma experimental hyperion;
+import "A.hyp";
 contract B {
     A a;
 }
-==== Source: C.sol ====
-pragma experimental solidity;
-import "A.sol";
+==== Source: C.hyp ====
+pragma experimental hyperion;
+import "A.hyp";
 contract C {
     A a;
 }
-==== Source: D.sol ====
-pragma experimental solidity;
-import "A.sol";
+==== Source: D.hyp ====
+pragma experimental hyperion;
+import "A.hyp";
 contract D {
     A a;
 }
 // ----
-// ParserError 2141: (B.sol:0-29): File declares "pragma experimental solidity". If you want to enable the experimental mode, all source units must include the pragma.
-// ParserError 2141: (C.sol:0-29): File declares "pragma experimental solidity". If you want to enable the experimental mode, all source units must include the pragma.
-// ParserError 2141: (D.sol:0-29): File declares "pragma experimental solidity". If you want to enable the experimental mode, all source units must include the pragma.
+// ParserError 2141: (B.hyp:0-29): File declares "pragma experimental hyperion". If you want to enable the experimental mode, all source units must include the pragma.
+// ParserError 2141: (C.hyp:0-29): File declares "pragma experimental hyperion". If you want to enable the experimental mode, all source units must include the pragma.
+// ParserError 2141: (D.hyp:0-29): File declares "pragma experimental hyperion". If you want to enable the experimental mode, all source units must include the pragma.

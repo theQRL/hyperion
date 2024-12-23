@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
@@ -23,16 +23,16 @@
 
 #pragma once
 
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
-#include <libevmasm/Assembly.h>
-#include <libevmasm/GasMeter.h>
+#include <libzvmasm/Assembly.h>
+#include <libzvmasm/GasMeter.h>
 
 #include <array>
 #include <map>
 #include <vector>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 class ASTNode;
@@ -41,17 +41,17 @@ class FunctionDefinition;
 struct GasEstimator
 {
 public:
-	using GasConsumption = evmasm::GasMeter::GasConsumption;
+	using GasConsumption = zvmasm::GasMeter::GasConsumption;
 	using ASTGasConsumption = std::map<ASTNode const*, GasConsumption>;
 	using ASTGasConsumptionSelfAccumulated =
 		std::map<ASTNode const*, std::array<GasConsumption, 2>>;
 
-	explicit GasEstimator(langutil::EVMVersion _evmVersion): m_evmVersion(_evmVersion) {}
+	explicit GasEstimator(langutil::ZVMVersion _zvmVersion): m_zvmVersion(_zvmVersion) {}
 
 	/// @returns the estimated gas consumption by the (public or external) function with the
 	/// given signature. If no signature is given, estimates the maximum gas usage.
 	GasConsumption functionalEstimation(
-		evmasm::AssemblyItems const& _items,
+		zvmasm::AssemblyItems const& _items,
 		std::string const& _signature = ""
 	) const;
 
@@ -59,7 +59,7 @@ public:
 	/// offset into the list of assembly items.
 	/// @note this does not work correctly for recursive functions.
 	GasConsumption functionalEstimation(
-		evmasm::AssemblyItems const& _items,
+		zvmasm::AssemblyItems const& _items,
 		size_t const& _offset,
 		FunctionDefinition const& _function
 	) const;
@@ -67,7 +67,7 @@ public:
 private:
 	/// @returns the set of AST nodes which are the finest nodes at their location.
 	static std::set<ASTNode const*> finestNodesAtLocation(std::vector<ASTNode const*> const& _roots);
-	langutil::EVMVersion m_evmVersion;
+	langutil::ZVMVersion m_zvmVersion;
 };
 
 }

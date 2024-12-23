@@ -19,7 +19,7 @@ REPO_ROOT="$(dirname "$0")"/..
     fi
 
     TEMPDIR=$(mktemp -d)
-    SOLDIR="$TEMPDIR/solidity_$versionstring/"
+    SOLDIR="$TEMPDIR/hyperion_$versionstring/"
     mkdir "$SOLDIR"
     # Store the current source
     git checkout-index -a --prefix="$SOLDIR"
@@ -41,6 +41,6 @@ REPO_ROOT="$(dirname "$0")"/..
         exit 1
     fi
     mkdir -p "$REPO_ROOT/upload"
-    tar --owner 0 --group 0 -czf "$REPO_ROOT/upload/solidity_$versionstring.tar.gz" -C "$TEMPDIR" "solidity_$versionstring"
+    tar --owner 0 --group 0 -czf "$REPO_ROOT/upload/hyperion_$versionstring.tar.gz" -C "$TEMPDIR" "hyperion_$versionstring"
     rm -r "$TEMPDIR"
 )

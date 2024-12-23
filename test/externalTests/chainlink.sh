@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 
 # ------------------------------------------------------------------------------
-# This file is part of solidity.
+# This file is part of hyperion.
 #
-# solidity is free software: you can redistribute it and/or modify
+# hyperion is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# solidity is distributed in the hope that it will be useful,
+# hyperion is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+# along with hyperion.  If not, see <http://www.gnu.org/licenses/>
 #
-# (c) 2022 solidity contributors.
+# (c) 2022 hyperion contributors.
 #------------------------------------------------------------------------------
 
 set -e
@@ -48,16 +48,16 @@ function chainlink_test
     local settings_presets=(
         "${compile_only_presets[@]}"
         #ir-no-optimize           # Compilation fails with "YulException: Variable expr_10724_mpos is 2 too deep in the stack". No memoryguard was present.
-        #ir-optimize-evm-only     # Compilation fails with "YulException: Variable expr_1891_mpos is 2 too deep in the stack". No memoryguard was present.
-        ir-optimize-evm+yul
-        legacy-optimize-evm-only  # NOTE: This requires >= 4 GB RAM in CI not to crash
-        legacy-optimize-evm+yul   # NOTE: This requires >= 4 GB RAM in CI not to crash
+        #ir-optimize-zvm-only     # Compilation fails with "YulException: Variable expr_1891_mpos is 2 too deep in the stack". No memoryguard was present.
+        ir-optimize-zvm+yul
+        legacy-optimize-zvm-only  # NOTE: This requires >= 4 GB RAM in CI not to crash
+        legacy-optimize-zvm+yul   # NOTE: This requires >= 4 GB RAM in CI not to crash
     )
 
     [[ $SELECTED_PRESETS != "" ]] || SELECTED_PRESETS=$(circleci_select_steps_multiarg "${settings_presets[@]}")
     print_presets_or_exit "$SELECTED_PRESETS"
 
-    setup_solc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"
+    setup_hypc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"
     download_project "$repo" "$ref_type" "$ref" "$DIR"
 
     cd "contracts/"

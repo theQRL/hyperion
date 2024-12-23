@@ -1,5 +1,5 @@
-pragma solidity >=0.0;
-import "../Oracles/UltimateOracle.sol";
+pragma hyperion >=0.0;
+import "../Oracles/UltimateOracle.hyp";
 
 
 /// @title Ultimate oracle factory contract - Allows to create ultimate oracle contracts

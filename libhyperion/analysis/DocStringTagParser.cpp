@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
  * @author Christian <c@ethdev.com>
@@ -21,11 +21,11 @@
  * Stores the parsing results in the AST annotations and reports errors.
  */
 
-#include <libsolidity/analysis/DocStringTagParser.h>
+#include <libhyperion/analysis/DocStringTagParser.h>
 
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/parsing/DocStringParser.h>
-#include <libsolidity/analysis/NameAndTypeResolver.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/parsing/DocStringParser.h>
+#include <libhyperion/analysis/NameAndTypeResolver.h>
 #include <liblangutil/ErrorReporter.h>
 #include <liblangutil/Common.h>
 
@@ -37,9 +37,9 @@
 #include <regex>
 #include <string_view>
 
-using namespace solidity;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
 bool DocStringTagParser::parseDocStrings(SourceUnit const& _sourceUnit)
 {
@@ -190,7 +190,7 @@ bool DocStringTagParser::visit(InlineAssembly const& _assembly)
 
 	for (auto const& [tagName, tagValue]: docTags)
 	{
-		if (tagName == "solidity")
+		if (tagName == "hyperion")
 		{
 			std::vector<std::string> values;
 			boost::split(values, tagValue.content, isWhiteSpace);
@@ -216,14 +216,14 @@ bool DocStringTagParser::visit(InlineAssembly const& _assembly)
 						m_errorReporter.warning(
 							8787_error,
 							_assembly.location(),
-							"Unexpected value for @solidity tag in inline assembly: " + value
+							"Unexpected value for @hyperion tag in inline assembly: " + value
 						);
 				}
 				else if (duplicates.insert(value).second)
 					m_errorReporter.warning(
 						4377_error,
 						_assembly.location(),
-						"Value for @solidity tag in inline assembly specified multiple times: " + value
+						"Value for @hyperion tag in inline assembly specified multiple times: " + value
 					);
 		}
 		else

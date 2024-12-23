@@ -5,7 +5,7 @@
 Errors and the Revert Statement
 *******************************
 
-Errors in Solidity provide a convenient and gas-efficient way to explain to the
+Errors in Hyperion provide a convenient and gas-efficient way to explain to the
 user why an operation failed. They can be defined inside and outside of contracts (including interfaces and libraries).
 
 They have to be used together with the :ref:`revert statement <revert-statement>`
@@ -13,10 +13,10 @@ which causes
 all changes in the current call to be reverted and passes the error data back to the
 caller.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.8.4;
+    pragma hyperion ^0.8.4;
 
     /// Insufficient balance for transfer. Needed `required` but only
     /// `available` available.

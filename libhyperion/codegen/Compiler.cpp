@@ -1,33 +1,33 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Solidity compiler.
+ * Hyperion compiler.
  */
 
-#include <libsolidity/codegen/Compiler.h>
+#include <libhyperion/codegen/Compiler.h>
 
-#include <libsolidity/codegen/ContractCompiler.h>
-#include <libevmasm/Assembly.h>
+#include <libhyperion/codegen/ContractCompiler.h>
+#include <libzvmasm/Assembly.h>
 
-using namespace solidity;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::frontend;
 
 void Compiler::compileContract(
 	ContractDefinition const& _contract,
@@ -50,12 +50,12 @@ void Compiler::compileContract(
 
 	m_context.optimise(m_optimiserSettings);
 
-	solAssert(m_context.appendYulUtilityFunctionsRan(), "appendYulUtilityFunctions() was not called.");
-	solAssert(m_runtimeContext.appendYulUtilityFunctionsRan(), "appendYulUtilityFunctions() was not called.");
+	hypAssert(m_context.appendYulUtilityFunctionsRan(), "appendYulUtilityFunctions() was not called.");
+	hypAssert(m_runtimeContext.appendYulUtilityFunctionsRan(), "appendYulUtilityFunctions() was not called.");
 }
 
-std::shared_ptr<evmasm::Assembly> Compiler::runtimeAssemblyPtr() const
+std::shared_ptr<zvmasm::Assembly> Compiler::runtimeAssemblyPtr() const
 {
-	solAssert(m_context.runtimeContext(), "");
+	hypAssert(m_context.runtimeContext(), "");
 	return m_context.runtimeContext()->assemblyPtr();
 }

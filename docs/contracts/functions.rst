@@ -12,10 +12,10 @@ Functions outside of a contract, also called "free functions", always have impli
 :ref:`visibility<visibility-and-getters>`. Their code is included in all contracts
 that call them, similar to internal library functions.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.7.1 <0.9.0;
+    pragma hyperion >=0.7.1 <0.9.0;
 
     function sum(uint[] memory arr) pure returns (uint s) {
         for (uint i = 0; i < arr.length; i++)
@@ -58,10 +58,10 @@ unused parameters can be omitted.
 For example, if you want your contract to accept one kind of external call
 with two integers, you would use something like the following:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     contract Simple {
         uint sum;
@@ -83,10 +83,10 @@ Function return variables are declared with the same syntax after the
 For example, suppose you want to return two results: the sum and the product of
 two integers passed as function parameters, then you use something like:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     contract Simple {
         function arithmetic(uint a, uint b)
@@ -110,10 +110,10 @@ or you can provide return values
 (either a single or :ref:`multiple ones<multi-return>`) directly with the ``return``
 statement:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     contract Simple {
         function arithmetic(uint a, uint b)
@@ -165,7 +165,7 @@ Functions can be declared ``view`` in which case they promise not to modify the 
 
 .. note::
   The opcode ``STATICCALL`` is used when ``view`` functions are called, which enforces the
-  state to stay unmodified as part of the EVM execution. For library ``view`` functions
+  state to stay unmodified as part of the ZVM execution. For library ``view`` functions
   ``DELEGATECALL`` is used, because there is no combined ``DELEGATECALL`` and ``STATICCALL``.
   This means library ``view`` functions do not have run-time checks that prevent state
   modifications. This should not impact security negatively because library code is
@@ -181,10 +181,10 @@ The following statements are considered modifying the state:
 #. Using low-level calls.
 #. Using inline assembly that contains certain opcodes.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.5.0 <0.9.0;
+    pragma hyperion >=0.5.0 <0.9.0;
 
     contract C {
         function f(uint a, uint b) public view returns (uint) {
@@ -204,7 +204,7 @@ The following statements are considered modifying the state:
   This enabled state modifications in ``view`` functions through the use of
   invalid explicit type conversions.
   By using  ``STATICCALL`` for ``view`` functions, modifications to the
-  state are prevented on the level of the EVM.
+  state are prevented on the level of the ZVM.
 
 .. index:: ! pure function, function;pure
 
@@ -230,10 +230,10 @@ In addition to the list of state modifying statements explained above, the follo
 #. Calling any function not marked ``pure``.
 #. Using inline assembly that contains certain opcodes.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.5.0 <0.9.0;
+    pragma hyperion >=0.5.0 <0.9.0;
 
     contract C {
         function f(uint a, uint b) public pure returns (uint) {
@@ -252,8 +252,8 @@ This behavior is also in line with the ``STATICCALL`` opcode.
 
 .. warning::
   It is not possible to prevent functions from reading the state at the level
-  of the EVM, it is only possible to prevent them from writing to the state
-  (i.e. only ``view`` can be enforced at the EVM level, ``pure`` can not).
+  of the ZVM, it is only possible to prevent them from writing to the state
+  (i.e. only ``view`` can be enforced at the ZVM level, ``pure`` can not).
 
 .. note::
   Prior to version 0.5.0, the compiler did not use the ``STATICCALL`` opcode
@@ -261,7 +261,7 @@ This behavior is also in line with the ``STATICCALL`` opcode.
   This enabled state modifications in ``pure`` functions through the use of
   invalid explicit type conversions.
   By using  ``STATICCALL`` for ``pure`` functions, modifications to the
-  state are prevented on the level of the EVM.
+  state are prevented on the level of the ZVM.
 
 .. note::
   Prior to version 0.4.17 the compiler did not enforce that ``pure`` is not reading the state.
@@ -312,7 +312,7 @@ will consume more gas than the 2300 gas stipend:
     When Ether is sent directly to a contract (without a function call, i.e. sender uses ``send`` or ``transfer``)
     but the receiving contract does not define a receive Ether function or a payable fallback function,
     an exception will be thrown, sending back the Ether (this was different
-    before Solidity v0.4.0). If you want your contract to receive Ether,
+    before Hyperion v0.4.0). If you want your contract to receive Ether,
     you have to implement a receive Ether function (using payable fallback functions for receiving Ether is
     not recommended, since the fallback is invoked and would not fail for interface confusions
     on the part of the sender).
@@ -323,8 +323,8 @@ will consume more gas than the 2300 gas stipend:
     recipient of a *coinbase transaction* (aka *miner block reward*).
 
     A contract cannot react to such Ether transfers and thus also
-    cannot reject them. This is a design choice of the EVM and
-    Solidity cannot work around it.
+    cannot reject them. This is a design choice of the ZVM and
+    Hyperion cannot work around it.
 
     It also means that ``address(this).balance`` can be higher
     than the sum of some manual accounting implemented in a
@@ -332,10 +332,10 @@ will consume more gas than the 2300 gas stipend:
 
 Below you can see an example of a Sink contract that uses function ``receive``.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.6.0 <0.9.0;
+    pragma hyperion >=0.6.0 <0.9.0;
 
     // This contract keeps all Ether sent to it with no way
     // to get it back.
@@ -394,10 +394,10 @@ operations as long as there is enough gas passed on to it.
     proper functions should be used instead.
 
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.6.2 <0.9.0;
+    pragma hyperion >=0.6.2 <0.9.0;
 
     contract Test {
         uint x;
@@ -472,10 +472,10 @@ This process is called "overloading" and also applies to inherited functions.
 The following example shows overloading of the function
 ``f`` in the scope of contract ``A``.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     contract A {
         function f(uint value) public pure returns (uint out) {
@@ -489,12 +489,12 @@ The following example shows overloading of the function
     }
 
 Overloaded functions are also present in the external interface. It is an error if two
-externally visible functions differ by their Solidity types but not by their external types.
+externally visible functions differ by their Hyperion types but not by their external types.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     // This will not compile
     contract A {
@@ -512,7 +512,7 @@ externally visible functions differ by their Solidity types but not by their ext
 
 
 Both ``f`` function overloads above end up accepting the address type for the ABI although
-they are considered different inside Solidity.
+they are considered different inside Hyperion.
 
 Overload resolution and Argument matching
 -----------------------------------------
@@ -525,10 +525,10 @@ candidate, resolution fails.
 .. note::
     Return parameters are not taken into account for overload resolution.
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
     contract A {
         function f(uint8 val) public pure returns (uint8 out) {

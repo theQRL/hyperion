@@ -1,34 +1,34 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Component that translates Solidity code into Yul at statement level and below.
+ * Component that translates Hyperion code into Yul at statement level and below.
  */
 
 #pragma once
 
-#include <libsolidity/ast/ASTVisitor.h>
-#include <libsolidity/codegen/ir/IRLValue.h>
-#include <libsolidity/codegen/ir/IRVariable.h>
-#include <libsolidity/interface/OptimiserSettings.h>
+#include <libhyperion/ast/ASTVisitor.h>
+#include <libhyperion/codegen/ir/IRLValue.h>
+#include <libhyperion/codegen/ir/IRVariable.h>
+#include <libhyperion/interface/OptimiserSettings.h>
 
 #include <functional>
 
-namespace solidity::frontend
+namespace hyperion::frontend
 {
 
 class IRGenerationContext;
@@ -57,7 +57,7 @@ private:
 };
 
 /**
- * Component that translates Solidity's AST into Yul at statement level and below.
+ * Component that translates Hyperion's AST into Yul at statement level and below.
  * It is an AST visitor that appends to an internal string buffer.
  */
 class IRGeneratorForStatements: public IRGeneratorForStatementsBase

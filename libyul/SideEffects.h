@@ -1,18 +1,18 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <set>
 
-namespace solidity::yul
+namespace hyperion::yul
 {
 
 /**
@@ -51,7 +51,7 @@ struct SideEffects
 	/// called multiple times, their calls can be rearranged and calls can also be
 	/// deleted without changing the semantics.
 	/// This means it cannot depend on storage or memory, cannot have any side-effects,
-	/// but it can depend on state that is constant across an EVM-call.
+	/// but it can depend on state that is constant across an ZVM-call.
 	bool movable = true;
 	/// If true, the expressions in this code can be moved or copied (together with their arguments)
 	/// across control flow branches and instructions as long as these instructions' 'effects' do

@@ -1,30 +1,30 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * Utilities to handle the Contract ABI (https://docs.soliditylang.org/en/develop/abi-spec.html)
  */
 
-#include <libsolidity/interface/ABI.h>
+#include <libhyperion/interface/ABI.h>
 
-#include <libsolidity/ast/AST.h>
+#include <libhyperion/ast/AST.h>
 
-using namespace solidity;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::frontend;
 
 namespace
 {
@@ -54,7 +54,7 @@ Json::Value ABI::generate(ContractDefinition const& _contractDef)
 			continue;
 
 		FunctionType const* externalFunctionType = it.second->interfaceFunctionType();
-		solAssert(!!externalFunctionType, "");
+		hypAssert(!!externalFunctionType, "");
 		Json::Value method{Json::objectValue};
 		method["type"] = "function";
 		method["name"] = it.second->declaration().name();
@@ -78,7 +78,7 @@ Json::Value ABI::generate(ContractDefinition const& _contractDef)
 	{
 		FunctionType constrType(*constructor);
 		FunctionType const* externalFunctionType = constrType.interfaceFunctionType();
-		solAssert(!!externalFunctionType, "");
+		hypAssert(!!externalFunctionType, "");
 		Json::Value method{Json::objectValue};
 		method["type"] = "constructor";
 		method["stateMutability"] = stateMutabilityToString(externalFunctionType->stateMutability());
@@ -94,7 +94,7 @@ Json::Value ABI::generate(ContractDefinition const& _contractDef)
 		if (fallbackOrReceive)
 		{
 			auto const* externalFunctionType = FunctionType(*fallbackOrReceive).interfaceFunctionType();
-			solAssert(!!externalFunctionType, "");
+			hypAssert(!!externalFunctionType, "");
 			Json::Value method{Json::objectValue};
 			method["type"] = TokenTraits::toString(fallbackOrReceive->kind());
 			method["stateMutability"] = stateMutabilityToString(externalFunctionType->stateMutability());
@@ -110,7 +110,7 @@ Json::Value ABI::generate(ContractDefinition const& _contractDef)
 		for (auto const& p: it->parameters())
 		{
 			Type const* type = p->annotation().type->interfaceType(false);
-			solAssert(type, "");
+			hypAssert(type, "");
 			auto param = formatType(p->name(), *type, *p->annotation().type, false);
 			param["indexed"] = p->isIndexed();
 			params.append(std::move(param));
@@ -128,7 +128,7 @@ Json::Value ABI::generate(ContractDefinition const& _contractDef)
 		for (auto const& p: error->parameters())
 		{
 			Type const* type = p->annotation().type->interfaceType(false);
-			solAssert(type, "");
+			hypAssert(type, "");
 			errorJson["inputs"].append(
 				formatType(p->name(), *type, *p->annotation().type, false)
 			);
@@ -145,17 +145,17 @@ Json::Value ABI::generate(ContractDefinition const& _contractDef)
 Json::Value ABI::formatTypeList(
 	std::vector<std::string> const& _names,
 	std::vector<Type const*> const& _encodingTypes,
-	std::vector<Type const*> const& _solidityTypes,
+	std::vector<Type const*> const& _hyperionTypes,
 	bool _forLibrary
 )
 {
 	Json::Value params{Json::arrayValue};
-	solAssert(_names.size() == _encodingTypes.size(), "Names and types vector size does not match");
-	solAssert(_names.size() == _solidityTypes.size(), "");
+	hypAssert(_names.size() == _encodingTypes.size(), "Names and types vector size does not match");
+	hypAssert(_names.size() == _hyperionTypes.size(), "");
 	for (unsigned i = 0; i < _names.size(); ++i)
 	{
-		solAssert(_encodingTypes[i], "");
-		params.append(formatType(_names[i], *_encodingTypes[i], *_solidityTypes[i], _forLibrary));
+		hypAssert(_encodingTypes[i], "");
+		params.append(formatType(_names[i], *_encodingTypes[i], *_hyperionTypes[i], _forLibrary));
 	}
 	return params;
 }
@@ -163,13 +163,13 @@ Json::Value ABI::formatTypeList(
 Json::Value ABI::formatType(
 	std::string const& _name,
 	Type const& _encodingType,
-	Type const& _solidityType,
+	Type const& _hyperionType,
 	bool _forLibrary
 )
 {
 	Json::Value ret{Json::objectValue};
 	ret["name"] = _name;
-	ret["internalType"] = _solidityType.toString(true);
+	ret["internalType"] = _hyperionType.toString(true);
 	std::string suffix = (_forLibrary && _encodingType.dataStoredIn(DataLocation::Storage)) ? " storage" : "";
 	if (_encodingType.isValueType() || (_forLibrary && _encodingType.dataStoredIn(DataLocation::Storage)))
 		ret["type"] = _encodingType.canonicalName() + suffix;
@@ -184,11 +184,11 @@ Json::Value ABI::formatType(
 				suffix = "[]";
 			else
 				suffix = std::string("[") + arrayType->length().str() + "]";
-			solAssert(arrayType->baseType(), "");
+			hypAssert(arrayType->baseType(), "");
 			Json::Value subtype = formatType(
 				"",
 				*arrayType->baseType(),
-				*dynamic_cast<ArrayType const&>(_solidityType).baseType(),
+				*dynamic_cast<ArrayType const&>(_hyperionType).baseType(),
 				_forLibrary
 			);
 			if (subtype.isMember("components"))
@@ -206,13 +206,13 @@ Json::Value ABI::formatType(
 		ret["components"] = Json::arrayValue;
 		for (auto const& member: structType->members(nullptr))
 		{
-			solAssert(member.type, "");
+			hypAssert(member.type, "");
 			Type const* t = member.type->interfaceType(_forLibrary);
-			solAssert(t, "");
+			hypAssert(t, "");
 			ret["components"].append(formatType(member.name, *t, *member.type, _forLibrary));
 		}
 	}
 	else
-		solAssert(false, "Invalid type.");
+		hypAssert(false, "Invalid type.");
 	return ret;
 }

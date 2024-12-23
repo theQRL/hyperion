@@ -1,7 +1,7 @@
 {
-	"language": "Solidity",
+	"language": "Hyperion",
 	"sources": {
-		"A": {"urls": ["standard_optimizer_yulDetails_optimiserSteps_without_yul/in.sol"]}
+		"A": {"urls": ["standard_optimizer_yulDetails_optimiserSteps_without_yul/in.hyp"]}
 	},
 	"settings": {
 		"optimizer": {"details": {"yulDetails": 7}

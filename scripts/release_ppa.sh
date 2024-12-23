@@ -9,7 +9,7 @@
 ## If the given branch is "release", the resulting package will be uploaded to
 ## ethereum/ethereum PPA, or ethereum/ethereum-dev PPA otherwise.
 ##
-## It will clone the Solidity git from github, determine the version,
+## It will clone the Hyperion git from github, determine the version,
 ## create a source archive and push it to the ubuntu ppa servers.
 ##
 ## To interact with launchpad, you need to set the variables $LAUNCHPAD_EMAIL
@@ -63,7 +63,7 @@ is_release() {
 
 sourcePPAConfig
 
-packagename=solc
+packagename=hypc
 
 # This needs to be a still active release
 static_build_distribution=focal
@@ -93,7 +93,7 @@ if [ "$distribution" = STATIC ]
 then
     pparepo=ethereum-static
     SMTDEPENDENCY=""
-    CMAKE_OPTIONS="-DSOLC_LINK_STATIC=On -DCMAKE_EXE_LINKER_FLAGS=-static"
+    CMAKE_OPTIONS="-DHYPC_LINK_STATIC=On -DCMAKE_EXE_LINKER_FLAGS=-static"
 else
     if is_release
     then
@@ -117,20 +117,20 @@ else
     fi
     CMAKE_OPTIONS=""
 fi
-ppafilesurl=https://launchpad.net/~ethereum/+archive/ubuntu/${pparepo}/+files
+ppafilesurl=https://launchpad.net/~theqrl/+archive/ubuntu/${pparepo}/+files
 
 # Fetch source
-git clone --depth 2 --recursive https://github.com/ethereum/solidity.git -b "$branch"
-mv solidity solc
+git clone --depth 2 --recursive https://github.com/theQRL/hyperion.git -b "$branch"
+mv hyperion hypc
 
 # Fetch dependencies
-mkdir -p ./solc/deps/downloads/ 2>/dev/null || true
-wget -O ./solc/deps/downloads/jsoncpp-1.9.3.tar.gz https://github.com/open-source-parsers/jsoncpp/archive/1.9.3.tar.gz
-wget -O ./solc/deps/downloads/range-v3-0.12.0.tar.gz https://github.com/ericniebler/range-v3/archive/0.12.0.tar.gz
-wget -O ./solc/deps/downloads/fmt-9.1.0.tar.gz https://github.com/fmtlib/fmt/archive/9.1.0.tar.gz
+mkdir -p ./hypc/deps/downloads/ 2>/dev/null || true
+wget -O ./hypc/deps/downloads/jsoncpp-1.9.3.tar.gz https://github.com/open-source-parsers/jsoncpp/archive/1.9.3.tar.gz
+wget -O ./hypc/deps/downloads/range-v3-0.12.0.tar.gz https://github.com/ericniebler/range-v3/archive/0.12.0.tar.gz
+wget -O ./hypc/deps/downloads/fmt-9.1.0.tar.gz https://github.com/fmtlib/fmt/archive/9.1.0.tar.gz
 
 # Determine version
-cd solc
+cd hypc
 version=$("$(dirname "$0")/get_version.sh")
 commithash=$(git rev-parse --short=8 HEAD)
 commitdate=$(git show --format=%ci HEAD | head -n 1 | cut - -b1-10 | sed -e 's/-0?/./' | sed -e 's/-0?/./')
@@ -158,7 +158,7 @@ cp "/tmp/${packagename}_${debversion}.orig.tar.gz" ../
 mkdir debian
 echo 9 > debian/compat
 cat <<EOF > debian/control
-Source: solc
+Source: hypc
 Section: science
 Priority: extra
 Maintainer: Christian (Buildserver key) <builds@ethereum.org>
@@ -172,17 +172,17 @@ Build-Depends: ${SMTDEPENDENCY}debhelper (>= 9.0.0),
                libtool,
                scons
 Standards-Version: 3.9.5
-Homepage: https://ethereum.org
-Vcs-Git: https://github.com/ethereum/solidity.git
-Vcs-Browser: https://github.com/ethereum/solidity
+Homepage: https://theqrl.org
+Vcs-Git: https://github.com/theQRL/hyperion.git
+Vcs-Browser: https://github.com/theQRL/hyperion
 
-Package: solc
+Package: hypc
 Architecture: any-amd64
 Multi-Arch: same
 Depends: \${shlibs:Depends}, \${misc:Depends}
 Conflicts: libethereum (<= 1.2.9)
-Description: Solidity compiler.
- The commandline interface to the Solidity smart contract compiler.
+Description: Hyperion compiler.
+ The commandline interface to the Hyperion smart contract compiler.
 EOF
 cat <<EOF > debian/rules
 #!/usr/bin/make -f
@@ -221,8 +221,8 @@ override_dh_auto_configure:
 EOF
 cat <<EOF > debian/copyright
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: solc
-Source: https://github.com/ethereum/solidity
+Upstream-Name: hypc
+Source: https://github.com/theQRL/solidity
 
 Files: *
 Copyright: 2014-2016 Ethereum
@@ -250,7 +250,7 @@ License: GPL-3.0+
  Public License version 3 can be found in "/usr/share/common-licenses/GPL-3".
 EOF
 cat <<EOF > debian/changelog
-solc (0.0.1-0ubuntu1) saucy; urgency=low
+hypc (0.0.1-0ubuntu1) saucy; urgency=low
 
   * Initial release.
 

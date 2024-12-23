@@ -1,28 +1,28 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <libsolidity/analysis/ControlFlowBuilder.h>
-#include <libsolidity/ast/ASTUtils.h>
+#include <libhyperion/analysis/ControlFlowBuilder.h>
+#include <libhyperion/ast/ASTUtils.h>
 #include <libyul/AST.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 
-using namespace solidity::langutil;
-using namespace solidity::frontend;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
 
 ControlFlowBuilder::ControlFlowBuilder(CFG::NodeContainer& _nodeContainer, FunctionFlow const& _functionFlow, ContractDefinition const* _contract):
 	m_nodeContainer(_nodeContainer),
@@ -54,7 +54,7 @@ std::unique_ptr<FunctionFlow> ControlFlowBuilder::createFunctionFlow(
 
 bool ControlFlowBuilder::visit(BinaryOperation const& _operation)
 {
-	solAssert(!!m_currentNode, "");
+	hypAssert(!!m_currentNode, "");
 
 	switch (_operation.getOperator())
 	{
@@ -62,7 +62,7 @@ bool ControlFlowBuilder::visit(BinaryOperation const& _operation)
 		case Token::And:
 		{
 			visitNode(_operation);
-			solAssert(*_operation.annotation().userDefinedFunction == nullptr);
+			hypAssert(*_operation.annotation().userDefinedFunction == nullptr);
 			appendControlFlow(_operation.leftExpression());
 
 			auto nodes = splitFlow<2>();
@@ -93,7 +93,7 @@ bool ControlFlowBuilder::visit(BinaryOperation const& _operation)
 
 bool ControlFlowBuilder::visit(UnaryOperation const& _operation)
 {
-	solAssert(!!m_currentNode);
+	hypAssert(!!m_currentNode);
 
 	if (*_operation.annotation().userDefinedFunction != nullptr)
 	{
@@ -113,7 +113,7 @@ bool ControlFlowBuilder::visit(UnaryOperation const& _operation)
 
 bool ControlFlowBuilder::visit(Conditional const& _conditional)
 {
-	solAssert(!!m_currentNode, "");
+	hypAssert(!!m_currentNode, "");
 	visitNode(_conditional);
 
 	_conditional.condition().accept(*this);
@@ -142,7 +142,7 @@ bool ControlFlowBuilder::visit(TryStatement const& _tryStatement)
 
 bool ControlFlowBuilder::visit(IfStatement const& _ifStatement)
 {
-	solAssert(!!m_currentNode, "");
+	hypAssert(!!m_currentNode, "");
 	visitNode(_ifStatement);
 
 	_ifStatement.condition().accept(*this);
@@ -163,7 +163,7 @@ bool ControlFlowBuilder::visit(IfStatement const& _ifStatement)
 
 bool ControlFlowBuilder::visit(ForStatement const& _forStatement)
 {
-	solAssert(!!m_currentNode, "");
+	hypAssert(!!m_currentNode, "");
 	visitNode(_forStatement);
 
 	if (_forStatement.initializationExpression())
@@ -197,7 +197,7 @@ bool ControlFlowBuilder::visit(ForStatement const& _forStatement)
 
 bool ControlFlowBuilder::visit(WhileStatement const& _whileStatement)
 {
-	solAssert(!!m_currentNode, "");
+	hypAssert(!!m_currentNode, "");
 	visitNode(_whileStatement);
 
 	if (_whileStatement.isDoWhile())
@@ -245,8 +245,8 @@ bool ControlFlowBuilder::visit(WhileStatement const& _whileStatement)
 
 bool ControlFlowBuilder::visit(Break const& _break)
 {
-	solAssert(!!m_currentNode, "");
-	solAssert(!!m_breakJump, "");
+	hypAssert(!!m_currentNode, "");
+	hypAssert(!!m_breakJump, "");
 	visitNode(_break);
 	connect(m_currentNode, m_breakJump);
 	m_currentNode = newLabel();
@@ -255,8 +255,8 @@ bool ControlFlowBuilder::visit(Break const& _break)
 
 bool ControlFlowBuilder::visit(Continue const& _continue)
 {
-	solAssert(!!m_currentNode, "");
-	solAssert(!!m_continueJump, "");
+	hypAssert(!!m_currentNode, "");
+	hypAssert(!!m_continueJump, "");
 	visitNode(_continue);
 	connect(m_currentNode, m_continueJump);
 	m_currentNode = newLabel();
@@ -265,8 +265,8 @@ bool ControlFlowBuilder::visit(Continue const& _continue)
 
 bool ControlFlowBuilder::visit(RevertStatement const& _revert)
 {
-	solAssert(!!m_currentNode, "");
-	solAssert(!!m_revertNode, "");
+	hypAssert(!!m_currentNode, "");
+	hypAssert(!!m_revertNode, "");
 	visitNode(_revert);
 	connect(m_currentNode, m_revertNode);
 	m_currentNode = newLabel();
@@ -275,9 +275,9 @@ bool ControlFlowBuilder::visit(RevertStatement const& _revert)
 
 bool ControlFlowBuilder::visit(PlaceholderStatement const&)
 {
-	solAssert(!!m_currentNode, "");
-	solAssert(!!m_placeholderEntry, "");
-	solAssert(!!m_placeholderExit, "");
+	hypAssert(!!m_currentNode, "");
+	hypAssert(!!m_placeholderEntry, "");
+	hypAssert(!!m_placeholderExit, "");
 
 	connect(m_currentNode, m_placeholderEntry);
 	m_currentNode = newLabel();
@@ -287,9 +287,9 @@ bool ControlFlowBuilder::visit(PlaceholderStatement const&)
 
 bool ControlFlowBuilder::visit(FunctionCall const& _functionCall)
 {
-	solAssert(!!m_revertNode, "");
-	solAssert(!!m_currentNode, "");
-	solAssert(!!_functionCall.expression().annotation().type, "");
+	hypAssert(!!m_revertNode, "");
+	hypAssert(!!m_currentNode, "");
+	hypAssert(!!_functionCall.expression().annotation().type, "");
 
 	if (auto functionType = dynamic_cast<FunctionType const*>(_functionCall.expression().annotation().type))
 		switch (functionType->kind())
@@ -341,7 +341,7 @@ bool ControlFlowBuilder::visit(FunctionCall const& _functionCall)
 
 bool ControlFlowBuilder::visit(ModifierInvocation const& _modifierInvocation)
 {
-	solAssert(m_contract, "Free functions cannot have modifiers");
+	hypAssert(m_contract, "Free functions cannot have modifiers");
 
 	if (auto arguments = _modifierInvocation.arguments())
 		for (auto& argument: *arguments)
@@ -359,12 +359,12 @@ bool ControlFlowBuilder::visit(ModifierInvocation const& _modifierInvocation)
 	if (requiredLookup == VirtualLookup::Virtual)
 		modifierDefinition = &modifierDefinition->resolveVirtual(*m_contract);
 	else
-		solAssert(requiredLookup == VirtualLookup::Static);
+		hypAssert(requiredLookup == VirtualLookup::Static);
 
 	if (!modifierDefinition->isImplemented())
 		return false;
 
-	solAssert(!!m_returnNode, "");
+	hypAssert(!!m_returnNode, "");
 
 	m_placeholderEntry = newLabel();
 	m_placeholderExit = newLabel();
@@ -409,8 +409,8 @@ bool ControlFlowBuilder::visit(FunctionDefinition const& _functionDefinition)
 
 bool ControlFlowBuilder::visit(Return const& _return)
 {
-	solAssert(!!m_currentNode, "");
-	solAssert(!!m_returnNode, "");
+	hypAssert(!!m_currentNode, "");
+	hypAssert(!!m_returnNode, "");
 	visitNode(_return);
 	if (_return.expression())
 	{
@@ -438,7 +438,7 @@ bool ControlFlowBuilder::visit(FunctionTypeName const& _functionTypeName)
 
 bool ControlFlowBuilder::visit(InlineAssembly const& _inlineAssembly)
 {
-	solAssert(!!m_currentNode && !m_inlineAssembly, "");
+	hypAssert(!!m_currentNode && !m_inlineAssembly, "");
 
 	m_inlineAssembly = &_inlineAssembly;
 	(*this)(_inlineAssembly.operations());
@@ -449,15 +449,15 @@ bool ControlFlowBuilder::visit(InlineAssembly const& _inlineAssembly)
 
 void ControlFlowBuilder::visit(yul::Statement const& _statement)
 {
-	solAssert(m_currentNode && m_inlineAssembly, "");
-	solAssert(nativeLocationOf(_statement) == originLocationOf(_statement), "");
+	hypAssert(m_currentNode && m_inlineAssembly, "");
+	hypAssert(nativeLocationOf(_statement) == originLocationOf(_statement), "");
 	m_currentNode->location = langutil::SourceLocation::smallestCovering(m_currentNode->location, nativeLocationOf(_statement));
 	ASTWalker::visit(_statement);
 }
 
 void ControlFlowBuilder::operator()(yul::If const& _if)
 {
-	solAssert(m_currentNode && m_inlineAssembly, "");
+	hypAssert(m_currentNode && m_inlineAssembly, "");
 	visit(*_if.condition);
 
 	auto nodes = splitFlow<2>();
@@ -469,7 +469,7 @@ void ControlFlowBuilder::operator()(yul::If const& _if)
 
 void ControlFlowBuilder::operator()(yul::Switch const& _switch)
 {
-	solAssert(m_currentNode && m_inlineAssembly, "");
+	hypAssert(m_currentNode && m_inlineAssembly, "");
 	visit(*_switch.expression);
 
 	auto beforeSwitch = m_currentNode;
@@ -489,7 +489,7 @@ void ControlFlowBuilder::operator()(yul::Switch const& _switch)
 
 void ControlFlowBuilder::operator()(yul::ForLoop const& _forLoop)
 {
-	solAssert(m_currentNode && m_inlineAssembly, "");
+	hypAssert(m_currentNode && m_inlineAssembly, "");
 
 	(*this)(_forLoop.pre);
 
@@ -518,28 +518,28 @@ void ControlFlowBuilder::operator()(yul::ForLoop const& _forLoop)
 
 void ControlFlowBuilder::operator()(yul::Break const&)
 {
-	solAssert(m_currentNode && m_inlineAssembly, "");
-	solAssert(m_breakJump, "");
+	hypAssert(m_currentNode && m_inlineAssembly, "");
+	hypAssert(m_breakJump, "");
 	connect(m_currentNode, m_breakJump);
 	m_currentNode = newLabel();
 }
 
 void ControlFlowBuilder::operator()(yul::Continue const&)
 {
-	solAssert(m_currentNode && m_inlineAssembly, "");
-	solAssert(m_continueJump, "");
+	hypAssert(m_currentNode && m_inlineAssembly, "");
+	hypAssert(m_continueJump, "");
 	connect(m_currentNode, m_continueJump);
 	m_currentNode = newLabel();
 }
 
 void ControlFlowBuilder::operator()(yul::Identifier const& _identifier)
 {
-	solAssert(m_currentNode && m_inlineAssembly, "");
+	hypAssert(m_currentNode && m_inlineAssembly, "");
 	auto const& externalReferences = m_inlineAssembly->annotation().externalReferences;
 	if (externalReferences.count(&_identifier))
 		if (auto const* declaration = dynamic_cast<VariableDeclaration const*>(externalReferences.at(&_identifier).declaration))
 		{
-			solAssert(nativeLocationOf(_identifier) == originLocationOf(_identifier), "");
+			hypAssert(nativeLocationOf(_identifier) == originLocationOf(_identifier), "");
 			m_currentNode->variableOccurrences.emplace_back(
 				*declaration,
 				VariableOccurrence::Kind::Access,
@@ -550,14 +550,14 @@ void ControlFlowBuilder::operator()(yul::Identifier const& _identifier)
 
 void ControlFlowBuilder::operator()(yul::Assignment const& _assignment)
 {
-	solAssert(m_currentNode && m_inlineAssembly, "");
+	hypAssert(m_currentNode && m_inlineAssembly, "");
 	visit(*_assignment.value);
 	auto const& externalReferences = m_inlineAssembly->annotation().externalReferences;
 	for (auto const& variable: _assignment.variableNames)
 		if (externalReferences.count(&variable))
 			if (auto const* declaration = dynamic_cast<VariableDeclaration const*>(externalReferences.at(&variable).declaration))
 			{
-				solAssert(nativeLocationOf(variable) == originLocationOf(variable), "");
+				hypAssert(nativeLocationOf(variable) == originLocationOf(variable), "");
 				m_currentNode->variableOccurrences.emplace_back(
 					*declaration,
 					VariableOccurrence::Kind::Assignment,
@@ -569,7 +569,7 @@ void ControlFlowBuilder::operator()(yul::Assignment const& _assignment)
 void ControlFlowBuilder::operator()(yul::FunctionCall const& _functionCall)
 {
 	using namespace yul;
-	solAssert(m_currentNode && m_inlineAssembly, "");
+	hypAssert(m_currentNode && m_inlineAssembly, "");
 	yul::ASTWalker::operator()(_functionCall);
 
 	if (auto const *builtinFunction = m_inlineAssembly->dialect().builtin(_functionCall.functionName.name))
@@ -585,7 +585,7 @@ void ControlFlowBuilder::operator()(yul::FunctionCall const& _functionCall)
 
 void ControlFlowBuilder::operator()(yul::FunctionDefinition const&)
 {
-	solAssert(m_currentNode && m_inlineAssembly, "");
+	hypAssert(m_currentNode && m_inlineAssembly, "");
 	// External references cannot be accessed from within functions, so we can ignore their control flow.
 	// TODO: we might still want to track if they always revert or return, though.
 }
@@ -593,12 +593,12 @@ void ControlFlowBuilder::operator()(yul::FunctionDefinition const&)
 void ControlFlowBuilder::operator()(yul::Leave const&)
 {
 	// This has to be implemented, if we ever decide to visit functions.
-	solUnimplemented("");
+	hypUnimplemented("");
 }
 
 bool ControlFlowBuilder::visit(VariableDeclaration const& _variableDeclaration)
 {
-	solAssert(!!m_currentNode, "");
+	hypAssert(!!m_currentNode, "");
 	visitNode(_variableDeclaration);
 
 	m_currentNode->variableOccurrences.emplace_back(
@@ -624,7 +624,7 @@ bool ControlFlowBuilder::visit(VariableDeclaration const& _variableDeclaration)
 
 bool ControlFlowBuilder::visit(VariableDeclarationStatement const& _variableDeclarationStatement)
 {
-	solAssert(!!m_currentNode, "");
+	hypAssert(!!m_currentNode, "");
 	visitNode(_variableDeclarationStatement);
 
 	for (auto const& var: _variableDeclarationStatement.declarations())
@@ -640,7 +640,7 @@ bool ControlFlowBuilder::visit(VariableDeclarationStatement const& _variableDecl
 				if (auto tupleExpression = dynamic_cast<TupleExpression const*>(expression))
 					if (tupleExpression->components().size() > 1)
 					{
-						solAssert(tupleExpression->components().size() > i, "");
+						hypAssert(tupleExpression->components().size() > i, "");
 						expression = tupleExpression->components()[i].get();
 					}
 				expression = resolveOuterUnaryTuples(expression);
@@ -656,7 +656,7 @@ bool ControlFlowBuilder::visit(VariableDeclarationStatement const& _variableDecl
 
 bool ControlFlowBuilder::visit(Identifier const& _identifier)
 {
-	solAssert(!!m_currentNode, "");
+	hypAssert(!!m_currentNode, "");
 	visitNode(_identifier);
 
 	if (auto const* variableDeclaration = dynamic_cast<VariableDeclaration const*>(_identifier.annotation().referencedDeclaration))
@@ -673,7 +673,7 @@ bool ControlFlowBuilder::visit(Identifier const& _identifier)
 
 bool ControlFlowBuilder::visitNode(ASTNode const& _node)
 {
-	solAssert(!!m_currentNode, "");
+	hypAssert(!!m_currentNode, "");
 	m_currentNode->location = langutil::SourceLocation::smallestCovering(m_currentNode->location, _node.location());
 	return true;
 }
@@ -695,8 +695,8 @@ CFGNode* ControlFlowBuilder::createFlow(CFGNode* _entry, ASTNode const& _node)
 
 void ControlFlowBuilder::connect(CFGNode* _from, CFGNode* _to)
 {
-	solAssert(_from, "");
-	solAssert(_to, "");
+	hypAssert(_from, "");
+	hypAssert(_to, "");
 	_from->exits.push_back(_to);
 	_to->entries.push_back(_from);
 }

@@ -8,7 +8,7 @@ Style Guide
 Introduction
 ************
 
-This guide is intended to provide coding conventions for writing Solidity code.
+This guide is intended to provide coding conventions for writing Hyperion code.
 This guide should be thought of as an evolving document that will change over
 time as useful conventions are found and old conventions are rendered obsolete.
 
@@ -20,7 +20,7 @@ taken from Python's
 `pep8 style guide <https://peps.python.org/pep-0008/>`_.
 
 The goal of this guide is *not* to be the right way or the best way to write
-Solidity code.  The goal of this guide is *consistency*.  A quote from Python's
+Hyperion code.  The goal of this guide is *consistency*.  A quote from Python's
 `pep8 <https://peps.python.org/pep-0008/#a-foolish-consistency-is-the-hobgoblin-of-little-minds>`_
 captures this concept well.
 
@@ -51,14 +51,14 @@ Mixing tabs and spaces should be avoided.
 Blank Lines
 ===========
 
-Surround top level declarations in Solidity source with two blank lines.
+Surround top level declarations in Hyperion source with two blank lines.
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.0 <0.9.0;
+    pragma hyperion >=0.4.0 <0.9.0;
 
     contract A {
         // ...
@@ -76,10 +76,10 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.0 <0.9.0;
+    pragma hyperion >=0.4.0 <0.9.0;
 
     contract A {
         // ...
@@ -98,10 +98,10 @@ Blank lines may be omitted between groups of related one-liners (such as stub fu
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.6.0 <0.9.0;
+    pragma hyperion >=0.6.0 <0.9.0;
 
     abstract contract A {
         function spam() public virtual pure;
@@ -121,10 +121,10 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.6.0 <0.9.0;
+    pragma hyperion >=0.6.0 <0.9.0;
 
     abstract contract A {
         function spam() virtual pure public;
@@ -159,7 +159,7 @@ Function Calls
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     thisFunctionCallIsReallyLong(
         longArgument1,
@@ -169,7 +169,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     thisFunctionCallIsReallyLong(longArgument1,
                                   longArgument2,
@@ -201,7 +201,7 @@ Assignment Statements
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     thisIsALongNestedMapping[being][set][toSomeValue] = someFunction(
         argument1,
@@ -212,7 +212,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     thisIsALongNestedMapping[being][set][toSomeValue] = someFunction(argument1,
                                                                        argument2,
@@ -223,7 +223,7 @@ Event Definitions and Event Emitters
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     event LongAndLotsOfArgs(
         address sender,
@@ -243,7 +243,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     event LongAndLotsOfArgs(address sender,
                             address recipient,
@@ -269,12 +269,12 @@ Import statements should always be placed at the top of the file.
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.0 <0.9.0;
+    pragma hyperion >=0.4.0 <0.9.0;
 
-    import "./Owned.sol";
+    import "./Owned.hyp";
 
     contract A {
         // ...
@@ -287,17 +287,17 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.0 <0.9.0;
+    pragma hyperion >=0.4.0 <0.9.0;
 
     contract A {
         // ...
     }
 
 
-    import "./Owned.sol";
+    import "./Owned.hyp";
 
 
     contract B is Owned {
@@ -323,10 +323,10 @@ Within a grouping, place the ``view`` and ``pure`` functions last.
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.7.0 <0.9.0;
+    pragma hyperion >=0.7.0 <0.9.0;
     contract A {
         constructor() {
             // ...
@@ -361,10 +361,10 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.7.0 <0.9.0;
+    pragma hyperion >=0.7.0 <0.9.0;
     contract A {
 
         // External functions
@@ -400,19 +400,19 @@ Immediately inside parenthesis, brackets or braces, with the exception of single
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     spam(ham[1], Coin({name: "ham"}));
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     spam( ham[ 1 ], Coin( { name: "ham" } ) );
 
 Exception:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function singleLine() public { spam(); }
 
@@ -420,13 +420,13 @@ Immediately before a comma, semicolon:
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function spam(uint i, Coin coin) public;
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function spam(uint i , Coin coin) public ;
 
@@ -434,7 +434,7 @@ More than one space around an assignment or other operator to align with another
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     x = 1;
     y = 2;
@@ -442,7 +442,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     x            = 1;
     y            = 2;
@@ -452,7 +452,7 @@ Do not include a whitespace in the receive and fallback functions:
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     receive() external payable {
         ...
@@ -464,7 +464,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     receive () external payable {
         ...
@@ -488,10 +488,10 @@ should:
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.0 <0.9.0;
+    pragma hyperion >=0.4.0 <0.9.0;
 
     contract Coin {
         struct Bank {
@@ -502,10 +502,10 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.0 <0.9.0;
+    pragma hyperion >=0.4.0 <0.9.0;
 
     contract Coin
     {
@@ -525,7 +525,7 @@ block and the opening brace.
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     if (...) {
         ...
@@ -537,7 +537,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     if (...)
     {
@@ -555,14 +555,14 @@ braces is ok *if* the statement is contained on a single line.
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     if (x < 10)
         x += 1;
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     if (x < 10)
         someArray.push(Coin({
@@ -576,7 +576,7 @@ to the rules of other block-like structures.
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     if (x < 3) {
         x += 1;
@@ -594,7 +594,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     if (x < 3) {
         x += 1;
@@ -616,7 +616,7 @@ The opening brace should be preceded by a single space.
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function increment(uint x) public pure returns (uint) {
         return x + 1;
@@ -628,7 +628,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function increment(uint x) public pure returns (uint)
     {
@@ -656,7 +656,7 @@ The modifier order for a function should be:
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function balance(uint from) public view override returns (uint)  {
         return balanceOf[from];
@@ -667,7 +667,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function balance(uint from) public override view returns (uint)  {
         return balanceOf[from];
@@ -683,7 +683,7 @@ the same indentation level as the function declaration.
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function thisFunctionHasLotsOfArguments(
         address a,
@@ -700,7 +700,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function thisFunctionHasLotsOfArguments(address a, address b, address c,
         address d, address e, address f) public {
@@ -731,7 +731,7 @@ dropped to its own line.
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function thisFunctionNameIsReallyLong(address x, address y, address z)
         public
@@ -757,7 +757,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function thisFunctionNameIsReallyLong(address x, address y, address z)
                                           public
@@ -785,7 +785,7 @@ Multiline output parameters and return statements should follow the same style r
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function thisFunctionNameIsReallyLong(
         address a,
@@ -810,7 +810,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function thisFunctionNameIsReallyLong(
         address a,
@@ -835,10 +835,10 @@ manner as modifiers if the function declaration is long or hard to read.
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.7.0 <0.9.0;
+    pragma hyperion >=0.7.0 <0.9.0;
     // Base contracts just to make this compile
     contract B {
         constructor(uint) {
@@ -873,10 +873,10 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.7.0 <0.9.0;
+    pragma hyperion >=0.7.0 <0.9.0;
 
     // Base contracts just to make this compile
     contract B {
@@ -925,7 +925,7 @@ When declaring short functions with a single statement, it is permissible to do 
 
 Permissible:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     function shortFunction() public { doSomething(); }
 
@@ -942,7 +942,7 @@ whitespace.
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     mapping(uint => uint) map;
     mapping(address => bool) registeredAddresses;
@@ -951,7 +951,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     mapping (uint => uint) map;
     mapping( address => bool ) registeredAddresses;
@@ -966,13 +966,13 @@ the brackets.
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     uint[] x;
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     uint [] x;
 
@@ -984,14 +984,14 @@ Other Recommendations
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     str = "foo";
     str = "Hamlet says, 'To be or not to be...'";
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     str = 'bar';
     str = '"Be yourself; everyone else is already taken." -Oscar Wilde';
@@ -1000,7 +1000,7 @@ No:
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
     :force:
 
     x = 3;
@@ -1010,7 +1010,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
     :force:
 
     x=3;
@@ -1025,7 +1025,7 @@ No:
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     x = 2**3 + 5;
     x = 2*y + 3*z;
@@ -1033,7 +1033,7 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     x = 2** 3 + 5;
     x = y+z;
@@ -1069,10 +1069,10 @@ Inside each contract, library or interface, use the following order:
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.8.4 <0.9.0;
+    pragma hyperion >=0.8.4 <0.9.0;
 
     abstract contract Math {
         error DivideByZero();
@@ -1081,10 +1081,10 @@ Yes:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.8.4 <0.9.0;
+    pragma hyperion >=0.8.4 <0.9.0;
 
     abstract contract Math {
         function divide(int256 numerator, int256 denominator) public virtual returns (uint256);
@@ -1143,16 +1143,16 @@ Contract and Library Names
 * Contract and library names should also match their filenames.
 * If a contract file includes multiple contracts and/or libraries, then the filename should match the *core contract*. This is not recommended however if it can be avoided.
 
-As shown in the example below, if the contract name is ``Congress`` and the library name is ``Owned``, then their associated filenames should be ``Congress.sol`` and ``Owned.sol``.
+As shown in the example below, if the contract name is ``Congress`` and the library name is ``Owned``, then their associated filenames should be ``Congress.hyp`` and ``Owned.hyp``.
 
 Yes:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.7.0 <0.9.0;
+    pragma hyperion >=0.7.0 <0.9.0;
 
-    // Owned.sol
+    // Owned.hyp
     contract Owned {
         address public owner;
 
@@ -1170,14 +1170,14 @@ Yes:
         }
     }
 
-and in ``Congress.sol``:
+and in ``Congress.hyp``:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.0 <0.9.0;
+    pragma hyperion >=0.4.0 <0.9.0;
 
-    import "./Owned.sol";
+    import "./Owned.hyp";
 
 
     contract Congress is Owned, TokenRecipient {
@@ -1186,12 +1186,12 @@ and in ``Congress.sol``:
 
 No:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.7.0 <0.9.0;
+    pragma hyperion >=0.7.0 <0.9.0;
 
-    // owned.sol
+    // owned.hyp
     contract owned {
         address public owner;
 
@@ -1209,15 +1209,15 @@ No:
         }
     }
 
-and in ``Congress.sol``:
+and in ``Congress.hyp``:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity ^0.7.0;
+    pragma hyperion ^0.7.0;
 
 
-    import "./owned.sol";
+    import "./owned.hyp";
 
 
     contract Congress is owned, tokenRecipient {
@@ -1305,19 +1305,19 @@ and a common source of security vulnerabilities (avoid find-replace-all tooling 
 NatSpec
 *******
 
-Solidity contracts can also contain NatSpec comments. They are written with a
+Hyperion contracts can also contain NatSpec comments. They are written with a
 triple slash (``///``) or a double asterisk block (``/** ... */``) and
 they should be used directly above function declarations or statements.
 
 For example, the contract from :ref:`a simple smart contract <simple-smart-contract>` with the comments
 added looks like the one below:
 
-.. code-block:: solidity
+.. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.4.16 <0.9.0;
+    pragma hyperion >=0.4.16 <0.9.0;
 
-    /// @author The Solidity Team
+    /// @author The Hyperion Team
     /// @title A simple storage example
     contract SimpleStorage {
         uint storedData;
@@ -1337,6 +1337,6 @@ added looks like the one below:
         }
     }
 
-It is recommended that Solidity contracts are fully annotated using :ref:`NatSpec <natspec>` for all public interfaces (everything in the ABI).
+It is recommended that Hyperion contracts are fully annotated using :ref:`NatSpec <natspec>` for all public interfaces (everything in the ABI).
 
 Please see the section about :ref:`NatSpec <natspec>` for a detailed explanation.

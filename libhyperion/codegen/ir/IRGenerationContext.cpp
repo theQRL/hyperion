@@ -1,41 +1,41 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * Class that contains contextual information during IR generation.
  */
 
-#include <libsolidity/codegen/ir/IRGenerationContext.h>
+#include <libhyperion/codegen/ir/IRGenerationContext.h>
 
-#include <libsolidity/codegen/YulUtilFunctions.h>
-#include <libsolidity/codegen/ABIFunctions.h>
-#include <libsolidity/codegen/CompilerUtils.h>
-#include <libsolidity/ast/AST.h>
-#include <libsolidity/ast/TypeProvider.h>
+#include <libhyperion/codegen/YulUtilFunctions.h>
+#include <libhyperion/codegen/ABIFunctions.h>
+#include <libhyperion/codegen/CompilerUtils.h>
+#include <libhyperion/ast/AST.h>
+#include <libhyperion/ast/TypeProvider.h>
 
-#include <libsolutil/Whiskers.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/Whiskers.h>
+#include <libhyputil/StringUtils.h>
 
 #include <range/v3/view/map.hpp>
 #include <range/v3/algorithm/find.hpp>
 
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::frontend;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::frontend;
 
 std::string IRGenerationContext::enqueueFunctionForCodeGeneration(FunctionDefinition const& _function)
 {
@@ -49,7 +49,7 @@ std::string IRGenerationContext::enqueueFunctionForCodeGeneration(FunctionDefini
 
 FunctionDefinition const* IRGenerationContext::dequeueFunctionForCodeGeneration()
 {
-	solAssert(!m_functionGenerationQueue.empty(), "");
+	hypAssert(!m_functionGenerationQueue.empty(), "");
 
 	FunctionDefinition const* result = m_functionGenerationQueue.front();
 	m_functionGenerationQueue.pop_front();
@@ -58,7 +58,7 @@ FunctionDefinition const* IRGenerationContext::dequeueFunctionForCodeGeneration(
 
 ContractDefinition const& IRGenerationContext::mostDerivedContract() const
 {
-	solAssert(m_mostDerivedContract, "Most derived contract requested but not set.");
+	hypAssert(m_mostDerivedContract, "Most derived contract requested but not set.");
 	return *m_mostDerivedContract;
 }
 
@@ -67,13 +67,13 @@ IRVariable const& IRGenerationContext::addLocalVariable(VariableDeclaration cons
 	auto const& [it, didInsert] = m_localVariables.emplace(
 		std::make_pair(&_varDecl, IRVariable{_varDecl})
 	);
-	solAssert(didInsert, "Local variable added multiple times.");
+	hypAssert(didInsert, "Local variable added multiple times.");
 	return it->second;
 }
 
 IRVariable const& IRGenerationContext::localVariable(VariableDeclaration const& _varDecl)
 {
-	solAssert(
+	hypAssert(
 		m_localVariables.count(&_varDecl),
 		"Unknown variable: " + _varDecl.name()
 	);
@@ -87,20 +87,20 @@ void IRGenerationContext::resetLocalVariables()
 
 void IRGenerationContext::registerImmutableVariable(VariableDeclaration const& _variable)
 {
-	solAssert(_variable.immutable(), "Attempted to register a non-immutable variable as immutable.");
-	solUnimplementedAssert(
+	hypAssert(_variable.immutable(), "Attempted to register a non-immutable variable as immutable.");
+	hypUnimplementedAssert(
 		_variable.annotation().type->isValueType(),
 		"Only immutable variables of value type are supported."
 	);
-	solAssert(m_reservedMemory.has_value(), "Reserved memory has already been reset.");
+	hypAssert(m_reservedMemory.has_value(), "Reserved memory has already been reset.");
 	m_immutableVariables[&_variable] = CompilerUtils::generalPurposeMemoryStart + *m_reservedMemory;
-	solAssert(_variable.annotation().type->memoryHeadSize() == 32, "Memory writes might overlap.");
+	hypAssert(_variable.annotation().type->memoryHeadSize() == 32, "Memory writes might overlap.");
 	*m_reservedMemory += _variable.annotation().type->memoryHeadSize();
 }
 
 size_t IRGenerationContext::immutableMemoryOffset(VariableDeclaration const& _variable) const
 {
-	solAssert(
+	hypAssert(
 		m_immutableVariables.count(&_variable),
 		"Unknown immutable variable: " + _variable.name()
 	);
@@ -109,7 +109,7 @@ size_t IRGenerationContext::immutableMemoryOffset(VariableDeclaration const& _va
 
 size_t IRGenerationContext::reservedMemory()
 {
-	solAssert(m_reservedMemory.has_value(), "Reserved memory was used before.");
+	hypAssert(m_reservedMemory.has_value(), "Reserved memory was used before.");
 	size_t reservedMemory = *m_reservedMemory;
 	m_reservedMemory = std::nullopt;
 	return reservedMemory;
@@ -131,7 +131,7 @@ std::string IRGenerationContext::newYulVariable()
 
 void IRGenerationContext::initializeInternalDispatch(InternalDispatchMap _internalDispatch)
 {
-	solAssert(internalDispatchClean(), "");
+	hypAssert(internalDispatchClean(), "");
 
 	for (DispatchQueue const& functions: _internalDispatch | ranges::views::values)
 		for (auto function: functions)
@@ -150,7 +150,7 @@ InternalDispatchMap IRGenerationContext::consumeInternalDispatchMap()
 void IRGenerationContext::addToInternalDispatch(FunctionDefinition const& _function)
 {
 	FunctionType const* functionType = TypeProvider::function(_function, FunctionType::Kind::Internal);
-	solAssert(functionType);
+	hypAssert(functionType);
 
 	YulArity arity = YulArity::fromType(*functionType);
 	DispatchQueue& dispatchQueue = m_internalDispatchMap[arity];
@@ -169,10 +169,10 @@ void IRGenerationContext::internalFunctionCalledThroughDispatch(YulArity const& 
 
 YulUtilFunctions IRGenerationContext::utils()
 {
-	return YulUtilFunctions(m_evmVersion, m_revertStrings, m_functions);
+	return YulUtilFunctions(m_zvmVersion, m_revertStrings, m_functions);
 }
 
 ABIFunctions IRGenerationContext::abiFunctions()
 {
-	return ABIFunctions(m_evmVersion, m_revertStrings, m_functions);
+	return ABIFunctions(m_zvmVersion, m_revertStrings, m_functions);
 }

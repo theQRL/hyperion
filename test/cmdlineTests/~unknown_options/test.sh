@@ -5,7 +5,7 @@ set -euo pipefail
 source "${REPO_ROOT}/scripts/common.sh"
 
 set +e
-output=$("$SOLC" --allow=test 2>&1)
+output=$("$HYPC" --allow=test 2>&1)
 failed=$?
 set -e
 

@@ -1,31 +1,31 @@
 /*
-	This file is part of solidity.
+	This file is part of hyperion.
 
-	solidity is free software: you can redistribute it and/or modify
+	hyperion is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	solidity is distributed in the hope that it will be useful,
+	hyperion is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+	along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
  * Interactive yul optimizer
  */
 
-#include <libsolutil/CommonIO.h>
-#include <libsolutil/Exceptions.h>
-#include <libsolutil/StringUtils.h>
+#include <libhyputil/CommonIO.h>
+#include <libhyputil/Exceptions.h>
+#include <libhyputil/StringUtils.h>
 #include <liblangutil/ErrorReporter.h>
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AsmAnalysisInfo.h>
-#include <libsolidity/parsing/Parser.h>
+#include <libhyperion/parsing/Parser.h>
 #include <libyul/AST.h>
 #include <libyul/AsmParser.h>
 #include <libyul/AsmPrinter.h>
@@ -38,11 +38,11 @@
 #include <libyul/optimiser/VarNameCleaner.h>
 #include <libyul/optimiser/Suite.h>
 
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 
-#include <libsolutil/JSON.h>
+#include <libhyputil/JSON.h>
 
-#include <libsolidity/interface/OptimiserSettings.h>
+#include <libhyperion/interface/OptimiserSettings.h>
 #include <liblangutil/CharStreamProvider.h>
 
 #include <boost/algorithm/string/predicate.hpp>
@@ -65,11 +65,11 @@
 #include <variant>
 
 using namespace std;
-using namespace solidity;
-using namespace solidity::util;
-using namespace solidity::langutil;
-using namespace solidity::frontend;
-using namespace solidity::yul;
+using namespace hyperion;
+using namespace hyperion::util;
+using namespace hyperion::langutil;
+using namespace hyperion::frontend;
+using namespace hyperion::yul;
 
 namespace po = boost::program_options;
 
@@ -244,7 +244,7 @@ public:
 
 private:
 	shared_ptr<yul::Block> m_ast;
-	Dialect const& m_dialect{EVMDialect::strictAssemblyForEVMObjects(EVMVersion{})};
+	Dialect const& m_dialect{ZVMDialect::strictAssemblyForZVMObjects(ZVMVersion{})};
 	unique_ptr<AsmAnalysisInfo> m_analysisInfo;
 	set<YulString> const m_reservedIdentifiers = {};
 	NameDispenser m_nameDispenser{m_dialect, m_reservedIdentifiers};
@@ -252,7 +252,7 @@ private:
 		m_dialect,
 		m_nameDispenser,
 		m_reservedIdentifiers,
-		solidity::frontend::OptimiserSettings::standard().expectedExecutionsPerDeployment
+		hyperion::frontend::OptimiserSettings::standard().expectedExecutionsPerDeployment
 	};
 };
 

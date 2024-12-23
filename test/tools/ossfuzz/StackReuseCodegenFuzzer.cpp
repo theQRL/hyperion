@@ -1,54 +1,54 @@
 /*
-    This file is part of solidity.
+    This file is part of hyperion.
 
-    solidity is free software: you can redistribute it and/or modify
+    hyperion is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    solidity is distributed in the hope that it will be useful,
+    hyperion is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+    along with hyperion.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <test/tools/ossfuzz/yulProto.pb.h>
 #include <test/tools/ossfuzz/protoToYul.h>
 
-#include <test/EVMHost.h>
+#include <test/ZVMHost.h>
 
-#include <test/tools/ossfuzz/YulEvmoneInterface.h>
+#include <test/tools/ossfuzz/YulZvmoneInterface.h>
 
 #include <libyul/Exceptions.h>
 
-#include <libyul/backends/evm/EVMCodeTransform.h>
-#include <libyul/backends/evm/EVMDialect.h>
+#include <libyul/backends/zvm/ZVMCodeTransform.h>
+#include <libyul/backends/zvm/ZVMDialect.h>
 
 #include <libyul/optimiser/CallGraphGenerator.h>
 #include <libyul/CompilabilityChecker.h>
 
-#include <libevmasm/Instruction.h>
+#include <libzvmasm/Instruction.h>
 
-#include <liblangutil/EVMVersion.h>
+#include <liblangutil/ZVMVersion.h>
 
-#include <evmone/evmone.h>
+#include <zvmone/zvmone.h>
 
 #include <src/libfuzzer/libfuzzer_macro.h>
 
 #include <fstream>
 
-using namespace solidity;
-using namespace solidity::test;
-using namespace solidity::test::fuzzer;
-using namespace solidity::yul;
-using namespace solidity::yul::test::yul_fuzzer;
-using namespace solidity::langutil;
+using namespace hyperion;
+using namespace hyperion::test;
+using namespace hyperion::test::fuzzer;
+using namespace hyperion::yul;
+using namespace hyperion::yul::test::yul_fuzzer;
+using namespace hyperion::langutil;
 using namespace std;
 
-static evmc::VM evmone = evmc::VM{evmc_create_evmone()};
+static zvmc::VM zvmone = zvmc::VM{zvmc_create_zvmone()};
 
 namespace
 {
@@ -70,7 +70,7 @@ bool recursiveFunctionExists(Dialect const& _dialect, yul::Object& _object)
 
 DEFINE_PROTO_FUZZER(Program const& _input)
 {
-	// Solidity creates an invalid instruction for subobjects, so we simply
+	// Hyperion creates an invalid instruction for subobjects, so we simply
 	// ignore them in this fuzzer.
 	if (_input.has_obj())
 		return;
@@ -81,10 +81,10 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 		filterUnboundedLoops
 	);
 	string yul_source = converter.programToString(_input);
-	// Do not fuzz the EVM Version field.
+	// Do not fuzz the ZVM Version field.
 	// See https://github.com/ethereum/solidity/issues/12590
-	langutil::EVMVersion version;
-	EVMHost hostContext(version, evmone);
+	langutil::ZVMVersion version;
+	ZVMHost hostContext(version, zvmone);
 	hostContext.reset();
 
 	if (const char* dump_path = getenv("PROTO_FUZZER_DUMP_PATH"))
@@ -95,7 +95,7 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 
 	YulStringRepository::reset();
 
-	solidity::frontend::OptimiserSettings settings = solidity::frontend::OptimiserSettings::full();
+	hyperion::frontend::OptimiserSettings settings = hyperion::frontend::OptimiserSettings::full();
 	settings.runYulOptimiser = false;
 	settings.optimizeStackAllocation = false;
 	bytes unoptimisedByteCode;
@@ -107,11 +107,11 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 		unoptimisedByteCode = assembler.assemble();
 		auto yulObject = assembler.object();
 		recursiveFunction = recursiveFunctionExists(
-			EVMDialect::strictAssemblyForEVMObjects(version),
+			ZVMDialect::strictAssemblyForZVMObjects(version),
 			*yulObject
 		);
 	}
-	catch (solidity::yul::StackTooDeepError const&)
+	catch (hyperion::yul::StackTooDeepError const&)
 	{
 		unoptimizedStackTooDeep = true;
 	}
@@ -121,35 +121,35 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 	bool noInvalidInSource = true;
 	if (!unoptimizedStackTooDeep)
 	{
-		evmc::Result deployResult = YulEvmoneUtility{}.deployCode(unoptimisedByteCode, hostContext);
-		if (deployResult.status_code != EVMC_SUCCESS)
+		zvmc::Result deployResult = YulZvmoneUtility{}.deployCode(unoptimisedByteCode, hostContext);
+		if (deployResult.status_code != ZVMC_SUCCESS)
 			return;
-		auto callMessage = YulEvmoneUtility{}.callMessage(deployResult.create_address);
-		evmc::Result callResult = hostContext.call(callMessage);
+		auto callMessage = YulZvmoneUtility{}.callMessage(deployResult.create_address);
+		zvmc::Result callResult = hostContext.call(callMessage);
 		// If the fuzzer synthesized input does not contain the revert opcode which
-		// we lazily check by string find, the EVM call should not revert.
+		// we lazily check by string find, the ZVM call should not revert.
 		noRevertInSource = yul_source.find("revert") == string::npos;
 		noInvalidInSource = yul_source.find("invalid") == string::npos;
 		if (noInvalidInSource)
-			solAssert(
-				callResult.status_code != EVMC_INVALID_INSTRUCTION,
+			hypAssert(
+				callResult.status_code != ZVMC_INVALID_INSTRUCTION,
 				"Invalid instruction."
 			);
 		if (noRevertInSource)
-			solAssert(
-				callResult.status_code != EVMC_REVERT,
-				"SolidityEvmoneInterface: EVM One reverted"
+			hypAssert(
+				callResult.status_code != ZVMC_REVERT,
+				"HyperionZvmoneInterface: ZVM One reverted"
 			);
 		// Bail out on serious errors encountered during a call.
-		if (YulEvmoneUtility{}.seriousCallError(callResult.status_code))
+		if (YulZvmoneUtility{}.seriousCallError(callResult.status_code))
 			return;
-		solAssert(
-			(callResult.status_code == EVMC_SUCCESS ||
-			(!noRevertInSource && callResult.status_code == EVMC_REVERT) ||
-			(!noInvalidInSource && callResult.status_code == EVMC_INVALID_INSTRUCTION)),
+		hypAssert(
+			(callResult.status_code == ZVMC_SUCCESS ||
+			(!noRevertInSource && callResult.status_code == ZVMC_REVERT) ||
+			(!noInvalidInSource && callResult.status_code == ZVMC_INVALID_INSTRUCTION)),
 			"Unoptimised call failed."
 		);
-		unoptimizedState << EVMHostPrinter{hostContext, deployResult.create_address}.state();
+		unoptimizedState << ZVMHostPrinter{hostContext, deployResult.create_address}.state();
 	}
 
 	settings.runYulOptimiser = true;
@@ -159,7 +159,7 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 	{
 		optimisedByteCode = YulAssembler{version, nullopt, settings, yul_source}.assemble();
 	}
-	catch (solidity::yul::StackTooDeepError const&)
+	catch (hyperion::yul::StackTooDeepError const&)
 	{
 		if (!recursiveFunction)
 			throw;
@@ -171,37 +171,37 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 		return;
 	// Reset host before running optimised code.
 	hostContext.reset();
-	evmc::Result deployResultOpt = YulEvmoneUtility{}.deployCode(optimisedByteCode, hostContext);
-	solAssert(
-		deployResultOpt.status_code == EVMC_SUCCESS,
-		"Evmone: Optimized contract creation failed"
+	zvmc::Result deployResultOpt = YulZvmoneUtility{}.deployCode(optimisedByteCode, hostContext);
+	hypAssert(
+		deployResultOpt.status_code == ZVMC_SUCCESS,
+		"Zvmone: Optimized contract creation failed"
 	);
-	auto callMessageOpt = YulEvmoneUtility{}.callMessage(deployResultOpt.create_address);
-	evmc::Result callResultOpt = hostContext.call(callMessageOpt);
+	auto callMessageOpt = YulZvmoneUtility{}.callMessage(deployResultOpt.create_address);
+	zvmc::Result callResultOpt = hostContext.call(callMessageOpt);
 	if (noRevertInSource)
-		solAssert(
-			callResultOpt.status_code != EVMC_REVERT,
-			"SolidityEvmoneInterface: EVM One reverted"
+		hypAssert(
+			callResultOpt.status_code != ZVMC_REVERT,
+			"HyperionZvmoneInterface: ZVM One reverted"
 		);
 	if (noInvalidInSource)
-		solAssert(
-			callResultOpt.status_code != EVMC_INVALID_INSTRUCTION,
+		hypAssert(
+			callResultOpt.status_code != ZVMC_INVALID_INSTRUCTION,
 			"Invalid instruction."
 		);
-	solAssert(
-		(callResultOpt.status_code == EVMC_SUCCESS ||
-		 (!noRevertInSource && callResultOpt.status_code == EVMC_REVERT) ||
-		 (!noInvalidInSource && callResultOpt.status_code == EVMC_INVALID_INSTRUCTION)),
+	hypAssert(
+		(callResultOpt.status_code == ZVMC_SUCCESS ||
+		 (!noRevertInSource && callResultOpt.status_code == ZVMC_REVERT) ||
+		 (!noInvalidInSource && callResultOpt.status_code == ZVMC_INVALID_INSTRUCTION)),
 		"Optimised call failed."
 	);
 	ostringstream optimizedState;
-	optimizedState << EVMHostPrinter{hostContext, deployResultOpt.create_address}.state();
+	optimizedState << ZVMHostPrinter{hostContext, deployResultOpt.create_address}.state();
 
 	if (unoptimizedState.str() != optimizedState.str())
 	{
 		cout << unoptimizedState.str() << endl;
 		cout << optimizedState.str() << endl;
-		solAssert(
+		hypAssert(
 			false,
 			"State of unoptimised and optimised stack reused code do not match."
 		);
