@@ -173,11 +173,11 @@ currently not supported.
 
     brew update
     brew upgrade
-    brew tap ethereum/ethereum
-    brew install solidity
+    brew tap theqrl/theqrl
+    brew install hyperion
 
-To install the most recent 0.4.x / 0.5.x version of Hyperion you can also use ``brew install solidity@4``
-and ``brew install solidity@5``, respectively.
+To install the most recent 0.4.x / 0.5.x version of Hyperion you can also use ``brew install hyperion@4``
+and ``brew install hyperion@5``, respectively.
 
 If you need a specific version of Hyperion you can install a
 Homebrew formula directly from Github.
@@ -197,7 +197,7 @@ Install it using ``brew``:
 
 .. code-block:: bash
 
-    brew unlink solidity
+    brew unlink hyperion
     # eg. Install 0.4.8
     brew install hyperion.rb
 
@@ -448,7 +448,7 @@ To clone the source code, execute the following command:
 .. code-block:: bash
 
     git clone --recursive https://github.com/theQRL/hyperion.git
-    cd solidity
+    cd hyperion
 
 If you want to help develop Hyperion,
 you should fork Hyperion and add your personal fork as a second remote:
@@ -463,7 +463,7 @@ you should fork Hyperion and add your personal fork as a second remote:
     If you want to re-build a released Hyperion compiler, then
     please use the source tarball on the github release page:
 
-    https://github.com/theQRL/solidity/releases/download/v0.X.Y/solidity_0.X.Y.tar.gz
+    https://github.com/theQRL/hyperion/releases/download/v0.X.Y/hyperion_0.X.Y.tar.gz
 
     (not the "Source code" provided by github).
 

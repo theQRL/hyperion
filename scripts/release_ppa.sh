@@ -222,7 +222,7 @@ EOF
 cat <<EOF > debian/copyright
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: hypc
-Source: https://github.com/theQRL/solidity
+Source: https://github.com/theQRL/hyperion
 
 Files: *
 Copyright: 2014-2016 Ethereum

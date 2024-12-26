@@ -28,15 +28,15 @@ At least a day before the release:
 ### Drafts
 At least a day before the release:
  - [ ] Create a draft PR to sort the changelog.
- - [ ] Create draft PRs to bump version in ``solidity`` and ``hypc-js``.
+ - [ ] Create draft PRs to bump version in ``hyperion`` and ``hypc-js``.
  - [ ] Create a draft of the release on github.
  - [ ] Create a draft PR to update soliditylang.org.
  - [ ] Create drafts of blog posts.
  - [ ] Prepare drafts of Twitter, Reddit and Hyperion Forum announcements.
 
 ### Blog Post
- - [ ] Create a post on [solidity-website](https://github.com/theQRL/hyperion-website/tree/main/src/posts) in the ``Releases`` category and explain some of the new features or concepts.
- - [ ] Create a post on [solidity-website](https://github.com/theQRL/hyperion-website/tree/main/src/posts) in the ``Security Alerts`` category in case of important bug(s).
+ - [ ] Create a post on [hyperion-website](https://github.com/theQRL/hyperion-website/tree/main/src/posts) in the ``Releases`` category and explain some of the new features or concepts.
+ - [ ] Create a post on [hyperion-website](https://github.com/theQRL/hyperion-website/tree/main/src/posts) in the ``Security Alerts`` category in case of important bug(s).
 
 ### Changelog
  - [ ] Sort the changelog entries alphabetically and correct any errors you notice. Commit it.
@@ -63,7 +63,7 @@ At least a day before the release:
  - [ ] Switch to the tag that archives have to be created for.
  - [ ] Create the ``prerelease.txt`` file: (``echo -n > prerelease.txt``).
  - [ ] Run ``scripts/create_source_tarball.sh`` while being on the tag to create the source tarball. This will create the tarball in a directory called ``upload``.
- - [ ] Take the tarball from the upload directory (its name should be ``solidity_x.x.x.tar.gz``, otherwise ``prerelease.txt`` was missing in the step before) and upload the source tarball to the release page.
+ - [ ] Take the tarball from the upload directory (its name should be ``hyperion_x.x.x.tar.gz``, otherwise ``prerelease.txt`` was missing in the step before) and upload the source tarball to the release page.
  - [ ] Take the ``github-binaries.tar`` tarball from ``c_release_binaries`` run of the tagged commit in circle-ci and add all binaries from it to the release page.
        Make sure it contains four binaries: ``hypc-windows.exe``, ``hypc-macos``, ``hypc-static-linux`` and ``hypjson.js``.
  - [ ] Take the ``hypc-bin-binaries.tar`` tarball from ``c_release_binaries`` run of the tagged commit in circle-ci and add all binaries from it to hypc-bin.
@@ -71,7 +71,7 @@ At least a day before the release:
  - [ ] Create a pull request in hypc-bin and merge.
 
 ### Homebrew and MacOS
- - [ ] Update the version and the hash (``sha256sum solidity_$VERSION.tar.gz``) in the [``solidity`` formula in Homebrew core repository](https://github.com/Homebrew/homebrew-core/blob/master/Formula/hyperion.rb).
+ - [ ] Update the version and the hash (``sha256sum hyperion_$VERSION.tar.gz``) in the [``hyperion`` formula in Homebrew core repository](https://github.com/Homebrew/homebrew-core/blob/master/Formula/hyperion.rb).
 
 ### Docker
  - [ ] Run ``./scripts/docker_deploy_manual.sh v$VERSION``.

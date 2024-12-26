@@ -51,7 +51,7 @@ Reducing the source code that caused the issue to a bare minimum is always
 very helpful, and sometimes even clarifies a misunderstanding.
 
 For technical discussions about language design, a post in the
-`Hyperion forum <https://forum.soliditylang.org/>`_ is the correct place (see :ref:`solidity_language_design`).
+`Hyperion forum <https://forum.soliditylang.org/>`_ is the correct place (see :ref:`hyperion_language_design`).
 
 Workflow for Pull Requests
 ==========================
@@ -291,14 +291,14 @@ Example:
 
 .. code-block:: bash
 
-    export HYPERION_BUILD_DIR=~/solidity/build/
+    export HYPERION_BUILD_DIR=~/hyperion/build/
     test/cmdlineTests.sh "standard_*" "*_yul_*" --exclude "standard_yul_*"
 
 The commands above will run tests from directories starting with ``test/cmdlineTests/standard_`` and
 subdirectories of ``test/cmdlineTests/`` that have ``_yul_`` somewhere in the name,
 but no test whose name starts with ``standard_yul_`` will be executed.
-It will also assume that the file ``solidity/build/hypc/hypc`` inside your home directory is the
-compiler binary (unless you are on Windows -- then ``solidity/build/hypc/Release/hypc.exe``).
+It will also assume that the file ``hyperion/build/hypc/hypc`` inside your home directory is the
+compiler binary (unless you are on Windows -- then ``hyperion/build/hypc/Release/hypc.exe``).
 
 There are several kinds of command-line tests:
 
@@ -398,9 +398,9 @@ from the documentation or the other tests:
     mkdir /tmp/test_cases
     cd /tmp/test_cases
     # extract from tests:
-    path/to/solidity/scripts/isolate_tests.py path/to/solidity/test/libhyperion/HyperionEndToEndTest.cpp
+    path/to/hyperion/scripts/isolate_tests.py path/to/hyperion/test/libhyperion/HyperionEndToEndTest.cpp
     # extract from documentation:
-    path/to/solidity/scripts/isolate_tests.py path/to/solidity/docs
+    path/to/hyperion/scripts/isolate_tests.py path/to/hyperion/docs
 
 The AFL documentation states that the corpus (the initial input files) should not be
 too large. The files themselves should not be larger than 1 kB and there should be
@@ -532,7 +532,7 @@ Running Documentation Tests
 Make sure your contributions pass our documentation tests by running ``./docs/docs.sh`` that installs dependencies
 needed for documentation and checks for any problems such as broken links or syntax issues.
 
-.. _solidity_language_design:
+.. _hyperion_language_design:
 
 Hyperion Language Design
 ========================

@@ -67,7 +67,7 @@ When using the Hyperion logo, please respect the Hyperion logo guidelines.
 Hyperion Logo Guidelines
 ========================
 
-.. image:: solidity_logo.svg
+.. image:: hyperion_logo.svg
   :width: 256
 
 *(Right click on the logo to download it.)*

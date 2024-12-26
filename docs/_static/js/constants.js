@@ -14,7 +14,7 @@ const MOON_ICON_PATH = `${ROOT_URL}/_static/img/moon.svg`;
 const LIGHT_HAMBURGER_PATH = `${ROOT_URL}/_static/img/hamburger-light.svg`;
 const DARK_HAMBURGER_PATH = `${ROOT_URL}/_static/img/hamburger-dark.svg`;
 const COLOR_TOGGLE_ICON_CLASS = "color-toggle-icon";
-const HYPERION_LOGO_CLASS = "solidity-logo";
+const HYPERION_LOGO_CLASS = "hyperion-logo";
 const LS_COLOR_SCHEME = "color-scheme";
 
 // Hyperion navigation constants
