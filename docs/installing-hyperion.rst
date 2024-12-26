@@ -81,20 +81,20 @@ and runs it in a new container, passing the ``--help`` argument.
 
 .. code-block:: bash
 
-    docker run ethereum/hypc:stable --help
+    docker run theqrl/hypc:stable --help
 
 For example, You can specify release build versions in the tag for the 0.5.4 release.
 
 .. code-block:: bash
 
-    docker run ethereum/hypc:0.5.4 --help
+    docker run theqrl/hypc:0.5.4 --help
 
 To use the Docker image to compile Hyperion files on the host machine, mount a
 local folder for input and output, and specify the contract to compile. For example.
 
 .. code-block:: bash
 
-    docker run -v /local/path:/sources ethereum/hypc:stable -o /sources/output --abi --bin /sources/Contract.hyp
+    docker run -v /local/path:/sources theqrl/hypc:stable -o /sources/output --abi --bin /sources/Contract.hyp
 
 You can also use the standard JSON interface (which is recommended when using the compiler with tooling).
 When using this interface, it is not necessary to mount any directories as long as the JSON input is

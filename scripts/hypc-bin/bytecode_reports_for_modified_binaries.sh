@@ -20,9 +20,9 @@
 #     in hypc-bin.
 # BASE_REF..TOP_REF: Commit range in the hypc-bin repository to search for
 #     modified binaries.
-# HYPC_BIN_DIR: Directory containing a checkout of the ethereum/hypc-bin
+# HYPC_BIN_DIR: Directory containing a checkout of the theQRL/hypc-bin
 #    repository with full history. Must be an absolute path.
-# HYPERION_DIR: Directory containing a checkout of the ethereum/hyperion
+# HYPERION_DIR: Directory containing a checkout of the theQRL/hyperion
 #    repository with full history. Bytecode report will be generated using
 #    scripts from the currently checked out revision. Must be an absolute path.
 #
