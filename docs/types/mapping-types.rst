@@ -65,7 +65,7 @@ contract that returns the value at the specified address.
     }
 
 The example below is a simplified version of an
-`ERC20 token <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.hyp>`_.
+`ERC20 token <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol>`_.
 ``_allowances`` is an example of a mapping type inside another mapping type.
 
 In the example below, the optional ``KeyName`` and ``ValueName`` are provided for the mapping.
