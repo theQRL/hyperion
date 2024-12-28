@@ -114,8 +114,8 @@ def download_benchmarks(
     debug_requests: bool = False,
     silent: bool = False,
 ) -> Status:
-    github = Github('theQRL/hyperion', debug_requests)
-    circleci = CircleCI('theQRL/hyperion', debug_requests)
+    github = Github('ethereum/solidity', debug_requests) # TODO(now.youtrack.cloud/issue/TS-16)
+    circleci = CircleCI('ethereum/solidity', debug_requests) # TODO(now.youtrack.cloud/issue/TS-16)
 
     expected_commit_hash = None
     if branch is None and pull_request_id is None and base_of_pr is None:
