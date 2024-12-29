@@ -3461,7 +3461,7 @@ BOOST_AUTO_TEST_CASE(abi_encodePacked_functionPtr)
 {
 	char const* sourceCode = R"(
 		contract C {
-			C other = C(0x1112131400000000000011121314000000000087);
+			C other = C(Z1112131400000000000011121314000000000087);
 			function testDirect() public view returns (bytes memory) {
 				return abi.encodePacked(uint8(8), other.f, uint8(2));
 			}

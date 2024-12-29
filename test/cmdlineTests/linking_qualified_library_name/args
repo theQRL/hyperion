@@ -1,1 +1,1 @@
-linking_qualified_library_name/contract1.hyp --bin --libraries linking_qualified_library_name/math.hyp:Log:0x7777777777777777777777777777777777777777
+linking_qualified_library_name/contract1.hyp --bin --libraries linking_qualified_library_name/math.hyp:Log:Z7777777777777777777777777777777777777777

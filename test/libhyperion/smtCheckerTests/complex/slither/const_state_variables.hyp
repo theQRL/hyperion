@@ -1,8 +1,8 @@
 
 contract A {
 
-    address constant public MY_ADDRESS = 0xE0f5206BBD039e7b0592d8918820024e2a7437b9;
-    address public myFriendsAddress = 0xc0ffee254729296a45a3885639AC7E10F9d54979;
+    address constant public MY_ADDRESS = ZE0f5206BBD039e7b0592d8918820024e2a7437b9;
+    address public myFriendsAddress = Zc0ffee254729296a45a3885639AC7E10F9d54979;
 
     uint public used;
     uint public test = 5;
@@ -21,7 +21,7 @@ contract A {
 
 contract B is A {
 
-    address public mySistersAddress = 0x999999cf1046e68e36E1aA2E0E07105eDDD1f08E;
+    address public mySistersAddress = Z999999cf1046e68e36E1aA2E0E07105eDDD1f08E;
 
     fallback () external {
         used = 0;
@@ -52,6 +52,6 @@ contract MyConc{
 // SMTEngine: all
 // SMTIgnoreCex: yes
 // ----
-// Warning 2519: (740-759): This declaration shadows an existing declaration.
-// Warning 2018: (976-1053): Function state mutability can be restricted to view
-// Warning 4984: (952-969): CHC: Overflow (resulting value larger than 2**256 - 1) happens here.
+// Warning 2519: (737-756): This declaration shadows an existing declaration.
+// Warning 2018: (973-1050): Function state mutability can be restricted to view
+// Warning 4984: (949-966): CHC: Overflow (resulting value larger than 2**256 - 1) happens here.

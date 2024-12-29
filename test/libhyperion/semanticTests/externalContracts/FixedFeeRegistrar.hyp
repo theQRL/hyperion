@@ -26,7 +26,7 @@ contract FixedFeeRegistrar is Registrar {
 
 	function reserve(string memory _name) public payable {
 		Record storage rec = m_record(_name);
-		if (rec.owner == 0x0000000000000000000000000000000000000000 && msg.value >= c_fee) {
+		if (rec.owner == Z0000000000000000000000000000000000000000 && msg.value >= c_fee) {
 			rec.owner = msg.sender;
 			emit Changed(_name);
 		}

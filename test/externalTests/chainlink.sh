@@ -73,7 +73,7 @@ function chainlink_test
     sed -i "s|\(it\)\(('errors while parsing invalid cron strings'\)|\1.skip\2|g" test/v0.8/Cron.test.ts
     sed -i "s|\(it\)\(('reverts if the amount passed in data mismatches actual amount sent'\)|\1.skip\2|g" test/v0.8/KeeperRegistrar.test.ts
     sed -i "s|\(it\)\(('reverts if the sender passed in data mismatches actual sender'\)|\1.skip\2|g" test/v0.8/KeeperRegistrar.test.ts
-    sed -i "s|\(it\)\(('reverts if the admin address is 0x0000...'\)|\1.skip\2|g" test/v0.8/KeeperRegistrar.test.ts
+    sed -i "s|\(it\)\(('reverts if the admin address is Z0000...'\)|\1.skip\2|g" test/v0.8/KeeperRegistrar.test.ts
     sed -i "s|\(it\)\(('reverts if not called with more or less than 32 bytes'\)|\1.skip\2|g" test/v0.8/KeeperRegistry.test.ts
     sed -i "s|\(context\)\(('when permissions are not set'\)|\1.skip\2|g" test/v0.8/KeeperRegistry.test.ts
 

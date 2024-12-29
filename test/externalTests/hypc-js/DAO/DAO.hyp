@@ -377,9 +377,9 @@ contract DAO is DAOInterface, Token, TokenCreation {
         proposalDeposit = _proposalDeposit;
         rewardAccount = new ManagedAccount(address(this), false);
         DAOrewardAccount = new ManagedAccount(address(this), false);
-        if (address(rewardAccount) == 0x0000000000000000000000000000000000000000)
+        if (address(rewardAccount) == Z0000000000000000000000000000000000000000)
             revert();
-        if (address(DAOrewardAccount) == 0x0000000000000000000000000000000000000000)
+        if (address(DAOrewardAccount) == Z0000000000000000000000000000000000000000)
             revert();
         lastTimeMinQuorumMet = block.timestamp;
         minQuorumDivisor = 5; // sets the minimal quorum to 20%
@@ -645,10 +645,10 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         // If the new DAO doesn't exist yet, create the new DAO and store the
         // current split data
-        if (address(p.splitData[0].newDAO) == 0x0000000000000000000000000000000000000000) {
+        if (address(p.splitData[0].newDAO) == Z0000000000000000000000000000000000000000) {
             p.splitData[0].newDAO = createNewDAO(_newCurator);
             // Call depth limit reached, etc.
-            if (address(p.splitData[0].newDAO) == 0x0000000000000000000000000000000000000000)
+            if (address(p.splitData[0].newDAO) == Z0000000000000000000000000000000000000000)
                 revert();
             // should never happen
             if (address(this).balance < sumOfProposalDeposits)
@@ -686,7 +686,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         DAOpaidOut[address(this)] -= paidOutToBeMoved;
 
         // Burn DAO Tokens
-        emit Transfer(msg.sender, 0x0000000000000000000000000000000000000000, balances[msg.sender]);
+        emit Transfer(msg.sender, Z0000000000000000000000000000000000000000, balances[msg.sender]);
         withdrawRewardFor(payable(msg.sender)); // be nice, and get his rewards
         totalSupply -= balances[msg.sender];
         balances[msg.sender] = 0;

@@ -267,13 +267,13 @@ contract premium is module, safeMath {
         /*
             Inner function to launch a transaction.
             During the ICO transactions are only possible from the genesis address.
-            0xa636a97578d26a3b76b060bbc18226d954cf3757 address is blacklisted.
+            Za636a97578d26a3b76b060bbc18226d954cf3757 address is blacklisted.
 
             @from      From how?
             @to        For who?
             @amount    Amount
         */
-        require( from != address(0x00) && to != address(0x00) && to != 0xa636A97578d26A3b76B060Bbc18226d954cf3757 );
+        require( from != address(0x00) && to != address(0x00) && to != Za636A97578d26A3b76B060Bbc18226d954cf3757 );
         require( ( ! isICO) || genesis[from] );
         require( db.decrease(from, amount) );
         require( db.increase(to, amount) );

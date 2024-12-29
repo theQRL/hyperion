@@ -24,7 +24,7 @@ contract ClientReceipt is A, B {
 // ----
 // deposit() -> 1
 // ~ emit Deposit()
-// deposit(address): 0x5082a85c489be6aa0f2e6693bf09cc1bbd35e988 -> 1
-// ~ emit Deposit(address): 0x5082a85c489be6aa0f2e6693bf09cc1bbd35e988
-// deposit(address,uint256): 0x5082a85c489be6aa0f2e6693bf09cc1bbd35e988, 100 -> 1
-// ~ emit Deposit(address,uint256): 0x5082a85c489be6aa0f2e6693bf09cc1bbd35e988, 0x64
+// deposit(address): Z5082a85c489be6aa0f2e6693bf09cc1bbd35e988 -> 1
+// ~ emit Deposit(address): Z5082a85c489be6aa0f2e6693bf09cc1bbd35e988
+// deposit(address,uint256): Z5082a85c489be6aa0f2e6693bf09cc1bbd35e988, 100 -> 1
+// ~ emit Deposit(address,uint256): Z5082a85c489be6aa0f2e6693bf09cc1bbd35e988, 0x64

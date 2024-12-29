@@ -6,4 +6,4 @@ contract ClientReceipt {
 }
 // ----
 // deposit(bytes32), 18 wei: 0x1234 ->
-// ~ emit Deposit(address,bytes32,uint256): #0x1212121212121212121212121212120000000012, #0x1234, 0x12
+// ~ emit Deposit(address,bytes32,uint256): #Z1212121212121212121212121212120000000012, #0x1234, 0x12
