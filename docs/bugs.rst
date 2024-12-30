@@ -34,7 +34,7 @@ The JSON file of known bugs below is an array of objects, one for each bug,
 with the following keys:
 
 uid
-    Unique identifier given to the bug in the form of ``SOL-<year>-<number>``.
+    Unique identifier given to the bug in the form of ``HYP-<year>-<number>``.
     It is possible that multiple entries exists with the same uid. This means
     multiple version ranges are affected by the same bug.
 name

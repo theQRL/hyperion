@@ -991,9 +991,6 @@ std::tuple<bool, rational> RationalNumberType::isValidLiteral(Literal const& _li
 		case Literal::SubDenomination::Week:
 			value *= bigint("604800");
 			break;
-		case Literal::SubDenomination::Year:
-			value *= bigint("31536000");
-			break;
 	}
 
 

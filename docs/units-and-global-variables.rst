@@ -23,7 +23,7 @@ The only effect of the subdenomination suffix is a multiplication by a power of 
 .. note::
     The denominations ``finney`` and ``szabo`` have been removed in version 0.7.0.
 
-.. index:: ! seconds, ! minutes, ! hours, ! days, ! weeks, ! years, ! denomination;time
+.. index:: ! seconds, ! minutes, ! hours, ! days, ! weeks, ! denomination;time
 
 Time Units
 ==========
@@ -43,9 +43,6 @@ not every year equals 365 days and not even every day has 24 hours
 because of `leap seconds <https://en.wikipedia.org/wiki/Leap_second>`_.
 Due to the fact that leap seconds cannot be predicted, an exact calendar
 library has to be updated by an external oracle.
-
-.. note::
-    The suffix ``years`` has been removed in version 0.5.0 due to the reasons above.
 
 These suffixes cannot be applied to variables. For example, if you want to
 interpret a function parameter in days, you can in the following way:

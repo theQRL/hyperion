@@ -3723,13 +3723,6 @@ void TypeChecker::endVisit(Literal const& _literal)
 			"You can use an expression of the form \"0x1234 * 1 day\" instead."
 		);
 
-	if (_literal.subDenomination() == Literal::SubDenomination::Year)
-		m_errorReporter.typeError(
-			4820_error,
-			_literal.location(),
-			"Using \"years\" as a unit denomination is deprecated."
-		);
-
 	if (!_literal.annotation().type)
 		_literal.annotation().type = TypeProvider::forLiteral(_literal);
 

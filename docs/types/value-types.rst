@@ -427,9 +427,9 @@ Dynamically-sized byte array
 Address Literals
 ----------------
 
-Hexadecimal literals that pass the address checksum test, for example
+Z-prefixed hexadecimal literals that pass the address checksum test, for example
 ``ZdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF`` are of ``address`` type.
-Hexadecimal literals that are between 39 and 41 digits // TODO(rgeraldes24)
+Hexadecimal literals that are 41 digits
 long and do not pass the checksum test produce
 an error. You can prepend (for integer types) or append (for bytesNN types) zeros to remove the error.
 
@@ -929,7 +929,7 @@ Another example that uses external function types:
 
 
     contract OracleUser {
-        Oracle constant private ORACLE_CONST = Oracle(address(Z00000000219ab540356cBB839Cbe05303d7705Fa)); // known contract
+        Oracle constant private ORACLE_CONST = Oracle(Z00000000219ab540356cBB839Cbe05303d7705Fa); // known contract
         uint private exchangeRate;
 
         function buySomething() public {
