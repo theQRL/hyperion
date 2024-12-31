@@ -12,5 +12,5 @@ contract C {
 	}
 }
 // ----
-// testYul(address): 0x1234567890 -> 0x1234567890
-// testYul(address): 0xC0FFEE3EA7 -> 0xC0FFEE3EA7
+// testYul(address): 0x1234567890 -> Z1234567890
+// testYul(address): 0xC0FFEE3EA7 -> ZC0FFEE3EA7

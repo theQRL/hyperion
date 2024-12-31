@@ -523,7 +523,7 @@ std::string AddressType::canonicalName() const
 u256 AddressType::literalValue(Literal const* _literal) const
 {
 	hypAssert(_literal, "");
-	hypAssert(_literal->value().substr(0, 2) == "0x", "");
+	hypAssert(_literal->value().substr(0, 1) == "Z", "");
 	return u256(_literal->valueWithoutUnderscores());
 }
 
