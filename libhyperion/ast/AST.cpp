@@ -1012,28 +1012,35 @@ bool Literal::isHexNumber() const
 	return boost::starts_with(value(), "0x");
 }
 
+bool Literal::isAddress() const
+{
+	if (token() != Token::AddressLiteral)
+		return false;
+	return boost::starts_with(value(), "Z");
+}
+
 bool Literal::looksLikeAddress() const
 {
 	if (subDenomination() != SubDenomination::None)
 		return false;
 
-	if (!isHexNumber())
+	if (!isAddress())
 		return false;
 
-	return abs(int(valueWithoutUnderscores().length()) - 42) <= 1;
+	return abs(int(valueWithoutUnderscores().length()) - 41) <= 1;
 }
 
 bool Literal::passesAddressChecksum() const
 {
-	hypAssert(isHexNumber(), "Expected hex number");
+	hypAssert(isAddress(), "Expected address");
 	return util::passesAddressChecksum(valueWithoutUnderscores(), true);
 }
 
 std::string Literal::getChecksummedAddress() const
 {
-	hypAssert(isHexNumber(), "Expected hex number");
+	hypAssert(isAddress(), "Expected address");
 	/// Pad literal to be a proper hex address.
-	std::string address = valueWithoutUnderscores().substr(2);
+	std::string address = valueWithoutUnderscores().substr(1);
 	if (address.length() > 40)
 		return std::string();
 	address.insert(address.begin(), 40 - address.size(), '0');

@@ -803,8 +803,8 @@ BOOST_AUTO_TEST_CASE(libraries_invalid_length)
 		"settings": {
 			"libraries": {
 				"library.hyp": {
-					"L1": "0x42",
-					"L2": "0x4200000000000000000000000000000000000001ff"
+					"L1": "Z42",
+					"L2": "Z4200000000000000000000000000000000000001ff"
 				}
 			}
 		},

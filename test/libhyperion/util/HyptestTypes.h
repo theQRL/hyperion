@@ -106,6 +106,7 @@ struct ABIType
 		UnsignedDec,
 		SignedDec,
 		Hex,
+		Address,
 		HexString,
 		String,
 		UnsignedFixedPoint,

@@ -1120,12 +1120,15 @@ ContractKind ASTJsonImporter::contractKind(Json::Value const& _node)
 	return kind;
 }
 
+// TODO(rgeraldes24): review
 Token ASTJsonImporter::literalTokenKind(Json::Value const& _node)
 {
 	astAssert(member(_node, "kind").isString(), "Token-'kind' expected to be a string.");
 	Token tok;
 	if (_node["kind"].asString() == "number")
 		tok = Token::Number;
+	else if (_node["kind"].asString() == "address")
+		tok = Token::AddressLiteral;
 	else if (_node["kind"].asString() == "string")
 		tok = Token::StringLiteral;
 	else if (_node["kind"].asString() == "unicodeString")

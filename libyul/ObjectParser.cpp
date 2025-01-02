@@ -142,6 +142,7 @@ std::optional<SourceNameMap> ObjectParser::tryParseSourceNameMapping() const
 
 	while (scanner.currentToken() != Token::EOS)
 	{
+		// TODO(rgeraldes24)
 		if (scanner.currentToken() != Token::Number)
 			break;
 		auto sourceIndex = toUnsignedInt(scanner.currentLiteral());

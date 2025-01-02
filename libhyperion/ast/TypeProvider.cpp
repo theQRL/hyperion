@@ -347,6 +347,9 @@ Type const* TypeProvider::forLiteral(Literal const& _literal)
 		return boolean();
 	case Token::Number:
 		return rationalNumber(_literal);
+	// TODO(rgeraldes24): overloading/refactor method
+	case Token::AddressLiteral:
+		return rationalNumberAddress(_literal);
 	case Token::StringLiteral:
 	case Token::UnicodeStringLiteral:
 	case Token::HexStringLiteral:
@@ -354,6 +357,20 @@ Type const* TypeProvider::forLiteral(Literal const& _literal)
 	default:
 		return nullptr;
 	}
+}
+
+RationalNumberType const* TypeProvider::rationalNumberAddress(Literal const& _literal)
+{
+	hypAssert(_literal.token() == Token::AddressLiteral, "");
+	std::tuple<bool, rational> validLiteral = RationalNumberType::isValidLiteral(_literal);
+	if (std::get<0>(validLiteral))
+	{
+		Type const* compatibleBytesType = nullptr;
+		size_t const digitCount = _literal.valueWithoutUnderscores().length() - 2;
+		compatibleBytesType = fixedBytes(static_cast<unsigned>(digitCount / 2));
+		return rationalNumber(std::get<1>(validLiteral), compatibleBytesType);
+	}
+	return nullptr;
 }
 
 RationalNumberType const* TypeProvider::rationalNumber(Literal const& _literal)

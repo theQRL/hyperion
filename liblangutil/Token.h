@@ -314,7 +314,7 @@ namespace TokenTraits
 	}
 
 	constexpr bool isEtherSubdenomination(Token op) { return op >= Token::SubWei && op <= Token::SubEther; }
-	constexpr bool isTimeSubdenomination(Token op) { return op == Token::SubSecond || op == Token::SubMinute || op == Token::SubHour || op == Token::SubDay || op == Token::SubWeek }
+	constexpr bool isTimeSubdenomination(Token op) { return op == Token::SubSecond || op == Token::SubMinute || op == Token::SubHour || op == Token::SubDay || op == Token::SubWeek; }
 	constexpr bool isReservedKeyword(Token op) { return (Token::After <= op && op <= Token::Var); }
 
 	constexpr bool isYulKeyword(Token tok)

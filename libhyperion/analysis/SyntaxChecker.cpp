@@ -274,6 +274,7 @@ bool SyntaxChecker::visit(Literal const& _literal)
 			"Contains invalid UTF-8 sequence at position " + toString(invalidSequence) + "."
 		);
 
+	// TODO(rgeraldes24): underscore checks
 	if (_literal.token() != Token::Number)
 		return true;
 

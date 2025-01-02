@@ -37,6 +37,7 @@ contract C {
     }
 }
 // ----
+// TODO(rgeraldes24)
 // f(address): 0x1234 -> false
 // f(address): 0x00 -> true
 // g() -> true

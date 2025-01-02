@@ -1,4 +1,5 @@
 contract C {
+    // TODO(rgeraldes24): review
     struct S {
         mapping(uint => uint) c;
     }

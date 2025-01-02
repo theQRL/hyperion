@@ -33,6 +33,7 @@ namespace hyperion::frontend::test
 struct AnnotatedEventSignature
 {
 	std::string signature;
+	std::vector<std::string> types;
 	std::vector<std::string> indexedTypes;
 	std::vector<std::string> nonIndexedTypes;
 };

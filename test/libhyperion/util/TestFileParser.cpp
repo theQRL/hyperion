@@ -618,6 +618,11 @@ void TestFileParser::Scanner::scanNextToken()
 		case '\"':
 			selectToken(Token::String, scanString());
 			break;
+		// TODO(rgeraldes24)
+		// case 'Z':
+		// 	advance();
+		// 	selectToken(Token::HexNumber, "0x" + scanHexNumber());
+		// 	break;
 		default:
 			if (langutil::isIdentifierStart(current()))
 			{
