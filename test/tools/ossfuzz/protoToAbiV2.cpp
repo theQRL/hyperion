@@ -1300,7 +1300,7 @@ std::string ValueGetterVisitor::isabelleAddressValueAsString(std::string& _hypAd
 {
 	// Isabelle encoder expects address literal to be exactly
 	// 20 bytes and a hex string.
-	// Example: 0x0102030405060708090a0102030405060708090a
+	// Example: 0x0102030405060708090a0102030405060708090a // TODO(rgeraldes24)
 	std::regex const addressPattern("address\\((.*)\\)");
 	std::smatch match;
 	hypAssert(std::regex_match(_hypAddressString, match, addressPattern), "Abiv2 fuzzer: Invalid address string");

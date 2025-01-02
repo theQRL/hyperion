@@ -18,7 +18,7 @@ contract C {
 // gas irOptimized: 166148
 // gas legacy: 285547
 // gas legacyOptimized: 168515
-// f(uint256): 20 -> 0x137aa4dfc0911524504fcd4d98501f179bc13b4a
+// f(uint256): 20 -> 0x137aa4dfc0911524504fcd4d98501f179bc13b4a // TODO(rgeraldes24)
 // x() -> 1
 // f(uint256): 20 -> FAILURE
 // x() -> 1
@@ -27,5 +27,5 @@ contract C {
 // gas legacy: 477722
 // gas legacyOptimized: 299567
 // x() -> 1
-// stack(uint256): 10 -> 0x87948bd7ebbe13a00bfd930c93e4828ab18e3908
+// stack(uint256): 10 -> Z87948bd7ebbe13a00bfd930c93e4828ab18e3908
 // x() -> 2

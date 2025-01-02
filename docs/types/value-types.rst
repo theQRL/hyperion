@@ -930,6 +930,7 @@ Another example that uses external function types:
 
 
     contract OracleUser {
+        // TODO(rgeraldes24)
         Oracle constant private ORACLE_CONST = Oracle(address(0x00000000219ab540356cBB839Cbe05303d7705Fa)); // known contract // TODO(rgeraldes24)
         uint private exchangeRate;
 

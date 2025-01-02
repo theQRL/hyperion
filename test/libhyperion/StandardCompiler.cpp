@@ -920,7 +920,7 @@ BOOST_AUTO_TEST_CASE(linking_yul_empty_link_reference)
 		"settings": {
 			"libraries": {
 				"": {
-					"": "0x4200000000000000000000000000000000000001"
+					"": "Z4200000000000000000000000000000000000001"
 				}
 			},
 			"outputSelection": {
