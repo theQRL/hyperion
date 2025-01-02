@@ -202,7 +202,6 @@ namespace hyperion::langutil
 	K(SubHour, "hours", 0)                                             \
 	K(SubDay, "days", 0)                                               \
 	K(SubWeek, "weeks", 0)                                             \
-	K(SubYear, "years", 0)                                             \
 	/* type keywords*/                                                 \
 	K(Int, "int", 0)                                                   \
 	K(UInt, "uint", 0)                                                 \
@@ -224,6 +223,7 @@ namespace hyperion::langutil
 	K(FalseLiteral, "false", 0)                                        \
 	T(Number, nullptr, 0)                                              \
 	T(StringLiteral, nullptr, 0)                                       \
+	T(AddressLiteral, nullptr, 0)                                      \
 	T(UnicodeStringLiteral, nullptr, 0)                                \
 	T(HexStringLiteral, nullptr, 0)                                    \
 	T(CommentLiteral, nullptr, 0)                                      \
@@ -314,7 +314,7 @@ namespace TokenTraits
 	}
 
 	constexpr bool isEtherSubdenomination(Token op) { return op >= Token::SubWei && op <= Token::SubEther; }
-	constexpr bool isTimeSubdenomination(Token op) { return op == Token::SubSecond || op == Token::SubMinute || op == Token::SubHour || op == Token::SubDay || op == Token::SubWeek || op == Token::SubYear; }
+	constexpr bool isTimeSubdenomination(Token op) { return op == Token::SubSecond || op == Token::SubMinute || op == Token::SubHour || op == Token::SubDay || op == Token::SubWeek }
 	constexpr bool isReservedKeyword(Token op) { return (Token::After <= op && op <= Token::Var); }
 
 	constexpr bool isYulKeyword(Token tok)

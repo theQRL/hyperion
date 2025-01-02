@@ -103,7 +103,7 @@ contract TokenCreation is TokenCreationInterface, Token {
     function createTokenProxy(address payable _tokenHolder) payable public
 override returns (bool success) {
         if (block.timestamp < closingTime && msg.value > 0
-            && (privateCreation == 0x0000000000000000000000000000000000000000 || privateCreation == msg.sender)) {
+            && (privateCreation == Z0000000000000000000000000000000000000000 || privateCreation == msg.sender)) {
 
             uint token = (msg.value * 20) / divisor();
             address(extraBalance).call{value: msg.value - token}("");

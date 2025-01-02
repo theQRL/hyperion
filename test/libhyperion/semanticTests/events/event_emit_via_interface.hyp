@@ -10,4 +10,4 @@ contract C {
 
 // ----
 // emitEvent(uint256): 100 ->
-// ~ emit Event(address,uint256): #0x1212121212121212121212121212120000000012, 0x64
+// ~ emit Event(address,uint256): #Z1212121212121212121212121212120000000012, 0x64

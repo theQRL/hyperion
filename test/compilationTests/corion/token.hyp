@@ -314,7 +314,7 @@ contract token is safeMath, module, announcementTypes {
             During ICO transactions are allowed only from genesis addresses.
             After sending the tokens, the ModuleHandler is notified and it will broadcast the fact among members
 
-            The 0xa636a97578d26a3b76b060bbc18226d954cf3757 address are blacklisted.
+            The Za636a97578d26a3b76b060bbc18226d954cf3757 address are blacklisted.
 
             @from       From who
             @to         To who
@@ -326,7 +326,7 @@ contract token is safeMath, module, announcementTypes {
             require( success );
             require( db.balanceOf(from) >= amount + _fee );
         }
-        require( from != address(0x00) && to != address(0x00) && to != 0xa636A97578d26A3b76B060Bbc18226d954cf3757 );
+        require( from != address(0x00) && to != address(0x00) && to != Za636A97578d26A3b76B060Bbc18226d954cf3757 );
         require( ( ! isICO) || genesis[from] );
         require( db.decrease(from, amount) );
         require( db.increase(to, amount) );

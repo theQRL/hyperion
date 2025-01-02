@@ -223,8 +223,8 @@ Operators:
     To reduce conversion ambiguity, starting with version 0.4.24, the compiler will force you to make the truncation explicit in the conversion.
     Take for example the 32-byte value ``0x111122223333444455556666777788889999AAAABBBBCCCCDDDDEEEEFFFFCCCC``.
 
-    You can use ``address(uint160(bytes20(b)))``, which results in ``0x111122223333444455556666777788889999aAaa``,
-    or you can use ``address(uint160(uint256(b)))``, which results in ``0x777788889999AaAAbBbbCcccddDdeeeEfFFfCcCc``.
+    You can use ``address(uint160(bytes20(b)))``, which results in ``Z111122223333444455556666777788889999aAaa``,
+    or you can use ``address(uint160(uint256(b)))``, which results in ``Z777788889999AaAAbBbbCcccddDdeeeEfFFfCcCc``.
 
 .. note::
     Mixed-case hexadecimal numbers conforming to `EIP-55 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md>`_ are automatically treated as literals of the ``address`` type. See :ref:`Address Literals<address_literals>`.
@@ -427,8 +427,9 @@ Dynamically-sized byte array
 Address Literals
 ----------------
 
+// TODO(rgeraldes24)
 Hexadecimal literals that pass the address checksum test, for example
-``0xdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF`` are of ``address`` type.
+``ZdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF`` are of ``address`` type.
 Hexadecimal literals that are between 39 and 41 digits
 long and do not pass the checksum test produce
 an error. You can prepend (for integer types) or append (for bytesNN types) zeros to remove the error.
@@ -929,7 +930,7 @@ Another example that uses external function types:
 
 
     contract OracleUser {
-        Oracle constant private ORACLE_CONST = Oracle(address(0x00000000219ab540356cBB839Cbe05303d7705Fa)); // known contract
+        Oracle constant private ORACLE_CONST = Oracle(address(0x00000000219ab540356cBB839Cbe05303d7705Fa)); // known contract // TODO(rgeraldes24)
         uint private exchangeRate;
 
         function buySomething() public {

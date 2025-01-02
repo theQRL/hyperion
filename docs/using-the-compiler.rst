@@ -78,10 +78,10 @@ identify which libraries the placeholders represent. Note that the fully qualifi
 is the path of its source file and the library name separated by ``:``.
 You can use ``hypc`` as a linker meaning that it will insert the library addresses for you at those points:
 
-Either add ``--libraries "file.hyp:Math=0x1234567890123456789012345678901234567890 file.hyp:Heap=0xabCD567890123456789012345678901234567890"`` to your command to provide an address for each library (use commas or spaces as separators) or store the string in a file (one library per line) and run ``hypc`` using ``--libraries fileName``.
+Either add ``--libraries "file.hyp:Math=Z1234567890123456789012345678901234567890 file.hyp:Heap=ZabCD567890123456789012345678901234567890"`` to your command to provide an address for each library (use commas or spaces as separators) or store the string in a file (one library per line) and run ``hypc`` using ``--libraries fileName``.
 
 .. note::
-    Starting Hyperion 0.8.1 accepts ``=`` as separator between library and address, and ``:`` as a separator is deprecated. It will be removed in the future. Currently ``--libraries "file.hyp:Math:0x1234567890123456789012345678901234567890 file.hyp:Heap:0xabCD567890123456789012345678901234567890"`` will work too.
+    Starting Hyperion 0.8.1 accepts ``=`` as separator between library and address, and ``:`` as a separator is deprecated. It will be removed in the future. Currently ``--libraries "file.hyp:Math:Z1234567890123456789012345678901234567890 file.hyp:Heap:ZabCD567890123456789012345678901234567890"`` will work too.
 
 .. index:: --standard-json, --base-path
 
@@ -337,7 +337,7 @@ Input Description
           // after remappings were applied.
           // If this key is an empty string, that refers to a global level.
           "myFile.hyp": {
-            "MyLib": "0x123123..."
+            "MyLib": "Z123123..."
           }
         },
         // The following can be used to select desired outputs based

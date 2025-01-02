@@ -582,13 +582,12 @@ BOOST_AUTO_TEST_CASE(ether_subdenominations)
 
 BOOST_AUTO_TEST_CASE(time_subdenominations)
 {
-	TestScanner scanner("seconds minutes hours days weeks years");
+	TestScanner scanner("seconds minutes hours days weeks");
 	BOOST_CHECK_EQUAL(scanner.currentToken(), Token::SubSecond);
 	BOOST_CHECK_EQUAL(scanner.next(), Token::SubMinute);
 	BOOST_CHECK_EQUAL(scanner.next(), Token::SubHour);
 	BOOST_CHECK_EQUAL(scanner.next(), Token::SubDay);
 	BOOST_CHECK_EQUAL(scanner.next(), Token::SubWeek);
-	BOOST_CHECK_EQUAL(scanner.next(), Token::SubYear);
 }
 
 BOOST_AUTO_TEST_CASE(empty_comment)

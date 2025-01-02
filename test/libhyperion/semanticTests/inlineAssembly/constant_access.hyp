@@ -3,7 +3,7 @@ contract C {
     bytes2 constant b = 0xabcd;
     bytes3 constant c = "abc";
     bool constant d = true;
-    address constant e = 0x1212121212121212121212121212121212121212;
+    address constant e = Z1212121212121212121212121212121212121212;
     function f() public pure returns (uint w, bytes2 x, bytes3 y, bool z, address t) {
         assembly {
             w := a
@@ -15,4 +15,4 @@ contract C {
     }
 }
 // ----
-// f() -> 2, left(0xabcd), left(0x616263), true, 0x1212121212121212121212121212121212121212
+// f() -> 2, left(0xabcd), left(0x616263), true, Z1212121212121212121212121212121212121212

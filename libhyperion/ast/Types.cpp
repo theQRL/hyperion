@@ -523,7 +523,7 @@ std::string AddressType::canonicalName() const
 u256 AddressType::literalValue(Literal const* _literal) const
 {
 	hypAssert(_literal, "");
-	hypAssert(_literal->value().substr(0, 2) == "0x", "");
+	hypAssert(_literal->value().substr(0, 1) == "Z", "");
 	return u256(_literal->valueWithoutUnderscores());
 }
 
@@ -990,9 +990,6 @@ std::tuple<bool, rational> RationalNumberType::isValidLiteral(Literal const& _li
 			break;
 		case Literal::SubDenomination::Week:
 			value *= bigint("604800");
-			break;
-		case Literal::SubDenomination::Year:
-			value *= bigint("31536000");
 			break;
 	}
 

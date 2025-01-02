@@ -1212,8 +1212,6 @@ Literal::SubDenomination ASTJsonImporter::subdenomination(Json::Value const& _no
 		return Literal::SubDenomination::Day;
 	else if (subDenStr == "weeks")
 		return Literal::SubDenomination::Week;
-	else if (subDenStr == "years")
-		return Literal::SubDenomination::Year;
 	else
 		astAssert(false, "Unknown subdenomination");
 

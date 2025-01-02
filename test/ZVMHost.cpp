@@ -105,9 +105,9 @@ ZVMHost::ZVMHost(langutil::ZVMVersion _zvmVersion, zvmc::VM& _vm):
 	// This is the value from the merge block.
 	tx_context.block_prev_randao = 0xa86c2e601b6c44eb4848f7d23d9df3113fbcac42041c49cbed5000cb4f118777_bytes32;
 	tx_context.block_gas_limit = 20000000;
-	tx_context.block_coinbase = 0x7878787878787878787878787878787878787878_address;
+	tx_context.block_coinbase = "Z7878787878787878787878787878787878787878"_address;
 	tx_context.tx_gas_price = zvmc::uint256be{3000000000};
-	tx_context.tx_origin = 0x9292929292929292929292929292929292929292_address;
+	tx_context.tx_origin = "Z9292929292929292929292929292929292929292"_address;
 	// Mainnet according to EIP-155
 	tx_context.chain_id = zvmc::uint256be{1};
 	// The minimum value of basefee
@@ -175,19 +175,19 @@ void ZVMHost::recordCalls(zvmc_message const& _message) noexcept
 zvmc::Result ZVMHost::call(zvmc_message const& _message) noexcept
 {
 	recordCalls(_message);
-	if (_message.recipient == 0x0000000000000000000000000000000000000001_address)
+	if (_message.recipient == "Z0000000000000000000000000000000000000001"_address)
 		return precompileDepositRoot(_message);
-	else if (_message.recipient == 0x0000000000000000000000000000000000000002_address)
+	else if (_message.recipient == "Z0000000000000000000000000000000000000002"_address)
 		return precompileSha256(_message);
-	else if (_message.recipient == 0x0000000000000000000000000000000000000004_address)
+	else if (_message.recipient == "Z0000000000000000000000000000000000000004"_address)
 		return precompileIdentity(_message);
-	else if (_message.recipient == 0x0000000000000000000000000000000000000005_address)
+	else if (_message.recipient == "Z0000000000000000000000000000000000000005"_address)
 		return precompileModExp(_message);
-	else if (_message.recipient == 0x0000000000000000000000000000000000000006_address)
+	else if (_message.recipient == "Z0000000000000000000000000000000000000006"_address)
 		return precompileALTBN128G1Add(_message);
-	else if (_message.recipient == 0x0000000000000000000000000000000000000007_address)
+	else if (_message.recipient == "Z0000000000000000000000000000000000000007"_address)
 		return precompileALTBN128G1Mul(_message);
-	else if (_message.recipient == 0x0000000000000000000000000000000000000008_address)
+	else if (_message.recipient == "Z0000000000000000000000000000000000000008"_address)
 		return precompileALTBN128PairingProduct(_message);
 
 	auto const stateBackup = accounts;

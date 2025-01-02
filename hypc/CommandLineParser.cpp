@@ -424,13 +424,13 @@ void CommandLineParser::parseLibraryOption(std::string const& _input)
 					(isSeparatorEqualSign ? "equal sign" : "colon") + "."
 				);
 
-			if (addrString.substr(0, 2) == "0x")
-				addrString = addrString.substr(2);
+			if (addrString.substr(0, 1) == "Z")
+				addrString = addrString.substr(1);
 			else
 				hypThrow(
 					CommandLineValidationError,
-					"The address " + addrString + " is not prefixed with \"0x\".\n"
-					"Note that the address must be prefixed with \"0x\"."
+					"The address " + addrString + " is not prefixed with \"Z\".\n"
+					"Note that the address must be prefixed with \"Z\"."
 				);
 
 			if (addrString.length() != 40)
@@ -698,7 +698,7 @@ General Information)").c_str(),
 			po::value<std::vector<std::string>>()->value_name("libs"),
 			"Direct string or file containing library addresses. Syntax: "
 			"<libraryName>=<address> [, or whitespace] ...\n"
-			"Address is interpreted as a hex string prefixed by 0x."
+			"Address is interpreted as a hex string prefixed by Z."
 		)
 	;
 	desc.add(linkerModeOptions);
