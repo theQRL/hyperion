@@ -981,9 +981,10 @@ For example this code
 
 is equivalent to
 
+// TODO(rgeraldes24): review yul compiler
 .. code-block:: yul
 
-    let a := Z1234567890123456789012345678901234567890
+    let a := 0x1234567890123456789012345678901234567890
 
 when the linker is invoked with ``--libraries "file.hyp:Math=Z1234567890123456789012345678901234567890``
 option.
