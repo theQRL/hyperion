@@ -35,7 +35,7 @@ with the following keys:
 
 // TODO(rgeraldes24)
 uid
-    Unique identifier given to the bug in the form of ``SOL-<year>-<number>``. // TODO(rgeraldes24)
+    Unique identifier given to the bug in the form of ``HYP-<year>-<number>``. // TODO(rgeraldes24)
     It is possible that multiple entries exists with the same uid. This means
     multiple version ranges are affected by the same bug.
 name
