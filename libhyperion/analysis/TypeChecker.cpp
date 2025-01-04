@@ -3710,7 +3710,6 @@ void TypeChecker::endVisit(Literal const& _literal)
 			);
 	}
 
-	// TODO(rgeraldes24): address
 	if (_literal.isHexNumber() && _literal.subDenomination() != Literal::SubDenomination::None)
 		m_errorReporter.fatalTypeError(
 			5145_error,
