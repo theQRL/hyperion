@@ -178,6 +178,9 @@ private:
 	/// Parses the current hex number literal.
 	std::string parseHexNumber();
 
+	/// Parses the current address literal.
+	std::string parseAddress();
+
 	/// Parses the current string literal.
 	std::string parseString();
 

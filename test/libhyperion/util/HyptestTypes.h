@@ -27,7 +27,7 @@ namespace hyperion::frontend::test
 /**
  * All hyptest tokens.
  */
-#define SOLT_TOKEN_LIST(T, K)          \
+#define HYPT_TOKEN_LIST(T, K)          \
 	T(Unknown, "unknown", 0)           \
 	T(Invalid, "invalid", 0)           \
 	T(EOS, "EOS", 0)                   \
@@ -51,6 +51,7 @@ namespace hyperion::frontend::test
 	T(Number, "number", 0)             \
 	T(HexNumber, "hex_number", 0)      \
 	T(String, "string", 0)             \
+	T(Address, "address", 0)      \
 	T(Identifier, "identifier", 0)     \
 	/* type keywords */                \
 	K(Ether, "ether", 0)               \
@@ -68,7 +69,7 @@ namespace hyptest
 {
 	enum class Token : unsigned int {
 	#define T(name, string, precedence) name,
-		SOLT_TOKEN_LIST(T, T)
+		HYPT_TOKEN_LIST(T, T)
 		NUM_TOKENS
 	#undef T
 	};
@@ -79,7 +80,7 @@ namespace hyptest
 		switch (_token)
 		{
 	#define T(name, string, precedence) case Token::name: return string;
-			SOLT_TOKEN_LIST(T, T)
+			HYPT_TOKEN_LIST(T, T)
 	#undef T
 			default: // Token::NUM_TOKENS:
 				return "";

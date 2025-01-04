@@ -33,6 +33,7 @@ contracts should consult this list according to the following criteria:
 The JSON file of known bugs below is an array of objects, one for each bug,
 with the following keys:
 
+// TODO(rgeraldes24)
 uid
     Unique identifier given to the bug in the form of ``SOL-<year>-<number>``. // TODO(rgeraldes24)
     It is possible that multiple entries exists with the same uid. This means

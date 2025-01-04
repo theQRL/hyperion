@@ -3693,13 +3693,7 @@ void TypeChecker::endVisit(Literal const& _literal)
 		_literal.annotation().type = TypeProvider::address();
 
 		std::string msg;
-		if (_literal.valueWithoutUnderscores().length() != 41) // "Z" + 40 hex digits
-			// looksLikeAddress enforces that it is a hex literal starting with "Z"
-			msg =
-				"This looks like an address but is not exactly 40 hex digits. It is " +
-				std::to_string(_literal.valueWithoutUnderscores().length() - 1) +
-				" hex digits.";
-		else if (!_literal.passesAddressChecksum())
+		if (!_literal.passesAddressChecksum())
 		{
 			msg = "This looks like an address but has an invalid checksum.";
 			if (!_literal.getChecksummedAddress().empty())
@@ -3716,6 +3710,7 @@ void TypeChecker::endVisit(Literal const& _literal)
 			);
 	}
 
+	// TODO(rgeraldes24): address
 	if (_literal.isHexNumber() && _literal.subDenomination() != Literal::SubDenomination::None)
 		m_errorReporter.fatalTypeError(
 			5145_error,

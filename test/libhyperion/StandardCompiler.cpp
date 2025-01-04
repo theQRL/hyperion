@@ -819,7 +819,7 @@ BOOST_AUTO_TEST_CASE(libraries_invalid_length)
 	BOOST_CHECK(containsError(result, "JSONError", "Library address is of invalid length."));
 }
 
-BOOST_AUTO_TEST_CASE(libraries_missing_hex_prefix)
+BOOST_AUTO_TEST_CASE(libraries_missing_address_prefix)
 {
 	char const* input = R"(
 	{
@@ -839,7 +839,7 @@ BOOST_AUTO_TEST_CASE(libraries_missing_hex_prefix)
 	}
 	)";
 	Json::Value result = compile(input);
-	BOOST_CHECK(containsError(result, "JSONError", "Library address is not prefixed with \"0x\"."));
+	BOOST_CHECK(containsError(result, "JSONError", "Library address is not prefixed with \"Z\"."));
 }
 
 BOOST_AUTO_TEST_CASE(library_linking)

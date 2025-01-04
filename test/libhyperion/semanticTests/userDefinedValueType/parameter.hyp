@@ -23,7 +23,6 @@ contract C {
 
 }
 // ----
-// TODO(rgeraldes24)
 // id(address): 5 -> 5
 // id(address): 0xffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffff
 // id(address): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> FAILURE

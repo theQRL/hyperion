@@ -388,6 +388,17 @@ Parameter TestFileParser::parseParameter()
 			BytesUtils::convertHexNumber(parsed)
 		);
 	}
+	else if (accept(Token::Address))
+	{
+		parameter.abiType = ABIType{ABIType::Address, ABIType::AlignRight, 32};
+		std::string parsed = parseAddress();
+		parameter.rawString += parsed;
+		parameter.rawBytes = BytesUtils::applyAlign(
+			parameter.alignment,
+			parameter.abiType,
+			BytesUtils::convertHexNumber(parsed) // TODO(rgeraldes24)
+		);
+	}
 	else if (accept(Token::Hex, true))
 	{
 		if (isSigned)
@@ -527,6 +538,13 @@ std::string TestFileParser::parseHexNumber()
 	return literal;
 }
 
+std::string TestFileParser::parseAddress()
+{
+	std::string literal = m_scanner.currentLiteral();
+	expect(Token::Address);
+	return literal;
+}
+
 std::string TestFileParser::parseString()
 {
 	std::string literal = m_scanner.currentLiteral();
@@ -619,10 +637,10 @@ void TestFileParser::Scanner::scanNextToken()
 			selectToken(Token::String, scanString());
 			break;
 		// TODO(rgeraldes24)
-		// case 'Z':
-		// 	advance();
-		// 	selectToken(Token::HexNumber, "0x" + scanHexNumber());
-		// 	break;
+		case 'Z':
+			advance();
+			selectToken(Token::Address, "0x" + scanHexNumber());
+			break;
 		default:
 			if (langutil::isIdentifierStart(current()))
 			{
