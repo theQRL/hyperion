@@ -1120,7 +1120,6 @@ ContractKind ASTJsonImporter::contractKind(Json::Value const& _node)
 	return kind;
 }
 
-// TODO(rgeraldes24): review
 Token ASTJsonImporter::literalTokenKind(Json::Value const& _node)
 {
 	astAssert(member(_node, "kind").isString(), "Token-'kind' expected to be a string.");

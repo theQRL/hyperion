@@ -1024,7 +1024,6 @@ Token Scanner::scanNumber(char _charSeen)
 	return Token::Number;
 }
 
-// TODO(rgeraldes24): review
 /*
 Token Scanner::scanAddress()
 {
@@ -1067,7 +1066,7 @@ bool Scanner::scanAddress()
 	while (isHexDigit(m_char))
 		addLiteralCharAndAdvance();
 
-	// TODO(rgeraldes24)
+	// TODO(rgeraldes24): check scanAddress below
 	// The source character immediately following an address literal must
 	// not be an identifier start or a decimal digit; see ECMA-262
 	// section 7.8.3, page 17 (note that we read only one decimal digit

@@ -73,7 +73,6 @@ enum class ControlFlowState
 	Leave
 };
 
-// TODO(rgeraldes24): address to h160?
 struct InterpreterState
 {
 	bytes calldata;

@@ -520,12 +520,10 @@ std::string AddressType::canonicalName() const
 	return "address";
 }
 
-// TODO(rgeraldes24): review/refactor
 u256 AddressType::literalValue(Literal const* _literal) const
 {
-	hypAssert(_literal->value().substr(0, 1) == "Z", "");
-	std::string value = _literal->valueWithoutUnderscores();
-	boost::replace_all(value,"Z", "0x");
+	hypAssert(boost::starts_with(_literal->value(), "Z"), "");
+	std::string value = boost::replace_all_copy(_literal->value(), "Z", "0x");
 	return u256(value);
 }
 

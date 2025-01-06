@@ -40,6 +40,7 @@
 #include <libhyputil/CommonData.h>
 
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #include <algorithm>
 #include <optional>
@@ -895,9 +896,7 @@ std::variant<StandardCompiler::InputsAndSettings, Json::Value> StandardCompiler:
 
 			try
 			{
-				// TODO(rgeraldes24): review
-				// ret.libraries[sourceName + ":" + library] = util::h160(address);
-				const std::string hexAddr = std::regex_replace(address, std::regex("Z"), "0x");
+				const std::string hexAddr = boost::replace_all_copy(address, "Z", "0x");
 				ret.libraries[sourceName + ":" + library] = util::h160(hexAddr);
 			}
 			catch (util::BadHexCharacter const&)

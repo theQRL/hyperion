@@ -169,7 +169,6 @@ public:
 	/// not fit any type.
 	static Type const* forLiteral(Literal const& _literal);
 	static RationalNumberType const* rationalNumber(Literal const& _literal);
-	static RationalNumberType const* rationalNumberAddress(Literal const& _literal); // TODO(rgeraldes24): remove
 
 	static RationalNumberType const* rationalNumber(
 		rational const& _value,

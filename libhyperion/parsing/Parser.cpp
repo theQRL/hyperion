@@ -1972,7 +1972,7 @@ ASTPointer<Expression> Parser::parseLiteral()
 	case Token::TrueLiteral:
 	case Token::FalseLiteral:
 	case Token::Number:
-	case Token::AddressLiteral: // TODO(rgeraldes24)
+	case Token::AddressLiteral:
 	{
 		nodeFactory.markEndPosition();
 		advance();
