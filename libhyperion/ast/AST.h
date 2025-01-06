@@ -2420,8 +2420,6 @@ public:
 
 	/// @returns true if this is a number with a hex prefix.
 	bool isHexNumber() const;
-	// TODO(rgeraldes24): remove?
-	// bool isAddress() const;
 
 	/// @returns true if this looks like a checksummed address.
 	bool looksLikeAddress() const;

@@ -1,5 +1,4 @@
 {
-    // TODO(rgeraldes24)
     setimmutable(
         0,
         "long___name___that___definitely___exceeds___the___thirty___two___byte___limit",

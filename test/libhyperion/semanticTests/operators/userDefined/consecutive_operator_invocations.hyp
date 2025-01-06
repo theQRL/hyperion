@@ -8,7 +8,6 @@ function add(A a, A b) pure returns (A) {
 
 contract C {
     function g() public pure returns (A) {
-        // TODO(rgeraldes24)
         A a = A.wrap(Z3333333333333333333333333333333333333333);
         A b = A.wrap(Z1111111111111111111111111111111111111111);
         A c = A.wrap(Z5555555555555555555555555555555555555555);

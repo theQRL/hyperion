@@ -234,8 +234,6 @@ private:
 
 	void scanDecimalDigits();
 	Token scanNumber(char _charSeen = 0);
-	// TODO(rgeraldes24)
-	// Token scanAddress(); 
 	bool scanAddress();
 	std::tuple<Token, unsigned, unsigned> scanIdentifierOrKeyword();
 

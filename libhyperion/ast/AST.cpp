@@ -1012,22 +1012,8 @@ bool Literal::isHexNumber() const
 	return boost::starts_with(value(), "0x");
 }
 
-// TODO(rgeraldes24): remove
-/*
-bool Literal::isAddress() const
-{
-	if (token() != Token::AddressLiteral)
-		return false;
-	return boost::starts_with(value(), "Z");
-}
-*/
-
 bool Literal::looksLikeAddress() const
 {
-	// TODO(rgeraldes24): remove?
-	// if (subDenomination() != SubDenomination::None)
-	// 	return false;
-
 	return token() == Token::AddressLiteral;
 }
 
@@ -1040,8 +1026,7 @@ bool Literal::passesAddressChecksum() const
 std::string Literal::getChecksummedAddress() const
 {
 	hypAssert(looksLikeAddress(), "Expected address");
-	std::string address = value().substr(1);
-	return util::getChecksummedAddress(address);
+	return util::getChecksummedAddress(value());
 }
 
 TryCatchClause const* TryStatement::successClause() const

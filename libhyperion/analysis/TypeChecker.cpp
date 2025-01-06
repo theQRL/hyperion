@@ -3684,7 +3684,6 @@ void TypeChecker::endVisit(ElementaryTypeNameExpression const& _expr)
 	_expr.annotation().isConstant = false;
 }
 
-// TODO(rgeraldes24): review
 void TypeChecker::endVisit(Literal const& _literal)
 {
 	if (_literal.looksLikeAddress())
@@ -3698,16 +3697,13 @@ void TypeChecker::endVisit(Literal const& _literal)
 			msg = "This looks like an address but has an invalid checksum.";
 			if (!_literal.getChecksummedAddress().empty())
 				msg += " Correct checksummed address: \"" + _literal.getChecksummedAddress() + "\".";
-		}
 
-		if (!msg.empty())
 			m_errorReporter.syntaxError(
 				9429_error,
 				_literal.location(),
-				msg +
-				" If this is not used as an address, please prepend '00'. " +
-				"For more information please see https://docs.soliditylang.org/en/develop/types.html#address-literals"
+				msg
 			);
+		}	
 	}
 
 	if (_literal.isHexNumber() && _literal.subDenomination() != Literal::SubDenomination::None)

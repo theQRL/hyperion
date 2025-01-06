@@ -981,7 +981,6 @@ For example this code
 
 is equivalent to
 
-// TODO(rgeraldes24): review yul compiler
 .. code-block:: yul
 
     let a := 0x1234567890123456789012345678901234567890

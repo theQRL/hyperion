@@ -424,20 +424,18 @@ void CommandLineParser::parseLibraryOption(std::string const& _input)
 					(isSeparatorEqualSign ? "equal sign" : "colon") + "."
 				);
 
-			if (addrString.substr(0, 1) == "Z")
-				addrString = addrString.substr(1);
-			else
+			if (addrString.substr(0, 1) != "Z")
 				hypThrow(
 					CommandLineValidationError,
 					"The address " + addrString + " is not prefixed with \"Z\".\n"
 					"Note that the address must be prefixed with \"Z\"."
 				);
 
-			if (addrString.length() != 40)
+			if (addrString.length() != 41)
 				hypThrow(
 					CommandLineValidationError,
 					"Invalid length for address for library \"" + libName + "\": " +
-					std::to_string(addrString.length()) + " instead of 40 characters."
+					std::to_string(addrString.substr(1).length()) + " instead of 40 hex characters."
 				);
 			if (!util::passesAddressChecksum(addrString, false))
 				hypThrow(
@@ -445,7 +443,7 @@ void CommandLineParser::parseLibraryOption(std::string const& _input)
 					"Invalid checksum on address for library \"" + libName + "\": " + addrString + "\n"
 					"The correct checksum is " + util::getChecksummedAddress(addrString)
 				);
-			bytes binAddr = util::fromHex(addrString);
+			bytes binAddr = util::fromHex(addrString.substr(1));
 			util::h160 address(binAddr, util::h160::AlignRight);
 			if (binAddr.size() > 20 || address == util::h160())
 				hypThrow(

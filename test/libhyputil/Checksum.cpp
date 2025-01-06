@@ -34,15 +34,14 @@ BOOST_AUTO_TEST_SUITE(Checksum)
 
 BOOST_AUTO_TEST_CASE(calculate)
 {
-	// TODO(rgeraldes24): prefix
 	BOOST_CHECK(!getChecksummedAddress("Z5aaeb6053f3e94c9b9a09f33669435e7ef1beaed").empty());
 	BOOST_CHECK(!getChecksummedAddress("Z0123456789abcdefABCDEF0123456789abcdefAB").empty());
+	// no prefix
+	BOOST_CHECK_THROW(getChecksummedAddress("5aaeb6053f3e94c9b9a09f33669435e7ef1beaed"), InvalidAddress);
 	// too short
 	BOOST_CHECK_THROW(getChecksummedAddress("Z5aaeb6053f3e94c9b9a09f33669435e7ef1beae"), InvalidAddress);
-	BOOST_CHECK_THROW(getChecksummedAddress("5aaeb6053f3e94c9b9a09f33669435e7ef1beae"), InvalidAddress);
 	// too long
 	BOOST_CHECK_THROW(getChecksummedAddress("Z5aaeb6053f3e94c9b9a09f33669435e7ef1beaed1"), InvalidAddress);
-	BOOST_CHECK_THROW(getChecksummedAddress("5aaeb6053f3e94c9b9a09f33669435e7ef1beaed1"), InvalidAddress);
 	// non-hex character
 	BOOST_CHECK_THROW(getChecksummedAddress("Z5aaeb6053f3e94c9b9a09f33669435e7ef1beaeK"), InvalidAddress);
 

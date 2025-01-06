@@ -427,12 +427,10 @@ Dynamically-sized byte array
 Address Literals
 ----------------
 
-// TODO(rgeraldes24)
-Hexadecimal literals that pass the address checksum test, for example
+Address literals that pass the address checksum test, for example
 ``ZdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF`` are of ``address`` type.
-Hexadecimal literals that are between 39 and 41 digits
-long and do not pass the checksum test produce
-an error. You can prepend (for integer types) or append (for bytesNN types) zeros to remove the error.
+Address literals that do not pass the checksum test produce
+an error.
 
 .. note::
     The mixed-case address checksum format is defined in `EIP-55 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md>`_.
@@ -930,8 +928,7 @@ Another example that uses external function types:
 
 
     contract OracleUser {
-        // TODO(rgeraldes24)
-        Oracle constant private ORACLE_CONST = Oracle(address(0x00000000219ab540356cBB839Cbe05303d7705Fa)); // known contract // TODO(rgeraldes24)
+        Oracle constant private ORACLE_CONST = Oracle(Z00000000219ab540356cBB839Cbe05303d7705Fa); // known contract
         uint private exchangeRate;
 
         function buySomething() public {

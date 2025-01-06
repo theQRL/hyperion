@@ -1024,6 +1024,7 @@ Token Scanner::scanNumber(char _charSeen)
 	return Token::Number;
 }
 
+// TODO(rgeraldes24): review
 /*
 Token Scanner::scanAddress()
 {

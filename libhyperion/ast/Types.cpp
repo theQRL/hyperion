@@ -917,7 +917,6 @@ std::tuple<bool, rational> RationalNumberType::isValidLiteral(Literal const& _li
 			// process as hex
 			value = bigint(valueString);
 		}
-		// TODO(rgeraldes24): review
 		else if (boost::starts_with(valueString, "Z")) 
 		{
 			// process as hex
