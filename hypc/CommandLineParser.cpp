@@ -424,7 +424,7 @@ void CommandLineParser::parseLibraryOption(std::string const& _input)
 					(isSeparatorEqualSign ? "equal sign" : "colon") + "."
 				);
 
-			if (addrString.substr(0, 1) != "Z")
+			if (!boost::starts_with(addrString, "Z"))
 				hypThrow(
 					CommandLineValidationError,
 					"The address " + addrString + " is not prefixed with \"Z\".\n"

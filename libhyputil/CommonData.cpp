@@ -125,7 +125,7 @@ bytes hyperion::util::fromHex(std::string const& _s, WhenError _throw)
 
 bool hyperion::util::passesAddressChecksum(std::string const& _str, bool _strict)
 {
-	if (_str.length() != 41 || _str.substr(0, 1) != "Z")
+	if (_str.length() != 41 || !boost::starts_with(_str, "Z"))
 		return false;
 	
 	std::string s = _str.substr(1);
@@ -141,7 +141,7 @@ bool hyperion::util::passesAddressChecksum(std::string const& _str, bool _strict
 std::string hyperion::util::getChecksummedAddress(std::string const& _addr)
 {
 	assertThrow(_addr.length() == 41, InvalidAddress, _addr);
-	assertThrow(_addr.substr(0, 1) == "Z", InvalidAddress, "");
+	assertThrow(boost::starts_with(_addr, "Z"), InvalidAddress, "");
 	std::string s = _addr.substr(1);
 	assertThrow(s.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos, InvalidAddress, "");
 
