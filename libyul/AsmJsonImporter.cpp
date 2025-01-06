@@ -182,7 +182,6 @@ Literal AsmJsonImporter::createLiteral(Json::Value const& _node)
 			"Expected number but got " + langutil::TokenTraits::friendlyName(scanner.currentToken()) + std::string(" while scanning ") + lit.value.str()
 		);
 	}
-	// TODO(rgeraldes24): address type?
 	else if (kind == "bool")
 	{
 		langutil::CharStream charStream(lit.value.str(), "");

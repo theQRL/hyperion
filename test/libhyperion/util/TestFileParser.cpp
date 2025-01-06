@@ -636,7 +636,7 @@ void TestFileParser::Scanner::scanNextToken()
 		case '\"':
 			selectToken(Token::String, scanString());
 			break;
-		// TODO(rgeraldes24)
+		// TODO(rgeraldes24): next
 		case 'Z':
 			advance();
 			selectToken(Token::Address, "0x" + scanHexNumber());

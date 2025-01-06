@@ -237,9 +237,8 @@ std::vector<std::string> SemanticTest::eventSideEffectHook(FunctionCall const&) 
 	for (LogRecord const& log: recordedLogs)
 	{
 		std::optional<AnnotatedEventSignature> eventSignature;
-		if (!log.topics.empty()) {
+		if (!log.topics.empty())
 			eventSignature = matchEvent(log.topics[0]);
-		}
 		std::stringstream sideEffect;
 		sideEffect << "emit ";
 		if (eventSignature.has_value())
