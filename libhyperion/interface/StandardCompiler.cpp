@@ -896,8 +896,7 @@ std::variant<StandardCompiler::InputsAndSettings, Json::Value> StandardCompiler:
 
 			try
 			{
-				const std::string hexAddr = boost::replace_all_copy(address, "Z", "0x");
-				ret.libraries[sourceName + ":" + library] = util::h160(hexAddr);
+				ret.libraries[sourceName + ":" + library] = util::h160(boost::replace_all_copy(address, "Z", "0x"));
 			}
 			catch (util::BadHexCharacter const&)
 			{

@@ -1056,6 +1056,14 @@ bool Scanner::scanAddress()
 		advance();
 		i++;
 	}
+	// The source character immediately following an address literal must
+	// not be an identifier start or a decimal digit; see ECMA-262
+	// section 7.8.3, page 17 (note that we read only one decimal digit
+	// if the value is 0).
+	if (isDecimalDigit(m_char) || isIdentifierStart(m_char)) {
+		rollback(i+1);
+		return false;
+	}
 	rollback(i+1);
 
 	if (i != 40) 
@@ -1065,14 +1073,6 @@ bool Scanner::scanAddress()
 	addLiteralCharAndAdvance();
 	while (isHexDigit(m_char))
 		addLiteralCharAndAdvance();
-
-	// TODO(rgeraldes24): check scanAddress below
-	// The source character immediately following an address literal must
-	// not be an identifier start or a decimal digit; see ECMA-262
-	// section 7.8.3, page 17 (note that we read only one decimal digit
-	// if the value is 0).
-	// if (isDecimalDigit(m_char) || isIdentifierStart(m_char))
-	// 	return false;
 
 	literal.complete();
 
