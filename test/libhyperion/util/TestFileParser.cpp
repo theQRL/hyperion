@@ -396,7 +396,7 @@ Parameter TestFileParser::parseParameter()
 		parameter.rawBytes = BytesUtils::applyAlign(
 			parameter.alignment,
 			parameter.abiType,
-			BytesUtils::convertHexNumber(parsed) // TODO(rgeraldes24)
+			BytesUtils::convertHexNumber(parsed)
 		);
 	}
 	else if (accept(Token::Hex, true))
@@ -636,7 +636,6 @@ void TestFileParser::Scanner::scanNextToken()
 		case '\"':
 			selectToken(Token::String, scanString());
 			break;
-		// TODO(rgeraldes24): next
 		case 'Z':
 			advance();
 			selectToken(Token::Address, "0x" + scanHexNumber());
