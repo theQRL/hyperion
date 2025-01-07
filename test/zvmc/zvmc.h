@@ -321,7 +321,7 @@ enum zvmc_status_code
 
     /**
      * Contract validation has failed (e.g. due to ZVM 1.5 jump validity,
-     * Casper's purity checker or ewasm contract rules).
+     * Casper's purity checker or zwasm contract rules).
      */
     ZVMC_CONTRACT_VALIDATION_FAILURE = 13,
 
@@ -910,9 +910,9 @@ enum zvmc_capabilities
     ZVMC_CAPABILITY_ZVM1 = (1u << 0),
 
     /**
-     * The VM is capable of executing ewasm bytecode.
+     * The VM is capable of executing zwasm bytecode.
      */
-    ZVMC_CAPABILITY_EWASM = (1u << 1),
+    ZVMC_CAPABILITY_ZWASM = (1u << 1),
 
     /**
      * The VM is capable of executing the precompiled contracts
