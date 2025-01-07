@@ -710,13 +710,8 @@ void Scanner::scanToken()
 			token = selectToken(Token::BitNot);
 			break;
 		case 'Z':
-			/*
-			// Address
-			token = scanAddress();
-			break;
-			*/
 			// NOTE(rgeraldes24): address literal exception: if not exactly 40 
-			// hex chars it will fallthrough and be considered an identifier
+			// hex chars it will fallthrough and go through the identifier flow
 			if (scanAddress()) {
 				token = Token::AddressLiteral;
 				break;
@@ -1023,30 +1018,6 @@ Token Scanner::scanNumber(char _charSeen)
 	literal.complete();
 	return Token::Number;
 }
-
-/*
-Token Scanner::scanAddress()
-{
-	LiteralScope literal(this, LITERAL_TYPE_ADDRESS);
-
-	addLiteralCharAndAdvance();
-	if (!isHexDigit(m_char))
-		return setError(ScannerError::IllegalHexDigit); // we must have at least one hex digit after 'x'
-
-	while (isHexDigit(m_char) || m_char == '_') // We keep the underscores for later validation
-		addLiteralCharAndAdvance();
-
-	// The source character immediately following an address literal must
-	// not be an identifier start or a decimal digit; see ECMA-262
-	// section 7.8.3, page 17 (note that we read only one decimal digit
-	// if the value is 0).
-	if (isDecimalDigit(m_char) || isIdentifierStart(m_char))
-		return setError(ScannerError::IllegalNumberEnd);
-	literal.complete();
-	return Token::AddressLiteral;
-}
-*/
-
 
 bool Scanner::scanAddress()
 {
