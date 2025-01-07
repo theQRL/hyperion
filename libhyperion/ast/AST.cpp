@@ -1014,6 +1014,9 @@ bool Literal::isHexNumber() const
 
 bool Literal::looksLikeAddress() const
 {
+	if (subDenomination() != SubDenomination::None)
+		return false;
+
 	return token() == Token::AddressLiteral;
 }
 

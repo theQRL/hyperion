@@ -522,6 +522,7 @@ std::string AddressType::canonicalName() const
 
 u256 AddressType::literalValue(Literal const* _literal) const
 {
+	hypAssert(_literal, "");
 	hypAssert(boost::starts_with(_literal->value(), "Z"), "");
 	return u256(boost::replace_all_copy(_literal->value(), "Z", "0x"));
 }
