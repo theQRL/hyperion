@@ -1,10 +1,10 @@
 contract C {
     function f() public returns(uint) {
-        return 2e10 wei;
+        return 2e10 planck;
     }
 
     function g() public returns(uint) {
-        return 200e-2 wei;
+        return 200e-2 planck;
     }
 
     function h() public returns(uint) {

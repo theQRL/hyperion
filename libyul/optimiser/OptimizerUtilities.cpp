@@ -21,7 +21,7 @@
 
 #include <libyul/optimiser/OptimizerUtilities.h>
 
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 #include <libyul/Dialect.h>
 #include <libyul/AST.h>
@@ -49,19 +49,19 @@ bool yul::isRestrictedIdentifier(Dialect const& _dialect, YulString const& _iden
 	return _identifier.empty() || TokenTraits::isYulKeyword(_identifier.str()) || _dialect.reservedIdentifier(_identifier);
 }
 
-std::optional<zvmasm::Instruction> yul::toZVMInstruction(Dialect const& _dialect, YulString const& _name)
+std::optional<qrvmasm::Instruction> yul::toQRVMInstruction(Dialect const& _dialect, YulString const& _name)
 {
-	if (auto const* dialect = dynamic_cast<ZVMDialect const*>(&_dialect))
-		if (BuiltinFunctionForZVM const* builtin = dialect->builtin(_name))
+	if (auto const* dialect = dynamic_cast<QRVMDialect const*>(&_dialect))
+		if (BuiltinFunctionForQRVM const* builtin = dialect->builtin(_name))
 			return builtin->instruction;
 	return std::nullopt;
 }
 
-langutil::ZVMVersion const yul::zvmVersionFromDialect(Dialect const& _dialect)
+langutil::QRVMVersion const yul::qrvmVersionFromDialect(Dialect const& _dialect)
 {
-	if (auto const* dialect = dynamic_cast<ZVMDialect const*>(&_dialect))
-		return dialect->zvmVersion();
-	return langutil::ZVMVersion();
+	if (auto const* dialect = dynamic_cast<QRVMDialect const*>(&_dialect))
+		return dialect->qrvmVersion();
+	return langutil::QRVMVersion();
 }
 
 void StatementRemover::operator()(Block& _block)

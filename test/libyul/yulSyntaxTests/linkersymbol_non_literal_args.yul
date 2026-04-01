@@ -3,6 +3,6 @@
     let addr := linkersymbol(library_name)
 }
 // ====
-// dialect: zvm
+// dialect: qrvm
 // ----
 // TypeError 9114: (67-79): Function expects direct literals as arguments.

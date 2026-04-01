@@ -21,7 +21,7 @@
 #include <libhyperion/ast/AST.h>
 #include <libhyperion/ast/ASTVisitor.h>
 #include <liblangutil/ErrorReporter.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 #include <liblangutil/SourceLocation.h>
 
 #include <map>

@@ -28,10 +28,10 @@
 #include <libyul/YulStack.h>
 #include <libyul/Exceptions.h>
 
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 #include <liblangutil/DebugInfoSelection.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 #include <src/libfuzzer/libfuzzer_macro.h>
 
@@ -46,7 +46,7 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 {
 	ProtoConverter converter;
 	string yul_source = converter.programToString(_input);
-	ZVMVersion version = converter.version();
+	QRVMVersion version = converter.version();
 
 	if (const char* dump_path = getenv("PROTO_FUZZER_DUMP_PATH"))
 	{
@@ -81,7 +81,7 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 	// Optimize
 	YulOptimizerTestCommon optimizerTest(
 		stack.parserResult(),
-		ZVMDialect::strictAssemblyForZVMObjects(version)
+		QRVMDialect::strictAssemblyForQRVMObjects(version)
 	);
 	optimizerTest.setStep(optimizerTest.randomOptimiserStep(_input.step()));
 	shared_ptr<hyperion::yul::Block> astBlock = optimizerTest.run();

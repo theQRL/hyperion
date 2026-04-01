@@ -158,7 +158,7 @@ void TypeChecker::checkDoubleStorageAssignment(Assignment const& _assignment)
 					}
 				}
 			}
-			else if (TupleType const* tupleType = dynamic_cast<TupleType const*>(componentType))
+			else if (dynamic_cast<TupleType const*>(componentType))
 				if (auto const* lhsNested = dynamic_cast<TupleExpression const*>(lhsResolved->components().at(index).get()))
 					if (auto const* rhsNestedType = dynamic_cast<TupleType const*>(_rhs.components().at(index)))
 						_recurse(

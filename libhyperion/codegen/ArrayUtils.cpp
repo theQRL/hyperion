@@ -33,11 +33,11 @@
 #include <libhyputil/Whiskers.h>
 #include <libhyputil/StackTooDeepString.h>
 
-#include <libzvmasm/Instruction.h>
+#include <libqrvmasm/Instruction.h>
 #include <liblangutil/Exceptions.h>
 
 using namespace hyperion;
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 using namespace hyperion::frontend;
 using namespace hyperion::langutil;
 
@@ -154,7 +154,7 @@ void ArrayUtils::copyArrayToStorage(ArrayType const& _targetType, ArrayType cons
 			_context << Instruction::SWAP3;
 			// stack: target_ref target_data_end source_length target_data_pos source_ref
 
-			zvmasm::AssemblyItem copyLoopEndWithoutByteOffset = _context.newTag();
+			qrvmasm::AssemblyItem copyLoopEndWithoutByteOffset = _context.newTag();
 			hypAssert(!_targetType.isByteArrayOrString());
 			// skip copying if source length is zero
 			_context << Instruction::DUP3 << Instruction::ISZERO;
@@ -172,13 +172,13 @@ void ArrayUtils::copyArrayToStorage(ArrayType const& _targetType, ArrayType cons
 			if (haveByteOffsetSource)
 				_context << u256(0);
 			// stack: target_ref target_data_end source_data_pos target_data_pos source_data_end [target_byte_offset] [source_byte_offset]
-			zvmasm::AssemblyItem copyLoopStart = _context.newTag();
+			qrvmasm::AssemblyItem copyLoopStart = _context.newTag();
 			_context << copyLoopStart;
 			// check for loop condition
 			_context
 				<< dupInstruction(3 + byteOffsetSize) << dupInstruction(2 + byteOffsetSize)
 				<< Instruction::GT << Instruction::ISZERO;
-			zvmasm::AssemblyItem copyLoopEnd = _context.appendConditionalJump();
+			qrvmasm::AssemblyItem copyLoopEnd = _context.appendConditionalJump();
 			// stack: target_ref target_data_end source_data_pos target_data_pos source_data_end [target_byte_offset] [source_byte_offset]
 			// copy
 			if (sourceBaseType->category() == Type::Category::Array)
@@ -272,7 +272,7 @@ void ArrayUtils::copyArrayToStorage(ArrayType const& _targetType, ArrayType cons
 				// clear elements that might be left over in the current slot in target
 				// stack: target_ref target_data_end source_data_pos target_data_pos source_data_end target_byte_offset [source_byte_offset]
 				_context << dupInstruction(byteOffsetSize) << Instruction::ISZERO;
-				zvmasm::AssemblyItem copyCleanupLoopEnd = _context.appendConditionalJump();
+				qrvmasm::AssemblyItem copyCleanupLoopEnd = _context.appendConditionalJump();
 				_context << dupInstruction(2 + byteOffsetSize) << dupInstruction(1 + byteOffsetSize);
 				StorageItem(_context, *targetBaseType).setToZero(SourceLocation(), true);
 				utils.incrementByteOffset(targetBaseType->storageBytes(), byteOffsetSize, byteOffsetSize + 2);
@@ -386,7 +386,7 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 			// stack: <length> <target + size>
 			m_context << Instruction::SWAP1 << u256(31) << Instruction::AND;
 			// stack: <target + size> <remainder = size % 32>
-			zvmasm::AssemblyItem skip = m_context.newTag();
+			qrvmasm::AssemblyItem skip = m_context.newTag();
 			if (_sourceType.isDynamicallySized())
 			{
 				m_context << Instruction::DUP1 << Instruction::ISZERO;
@@ -431,13 +431,13 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 		// stack here: memory_offset storage_offset length
 		// jump to end if length is zero
 		m_context << Instruction::DUP1 << Instruction::ISZERO;
-		zvmasm::AssemblyItem loopEnd = m_context.appendConditionalJump();
+		qrvmasm::AssemblyItem loopEnd = m_context.appendConditionalJump();
 		// Special case for tightly-stored byte arrays
 		if (_sourceType.isByteArrayOrString())
 		{
 			// stack here: memory_offset storage_offset length
 			m_context << Instruction::DUP1 << u256(31) << Instruction::LT;
-			zvmasm::AssemblyItem longByteArray = m_context.appendConditionalJump();
+			qrvmasm::AssemblyItem longByteArray = m_context.appendConditionalJump();
 			// store the short byte array (discard lower-order byte)
 			m_context << u256(0x100) << Instruction::DUP1;
 			m_context << Instruction::DUP4 << Instruction::SLOAD;
@@ -473,7 +473,7 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 		if (haveByteOffset)
 			m_context << u256(0) << Instruction::SWAP1;
 		// stack here: memory_end_offset storage_data_offset [storage_byte_offset] memory_offset
-		zvmasm::AssemblyItem loopStart = m_context.newTag();
+		qrvmasm::AssemblyItem loopStart = m_context.newTag();
 		m_context << loopStart;
 		// load and store
 		if (_sourceType.isByteArrayOrString())
@@ -610,12 +610,12 @@ void ArrayUtils::clearDynamicArray(ArrayType const& _type) const
 	// set length to zero
 	m_context << u256(0) << Instruction::DUP3 << Instruction::SSTORE;
 	// Special case: short byte arrays are stored togeher with their length
-	zvmasm::AssemblyItem endTag = m_context.newTag();
+	qrvmasm::AssemblyItem endTag = m_context.newTag();
 	if (_type.isByteArrayOrString())
 	{
 		// stack: ref old_length
 		m_context << Instruction::DUP1 << u256(31) << Instruction::LT;
-		zvmasm::AssemblyItem longByteArray = m_context.appendConditionalJump();
+		qrvmasm::AssemblyItem longByteArray = m_context.appendConditionalJump();
 		m_context << Instruction::POP;
 		m_context.appendJumpTo(endTag);
 		m_context.adjustStackOffset(1); // needed because of jump
@@ -655,7 +655,7 @@ void ArrayUtils::resizeDynamicArray(ArrayType const& _typeIn) const
 				hypAssert(_type.baseType()->isValueType(), "Invalid storage size for non-value type.");
 
 			unsigned stackHeightStart = _context.stackHeight();
-			zvmasm::AssemblyItem resizeEnd = _context.newTag();
+			qrvmasm::AssemblyItem resizeEnd = _context.newTag();
 
 			// stack: ref new_length
 			// fetch old length
@@ -666,7 +666,7 @@ void ArrayUtils::resizeDynamicArray(ArrayType const& _typeIn) const
 			// Special case for short byte arrays, they are stored together with their length
 			if (_type.isByteArrayOrString())
 			{
-				zvmasm::AssemblyItem regularPath = _context.newTag();
+				qrvmasm::AssemblyItem regularPath = _context.newTag();
 				// We start by a large case-distinction about the old and new length of the byte array.
 
 				_context << Instruction::DUP3 << Instruction::SLOAD;
@@ -674,14 +674,14 @@ void ArrayUtils::resizeDynamicArray(ArrayType const& _typeIn) const
 
 				hypAssert(_context.stackHeight() - stackHeightStart == 4 - 2, "3");
 				_context << Instruction::DUP2 << u256(31) << Instruction::LT;
-				zvmasm::AssemblyItem currentIsLong = _context.appendConditionalJump();
+				qrvmasm::AssemblyItem currentIsLong = _context.appendConditionalJump();
 				_context << Instruction::DUP3 << u256(31) << Instruction::LT;
-				zvmasm::AssemblyItem newIsLong = _context.appendConditionalJump();
+				qrvmasm::AssemblyItem newIsLong = _context.appendConditionalJump();
 
 				// Here: short -> short
 
 				// Compute 1 << (256 - 8 * new_size)
-				zvmasm::AssemblyItem shortToShort = _context.newTag();
+				qrvmasm::AssemblyItem shortToShort = _context.newTag();
 				_context << shortToShort;
 				_context << Instruction::DUP3 << u256(8) << Instruction::MUL;
 				_context << u256(0x100) << Instruction::SUB;
@@ -938,7 +938,7 @@ void ArrayUtils::clearStorageLoop(Type const* _type) const
 			}
 			// stack: end_pos pos
 
-			zvmasm::AssemblyItem loopStart = _context.appendJumpToNew();
+			qrvmasm::AssemblyItem loopStart = _context.appendJumpToNew();
 			_context << loopStart;
 			// check for loop condition
 			_context <<
@@ -946,7 +946,7 @@ void ArrayUtils::clearStorageLoop(Type const* _type) const
 				Instruction::DUP3 <<
 				Instruction::GT <<
 				Instruction::ISZERO;
-			zvmasm::AssemblyItem zeroLoopEnd = _context.newTag();
+			qrvmasm::AssemblyItem zeroLoopEnd = _context.newTag();
 			_context.appendConditionalJumpTo(zeroLoopEnd);
 			// delete
 			_context << u256(0);
@@ -1076,7 +1076,7 @@ void ArrayUtils::accessIndex(ArrayType const& _arrayType, bool _doBoundsCheck, b
 			m_context << Instruction::SWAP1;
 		// stack: [<base_ref>] <index> <base_ref>
 
-		zvmasm::AssemblyItem endTag = m_context.newTag();
+		qrvmasm::AssemblyItem endTag = m_context.newTag();
 		if (_arrayType.isByteArrayOrString())
 		{
 			// Special case of short byte arrays.

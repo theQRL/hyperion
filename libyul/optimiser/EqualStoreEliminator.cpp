@@ -30,7 +30,7 @@
 
 using namespace hyperion;
 using namespace hyperion::util;
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 using namespace hyperion::yul;
 
 void EqualStoreEliminator::run(OptimiserStepContext const& _context, Block& _ast)

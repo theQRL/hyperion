@@ -9,7 +9,7 @@ function generate_protobuf_bindings
 {
   cd "${ROOTDIR}"/test/tools/ossfuzz
   # Generate protobuf C++ bindings
-  for protoName in yul abiV2 sol;
+  for protoName in yul abiV2 hyp;
   do
     protoc "${protoName}"Proto.proto --cpp_out .
   done

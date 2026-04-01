@@ -48,14 +48,14 @@ function zeppelin_test
 
     local compile_only_presets=(
         #ir-no-optimize           # Compilation fails with "Contract initcode size is 49410 bytes and exceeds 49152 bytes."
-        ir-optimize-zvm-only      # FIXME: A few tests fail with "Transaction: ... exited with an error (status 0) after consuming all gas."
+        ir-optimize-qrvm-only      # FIXME: A few tests fail with "Transaction: ... exited with an error (status 0) after consuming all gas."
 )
     local settings_presets=(
         "${compile_only_presets[@]}"
-        ir-optimize-zvm+yul
+        ir-optimize-qrvm+yul
         legacy-no-optimize
-        legacy-optimize-zvm-only
-        legacy-optimize-zvm+yul
+        legacy-optimize-qrvm-only
+        legacy-optimize-qrvm+yul
     )
 
     [[ $SELECTED_PRESETS != "" ]] || SELECTED_PRESETS=$(circleci_select_steps_multiarg "${settings_presets[@]}")
@@ -80,8 +80,8 @@ function zeppelin_test
     sed -i "s|it(\('fails deploying a contract if factory contract does not have sufficient balance'\)|it.skip(\1|g" test/utils/Create2.test.js
     sed -i "s|it(\('reverts when casting -1'\)|it.skip(\1|g" test/utils/math/SafeCast.test.js
     sed -i 's|it(\(`reverts when casting [^`]\+`\)|it.skip(\1|g' test/utils/math/SafeCast.test.js
-    sed -i "s|it(\('reverts if index is greater than supply'\)|it.skip(\1|g" test/token/ERC721/ERC721.behavior.js
-    sed -i "s|it(\('burns all tokens'\)|it.skip(\1|g" test/token/ERC721/ERC721.behavior.js
+    sed -i "s|it(\('reverts if index is greater than supply'\)|it.skip(\1|g" test/token/SQRCTN1/SQRCTN1.behavior.js
+    sed -i "s|it(\('burns all tokens'\)|it.skip(\1|g" test/token/SQRCTN1/SQRCTN1.behavior.js
     sed -i "s|it(\('guards transfer against invalid user'\)|it.skip(\1|g" test/access/Ownable2Step.test.js
     sed -i "s|it(\('reverting initialization function'\)|it.skip(\1|g" test/proxy/beacon/BeaconProxy.test.js
     sed -i "s|describe(\('reverting initialization'\)|describe.skip(\1|g" test/proxy/Proxy.behaviour.js

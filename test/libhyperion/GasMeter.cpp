@@ -22,14 +22,14 @@
  */
 
 #include <test/libhyperion/HyperionExecutionFramework.h>
-#include <libzvmasm/GasMeter.h>
-#include <libzvmasm/KnownState.h>
-#include <libzvmasm/PathGasMeter.h>
+#include <libqrvmasm/GasMeter.h>
+#include <libqrvmasm/KnownState.h>
+#include <libqrvmasm/PathGasMeter.h>
 #include <libhyperion/ast/AST.h>
 #include <libhyperion/interface/GasEstimator.h>
 
 using namespace hyperion::langutil;
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 using namespace hyperion::frontend;
 using namespace hyperion::frontend::test;
 
@@ -45,7 +45,7 @@ public:
 		m_compiler.setSources({{"", "pragma hyperion >=0.0;\n"
 				"// SPDX-License-Identifier: GPL-3.0\n" + _sourceCode}});
 		m_compiler.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
-		m_compiler.setZVMVersion(m_zvmVersion);
+		m_compiler.setQRVMVersion(m_qrvmVersion);
 		BOOST_REQUIRE_MESSAGE(m_compiler.compile(), "Compiling contract failed");
 	}
 
@@ -53,7 +53,7 @@ public:
 	{
 		compileAndRun(_sourceCode);
 		auto state = std::make_shared<KnownState>();
-		PathGasMeter meter(*m_compiler.assemblyItems(m_compiler.lastContractName()), hyperion::test::CommonOptions::get().zvmVersion());
+		PathGasMeter meter(*m_compiler.assemblyItems(m_compiler.lastContractName()), hyperion::test::CommonOptions::get().qrvmVersion());
 		GasMeter::GasConsumption gas = meter.estimateMax(0, state);
 		u256 bytecodeSize(m_compiler.runtimeObject(m_compiler.lastContractName()).bytecode.size());
 		// costs for deployment
@@ -86,7 +86,7 @@ public:
 			gas = std::max(gas, gasForTransaction(hash.asBytes() + arguments, false));
 		}
 
-		gas += GasEstimator(hyperion::test::CommonOptions::get().zvmVersion()).functionalEstimation(
+		gas += GasEstimator(hyperion::test::CommonOptions::get().qrvmVersion()).functionalEstimation(
 			*m_compiler.runtimeAssemblyItems(m_compiler.lastContractName()),
 			_sig
 		);

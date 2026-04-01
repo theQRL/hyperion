@@ -1778,7 +1778,7 @@ class HyperionLSPTestSuite: # {{{
                 'version': 1,
                 'text': ''.join([
                     '// SPDX-License-Identifier: UNLICENSED\n',
-                    'pragma hyperion >=0.8.0;\n',
+                    'pragma hyperion >=0.1.0;\n',
                 ])
             }
         })
@@ -1794,7 +1794,7 @@ class HyperionLSPTestSuite: # {{{
                 'version': 1,
                 'text': ''.join([
                     '// SPDX-License-Identifier: UNLICENSED\n',
-                    'pragma hyperion >=0.8.0;\n',
+                    'pragma hyperion >=0.1.0;\n',
                 ])
             }
         })
@@ -1848,7 +1848,7 @@ class HyperionLSPTestSuite: # {{{
                 'version': 1,
                 'text':
                     '// SPDX-License-Identifier: UNLICENSED\n'
-                    'pragma hyperion >=0.8.0;\n'
+                    'pragma hyperion >=0.1.0;\n'
                     'import "./goto/lib.hyp";\n'
             }
         })

@@ -1,5 +1,5 @@
 /**
- * Hyperion is a statically typed, contract-oriented, high-level language for implementing smart contracts on the Zond platform.
+ * Hyperion is a statically typed, contract-oriented, high-level language for implementing smart contracts on the QRL platform.
  */
 parser grammar HyperionParser;
 
@@ -597,12 +597,12 @@ yulFunctionDefinition:
  * While only identifiers without dots can be declared within inline assembly,
  * paths containing dots can refer to declarations outside the inline assembly block.
  */
-yulPath: YulIdentifier (YulPeriod (YulIdentifier | YulZVMBuiltin))*;
+yulPath: YulIdentifier (YulPeriod (YulIdentifier | YulQRVMBuiltin))*;
 /**
  * A call to a function with return values can only occur as right-hand side of an assignment or
  * a variable declaration.
  */
-yulFunctionCall: (YulIdentifier | YulZVMBuiltin) YulLParen (yulExpression (YulComma yulExpression)*)? YulRParen;
+yulFunctionCall: (YulIdentifier | YulQRVMBuiltin) YulLParen (yulExpression (YulComma yulExpression)*)? YulRParen;
 yulBoolean: YulTrue | YulFalse;
 yulLiteral: YulDecimalNumber | YulStringLiteral | YulHexNumber | yulBoolean | YulHexStringLiteral;
 yulExpression: yulPath | yulFunctionCall | yulLiteral;

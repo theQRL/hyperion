@@ -43,28 +43,28 @@ HYPC_SHORT_VERSION_REGEX = re.compile(r"^([0-9.]+).*\+|\-$")
 class SettingsPreset(Enum):
     LEGACY_NO_OPTIMIZE = 'legacy-no-optimize'
     IR_NO_OPTIMIZE = 'ir-no-optimize'
-    LEGACY_OPTIMIZE_ZVM_ONLY = 'legacy-optimize-zvm-only'
-    IR_OPTIMIZE_ZVM_ONLY = 'ir-optimize-zvm-only'
-    LEGACY_OPTIMIZE_ZVM_YUL = 'legacy-optimize-zvm+yul'
-    IR_OPTIMIZE_ZVM_YUL = 'ir-optimize-zvm+yul'
+    LEGACY_OPTIMIZE_QRVM_ONLY = 'legacy-optimize-qrvm-only'
+    IR_OPTIMIZE_QRVM_ONLY = 'ir-optimize-qrvm-only'
+    LEGACY_OPTIMIZE_QRVM_YUL = 'legacy-optimize-qrvm+yul'
+    IR_OPTIMIZE_QRVM_YUL = 'ir-optimize-qrvm+yul'
 
 
-def compiler_settings(zvm_version: str, via_ir: bool = False, optimizer: bool = False, yul: bool = False) -> dict:
+def compiler_settings(qrvm_version: str, via_ir: bool = False, optimizer: bool = False, yul: bool = False) -> dict:
     return {
         "optimizer": {"enabled": optimizer, "details": {"yul": yul}},
-        "zvmVersion": zvm_version,
+        "qrvmVersion": qrvm_version,
         "viaIR": via_ir,
     }
 
 
-def settings_from_preset(preset: SettingsPreset, zvm_version: str) -> dict:
+def settings_from_preset(preset: SettingsPreset, qrvm_version: str) -> dict:
     return {
-        SettingsPreset.LEGACY_NO_OPTIMIZE:       compiler_settings(zvm_version),
-        SettingsPreset.IR_NO_OPTIMIZE:           compiler_settings(zvm_version, via_ir=True),
-        SettingsPreset.LEGACY_OPTIMIZE_ZVM_ONLY: compiler_settings(zvm_version, optimizer=True),
-        SettingsPreset.IR_OPTIMIZE_ZVM_ONLY:     compiler_settings(zvm_version, via_ir=True, optimizer=True),
-        SettingsPreset.LEGACY_OPTIMIZE_ZVM_YUL:  compiler_settings(zvm_version, optimizer=True, yul=True),
-        SettingsPreset.IR_OPTIMIZE_ZVM_YUL:      compiler_settings(zvm_version, via_ir=True, optimizer=True, yul=True),
+        SettingsPreset.LEGACY_NO_OPTIMIZE:       compiler_settings(qrvm_version),
+        SettingsPreset.IR_NO_OPTIMIZE:           compiler_settings(qrvm_version, via_ir=True),
+        SettingsPreset.LEGACY_OPTIMIZE_QRVM_ONLY: compiler_settings(qrvm_version, optimizer=True),
+        SettingsPreset.IR_OPTIMIZE_QRVM_ONLY:     compiler_settings(qrvm_version, via_ir=True, optimizer=True),
+        SettingsPreset.LEGACY_OPTIMIZE_QRVM_YUL:  compiler_settings(qrvm_version, optimizer=True, yul=True),
+        SettingsPreset.IR_OPTIMIZE_QRVM_YUL:      compiler_settings(qrvm_version, via_ir=True, optimizer=True, yul=True),
     }[preset]
 
 

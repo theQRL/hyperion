@@ -39,11 +39,11 @@ class SyntaxTest: public AnalysisFramework, public hyperion::test::CommonSyntaxT
 public:
 	static std::unique_ptr<TestCase> create(Config const& _config)
 	{
-		return std::make_unique<SyntaxTest>(_config.filename, _config.zvmVersion);
+		return std::make_unique<SyntaxTest>(_config.filename, _config.qrvmVersion);
 	}
 	SyntaxTest(
 		std::string const& _filename,
-		langutil::ZVMVersion _zvmVersion,
+		langutil::QRVMVersion _qrvmVersion,
 		langutil::Error::Severity _minSeverity = langutil::Error::Severity::Info
 	);
 

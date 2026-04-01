@@ -28,7 +28,7 @@
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AsmAnalysisInfo.h>
 #include <libyul/AST.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 #include <liblangutil/ErrorReporter.h>
 #include <liblangutil/Exceptions.h>

@@ -1,7 +1,7 @@
 contract C {
-    uint[2 wei] a;
-    uint[2 gwei] b;
-    uint[2 ether] c;
+    uint[2 planck] a;
+    uint[2 shor] b;
+    uint[2 quanta] c;
     uint[2 seconds] d;
     uint[2 minutes] e;
     uint[2 hours] f;

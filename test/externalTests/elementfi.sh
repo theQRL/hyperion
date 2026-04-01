@@ -46,11 +46,11 @@ function elementfi_test
         # ElementFi's test suite is hard-coded for Mainnet forked via alchemy.io.
         # Locally we can only compile.
         ir-no-optimize
-        ir-optimize-zvm-only
-        ir-optimize-zvm+yul
+        ir-optimize-qrvm-only
+        ir-optimize-qrvm+yul
         legacy-no-optimize
-        legacy-optimize-zvm-only
-        legacy-optimize-zvm+yul
+        legacy-optimize-qrvm-only
+        legacy-optimize-qrvm+yul
     )
     local settings_presets=(
         "${compile_only_presets[@]}"
@@ -76,10 +76,10 @@ function elementfi_test
     sed -i 's|int256(-amount)|-int256(amount)|g' vault/AssetManagers.hyp
     sed -i 's|uint256(-1)|type(uint256).max|g' pools/BalancerPoolToken.hyp
     sed -i 's|uint256(-1)|type(uint256).max|g' test/WETH.hyp
-    sed -i 's|IERC20(0)|IERC20(address(0))|g' pools/BasePool.hyp
-    sed -i 's|IERC20(0)|IERC20(address(0))|g' vault/balances/TwoTokenPoolsBalance.hyp
-    sed -i 's|IERC20(0)|IERC20(address(0))|g' vault/FlashLoans.hyp
-    sed -i 's|IERC20(0)|IERC20(address(0))|g' vault/PoolTokens.hyp
+    sed -i 's|ISQRCTF1(0)|ISQRCTF1(address(0))|g' pools/BasePool.hyp
+    sed -i 's|ISQRCTF1(0)|ISQRCTF1(address(0))|g' vault/balances/TwoTokenPoolsBalance.hyp
+    sed -i 's|ISQRCTF1(0)|ISQRCTF1(address(0))|g' vault/FlashLoans.hyp
+    sed -i 's|ISQRCTF1(0)|ISQRCTF1(address(0))|g' vault/PoolTokens.hyp
     sed -i 's|uint256(msg\.sender)|uint256(uint160(msg.sender))|g' pools/BasePool.hyp
     sed -i 's|uint256(msg\.sender)|uint256(uint160(msg.sender))|g' pools/weighted/WeightedPool2Tokens.hyp
     sed -i 's|address(uint256(_data))|address(uint160(uint256(_data)))|g' lib/openzeppelin/Create2.hyp
@@ -98,7 +98,7 @@ function elementfi_test
     # https://github.com/element-fi/elf-contracts/issues/240) but some others also depends on an external
     # service which makes tests time out when that service is down.
     # "ProviderError: Too Many Requests error received from eth-mainnet.alchemyapi.io"
-    rm test/mockERC20YearnVaultTest.ts
+    rm test/mockSQRCTF1YearnVaultTest.ts
 
     # Several tests fail unless we use the exact versions hard-coded in package-lock.json
     #neutralize_package_lock

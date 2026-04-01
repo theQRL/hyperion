@@ -25,19 +25,19 @@ HYPTMPDIR=$(mktemp -d)
     "$REPO_ROOT"/scripts/isolate_tests.py "$REPO_ROOT"/docs/
 
     if npm -v >/dev/null 2>&1; then
-        if npm list -g | grep solhint >/dev/null 2>&1; then
-            echo "node is installed, setting up solhint"
-            cp "$REPO_ROOT"/test/.solhint.json "$HYPTMPDIR"/.solhint.json
-            cp "$REPO_ROOT"/test/.solhintignore "$HYPTMPDIR"/.solhintignore
+        if npm list -g | grep hyphint >/dev/null 2>&1; then
+            echo "node is installed, setting up hyphint"
+            cp "$REPO_ROOT"/test/.hyphint.json "$HYPTMPDIR"/.hyphint.json
+            cp "$REPO_ROOT"/test/.hyphintignore "$HYPTMPDIR"/.hyphintignore
 
             for f in *.hyp
             do
                 echo "$f"
                 # Only report errors
-                solhint -f unix "$HYPTMPDIR/$f"
+                hyphint -f unix "$HYPTMPDIR/$f"
             done
         else
-            echo "node is installed, but not solhint"
+            echo "node is installed, but not hyphint"
             exit 1
         fi
     else

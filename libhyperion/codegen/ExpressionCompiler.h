@@ -19,7 +19,7 @@
  * @author Christian <c@ethdev.com>
  * @author Gav Wood <g@ethdev.com>
  * @date 2014
- * Hyperion AST to ZVM bytecode compiler for expressions.
+ * Hyperion AST to QRVM bytecode compiler for expressions.
  */
 
 #pragma once
@@ -34,7 +34,7 @@
 #include <functional>
 #include <memory>
 
-namespace hyperion::zvmasm
+namespace hyperion::qrvmasm
 {
 class AssemblyItem; // forward
 }
@@ -51,7 +51,7 @@ class ArrayType;
 
 /**
  * Compiler for expressions, i.e. converts an AST tree whose root is an Expression into a stream
- * of ZVM instructions. It needs a compiler context that is the same for the whole compilation
+ * of QRVM instructions. It needs a compiler context that is the same for the whole compilation
  * unit.
  */
 class ExpressionCompiler: private ASTConstVisitor

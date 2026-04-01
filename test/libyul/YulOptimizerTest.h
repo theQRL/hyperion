@@ -36,7 +36,7 @@ struct Dialect;
 namespace hyperion::yul::test
 {
 
-class YulOptimizerTest: public hyperion::frontend::test::ZVMVersionRestrictedTestCase
+class YulOptimizerTest: public hyperion::frontend::test::QRVMVersionRestrictedTestCase
 {
 public:
 	static std::unique_ptr<TestCase> create(Config const& _config)

@@ -285,7 +285,7 @@ def main(argv):
 
     source_file_names = find_files(
         cwd,
-        ["libzvmasm", "liblangutil", "libhypc", "libhyperion", "libhyputil", "libyul", "hypc"],
+        ["libqrvmasm", "liblangutil", "libhypc", "libhyperion", "libhyputil", "libyul", "hypc"],
         [".h", ".cpp"]
     )
     source_id_to_file_names = find_ids_in_source_files(source_file_names)

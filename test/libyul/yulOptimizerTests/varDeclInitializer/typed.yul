@@ -7,7 +7,7 @@
     }
 }
 // ====
-// dialect: zvmTyped
+// dialect: qrvmTyped 
 // ----
 // step: varDeclInitializer
 //

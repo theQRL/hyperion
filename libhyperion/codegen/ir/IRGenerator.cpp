@@ -727,7 +727,7 @@ std::string IRGenerator::generateExternalFunction(ContractDefinition const& _con
 		unsigned paramVars = std::make_shared<TupleType>(_functionType.parameterTypes())->sizeOnStack();
 		unsigned retVars = std::make_shared<TupleType>(_functionType.returnParameterTypes())->sizeOnStack();
 
-		ABIFunctions abiFunctions(m_zvmVersion, m_context.revertStrings(), m_context.functionCollector());
+		ABIFunctions abiFunctions(m_qrvmVersion, m_context.revertStrings(), m_context.functionCollector());
 		t("abiDecode", abiFunctions.tupleDecoder(_functionType.parameterTypes()));
 		t("params",  suffixedVariableNameList("param_", 0, paramVars));
 		t("retParams",  suffixedVariableNameList("ret_", 0, retVars));
@@ -974,7 +974,7 @@ std::string IRGenerator::deployCode(ContractDefinition const& _contract)
 
 std::string IRGenerator::callValueCheck()
 {
-	return "if callvalue() { " + m_utils.revertReasonIfDebugFunction("Ether sent to non-payable function") + "() }";
+	return "if callvalue() { " + m_utils.revertReasonIfDebugFunction("Quanta sent to non-payable function") + "() }";
 }
 
 std::string IRGenerator::dispatchRoutine(ContractDefinition const& _contract)
@@ -994,7 +994,7 @@ std::string IRGenerator::dispatchRoutine(ContractDefinition const& _contract)
 			</cases>
 			default {}
 		}</+cases>
-		<?+receiveEther>if iszero(calldatasize()) { <receiveEther> }</+receiveEther>
+		<?+receiveQuanta>if iszero(calldatasize()) { <receiveQuanta> }</+receiveQuanta>
 		<fallback>
 	)X");
 	t("shr224", m_utils.shiftRightFunction(224));
@@ -1023,14 +1023,14 @@ std::string IRGenerator::dispatchRoutine(ContractDefinition const& _contract)
 		templ["externalFunction"] = generateExternalFunction(_contract, *type);
 	}
 	t("cases", functions);
-	FunctionDefinition const* etherReceiver = _contract.receiveFunction();
-	if (etherReceiver)
+	FunctionDefinition const* quantaReceiver = _contract.receiveFunction();
+	if (quantaReceiver)
 	{
 		hypAssert(!_contract.isLibrary(), "");
-		t("receiveEther", m_context.enqueueFunctionForCodeGeneration(*etherReceiver) + "() stop()");
+		t("receiveQuanta", m_context.enqueueFunctionForCodeGeneration(*quantaReceiver) + "() stop()");
 	}
 	else
-		t("receiveEther", "");
+		t("receiveQuanta", "");
 	if (FunctionDefinition const* fallback = _contract.fallbackFunction())
 	{
 		hypAssert(!_contract.isLibrary(), "");
@@ -1051,7 +1051,7 @@ std::string IRGenerator::dispatchRoutine(ContractDefinition const& _contract)
 	}
 	else
 		t("fallback", (
-			etherReceiver ?
+			quantaReceiver ?
 			m_utils.revertReasonIfDebugFunction("Unknown signature and no fallback defined") :
 			m_utils.revertReasonIfDebugFunction("Contract does not have fallback nor receive functions")
 		) + "()");
@@ -1060,7 +1060,7 @@ std::string IRGenerator::dispatchRoutine(ContractDefinition const& _contract)
 
 std::string IRGenerator::memoryInit(bool _useMemoryGuard)
 {
-	// This function should be called at the beginning of the ZVM call frame
+	// This function should be called at the beginning of the QRVM call frame
 	// and thus can assume all memory to be zero, including the contents of
 	// the "zero memory area" (the position CompilerUtils::zeroPointer points to).
 	return
@@ -1091,7 +1091,7 @@ void IRGenerator::resetContext(ContractDefinition const& _contract, ExecutionCon
 		"Reset internal dispatch map without consuming it."
 	);
 	IRGenerationContext newContext(
-		m_zvmVersion,
+		m_qrvmVersion,
 		_context,
 		m_context.revertStrings(),
 		m_context.sourceIndices(),

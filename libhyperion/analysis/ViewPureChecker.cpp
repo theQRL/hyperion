@@ -19,9 +19,9 @@
 #include <libhyperion/analysis/ViewPureChecker.h>
 #include <libhyperion/ast/ExperimentalFeatures.h>
 #include <libyul/AST.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 #include <liblangutil/ErrorReporter.h>
-#include <libzvmasm/SemanticInformation.h>
+#include <libqrvmasm/SemanticInformation.h>
 
 #include <functional>
 #include <utility>
@@ -65,8 +65,8 @@ public:
 	}
 	void operator()(yul::FunctionCall const& _funCall)
 	{
-		if (yul::ZVMDialect const* dialect = dynamic_cast<decltype(dialect)>(&m_dialect))
-			if (yul::BuiltinFunctionForZVM const* fun = dialect->builtin(_funCall.functionName.name))
+		if (yul::QRVMDialect const* dialect = dynamic_cast<decltype(dialect)>(&m_dialect))
+			if (yul::BuiltinFunctionForQRVM const* fun = dialect->builtin(_funCall.functionName.name))
 				if (fun->instruction)
 					checkInstruction(nativeLocationOf(_funCall), *fun->instruction);
 
@@ -111,11 +111,11 @@ public:
 	}
 
 private:
-	void checkInstruction(SourceLocation _location, zvmasm::Instruction _instruction)
+	void checkInstruction(SourceLocation _location, qrvmasm::Instruction _instruction)
 	{
-		if (zvmasm::SemanticInformation::invalidInViewFunctions(_instruction))
+		if (qrvmasm::SemanticInformation::invalidInViewFunctions(_instruction))
 			m_reportMutability(StateMutability::NonPayable, _location);
-		else if (zvmasm::SemanticInformation::invalidInPureFunctions(_instruction))
+		else if (qrvmasm::SemanticInformation::invalidInPureFunctions(_instruction))
 			m_reportMutability(StateMutability::View, _location);
 	}
 

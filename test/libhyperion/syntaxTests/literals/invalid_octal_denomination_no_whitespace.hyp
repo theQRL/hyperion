@@ -1,5 +1,5 @@
 contract C {
-    uint y = 01gwei;
+    uint y = 01shor;
 }
 // ----
 // ParserError 8936: (26-27): Octal numbers not allowed.

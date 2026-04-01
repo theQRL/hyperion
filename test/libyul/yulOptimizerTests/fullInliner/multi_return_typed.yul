@@ -5,7 +5,7 @@
 	let r: bool, s: u256 := f(mload(3))
 }
 // ====
-// dialect: zvmTyped
+// dialect: qrvmTyped 
 // ----
 // step: fullInliner
 //

@@ -6,13 +6,13 @@
   }
  },
  "settings": {
-  "zvmVersion": "shanghai",
+  "qrvmVersion": "zond",
   "outputSelection": {
    "*": {
     "A": [
-     "zvm.bytecode.object",
-     "zvm.deployedBytecode.generatedSources",
-     "zvm.bytecode.generatedSources"
+     "qrvm.bytecode.object",
+     "qrvm.deployedBytecode.generatedSources",
+     "qrvm.bytecode.generatedSources"
     ]
    }
   }

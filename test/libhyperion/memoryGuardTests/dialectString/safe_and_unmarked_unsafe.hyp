@@ -1,6 +1,6 @@
 contract C {
     function f() external pure {
-        assembly "zvmasm" ("memory-safe") {}
+        assembly "qrvmasm" ("memory-safe") {}
         assembly { mstore(0,0) }
     }
 }

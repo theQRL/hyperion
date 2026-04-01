@@ -1,5 +1,5 @@
 
-======= linking_strict_assembly_same_library_name_different_files_in_link_references/input.yul (ZVM) =======
+======= linking_strict_assembly_same_library_name_different_files_in_link_references/input.yul (QRVM) =======
 
 Pretty printed source:
 object "a" {

@@ -45,7 +45,7 @@ using namespace hyperion::frontend::test;
 using namespace std;
 
 YulOptimizerTest::YulOptimizerTest(string const& _filename):
-	ZVMVersionRestrictedTestCase(_filename)
+	QRVMVersionRestrictedTestCase(_filename)
 {
 	boost::filesystem::path path(_filename);
 
@@ -55,8 +55,8 @@ YulOptimizerTest::YulOptimizerTest(string const& _filename):
 
 	m_source = m_reader.source();
 
-	auto dialectName = m_reader.stringSetting("dialect", "zvm");
-	m_dialect = &dialect(dialectName, hyperion::test::CommonOptions::get().zvmVersion());
+	auto dialectName = m_reader.stringSetting("dialect", "qrvm");
+	m_dialect = &dialect(dialectName, hyperion::test::CommonOptions::get().qrvmVersion());
 
 	m_expectation = m_reader.simpleExpectations();
 }

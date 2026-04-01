@@ -4,8 +4,8 @@ set(sources
     Common.h
     CommonSyntaxTest.cpp
     CommonSyntaxTest.h
-    ZVMHost.cpp
-    ZVMHost.h
+    QRVMHost.cpp
+    QRVMHost.h
     ExecutionFramework.cpp
     ExecutionFramework.h
     FilesystemUtils.cpp
@@ -47,11 +47,11 @@ set(libhyputil_sources
 )
 detect_stray_source_files("${libhyputil_sources}" "libhyputil/")
 
-set(libzvmasm_sources
-    libzvmasm/Assembler.cpp
-    libzvmasm/Optimiser.cpp
+set(libqrvmasm_sources
+    libqrvmasm/Assembler.cpp
+    libqrvmasm/Optimiser.cpp
 )
-detect_stray_source_files("${libzvmasm_sources}" "libzvmasm/")
+detect_stray_source_files("${libqrvmasm_sources}" "libqrvmasm/")
 
 set(liblangutil_sources
     liblangutil/CharStream.cpp
@@ -137,8 +137,8 @@ set(libyul_sources
     libyul/ControlFlowGraphTest.h
     libyul/ControlFlowSideEffectsTest.cpp
     libyul/ControlFlowSideEffectsTest.h
-    libyul/ZVMCodeTransformTest.cpp
-    libyul/ZVMCodeTransformTest.h
+    libyul/QRVMCodeTransformTest.cpp
+    libyul/QRVMCodeTransformTest.h
     libyul/FunctionSideEffects.cpp
     libyul/FunctionSideEffects.h
     libyul/Inliner.cpp
@@ -196,14 +196,14 @@ add_executable(hyptest ${sources}
     ${contracts_sources}
     ${libhyputil_sources}
     ${liblangutil_sources}
-    ${libzvmasm_sources}
+    ${libqrvmasm_sources}
     ${libyul_sources}
     ${libhyperion_sources}
     ${libhyperion_util_sources}
     ${hypcli_sources}
     ${yul_phaser_sources}
 )
-target_link_libraries(hyptest PRIVATE hypcli libhypc yul hyperion smtutil hyputil phaser Boost::boost yulInterpreter zvmasm Boost::filesystem Boost::program_options Boost::unit_test_framework zvmc)
+target_link_libraries(hyptest PRIVATE hypcli libhypc yul hyperion smtutil hyputil phaser Boost::boost yulInterpreter qrvmasm Boost::filesystem Boost::program_options Boost::unit_test_framework qrvmc)
 
 
 # Special compilation flag for Visual Studio (version 2019 at least affected)
@@ -219,4 +219,4 @@ if (NOT Boost_USE_STATIC_LIBS)
 endif()
 
 add_subdirectory(tools)
-add_subdirectory(zvmc)
+add_subdirectory(qrvmc)

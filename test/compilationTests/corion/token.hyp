@@ -1,4 +1,4 @@
-pragma hyperion >=0.0;
+pragma hyperion >0.1.0;
 
 import "./announcementTypes.hyp";
 import "./safeMath.hyp";
@@ -53,7 +53,7 @@ contract token is safeMath, module, announcementTypes {
         /*
             Installation function
 
-            When _icoAddr is defined, 0.2 ether has to be attached  as many times  as many genesis addresses are given
+            When _icoAddr is defined, 0.2 quanta has to be attached  as many times  as many genesis addresses are given
 
             @forReplace                 This address will be replaced with the old one or not.
             @moduleHandler              Modulhandler's address
@@ -74,11 +74,11 @@ contract token is safeMath, module, announcementTypes {
         if ( ! forReplace ) {
             require( db.replaceOwner(address(this)) );
             assert( genesisAddr.length == genesisValue.length );
-            require( address(this).balance >= genesisAddr.length * 0.2 ether );
+            require( address(this).balance >= genesisAddr.length * 0.2 quanta );
             for ( uint256 a=0 ; a<genesisAddr.length ; a++ ) {
                 genesis[genesisAddr[a]] = true;
                 require( db.increase(genesisAddr[a], genesisValue[a]) );
-                if ( ! genesisAddr[a].send(0.2 ether) ) {}
+                if ( ! genesisAddr[a].send(0.2 quanta) ) {}
                 emit Mint(genesisAddr[a], genesisValue[a]);
             }
         }
@@ -314,7 +314,7 @@ contract token is safeMath, module, announcementTypes {
             During ICO transactions are allowed only from genesis addresses.
             After sending the tokens, the ModuleHandler is notified and it will broadcast the fact among members
 
-            The Za636a97578d26a3b76b060bbc18226d954cf3757 address are blacklisted.
+            The Qa636a97578d26a3b76b060bbc18226d954cf3757 address are blacklisted.
 
             @from       From who
             @to         To who
@@ -326,7 +326,7 @@ contract token is safeMath, module, announcementTypes {
             require( success );
             require( db.balanceOf(from) >= amount + _fee );
         }
-        require( from != address(0x00) && to != address(0x00) && to != Za636A97578d26A3b76B060Bbc18226d954cf3757 );
+        require( from != address(0x00) && to != address(0x00) && to != Qa636A97578d26A3b76B060Bbc18226d954cf3757 );
         require( ( ! isICO) || genesis[from] );
         require( db.decrease(from, amount) );
         require( db.increase(to, amount) );

@@ -19,7 +19,7 @@ but no implementation was provided (no implementation body ``{ }`` was given).
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     abstract contract Feline {
         function utterance() public virtual returns (bytes32);
@@ -31,7 +31,7 @@ all defined functions. The usage of an abstract contract as a base class is show
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     abstract contract Feline {
         function utterance() public pure virtual returns (bytes32);

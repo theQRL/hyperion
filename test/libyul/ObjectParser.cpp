@@ -27,7 +27,7 @@
 #include <liblangutil/Scanner.h>
 
 #include <libyul/YulStack.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 #include <libhyperion/interface/OptimiserSettings.h>
 
@@ -58,7 +58,7 @@ pair<bool, ErrorList> parse(string const& _source)
 	try
 	{
 		YulStack asmStack(
-			hyperion::test::CommonOptions::get().zvmVersion(),
+			hyperion::test::CommonOptions::get().qrvmVersion(),
 			YulStack::Language::StrictAssembly,
 			hyperion::frontend::OptimiserSettings::none(),
 			DebugInfoSelection::All()
@@ -119,7 +119,7 @@ tuple<optional<SourceNameMap>, ErrorList> tryGetSourceLocationMapping(string _so
 
 	ErrorList errors;
 	ErrorReporter reporter(errors);
-	Dialect const& dialect = yul::ZVMDialect::strictAssemblyForZVM(ZVMVersion::shanghai());
+	Dialect const& dialect = yul::QRVMDialect::strictAssemblyForQRVM(QRVMVersion::zond());
 	ObjectParser objectParser{reporter, dialect};
 	CharStream stream(std::move(source), "");
 	auto object = objectParser.parse(make_shared<Scanner>(stream), false);
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE(to_string)
 )";
 	expectation = boost::replace_all_copy(expectation, "\t", "    ");
 	YulStack asmStack(
-		hyperion::test::CommonOptions::get().zvmVersion(),
+		hyperion::test::CommonOptions::get().qrvmVersion(),
 		YulStack::Language::StrictAssembly,
 		hyperion::frontend::OptimiserSettings::none(),
 		DebugInfoSelection::All()

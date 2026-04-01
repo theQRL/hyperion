@@ -4,7 +4,7 @@
 Yul
 ###
 
-.. index:: ! assembly, ! asm, ! zvmasm, ! yul, julia, iulia
+.. index:: ! assembly, ! asm, ! qrvmasm, ! yul, julia, iulia
 
 Yul (previously also called JULIA or IULIA) is an intermediate language that can be
 compiled to bytecode for different backends.
@@ -54,15 +54,15 @@ which allows specializing Yul to the requirements of different
 target platforms and feature sets.
 
 Currently, there is only one specified dialect of Yul. This dialect uses
-the ZVM opcodes as builtin functions
+the QRVM opcodes as builtin functions
 (see below) and defines only the type ``u256``, which is the native 256-bit
-type of the ZVM. Because of that, we will not provide types in the examples below.
+type of the QRVM. Because of that, we will not provide types in the examples below.
 
 
 Simple Example
 ==============
 
-The following example program is written in the ZVM dialect and computes exponentiation.
+The following example program is written in the QRVM dialect and computes exponentiation.
 It can be compiled using ``hypc --strict-assembly``. The builtin functions
 ``mul`` and ``div`` compute product and division, respectively.
 
@@ -99,7 +99,7 @@ instead of with recursion. Here, ``lt(a, b)`` computes whether ``a`` is less tha
         }
     }
 
-At the :ref:`end of the section <erc20yul>`, a complete implementation of
+At the :ref:`end of the section <sqrctf1yul>`, a complete implementation of
 the ERC-20 standard can be found.
 
 
@@ -107,7 +107,7 @@ the ERC-20 standard can be found.
 Stand-Alone Usage
 =================
 
-You can use Yul in its stand-alone form in the ZVM dialect using the Hyperion compiler.
+You can use Yul in its stand-alone form in the QRVM dialect using the Hyperion compiler.
 This will use the :ref:`Yul object notation <yul-object>` so that it is possible to refer
 to code as data to deploy contracts. This Yul mode is available for the commandline compiler
 (use ``--strict-assembly``) and for the :ref:`standard-json interface <compiler-api>`:
@@ -125,15 +125,15 @@ to code as data to deploy contracts. This Yul mode is available for the commandl
 
 .. warning::
 
-    Yul is in active development and bytecode generation is only fully implemented for the ZVM dialect of Yul
-    with ZVM 1.0 as target.
+    Yul is in active development and bytecode generation is only fully implemented for the QRVM dialect of Yul
+    with QRVM 1.0 as target.
 
 
 Informal Description of Yul
 ===========================
 
 In the following, we will talk about each individual aspect
-of the Yul language. In examples, we will use the default ZVM dialect.
+of the Yul language. In examples, we will use the default QRVM dialect.
 
 Syntax
 ------
@@ -179,7 +179,7 @@ As literals, you can use:
 
 - Hex strings (e.g. ``hex"616263"``).
 
-In the ZVM dialect of Yul, literals represent 256-bit words as follows:
+In the QRVM dialect of Yul, literals represent 256-bit words as follows:
 
 - Decimal or hexadecimal constants must be less than ``2**256``.
   They represent the 256-bit word with that value as an unsigned integer in big endian encoding.
@@ -198,7 +198,7 @@ In the ZVM dialect of Yul, literals represent 256-bit words as follows:
   each pair of contiguous hex digits as a byte.
   The byte sequence must not exceed 32 bytes (i.e. 64 hex digits), and is treated as above.
 
-When compiling for the ZVM, this will be translated into an
+When compiling for the QRVM, this will be translated into an
 appropriate ``PUSHi`` instruction. In the following example,
 ``3`` and ``2`` are added resulting in 5 and then the
 bitwise ``and`` with the string "abc" is computed.
@@ -237,7 +237,7 @@ they have to be assigned to local variables.
     // Here, the user-defined function `f` returns two values.
     let x, y := f(1, mload(0))
 
-For built-in functions of the ZVM, functional expressions
+For built-in functions of the QRVM, functional expressions
 can be directly translated to a stream of opcodes:
 You just read the expression from right to left to obtain the
 opcodes. In the case of the second line in the example, this
@@ -255,7 +255,7 @@ Variable Declarations
 
 You can use the ``let`` keyword to declare variables.
 A variable is only visible inside the
-``{...}``-block it was defined in. When compiling to the ZVM,
+``{...}``-block it was defined in. When compiling to the QRVM,
 a new stack slot is created that is reserved
 for the variable and automatically removed again when the end of the block
 is reached. You can provide an initial value for the variable.
@@ -268,7 +268,7 @@ to memory or storage locations in the built-in functions
 Future dialects might introduce specific types for such pointers.
 
 When a variable is referenced, its current value is copied.
-For the ZVM, this translates to a ``DUP`` instruction.
+For the QRVM, this translates to a ``DUP`` instruction.
 
 .. code-block:: yul
 
@@ -410,7 +410,7 @@ Yul allows the definition of functions. These should not be confused with functi
 in Hyperion since they are never part of an external interface of a contract and
 are part of a namespace separate from the one for Hyperion functions.
 
-For the ZVM, Yul functions take their
+For the QRVM, Yul functions take their
 arguments (and a return PC) from the stack and also put the results onto the
 stack. User-defined functions and built-in functions are called in exactly the same way.
 
@@ -429,7 +429,7 @@ works like the ``return`` statement in other languages just that it does
 not take a value to return, it just exits the functions and the function
 will return whatever values are currently assigned to the return variable(s).
 
-Note that the ZVM dialect has a built-in function called ``return`` that
+Note that the QRVM dialect has a built-in function called ``return`` that
 quits the full execution context (internal message call) and not just
 the current yul function.
 
@@ -617,9 +617,9 @@ on the various nodes of the AST. As builtin functions can have side effects,
 E takes two state objects and the AST node and returns two new
 state objects and a variable number of other values.
 The two state objects are the global state object
-(which in the context of the ZVM is the memory, storage and state of the
+(which in the context of the QRVM is the memory, storage and state of the
 blockchain) and the local state object (the state of local variables, i.e. a
-segment of the stack in the ZVM).
+segment of the stack in the QRVM).
 
 If the AST node is a statement, E returns the two state objects and a "mode",
 which is used for the ``break``, ``continue`` and ``leave`` statements.
@@ -727,7 +727,7 @@ We will use a destructuring notation for the AST nodes.
         G'', Ln, L''[$ret1], ..., L''[$retm]
     E(G, L, l: StringLiteral) = G, L, str(l),
         where str is the string evaluation function,
-        which for the ZVM dialect is defined in the section 'Literals' above
+        which for the QRVM dialect is defined in the section 'Literals' above
     E(G, L, n: HexNumber) = G, L, hex(n)
         where hex is the hexadecimal evaluation function,
         which turns a sequence of hexadecimal digits into their big endian value
@@ -737,18 +737,18 @@ We will use a destructuring notation for the AST nodes.
 
 .. _opcodes:
 
-ZVM Dialect
+QRVM Dialect
 -----------
 
-The default dialect of Yul currently is the ZVM dialect for the currently selected version of the ZVM.
+The default dialect of Yul currently is the QRVM dialect for the currently selected version of the QRVM.
 The only type available in this dialect
-is ``u256``, the 256-bit native type of the Zond Virtual Machine.
+is ``u256``, the 256-bit native type of the Quantum Resistant Virtual Machine.
 Since it is the default type of this dialect, it can be omitted.
 
 The following table lists all builtin functions
-(depending on the ZVM version) and provides a short description of the
+(depending on the QRVM version) and provides a short description of the
 semantics of the function / opcode.
-This document does not want to be a full description of the Ethereum virtual machine.
+This document does not want to be a full description of the Quantum Resistant virtual machine.
 Please refer to a different document if you are interested in the precise semantics.
 
 Opcodes marked with ``-`` do not return a result and all others return exactly one value.
@@ -839,13 +839,13 @@ the ``dup`` and ``swap`` instructions as well as ``jump`` instructions, labels a
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | address()               |     | F | address of the current contract / execution context             |
 +-------------------------+-----+---+-----------------------------------------------------------------+
-| balance(a)              |     | F | wei balance at address a                                        |
+| balance(a)              |     | F | planck balance at address a                                     |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | selfbalance()           |     | I | equivalent to balance(address()), but cheaper                   |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | caller()                |     | F | call sender (excluding ``delegatecall``)                        |
 +-------------------------+-----+---+-----------------------------------------------------------------+
-| callvalue()             |     | F | wei sent together with the current call                         |
+| callvalue()             |     | F | planck sent together with the current call                      |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | calldataload(p)         |     | F | call data starting from position p (32 bytes)                   |
 +-------------------------+-----+---+-----------------------------------------------------------------+
@@ -867,18 +867,18 @@ the ``dup`` and ``swap`` instructions as well as ``jump`` instructions, labels a
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | extcodehash(a)          |     | C | code hash of address a                                          |
 +-------------------------+-----+---+-----------------------------------------------------------------+
-| create(v, p, n)         |     | F | create new contract with code mem[p...(p+n)) and send v wei     |
+| create(v, p, n)         |     | F | create new contract with code mem[p...(p+n)) and send v planck  |
 |                         |     |   | and return the new address; returns 0 on error                  |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | create2(v, p, n, s)     |     | C | create new contract with code mem[p...(p+n)) at address         |
 |                         |     |   | keccak256(0xff . this . s . keccak256(mem[p...(p+n)))           |
-|                         |     |   | and send v wei and return the new address, where ``0xff`` is a  |
-|                         |     |   | 1 byte value, ``this`` is the current contract's address        |
+|                         |     |   | and send v planck and return the new address, where ``0xff`` is |
+|                         |     |   | a 1 byte value, ``this`` is the current contract's address      |
 |                         |     |   | as a 20 byte value and ``s`` is a big-endian 256-bit value;     |
 |                         |     |   | returns 0 on error                                              |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | call(g, a, v, in,       |     | F | call contract at address a with input mem[in...(in+insize))     |
-| insize, out, outsize)   |     |   | providing g gas and v wei and output area                       |
+| insize, out, outsize)   |     |   | providing g gas and v planck and output area                    |
 |                         |     |   | mem[out...(out+outsize)) returning 0 on error (eg. out of gas)  |
 |                         |     |   | and 1 on success                                                |
 |                         |     |   | :ref:`See more <yul-call-return-area>`                          |
@@ -949,7 +949,7 @@ are used to access other parts of a Yul object.
 
 ``datasize`` and ``dataoffset`` can only take string literals (the names of other objects)
 as arguments and return the size and offset in the data area, respectively.
-For the ZVM, the ``datacopy`` function is equivalent to ``codecopy``.
+For the QRVM, the ``datacopy`` function is equivalent to ``codecopy``.
 
 
 setimmutable, loadimmutable
@@ -985,7 +985,7 @@ is equivalent to
 
     let a := 0x1234567890123456789012345678901234567890
 
-when the linker is invoked with ``--libraries "file.hyp:Math=Z1234567890123456789012345678901234567890``
+when the linker is invoked with ``--libraries "file.hyp:Math=Q1234567890123456789012345678901234567890``
 option.
 
 See :ref:`Using the Commandline Compiler <commandline-compiler>` for details about the Hyperion linker.
@@ -993,7 +993,7 @@ See :ref:`Using the Commandline Compiler <commandline-compiler>` for details abo
 memoryguard
 ^^^^^^^^^^^
 
-This function is available in the ZVM dialect with objects. The caller of
+This function is available in the QRVM dialect with objects. The caller of
 ``let ptr := memoryguard(size)`` (where ``size`` has to be a literal number)
 promises that they only use memory in either the range ``[0, size)`` or the
 unbounded range starting at ``ptr``.
@@ -1082,7 +1082,7 @@ it can be removed.
 
 .. warning::
 
-    During discussions about whether or not ZVM improvements
+    During discussions about whether or not QRVM improvements
     might break existing smart contracts, features inside ``verbatim``
     cannot receive the same consideration as those used by the Hyperion
     compiler itself.
@@ -1160,7 +1160,7 @@ An example Yul Object is shown below:
             // first create "Contract2"
             let size := datasize("Contract2")
             let offset := allocate(size)
-            // This will turn into codecopy for ZVM
+            // This will turn into codecopy for QRVM
             datacopy(offset, dataoffset("Contract2"), size)
             // constructor parameter is a single number 0x1234
             mstore(add(offset, size), 0x1234)
@@ -1170,7 +1170,7 @@ An example Yul Object is shown below:
             // executing code is the constructor code)
             size := datasize("Contract1_deployed")
             offset := allocate(size)
-            // This will turn into a codecopy for ZVM
+            // This will turn into a codecopy for QRVM
             datacopy(offset, dataoffset("Contract1_deployed"), size)
             return(offset, size)
         }
@@ -1237,9 +1237,9 @@ Optimization Step Sequence
 Detailed information regrading the optimization sequence as well a list of abbreviations is
 available in the :ref:`optimizer docs <optimizer-steps>`.
 
-.. _erc20yul:
+.. _sqrctf1yul:
 
-Complete ERC20 Example
+Complete SQRCTF1 Example
 ======================
 
 .. code-block:: yul
@@ -1255,7 +1255,7 @@ Complete ERC20 Example
         }
         object "runtime" {
             code {
-                // Protection against sending Ether
+                // Protection against sending Quanta
                 require(iszero(callvalue()))
 
                 // Dispatcher

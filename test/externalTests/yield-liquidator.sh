@@ -46,10 +46,10 @@ function yield_liquidator_test
     local settings_presets=(
         "${compile_only_presets[@]}"
         ir-no-optimize
-        ir-optimize-zvm-only
-        ir-optimize-zvm+yul
-        legacy-optimize-zvm-only
-        legacy-optimize-zvm+yul
+        ir-optimize-qrvm-only
+        ir-optimize-qrvm+yul
+        legacy-optimize-qrvm-only
+        legacy-optimize-qrvm+yul
         legacy-no-optimize
     )
 

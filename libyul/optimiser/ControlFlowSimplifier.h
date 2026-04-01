@@ -46,7 +46,7 @@ class TypeInfo;
  *
  * Prerequisite: Disambiguator, FunctionHoister, ForLoopInitRewriter.
  *
- * Important: Introduces ZVM opcodes and thus can only be used on ZVM code for now.
+ * Important: Introduces QRVM opcodes and thus can only be used on QRVM code for now.
  */
 class ControlFlowSimplifier: public ASTModifier
 {

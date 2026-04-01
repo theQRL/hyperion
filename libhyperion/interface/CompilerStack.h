@@ -38,11 +38,11 @@
 #include <liblangutil/CharStreamProvider.h>
 #include <liblangutil/DebugInfoSelection.h>
 #include <liblangutil/ErrorReporter.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 #include <liblangutil/SourceLocation.h>
 
-#include <libzvmasm/AbstractAssemblyStack.h>
-#include <libzvmasm/LinkerObject.h>
+#include <libqrvmasm/AbstractAssemblyStack.h>
+#include <libqrvmasm/LinkerObject.h>
 
 #include <libhyputil/Common.h>
 #include <libhyputil/FixedHash.h>
@@ -63,7 +63,7 @@ class CharStream;
 }
 
 
-namespace hyperion::zvmasm
+namespace hyperion::qrvmasm
 {
 class Assembly;
 class AssemblyItem;
@@ -92,7 +92,7 @@ class Analysis;
  * It holds state and can be used to either step through the compilation stages (and abort e.g.
  * before compilation to bytecode) or run the whole compilation in one call.
  */
-class CompilerStack: public langutil::CharStreamProvider, public zvmasm::AbstractAssemblyStack
+class CompilerStack: public langutil::CharStreamProvider, public qrvmasm::AbstractAssemblyStack
 {
 public:
 	/// Noncopyable.
@@ -169,10 +169,10 @@ public:
 	/// Must be set before parsing.
 	void setViaIR(bool _viaIR);
 
-	/// Set the ZVM version used before running compile.
+	/// Set the QRVM version used before running compile.
 	/// When called without an argument it will revert to the default version.
 	/// Must be set before parsing.
-	void setZVMVersion(langutil::ZVMVersion _version = langutil::ZVMVersion{});
+	void setQRVMVersion(langutil::QRVMVersion _version = langutil::QRVMVersion{});
 
 	/// Set model checker settings.
 	void setModelCheckerSettings(ModelCheckerSettings _settings);
@@ -186,8 +186,8 @@ public:
 		m_requestedContractNames = _contractNames;
 	}
 
-	/// Enable ZVM Bytecode generation. This is enabled by default.
-	void enableZvmBytecodeGeneration(bool _enable = true) { m_generateZvmBytecode = _enable; }
+	/// Enable QRVM Bytecode generation. This is enabled by default.
+	void enableQrvmBytecodeGeneration(bool _enable = true) { m_generateQrvmBytecode = _enable; }
 
 	/// Enable generation of Yul IR code.
 	void enableIRGeneration(bool _enable = true) { m_generateIR = _enable; }
@@ -275,16 +275,16 @@ public:
 	Json::Value const& yulIROptimizedAst(std::string const& _contractName) const;
 
 	/// @returns the assembled object for a contract.
-	virtual zvmasm::LinkerObject const& object(std::string const& _contractName) const override;
+	virtual qrvmasm::LinkerObject const& object(std::string const& _contractName) const override;
 
 	/// @returns the runtime object for the contract.
-	virtual zvmasm::LinkerObject const& runtimeObject(std::string const& _contractName) const override;
+	virtual qrvmasm::LinkerObject const& runtimeObject(std::string const& _contractName) const override;
 
 	/// @returns normal contract assembly items
-	zvmasm::AssemblyItems const* assemblyItems(std::string const& _contractName) const;
+	qrvmasm::AssemblyItems const* assemblyItems(std::string const& _contractName) const;
 
 	/// @returns runtime contract assembly items
-	zvmasm::AssemblyItems const* runtimeAssemblyItems(std::string const& _contractName) const;
+	qrvmasm::AssemblyItems const* runtimeAssemblyItems(std::string const& _contractName) const;
 
 	/// @returns an array containing all utility sources generated during compilation.
 	/// Format: [ { name: string, id: number, language: "Yul", contents: string }, ... ]
@@ -335,7 +335,7 @@ public:
 
 	/// @returns the CBOR-encoded metadata.
 	/// @param _forIR If true, the metadata for the IR codegen is used. Otherwise it's the metadata
-	///               for the ZVM codegen
+	///               for the QRVM codegen
 	bytes cborMetadata(std::string const& _contractName, bool _forIR) const;
 
 	/// @returns a JSON representing the estimated gas usage for contract creation, internal and external functions
@@ -369,10 +369,10 @@ private:
 	{
 		ContractDefinition const* contract = nullptr;
 		std::shared_ptr<Compiler> compiler;
-		std::shared_ptr<zvmasm::Assembly> zvmAssembly;
-		std::shared_ptr<zvmasm::Assembly> zvmRuntimeAssembly;
-		zvmasm::LinkerObject object; ///< Deployment object (includes the runtime sub-object).
-		zvmasm::LinkerObject runtimeObject; ///< Runtime object.
+		std::shared_ptr<qrvmasm::Assembly> qrvmAssembly;
+		std::shared_ptr<qrvmasm::Assembly> qrvmRuntimeAssembly;
+		qrvmasm::LinkerObject object; ///< Deployment object (includes the runtime sub-object).
+		qrvmasm::LinkerObject runtimeObject; ///< Runtime object.
 		std::string yulIR; ///< Yul IR code.
 		std::string yulIROptimized; ///< Optimized Yul IR code.
 		Json::Value yulIRAst; ///< JSON AST of Yul IR code.
@@ -419,11 +419,11 @@ private:
 	bool analyzeExperimental();
 
 	/// Assembles the contract.
-	/// This function should only be internally called by compileContract and generateZVMFromIR.
+	/// This function should only be internally called by compileContract and generateQRVMFromIR.
 	void assembleYul(
 		ContractDefinition const& _contract,
-		std::shared_ptr<zvmasm::Assembly> _assembly,
-		std::shared_ptr<zvmasm::Assembly> _runtimeAssembly
+		std::shared_ptr<qrvmasm::Assembly> _assembly,
+		std::shared_ptr<qrvmasm::Assembly> _runtimeAssembly
 	);
 
 	/// Compile a single contract.
@@ -438,9 +438,9 @@ private:
 	/// The IR is stored but otherwise unused.
 	void generateIR(ContractDefinition const& _contract);
 
-	/// Generate ZVM representation for a single contract.
+	/// Generate QRVM representation for a single contract.
 	/// Depends on output generated by generateIR.
-	void generateZVMFromIR(ContractDefinition const& _contract);
+	void generateQRVMFromIR(ContractDefinition const& _contract);
 
 	/// Links all the known library addresses in the available objects. Any unknown
 	/// library will still be kept as an unlinked placeholder in the objects.
@@ -459,7 +459,7 @@ private:
 	std::string createMetadata(Contract const& _contract, bool _forIR) const;
 
 	/// @returns the metadata CBOR for the given serialised metadata JSON.
-	/// @param _forIR If true, use the metadata for the IR codegen. Otherwise the one for ZVM codegen.
+	/// @param _forIR If true, use the metadata for the IR codegen. Otherwise the one for QRVM codegen.
 	bytes createCBORMetadata(Contract const& _contract, bool _forIR) const;
 
 	/// @returns the contract ABI as a JSON object.
@@ -494,10 +494,10 @@ private:
 	RevertStrings m_revertStrings = RevertStrings::Default;
 	State m_stopAfter = State::CompilationSuccessful;
 	bool m_viaIR = false;
-	langutil::ZVMVersion m_zvmVersion;
+	langutil::QRVMVersion m_qrvmVersion;
 	ModelCheckerSettings m_modelCheckerSettings;
 	std::map<std::string, std::set<std::string>> m_requestedContractNames;
-	bool m_generateZvmBytecode = true;
+	bool m_generateQrvmBytecode = true;
 	bool m_generateIR = false;
 	std::map<std::string, util::h160> m_libraries;
 	ImportRemapper m_importRemapper;

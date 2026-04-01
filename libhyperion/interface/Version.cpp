@@ -25,7 +25,7 @@
 
 #include <hyperion/BuildInfo.h>
 
-char const* hyperion::frontend::VersionNumber = ZOND_PROJECT_VERSION;
+char const* hyperion::frontend::VersionNumber = QRL_PROJECT_VERSION;
 
 std::string const hyperion::frontend::VersionString =
 	std::string(hyperion::frontend::VersionNumber) +
@@ -38,9 +38,9 @@ std::string const hyperion::frontend::VersionStringStrict =
 	(std::string(HYP_VERSION_COMMIT).empty() ? "" : "+" + std::string(HYP_VERSION_COMMIT));
 
 hyperion::bytes const hyperion::frontend::VersionCompactBytes = {
-	ZOND_PROJECT_VERSION_MAJOR,
-	ZOND_PROJECT_VERSION_MINOR,
-	ZOND_PROJECT_VERSION_PATCH
+	QRL_PROJECT_VERSION_MAJOR,
+	QRL_PROJECT_VERSION_MINOR,
+	QRL_PROJECT_VERSION_PATCH
 };
 
 bool const hyperion::frontend::VersionIsRelease = std::string(HYP_VERSION_PRERELEASE).empty();

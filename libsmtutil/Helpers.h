@@ -23,9 +23,9 @@
 namespace hyperion::smtutil
 {
 
-/// Signed division in SMTLIB2 rounds differently than ZVM.
+/// Signed division in SMTLIB2 rounds differently than QRVM.
 /// This does not check for division by zero!
-inline Expression signedDivisionZVM(Expression _left, Expression _right)
+inline Expression signedDivisionQRVM(Expression _left, Expression _right)
 {
 	return Expression::ite(
 		_left >= 0,
@@ -40,9 +40,9 @@ inline Expression abs(Expression _value)
 }
 
 /// Signed modulo in SMTLIB2 behaves differently with regards
-/// to the sign than ZVM.
+/// to the sign than QRVM.
 /// This does not check for modulo by zero!
-inline Expression signedModuloZVM(Expression _left, Expression _right)
+inline Expression signedModuloQRVM(Expression _left, Expression _right)
 {
 	return Expression::ite(
 		_left >= 0,

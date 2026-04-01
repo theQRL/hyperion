@@ -27,9 +27,9 @@
 #include <libhyperion/ast/ASTVisitor.h>
 #include <libhyperion/codegen/CompilerUtils.h>
 
-#include <libzvmasm/ControlFlowGraph.h>
-#include <libzvmasm/KnownState.h>
-#include <libzvmasm/PathGasMeter.h>
+#include <libqrvmasm/ControlFlowGraph.h>
+#include <libqrvmasm/KnownState.h>
+#include <libqrvmasm/PathGasMeter.h>
 #include <libhyputil/FunctionSelector.h>
 #include <libhyputil/Keccak256.h>
 
@@ -38,7 +38,7 @@
 #include <memory>
 
 using namespace hyperion;
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 using namespace hyperion::frontend;
 using namespace hyperion::langutil;
 
@@ -70,7 +70,7 @@ GasEstimator::GasConsumption GasEstimator::functionalEstimation(
 		);
 	}
 
-	return PathGasMeter::estimateMax(_items, m_zvmVersion, 0, state);
+	return PathGasMeter::estimateMax(_items, m_qrvmVersion, 0, state);
 }
 
 GasEstimator::GasConsumption GasEstimator::functionalEstimation(
@@ -92,7 +92,7 @@ GasEstimator::GasConsumption GasEstimator::functionalEstimation(
 	if (parametersSize > 0)
 		state->feedItem(swapInstruction(parametersSize));
 
-	return PathGasMeter::estimateMax(_items, m_zvmVersion, _offset, state);
+	return PathGasMeter::estimateMax(_items, m_qrvmVersion, _offset, state);
 }
 
 std::set<ASTNode const*> GasEstimator::finestNodesAtLocation(

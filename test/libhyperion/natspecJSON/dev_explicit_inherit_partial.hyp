@@ -1,4 +1,4 @@
-interface ERC20 {
+interface SQRCTF1 {
     /// Transfer ``amount`` from ``msg.sender`` to ``to``.
     /// @dev test
     /// @param to address to transfer to
@@ -12,18 +12,18 @@ contract ERC21 {
     }
 }
 
-contract Token is ERC21, ERC20 {
-    /// @inheritdoc ERC20
+contract Token is ERC21, SQRCTF1 {
+    /// @inheritdoc SQRCTF1
     /// @dev override dev comment
     /// @notice override notice
-    function transfer(address to, uint amount) override(ERC21, ERC20) external returns (bool) {
+    function transfer(address to, uint amount) override(ERC21, SQRCTF1) external returns (bool) {
         return false;
     }
 }
 
 // ----
 // ----
-// :ERC20 devdoc
+// :SQRCTF1 devdoc
 // {
 //     "kind": "dev",
 //     "methods":
@@ -41,7 +41,7 @@ contract Token is ERC21, ERC20 {
 //     "version": 1
 // }
 //
-// :ERC20 userdoc
+// :SQRCTF1 userdoc
 // {
 //     "kind": "user",
 //     "methods":

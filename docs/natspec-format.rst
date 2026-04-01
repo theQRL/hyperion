@@ -61,7 +61,7 @@ The following example shows a contract and a function using all available tags.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.2 < 0.9.0;
+    pragma hyperion >=0.1.0;
 
     /// @title A simulator for trees
     /// @author Larry A. Gardner

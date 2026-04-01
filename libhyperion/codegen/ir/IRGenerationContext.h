@@ -30,7 +30,7 @@
 
 #include <liblangutil/CharStreamProvider.h>
 #include <liblangutil/DebugInfoSelection.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 #include <libhyputil/Common.h>
 
@@ -56,14 +56,14 @@ public:
 	enum class ExecutionContext { Creation, Deployed };
 
 	IRGenerationContext(
-		langutil::ZVMVersion _zvmVersion,
+		langutil::QRVMVersion _qrvmVersion,
 		ExecutionContext _executionContext,
 		RevertStrings _revertStrings,
 		std::map<std::string, unsigned> _sourceIndices,
 		langutil::DebugInfoSelection const& _debugInfoSelection,
 		langutil::CharStreamProvider const* _hyperionSourceProvider
 	):
-		m_zvmVersion(_zvmVersion),
+		m_qrvmVersion(_qrvmVersion),
 		m_executionContext(_executionContext),
 		m_revertStrings(_revertStrings),
 		m_sourceIndices(std::move(_sourceIndices)),
@@ -132,7 +132,7 @@ public:
 	/// @returns a new copy of the utility function generator (but using the same function set).
 	YulUtilFunctions utils();
 
-	langutil::ZVMVersion zvmVersion() const { return m_zvmVersion; }
+	langutil::QRVMVersion qrvmVersion() const { return m_qrvmVersion; }
 	ExecutionContext executionContext() const { return m_executionContext; }
 
 	void setArithmetic(Arithmetic _value) { m_arithmetic = _value; }
@@ -157,7 +157,7 @@ public:
 	langutil::CharStreamProvider const* hyperionSourceProvider() const { return m_hyperionSourceProvider; }
 
 private:
-	langutil::ZVMVersion m_zvmVersion;
+	langutil::QRVMVersion m_qrvmVersion;
 	ExecutionContext m_executionContext;
 	RevertStrings m_revertStrings;
 	std::map<std::string, unsigned> m_sourceIndices;

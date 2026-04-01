@@ -41,7 +41,7 @@ from test_helpers import replace_version_pragmas
 from test_helpers import settings_from_preset
 from test_helpers import SettingsPreset
 
-CURRENT_ZVM_VERSION: str = "shanghai"
+CURRENT_QRVM_VERSION: str = "zond"
 
 @dataclass
 class TestConfig:
@@ -51,7 +51,7 @@ class TestConfig:
     ref: str
     compile_only_presets: List[SettingsPreset] = field(default_factory=list)
     settings_presets: List[SettingsPreset] = field(default_factory=lambda: list(SettingsPreset))
-    zvm_version: str = field(default=CURRENT_ZVM_VERSION)
+    qrvm_version: str = field(default=CURRENT_QRVM_VERSION)
 
     def selected_presets(self) -> Set[SettingsPreset]:
         return set(self.compile_only_presets + self.settings_presets)
@@ -150,12 +150,12 @@ def run_test(runner: BaseRunner):
     runner.configure()
     for preset in runner.presets:
         print("Running compile function...")
-        settings = settings_from_preset(preset, runner.config.zvm_version)
+        settings = settings_from_preset(preset, runner.config.qrvm_version)
         print(dedent(f"""\
             -------------------------------------
             Settings preset: {preset.value}
             Settings: {settings}
-            ZVM version: {runner.config.zvm_version}
+            QRVM version: {runner.config.qrvm_version}
             Compiler version: {get_hypc_short_version(hypc_version)}
             Compiler version (full): {hypc_version}
             -------------------------------------

@@ -102,7 +102,7 @@ The initial content of the VFS depends on how you invoke the compiler:
                    "content": "contract Token {}"
                }
            },
-           "settings": {"outputSelection": {"*": { "*": ["metadata", "zvm.bytecode"]}}}
+           "settings": {"outputSelection": {"*": { "*": ["metadata", "qrvm.bytecode"]}}}
        }
 
    The ``sources`` dictionary becomes the initial content of the virtual filesystem and its keys
@@ -127,7 +127,7 @@ The initial content of the VFS depends on how you invoke the compiler:
                    ]
                }
            },
-           "settings": {"outputSelection": {"*": { "*": ["metadata", "zvm.bytecode"]}}}
+           "settings": {"outputSelection": {"*": { "*": ["metadata", "qrvm.bytecode"]}}}
        }
 
    If an import callback is available, the compiler will give it the strings specified in
@@ -469,7 +469,7 @@ importing files from the following directories:
 
     Allowed paths are case-sensitive even if the filesystem is not.
     The case must exactly match the one used in your imports.
-    For example ``--allow-paths tokens`` will not match ``import "Tokens/IERC20.hyp"``.
+    For example ``--allow-paths tokens`` will not match ``import "Tokens/ISQRCTF1.hyp"``.
 
 .. warning::
 

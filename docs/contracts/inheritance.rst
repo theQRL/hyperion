@@ -39,7 +39,7 @@ Details are given in the following example.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.7.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Owned {
         constructor() { owner = payable(msg.sender); }
@@ -79,7 +79,7 @@ Details are given in the following example.
     // instance of `Owned` (as for virtual inheritance in C++).
     contract Named is Owned, Destructible {
         constructor(bytes32 name) {
-            Config config = Config(ZD5f9D8D94886E70b06E474c3fB14Fd43E2f23970);
+            Config config = Config(QD5f9D8D94886E70b06E474c3fB14Fd43E2f23970);
             NameReg(config.lookup(1)).register(name);
         }
 
@@ -93,7 +93,7 @@ Details are given in the following example.
         // if you want this function to be overridden again.
         function destroy() public virtual override {
             if (msg.sender == owner) {
-                Config config = Config(ZD5f9D8D94886E70b06E474c3fB14Fd43E2f23970);
+                Config config = Config(QD5f9D8D94886E70b06E474c3fB14Fd43E2f23970);
                 NameReg(config.lookup(1)).unregister();
                 // It is still possible to call a specific
                 // overridden function.
@@ -127,7 +127,7 @@ seen in the following example:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.7.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract owned {
         constructor() { owner = payable(msg.sender); }
@@ -158,7 +158,7 @@ explicitly in the final override, but this function will bypass
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.7.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract owned {
         constructor() { owner = payable(msg.sender); }
@@ -214,7 +214,7 @@ The following example demonstrates changing mutability and visibility:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.7.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Base
     {
@@ -238,7 +238,7 @@ bases, it has to explicitly override it:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Base1
     {
@@ -265,7 +265,7 @@ that already overrides all other functions.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract A { function f() public pure{} }
     contract B is A {}
@@ -313,7 +313,7 @@ of the variable:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract A
     {
@@ -345,7 +345,7 @@ and the ``override`` keyword must be used in the overriding modifier:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Base
     {
@@ -364,7 +364,7 @@ explicitly:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Base1
     {
@@ -412,7 +412,7 @@ equivalent to ``constructor() {}``. For example:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.7.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     abstract contract A {
         uint public a;
@@ -442,7 +442,7 @@ derived contracts need to specify all of them. This can be done in two ways:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.7.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Base {
         uint x;
@@ -516,7 +516,7 @@ error "Linearization of inheritance graph impossible".
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract X {}
     contract A is X {}
@@ -537,7 +537,7 @@ One area where inheritance linearization is especially important and perhaps not
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.7.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Base1 {
         constructor() {}

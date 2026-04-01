@@ -72,16 +72,13 @@ function getAllAvailableVersions
     allVersions=()
     local allListedVersions
     mapfile -t allListedVersions <<< "$(
-        wget -q -O- https://binaries.soliditylang.org/bin/list.txt |
+        wget -q -O- https://binaries.theqrl.org/bin/list.txt |
         grep -Po '(?<=hypjson-v)\d+.\d+.\d+(?=\+commit)' |
         sort -V
     )"
     for listed in "${allListedVersions[@]}"
     do
-        if versionGreater "$listed" "0.4.10"
-        then
-            allVersions+=( "$listed" )
-        fi
+        allVersions+=( "$listed" )
     done
 }
 

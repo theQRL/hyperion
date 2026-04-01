@@ -37,13 +37,13 @@ namespace hyperion::frontend::test
  * - Function calls defined in blocks:
  * // f(uint256, uint256): 1, 1 # Signature and comma-separated list of arguments #
  * // -> 1, 1                   # Expected result value #
- * // g(), 2 ether              # (Optional) Ether to be send with the call #
- * // g(), 1 wei                # (Optional) Wei to be sent with the call #
+ * // g(), 2 quanta              # (Optional) Quanta to be send with the call #
+ * // g(), 1 planck                # (Optional) Planck to be sent with the call #
  * // -> 2, 3
- * // h(uint256), 1 ether: 42
- * // -> FAILURE                # If REVERT or other ZVM failure was detected #
+ * // h(uint256), 1 quanta: 42
+ * // -> FAILURE                # If REVERT or other QRVM failure was detected #
  * // ()                        # Call fallback function #
- * // (), 1 ether               # Call receive ether function #
+ * // (), 1 quanta               # Call receive quanta function #
  * // EMPTY_STORAGE             # Check that storage is empty
  * ...
  */
@@ -132,8 +132,8 @@ private:
 	/// empty. If so, the signature is not allowed to define any parameters.
 	std::pair<std::string, bool> parseFunctionSignature();
 
-	/// Parses the optional ether value that can be passed alongside the
-	/// function call arguments. Throws an InvalidEtherValueEncoding exception
+	/// Parses the optional qrl value that can be passed alongside the
+	/// function call arguments. Throws an InvalidQRLValueEncoding exception
 	/// if given value cannot be converted to `u256`.
 	FunctionValue parseFunctionCallValue();
 

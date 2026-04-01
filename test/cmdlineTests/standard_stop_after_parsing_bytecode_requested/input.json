@@ -6,7 +6,7 @@
 	"settings": {
 		"stopAfter": "parsing",
 		"outputSelection": {
-			"*": {"*": ["zvm.bytecode.object"]}
+			"*": {"*": ["qrvm.bytecode.object"]}
 		}
 	}
 }

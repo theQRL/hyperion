@@ -32,17 +32,17 @@
 #include <libyul/AsmAnalysisInfo.h>
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AST.h>
-#include <libyul/backends/zvm/AsmCodeGen.h>
-#include <libyul/backends/zvm/ZVMMetrics.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/AsmCodeGen.h>
+#include <libyul/backends/qrvm/QRVMMetrics.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 #include <libyul/optimiser/Suite.h>
 #include <libyul/Object.h>
 #include <libyul/optimiser/ASTCopier.h>
 #include <libyul/YulString.h>
 
-#include <libzvmasm/Instruction.h>
-#include <libzvmasm/Assembly.h>
-#include <libzvmasm/GasMeter.h>
+#include <libqrvmasm/Instruction.h>
+#include <libqrvmasm/Assembly.h>
+#include <libqrvmasm/GasMeter.h>
 
 #include <liblangutil/ErrorReporter.h>
 
@@ -56,7 +56,7 @@
 #include <limits>
 
 using namespace hyperion;
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 using namespace hyperion::frontend;
 using namespace hyperion::langutil;
 
@@ -140,9 +140,9 @@ void ContractCompiler::initializeContext(
 
 void ContractCompiler::appendCallValueCheck()
 {
-	// Throw if function is not payable but call contained ether.
+	// Throw if function is not payable but call contained quanta.
 	m_context << Instruction::CALLVALUE;
-	m_context.appendConditionalRevert(false, "Ether sent to non-payable function");
+	m_context.appendConditionalRevert(false, "Quanta sent to non-payable function");
 }
 
 void ContractCompiler::appendInitAndConstructorCode(ContractDefinition const& _contract)
@@ -176,7 +176,7 @@ size_t ContractCompiler::packIntoContractCreator(ContractDefinition const& _cont
 
 	// We jump to the deploy routine because we first have to append all missing functions,
 	// which can cause further functions to be added to the runtime context.
-	zvmasm::AssemblyItem deployRoutine = m_context.appendJumpToNew();
+	qrvmasm::AssemblyItem deployRoutine = m_context.appendJumpToNew();
 
 	// We have to include copies of functions in the construction time and runtime context
 	// because of absolute jumps.
@@ -323,9 +323,9 @@ void ContractCompiler::appendDelegatecallCheck()
 }
 
 void ContractCompiler::appendInternalSelector(
-	std::map<FixedHash<4>, zvmasm::AssemblyItem const> const& _entryPoints,
+	std::map<FixedHash<4>, qrvmasm::AssemblyItem const> const& _entryPoints,
 	std::vector<FixedHash<4>> const& _ids,
-	zvmasm::AssemblyItem const& _notFoundTag,
+	qrvmasm::AssemblyItem const& _notFoundTag,
 	size_t _runs
 )
 {
@@ -356,17 +356,17 @@ void ContractCompiler::appendInternalSelector(
 	bool split = false;
 	if (_ids.size() <= 4)
 		split = false;
-	else if (_runs > (17 * zvmasm::GasCosts::createDataGas) / 6)
+	else if (_runs > (17 * qrvmasm::GasCosts::createDataGas) / 6)
 		split = true;
 	else
-		split = (_runs * 6 * (_ids.size() - 4) > 17 * zvmasm::GasCosts::createDataGas);
+		split = (_runs * 6 * (_ids.size() - 4) > 17 * qrvmasm::GasCosts::createDataGas);
 
 	if (split)
 	{
 		size_t pivotIndex = _ids.size() / 2;
 		FixedHash<4> pivot{_ids.at(pivotIndex)};
 		m_context << dupInstruction(1) << u256(FixedHash<4>::Arith(pivot)) << Instruction::GT;
-		zvmasm::AssemblyItem lessTag{m_context.appendConditionalJump()};
+		qrvmasm::AssemblyItem lessTag{m_context.appendConditionalJump()};
 		// Here, we have funid >= pivot
 		std::vector<FixedHash<4>> larger{_ids.begin() + static_cast<ptrdiff_t>(pivotIndex), _ids.end()};
 		appendInternalSelector(_entryPoints, larger, _notFoundTag, _runs);
@@ -411,7 +411,7 @@ bool hasPayableFunctions(ContractDefinition const& _contract)
 void ContractCompiler::appendFunctionSelector(ContractDefinition const& _contract)
 {
 	std::map<FixedHash<4>, FunctionTypePointer> interfaceFunctions = _contract.interfaceFunctions();
-	std::map<FixedHash<4>, zvmasm::AssemblyItem const> callDataUnpackerEntryPoints;
+	std::map<FixedHash<4>, qrvmasm::AssemblyItem const> callDataUnpackerEntryPoints;
 
 	if (_contract.isLibrary())
 	{
@@ -421,8 +421,8 @@ void ContractCompiler::appendFunctionSelector(ContractDefinition const& _contrac
 	FunctionDefinition const* fallback = _contract.fallbackFunction();
 	hypAssert(!_contract.isLibrary() || !fallback, "Libraries can't have fallback functions");
 
-	FunctionDefinition const* etherReceiver = _contract.receiveFunction();
-	hypAssert(!_contract.isLibrary() || !etherReceiver, "Libraries can't have ether receiver functions");
+	FunctionDefinition const* quantaReceiver = _contract.receiveFunction();
+	hypAssert(!_contract.isLibrary() || !quantaReceiver, "Libraries can't have quanta receiver functions");
 
 	bool needToAddCallvalueCheck = true;
 	if (!hasPayableFunctions(_contract) && !interfaceFunctions.empty() && !_contract.isLibrary())
@@ -431,15 +431,15 @@ void ContractCompiler::appendFunctionSelector(ContractDefinition const& _contrac
 		needToAddCallvalueCheck = false;
 	}
 
-	zvmasm::AssemblyItem notFoundOrReceiveEther = m_context.newTag();
-	// If there is neither a fallback nor a receive ether function, we only need one label to jump to, which
+	qrvmasm::AssemblyItem notFoundOrReceiveQuanta = m_context.newTag();
+	// If there is neither a fallback nor a receive quanta function, we only need one label to jump to, which
 	// always reverts.
-	zvmasm::AssemblyItem notFound = (!fallback && !etherReceiver) ? notFoundOrReceiveEther : m_context.newTag();
+	qrvmasm::AssemblyItem notFound = (!fallback && !quantaReceiver) ? notFoundOrReceiveQuanta : m_context.newTag();
 
-	// directly jump to fallback or ether receiver if the data is too short to contain a function selector
+	// directly jump to fallback or quanta receiver if the data is too short to contain a function selector
 	// also guards against short data
 	m_context << u256(4) << Instruction::CALLDATASIZE << Instruction::LT;
-	m_context.appendConditionalJumpTo(notFoundOrReceiveEther);
+	m_context.appendConditionalJumpTo(notFoundOrReceiveQuanta);
 
 	// retrieve the function signature hash from the calldata
 	if (!interfaceFunctions.empty())
@@ -457,23 +457,23 @@ void ContractCompiler::appendFunctionSelector(ContractDefinition const& _contrac
 		appendInternalSelector(callDataUnpackerEntryPoints, sortedIDs, notFound, m_optimiserSettings.expectedExecutionsPerDeployment);
 	}
 
-	m_context << notFoundOrReceiveEther;
+	m_context << notFoundOrReceiveQuanta;
 
-	if (!fallback && !etherReceiver)
+	if (!fallback && !quantaReceiver)
 		m_context.appendRevert("Contract does not have fallback nor receive functions");
 	else
 	{
-		if (etherReceiver)
+		if (quantaReceiver)
 		{
 			// directly jump to fallback, if there is calldata
 			m_context << Instruction::CALLDATASIZE;
 			m_context.appendConditionalJumpTo(notFound);
 
 			hypAssert(!_contract.isLibrary(), "");
-			hypAssert(etherReceiver->isReceive(), "");
-			hypAssert(FunctionType(*etherReceiver).parameterTypes().empty(), "");
-			hypAssert(FunctionType(*etherReceiver).returnParameterTypes().empty(), "");
-			etherReceiver->accept(*this);
+			hypAssert(quantaReceiver->isReceive(), "");
+			hypAssert(FunctionType(*quantaReceiver).parameterTypes().empty(), "");
+			hypAssert(FunctionType(*quantaReceiver).returnParameterTypes().empty(), "");
+			quantaReceiver->accept(*this);
 			m_context << Instruction::STOP;
 		}
 
@@ -528,7 +528,7 @@ void ContractCompiler::appendFunctionSelector(ContractDefinition const& _contrac
 			appendCallValueCheck();
 
 		// Return tag is used to jump out of the function.
-		zvmasm::AssemblyItem returnTag = m_context.pushNewTag();
+		qrvmasm::AssemblyItem returnTag = m_context.pushNewTag();
 		if (!functionType->parameterTypes().empty())
 		{
 			// Parameter for calldataUnpacker
@@ -538,7 +538,7 @@ void ContractCompiler::appendFunctionSelector(ContractDefinition const& _contrac
 		}
 		m_context.appendJumpTo(
 			m_context.functionEntryLabel(functionType->declaration()),
-			zvmasm::AssemblyItem::JumpType::IntoFunction
+			qrvmasm::AssemblyItem::JumpType::IntoFunction
 		);
 		m_context << returnTag;
 		// Return tag and input parameters get consumed.
@@ -699,7 +699,7 @@ bool ContractCompiler::visit(FunctionDefinition const& _function)
 	{
 		hypAssert(m_context.numberOfLocalVariables() == 0, "");
 		if (!_function.isFallback() && !_function.isReceive())
-			m_context.appendJump(zvmasm::AssemblyItem::JumpType::OutOfFunction);
+			m_context.appendJump(qrvmasm::AssemblyItem::JumpType::OutOfFunction);
 	}
 
 	return false;
@@ -936,7 +936,7 @@ bool ContractCompiler::visit(InlineAssembly const& _inlineAssembly)
 		_inlineAssembly.annotation().externalReferences.empty()
 	)
 	{
-		yul::ZVMDialect const* dialect = dynamic_cast<decltype(dialect)>(&_inlineAssembly.dialect());
+		yul::QRVMDialect const* dialect = dynamic_cast<decltype(dialect)>(&_inlineAssembly.dialect());
 		hypAssert(dialect, "");
 
 		// Create a modifiable copy of the code and analysis
@@ -953,7 +953,7 @@ bool ContractCompiler::visit(InlineAssembly const& _inlineAssembly)
 		*code,
 		*analysisInfo,
 		*m_context.assemblyPtr(),
-		m_context.zvmVersion(),
+		m_context.qrvmVersion(),
 		identifierAccessCodeGen,
 		false,
 		m_optimiserSettings.optimizeStackAllocation
@@ -971,14 +971,14 @@ bool ContractCompiler::visit(TryStatement const& _tryStatement)
 	int const returnSize = static_cast<int>(_tryStatement.externalCall().annotation().type->sizeOnStack());
 
 	// Stack: [ return values] <success flag>
-	zvmasm::AssemblyItem successTag = m_context.appendConditionalJump();
+	qrvmasm::AssemblyItem successTag = m_context.appendConditionalJump();
 
 	// Catch case.
 	m_context.adjustStackOffset(-returnSize);
 
 	handleCatch(_tryStatement.clauses());
 
-	zvmasm::AssemblyItem endTag = m_context.appendJumpToNew();
+	qrvmasm::AssemblyItem endTag = m_context.appendJumpToNew();
 
 	m_context << successTag;
 	m_context.adjustStackOffset(returnSize);
@@ -1025,9 +1025,9 @@ void ContractCompiler::handleCatch(std::vector<ASTPointer<TryCatchClause>> const
 
 	hypAssert(_catchClauses.size() == 1ul + (error ? 1 : 0) + (panic ? 1 : 0) + (fallback ? 1 : 0), "");
 
-	zvmasm::AssemblyItem endTag = m_context.newTag();
-	zvmasm::AssemblyItem fallbackTag = m_context.newTag();
-	zvmasm::AssemblyItem panicTag = m_context.newTag();
+	qrvmasm::AssemblyItem endTag = m_context.newTag();
+	qrvmasm::AssemblyItem fallbackTag = m_context.newTag();
+	qrvmasm::AssemblyItem panicTag = m_context.newTag();
 	if (error || panic)
 		// Note that this function returns zero on failure, which is not a problem yet,
 		// but will be a problem once we allow user-defined errors.
@@ -1148,8 +1148,8 @@ bool ContractCompiler::visit(IfStatement const& _ifStatement)
 	CompilerContext::LocationSetter locationSetter(m_context, _ifStatement);
 	compileExpression(_ifStatement.condition());
 	m_context << Instruction::ISZERO;
-	zvmasm::AssemblyItem falseTag = m_context.appendConditionalJump();
-	zvmasm::AssemblyItem endTag = falseTag;
+	qrvmasm::AssemblyItem falseTag = m_context.appendConditionalJump();
+	qrvmasm::AssemblyItem endTag = falseTag;
 	_ifStatement.trueStatement().accept(*this);
 	if (_ifStatement.falseStatement())
 	{
@@ -1168,15 +1168,15 @@ bool ContractCompiler::visit(WhileStatement const& _whileStatement)
 	StackHeightChecker checker(m_context);
 	CompilerContext::LocationSetter locationSetter(m_context, _whileStatement);
 
-	zvmasm::AssemblyItem loopStart = m_context.newTag();
-	zvmasm::AssemblyItem loopEnd = m_context.newTag();
+	qrvmasm::AssemblyItem loopStart = m_context.newTag();
+	qrvmasm::AssemblyItem loopEnd = m_context.newTag();
 	m_breakTags.emplace_back(loopEnd, m_context.stackHeight());
 
 	m_context << loopStart;
 
 	if (_whileStatement.isDoWhile())
 	{
-		zvmasm::AssemblyItem condition = m_context.newTag();
+		qrvmasm::AssemblyItem condition = m_context.newTag();
 		m_continueTags.emplace_back(condition, m_context.stackHeight());
 
 		_whileStatement.body().accept(*this);
@@ -1210,9 +1210,9 @@ bool ContractCompiler::visit(ForStatement const& _forStatement)
 {
 	StackHeightChecker checker(m_context);
 	CompilerContext::LocationSetter locationSetter(m_context, _forStatement);
-	zvmasm::AssemblyItem loopStart = m_context.newTag();
-	zvmasm::AssemblyItem loopEnd = m_context.newTag();
-	zvmasm::AssemblyItem loopNext = m_context.newTag();
+	qrvmasm::AssemblyItem loopStart = m_context.newTag();
+	qrvmasm::AssemblyItem loopEnd = m_context.newTag();
+	qrvmasm::AssemblyItem loopNext = m_context.newTag();
 
 	storeStackHeight(&_forStatement);
 

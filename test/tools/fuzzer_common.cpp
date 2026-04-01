@@ -24,8 +24,8 @@
 
 #include <libhyputil/JSON.h>
 
-#include <libzvmasm/Assembly.h>
-#include <libzvmasm/ConstantOptimiser.h>
+#include <libqrvmasm/Assembly.h>
+#include <libqrvmasm/ConstantOptimiser.h>
 
 #include <libhypc/libhypc.h>
 
@@ -35,13 +35,13 @@
 
 using namespace std;
 using namespace hyperion;
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 using namespace hyperion::frontend;
 using namespace hyperion::langutil;
 using namespace hyperion::util;
 
-static vector<ZVMVersion> s_zvmVersions = {
-	ZVMVersion::shanghai()
+static vector<QRVMVersion> s_qrvmVersions = {
+	QRVMVersion::zond()
 };
 
 void FuzzerUtil::testCompilerJsonInterface(string const& _input, bool _optimize, bool _quiet)
@@ -58,7 +58,7 @@ void FuzzerUtil::testCompilerJsonInterface(string const& _input, bool _optimize,
 	config["settings"]["optimizer"] = Json::objectValue;
 	config["settings"]["optimizer"]["enabled"] = _optimize;
 	config["settings"]["optimizer"]["runs"] = static_cast<int>(OptimiserSettings{}.expectedExecutionsPerDeployment);
-	config["settings"]["zvmVersion"] = "shanghai";
+	config["settings"]["qrvmVersion"] = "zond";
 
 	// Enable all SourceUnit-level outputs.
 	config["settings"]["outputSelection"]["*"][""][0] = "*";
@@ -86,7 +86,7 @@ void FuzzerUtil::testCompiler(
 )
 {
 	frontend::CompilerStack compiler;
-	ZVMVersion zvmVersion = s_zvmVersions[_rand % s_zvmVersions.size()];
+	QRVMVersion qrvmVersion= s_qrvmVersions[_rand % s_qrvmVersions.size()];
 	frontend::OptimiserSettings optimiserSettings;
 	if (_optimize)
 		optimiserSettings = frontend::OptimiserSettings::standard();
@@ -112,7 +112,7 @@ void FuzzerUtil::testCompiler(
 		});
 	}
 	compiler.setSources(_input);
-	compiler.setZVMVersion(zvmVersion);
+	compiler.setQRVMVersion(qrvmVersion);
 	compiler.setOptimiserSettings(optimiserSettings);
 	compiler.setViaIR(_compileViaYul);
 	try
@@ -187,7 +187,7 @@ void FuzzerUtil::testConstantOptimizer(string const& _input, bool _quiet)
 
 	for (bool isCreation: {false, true})
 	{
-		Assembly assembly{langutil::ZVMVersion{}, isCreation, {}};
+		Assembly assembly{langutil::QRVMVersion{}, isCreation, {}};
 		for (u256 const& n: numbers)
 		{
 			if (!_quiet)
@@ -201,7 +201,7 @@ void FuzzerUtil::testConstantOptimizer(string const& _input, bool _quiet)
 			ConstantOptimisationMethod::optimiseConstants(
 				isCreation,
 				runs,
-				langutil::ZVMVersion{},
+				langutil::QRVMVersion{},
 				tmp
 			);
 		}

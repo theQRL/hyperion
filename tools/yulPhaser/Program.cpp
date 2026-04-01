@@ -29,7 +29,7 @@
 #include <libyul/AST.h>
 #include <libyul/ObjectParser.h>
 #include <libyul/YulString.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 #include <libyul/optimiser/Disambiguator.h>
 #include <libyul/optimiser/ForLoopInitRewriter.h>
 #include <libyul/optimiser/FunctionGrouper.h>
@@ -69,7 +69,7 @@ Program::Program(Program const& program):
 variant<Program, ErrorList> Program::load(CharStream& _sourceCode)
 {
 	// ASSUMPTION: parseSource() rewinds the stream on its own
-	Dialect const& dialect = ZVMDialect::strictAssemblyForZVMObjects(ZVMVersion{});
+	Dialect const& dialect = QRVMDialect::strictAssemblyForQRVMObjects(QRVMVersion{});
 
 	variant<unique_ptr<Block>, ErrorList> astOrErrors = parseObject(dialect, _sourceCode);
 	if (holds_alternative<ErrorList>(astOrErrors))

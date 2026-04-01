@@ -1,5 +1,5 @@
 # PR Review Checklist
-The Hyperion compiler is a critical piece of infrastructure in the Ethereum ecosystem.
+The Hyperion compiler is a critical piece of infrastructure in the QRL ecosystem.
 For this reason, our review process is quite strict and all PRs have to fulfill certain quality
 expectations and guidelines.
 The list below is meant to reduce the workload on the core team by helping contributors self-identify

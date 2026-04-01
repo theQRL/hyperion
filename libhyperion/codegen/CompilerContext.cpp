@@ -33,9 +33,9 @@
 #include <libyul/AsmPrinter.h>
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AsmAnalysisInfo.h>
-#include <libyul/backends/zvm/AsmCodeGen.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
-#include <libyul/backends/zvm/ZVMMetrics.h>
+#include <libyul/backends/qrvm/AsmCodeGen.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
+#include <libyul/backends/qrvm/QRVMMetrics.h>
 #include <libyul/optimiser/Suite.h>
 #include <libyul/Object.h>
 #include <libyul/YulString.h>
@@ -57,7 +57,7 @@
 
 using namespace hyperion;
 using namespace hyperion::util;
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 using namespace hyperion::frontend;
 using namespace hyperion::langutil;
 
@@ -126,12 +126,12 @@ void CompilerContext::callLowLevelFunction(
 	std::function<void(CompilerContext&)> const& _generator
 )
 {
-	zvmasm::AssemblyItem retTag = pushNewTag();
+	qrvmasm::AssemblyItem retTag = pushNewTag();
 	CompilerUtils(*this).moveIntoStack(_inArgs);
 
 	*this << lowLevelFunctionTag(_name, _inArgs, _outArgs, _generator);
 
-	appendJump(zvmasm::AssemblyItem::JumpType::IntoFunction);
+	appendJump(qrvmasm::AssemblyItem::JumpType::IntoFunction);
 	adjustStackOffset(static_cast<int>(_outArgs) - 1 - static_cast<int>(_inArgs));
 	*this << retTag.tag();
 }
@@ -145,12 +145,12 @@ void CompilerContext::callYulFunction(
 	m_externallyUsedYulFunctions.insert(_name);
 	auto const retTag = pushNewTag();
 	CompilerUtils(*this).moveIntoStack(_inArgs);
-	appendJumpTo(namedTag(_name, _inArgs, _outArgs, {}), zvmasm::AssemblyItem::JumpType::IntoFunction);
+	appendJumpTo(namedTag(_name, _inArgs, _outArgs, {}), qrvmasm::AssemblyItem::JumpType::IntoFunction);
 	adjustStackOffset(static_cast<int>(_outArgs) - 1 - static_cast<int>(_inArgs));
 	*this << retTag.tag();
 }
 
-zvmasm::AssemblyItem CompilerContext::lowLevelFunctionTag(
+qrvmasm::AssemblyItem CompilerContext::lowLevelFunctionTag(
 	std::string const& _name,
 	unsigned _inArgs,
 	unsigned _outArgs,
@@ -160,7 +160,7 @@ zvmasm::AssemblyItem CompilerContext::lowLevelFunctionTag(
 	auto it = m_lowLevelFunctions.find(_name);
 	if (it == m_lowLevelFunctions.end())
 	{
-		zvmasm::AssemblyItem tag = newTag().pushTag();
+		qrvmasm::AssemblyItem tag = newTag().pushTag();
 		m_lowLevelFunctions.insert(make_pair(_name, tag));
 		m_lowLevelFunctionGenerationQueue.push(make_tuple(_name, _inArgs, _outArgs, _generator));
 		return tag;
@@ -184,7 +184,7 @@ void CompilerContext::appendMissingLowLevelFunctions()
 		*this << m_lowLevelFunctions.at(name).tag();
 		generator(*this);
 		CompilerUtils(*this).moveToStackTop(outArgs);
-		appendJump(zvmasm::AssemblyItem::JumpType::OutOfFunction);
+		appendJump(qrvmasm::AssemblyItem::JumpType::OutOfFunction);
 		hypAssert(stackHeight() == outArgs, "Invalid stack height in low-level function " + name + ".");
 	}
 }
@@ -249,14 +249,14 @@ unsigned CompilerContext::numberOfLocalVariables() const
 	return static_cast<unsigned>(m_localVariables.size());
 }
 
-std::shared_ptr<zvmasm::Assembly> CompilerContext::compiledContract(ContractDefinition const& _contract) const
+std::shared_ptr<qrvmasm::Assembly> CompilerContext::compiledContract(ContractDefinition const& _contract) const
 {
 	auto ret = m_otherCompilers.find(&_contract);
 	hypAssert(ret != m_otherCompilers.end(), "Compiled contract not found.");
 	return ret->second->assemblyPtr();
 }
 
-std::shared_ptr<zvmasm::Assembly> CompilerContext::compiledContractRuntime(ContractDefinition const& _contract) const
+std::shared_ptr<qrvmasm::Assembly> CompilerContext::compiledContractRuntime(ContractDefinition const& _contract) const
 {
 	auto ret = m_otherCompilers.find(&_contract);
 	hypAssert(ret != m_otherCompilers.end(), "Compiled contract not found.");
@@ -268,12 +268,12 @@ bool CompilerContext::isLocalVariable(Declaration const* _declaration) const
 	return !!m_localVariables.count(_declaration);
 }
 
-zvmasm::AssemblyItem CompilerContext::functionEntryLabel(Declaration const& _declaration)
+qrvmasm::AssemblyItem CompilerContext::functionEntryLabel(Declaration const& _declaration)
 {
 	return m_functionCompilationQueue.entryLabel(_declaration, *this);
 }
 
-zvmasm::AssemblyItem CompilerContext::functionEntryLabelIfExists(Declaration const& _declaration) const
+qrvmasm::AssemblyItem CompilerContext::functionEntryLabelIfExists(Declaration const& _declaration) const
 {
 	return m_functionCompilationQueue.entryLabelIfExists(_declaration);
 }
@@ -326,9 +326,9 @@ std::pair<u256, unsigned> CompilerContext::storageLocationOfVariable(Declaration
 	return it->second;
 }
 
-CompilerContext& CompilerContext::appendJump(zvmasm::AssemblyItem::JumpType _jumpType)
+CompilerContext& CompilerContext::appendJump(qrvmasm::AssemblyItem::JumpType _jumpType)
 {
-	zvmasm::AssemblyItem item(Instruction::JUMP);
+	qrvmasm::AssemblyItem item(Instruction::JUMP);
 	item.setJumpType(_jumpType);
 	return *this << item;
 }
@@ -342,7 +342,7 @@ CompilerContext& CompilerContext::appendPanic(util::PanicCode _code)
 CompilerContext& CompilerContext::appendConditionalPanic(util::PanicCode _code)
 {
 	*this << Instruction::ISZERO;
-	zvmasm::AssemblyItem afterTag = appendConditionalJump();
+	qrvmasm::AssemblyItem afterTag = appendConditionalJump();
 	appendPanic(_code);
 	*this << afterTag;
 	return *this;
@@ -436,7 +436,7 @@ void CompilerContext::appendInlineAssembly(
 	ErrorList errors;
 	ErrorReporter errorReporter(errors);
 	langutil::CharStream charStream(_assembly, _sourceName);
-	yul::ZVMDialect const& dialect = yul::ZVMDialect::strictAssemblyForZVM(m_zvmVersion);
+	yul::QRVMDialect const& dialect = yul::QRVMDialect::strictAssemblyForQRVM(m_qrvmVersion);
 	std::optional<langutil::SourceLocation> locationOverride;
 	if (!_system)
 		locationOverride = m_asm->currentSourceLocation();
@@ -521,7 +521,7 @@ void CompilerContext::appendInlineAssembly(
 		*parserResult,
 		analysisInfo,
 		*m_asm,
-		m_zvmVersion,
+		m_qrvmVersion,
 		identifierAccess.generateCode,
 		_system,
 		_optimiserSettings.optimizeStackAllocation
@@ -532,7 +532,7 @@ void CompilerContext::appendInlineAssembly(
 }
 
 
-void CompilerContext::optimizeYul(yul::Object& _object, yul::ZVMDialect const& _dialect, OptimiserSettings const& _optimiserSettings, std::set<yul::YulString> const& _externalIdentifiers)
+void CompilerContext::optimizeYul(yul::Object& _object, yul::QRVMDialect const& _dialect, OptimiserSettings const& _optimiserSettings, std::set<yul::YulString> const& _externalIdentifiers)
 {
 #ifdef HYP_OUTPUT_ASM
 	cout << yul::AsmPrinter(*dialect)(*_object.code) << endl;
@@ -571,7 +571,7 @@ void CompilerContext::updateSourceLocation()
 	m_asm->setSourceLocation(m_visitedNodes.empty() ? SourceLocation() : m_visitedNodes.top()->location());
 }
 
-zvmasm::AssemblyItem CompilerContext::FunctionCompilationQueue::entryLabel(
+qrvmasm::AssemblyItem CompilerContext::FunctionCompilationQueue::entryLabel(
 	Declaration const& _declaration,
 	CompilerContext& _context
 )
@@ -590,7 +590,7 @@ zvmasm::AssemblyItem CompilerContext::FunctionCompilationQueue::entryLabel(
 
 		// some name that cannot clash with yul function names.
 		std::string labelName = "@" + _declaration.name() + "_" + std::to_string(_declaration.id());
-		zvmasm::AssemblyItem tag = _context.namedTag(
+		qrvmasm::AssemblyItem tag = _context.namedTag(
 			labelName,
 			params,
 			returns,
@@ -605,10 +605,10 @@ zvmasm::AssemblyItem CompilerContext::FunctionCompilationQueue::entryLabel(
 
 }
 
-zvmasm::AssemblyItem CompilerContext::FunctionCompilationQueue::entryLabelIfExists(Declaration const& _declaration) const
+qrvmasm::AssemblyItem CompilerContext::FunctionCompilationQueue::entryLabelIfExists(Declaration const& _declaration) const
 {
 	auto res = m_entryLabels.find(&_declaration);
-	return res == m_entryLabels.end() ? zvmasm::AssemblyItem(zvmasm::UndefinedItem) : res->second.tag();
+	return res == m_entryLabels.end() ? qrvmasm::AssemblyItem(qrvmasm::UndefinedItem) : res->second.tag();
 }
 
 Declaration const* CompilerContext::FunctionCompilationQueue::nextFunctionToCompile() const

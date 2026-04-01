@@ -41,8 +41,8 @@
     "outputSelection": {
       "*": {
         "*": [
-          "zvm.bytecode",
-          "zvm.bytecode.sourceMap"
+          "qrvm.bytecode",
+          "qrvm.bytecode.sourceMap"
         ]
       }
     }

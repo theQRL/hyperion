@@ -13,7 +13,7 @@
   mstore(a, 1)
 }
 // ====
-// dialect: zvmTyped
+// dialect: qrvmTyped 
 // ----
 // step: ssaTransform
 //

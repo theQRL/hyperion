@@ -51,7 +51,7 @@ struct SideEffects
 	/// called multiple times, their calls can be rearranged and calls can also be
 	/// deleted without changing the semantics.
 	/// This means it cannot depend on storage or memory, cannot have any side-effects,
-	/// but it can depend on state that is constant across an ZVM-call.
+	/// but it can depend on state that is constant across a QRVM-call.
 	bool movable = true;
 	/// If true, the expressions in this code can be moved or copied (together with their arguments)
 	/// across control flow branches and instructions as long as these instructions' 'effects' do

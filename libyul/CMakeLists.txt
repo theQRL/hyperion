@@ -37,33 +37,33 @@ add_library(yul
 	Utilities.cpp
 	Utilities.h
 	YulString.h
-	backends/zvm/AbstractAssembly.h
-	backends/zvm/AsmCodeGen.cpp
-	backends/zvm/AsmCodeGen.h
-	backends/zvm/ConstantOptimiser.cpp
-	backends/zvm/ConstantOptimiser.h
-	backends/zvm/ControlFlowGraph.h
-	backends/zvm/ControlFlowGraphBuilder.cpp
-	backends/zvm/ControlFlowGraphBuilder.h
-	backends/zvm/ZondAssemblyAdapter.cpp
-	backends/zvm/ZondAssemblyAdapter.h
-	backends/zvm/ZVMCodeTransform.cpp
-	backends/zvm/ZVMCodeTransform.h
-	backends/zvm/ZVMDialect.cpp
-	backends/zvm/ZVMDialect.h
-	backends/zvm/ZVMObjectCompiler.cpp
-	backends/zvm/ZVMObjectCompiler.h
-	backends/zvm/ZVMMetrics.cpp
-	backends/zvm/ZVMMetrics.h
-	backends/zvm/NoOutputAssembly.h
-	backends/zvm/NoOutputAssembly.cpp
-	backends/zvm/OptimizedZVMCodeTransform.cpp
-	backends/zvm/OptimizedZVMCodeTransform.h
-	backends/zvm/StackHelpers.h
-	backends/zvm/StackLayoutGenerator.cpp
-	backends/zvm/StackLayoutGenerator.h
-	backends/zvm/VariableReferenceCounter.h
-	backends/zvm/VariableReferenceCounter.cpp
+	backends/qrvm/AbstractAssembly.h
+	backends/qrvm/AsmCodeGen.cpp
+	backends/qrvm/AsmCodeGen.h
+	backends/qrvm/ConstantOptimiser.cpp
+	backends/qrvm/ConstantOptimiser.h
+	backends/qrvm/ControlFlowGraph.h
+	backends/qrvm/ControlFlowGraphBuilder.cpp
+	backends/qrvm/ControlFlowGraphBuilder.h
+	backends/qrvm/QRLAssemblyAdapter.cpp
+	backends/qrvm/QRLAssemblyAdapter.h
+	backends/qrvm/QRVMCodeTransform.cpp
+	backends/qrvm/QRVMCodeTransform.h
+	backends/qrvm/QRVMDialect.cpp
+	backends/qrvm/QRVMDialect.h
+	backends/qrvm/QRVMObjectCompiler.cpp
+	backends/qrvm/QRVMObjectCompiler.h
+	backends/qrvm/QRVMMetrics.cpp
+	backends/qrvm/QRVMMetrics.h
+	backends/qrvm/NoOutputAssembly.h
+	backends/qrvm/NoOutputAssembly.cpp
+	backends/qrvm/OptimizedQRVMCodeTransform.cpp
+	backends/qrvm/OptimizedQRVMCodeTransform.h
+	backends/qrvm/StackHelpers.h
+	backends/qrvm/StackLayoutGenerator.cpp
+	backends/qrvm/StackLayoutGenerator.h
+	backends/qrvm/VariableReferenceCounter.h
+	backends/qrvm/VariableReferenceCounter.cpp
 	optimiser/ASTCopier.cpp
 	optimiser/ASTCopier.h
 	optimiser/ASTWalker.cpp
@@ -187,4 +187,4 @@ add_library(yul
 	optimiser/VarNameCleaner.h
 )
 
-target_link_libraries(yul PUBLIC zvmasm hyputil langutil smtutil fmt::fmt-header-only)
+target_link_libraries(yul PUBLIC qrvmasm hyputil langutil smtutil fmt::fmt-header-only)

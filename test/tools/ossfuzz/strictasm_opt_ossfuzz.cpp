@@ -19,7 +19,7 @@
 #include <libyul/YulStack.h>
 
 #include <liblangutil/DebugInfoSelection.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 using namespace hyperion;
 using namespace hyperion::langutil;
@@ -39,7 +39,7 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t const* _data, size_t _size)
 
 	string input(reinterpret_cast<char const*>(_data), _size);
 	YulStack stack(
-		langutil::ZVMVersion(),
+		langutil::QRVMVersion(),
 		YulStack::Language::StrictAssembly,
 		hyperion::frontend::OptimiserSettings::full(),
 		DebugInfoSelection::All()

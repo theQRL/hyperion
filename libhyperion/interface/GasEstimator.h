@@ -23,10 +23,10 @@
 
 #pragma once
 
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
-#include <libzvmasm/Assembly.h>
-#include <libzvmasm/GasMeter.h>
+#include <libqrvmasm/Assembly.h>
+#include <libqrvmasm/GasMeter.h>
 
 #include <array>
 #include <map>
@@ -41,17 +41,17 @@ class FunctionDefinition;
 struct GasEstimator
 {
 public:
-	using GasConsumption = zvmasm::GasMeter::GasConsumption;
+	using GasConsumption = qrvmasm::GasMeter::GasConsumption;
 	using ASTGasConsumption = std::map<ASTNode const*, GasConsumption>;
 	using ASTGasConsumptionSelfAccumulated =
 		std::map<ASTNode const*, std::array<GasConsumption, 2>>;
 
-	explicit GasEstimator(langutil::ZVMVersion _zvmVersion): m_zvmVersion(_zvmVersion) {}
+	explicit GasEstimator(langutil::QRVMVersion _qrvmVersion): m_qrvmVersion(_qrvmVersion) {}
 
 	/// @returns the estimated gas consumption by the (public or external) function with the
 	/// given signature. If no signature is given, estimates the maximum gas usage.
 	GasConsumption functionalEstimation(
-		zvmasm::AssemblyItems const& _items,
+		qrvmasm::AssemblyItems const& _items,
 		std::string const& _signature = ""
 	) const;
 
@@ -59,7 +59,7 @@ public:
 	/// offset into the list of assembly items.
 	/// @note this does not work correctly for recursive functions.
 	GasConsumption functionalEstimation(
-		zvmasm::AssemblyItems const& _items,
+		qrvmasm::AssemblyItems const& _items,
 		size_t const& _offset,
 		FunctionDefinition const& _function
 	) const;
@@ -67,7 +67,7 @@ public:
 private:
 	/// @returns the set of AST nodes which are the finest nodes at their location.
 	static std::set<ASTNode const*> finestNodesAtLocation(std::vector<ASTNode const*> const& _roots);
-	langutil::ZVMVersion m_zvmVersion;
+	langutil::QRVMVersion m_qrvmVersion;
 };
 
 }

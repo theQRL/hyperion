@@ -62,14 +62,14 @@
 #include <libyul/optimiser/LoopInvariantCodeMotion.h>
 #include <libyul/optimiser/Metrics.h>
 #include <libyul/optimiser/NameSimplifier.h>
-#include <libyul/backends/zvm/ConstantOptimiser.h>
+#include <libyul/backends/qrvm/ConstantOptimiser.h>
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AsmAnalysisInfo.h>
 #include <libyul/AsmPrinter.h>
 #include <libyul/AST.h>
 #include <libyul/Object.h>
 
-#include <libyul/backends/zvm/NoOutputAssembly.h>
+#include <libyul/backends/qrvm/NoOutputAssembly.h>
 
 #include <libhyputil/CommonData.h>
 
@@ -142,11 +142,11 @@ void OptimiserSuite::run(
 	std::set<YulString> const& _externallyUsedIdentifiers
 )
 {
-	ZVMDialect const* zvmDialect = dynamic_cast<ZVMDialect const*>(&_dialect);
+	QRVMDialect const* qrvmDialect = dynamic_cast<QRVMDialect const*>(&_dialect);
 	bool usesOptimizedCodeGenerator =
 		_optimizeStackAllocation &&
-		zvmDialect &&
-		zvmDialect->providesObjectAccess();
+		qrvmDialect &&
+		qrvmDialect->providesObjectAccess();
 	std::set<YulString> reservedIdentifiers = _externallyUsedIdentifiers;
 	reservedIdentifiers += _dialect.fixedFunctionNames();
 
@@ -191,10 +191,10 @@ void OptimiserSuite::run(
 	// aforementioned form, thus causing the StackCompressor/StackLimitEvader to throw.
 	suite.runSequence("g", ast);
 
-	if (zvmDialect)
+	if (qrvmDialect)
 	{
 		yulAssert(_meter, "");
-		ConstantOptimiser{*zvmDialect, *_meter}(ast);
+		ConstantOptimiser{*qrvmDialect, *_meter}(ast);
 		if (usesOptimizedCodeGenerator)
 		{
 			StackCompressor::run(
@@ -203,10 +203,10 @@ void OptimiserSuite::run(
 				_optimizeStackAllocation,
 				stackCompressorMaxIterations
 			);
-			if (zvmDialect->providesObjectAccess())
+			if (qrvmDialect->providesObjectAccess())
 				StackLimitEvader::run(suite.m_context, _object);
 		}
-		else if (zvmDialect->providesObjectAccess() && _optimizeStackAllocation)
+		else if (qrvmDialect->providesObjectAccess() && _optimizeStackAllocation)
 			StackLimitEvader::run(suite.m_context, _object);
 	}
 

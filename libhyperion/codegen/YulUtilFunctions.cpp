@@ -235,7 +235,7 @@ std::string YulUtilFunctions::requireOrAssertFunction(bool _assert, Type const* 
 		int const hashHeaderSize = 4;
 		u256 const errorHash = util::selectorFromSignatureU256("Error(string)");
 
-		std::string const encodeFunc = ABIFunctions(m_zvmVersion, m_revertStrings, m_functionCollector)
+		std::string const encodeFunc = ABIFunctions(m_qrvmVersion, m_revertStrings, m_functionCollector)
 			.tupleEncoder(
 				{_messageType},
 				{TypeProvider::stringMemory()}
@@ -2453,7 +2453,7 @@ std::string YulUtilFunctions::copyArrayFromStorageToMemoryFunction(ArrayType con
 		if (_from.baseType()->isValueType())
 		{
 			hypAssert(*_from.baseType() == *_to.baseType(), "");
-			ABIFunctions abi(m_zvmVersion, m_revertStrings, m_functionCollector);
+			ABIFunctions abi(m_qrvmVersion, m_revertStrings, m_functionCollector);
 			return Whiskers(R"(
 				function <functionName>(slot) -> memPtr {
 					memPtr := <allocateUnbounded>()
@@ -2558,7 +2558,7 @@ std::string YulUtilFunctions::bytesOrStringConcatFunction(
 		templ("finalizeAllocation", finalizeAllocationFunction());
 		templ(
 			"encodePacked",
-			ABIFunctions{m_zvmVersion, m_revertStrings, m_functionCollector}.tupleEncoderPacked(
+			ABIFunctions{m_qrvmVersion, m_revertStrings, m_functionCollector}.tupleEncoderPacked(
 				_argumentTypes,
 				targetTypes
 			)
@@ -3402,7 +3402,7 @@ std::string YulUtilFunctions::conversionFunction(Type const& _from, Type const& 
 					)")
 					(
 						"abiDecode",
-						ABIFunctions(m_zvmVersion, m_revertStrings, m_functionCollector).abiDecodingFunctionStruct(
+						ABIFunctions(m_qrvmVersion, m_revertStrings, m_functionCollector).abiDecodingFunctionStruct(
 							toStructType,
 							false
 						)
@@ -3729,7 +3729,7 @@ std::string YulUtilFunctions::arrayConversionFunction(ArrayType const& _from, Ar
 					"abiDecode",
 					_from.dataStoredIn(DataLocation::CallData) ?
 					ABIFunctions(
-						m_zvmVersion,
+						m_qrvmVersion,
 						m_revertStrings,
 						m_functionCollector
 					).abiDecodingFunctionArrayAvailableLength(_to, false) :
@@ -3928,7 +3928,7 @@ std::string YulUtilFunctions::packedHashFunction(
 		templ("variables", suffixedVariableNameList("var_", 1, 1 + sizeOnStack));
 		templ("comma", sizeOnStack > 0 ? "," : "");
 		templ("allocateUnbounded", allocateUnboundedFunction());
-		templ("packedEncode", ABIFunctions(m_zvmVersion, m_revertStrings, m_functionCollector).tupleEncoderPacked(_givenTypes, _targetTypes));
+		templ("packedEncode", ABIFunctions(m_qrvmVersion, m_revertStrings, m_functionCollector).tupleEncoderPacked(_givenTypes, _targetTypes));
 		return templ.render();
 	});
 }
@@ -4531,7 +4531,7 @@ std::string YulUtilFunctions::copyConstructorArgumentsToMemoryFunction(
 
 	return m_functionCollector.createFunction(functionName, [&]() {
 		std::string returnParams = suffixedVariableNameList("ret_param_",0, CompilerUtils::sizeOnStack(_contract.constructor()->parameters()));
-		ABIFunctions abiFunctions(m_zvmVersion, m_revertStrings, m_functionCollector);
+		ABIFunctions abiFunctions(m_qrvmVersion, m_revertStrings, m_functionCollector);
 
 		return util::Whiskers(R"(
 			function <functionName>() -> <retParams> {

@@ -1,6 +1,6 @@
 
 ======= optimizer_user_yul/input.hyp:C =======
-ZVM assembly:
+QRVM assembly:
     /* "optimizer_user_yul/input.hyp":60:518  contract C... */
   mstore(0x40, 0x80)
     /* "optimizer_user_yul/input.hyp":101:106  int a */

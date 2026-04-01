@@ -18,13 +18,13 @@
 /**
  * @author Lefteris Karapetsas <lefteris@ethdev.com>
  * @date 2015
- * Unit tests for Assembly Items from zvmasm/Assembly.h
+ * Unit tests for Assembly Items from qrvmasm/Assembly.h
  */
 
 #include <test/Common.h>
 
 #include <liblangutil/SourceLocation.h>
-#include <libzvmasm/Assembly.h>
+#include <libqrvmasm/Assembly.h>
 
 #include <liblangutil/CharStream.h>
 
@@ -44,7 +44,7 @@
 #include <iostream>
 
 using namespace hyperion::langutil;
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 
 namespace hyperion::frontend::test
 {
@@ -52,11 +52,11 @@ namespace hyperion::frontend::test
 namespace
 {
 
-zvmasm::AssemblyItems compileContract(std::shared_ptr<CharStream> _sourceCode)
+qrvmasm::AssemblyItems compileContract(std::shared_ptr<CharStream> _sourceCode)
 {
 	ErrorList errors;
 	ErrorReporter errorReporter(errors);
-	Parser parser(errorReporter, hyperion::test::CommonOptions::get().zvmVersion());
+	Parser parser(errorReporter, hyperion::test::CommonOptions::get().qrvmVersion());
 	ASTPointer<SourceUnit> sourceUnit;
 	BOOST_REQUIRE_NO_THROW(sourceUnit = parser.parse(*_sourceCode));
 	BOOST_CHECK(!!sourceUnit);
@@ -64,8 +64,8 @@ zvmasm::AssemblyItems compileContract(std::shared_ptr<CharStream> _sourceCode)
 	Scoper::assignScopes(*sourceUnit);
 	BOOST_REQUIRE(SyntaxChecker(errorReporter, false).checkSyntax(*sourceUnit));
 	GlobalContext globalContext;
-	NameAndTypeResolver resolver(globalContext, hyperion::test::CommonOptions::get().zvmVersion(), errorReporter);
-	DeclarationTypeChecker declarationTypeChecker(errorReporter, hyperion::test::CommonOptions::get().zvmVersion());
+	NameAndTypeResolver resolver(globalContext, hyperion::test::CommonOptions::get().qrvmVersion(), errorReporter);
+	DeclarationTypeChecker declarationTypeChecker(errorReporter, hyperion::test::CommonOptions::get().qrvmVersion());
 	hypAssert(!Error::containsErrors(errorReporter.errors()), "");
 	resolver.registerDeclarations(*sourceUnit);
 	BOOST_REQUIRE_NO_THROW(resolver.resolveNamesAndTypes(*sourceUnit));
@@ -77,7 +77,7 @@ zvmasm::AssemblyItems compileContract(std::shared_ptr<CharStream> _sourceCode)
 		if (Error::containsErrors(errorReporter.errors()))
 			return AssemblyItems();
 	}
-	TypeChecker checker(hyperion::test::CommonOptions::get().zvmVersion(), errorReporter);
+	TypeChecker checker(hyperion::test::CommonOptions::get().qrvmVersion(), errorReporter);
 	BOOST_REQUIRE_NO_THROW(checker.checkTypeRequirements(*sourceUnit));
 	if (Error::containsErrors(errorReporter.errors()))
 		return AssemblyItems();
@@ -85,7 +85,7 @@ zvmasm::AssemblyItems compileContract(std::shared_ptr<CharStream> _sourceCode)
 		if (ContractDefinition* contract = dynamic_cast<ContractDefinition*>(node.get()))
 		{
 			Compiler compiler(
-				hyperion::test::CommonOptions::get().zvmVersion(),
+				hyperion::test::CommonOptions::get().qrvmVersion(),
 				RevertStrings::Default,
 				hyperion::test::CommonOptions::get().optimize ? OptimiserSettings::standard() : OptimiserSettings::minimal()
 			);

@@ -18,7 +18,7 @@
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Hyperion AST to ZVM bytecode compiler for expressions.
+ * Hyperion AST to QRVM bytecode compiler for expressions.
  */
 
 #include <libhyperion/codegen/ExpressionCompiler.h>
@@ -32,7 +32,7 @@
 #include <libhyperion/ast/ASTUtils.h>
 #include <libhyperion/ast/TypeProvider.h>
 
-#include <libzvmasm/GasMeter.h>
+#include <libqrvmasm/GasMeter.h>
 #include <libhyputil/Common.h>
 #include <libhyputil/FunctionSelector.h>
 #include <libhyputil/Keccak256.h>
@@ -44,7 +44,7 @@
 #include <utility>
 
 using namespace hyperion;
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 using namespace hyperion::frontend;
 using namespace hyperion::langutil;
 using namespace hyperion::util;
@@ -118,7 +118,7 @@ void ExpressionCompiler::appendConstStateVariableAccessor(VariableDeclaration co
 
 	// append return
 	m_context << dupInstruction(_varDecl.annotation().type->sizeOnStack() + 1);
-	m_context.appendJump(zvmasm::AssemblyItem::JumpType::OutOfFunction);
+	m_context.appendJump(qrvmasm::AssemblyItem::JumpType::OutOfFunction);
 }
 
 void ExpressionCompiler::appendStateVariableAccessor(VariableDeclaration const& _varDecl)
@@ -271,16 +271,16 @@ void ExpressionCompiler::appendStateVariableAccessor(VariableDeclaration const& 
 			util::errinfo_comment(util::stackTooDeepString)
 		);
 	m_context << dupInstruction(retSizeOnStack + 1);
-	m_context.appendJump(zvmasm::AssemblyItem::JumpType::OutOfFunction);
+	m_context.appendJump(qrvmasm::AssemblyItem::JumpType::OutOfFunction);
 }
 
 bool ExpressionCompiler::visit(Conditional const& _condition)
 {
 	CompilerContext::LocationSetter locationSetter(m_context, _condition);
 	_condition.condition().accept(*this);
-	zvmasm::AssemblyItem trueTag = m_context.appendConditionalJump();
+	qrvmasm::AssemblyItem trueTag = m_context.appendConditionalJump();
 	acceptAndConvert(_condition.falseExpression(), *_condition.annotation().type);
-	zvmasm::AssemblyItem endTag = m_context.appendJumpToNew();
+	qrvmasm::AssemblyItem endTag = m_context.appendJumpToNew();
 	m_context << trueTag;
 	int offset = static_cast<int>(_condition.annotation().type->sizeOnStack());
 	m_context.adjustStackOffset(-offset);
@@ -421,7 +421,7 @@ bool ExpressionCompiler::visit(UnaryOperation const& _unaryOperation)
 		hypAssert(functionType->returnParameterTypes().size() == 1);
 		hypAssert(functionType->kind() == FunctionType::Kind::Internal);
 
-		zvmasm::AssemblyItem returnLabel = m_context.pushNewTag();
+		qrvmasm::AssemblyItem returnLabel = m_context.pushNewTag();
 		acceptAndConvert(
 			_unaryOperation.subExpression(),
 			*functionType->parameterTypes()[0],
@@ -429,7 +429,7 @@ bool ExpressionCompiler::visit(UnaryOperation const& _unaryOperation)
 		);
 
 		m_context << m_context.functionEntryLabel(*function).pushTag();
-		m_context.appendJump(zvmasm::AssemblyItem::JumpType::IntoFunction);
+		m_context.appendJump(qrvmasm::AssemblyItem::JumpType::IntoFunction);
 		m_context << returnLabel;
 
 		unsigned parameterSize = CompilerUtils::sizeOnStack(functionType->parameterTypes());
@@ -544,7 +544,7 @@ bool ExpressionCompiler::visit(BinaryOperation const& _binaryOperation)
 		hypAssert(functionType->returnParameterTypes().size() == 1);
 		hypAssert(functionType->kind() == FunctionType::Kind::Internal);
 
-		zvmasm::AssemblyItem returnLabel = m_context.pushNewTag();
+		qrvmasm::AssemblyItem returnLabel = m_context.pushNewTag();
 		acceptAndConvert(
 			leftExpression,
 			*functionType->parameterTypes()[0],
@@ -557,7 +557,7 @@ bool ExpressionCompiler::visit(BinaryOperation const& _binaryOperation)
 		);
 
 		m_context << m_context.functionEntryLabel(*function).pushTag();
-		m_context.appendJump(zvmasm::AssemblyItem::JumpType::IntoFunction);
+		m_context.appendJump(qrvmasm::AssemblyItem::JumpType::IntoFunction);
 		m_context << returnLabel;
 
 		unsigned parameterSize = CompilerUtils::sizeOnStack(functionType->parameterTypes());
@@ -695,7 +695,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			// Calling convention: Caller pushes return address and arguments
 			// Callee removes them and pushes return values
 
-			zvmasm::AssemblyItem returnLabel = m_context.pushNewTag();
+			qrvmasm::AssemblyItem returnLabel = m_context.pushNewTag();
 			for (unsigned i = 0; i < arguments.size(); ++i)
 				acceptAndConvert(*arguments[i], *function.parameterTypes()[i]);
 			_functionCall.expression().accept(*this);
@@ -716,7 +716,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 				// Extract the runtime part.
 				m_context << ((u256(1) << 32) - 1) << Instruction::AND;
 
-			m_context.appendJump(zvmasm::AssemblyItem::JumpType::IntoFunction);
+			m_context.appendJump(qrvmasm::AssemblyItem::JumpType::IntoFunction);
 			m_context << returnLabel;
 
 			unsigned returnParametersSize = CompilerUtils::sizeOnStack(function.returnParameterTypes());
@@ -825,9 +825,9 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 		case FunctionType::Kind::Transfer:
 		{
 			_functionCall.expression().accept(*this);
-			// Provide the gas stipend manually at first because we may send zero ether.
-			// Will be zeroed if we send more than zero ether.
-			m_context << u256(zvmasm::GasCosts::callStipend);
+			// Provide the gas stipend manually at first because we may send zero quanta.
+			// Will be zeroed if we send more than zero quanta.
+			m_context << u256(qrvmasm::GasCosts::callStipend);
 			acceptAndConvert(*arguments.front(), *function.parameterTypes().front(), true);
 			// gas <- gas * !value
 			m_context << Instruction::SWAP1 << Instruction::DUP2;
@@ -2350,7 +2350,7 @@ void ExpressionCompiler::appendAndOrOperatorCode(BinaryOperation const& _binaryO
 	m_context << Instruction::DUP1;
 	if (c_op == Token::And)
 		m_context << Instruction::ISZERO;
-	zvmasm::AssemblyItem endLabel = m_context.appendConditionalJump();
+	qrvmasm::AssemblyItem endLabel = m_context.appendConditionalJump();
 	m_context << Instruction::POP;
 	_binaryOperation.rightExpression().accept(*this);
 	m_context << endLabel;
@@ -2704,7 +2704,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		m_context << dupInstruction(m_context.baseToCurrentStackOffset(gasStackPos));
 	else
 	{
-		// Send all gas (requires tangerine whistle ZVM)
+		// Send all gas (requires tangerine whistle QRVM)
 		m_context << Instruction::GAS;
 	}
 		
@@ -2722,7 +2722,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		(_functionType.gasSet() ? 1 : 0) +
 		(!_functionType.isBareCall() ? 1 : 0);
 
-	zvmasm::AssemblyItem endTag = m_context.newTag();
+	qrvmasm::AssemblyItem endTag = m_context.newTag();
 
 	if (!returnSuccessConditionAndReturndata && !_tryCall)
 	{
@@ -2777,7 +2777,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 			hypAssert(retSize > 0, "");
 		// Always use the actual return length, and not our calculated expected length, if returndatacopy is supported.
 		// This ensures it can catch badly formatted input from external calls.
-		m_context << zvmasm::AssemblyItem(Instruction::RETURNDATASIZE);
+		m_context << qrvmasm::AssemblyItem(Instruction::RETURNDATASIZE);
 		// Stack: return_data_start return_data_size
 		if (needToUpdateFreeMemoryPtr)
 			m_context.appendInlineAssembly(R"({

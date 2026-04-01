@@ -18,7 +18,7 @@ if they are marked ``virtual``. For details, please see
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.7.1 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract owned {
         constructor() { owner = payable(msg.sender); }
@@ -66,7 +66,7 @@ if they are marked ``virtual``. For details, please see
 
         // It is important to also provide the
         // `payable` keyword here, otherwise the function will
-        // automatically reject all Ether sent to it.
+        // automatically reject all Quanta sent to it.
         function register() public payable costs(price) {
             registeredAddresses[msg.sender] = true;
         }

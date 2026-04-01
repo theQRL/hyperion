@@ -10,7 +10,7 @@ function addFooterNote() {
   const footerNote = document.createElement("p");
   footerNote.classList.add("footer-note");
   footerNote.innerHTML =
-    'Customized with ❤️ by the <a href="https://ethereum.org/" target="_blank">ethereum.org</a> team.';
+    'Customized with ❤️ by the <a href="https://theqrl.org/" target="_blank">theqrl.org</a> team.';
   contentInfo.parentNode.insertBefore(footerNote, contentInfo.nextSibling);
 }
 

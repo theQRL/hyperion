@@ -48,10 +48,10 @@ function euler_test
     local settings_presets=(
         "${compile_only_presets[@]}"
         #ir-no-optimize           # Compilation fails with "YulException: Variable var_v_mpos is 4 too deep in the stack". No memoryguard was present.
-        #ir-optimize-zvm-only     # Compilation fails with "YulException: Variable var_v_mpos is 4 too deep in the stack". No memoryguard was present.
-        ir-optimize-zvm+yul
-        legacy-optimize-zvm-only
-        legacy-optimize-zvm+yul
+        #ir-optimize-qrvm-only     # Compilation fails with "YulException: Variable var_v_mpos is 4 too deep in the stack". No memoryguard was present.
+        ir-optimize-qrvm+yul
+        legacy-optimize-qrvm-only
+        legacy-optimize-qrvm+yul
         legacy-no-optimize
     )
 

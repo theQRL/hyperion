@@ -28,7 +28,7 @@ if (OSSFUZZ)
             ../fuzzer_common.cpp
             ../../TestCaseReader.cpp
     )
-    target_link_libraries(hypc_ossfuzz PRIVATE libhypc zvmasm)
+    target_link_libraries(hypc_ossfuzz PRIVATE libhypc qrvmasm)
     set_target_properties(hypc_ossfuzz PROPERTIES LINK_FLAGS ${LIB_FUZZING_ENGINE})
 
     add_executable(hypc_mutator_ossfuzz
@@ -38,15 +38,15 @@ if (OSSFUZZ)
             HyperionGenerator.cpp
             HyperionCustomMutatorInterface.cpp
     )
-    target_link_libraries(hypc_mutator_ossfuzz PRIVATE libhypc zvmasm)
+    target_link_libraries(hypc_mutator_ossfuzz PRIVATE libhypc qrvmasm)
     set_target_properties(hypc_mutator_ossfuzz PROPERTIES LINK_FLAGS ${LIB_FUZZING_ENGINE})
 
     add_executable(const_opt_ossfuzz const_opt_ossfuzz.cpp ../fuzzer_common.cpp)
-    target_link_libraries(const_opt_ossfuzz PRIVATE libhypc zvmasm)
+    target_link_libraries(const_opt_ossfuzz PRIVATE libhypc qrvmasm)
     set_target_properties(const_opt_ossfuzz PROPERTIES LINK_FLAGS ${LIB_FUZZING_ENGINE})
 
     add_executable(strictasm_diff_ossfuzz strictasm_diff_ossfuzz.cpp yulFuzzerCommon.cpp)
-    target_link_libraries(strictasm_diff_ossfuzz PRIVATE libhypc zvmasm yulInterpreter)
+    target_link_libraries(strictasm_diff_ossfuzz PRIVATE libhypc qrvmasm yulInterpreter)
     set_target_properties(strictasm_diff_ossfuzz PROPERTIES LINK_FLAGS ${LIB_FUZZING_ENGINE})
 
     add_executable(strictasm_opt_ossfuzz strictasm_opt_ossfuzz.cpp)
@@ -116,13 +116,13 @@ if (OSSFUZZ)
             StackReuseCodegenFuzzer.cpp
             protoToYul.cpp
             yulProto.pb.cc
-            ../../ZVMHost.cpp
-            YulZvmoneInterface.cpp
+            ../../QRVMHost.cpp
+            YulQrvmoneInterface.cpp
     )
     target_include_directories(stack_reuse_codegen_ossfuzz PRIVATE /usr/include/libprotobuf-mutator)
     target_link_libraries(stack_reuse_codegen_ossfuzz PRIVATE yul
-            zvmc
-            zvmone-standalone
+            qrvmc
+            qrvmone-standalone
             protobuf-mutator-libfuzzer.a
             protobuf-mutator.a
             protobuf.a
@@ -139,9 +139,9 @@ if (OSSFUZZ)
     )
 
     add_executable(abiv2_proto_ossfuzz
-            ../../ZVMHost.cpp
+            ../../QRVMHost.cpp
             abiV2ProtoFuzzer.cpp
-            HyperionZvmoneInterface.cpp
+            HyperionQrvmoneInterface.cpp
             protoToAbiV2.cpp
             abiV2Proto.pb.cc
     )
@@ -149,8 +149,8 @@ if (OSSFUZZ)
             /usr/include/libprotobuf-mutator
     )
     target_link_libraries(abiv2_proto_ossfuzz PRIVATE hyperion
-            zvmc
-            zvmone-standalone
+            qrvmc
+            qrvmone-standalone
             protobuf-mutator-libfuzzer.a
             protobuf-mutator.a
             protobuf.a
@@ -160,8 +160,8 @@ if (OSSFUZZ)
 
     add_executable(abiv2_isabelle_ossfuzz
             AbiV2IsabelleFuzzer.cpp
-            HyperionZvmoneInterface.cpp
-            ../../ZVMHost.cpp
+            HyperionQrvmoneInterface.cpp
+            ../../QRVMHost.cpp
             protoToAbiV2.cpp
             abiV2Proto.pb.cc
     )
@@ -169,8 +169,8 @@ if (OSSFUZZ)
             /usr/include/libprotobuf-mutator
     )
     target_link_libraries(abiv2_isabelle_ossfuzz PRIVATE hyperion
-            zvmc
-            zvmone-standalone
+            qrvmc
+            qrvmone-standalone
             protobuf-mutator-libfuzzer.a
             protobuf-mutator.a
             protobuf.a
@@ -182,17 +182,17 @@ if (OSSFUZZ)
 
     add_executable(hyp_proto_ossfuzz
             hypProtoFuzzer.cpp
-            HyperionZvmoneInterface.cpp
+            HyperionQrvmoneInterface.cpp
             protoToHyp.cpp
             hypProto.pb.cc
-            ../../ZVMHost.cpp
+            ../../QRVMHost.cpp
     )
     target_include_directories(hyp_proto_ossfuzz PRIVATE
             /usr/include/libprotobuf-mutator
     )
     target_link_libraries(hyp_proto_ossfuzz PRIVATE hyperion libhypc
-            zvmc
-            zvmone-standalone
+            qrvmc
+            qrvmone-standalone
             protobuf-mutator-libfuzzer.a
             protobuf-mutator.a
             protobuf.a
@@ -204,24 +204,24 @@ else()
             hypc_ossfuzz.cpp
             ../fuzzer_common.cpp
             )
-    target_link_libraries(hypc_ossfuzz PRIVATE libhypc zvmasm)
+    target_link_libraries(hypc_ossfuzz PRIVATE libhypc qrvmasm)
 
     add_library(hypc_mutator_ossfuzz
             hypc_ossfuzz.cpp
             ../fuzzer_common.cpp
             )
-    target_link_libraries(hypc_mutator_ossfuzz PRIVATE libhypc zvmasm)
+    target_link_libraries(hypc_mutator_ossfuzz PRIVATE libhypc qrvmasm)
 
     add_library(const_opt_ossfuzz
             const_opt_ossfuzz.cpp
             ../fuzzer_common.cpp)
-    target_link_libraries(const_opt_ossfuzz PRIVATE libhypc zvmasm)
+    target_link_libraries(const_opt_ossfuzz PRIVATE libhypc qrvmasm)
 
     add_library(strictasm_diff_ossfuzz
             strictasm_diff_ossfuzz.cpp
             yulFuzzerCommon.cpp
             )
-    target_link_libraries(strictasm_diff_ossfuzz PRIVATE libhypc zvmasm yulInterpreter)
+    target_link_libraries(strictasm_diff_ossfuzz PRIVATE libhypc qrvmasm yulInterpreter)
 
     add_library(strictasm_opt_ossfuzz
             strictasm_opt_ossfuzz.cpp
@@ -250,7 +250,7 @@ else()
 #            protobuf.a
 #            FuzzingEngine.a)
 #    add_executable(abiv2_proto_ossfuzz
-#            ../../ZVMHost.cpp
+#            ../../QRVMHost.cpp
 #            abiV2ProtoFuzzer.cpp
 #            abiV2FuzzerCommon.cpp
 #            protoToAbiV2.cpp
@@ -259,10 +259,10 @@ else()
 #    target_include_directories(abiv2_proto_ossfuzz PRIVATE
 #            /src/LPM/external.protobuf/include
 #            /src/libprotobuf-mutator
-#            /src/zvmone/include
+#            /src/qrvmone/include
 #    )
 #    target_link_libraries(abiv2_proto_ossfuzz PRIVATE hyperion
-#            zvmone intx ethash keccak zvmc-instructions zvmc
+#            qrvmone intx ethash keccak qrvmc-instructions qrvmc
 #            protobuf-mutator-libfuzzer.a
 #            protobuf-mutator.a
 #            protobuf.a

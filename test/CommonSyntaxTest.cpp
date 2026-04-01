@@ -64,11 +64,11 @@ int parseUnsignedInteger(string::iterator& _it, string::iterator _end)
 
 }
 
-CommonSyntaxTest::CommonSyntaxTest(string const& _filename, langutil::ZVMVersion _zvmVersion):
-	ZVMVersionRestrictedTestCase(_filename),
+CommonSyntaxTest::CommonSyntaxTest(string const& _filename, langutil::QRVMVersion _qrvmVersion):
+	QRVMVersionRestrictedTestCase(_filename),
 	m_sources(m_reader.sources()),
 	m_expectations(parseExpectations(m_reader.stream())),
-	m_zvmVersion(_zvmVersion)
+	m_qrvmVersion(_qrvmVersion)
 {
 }
 

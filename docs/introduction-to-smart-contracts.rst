@@ -18,7 +18,7 @@ Storage Example
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.16 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract SimpleStorage {
         uint storedData;
@@ -43,7 +43,7 @@ This is to ensure that the contract is not compilable with a new (breaking) comp
 source code (e.g. `pragma once <https://en.wikipedia.org/wiki/Pragma_once>`_).
 
 A contract in the sense of Hyperion is a collection of code (its *functions*) and
-data (its *state*) that resides at a specific address on the Ethereum
+data (its *state*) that resides at a specific address on the QRL
 blockchain. The line ``uint storedData;`` declares a state variable called ``storedData`` of
 type ``uint`` (*u*\nsigned *int*\eger of *256* bits). You can think of it as a single slot
 in a database that you can query and alter by calling functions of the
@@ -57,7 +57,7 @@ Unlike in some other languages, omitting it is not just a matter of style,
 it results in a completely different way to access the member, but more on this later.
 
 This contract does not do much yet apart from (due to the infrastructure
-built by Ethereum) allowing anyone to store a single number that is accessible by
+built by QRL) allowing anyone to store a single number that is accessible by
 anyone in the world without a (feasible) way to prevent you from publishing
 this number. Anyone could call ``set`` again with a different value
 and overwrite your number, but the number is still stored in the history
@@ -80,12 +80,12 @@ Subcurrency Example
 The following contract implements the simplest form of a
 cryptocurrency. The contract allows only its creator to create new coins (different issuance schemes are possible).
 Anyone can send coins to each other without a need for
-registering with a username and password, all you need is an Ethereum keypair.
+registering with a username and password, all you need is a QRL keypair.
 
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.4;
+    pragma hyperion >=0.1.0;
 
     contract Coin {
         // The keyword "public" makes variables
@@ -178,14 +178,14 @@ You can use this function to query the balance of a single account.
 
 The line ``event Sent(address from, address to, uint amount);`` declares
 an :ref:`"event" <events>`, which is emitted in the last line of the function
-``send``. Ethereum clients such as web applications can
+``send``. QRL clients such as web applications can
 listen for these events emitted on the blockchain without much
 cost. As soon as it is emitted, the listener receives the
 arguments ``from``, ``to`` and ``amount``, which makes it possible to track
 transactions.
 
 To listen for this event, you could use the following
-JavaScript code, which uses `web3.js <https://github.com/web3/web3.js/>`_ to create the ``Coin`` contract object,
+JavaScript code, which uses `web3.js <https://github.com/theQRL/web3.js/>`_ to create the ``Coin`` contract object,
 and any user interface calls the automatically generated ``balances`` function from above:
 
 .. code-block:: javascript
@@ -282,7 +282,7 @@ the source account is also not modified.
 Furthermore, a transaction is always cryptographically signed by the sender (creator).
 This makes it straightforward to guard access to specific modifications of the
 database. In the example of the electronic currency, a simple check ensures that
-only the person holding the keys to the account can transfer some compensation, e.g. Ether, from it.
+only the person holding the keys to the account can transfer some compensation, e.g. Quanta, from it.
 
 .. index:: ! block
 
@@ -317,21 +317,21 @@ likely it will be.
     If you want to schedule future calls of your contract, you can use
     a smart contract automation tool or an oracle service.
 
-.. _the-zond-virtual-machine:
+.. _the-quantum-resistant-virtual-machine:
 
-.. index:: !zvm, ! zond virtual machine
+.. index:: !qrvm, ! quantum resistant virtual machine
 
 ****************************
-The Zond Virtual Machine
+The Quantum Resistant Virtual Machine
 ****************************
 
 Overview
 ========
 
-The Zond Virtual Machine or ZVM is the runtime environment
-for smart contracts in Ethereum. It is not only sandboxed but
+The Quantum Resistant Virtual Machine or QRVM is the runtime environment
+for smart contracts in QRL. It is not only sandboxed but
 actually completely isolated, which means that code running
-inside the ZVM has no access to network, filesystem or other processes.
+inside the QRVM has no access to network, filesystem or other processes.
 Smart contracts even have limited access to other smart contracts.
 
 .. index:: ! account, address, storage, balance
@@ -341,7 +341,7 @@ Smart contracts even have limited access to other smart contracts.
 Accounts
 ========
 
-There are two kinds of accounts in Ethereum which share the same
+There are two kinds of accounts in QRL which share the same
 address space: **External accounts** that are controlled by
 public-private key pairs (i.e. humans) and **contract accounts** which are
 controlled by the code stored together with the account.
@@ -353,14 +353,14 @@ determined at the time the contract is created
 of transactions sent from that address, the so-called "nonce").
 
 Regardless of whether or not the account stores code, the two types are
-treated equally by the ZVM.
+treated equally by the QRVM.
 
 Every account has a persistent key-value store mapping 256-bit words to 256-bit
 words called **storage**.
 
 Furthermore, every account has a **balance** in
-Ether (in "Wei" to be exact, ``1 ether`` is ``10**18 wei``) which can be modified by sending transactions that
-include Ether.
+Quanta (in "Planck" to be exact, ``1 quanta`` is ``10**18 planck``) which can be modified by sending transactions that
+include Quanta.
 
 .. index:: ! transaction
 
@@ -369,7 +369,7 @@ Transactions
 
 A transaction is a message that is sent from one account to another
 account (which might be the same or empty, see below).
-It can include binary data (which is called "payload") and Ether.
+It can include binary data (which is called "payload") and Quanta.
 
 If the target account contains code, that code is executed and
 the payload is provided as input data.
@@ -381,7 +381,7 @@ As already mentioned, the address of that contract is not
 the zero address but an address derived from the sender and
 its number of transactions sent (the "nonce"). The payload
 of such a contract creation transaction is taken to be
-ZVM bytecode and executed. The output data of this execution is
+QRVM bytecode and executed. The output data of this execution is
 permanently stored as the code of the contract.
 This means that in order to create a contract, you do not
 send the actual code of the contract, but in fact code that
@@ -400,23 +400,23 @@ Gas
 
 Upon creation, each transaction is charged with a certain amount of **gas**
 that has to be paid for by the originator of the transaction (``tx.origin``).
-While the ZVM executes the
+While the QRVM executes the
 transaction, the gas is gradually depleted according to specific rules.
 If the gas is used up at any point (i.e. it would be negative),
 an out-of-gas exception is triggered, which ends execution and reverts all modifications
 made to the state in the current call frame.
 
-This mechanism incentivizes economical use of ZVM execution time
-and also compensates ZVM executors (i.e. miners / stakers) for their work.
+This mechanism incentivizes economical use of QRVM execution time
+and also compensates QRVM executors (i.e. miners / stakers) for their work.
 Since each block has a maximum amount of gas, it also limits the amount
 of work needed to validate a block.
 
 The **gas price** is a value set by the originator of the transaction, who
-has to pay ``gas_price * gas`` up front to the ZVM executor.
+has to pay ``gas_price * gas`` up front to the QRVM executor.
 If some gas is left after execution, it is refunded to the transaction originator.
 In case of an exception that reverts changes, already used up gas is not refunded.
 
-Since ZVM executors can choose to include a transaction or not,
+Since QRVM executors can choose to include a transaction or not,
 transaction senders cannot abuse the system by setting a low gas price.
 
 .. index:: ! storage, ! memory, ! stack
@@ -424,7 +424,7 @@ transaction senders cannot abuse the system by setting a low gas price.
 Storage, Memory and the Stack
 =============================
 
-The Zond Virtual Machine has three areas where it can store data:
+The Quantum Resistant Virtual Machine has three areas where it can store data:
 storage, memory and the stack.
 
 Each account has a data area called **storage**, which is persistent between function calls
@@ -444,7 +444,7 @@ accessing (either reading or writing) a previously untouched memory word (i.e. a
 within a word). At the time of expansion, the cost in gas must be paid. Memory is more
 costly the larger it grows (it scales quadratically).
 
-The ZVM is not a register machine but a stack machine, so all
+The QRVM is not a register machine but a stack machine, so all
 computations are performed on a data area called the **stack**. It has a maximum size of
 1024 elements and contains words of 256 bits. Access to the stack is
 limited to the top end in the following way:
@@ -463,7 +463,7 @@ without first removing the top of the stack.
 Instruction Set
 ===============
 
-The instruction set of the ZVM is kept minimal in order to avoid
+The instruction set of the QRVM is kept minimal in order to avoid
 incorrect or inconsistent implementations which could cause consensus problems.
 All instructions operate on the basic data type, 256-bit words or on slices of memory
 (or other byte arrays).
@@ -480,10 +480,10 @@ assembly documentation.
 Message Calls
 =============
 
-Contracts can call other contracts or send Ether to non-contract
+Contracts can call other contracts or send Quanta to non-contract
 accounts by the means of message calls. Message calls are similar
 to transactions, in that they have a source, a target, data payload,
-Ether, gas and return data. In fact, every transaction consists of
+Quanta, gas and return data. In fact, every transaction consists of
 a top-level message call which in turn can create further message calls.
 
 A contract can decide how much of its remaining **gas** should be sent
@@ -556,12 +556,12 @@ Deactivate and Self-destruct
 ============================
 
 Removing the contract in theory sounds like a good idea, but it is potentially
-dangerous, as if someone sends Ether to removed contracts, the Ether is forever
+dangerous, as if someone sends Quanta to removed contracts, the Quanta is forever
 lost.
 
 If you want to deactivate your contracts, you should instead **disable** them
 by changing some internal state which causes all functions to revert. This
-makes it impossible to use the contract, as it returns Ether immediately.
+makes it impossible to use the contract, as it returns Quanta immediately.
 
 
 .. index:: ! precompiled contracts, ! precompiles, ! contract;precompiled
@@ -575,11 +575,11 @@ There is a small set of contract addresses that are special:
 The address range between ``1`` and (including) ``8`` contains
 "precompiled contracts" that can be called as any other contract
 but their behavior (and their gas consumption) is not defined
-by ZVM code stored at that address (they do not contain code)
-but instead is implemented in the ZVM execution environment itself.
+by QRVM code stored at that address (they do not contain code)
+but instead is implemented in the QRVM execution environment itself.
 
-Different ZVM-compatible chains might use a different set of
+Different QRVM-compatible chains might use a different set of
 precompiled contracts. It might also be possible that new
-precompiled contracts are added to the Ethereum main chain in the future,
+precompiled contracts are added to the QRL main chain in the future,
 but you can reasonably expect them to always be in the range between
 ``1`` and ``0xffff`` (inclusive).

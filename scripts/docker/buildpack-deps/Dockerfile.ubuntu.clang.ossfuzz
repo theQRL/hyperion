@@ -90,17 +90,17 @@ RUN set -ex; \
 	ninja install/strip; \
 	rm -rf /usr/src/libprotobuf-mutator
 
-# ZVMONE
+# QRVMONE
 RUN set -ex; \
 	cd /usr/src; \
-	git clone --branch="v0.10.0" --recurse-submodules https://github.com/theQRL/zvmone.git; \
-	cd zvmone; \
+	git clone --branch="v0.10.0" --recurse-submodules https://github.com/theQRL/qrvmone.git; \
+	cd qrvmone; \
 	mkdir build; \
 	cd build; \
 	CXX=clang++ cmake -G Ninja -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="/usr" ..; \
 	ninja; \
 	ninja install/strip; \
-	rm -rf /usr/src/zvmone
+	rm -rf /usr/src/qrvmone
 
 # gmp
 RUN set -ex; \

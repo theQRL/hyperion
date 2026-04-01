@@ -27,11 +27,11 @@
 #include <src/libfuzzer/libfuzzer_macro.h>
 
 #include <libyul/YulStack.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 #include <libyul/Exceptions.h>
 
 #include <liblangutil/DebugInfoSelection.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 #include <liblangutil/SourceReferenceFormatter.h>
 
 #include <test/tools/ossfuzz/yulFuzzerCommon.h>
@@ -48,7 +48,7 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 {
 	ProtoConverter converter;
 	string yul_source = converter.programToString(_input);
-	ZVMVersion version = converter.version();
+	QRVMVersion version = converter.version();
 
 	if (const char* dump_path = getenv("PROTO_FUZZER_DUMP_PATH"))
 	{
@@ -89,7 +89,7 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 	yulFuzzerUtil::TerminationReason termReason = yulFuzzerUtil::interpret(
 		os1,
 		stack.parserResult()->code,
-		ZVMDialect::strictAssemblyForZVMObjects(version),
+		QRVMDialect::strictAssemblyForQRVMObjects(version),
 		/*disableMemoryTracing=*/true
 	);
 
@@ -98,7 +98,7 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 
 	YulOptimizerTestCommon optimizerTest(
 		stack.parserResult(),
-		ZVMDialect::strictAssemblyForZVMObjects(version)
+		QRVMDialect::strictAssemblyForQRVMObjects(version)
 	);
 	optimizerTest.setStep(optimizerTest.randomOptimiserStep(_input.step()));
 	shared_ptr<hyperion::yul::Block> astBlock = optimizerTest.run();
@@ -106,7 +106,7 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 	termReason = yulFuzzerUtil::interpret(
 		os2,
 		astBlock,
-		ZVMDialect::strictAssemblyForZVMObjects(version),
+		QRVMDialect::strictAssemblyForQRVMObjects(version),
 		true
 	);
 	if (yulFuzzerUtil::resourceLimitsExceeded(termReason))

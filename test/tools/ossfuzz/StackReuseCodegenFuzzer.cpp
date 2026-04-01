@@ -18,23 +18,23 @@
 #include <test/tools/ossfuzz/yulProto.pb.h>
 #include <test/tools/ossfuzz/protoToYul.h>
 
-#include <test/ZVMHost.h>
+#include <test/QRVMHost.h>
 
-#include <test/tools/ossfuzz/YulZvmoneInterface.h>
+#include <test/tools/ossfuzz/YulQrvmoneInterface.h>
 
 #include <libyul/Exceptions.h>
 
-#include <libyul/backends/zvm/ZVMCodeTransform.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMCodeTransform.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 #include <libyul/optimiser/CallGraphGenerator.h>
 #include <libyul/CompilabilityChecker.h>
 
-#include <libzvmasm/Instruction.h>
+#include <libqrvmasm/Instruction.h>
 
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
-#include <zvmone/zvmone.h>
+#include <qrvmone/qrvmone.h>
 
 #include <src/libfuzzer/libfuzzer_macro.h>
 
@@ -48,7 +48,7 @@ using namespace hyperion::yul::test::yul_fuzzer;
 using namespace hyperion::langutil;
 using namespace std;
 
-static zvmc::VM zvmone = zvmc::VM{zvmc_create_zvmone()};
+static qrvmc::VM qrvmone = qrvmc::VM{qrvmc_create_qrvmone()};
 
 namespace
 {
@@ -81,10 +81,10 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 		filterUnboundedLoops
 	);
 	string yul_source = converter.programToString(_input);
-	// Do not fuzz the ZVM Version field.
+	// Do not fuzz the QRVM Version field.
 	// See https://github.com/ethereum/solidity/issues/12590
-	langutil::ZVMVersion version;
-	ZVMHost hostContext(version, zvmone);
+	langutil::QRVMVersion version;
+	QRVMHost hostContext(version, qrvmone);
 	hostContext.reset();
 
 	if (const char* dump_path = getenv("PROTO_FUZZER_DUMP_PATH"))
@@ -107,7 +107,7 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 		unoptimisedByteCode = assembler.assemble();
 		auto yulObject = assembler.object();
 		recursiveFunction = recursiveFunctionExists(
-			ZVMDialect::strictAssemblyForZVMObjects(version),
+			QRVMDialect::strictAssemblyForQRVMObjects(version),
 			*yulObject
 		);
 	}
@@ -121,35 +121,35 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 	bool noInvalidInSource = true;
 	if (!unoptimizedStackTooDeep)
 	{
-		zvmc::Result deployResult = YulZvmoneUtility{}.deployCode(unoptimisedByteCode, hostContext);
-		if (deployResult.status_code != ZVMC_SUCCESS)
+		qrvmc::Result deployResult = YulQrvmoneUtility{}.deployCode(unoptimisedByteCode, hostContext);
+		if (deployResult.status_code != QRVMC_SUCCESS)
 			return;
-		auto callMessage = YulZvmoneUtility{}.callMessage(deployResult.create_address);
-		zvmc::Result callResult = hostContext.call(callMessage);
+		auto callMessage = YulQrvmoneUtility{}.callMessage(deployResult.create_address);
+		qrvmc::Result callResult = hostContext.call(callMessage);
 		// If the fuzzer synthesized input does not contain the revert opcode which
-		// we lazily check by string find, the ZVM call should not revert.
+		// we lazily check by string find, the QRVM call should not revert.
 		noRevertInSource = yul_source.find("revert") == string::npos;
 		noInvalidInSource = yul_source.find("invalid") == string::npos;
 		if (noInvalidInSource)
 			hypAssert(
-				callResult.status_code != ZVMC_INVALID_INSTRUCTION,
+				callResult.status_code != QRVMC_INVALID_INSTRUCTION,
 				"Invalid instruction."
 			);
 		if (noRevertInSource)
 			hypAssert(
-				callResult.status_code != ZVMC_REVERT,
-				"HyperionZvmoneInterface: ZVM One reverted"
+				callResult.status_code != QRVMC_REVERT,
+				"HyperionQrvmoneInterface: QRVM One reverted"
 			);
 		// Bail out on serious errors encountered during a call.
-		if (YulZvmoneUtility{}.seriousCallError(callResult.status_code))
+		if (YulQrvmoneUtility{}.seriousCallError(callResult.status_code))
 			return;
 		hypAssert(
-			(callResult.status_code == ZVMC_SUCCESS ||
-			(!noRevertInSource && callResult.status_code == ZVMC_REVERT) ||
-			(!noInvalidInSource && callResult.status_code == ZVMC_INVALID_INSTRUCTION)),
+			(callResult.status_code == QRVMC_SUCCESS ||
+			(!noRevertInSource && callResult.status_code == QRVMC_REVERT) ||
+			(!noInvalidInSource && callResult.status_code == QRVMC_INVALID_INSTRUCTION)),
 			"Unoptimised call failed."
 		);
-		unoptimizedState << ZVMHostPrinter{hostContext, deployResult.create_address}.state();
+		unoptimizedState << QRVMHostPrinter{hostContext, deployResult.create_address}.state();
 	}
 
 	settings.runYulOptimiser = true;
@@ -171,31 +171,31 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 		return;
 	// Reset host before running optimised code.
 	hostContext.reset();
-	zvmc::Result deployResultOpt = YulZvmoneUtility{}.deployCode(optimisedByteCode, hostContext);
+	qrvmc::Result deployResultOpt = YulQrvmoneUtility{}.deployCode(optimisedByteCode, hostContext);
 	hypAssert(
-		deployResultOpt.status_code == ZVMC_SUCCESS,
-		"Zvmone: Optimized contract creation failed"
+		deployResultOpt.status_code == QRVMC_SUCCESS,
+		"Qrvmone: Optimized contract creation failed"
 	);
-	auto callMessageOpt = YulZvmoneUtility{}.callMessage(deployResultOpt.create_address);
-	zvmc::Result callResultOpt = hostContext.call(callMessageOpt);
+	auto callMessageOpt = YulQrvmoneUtility{}.callMessage(deployResultOpt.create_address);
+	qrvmc::Result callResultOpt = hostContext.call(callMessageOpt);
 	if (noRevertInSource)
 		hypAssert(
-			callResultOpt.status_code != ZVMC_REVERT,
-			"HyperionZvmoneInterface: ZVM One reverted"
+			callResultOpt.status_code != QRVMC_REVERT,
+			"HyperionQrvmoneInterface: QRVM One reverted"
 		);
 	if (noInvalidInSource)
 		hypAssert(
-			callResultOpt.status_code != ZVMC_INVALID_INSTRUCTION,
+			callResultOpt.status_code != QRVMC_INVALID_INSTRUCTION,
 			"Invalid instruction."
 		);
 	hypAssert(
-		(callResultOpt.status_code == ZVMC_SUCCESS ||
-		 (!noRevertInSource && callResultOpt.status_code == ZVMC_REVERT) ||
-		 (!noInvalidInSource && callResultOpt.status_code == ZVMC_INVALID_INSTRUCTION)),
+		(callResultOpt.status_code == QRVMC_SUCCESS ||
+		 (!noRevertInSource && callResultOpt.status_code == QRVMC_REVERT) ||
+		 (!noInvalidInSource && callResultOpt.status_code == QRVMC_INVALID_INSTRUCTION)),
 		"Optimised call failed."
 	);
 	ostringstream optimizedState;
-	optimizedState << ZVMHostPrinter{hostContext, deployResultOpt.create_address}.state();
+	optimizedState << QRVMHostPrinter{hostContext, deployResultOpt.create_address}.state();
 
 	if (unoptimizedState.str() != optimizedState.str())
 	{

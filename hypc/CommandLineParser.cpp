@@ -22,7 +22,7 @@
 
 #include <libyul/optimiser/Suite.h>
 
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -45,14 +45,14 @@ static std::string const g_strBasePath = "base-path";
 static std::string const g_strIncludePath = "include-path";
 static std::string const g_strAssemble = "assemble";
 static std::string const g_strCombinedJson = "combined-json";
-static std::string const g_strZVM = "zvm";
-static std::string const g_strZVMVersion = "zvm-version";
+static std::string const g_strQRVM = "qrvm";
+static std::string const g_strQRVMVersion = "qrvm-version";
 static std::string const g_strViaIR = "via-ir";
 static std::string const g_strExperimentalViaIR = "experimental-via-ir";
 static std::string const g_strGas = "gas";
 static std::string const g_strHelp = "help";
 static std::string const g_strImportAst = "import-ast";
-static std::string const g_strImportZvmAssemblerJson = "import-asm-json";
+static std::string const g_strImportQrvmAssemblerJson = "import-asm-json";
 static std::string const g_strInputFile = "input-file";
 static std::string const g_strYul = "yul";
 static std::string const g_strYulDialect = "yul-dialect";
@@ -117,13 +117,13 @@ static std::string const g_strErrorIds = "error-codes";
 /// Possible arguments to for --machine
 static std::set<std::string> const g_machineArgs
 {
-	g_strZVM
+	g_strQRVM
 };
 
 /// Possible arguments to for --yul-dialect
 static std::set<std::string> const g_yulDialectArgs
 {
-	g_strZVM
+	g_strQRVM
 };
 
 /// Possible arguments to for --metadata-hash
@@ -144,7 +144,7 @@ static std::map<InputMode, std::string> const g_inputModeName = {
 	{InputMode::StandardJson, "standard JSON"},
 	{InputMode::Linker, "linker"},
 	{InputMode::LanguageServer, "language server (LSP)"},
-	{InputMode::ZVMAssemblerJSON, "ZVM assembler (JSON format)"},
+	{InputMode::QRVMAssemblerJSON, "QRVM assembler (JSON format)"},
 };
 
 void CommandLineParser::checkMutuallyExclusive(std::vector<std::string> const& _optionNames)
@@ -232,7 +232,7 @@ bool CommandLineOptions::operator==(CommandLineOptions const& _other) const noex
 		input.noImportCallback == _other.input.noImportCallback &&
 		output.dir == _other.output.dir &&
 		output.overwriteFiles == _other.output.overwriteFiles &&
-		output.zvmVersion == _other.output.zvmVersion &&
+		output.qrvmVersion == _other.output.qrvmVersion &&
 		output.viaIR == _other.output.viaIR &&
 		output.revertStrings == _other.output.revertStrings &&
 		output.debugInfoSelection == _other.output.debugInfoSelection &&
@@ -250,7 +250,7 @@ bool CommandLineOptions::operator==(CommandLineOptions const& _other) const noex
 		metadata.format == _other.metadata.format &&
 		metadata.hash == _other.metadata.hash &&
 		metadata.literalSources == _other.metadata.literalSources &&
-		optimizer.optimizeZvmasm == _other.optimizer.optimizeZvmasm &&
+		optimizer.optimizeQrvmasm == _other.optimizer.optimizeQrvmasm &&
 		optimizer.optimizeYul == _other.optimizer.optimizeYul &&
 		optimizer.expectedExecutionsPerDeployment == _other.optimizer.expectedExecutionsPerDeployment &&
 		optimizer.yulSteps == _other.optimizer.yulSteps &&
@@ -262,7 +262,7 @@ OptimiserSettings CommandLineOptions::optimiserSettings() const
 {
 	OptimiserSettings settings;
 
-	if (optimizer.optimizeZvmasm)
+	if (optimizer.optimizeQrvmasm)
 		settings = OptimiserSettings::standard();
 	else
 		settings = OptimiserSettings::minimal();
@@ -424,11 +424,11 @@ void CommandLineParser::parseLibraryOption(std::string const& _input)
 					(isSeparatorEqualSign ? "equal sign" : "colon") + "."
 				);
 
-			if (!boost::starts_with(addrString, "Z"))
+			if (!boost::starts_with(addrString, "Q"))
 				hypThrow(
 					CommandLineValidationError,
-					"The address " + addrString + " is not prefixed with \"Z\".\n"
-					"Note that the address must be prefixed with \"Z\"."
+					"The address " + addrString + " is not prefixed with \"Q\".\n"
+					"Note that the address must be prefixed with \"Q\"."
 				);
 
 			if (addrString.length() != 41)
@@ -469,7 +469,7 @@ void CommandLineParser::parseOutputSelection()
 			CompilerOutputs::componentName(&CompilerOutputs::irOptimized),
 			CompilerOutputs::componentName(&CompilerOutputs::astCompactJson),
 		};
-		static std::set<std::string> const zvmAssemblyJsonImportModeOutputs = {
+		static std::set<std::string> const qrvmAssemblyJsonImportModeOutputs = {
 			CompilerOutputs::componentName(&CompilerOutputs::asm_),
 			CompilerOutputs::componentName(&CompilerOutputs::binary),
 			CompilerOutputs::componentName(&CompilerOutputs::binaryRuntime),
@@ -486,8 +486,8 @@ void CommandLineParser::parseOutputSelection()
 		case InputMode::Compiler:
 		case InputMode::CompilerWithASTImport:
 			return util::contains(compilerModeOutputs, _outputName);
-		case InputMode::ZVMAssemblerJSON:
-			return util::contains(zvmAssemblyJsonImportModeOutputs, _outputName);
+		case InputMode::QRVMAssemblerJSON:
+			return util::contains(qrvmAssemblyJsonImportModeOutputs, _outputName);
 		case InputMode::Assembler:
 			return util::contains(assemblerModeOutputs, _outputName);
 		case InputMode::StandardJson:
@@ -522,7 +522,7 @@ void CommandLineParser::parseOutputSelection()
 			joinOptionNames(unsupportedOutputs) + "."
 		);
 
-	// TODO: restrict EOF version to correct ZVM version.
+	// TODO: restrict EOF version to correct QRVM version.
 }
 
 po::options_description CommandLineParser::optionsDescription()
@@ -598,9 +598,9 @@ General Information)").c_str(),
 			"Overwrite existing files (used together with -o)."
 		)
 		(
-			g_strZVMVersion.c_str(),
-			po::value<std::string>()->value_name("version")->default_value(ZVMVersion{}.name()),
-			"Select desired ZVM version: shanghai."
+			g_strQRVMVersion.c_str(),
+			po::value<std::string>()->value_name("version")->default_value(QRVMVersion{}.name()),
+			"Select desired QRVM version: zond."
 		)
 	;
 	outputOptions.add_options()
@@ -620,7 +620,7 @@ General Information)").c_str(),
 		(
 			g_strDebugInfo.c_str(),
 			po::value<std::string>()->default_value(util::toString(DebugInfoSelection::Default())),
-			("Debug info components to be included in the produced ZVM assembly and Yul code. "
+			("Debug info components to be included in the produced QRVM assembly and Yul code. "
 			"Value can be all, none or a comma-separated list containing one or more of the "
 			"following components: " + util::joinHumanReadable(DebugInfoSelection::componentMap() | ranges::views::keys) + ".").c_str()
 		)
@@ -663,8 +663,8 @@ General Information)").c_str(),
 			"--" + g_strCombinedJson + " " + CombinedJsonRequests::componentName(&CombinedJsonRequests::ast)).c_str()
 		)
 		(
-			g_strImportZvmAssemblerJson.c_str(),
-			"Import ZVM assembly from JSON. Assumes input is in the format used by --asm-json."
+			g_strImportQrvmAssemblerJson.c_str(),
+			"Import QRVM assembly from JSON. Assumes input is in the format used by --asm-json."
 		)
 		(
 			g_strLSP.c_str(),
@@ -730,8 +730,8 @@ General Information)").c_str(),
 	po::options_description outputComponents("Output Components");
 	outputComponents.add_options()
 		(CompilerOutputs::componentName(&CompilerOutputs::astCompactJson).c_str(), "AST of all source files in a compact JSON format.")
-		(CompilerOutputs::componentName(&CompilerOutputs::asm_).c_str(), "ZVM assembly of the contracts.")
-		(CompilerOutputs::componentName(&CompilerOutputs::asmJson).c_str(), "ZVM assembly of the contracts in JSON format.")
+		(CompilerOutputs::componentName(&CompilerOutputs::asm_).c_str(), "QRVM assembly of the contracts.")
+		(CompilerOutputs::componentName(&CompilerOutputs::asmJson).c_str(), "QRVM assembly of the contracts in JSON format.")
 		(CompilerOutputs::componentName(&CompilerOutputs::opcodes).c_str(), "Opcodes of the contracts.")
 		(CompilerOutputs::componentName(&CompilerOutputs::binary).c_str(), "Binary of the contracts in hex.")
 		(CompilerOutputs::componentName(&CompilerOutputs::binaryRuntime).c_str(), "Binary of the runtime part of the contracts in hex.")
@@ -796,13 +796,13 @@ General Information)").c_str(),
 		)
 		(
 			g_strOptimizeYul.c_str(),
-			("Enable Yul optimizer (independently of the ZVM assembly optimizer). "
+			("Enable Yul optimizer (independently of the QRVM assembly optimizer). "
 			"The general --" + g_strOptimize + " option automatically enables this unless --" +
 			g_strNoOptimizeYul + " is specified.").c_str()
 		)
 		(
 			g_strNoOptimizeYul.c_str(),
-			"Disable Yul optimizer (independently of the ZVM assembly optimizer)."
+			"Disable Yul optimizer (independently of the QRVM assembly optimizer)."
 		)
 		(
 			g_strYulOptimizations.c_str(),
@@ -942,7 +942,7 @@ void CommandLineParser::processArgs()
 		g_strYul,
 		g_strImportAst,
 		g_strLSP,
-		g_strImportZvmAssemblerJson,
+		g_strImportQrvmAssemblerJson,
 	});
 
 	if (m_args.count(g_strHelp) > 0)
@@ -961,8 +961,8 @@ void CommandLineParser::processArgs()
 		m_options.input.mode = InputMode::Linker;
 	else if (m_args.count(g_strImportAst) > 0)
 		m_options.input.mode = InputMode::CompilerWithASTImport;
-	else if (m_args.count(g_strImportZvmAssemblerJson) > 0)
-		m_options.input.mode = InputMode::ZVMAssemblerJSON;
+	else if (m_args.count(g_strImportQrvmAssemblerJson) > 0)
+		m_options.input.mode = InputMode::QRVMAssemblerJSON;
 	else
 		m_options.input.mode = InputMode::Compiler;
 
@@ -1022,10 +1022,10 @@ void CommandLineParser::processArgs()
 		if (option != CompilerOutputs::componentName(&CompilerOutputs::astCompactJson))
 			checkMutuallyExclusive({g_strStopAfter, option});
 
-	if (m_options.input.mode == InputMode::ZVMAssemblerJSON)
+	if (m_options.input.mode == InputMode::QRVMAssemblerJSON)
 	{
-		static std::set<std::string> const supportedByZvmAsmJsonImport{
-			g_strImportZvmAssemblerJson,
+		static std::set<std::string> const supportedByQrvmAsmJsonImport{
+			g_strImportQrvmAssemblerJson,
 			CompilerOutputs::componentName(&CompilerOutputs::asm_),
 			CompilerOutputs::componentName(&CompilerOutputs::binary),
 			CompilerOutputs::componentName(&CompilerOutputs::binaryRuntime),
@@ -1040,13 +1040,13 @@ void CommandLineParser::processArgs()
 		};
 
 		for (auto const& [optionName, optionValue]: m_args)
-			if (!optionValue.defaulted() && !supportedByZvmAsmJsonImport.count(optionName))
+			if (!optionValue.defaulted() && !supportedByQrvmAsmJsonImport.count(optionName))
 				hypThrow(
 					CommandLineValidationError,
 					fmt::format(
 						"Option --{} is not supported with --{}.",
 						optionName,
-						g_strImportZvmAssemblerJson
+						g_strImportQrvmAssemblerJson
 					)
 				);
 	}
@@ -1054,7 +1054,7 @@ void CommandLineParser::processArgs()
 	if (
 		m_options.input.mode != InputMode::Compiler &&
 		m_options.input.mode != InputMode::CompilerWithASTImport &&
-		m_options.input.mode != InputMode::ZVMAssemblerJSON &&
+		m_options.input.mode != InputMode::QRVMAssemblerJSON &&
 		m_options.input.mode != InputMode::Assembler
 	)
 	{
@@ -1179,13 +1179,13 @@ void CommandLineParser::processArgs()
 	if (m_options.input.mode == InputMode::Linker)
 		return;
 
-	if (m_args.count(g_strZVMVersion))
+	if (m_args.count(g_strQRVMVersion))
 	{
-		std::string versionOptionStr = m_args[g_strZVMVersion].as<std::string>();
-		std::optional<langutil::ZVMVersion> versionOption = langutil::ZVMVersion::fromString(versionOptionStr);
+		std::string versionOptionStr = m_args[g_strQRVMVersion].as<std::string>();
+		std::optional<langutil::QRVMVersion> versionOption = langutil::QRVMVersion::fromString(versionOptionStr);
 		if (!versionOption)
-			hypThrow(CommandLineValidationError, "Invalid option for --" + g_strZVMVersion + ": " + versionOptionStr);
-		m_options.output.zvmVersion = *versionOption;
+			hypThrow(CommandLineValidationError, "Invalid option for --" + g_strQRVMVersion + ": " + versionOptionStr);
+		m_options.output.qrvmVersion= *versionOption;
 	}
 
 	if (m_args.count(g_strNoOptimizeYul) > 0 && m_args.count(g_strOptimizeYul) > 0)
@@ -1194,7 +1194,7 @@ void CommandLineParser::processArgs()
 			"Options --" + g_strOptimizeYul + " and --" + g_strNoOptimizeYul + " cannot be used together."
 		);
 
-	m_options.optimizer.optimizeZvmasm = (m_args.count(g_strOptimize) > 0);
+	m_options.optimizer.optimizeQrvmasm = (m_args.count(g_strOptimize) > 0);
 	m_options.optimizer.optimizeYul = (
 		(m_args.count(g_strOptimize) > 0 && m_args.count(g_strNoOptimizeYul) == 0) ||
 		m_args.count(g_strOptimizeYul) > 0
@@ -1248,21 +1248,21 @@ void CommandLineParser::processArgs()
 		if (m_args.count(g_strMachine))
 		{
 			std::string machine = m_args[g_strMachine].as<std::string>();
-			if (machine == g_strZVM)
-				m_options.assembly.targetMachine = Machine::ZVM;
+			if (machine == g_strQRVM)
+				m_options.assembly.targetMachine = Machine::QRVM;
 			else
 				hypThrow(CommandLineValidationError, "Invalid option for --" + g_strMachine + ": " + machine);
 		}
 		if (m_args.count(g_strYulDialect))
 		{
 			std::string dialect = m_args[g_strYulDialect].as<std::string>();
-			if (dialect == g_strZVM)
+			if (dialect == g_strQRVM)
 				m_options.assembly.inputLanguage = Input::StrictAssembly;
 			else
 				hypThrow(CommandLineValidationError, "Invalid option for --" + g_strYulDialect + ": " + dialect);
 		}
 		if (
-				(m_options.optimizer.optimizeZvmasm || m_options.optimizer.optimizeYul) &&
+				(m_options.optimizer.optimizeQrvmasm || m_options.optimizer.optimizeYul) &&
 				m_options.assembly.inputLanguage != Input::StrictAssembly
 			)
 			hypThrow(
@@ -1406,7 +1406,7 @@ void CommandLineParser::processArgs()
 	hypAssert(
 		m_options.input.mode == InputMode::Compiler ||
 		m_options.input.mode == InputMode::CompilerWithASTImport ||
-		m_options.input.mode == InputMode::ZVMAssemblerJSON
+		m_options.input.mode == InputMode::QRVMAssemblerJSON
 	);
 }
 
@@ -1424,7 +1424,7 @@ void CommandLineParser::parseCombinedJsonOption()
 	for (auto&& [componentName, component]: CombinedJsonRequests::componentMap())
 		m_options.compiler.combinedJsonRequests.value().*component = (requests.count(componentName) > 0);
 
-	if (m_options.input.mode == InputMode::ZVMAssemblerJSON && m_options.compiler.combinedJsonRequests.has_value())
+	if (m_options.input.mode == InputMode::QRVMAssemblerJSON && m_options.compiler.combinedJsonRequests.has_value())
 	{
 		static bool CombinedJsonRequests::* invalidOptions[]{
 			&CombinedJsonRequests::abi,
@@ -1445,7 +1445,7 @@ void CommandLineParser::parseCombinedJsonOption()
 				hypThrow(
 					CommandLineValidationError,
 					fmt::format(
-						"The --{} {} output is not available in ZVM assembly import mode.",
+						"The --{} {} output is not available in QRVM assembly import mode.",
 						g_strCombinedJson,
 						CombinedJsonRequests::componentName(invalidOption)
 					)

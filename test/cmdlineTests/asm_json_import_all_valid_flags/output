@@ -55,7 +55,7 @@ Binary:
 5ffe
 Binary of the runtime part:
 6001
-ZVM assembly:
+QRVM assembly:
 {
     ".code":
     [

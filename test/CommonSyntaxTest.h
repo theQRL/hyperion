@@ -52,10 +52,10 @@ struct SyntaxTestError
 };
 
 
-class CommonSyntaxTest: public frontend::test::ZVMVersionRestrictedTestCase
+class CommonSyntaxTest: public frontend::test::QRVMVersionRestrictedTestCase
 {
 public:
-	CommonSyntaxTest(std::string const& _filename, langutil::ZVMVersion _zvmVersion);
+	CommonSyntaxTest(std::string const& _filename, langutil::QRVMVersion _qrvmVersion);
 
 	TestResult run(std::ostream& _stream, std::string const& _linePrefix = "", bool _formatted = false) override;
 
@@ -98,7 +98,7 @@ protected:
 	frontend::test::SourceMap m_sources;
 	std::vector<SyntaxTestError> m_expectations;
 	std::vector<SyntaxTestError> m_errorList;
-	langutil::ZVMVersion const m_zvmVersion;
+	langutil::QRVMVersion const m_qrvmVersion;
 };
 
 }

@@ -11,7 +11,7 @@
 	{
 		"outputSelection":
 		{
-			"*": { "*": ["zvm.methodIdentifiers"] }
+			"*": { "*": ["qrvm.methodIdentifiers"] }
 		}
 	}
 }

@@ -8,12 +8,12 @@
 	"settings": {
 		"libraries": {
 			"contract/test\".hyp": {
-				"L": "Z1234567890123456789012345678901234567890"
+				"L": "Q1234567890123456789012345678901234567890"
 			}
 		},
 		"outputSelection": {
 			"*": {
-				"*": ["zvm.bytecode.object", "zvm.bytecode.linkReferences"]
+				"*": ["qrvm.bytecode.object", "qrvm.bytecode.linkReferences"]
 			}
 		}
 	}

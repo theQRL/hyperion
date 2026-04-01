@@ -33,11 +33,11 @@ namespace hyperion::util
 {
 
 #if defined(_MSC_VER)
-#define ZOND_FUNC __FUNCSIG__
+#define QRL_FUNC __FUNCSIG__
 #elif defined(__GNUC__)
-#define ZOND_FUNC __PRETTY_FUNCTION__
+#define QRL_FUNC __PRETTY_FUNCTION__
 #else
-#define ZOND_FUNC __func__
+#define QRL_FUNC __func__
 #endif
 
 #if defined(__GNUC__)

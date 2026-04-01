@@ -24,14 +24,14 @@ and the extraBalance accounts.
 abstract contract ManagedAccountInterface {
     // The only address with permission to withdraw from this account
     address public owner;
-    // If true, only the owner of the account can receive ether from it
+    // If true, only the owner of the account can receive quanta from it
     bool public payOwnerOnly;
-    // The sum of ether (in wei) which has been sent to this contract
+    // The sum of quanta (in planck) which has been sent to this contract
     uint public accumulatedInput;
 
-    /// @notice Sends `_amount` of wei to _recipient
-    /// @param _amount The amount of wei to send to `_recipient`
-    /// @param _recipient The address to receive `_amount` of wei
+    /// @notice Sends `_amount` of planck to _recipient
+    /// @param _amount The amount of planck to send to `_recipient`
+    /// @param _recipient The address to receive `_amount` of planck
     /// @return True if the send completed
     function payOut(address payable _recipient, uint _amount) public virtual returns (bool);
 
@@ -48,7 +48,7 @@ contract ManagedAccount is ManagedAccountInterface{
     }
 
     // When the contract receives a transaction without data this is called.
-    // It counts the amount of ether it receives and stores it in
+    // It counts the amount of quanta it receives and stores it in
     // accumulatedInput.
     receive() external payable {
         accumulatedInput += msg.value;

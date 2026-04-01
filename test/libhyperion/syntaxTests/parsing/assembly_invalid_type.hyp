@@ -4,4 +4,4 @@ contract C {
   }
 }
 // ----
-// ParserError 4531: (55-64): Only "zvmasm" supported.
+// ParserError 4531: (55-64): Only "qrvmasm" supported.

@@ -32,7 +32,7 @@
 #include <libhyperion/ast/TypeProvider.h>
 #include <libhyperion/ast/ASTUtils.h>
 
-#include <libzvmasm/GasMeter.h>
+#include <libqrvmasm/GasMeter.h>
 
 #include <libyul/AsmPrinter.h>
 #include <libyul/AST.h>
@@ -81,7 +81,7 @@ struct CopyTranslate: public yul::ASTCopier
 		// Strictly, the dialect used by inline assembly (m_dialect) could be different
 		// from the Yul dialect we are compiling to. So we are assuming here that the builtin
 		// functions are identical. This should not be a problem for now since everything
-		// is ZVM anyway.
+		// is QRVM anyway.
 		if (m_dialect.builtin(_name))
 			return _name;
 		else
@@ -1046,7 +1046,7 @@ void IRGeneratorForStatements::endVisit(FunctionCall const& _functionCall)
 	{
 		auto const& event = dynamic_cast<EventDefinition const&>(functionType->declaration());
 		TypePointers paramTypes = functionType->parameterTypes();
-		ABIFunctions abi(m_context.zvmVersion(), m_context.revertStrings(), m_context.functionCollector());
+		ABIFunctions abi(m_context.qrvmVersion(), m_context.revertStrings(), m_context.functionCollector());
 
 		std::vector<IRVariable> indexedArgs;
 		std::vector<std::string> nonIndexedArgs;
@@ -1583,7 +1583,7 @@ void IRGeneratorForStatements::endVisit(FunctionCall const& _functionCall)
 			</isTransfer>
 		)");
 		templ("gas", m_context.newYulVariable());
-		templ("callStipend", toString(zvmasm::GasCosts::callStipend));
+		templ("callStipend", toString(qrvmasm::GasCosts::callStipend));
 		templ("address", address);
 		templ("value", value);
 		if (functionType->kind() == FunctionType::Kind::Transfer)
@@ -2688,7 +2688,7 @@ void IRGeneratorForStatements::appendBareCall(
 	else
 	{
 		templ("needsEncoding", true);
-		ABIFunctions abi(m_context.zvmVersion(), m_context.revertStrings(), m_context.functionCollector());
+		ABIFunctions abi(m_context.qrvmVersion(), m_context.revertStrings(), m_context.functionCollector());
 		templ("encode", abi.tupleEncoderPacked({&argType}, {TypeProvider::bytesMemory()}));
 	}
 

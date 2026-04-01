@@ -48,10 +48,10 @@ function chainlink_test
     local settings_presets=(
         "${compile_only_presets[@]}"
         #ir-no-optimize           # Compilation fails with "YulException: Variable expr_10724_mpos is 2 too deep in the stack". No memoryguard was present.
-        #ir-optimize-zvm-only     # Compilation fails with "YulException: Variable expr_1891_mpos is 2 too deep in the stack". No memoryguard was present.
-        ir-optimize-zvm+yul
-        legacy-optimize-zvm-only  # NOTE: This requires >= 4 GB RAM in CI not to crash
-        legacy-optimize-zvm+yul   # NOTE: This requires >= 4 GB RAM in CI not to crash
+        #ir-optimize-qrvm-only     # Compilation fails with "YulException: Variable expr_1891_mpos is 2 too deep in the stack". No memoryguard was present.
+        ir-optimize-qrvm+yul
+        legacy-optimize-qrvm-only  # NOTE: This requires >= 4 GB RAM in CI not to crash
+        legacy-optimize-qrvm+yul   # NOTE: This requires >= 4 GB RAM in CI not to crash
     )
 
     [[ $SELECTED_PRESETS != "" ]] || SELECTED_PRESETS=$(circleci_select_steps_multiarg "${settings_presets[@]}")

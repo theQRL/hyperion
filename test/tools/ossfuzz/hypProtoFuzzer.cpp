@@ -17,17 +17,17 @@
 // SPDX-License-Identifier: GPL-3.0
 
 #include <test/tools/ossfuzz/protoToHyp.h>
-#include <test/tools/ossfuzz/HyperionZvmoneInterface.h>
+#include <test/tools/ossfuzz/HyperionQrvmoneInterface.h>
 #include <test/tools/ossfuzz/hypProto.pb.h>
 
-#include <test/ZVMHost.h>
+#include <test/QRVMHost.h>
 
-#include <zvmone/zvmone.h>
+#include <qrvmone/qrvmone.h>
 #include <src/libfuzzer/libfuzzer_macro.h>
 
 #include <fstream>
 
-static zvmc::VM zvmone = zvmc::VM{zvmc_create_zvmone()};
+static qrvmc::VM qrvmone = qrvmc::VM{qrvmc_create_qrvmone()};
 
 using namespace hyperion::test::fuzzer;
 using namespace hyperion::test::hypprotofuzzer;
@@ -63,26 +63,26 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 		std::cout << hyp_source << std::endl;
 	}
 
-	// We target the default ZVM which is the latest
-	langutil::ZVMVersion version;
-	ZVMHost hostContext(version, zvmone);
+	// We target the default QRVM which is the latest
+	langutil::QRVMVersion version;
+	QRVMHost hostContext(version, qrvmone);
 	string contractName = "C";
 	string libraryName = converter.libraryTest() ? converter.libraryName() : "";
 	string methodName = "test()";
 	StringMap source({{"test.hyp", hyp_source}});
 	CompilerInput cInput(version, source, contractName, OptimiserSettings::minimal(), {});
-	ZvmoneUtility zvmoneUtil(
+	QrvmoneUtility qrvmoneUtil(
 		hostContext,
 		cInput,
 		contractName,
 		libraryName,
 		methodName
 	);
-	auto minimalResult = zvmoneUtil.compileDeployAndExecute();
-	hypAssert(minimalResult.status_code != ZVMC_REVERT, "Hyp proto fuzzer: Zvmone reverted.");
-	if (minimalResult.status_code == ZVMC_SUCCESS)
+	auto minimalResult = qrvmoneUtil.compileDeployAndExecute();
+	hypAssert(minimalResult.status_code != QRVMC_REVERT, "Hyp proto fuzzer: Qrvmone reverted.");
+	if (minimalResult.status_code == QRVMC_SUCCESS)
 		hypAssert(
-			ZvmoneUtility::zeroWord(minimalResult.output_data, minimalResult.output_size),
+			QrvmoneUtility::zeroWord(minimalResult.output_data, minimalResult.output_size),
 			"Proto hypc fuzzer: Output incorrect"
 		);
 }

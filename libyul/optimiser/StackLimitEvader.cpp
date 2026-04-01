@@ -21,8 +21,8 @@
 #include <libyul/optimiser/NameDispenser.h>
 #include <libyul/optimiser/NameCollector.h>
 #include <libyul/optimiser/StackToMemoryMover.h>
-#include <libyul/backends/zvm/ControlFlowGraphBuilder.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/ControlFlowGraphBuilder.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AST.h>
 #include <libyul/CompilabilityChecker.h>
@@ -122,15 +122,15 @@ void StackLimitEvader::run(
 	Object& _object
 )
 {
-	auto const* zvmDialect = dynamic_cast<ZVMDialect const*>(&_context.dialect);
+	auto const* qrvmDialect = dynamic_cast<QRVMDialect const*>(&_context.dialect);
 	yulAssert(
-		zvmDialect && zvmDialect->providesObjectAccess(),
-		"StackLimitEvader can only be run on objects using the ZVMDialect with object access."
+		qrvmDialect && qrvmDialect->providesObjectAccess(),
+		"StackLimitEvader can only be run on objects using the QRVMDialect with object access."
 	);
-	if (zvmDialect)
+	if (qrvmDialect)
 	{
-		yul::AsmAnalysisInfo analysisInfo = yul::AsmAnalyzer::analyzeStrictAssertCorrect(*zvmDialect, _object);
-		std::unique_ptr<CFG> cfg = ControlFlowGraphBuilder::build(analysisInfo, *zvmDialect, *_object.code);
+		yul::AsmAnalysisInfo analysisInfo = yul::AsmAnalyzer::analyzeStrictAssertCorrect(*qrvmDialect, _object);
+		std::unique_ptr<CFG> cfg = ControlFlowGraphBuilder::build(analysisInfo, *qrvmDialect, *_object.code);
 		run(_context, _object, StackLayoutGenerator::reportStackTooDeep(*cfg));
 	}
 	else
@@ -168,10 +168,10 @@ void StackLimitEvader::run(
 )
 {
 	yulAssert(_object.code, "");
-	auto const* zvmDialect = dynamic_cast<ZVMDialect const*>(&_context.dialect);
+	auto const* qrvmDialect = dynamic_cast<QRVMDialect const*>(&_context.dialect);
 	yulAssert(
-		zvmDialect && zvmDialect->providesObjectAccess(),
-		"StackLimitEvader can only be run on objects using the ZVMDialect with object access."
+		qrvmDialect && qrvmDialect->providesObjectAccess(),
+		"StackLimitEvader can only be run on objects using the QRVMDialect with object access."
 	);
 
 	std::vector<FunctionCall*> memoryGuardCalls = FunctionCallFinder::run(

@@ -86,7 +86,7 @@ private:
 	/// Checks base contracts for ABI compatibility
 	void checkBaseABICompatibility(ContractDefinition const& _contract);
 
-	/// Warns if the contract has a payable fallback, but no receive ether function.
+	/// Warns if the contract has a payable fallback, but no receive quanta function.
 	void checkPayableFallbackWithoutReceive(ContractDefinition const& _contract);
 	/// Error if the contract requires too much storage
 	void checkStorageSize(ContractDefinition const& _contract);

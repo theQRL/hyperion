@@ -58,13 +58,13 @@ std::ostream& hyperion::frontend::test::operator<<(std::ostream& _output, Requir
 
 SemanticTest::SemanticTest(
 	std::string const& _filename,
-	langutil::ZVMVersion _zvmVersion,
+	langutil::QRVMVersion _qrvmVersion,
 	std::vector<boost::filesystem::path> const& _vmPaths,
 	bool _enforceGasCost,
 	u256 _enforceGasCostMinValue
 ):
-	HyperionExecutionFramework(_zvmVersion, _vmPaths, false),
-	ZVMVersionRestrictedTestCase(_filename),
+	HyperionExecutionFramework(_qrvmVersion, _vmPaths, false),
+	QRVMVersionRestrictedTestCase(_filename),
 	m_sources(m_reader.sources()),
 	m_lineOffset(m_reader.lineNumber()),
 	m_builtins(makeBuiltins()),
@@ -247,7 +247,7 @@ std::vector<std::string> SemanticTest::eventSideEffectHook(FunctionCall const&) 
 			sideEffect << "<anonymous>";
 
 		if (m_contractAddress != log.creator)
-			sideEffect << " from Z" << log.creator;
+			sideEffect << " from Q" << log.creator;
 
 		std::vector<std::string> eventStrings;
 		size_t index{0};
@@ -337,7 +337,7 @@ TestCase::TestResult SemanticTest::run(std::ostream& _stream, std::string const&
 		hyperion::test::CommonOptions::get().printSelectedOptions(
 			_stream,
 			_linePrefix,
-			{"zvmVersion", "optimize", "useABIEncoderV1", "batch"}
+			{"qrvmVersion", "optimize", "useABIEncoderV1", "batch"}
 		);
 
 	return result;
@@ -353,7 +353,7 @@ TestCase::TestResult SemanticTest::runTest(
 	bool success = true;
 	m_gasCostFailure = false;
 
-	selectVM(zvmc_capabilities::ZVMC_CAPABILITY_ZVM1);
+	selectVM(qrvmc_capabilities::QRVMC_CAPABILITY_QRVM1);
 
 	reset();
 

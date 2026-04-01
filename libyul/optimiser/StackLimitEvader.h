@@ -22,7 +22,7 @@
 #pragma once
 
 #include <libyul/optimiser/OptimiserStep.h>
-#include <libyul/backends/zvm/StackLayoutGenerator.h>
+#include <libyul/backends/qrvm/StackLayoutGenerator.h>
 
 namespace hyperion::yul
 {
@@ -53,7 +53,7 @@ class StackLimitEvader
 {
 public:
 	/// @a _unreachableVariables can be determined by the CompilabilityChecker.
-	/// Can only be run on the ZVM dialect with objects.
+	/// Can only be run on the QRVM dialect with objects.
 	/// Abort and do nothing, if no ``memoryguard`` call or several ``memoryguard`` calls
 	/// with non-matching arguments are found, or if any of the @a _unreachableVariables
 	/// are contained in a recursive function.
@@ -63,7 +63,7 @@ public:
 		std::map<YulString, std::vector<YulString>> const& _unreachableVariables
 	);
 	/// @a _stackTooDeepErrors can be determined by the StackLayoutGenerator.
-	/// Can only be run on the ZVM dialect with objects.
+	/// Can only be run on the QRVM dialect with objects.
 	/// Abort and do nothing, if no ``memoryguard`` call or several ``memoryguard`` calls
 	/// with non-matching arguments are found, or if any of the @a _stackTooDeepErrors
 	/// are contained in a recursive function.
@@ -73,7 +73,7 @@ public:
 		std::map<YulString, std::vector<StackLayoutGenerator::StackTooDeep>> const& _stackTooDeepErrors
 	);
 	/// Determines stack too deep errors using the appropriate code generation backend.
-	/// Can only be run on the ZVM dialect with objects.
+	/// Can only be run on the QRVM dialect with objects.
 	/// Abort and do nothing, if no ``memoryguard`` call or several ``memoryguard`` calls
 	/// with non-matching arguments are found, or if any of the unreachable variables
 	/// are contained in a recursive function.

@@ -1,9 +1,0 @@
-{
-	"language": "Hyperion",
-	"sources": {
-		"input.hyp": {"content": "// SPDX-License-Identifier: GPL-3.0\npragma hyperion *;"}
-	},
-	"settings": {
-		"zvmVersion": "shanghai"
-	}
-}

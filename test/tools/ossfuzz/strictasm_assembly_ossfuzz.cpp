@@ -17,10 +17,10 @@
 // SPDX-License-Identifier: GPL-3.0
 
 #include <libyul/YulStack.h>
-#include <libyul/backends/zvm/ZVMCodeTransform.h>
+#include <libyul/backends/qrvm/QRVMCodeTransform.h>
 
 #include <liblangutil/DebugInfoSelection.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 using namespace hyperion;
 using namespace hyperion::yul;
@@ -38,7 +38,7 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t const* _data, size_t _size)
 
 	string input(reinterpret_cast<char const*>(_data), _size);
 	YulStack stack(
-		langutil::ZVMVersion(),
+		langutil::QRVMVersion(),
 		YulStack::Language::StrictAssembly,
 		hyperion::frontend::OptimiserSettings::minimal(),
 		langutil::DebugInfoSelection::All()
@@ -49,7 +49,7 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t const* _data, size_t _size)
 
 	try
 	{
-		MachineAssemblyObject obj = stack.assemble(YulStack::Machine::ZVM);
+		MachineAssemblyObject obj = stack.assemble(YulStack::Machine::QRVM);
 		hypAssert(obj.bytecode, "");
 	}
 	catch (StackTooDeepError const&)

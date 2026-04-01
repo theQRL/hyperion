@@ -26,7 +26,7 @@
 #include <libyul/optimiser/CallGraphGenerator.h>
 #include <libyul/optimiser/Semantics.h>
 #include <libyul/Object.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 #include <libhyputil/StringUtils.h>
 
@@ -89,7 +89,7 @@ TestCase::TestResult FunctionSideEffects::run(ostream& _stream, string const& _l
 		BOOST_THROW_EXCEPTION(runtime_error("Parsing input failed."));
 
 	map<YulString, SideEffects> functionSideEffects = SideEffectsPropagator::sideEffects(
-		ZVMDialect::strictAssemblyForZVMObjects(langutil::ZVMVersion()),
+		QRVMDialect::strictAssemblyForQRVMObjects(langutil::QRVMVersion()),
 		CallGraphGenerator::callGraph(*obj.code)
 	);
 

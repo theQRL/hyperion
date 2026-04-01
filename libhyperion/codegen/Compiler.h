@@ -18,7 +18,7 @@
 /**
  * @author Christian <c@ethdev.com>
  * @date 2014
- * Hyperion AST to ZVM bytecode compiler.
+ * Hyperion AST to QRVM bytecode compiler.
  */
 
 #pragma once
@@ -26,8 +26,8 @@
 #include <libhyperion/codegen/CompilerContext.h>
 #include <libhyperion/interface/OptimiserSettings.h>
 #include <libhyperion/interface/DebugSettings.h>
-#include <liblangutil/ZVMVersion.h>
-#include <libzvmasm/Assembly.h>
+#include <liblangutil/QRVMVersion.h>
+#include <libqrvmasm/Assembly.h>
 #include <functional>
 #include <ostream>
 
@@ -37,10 +37,10 @@ namespace hyperion::frontend
 class Compiler
 {
 public:
-	Compiler(langutil::ZVMVersion _zvmVersion, RevertStrings _revertStrings, OptimiserSettings _optimiserSettings):
+	Compiler(langutil::QRVMVersion _qrvmVersion, RevertStrings _revertStrings, OptimiserSettings _optimiserSettings):
 		m_optimiserSettings(std::move(_optimiserSettings)),
-		m_runtimeContext(_zvmVersion, _revertStrings),
-		m_context(_zvmVersion, _revertStrings, &m_runtimeContext)
+		m_runtimeContext(_qrvmVersion, _revertStrings),
+		m_context(_qrvmVersion, _revertStrings, &m_runtimeContext)
 	{ }
 
 	/// Compiles a contract.
@@ -51,13 +51,13 @@ public:
 		bytes const& _metadata
 	);
 	/// @returns Entire assembly.
-	zvmasm::Assembly const& assembly() const { return m_context.assembly(); }
+	qrvmasm::Assembly const& assembly() const { return m_context.assembly(); }
 	/// @returns Runtime assembly.
-	zvmasm::Assembly const& runtimeAssembly() const { return m_context.assembly().sub(m_runtimeSub); }
+	qrvmasm::Assembly const& runtimeAssembly() const { return m_context.assembly().sub(m_runtimeSub); }
 	/// @returns Entire assembly as a shared pointer to non-const.
-	std::shared_ptr<zvmasm::Assembly> assemblyPtr() const { return m_context.assemblyPtr(); }
+	std::shared_ptr<qrvmasm::Assembly> assemblyPtr() const { return m_context.assemblyPtr(); }
 	/// @returns Runtime assembly as a shared pointer.
-	std::shared_ptr<zvmasm::Assembly> runtimeAssemblyPtr() const;
+	std::shared_ptr<qrvmasm::Assembly> runtimeAssemblyPtr() const;
 
 	std::string generatedYulUtilityCode() const { return m_context.generatedYulUtilityCode(); }
 	std::string runtimeGeneratedYulUtilityCode() const { return m_runtimeContext.generatedYulUtilityCode(); }

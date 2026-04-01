@@ -37,10 +37,10 @@ namespace hyperion::frontend
 
 NameAndTypeResolver::NameAndTypeResolver(
 	GlobalContext& _globalContext,
-	langutil::ZVMVersion _zvmVersion,
+	langutil::QRVMVersion _qrvmVersion,
 	ErrorReporter& _errorReporter
 ):
-	m_zvmVersion(_zvmVersion),
+	m_qrvmVersion(_qrvmVersion),
 	m_errorReporter(_errorReporter),
 	m_globalContext(_globalContext)
 {
@@ -345,7 +345,7 @@ bool NameAndTypeResolver::resolveNamesAndTypesInternal(ASTNode& _node, bool _res
 	{
 		if (m_scopes.count(&_node))
 			setScope(&_node);
-		return ReferencesResolver(m_errorReporter, *this, m_zvmVersion, _resolveInsideCode).resolve(_node);
+		return ReferencesResolver(m_errorReporter, *this, m_qrvmVersion, _resolveInsideCode).resolve(_node);
 	}
 }
 

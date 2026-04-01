@@ -10,7 +10,7 @@
 	"settings":
 	{
 		"optimizer": 1,
-		"zvmVersion": "shanghai",
+		"qrvmVersion": "zond",
 		"metadata": {
 			"useLiteralContent": true
 		}

@@ -148,7 +148,7 @@ large enough to hold the result and prepare for potential assertion failures or 
   In any case, gas cost tests and the use of the optimizer are advisable.
 
 .. note::
-  Note that ``0**0`` is defined by the ZVM as ``1``.
+  Note that ``0**0`` is defined by the QRVM as ``1``.
 
 .. index:: ! ufixed, ! fixed, ! fixed point number
 
@@ -183,12 +183,12 @@ Address
 
 The address type comes in two largely identical flavors:
 
-- ``address``: Holds a 20 byte value (size of an Ethereum address).
+- ``address``: Holds a 20 byte value (size of a QRL address).
 - ``address payable``: Same as ``address``, but with the additional members ``transfer`` and ``send``.
 
-The idea behind this distinction is that ``address payable`` is an address you can send Ether to,
-while you are not supposed to send Ether to a plain ``address``, for example because it might be a smart contract
-that was not built to accept Ether.
+The idea behind this distinction is that ``address payable`` is an address you can send Quanta to,
+while you are not supposed to send Quanta to a plain ``address``, for example because it might be a smart contract
+that was not built to accept Quanta.
 
 Type conversions:
 
@@ -200,12 +200,12 @@ Explicit conversions to and from ``address`` are allowed for ``uint160``, intege
 
 Only expressions of type ``address`` and contract-type can be converted to the type ``address
 payable`` via the explicit conversion ``payable(...)``. For contract-type, this conversion is only
-allowed if the contract can receive Ether, i.e., the contract either has a :ref:`receive
-<receive-ether-function>` or a payable fallback function. Note that ``payable(0)`` is valid and is
+allowed if the contract can receive Quanta, i.e., the contract either has a :ref:`receive
+<receive-quanta-function>` or a payable fallback function. Note that ``payable(0)`` is valid and is
 an exception to this rule.
 
 .. note::
-    If you need a variable of type ``address`` and plan to send Ether to it, then
+    If you need a variable of type ``address`` and plan to send Quanta to it, then
     declare its type as ``address payable`` to make this requirement visible. Also,
     try to make this distinction or conversion as early as possible.
 
@@ -223,8 +223,8 @@ Operators:
     To reduce conversion ambiguity, starting with version 0.4.24, the compiler will force you to make the truncation explicit in the conversion.
     Take for example the 32-byte value ``0x111122223333444455556666777788889999AAAABBBBCCCCDDDDEEEEFFFFCCCC``.
 
-    You can use ``address(uint160(bytes20(b)))``, which results in ``Z111122223333444455556666777788889999aAaa``,
-    or you can use ``address(uint160(uint256(b)))``, which results in ``Z777788889999AaAAbBbbCcccddDdeeeEfFFfCcCc``.
+    You can use ``address(uint160(bytes20(b)))``, which results in ``Q111122223333444455556666777788889999aAaa``,
+    or you can use ``address(uint160(uint256(b)))``, which results in ``Q777788889999AaAAbBbbCcccddDdeeeEfFFfCcCc``.
 
 .. note::
     Mixed-case hexadecimal numbers conforming to `EIP-55 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md>`_ are automatically treated as literals of the ``address`` type. See :ref:`Address Literals<address_literals>`.
@@ -239,7 +239,7 @@ For a quick reference of all members of address, see :ref:`address_related`.
 * ``balance`` and ``transfer``
 
 It is possible to query the balance of an address using the property ``balance``
-and to send Ether (in units of wei) to a payable address using the ``transfer`` function:
+and to send Quanta (in units of planck) to a payable address using the ``transfer`` function:
 
 .. code-block:: hyperion
     :force:
@@ -249,11 +249,11 @@ and to send Ether (in units of wei) to a payable address using the ``transfer`` 
     if (x.balance < 10 && myAddress.balance >= 10) x.transfer(10);
 
 The ``transfer`` function fails if the balance of the current contract is not large enough
-or if the Ether transfer is rejected by the receiving account. The ``transfer`` function
+or if the Quanta transfer is rejected by the receiving account. The ``transfer`` function
 reverts on failure.
 
 .. note::
-    If ``x`` is a contract address, its code (more specifically: its :ref:`receive-ether-function`, if present, or otherwise its :ref:`fallback-function`, if present) will be executed together with the ``transfer`` call (this is a feature of the ZVM and cannot be prevented). If that execution runs out of gas or fails in any way, the Ether transfer will be reverted and the current contract will stop with an exception.
+    If ``x`` is a contract address, its code (more specifically: its :ref:`receive-quanta-function`, if present, or otherwise its :ref:`fallback-function`, if present) will be executed together with the ``transfer`` call (this is a feature of the QRVM and cannot be prevented). If that execution runs out of gas or fails in any way, the Quanta transfer will be reverted and the current contract will stop with an exception.
 
 * ``send``
 
@@ -262,8 +262,8 @@ reverts on failure.
 .. warning::
     There are some dangers in using ``send``: The transfer fails if the call stack depth is at 1024
     (this can always be forced by the caller) and it also fails if the recipient runs out of gas. So in order
-    to make safe Ether transfers, always check the return value of ``send``, use ``transfer`` or even better:
-    use a pattern where the recipient withdraws the Ether.
+    to make safe Quanta transfers, always check the return value of ``send``, use ``transfer`` or even better:
+    use a pattern where the recipient withdraws the Quanta.
 
 * ``call``, ``delegatecall`` and ``staticcall``
 
@@ -303,17 +303,17 @@ It is possible to adjust the supplied gas with the ``gas`` modifier:
 
     address(nameReg).call{gas: 1000000}(abi.encodeWithSignature("register(string)", "MyName"));
 
-Similarly, the supplied Ether value can be controlled too:
+Similarly, the supplied QRL value can be controlled too:
 
 .. code-block:: hyperion
 
-    address(nameReg).call{value: 1 ether}(abi.encodeWithSignature("register(string)", "MyName"));
+    address(nameReg).call{value: 1 quanta}(abi.encodeWithSignature("register(string)", "MyName"));
 
 Lastly, these modifiers can be combined. Their order does not matter:
 
 .. code-block:: hyperion
 
-    address(nameReg).call{gas: 1000000, value: 1 ether}(abi.encodeWithSignature("register(string)", "MyName"));
+    address(nameReg).call{gas: 1000000, value: 1 quanta}(abi.encodeWithSignature("register(string)", "MyName"));
 
 In a similar way, the function ``delegatecall`` can be used: the difference is that only the code of the given address is used, all other aspects (storage, balance, ...) are taken from the current contract. The purpose of ``delegatecall`` is to use library code which is stored in another contract. The user has to ensure that the layout of storage in both contracts is suitable for delegatecall to be used.
 
@@ -331,7 +331,7 @@ on ``call``.
 
 * ``code`` and ``codehash``
 
-You can query the deployed code for any smart contract. Use ``.code`` to get the ZVM bytecode as a
+You can query the deployed code for any smart contract. Use ``.code`` to get the QRVM bytecode as a
 ``bytes memory``, which might be empty. Use ``.codehash`` to get the Keccak-256 hash of that code
 (as a ``bytes32``). Note that ``addr.codehash`` is cheaper than using ``keccak256(addr.code)``.
 
@@ -428,7 +428,7 @@ Address Literals
 ----------------
 
 Address literals that pass the address checksum test, for example
-``ZdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF`` are of ``address`` type.
+``QdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF`` are of ``address`` type.
 Address literals that do not pass the checksum test produce
 an error.
 
@@ -613,7 +613,7 @@ smallest and respectively largest value of the given enum.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.8;
+    pragma hyperion >=0.1.0;
 
     contract test {
         enum ActionChoices { GoLeft, GoRight, GoStraight, SitStill }
@@ -676,7 +676,7 @@ type with 18 decimals and a minimal library to do arithmetic operations on the t
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.8;
+    pragma hyperion >=0.1.0;
 
     // Represent a 18 decimal, 256 bit wide fixed point type using a user-defined value type.
     type UFixed256x18 is uint256;
@@ -765,19 +765,19 @@ No other conversions between function types are possible.
 
 The rule about ``payable`` and ``non-payable`` might be a little
 confusing, but in essence, if a function is ``payable``, this means that it
-also accepts a payment of zero Ether, so it also is ``non-payable``.
-On the other hand, a ``non-payable`` function will reject Ether sent to it,
+also accepts a payment of zero Quanta, so it also is ``non-payable``.
+On the other hand, a ``non-payable`` function will reject Quanta sent to it,
 so ``non-payable`` functions cannot be converted to ``payable`` functions.
-To clarify, rejecting ether is more restrictive than not rejecting ether.
+To clarify, rejecting quanta is more restrictive than not rejecting quanta.
 This means you can override a payable function with a non-payable but not the
 other way around.
 
 Additionally, When you define a ``non-payable`` function pointer,
-the compiler does not enforce that the pointed function will actually reject ether.
-Instead, it enforces that the function pointer is never used to send ether.
+the compiler does not enforce that the pointed function will actually reject quanta.
+Instead, it enforces that the function pointer is never used to send quanta.
 Which makes it possible to assign a ``payable`` function pointer to a ``non-payable``
 function pointer ensuring both types behave the same way, i.e, both cannot be used
-to send ether.
+to send quanta.
 
 If a function type variable is not initialised, calling it results
 in a :ref:`Panic error<assert-and-require>`. The same happens if you call a function after using ``delete``
@@ -825,7 +825,7 @@ Example that shows how to use the members:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.4 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Example {
         function f() public payable returns (bytes4) {
@@ -843,7 +843,7 @@ Example that shows how to use internal function types:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.16 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     library ArrayUtils {
         // internal functions can be used in internal library functions because
@@ -903,7 +903,7 @@ Another example that uses external function types:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.22 <0.9.0;
+    pragma hyperion >=0.1.0;
 
 
     contract Oracle {
@@ -928,7 +928,7 @@ Another example that uses external function types:
 
 
     contract OracleUser {
-        Oracle constant private ORACLE_CONST = Oracle(Z00000000219ab540356cBB839Cbe05303d7705Fa); // known contract
+        Oracle constant private ORACLE_CONST = Oracle(Q00000000219ab540356cBB839Cbe05303d7705Fa); // known contract
         uint private exchangeRate;
 
         function buySomething() public {

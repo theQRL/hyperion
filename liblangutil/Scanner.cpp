@@ -709,7 +709,7 @@ void Scanner::scanToken()
 		case '~':
 			token = selectToken(Token::BitNot);
 			break;
-		case 'Z':
+		case 'Q':
 			// NOTE(rgeraldes24): address literal exception: if not exactly 40 
 			// hex chars it will fallthrough and go through the identifier flow
 			if (scanAddress()) {

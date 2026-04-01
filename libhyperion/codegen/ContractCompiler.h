@@ -26,7 +26,7 @@
 #include <libhyperion/ast/ASTVisitor.h>
 #include <libhyperion/codegen/CompilerContext.h>
 #include <libhyperion/interface/DebugSettings.h>
-#include <libzvmasm/Assembly.h>
+#include <libqrvmasm/Assembly.h>
 #include <functional>
 #include <ostream>
 #include <map>
@@ -90,9 +90,9 @@ private:
 	/// Appends the function selector. Is called recursively to create a binary search tree.
 	/// @a _runs the number of intended executions of the contract to tune the split point.
 	void appendInternalSelector(
-		std::map<util::FixedHash<4>, zvmasm::AssemblyItem const> const& _entryPoints,
+		std::map<util::FixedHash<4>, qrvmasm::AssemblyItem const> const& _entryPoints,
 		std::vector<util::FixedHash<4>> const& _ids,
-		zvmasm::AssemblyItem const& _notFoundTag,
+		qrvmasm::AssemblyItem const& _notFoundTag,
 		size_t _runs
 	);
 	void appendFunctionSelector(ContractDefinition const& _contract);
@@ -148,12 +148,12 @@ private:
 	CompilerContext& m_context;
 
 	/// Tag to jump to for a "break" statement and the stack height after freeing the local loop variables.
-	std::vector<std::pair<zvmasm::AssemblyItem, unsigned>> m_breakTags;
+	std::vector<std::pair<qrvmasm::AssemblyItem, unsigned>> m_breakTags;
 	/// Tag to jump to for a "continue" statement and the stack height after freeing the local loop variables.
-	std::vector<std::pair<zvmasm::AssemblyItem, unsigned>> m_continueTags;
+	std::vector<std::pair<qrvmasm::AssemblyItem, unsigned>> m_continueTags;
 	/// Tag to jump to for a "return" statement and the stack height after freeing the local function or modifier variables.
 	/// Needs to be stacked because of modifiers.
-	std::vector<std::pair<zvmasm::AssemblyItem, unsigned>> m_returnTags;
+	std::vector<std::pair<qrvmasm::AssemblyItem, unsigned>> m_returnTags;
 	unsigned m_modifierDepth = 0;
 	FunctionDefinition const* m_currentFunction = nullptr;
 

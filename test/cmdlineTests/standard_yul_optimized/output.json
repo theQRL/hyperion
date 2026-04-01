@@ -16,7 +16,7 @@
     code { { sstore(mload(0), 0) } }
 }
 ",
-                "zvm":
+                "qrvm":
                 {
                     "assembly": "    /* \"A\":17:18   */
   0x00

@@ -27,7 +27,7 @@
 #include <libyul/AST.h>
 #include <libyul/Utilities.h>
 
-#include <libzvmasm/SemanticInformation.h>
+#include <libqrvmasm/SemanticInformation.h>
 
 using namespace hyperion;
 using namespace hyperion::yul;
@@ -46,11 +46,11 @@ void ExpressionSimplifier::visit(Expression& _expression)
 		m_dialect,
 		[this](YulString _var) { return variableValue(_var); }
 	))
-		_expression = match->action().toExpression(debugDataOf(_expression), zvmVersionFromDialect(m_dialect));
+		_expression = match->action().toExpression(debugDataOf(_expression), qrvmVersionFromDialect(m_dialect));
 
 	if (auto* functionCall = std::get_if<FunctionCall>(&_expression))
-		if (std::optional<zvmasm::Instruction> instruction = toZVMInstruction(m_dialect, functionCall->functionName.name))
-			for (auto op: zvmasm::SemanticInformation::readWriteOperations(*instruction))
+		if (std::optional<qrvmasm::Instruction> instruction = toQRVMInstruction(m_dialect, functionCall->functionName.name))
+			for (auto op: qrvmasm::SemanticInformation::readWriteOperations(*instruction))
 				if (op.startParameter && op.lengthParameter)
 				{
 					Expression& startArgument = functionCall->arguments.at(*op.startParameter);

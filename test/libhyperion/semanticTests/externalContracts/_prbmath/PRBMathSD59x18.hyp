@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: WTFPL
-pragma hyperion >=0.8.0;
+pragma hyperion >=0.1.0;
 
 import "./PRBMathCommon.hyp";
 

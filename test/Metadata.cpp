@@ -191,7 +191,7 @@ bool isValidMetadata(Json::Value const& _metadata)
 		!_metadata.isMember("settings") ||
 		!_metadata.isMember("sources") ||
 		!_metadata.isMember("output") ||
-		!_metadata["settings"].isMember("zvmVersion") ||
+		!_metadata["settings"].isMember("qrvmVersion") ||
 		!_metadata["settings"].isMember("metadata") ||
 		!_metadata["settings"]["metadata"].isMember("bytecodeHash")
 	)

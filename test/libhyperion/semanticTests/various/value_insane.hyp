@@ -17,7 +17,7 @@ contract test {
     }
 }
 // ----
-// constructor(), 20 wei ->
+// constructor(), 20 planck ->
 // gas irOptimized: 173271
 // gas legacy: 253820
 // gas legacyOptimized: 180784

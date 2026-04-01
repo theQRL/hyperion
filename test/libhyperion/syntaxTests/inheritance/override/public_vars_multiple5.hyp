@@ -1,10 +1,10 @@
-contract ERC20 {
+contract SQRCTF1 {
   function balanceOf(address, uint) external virtual view returns (uint) {}
   function balanceOf(uint) external virtual view returns (uint) {}
   function balanceOf() external virtual view returns (uint) {}
 }
-contract C is ERC20 {
+contract C is SQRCTF1 {
   mapping(address => uint) public override balanceOf;
 }
 // ----
-// TypeError 7792: (281-289): Public state variable has override specified but does not override anything.
+// TypeError 7792: (285-293): Public state variable has override specified but does not override anything.

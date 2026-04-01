@@ -26,11 +26,11 @@
 #include <libyul/Dialect.h>
 #include <libyul/YulString.h>
 #include <libyul/optimiser/ASTWalker.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 #include <optional>
 
-namespace hyperion::zvmasm
+namespace hyperion::qrvmasm
 {
 enum class Instruction: uint8_t;
 }
@@ -48,11 +48,11 @@ void removeEmptyBlocks(Block& _block);
 bool isRestrictedIdentifier(Dialect const& _dialect, YulString const& _identifier);
 
 /// Helper function that returns the instruction, if the `_name` is a BuiltinFunction
-std::optional<zvmasm::Instruction> toZVMInstruction(Dialect const& _dialect, YulString const& _name);
+std::optional<qrvmasm::Instruction> toQRVMInstruction(Dialect const& _dialect, YulString const& _name);
 
-/// Helper function that returns the ZVM version from a dialect.
-/// It returns the default ZVM version if dialect is not an ZVMDialect.
-langutil::ZVMVersion const zvmVersionFromDialect(Dialect const& _dialect);
+/// Helper function that returns the QRVM version from a dialect.
+/// It returns the default QRVM version if dialect is not a QRVMDialect.
+langutil::QRVMVersion const qrvmVersionFromDialect(Dialect const& _dialect);
 
 class StatementRemover: public ASTModifier
 {

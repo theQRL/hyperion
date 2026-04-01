@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(remappings)
 		{"s_1.4.6/s.hyp", "contract S {} pragma hyperion >=0.0;"},
 		{"Tee/tee.hyp", "contract Tee {} pragma hyperion >=0.0;"}
 	});
-	c.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+	c.setQRVMVersion(hyperion::test::CommonOptions::get().qrvmVersion());
 	BOOST_CHECK(c.compile());
 }
 
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(context_dependent_remappings)
 		{"s_1.4.6/s.hyp", "contract SSix {} pragma hyperion >=0.0;"},
 		{"s_1.4.7/s.hyp", "contract SSeven {} pragma hyperion >=0.0;"}
 	});
-	c.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+	c.setQRVMVersion(hyperion::test::CommonOptions::get().qrvmVersion());
 	BOOST_CHECK(c.compile());
 }
 
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(context_dependent_remappings_ensure_default_and_module_pres
 		{"vendor/foo_1.0.0/foo.hyp", "contract Foo1 {} pragma hyperion >=0.0;"},
 		{"vendor/foo_2.0.0/foo.hyp", "contract Foo2 {} pragma hyperion >=0.0;"}
 	});
-	c.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+	c.setQRVMVersion(hyperion::test::CommonOptions::get().qrvmVersion());
 	BOOST_CHECK(c.compile());
 }
 
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(context_dependent_remappings_order_independent_1)
 		{"d/z.hyp", "contract D {} pragma hyperion >=0.0;"},
 		{"e/y/z/z.hyp", "contract E {} pragma hyperion >=0.0;"}
 	});
-	c.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+	c.setQRVMVersion(hyperion::test::CommonOptions::get().qrvmVersion());
 	BOOST_CHECK(c.compile());
 }
 
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(context_dependent_remappings_order_independent_2)
 		{"d/z.hyp", "contract D {} pragma hyperion >=0.0;"},
 		{"e/y/z/z.hyp", "contract E {} pragma hyperion >=0.0;"}
 	});
-	c.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+	c.setQRVMVersion(hyperion::test::CommonOptions::get().qrvmVersion());
 	BOOST_CHECK(c.compile());
 }
 

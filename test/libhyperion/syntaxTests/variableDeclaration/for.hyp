@@ -1,4 +1,4 @@
-pragma hyperion >0.4.24;
+pragma hyperion >=0.1.0;
 
 contract C
 {

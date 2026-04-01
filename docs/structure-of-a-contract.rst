@@ -27,7 +27,7 @@ storage.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract SimpleStorage {
         uint storedData; // State variable
@@ -50,7 +50,7 @@ contracts.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.7.1 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract SimpleAuction {
         function bid() public payable { // Function
@@ -84,7 +84,7 @@ Like functions, modifiers can be :ref:`overridden <modifier-overriding>`.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.22 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Purchase {
         address public seller;
@@ -107,12 +107,12 @@ Like functions, modifiers can be :ref:`overridden <modifier-overriding>`.
 Events
 ======
 
-Events are convenience interfaces with the ZVM logging facilities.
+Events are convenience interfaces with the QRVM logging facilities.
 
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.22;
+    pragma hyperion >=0.1.0;
 
     event HighestBidIncreased(address bidder, uint amount); // Event
 
@@ -140,7 +140,7 @@ the user.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.4;
+    pragma hyperion >=0.1.0;
 
     /// Not enough funds for transfer. Requested `requested`,
     /// but only `available` available.
@@ -171,7 +171,7 @@ Structs are custom defined types that can group several variables (see
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Ballot {
         struct Voter { // Struct
@@ -193,7 +193,7 @@ Enums can be used to create custom types with a finite set of 'constant values' 
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Purchase {
         enum State { Created, Locked, Inactive } // Enum

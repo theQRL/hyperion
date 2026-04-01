@@ -49,7 +49,7 @@ For the following reasons:
 
 - To reproduce the compiler versions used by upstream oss-fuzz bots, we need to reuse their docker image containing the said compiler versions
 
-- Some fuzzers depend on libprotobuf, libprotobuf-mutator, libzvmone etc. which may not be available locally; even if they were they might not be the right versions
+- Some fuzzers depend on libprotobuf, libprotobuf-mutator, libqrvmone etc. which may not be available locally; even if they were they might not be the right versions
 
 ## What is LIB\_FUZZING\_ENGINE?
 

@@ -6,6 +6,6 @@
 	}
 }
 // ====
-// dialect: zvmTyped
+// dialect: qrvmTyped 
 // ----
 // SyntaxError 2592: (57-62): Keyword "break" needs to be inside a for-loop body.

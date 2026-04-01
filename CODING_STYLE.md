@@ -202,7 +202,7 @@ for (map<ComplexTypeOne, ComplexTypeTwo>::iterator i = l.begin(); i != l.end(); 
 
 ## 12. Include Headers
 
-1. Includes should go in increasing order of generality (`libhyperion` -> `libzvmasm` -> `libhyputil` -> `boost` -> `STL`).
+1. Includes should go in increasing order of generality (`libhyperion` -> `libqrvmasm` -> `libhyputil` -> `boost` -> `STL`).
 2. The corresponding `.h` file should be the first include in the respective `.cpp` file.
 3. Insert empty lines between blocks of include files.
 
@@ -215,7 +215,7 @@ Example:
 #include <libhyperion/codegen/CompilerUtils.h>
 #include <libhyperion/codegen/LValue.h>
 
-#include <libzvmasm/GasMeter.h>
+#include <libqrvmasm/GasMeter.h>
 
 #include <libhyputil/Common.h>
 #include <libhyputil/SHA3.h>

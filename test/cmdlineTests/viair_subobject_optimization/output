@@ -1,6 +1,6 @@
 
 ======= viair_subobject_optimization/input.hyp:C =======
-ZVM assembly:
+QRVM assembly:
     /* "viair_subobject_optimization/input.hyp":61:668  contract C {... */
   0x80
   jumpi(tag_7, callvalue)
@@ -82,7 +82,7 @@ sub_0: assembly {
 
 
 ======= viair_subobject_optimization/input.hyp:D =======
-ZVM assembly:
+QRVM assembly:
     /* "viair_subobject_optimization/input.hyp":669:772  contract D {... */
   0x80
   dup1

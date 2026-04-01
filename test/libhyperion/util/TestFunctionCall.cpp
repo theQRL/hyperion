@@ -50,8 +50,8 @@ std::string TestFunctionCall::format(
 		std::string colon = formatToken(Token::Colon);
 		std::string comma = formatToken(Token::Comma);
 		std::string comment = formatToken(Token::Comment);
-		std::string ether = formatToken(Token::Ether);
-		std::string wei = formatToken(Token::Wei);
+		std::string quanta = formatToken(Token::Quanta);
+		std::string planck = formatToken(Token::Planck);
 		std::string newline = formatToken(Token::Newline);
 		std::string failure = formatToken(Token::Failure);
 
@@ -70,11 +70,11 @@ std::string TestFunctionCall::format(
 		{
 			switch (m_call.value.unit)
 			{
-			case FunctionValueUnit::Ether:
-				stream << comma << ws << (m_call.value.value / exp256(10, 18)) << ws << ether;
+			case FunctionValueUnit::Quanta:
+				stream << comma << ws << (m_call.value.value / exp256(10, 18)) << ws << quanta;
 				break;
-			case FunctionValueUnit::Wei:
-				stream << comma << ws << m_call.value.value << ws << wei;
+			case FunctionValueUnit::Planck:
+				stream << comma << ws << m_call.value.value << ws << planck;
 				break;
 			default:
 				hyptestAssert(false, "");

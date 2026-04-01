@@ -14,7 +14,7 @@
 		},
 		"outputSelection":
 		{
-			"*": { "*": ["ir", "zvm.bytecode.object", "zvm.bytecode.generatedSources", "zvm.deployedBytecode.object"] }
+			"*": { "*": ["ir", "qrvm.bytecode.object", "qrvm.bytecode.generatedSources", "qrvm.deployedBytecode.object"] }
 		},
 		"viaIR": true
 	}

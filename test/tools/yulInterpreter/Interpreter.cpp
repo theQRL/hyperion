@@ -21,12 +21,12 @@
 
 #include <test/tools/yulInterpreter/Interpreter.h>
 
-#include <test/tools/yulInterpreter/ZVMInstructionInterpreter.h>
+#include <test/tools/yulInterpreter/QRVMInstructionInterpreter.h>
 
 #include <libyul/AST.h>
 #include <libyul/Dialect.h>
 #include <libyul/Utilities.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 #include <liblangutil/Exceptions.h>
 
@@ -308,18 +308,18 @@ void ExpressionEvaluator::operator()(FunctionCall const& _funCall)
 			literalArguments = &builtin->literalArguments;
 	evaluateArgs(_funCall.arguments, literalArguments);
 
-	if (ZVMDialect const* dialect = dynamic_cast<ZVMDialect const*>(&m_dialect))
+	if (QRVMDialect const* dialect = dynamic_cast<QRVMDialect const*>(&m_dialect))
 	{
-		if (BuiltinFunctionForZVM const* fun = dialect->builtin(_funCall.functionName.name))
+		if (BuiltinFunctionForQRVM const* fun = dialect->builtin(_funCall.functionName.name))
 		{
-			ZVMInstructionInterpreter interpreter(dialect->zvmVersion(), m_state, m_disableMemoryTrace);
+			QRVMInstructionInterpreter interpreter(dialect->qrvmVersion(), m_state, m_disableMemoryTrace);
 
 			u256 const value = interpreter.evalBuiltin(*fun, _funCall.arguments, values());
 
 			if (
 				!m_disableExternalCalls &&
 				fun->instruction &&
-				zvmasm::isCallInstruction(*fun->instruction)
+				qrvmasm::isCallInstruction(*fun->instruction)
 			)
 				runExternalCall(*fun->instruction);
 
@@ -409,7 +409,7 @@ void ExpressionEvaluator::incrementStep()
 	}
 }
 
-void ExpressionEvaluator::runExternalCall(zvmasm::Instruction _instruction)
+void ExpressionEvaluator::runExternalCall(qrvmasm::Instruction _instruction)
 {
 	u256 memOutOffset = 0;
 	u256 memOutSize = 0;
@@ -419,7 +419,7 @@ void ExpressionEvaluator::runExternalCall(zvmasm::Instruction _instruction)
 
 	// Setup memOut* values
 	if (
-		_instruction == zvmasm::Instruction::CALL
+		_instruction == qrvmasm::Instruction::CALL
 	)
 	{
 		memOutOffset = values()[5];
@@ -429,8 +429,8 @@ void ExpressionEvaluator::runExternalCall(zvmasm::Instruction _instruction)
 		memInSize = values()[4];
 	}
 	else if (
-		_instruction == zvmasm::Instruction::DELEGATECALL ||
-		_instruction == zvmasm::Instruction::STATICCALL
+		_instruction == qrvmasm::Instruction::DELEGATECALL ||
+		_instruction == qrvmasm::Instruction::STATICCALL
 	)
 	{
 		memOutOffset = values()[4];

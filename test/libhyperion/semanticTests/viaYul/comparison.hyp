@@ -37,8 +37,8 @@ contract C {
     }
 }
 // ----
-// f(address): Z1234 -> false
-// f(address): Z00 -> true
+// f(address): Q1234 -> false
+// f(address): Q00 -> true
 // g() -> true
 // lt(uint256,uint256): 4, 5 -> true
 // lt(uint256,uint256): 5, 5 -> false

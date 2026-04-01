@@ -27,12 +27,12 @@
 #include <libhyperion/interface/Version.h>
 #include <libyul/AST.h>
 #include <libyul/AsmParser.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 #include <liblangutil/ErrorReporter.h>
 #include <liblangutil/Scanner.h>
 #include <liblangutil/SemVerHandler.h>
 #include <liblangutil/SourceLocation.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -745,7 +745,7 @@ ASTPointer<VariableDeclaration> Parser::parseVariableDeclaration(
 		fatalParserError(
 			2915_error,
 			"Expected a state variable declaration. If you intended this as a fallback function "
-			"or a function to handle plain ether transactions, use the \"fallback\" keyword "
+			"or a function to handle plain quanta transactions, use the \"fallback\" keyword "
 			"or the \"receive\" keyword instead."
 		);
 
@@ -1356,11 +1356,11 @@ ASTPointer<InlineAssembly> Parser::parseInlineAssembly(ASTPointer<ASTString> con
 	SourceLocation location = currentLocation();
 
 	expectToken(Token::Assembly);
-	yul::Dialect const& dialect = yul::ZVMDialect::strictAssemblyForZVM(m_zvmVersion);
+	yul::Dialect const& dialect = yul::QRVMDialect::strictAssemblyForQRVM(m_qrvmVersion);
 	if (m_scanner->currentToken() == Token::StringLiteral)
 	{
-		if (m_scanner->currentLiteral() != "zvmasm")
-			fatalParserError(4531_error, "Only \"zvmasm\" supported.");
+		if (m_scanner->currentLiteral() != "qrvmasm")
+			fatalParserError(4531_error, "Only \"qrvmasm\" supported.");
 		// This can be used in the future to set the dialect.
 		advance();
 	}
@@ -1998,7 +1998,7 @@ ASTPointer<Expression> Parser::parseLiteral()
 	}
 
 	if (initialToken == Token::Number && (
-		TokenTraits::isEtherSubdenomination(m_scanner->currentToken()) ||
+		TokenTraits::isQRLSubdenomination(m_scanner->currentToken()) ||
 		TokenTraits::isTimeSubdenomination(m_scanner->currentToken())
 	))
 	{

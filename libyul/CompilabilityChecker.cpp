@@ -23,8 +23,8 @@
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AsmAnalysisInfo.h>
 
-#include <libyul/backends/zvm/ZVMCodeTransform.h>
-#include <libyul/backends/zvm/NoOutputAssembly.h>
+#include <libyul/backends/qrvm/QRVMCodeTransform.h>
+#include <libyul/backends/qrvm/NoOutputAssembly.h>
 
 using namespace hyperion;
 using namespace hyperion::yul;
@@ -36,9 +36,9 @@ CompilabilityChecker::CompilabilityChecker(
 	bool _optimizeStackAllocation
 )
 {
-	if (auto const* zvmDialect = dynamic_cast<ZVMDialect const*>(&_dialect))
+	if (auto const* qrvmDialect = dynamic_cast<QRVMDialect const*>(&_dialect))
 	{
-		NoOutputZVMDialect noOutputDialect(*zvmDialect);
+		NoOutputQRVMDialect noOutputDialect(*qrvmDialect);
 
 		yul::AsmAnalysisInfo analysisInfo =
 			yul::AsmAnalyzer::analyzeStrictAssertCorrect(noOutputDialect, _object);
@@ -49,7 +49,7 @@ CompilabilityChecker::CompilabilityChecker(
 			builtinContext.subIDs[_object.name] = 1;
 		for (auto const& subNode: _object.subObjects)
 			builtinContext.subIDs[subNode->name] = 1;
-		NoOutputAssembly assembly{zvmDialect->zvmVersion()};
+		NoOutputAssembly assembly{qrvmDialect->qrvmVersion()};
 		CodeTransform transform(
 			assembly,
 			analysisInfo,

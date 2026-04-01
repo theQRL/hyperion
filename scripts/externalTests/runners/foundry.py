@@ -61,7 +61,7 @@ class FoundryRunner(BaseRunner):
             gas_reports = ["*"]
             auto_detect_hypc = false
             hypc = "{hypc}"
-            zvm_version = "{zvm_version}"
+            qrvm_version = "{qrvm_version}"
             optimizer = {optimizer}
             via_ir = {via_ir}
 
@@ -75,11 +75,11 @@ class FoundryRunner(BaseRunner):
 
         profiles = []
         for preset in self.presets:
-            settings = settings_from_preset(preset, self.config.zvm_version)
+            settings = settings_from_preset(preset, self.config.qrvm_version)
             profiles.append(self.profile_section({
                 "name": self.profile_name(preset),
                 "hypc": self.hypc_binary_path,
-                "zvm_version": self.config.zvm_version,
+                "qrvm_version": self.config.qrvm_version,
                 "optimizer": str(settings["optimizer"]["enabled"]).lower(),
                 "via_ir": str(settings["viaIR"]).lower(),
                 "yul": str(settings["optimizer"]["details"]["yul"]).lower(),

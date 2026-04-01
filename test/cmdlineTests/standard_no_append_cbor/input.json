@@ -21,7 +21,7 @@
 		{
 			"A":
 			{
-				"test": ["zvm.bytecode"]
+				"test": ["qrvm.bytecode"]
 			}
 		}
 	}

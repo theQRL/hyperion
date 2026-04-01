@@ -11,7 +11,7 @@ object \"C_3\" {
     code {
         /// @src 0:79:92  \"contract C {}\"
         mstore(64, memoryguard(128))
-        if callvalue() { revert_error_ca66f745a3ce8ff40e2ccaf1ad45db7774001b90d25810abd9040049be7bf4bb() }
+        if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
         constructor_C_3()
 
@@ -24,7 +24,7 @@ object \"C_3\" {
             memPtr := mload(64)
         }
 
-        function revert_error_ca66f745a3ce8ff40e2ccaf1ad45db7774001b90d25810abd9040049be7bf4bb() {
+        function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
             revert(0, 0)
         }
 
@@ -66,7 +66,7 @@ object \"C_3\" {
 }
 
 ",
-                "zvm":
+                "qrvm":
                 {
                     "bytecode":
                     {
@@ -87,7 +87,7 @@ object \"D_16\" {
     code {
         /// @src 0:93:146  \"contract D { function f() public { C c = new C(); } }\"
         mstore(64, memoryguard(128))
-        if callvalue() { revert_error_ca66f745a3ce8ff40e2ccaf1ad45db7774001b90d25810abd9040049be7bf4bb() }
+        if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
         constructor_D_16()
 
@@ -100,7 +100,7 @@ object \"D_16\" {
             memPtr := mload(64)
         }
 
-        function revert_error_ca66f745a3ce8ff40e2ccaf1ad45db7774001b90d25810abd9040049be7bf4bb() {
+        function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
             revert(0, 0)
         }
 
@@ -145,7 +145,7 @@ object \"D_16\" {
                 memPtr := mload(64)
             }
 
-            function revert_error_ca66f745a3ce8ff40e2ccaf1ad45db7774001b90d25810abd9040049be7bf4bb() {
+            function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
                 revert(0, 0)
             }
 
@@ -165,7 +165,7 @@ object \"D_16\" {
 
             function external_fun_f_15() {
 
-                if callvalue() { revert_error_ca66f745a3ce8ff40e2ccaf1ad45db7774001b90d25810abd9040049be7bf4bb() }
+                if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
                 abi_decode_tuple_(4, calldatasize())
                 fun_f_15()
                 let memPos := allocate_unbounded()
@@ -218,7 +218,7 @@ object \"D_16\" {
             code {
                 /// @src 0:79:92  \"contract C {}\"
                 mstore(64, memoryguard(128))
-                if callvalue() { revert_error_ca66f745a3ce8ff40e2ccaf1ad45db7774001b90d25810abd9040049be7bf4bb() }
+                if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
                 constructor_C_3()
 
@@ -231,7 +231,7 @@ object \"D_16\" {
                     memPtr := mload(64)
                 }
 
-                function revert_error_ca66f745a3ce8ff40e2ccaf1ad45db7774001b90d25810abd9040049be7bf4bb() {
+                function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
                     revert(0, 0)
                 }
 
@@ -278,7 +278,7 @@ object \"D_16\" {
 }
 
 ",
-                "zvm":
+                "qrvm":
                 {
                     "bytecode":
                     {

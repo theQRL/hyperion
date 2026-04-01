@@ -27,7 +27,7 @@
 #include <libyul/optimiser/SSAValueTracker.h>
 #include <libyul/optimiser/NameDispenser.h>
 #include <libyul/optimiser/CommonSubexpressionEliminator.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 #include <liblangutil/ErrorReporter.h>
 
@@ -61,7 +61,7 @@ protected:
 		return KnowledgeBase([this](YulString _var) { return util::valueOrNullptr(m_values, _var); });
 	}
 
-	ZVMDialect m_dialect{ZVMVersion{}, true};
+	QRVMDialect m_dialect{QRVMVersion{}, true};
 	shared_ptr<Object> m_object;
 	SSAValueTracker m_ssaValues;
 	map<YulString, AssignedValue> m_values;

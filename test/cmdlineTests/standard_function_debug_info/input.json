@@ -9,8 +9,8 @@
         "outputSelection": {
             "*": {
                 "A": [
-                    "zvm.deployedBytecode.functionDebugData",
-                    "zvm.bytecode.functionDebugData"
+                    "qrvm.deployedBytecode.functionDebugData",
+                    "qrvm.bytecode.functionDebugData"
                 ]
             }
         }

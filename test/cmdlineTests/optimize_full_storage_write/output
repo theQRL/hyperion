@@ -1,6 +1,6 @@
 
 ======= optimize_full_storage_write/input.hyp:OptimizeFullSlotWrite =======
-ZVM assembly:
+QRVM assembly:
     /* "optimize_full_storage_write/input.hyp":60:213  contract OptimizeFullSlotWrite {... */
   mstore(0x40, 0x80)
   callvalue

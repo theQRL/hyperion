@@ -39,7 +39,7 @@
 
 #include <test/InteractiveTests.h>
 #include <test/Common.h>
-#include <test/ZVMHost.h>
+#include <test/QRVMHost.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -142,7 +142,7 @@ int registerTests(
 	fs::path fullpath = _basepath / _path;
 	TestCase::Config config{
 		fullpath.string(),
-		hyperion::test::CommonOptions::get().zvmVersion(),
+		hyperion::test::CommonOptions::get().qrvmVersion(),
 		hyperion::test::CommonOptions::get().vmPaths,
 		hyperion::test::CommonOptions::get().enforceGasTest,
 		hyperion::test::CommonOptions::get().enforceGasTestMinValue,

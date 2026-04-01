@@ -29,7 +29,7 @@
 #include <libyul/optimiser/UnusedStoreBase.h>
 #include <libyul/optimiser/KnowledgeBase.h>
 
-#include <libzvmasm/SemanticInformation.h>
+#include <libqrvmasm/SemanticInformation.h>
 
 #include <map>
 #include <vector>
@@ -78,8 +78,8 @@ public:
 	using UnusedStoreBase::visit;
 	void visit(Statement const& _statement) override;
 
-	using Location = zvmasm::SemanticInformation::Location;
-	using Effect = zvmasm::SemanticInformation::Effect;
+	using Location = qrvmasm::SemanticInformation::Location;
+	using Effect = qrvmasm::SemanticInformation::Effect;
 	struct Operation
 	{
 		Location location;

@@ -14,7 +14,7 @@ Consider the following contract (named, say ``contract.hyp``):
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.5.0 <0.9.0;
+    pragma hyperion >=0.1.0;
     contract C {
         function one() public pure returns (uint) {
             return 1;
@@ -26,7 +26,7 @@ The following would be the output of ``hypc --asm contract.hyp``
 .. code-block:: none
 
     ======= contract.hyp:C =======
-    ZVM assembly:
+    QRVM assembly:
         /* "contract.hyp":0:86  contract C {... */
       mstore(0x40, 0x80)
       callvalue

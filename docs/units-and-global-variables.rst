@@ -4,24 +4,21 @@
 Units and Globally Available Variables
 **************************************
 
-.. index:: ! wei, ! finney, ! szabo, ! gwei, ! ether, ! denomination;ether
+.. index:: ! planck, ! shor, ! quanta, ! denomination;qrl
 
-Ether Units
+QRL Units
 ===========
 
-A literal number can take a suffix of ``wei``, ``gwei`` or ``ether`` to specify a subdenomination of Ether, where Ether numbers without a postfix are assumed to be Wei.
+A literal number can take a suffix of ``planck``, ``shor`` or ``quanta`` to specify a subdenomination of QRL, where QRL numbers without a postfix are assumed to be Planck.
 
 .. code-block:: hyperion
     :force:
 
-    assert(1 wei == 1);
-    assert(1 gwei == 1e9);
-    assert(1 ether == 1e18);
+    assert(1 planck == 1);
+    assert(1 shor == 1e9);
+    assert(1 quanta == 1e18);
 
 The only effect of the subdenomination suffix is a multiplication by a power of ten.
-
-.. note::
-    The denominations ``finney`` and ``szabo`` have been removed in version 0.7.0.
 
 .. index:: ! seconds, ! minutes, ! hours, ! days, ! weeks, ! denomination;time
 
@@ -82,7 +79,7 @@ Block and Transaction Properties
 - ``msg.data`` (``bytes calldata``): complete calldata
 - ``msg.sender`` (``address``): sender of the message (current call)
 - ``msg.sig`` (``bytes4``): first four bytes of the calldata (i.e. function identifier)
-- ``msg.value`` (``uint``): number of wei sent with the message
+- ``msg.value`` (``uint``): number of planck sent with the message
 - ``tx.gasprice`` (``uint``): gas price of the transaction
 - ``tx.origin`` (``address``): sender of the transaction (full call chain)
 
@@ -94,7 +91,7 @@ Block and Transaction Properties
 .. note::
     When contracts are evaluated off-chain rather than in context of a transaction included in a
     block, you should not assume that ``block.*`` and ``tx.*`` refer to values from any specific
-    block or transaction. These values are provided by the ZVM implementation that executes the
+    block or transaction. These values are provided by the QRVM implementation that executes the
     contract and can be arbitrary.
 
 .. note::
@@ -103,7 +100,7 @@ Block and Transaction Properties
 
     Both the timestamp and the block hash can be influenced by miners to some degree.
     Bad actors in the mining community can for example run a casino payout function on a chosen hash
-    and just retry a different hash if they did not receive any compensation, e.g. Ether.
+    and just retry a different hash if they did not receive any compensation, e.g. Quanta.
 
     The current block timestamp must be strictly larger than the timestamp of the last block,
     but the only guarantee is that it will be somewhere between the timestamps of two
@@ -197,7 +194,7 @@ Mathematical and Cryptographic Functions
 
 .. note::
 
-    When running ``sha256`` or ``depositroot`` on a *private blockchain*, you might encounter Out-of-Gas. This is because these functions are implemented as "precompiled contracts" and only really exist after they receive the first message (although their contract code is hardcoded). Messages to non-existing contracts are more expensive and thus the execution might run into an Out-of-Gas error. A workaround for this problem is to first send Wei (1 for example) to each of the contracts before you use them in your actual contracts. This is not an issue on the main or test net.
+    When running ``sha256`` or ``depositroot`` on a *private blockchain*, you might encounter Out-of-Gas. This is because these functions are implemented as "precompiled contracts" and only really exist after they receive the first message (although their contract code is hardcoded). Messages to non-existing contracts are more expensive and thus the execution might run into an Out-of-Gas error. A workaround for this problem is to first send Planck (1 for example) to each of the contracts before you use them in your actual contracts. This is not an issue on the main or test net.
 
 .. index:: balance, codehash, send, transfer, call, delegatecall, staticcall
 
@@ -207,7 +204,7 @@ Members of Address Types
 ------------------------
 
 ``<address>.balance`` (``uint256``)
-    balance of the :ref:`address` in Wei
+    balance of the :ref:`address` in Planck
 
 ``<address>.code`` (``bytes memory``)
     code at the :ref:`address` (can be empty)
@@ -216,10 +213,10 @@ Members of Address Types
     the codehash of the :ref:`address`
 
 ``<address payable>.transfer(uint256 amount)``
-    send given amount of Wei to :ref:`address`, reverts on failure, forwards 2300 gas stipend, not adjustable
+    send given amount of Planck to :ref:`address`, reverts on failure, forwards 2300 gas stipend, not adjustable
 
 ``<address payable>.send(uint256 amount) returns (bool)``
-    send given amount of Wei to :ref:`address`, returns ``false`` on failure, forwards 2300 gas stipend, not adjustable
+    send given amount of Planck to :ref:`address`, returns ``false`` on failure, forwards 2300 gas stipend, not adjustable
 
 ``<address>.call(bytes memory) returns (bool, bytes memory)``
     issue low-level ``CALL`` with the given payload, returns success condition and return data, forwards all available gas, adjustable
@@ -239,11 +236,11 @@ For more information, see the section on :ref:`address`.
 .. warning::
     There are some dangers in using ``send``: The transfer fails if the call stack depth is at 1024
     (this can always be forced by the caller) and it also fails if the recipient runs out of gas. So in order
-    to make safe Ether transfers, always check the return value of ``send``, use ``transfer`` or even better:
-    Use a pattern where the recipient withdraws the Ether.
+    to make safe Quanta transfers, always check the return value of ``send``, use ``transfer`` or even better:
+    Use a pattern where the recipient withdraws the Quanta.
 
 .. warning::
-    Due to the fact that the ZVM considers a call to a non-existing contract to always succeed,
+    Due to the fact that the QRVM considers a call to a non-existing contract to always succeed,
     Hyperion includes an extra check using the ``extcodesize`` opcode when performing external calls.
     This ensures that the contract that is about to be called either actually exists (it contains code)
     or an exception is raised.

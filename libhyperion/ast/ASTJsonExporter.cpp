@@ -27,7 +27,7 @@
 
 #include <libyul/AsmJsonConverter.h>
 #include <libyul/AST.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 #include <libhyputil/JSON.h>
 #include <libhyputil/UTF8.h>
@@ -666,7 +666,7 @@ bool ASTJsonExporter::visit(InlineAssembly const& _node)
 	std::vector<std::pair<std::string, Json::Value>> attributes = {
 		std::make_pair("AST", Json::Value(yul::AsmJsonConverter(sourceIndexFromLocation(_node.location()))(_node.operations()))),
 		std::make_pair("externalReferences", std::move(externalReferencesJson)),
-		std::make_pair("zvmVersion", dynamic_cast<hyperion::yul::ZVMDialect const&>(_node.dialect()).zvmVersion().name())
+		std::make_pair("qrvmVersion", dynamic_cast<hyperion::yul::QRVMDialect const&>(_node.dialect()).qrvmVersion().name())
 	};
 
 	if (_node.flags())

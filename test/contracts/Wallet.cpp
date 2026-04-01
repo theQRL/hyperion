@@ -55,7 +55,7 @@ static char const* walletCode = R"DELIMITER(
 // some number (specified in constructor) of the set of owners (specified in the constructor, modifiable) before the
 // interior is executed.
 
-pragma hyperion >=0.4.0 <0.9.0;
+pragma hyperion >=0.1.0;
 
 contract multiowned {
 
@@ -380,7 +380,7 @@ contract Wallet is multisig, multiowned, daylimit {
 	function shutdown(address payable _to) onlymanyowners(keccak256(msg.data)) external {
 	}
 
-	// gets called for plain ether transfers
+	// gets called for plain quanta transfers
 	receive() external payable {
 		// did we actually receive value?
 		if (msg.value > 0)
@@ -401,7 +401,7 @@ contract Wallet is multisig, multiowned, daylimit {
 		}
 		// determine our operation hash.
 		_r = keccak256(abi.encodePacked(msg.data, block.number));
-		if (!confirm(_r) && m_txs[_r].to == Z0000000000000000000000000000000000000000) {
+		if (!confirm(_r) && m_txs[_r].to == Q0000000000000000000000000000000000000000) {
 			m_txs[_r].to = _to;
 			m_txs[_r].value = _value;
 			m_txs[_r].data = _data;
@@ -412,7 +412,7 @@ contract Wallet is multisig, multiowned, daylimit {
 	// confirm a transaction through just the hash. we use the previous transactions map, m_txs, in order
 	// to determine the body of the transaction from the hash provided.
 	function confirm(bytes32 _h) onlymanyowners(_h) public override returns (bool) {
-		if (m_txs[_h].to != Z0000000000000000000000000000000000000000) {
+		if (m_txs[_h].to != Q0000000000000000000000000000000000000000) {
 			m_txs[_h].to.call{value: m_txs[_h].value}(m_txs[_h].data);
 			emit MultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data);
 			delete m_txs[_h];
@@ -477,13 +477,13 @@ BOOST_AUTO_TEST_CASE(add_owners)
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", account(1)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("isOwner(address)", account(1)) == encodeArgs(true));
 	// now let the new owner add someone
-	sendEther(account(1), 10 * ether);
+	sendQuanta(account(1), 10 * quanta);
 	m_sender = account(1);
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x13)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x13)) == encodeArgs(true));
 	// and check that a non-owner cannot add a new owner
 	m_sender = account(0);
-	sendEther(account(2), 10 * ether);
+	sendQuanta(account(2), 10 * quanta);
 	m_sender = account(2);
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x20)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x20)) == encodeArgs(false));
@@ -562,17 +562,17 @@ BOOST_AUTO_TEST_CASE(multisig_value_transfer)
 	h160 destination = h160("0x5c6d6026d3fb35cd7175fd0054ae8df50d8f8b41");
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	m_sender = account(0);
-	sendEther(account(1), 10 * ether);
+	sendQuanta(account(1), 10 * quanta);
 	m_sender = account(1);
 	auto ophash = callContractFunction("execute(address,uint256,bytes)", destination, 100, 0x60, 0x00);
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	m_sender = account(0);
-	sendEther(account(2), 10 * ether);
+	sendQuanta(account(2), 10 * quanta);
 	m_sender = account(2);
 	callContractFunction("confirm(bytes32)", ophash);
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	m_sender = account(0);
-	sendEther(account(3), 10 * ether);
+	sendQuanta(account(3), 10 * quanta);
 	m_sender = account(3);
 	callContractFunction("confirm(bytes32)", ophash);
 	// now it should go through
@@ -593,7 +593,7 @@ BOOST_AUTO_TEST_CASE(revoke_addOwner)
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x33)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x33)) == encodeArgs(false));
 	m_sender = account(0);
-	sendEther(account(1), 10 * ether);
+	sendQuanta(account(1), 10 * quanta);
 	m_sender = account(1);
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x33)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x33)) == encodeArgs(false));
@@ -601,12 +601,12 @@ BOOST_AUTO_TEST_CASE(revoke_addOwner)
 	m_sender = deployer;
 	BOOST_REQUIRE(callContractFunction("revoke(bytes32)", opHash) == encodeArgs());
 	m_sender = account(0);
-	sendEther(account(2), 10 * ether);
+	sendQuanta(account(2), 10 * quanta);
 	m_sender = account(2);
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x33)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x33)) == encodeArgs(false));
 	m_sender = account(0);
-	sendEther(account(3), 10 * ether);
+	sendQuanta(account(3), 10 * quanta);
 	m_sender = account(3);
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x33)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x33)) == encodeArgs(true));
@@ -625,24 +625,24 @@ BOOST_AUTO_TEST_CASE(revoke_transaction)
 	h160 destination = h160("0x5c6d6026d3fb35cd7175fd0054ae8df50d8f8b41");
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	m_sender = account(0);
-	sendEther(account(1), 10 * ether);
+	sendQuanta(account(1), 10 * quanta);
 	m_sender = account(1);
 	auto opHash = callContractFunction("execute(address,uint256,bytes)", destination, 100, 0x60, 0x00);
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	m_sender = account(0);
-	sendEther(account(2), 10 * ether);
+	sendQuanta(account(2), 10 * quanta);
 	m_sender = account(2);
 	callContractFunction("confirm(bytes32)", opHash);
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	m_sender = account(0);
-	sendEther(account(1), 10 * ether);
+	sendQuanta(account(1), 10 * quanta);
 	m_sender = account(1);
 	BOOST_REQUIRE(callContractFunction("revoke(bytes32)", opHash) == encodeArgs());
 	m_sender = deployer;
 	callContractFunction("confirm(bytes32)", opHash);
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	m_sender = account(0);
-	sendEther(account(3), 10 * ether);
+	sendQuanta(account(3), 10 * quanta);
 	m_sender = account(3);
 	callContractFunction("confirm(bytes32)", opHash);
 	// now it should go through
@@ -664,7 +664,7 @@ BOOST_AUTO_TEST_CASE(daylimit)
 	// try to send tx over daylimit
 	h160 destination = h160("0x5c6d6026d3fb35cd7175fd0054ae8df50d8f8b41");
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
-	sendEther(account(1), 10 * ether);
+	sendQuanta(account(1), 10 * quanta);
 	m_sender = account(1);
 	BOOST_REQUIRE(
 		callContractFunction("execute(address,uint256,bytes)", destination, 150, 0x60, 0x00) !=
@@ -673,7 +673,7 @@ BOOST_AUTO_TEST_CASE(daylimit)
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	// try to send tx under daylimit by stranger
 	m_sender = account(0);
-	sendEther(account(4), 10 * ether);
+	sendQuanta(account(4), 10 * quanta);
 	m_sender = account(4);
 	BOOST_REQUIRE(
 		callContractFunction("execute(address,uint256,bytes)", destination, 90, 0x60, 0x00) ==
@@ -682,7 +682,7 @@ BOOST_AUTO_TEST_CASE(daylimit)
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	// now send below limit by owner
 	m_sender = account(0);
-	sendEther(account(1), 10 * ether);
+	sendQuanta(account(1), 10 * quanta);
 	BOOST_REQUIRE(
 		callContractFunction("execute(address,uint256,bytes)", destination, 90, 0x60, 0x00) ==
 		encodeArgs(u256(0))

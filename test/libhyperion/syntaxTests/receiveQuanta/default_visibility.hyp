@@ -1,0 +1,8 @@
+contract C {
+    // Check that visibility is also enforced for the receive quanta function.
+    receive() {}
+}
+// ----
+// SyntaxError 4937: (96-108): No visibility specified. Did you intend to add "external"?
+// DeclarationError 7793: (96-108): Receive quanta function must be payable, but is "nonpayable".
+// DeclarationError 4095: (96-108): Receive quanta function must be defined as "external".

@@ -43,12 +43,12 @@ Members of ``bytes`` and  ``string``
 Members of ``address``
 ======================
 
-- ``<address>.balance`` (``uint256``): balance of the :ref:`address` in Wei
+- ``<address>.balance`` (``uint256``): balance of the :ref:`address` in Planck
 - ``<address>.code`` (``bytes memory``): code at the :ref:`address` (can be empty)
 - ``<address>.codehash`` (``bytes32``): the codehash of the :ref:`address`
-- ``<address payable>.send(uint256 amount) returns (bool)``: send given amount of Wei to :ref:`address`,
+- ``<address payable>.send(uint256 amount) returns (bool)``: send given amount of Planck to :ref:`address`,
   returns ``false`` on failure
-- ``<address payable>.transfer(uint256 amount)``: send given amount of Wei to :ref:`address`, throws on failure
+- ``<address payable>.transfer(uint256 amount)``: send given amount of Planck to :ref:`address`, throws on failure
 
 .. index:: blockhash, block, block;basefree, block;chainid, block;coinbase, block;gaslimit, block;number, block;prevrandao, block;timestamp
 .. index:: gasleft, msg;data, msg;sender, msg;sig, msg;value, tx;gasprice, tx;origin
@@ -68,7 +68,7 @@ Block and Transaction Properties
 - ``msg.data`` (``bytes``): complete calldata
 - ``msg.sender`` (``address``): sender of the message (current call)
 - ``msg.sig`` (``bytes4``): first four bytes of the calldata (i.e. function identifier)
-- ``msg.value`` (``uint``): number of wei sent with the message
+- ``msg.value`` (``uint``): number of planck sent with the message
 - ``tx.gasprice`` (``uint``): gas price of the transaction
 - ``tx.origin`` (``address``): sender of the transaction (full call chain)
 
@@ -144,7 +144,7 @@ Modifiers
 
 - ``pure`` for functions: Disallows modification or access of state.
 - ``view`` for functions: Disallows modification of state.
-- ``payable`` for functions: Allows them to receive Ether together with a call.
+- ``payable`` for functions: Allows them to receive Quanta together with a call.
 - ``constant`` for state variables: Disallows assignment (except initialisation), does not occupy storage slot.
 - ``immutable`` for state variables: Allows assignment at construction time and is constant when deployed. Is stored in code.
 - ``anonymous`` for events: Does not store event signature as topic.

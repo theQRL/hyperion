@@ -23,7 +23,7 @@
     data \"DataName\" hex\"616263\"
 }
 ",
-                "zvm":
+                "qrvm":
                 {
                     "assembly": "    /* \"A\":80:81   */
   0x00

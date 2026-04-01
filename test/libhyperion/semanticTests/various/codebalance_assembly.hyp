@@ -18,7 +18,7 @@ contract C {
     }
 }
 // ----
-// constructor(), 23 wei ->
+// constructor(), 23 planck ->
 // gas legacy: 100517
 // f() -> 0
 // g() -> 1

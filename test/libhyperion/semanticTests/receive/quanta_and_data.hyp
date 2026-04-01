@@ -1,0 +1,6 @@
+contract C {
+    receive () payable external { }
+}
+// ----
+// (), 1 quanta
+// (), 1 quanta: 1 -> FAILURE

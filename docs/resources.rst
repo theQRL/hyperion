@@ -5,8 +5,8 @@ Resources
 General Resources
 =================
 
-* `Ethereum.org Developer Portal <https://theqrl.org/en/developers/>`_
-* `Ethereum StackExchange <https://ethereum.stackexchange.com/>`_
+* `TheQRL.org Developer Portal <https://theqrl.org/en/developers/>`_
+* `The QRL StackExchange <https://theqrl.stackexchange.com/>`_
 * `Hyperion Portal <https://soliditylang.org/>`_
 * `Hyperion Changelog <https://github.com/theQRL/hyperion/blob/develop/Changelog.md>`_
 * `Hyperion Source Code on GitHub <https://github.com/theQRL/hyperion/>`_
@@ -20,7 +20,7 @@ Integrated (Ethereum) Development Environments
 ==============================================
 
     * `Brownie <https://eth-brownie.readthedocs.io/en/stable/>`_
-        Python-based development and testing framework for smart contracts targeting the Zond Virtual Machine.
+        Python-based development and testing framework for smart contracts targeting the Quantum Resistant Virtual Machine.
 
     * `Dapp <https://dapp.tools/>`_
         Tool for building, testing and deploying smart contracts from the command-line.
@@ -102,13 +102,13 @@ Solidity Tools
     Linter to identify and fix style and security issues in Solidity.
 
 * `evmdis <https://github.com/Arachnid/evmdis>`_
-    ZVM Disassembler that performs static analysis on the bytecode to provide a higher level of abstraction than raw ZVM operations.
+    QRVM Disassembler that performs static analysis on the bytecode to provide a higher level of abstraction than raw QRVM operations.
 
 * `EVM Lab <https://github.com/theQRL/evmlab/>`_
     Rich tool package to interact with the EVM. Includes a VM, Etherchain API, and a trace-viewer with gas cost display.
 
 * `hevm <https://github.com/dapphub/dapptools/tree/master/src/hevm#readme>`_
-    ZVM debugger and symbolic execution engine.
+    QRVM debugger and symbolic execution engine.
 
 * `leafleth <https://github.com/clemlak/leafleth>`_
     A documentation generator for Hyperion smart-contracts.

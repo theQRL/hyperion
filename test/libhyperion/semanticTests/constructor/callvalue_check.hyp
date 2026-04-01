@@ -29,11 +29,11 @@ contract C {
 }
 // ====
 // ----
-// f(uint256), 2000 ether: 0 -> true
-// f(uint256), 2000 ether: 100 -> false
-// g(uint256), 2000 ether: 0 -> true
-// g(uint256), 2000 ether: 100 -> false
-// h(uint256), 2000 ether: 0 -> true
-// h(uint256), 2000 ether: 100 -> false
-// i(uint256), 2000 ether: 0 -> true
-// i(uint256), 2000 ether: 100 -> false
+// f(uint256), 2000 quanta: 0 -> true
+// f(uint256), 2000 quanta: 100 -> false
+// g(uint256), 2000 quanta: 0 -> true
+// g(uint256), 2000 quanta: 100 -> false
+// h(uint256), 2000 quanta: 0 -> true
+// h(uint256), 2000 quanta: 100 -> false
+// i(uint256), 2000 quanta: 0 -> true
+// i(uint256), 2000 quanta: 100 -> false

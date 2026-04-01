@@ -15,7 +15,7 @@ that call them, similar to internal library functions.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.7.1 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     function sum(uint[] memory arr) pure returns (uint s) {
         for (uint i = 0; i < arr.length; i++)
@@ -36,7 +36,7 @@ that call them, similar to internal library functions.
 .. note::
     Functions defined outside a contract are still always executed
     in the context of a contract.
-    They still can call other contracts, send them Ether and destroy the contract that called them,
+    They still can call other contracts, send them Quanta and destroy the contract that called them,
     among other things. The main difference to functions defined inside a contract
     is that free functions do not have direct access to the variable ``this``, storage variables and functions
     not in their scope.
@@ -61,7 +61,7 @@ with two integers, you would use something like the following:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.16 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Simple {
         uint sum;
@@ -86,7 +86,7 @@ two integers passed as function parameters, then you use something like:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.16 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Simple {
         function arithmetic(uint a, uint b)
@@ -113,7 +113,7 @@ statement:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.16 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Simple {
         function arithmetic(uint a, uint b)
@@ -165,7 +165,7 @@ Functions can be declared ``view`` in which case they promise not to modify the 
 
 .. note::
   The opcode ``STATICCALL`` is used when ``view`` functions are called, which enforces the
-  state to stay unmodified as part of the ZVM execution. For library ``view`` functions
+  state to stay unmodified as part of the QRVM execution. For library ``view`` functions
   ``DELEGATECALL`` is used, because there is no combined ``DELEGATECALL`` and ``STATICCALL``.
   This means library ``view`` functions do not have run-time checks that prevent state
   modifications. This should not impact security negatively because library code is
@@ -176,7 +176,7 @@ The following statements are considered modifying the state:
 #. Writing to state variables.
 #. :ref:`Emitting events <events>`.
 #. :ref:`Creating other contracts <creating-contracts>`.
-#. Sending Ether via calls.
+#. Sending Quanta via calls.
 #. Calling any function not marked ``view`` or ``pure``.
 #. Using low-level calls.
 #. Using inline assembly that contains certain opcodes.
@@ -184,7 +184,7 @@ The following statements are considered modifying the state:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.5.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract C {
         function f(uint a, uint b) public view returns (uint) {
@@ -204,7 +204,7 @@ The following statements are considered modifying the state:
   This enabled state modifications in ``view`` functions through the use of
   invalid explicit type conversions.
   By using  ``STATICCALL`` for ``view`` functions, modifications to the
-  state are prevented on the level of the ZVM.
+  state are prevented on the level of the QRVM.
 
 .. index:: ! pure function, function;pure
 
@@ -233,7 +233,7 @@ In addition to the list of state modifying statements explained above, the follo
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.5.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract C {
         function f(uint a, uint b) public pure returns (uint) {
@@ -252,8 +252,8 @@ This behavior is also in line with the ``STATICCALL`` opcode.
 
 .. warning::
   It is not possible to prevent functions from reading the state at the level
-  of the ZVM, it is only possible to prevent them from writing to the state
-  (i.e. only ``view`` can be enforced at the ZVM level, ``pure`` can not).
+  of the QRVM, it is only possible to prevent them from writing to the state
+  (i.e. only ``view`` can be enforced at the QRVM level, ``pure`` can not).
 
 .. note::
   Prior to version 0.5.0, the compiler did not use the ``STATICCALL`` opcode
@@ -261,7 +261,7 @@ This behavior is also in line with the ``STATICCALL`` opcode.
   This enabled state modifications in ``pure`` functions through the use of
   invalid explicit type conversions.
   By using  ``STATICCALL`` for ``pure`` functions, modifications to the
-  state are prevented on the level of the ZVM.
+  state are prevented on the level of the QRVM.
 
 .. note::
   Prior to version 0.4.17 the compiler did not enforce that ``pure`` is not reading the state.
@@ -275,11 +275,11 @@ This behavior is also in line with the ``STATICCALL`` opcode.
 Special Functions
 =================
 
-.. index:: ! receive ether function, function;receive, ! receive
+.. index:: ! receive quanta function, function;receive, ! receive
 
-.. _receive-ether-function:
+.. _receive-quanta-function:
 
-Receive Ether Function
+Receive Quanta Function
 ----------------------
 
 A contract can have at most one ``receive`` function, declared using
@@ -291,11 +291,11 @@ It can be virtual, can override and can have modifiers.
 
 The receive function is executed on a
 call to the contract with empty calldata. This is the function that is executed
-on plain Ether transfers (e.g. via ``.send()`` or ``.transfer()``). If no such
+on plain quanta transfers (e.g. via ``.send()`` or ``.transfer()``). If no such
 function exists, but a payable :ref:`fallback function <fallback-function>`
-exists, the fallback function will be called on a plain Ether transfer. If
-neither a receive Ether nor a payable fallback function is present, the
-contract cannot receive Ether through a transaction that does not represent a payable function call and throws an
+exists, the fallback function will be called on a plain Quanta transfer. If
+neither a receive Quanta nor a payable fallback function is present, the
+contract cannot receive Quanta through a transaction that does not represent a payable function call and throws an
 exception.
 
 In the worst case, the ``receive`` function can only rely on 2300 gas being
@@ -306,38 +306,38 @@ will consume more gas than the 2300 gas stipend:
 - Writing to storage
 - Creating a contract
 - Calling an external function which consumes a large amount of gas
-- Sending Ether
+- Sending Quanta
 
 .. warning::
-    When Ether is sent directly to a contract (without a function call, i.e. sender uses ``send`` or ``transfer``)
-    but the receiving contract does not define a receive Ether function or a payable fallback function,
-    an exception will be thrown, sending back the Ether (this was different
-    before Hyperion v0.4.0). If you want your contract to receive Ether,
-    you have to implement a receive Ether function (using payable fallback functions for receiving Ether is
+    When Quanta is sent directly to a contract (without a function call, i.e. sender uses ``send`` or ``transfer``)
+    but the receiving contract does not define a receive Quanta function or a payable fallback function,
+    an exception will be thrown, sending back the Quanta (this was different
+    before Hyperion v0.4.0). If you want your contract to receive Quanta,
+    you have to implement a receive Quanta function (using payable fallback functions for receiving Quanta is
     not recommended, since the fallback is invoked and would not fail for interface confusions
     on the part of the sender).
 
 
 .. warning::
-    A contract without a receive Ether function can receive Ether as a
+    A contract without a receive Quanta function can receive Quanta as a
     recipient of a *coinbase transaction* (aka *miner block reward*).
 
-    A contract cannot react to such Ether transfers and thus also
-    cannot reject them. This is a design choice of the ZVM and
+    A contract cannot react to such Quanta transfers and thus also
+    cannot reject them. This is a design choice of the QRVM and
     Hyperion cannot work around it.
 
     It also means that ``address(this).balance`` can be higher
     than the sum of some manual accounting implemented in a
-    contract (i.e. having a counter updated in the receive Ether function).
+    contract (i.e. having a counter updated in the receive Quanta function).
 
 Below you can see an example of a Sink contract that uses function ``receive``.
 
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
-    // This contract keeps all Ether sent to it with no way
+    // This contract keeps all Quanta sent to it with no way
     // to get it back.
     contract Sink {
         event Received(address, uint);
@@ -361,8 +361,8 @@ and can have modifiers.
 
 The fallback function is executed on a call to the contract if none of the other
 functions match the given function signature, or if no data was supplied at
-all and there is no :ref:`receive Ether function <receive-ether-function>`.
-The fallback function always receives data, but in order to also receive Ether
+all and there is no :ref:`receive Quanta function <receive-quanta-function>`.
+The fallback function always receives data, but in order to also receive Quanta
 it must be marked ``payable``.
 
 If the version with parameters is used, ``input`` will contain the full data sent to the contract
@@ -371,7 +371,7 @@ ABI-encoded. Instead it will be returned without modifications (not even padding
 
 In the worst case, if a payable fallback function is also used in
 place of a receive function, it can only rely on 2300 gas being
-available (see :ref:`receive Ether function <receive-ether-function>`
+available (see :ref:`receive Quanta function <receive-quanta-function>`
 for a brief description of the implications of this).
 
 Like any function, the fallback function can execute complex
@@ -379,10 +379,10 @@ operations as long as there is enough gas passed on to it.
 
 .. warning::
     A ``payable`` fallback function is also executed for
-    plain Ether transfers, if no :ref:`receive Ether function <receive-ether-function>`
-    is present. It is recommended to always define a receive Ether
+    plain Quanta transfers, if no :ref:`receive Quanta function <receive-quanta-function>`
+    is present. It is recommended to always define a receive Quanta
     function as well, if you define a payable fallback function
-    to distinguish Ether transfers from interface confusions.
+    to distinguish Quanta transfers from interface confusions.
 
 .. note::
     If you want to decode the input data, you can check the first four bytes
@@ -397,13 +397,13 @@ operations as long as there is enough gas passed on to it.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.2 <0.9.0;
+    pragma hyperion >0.1.0;
 
     contract Test {
         uint x;
         // This function is called for all messages sent to
         // this contract (there is no other function).
-        // Sending Ether to this contract will cause an exception,
+        // Sending Quanta to this contract will cause an exception,
         // because the fallback function does not have the `payable`
         // modifier.
         fallback() external { x = 1; }
@@ -413,13 +413,13 @@ operations as long as there is enough gas passed on to it.
         uint x;
         uint y;
         // This function is called for all messages sent to
-        // this contract, except plain Ether transfers
+        // this contract, except plain Quanta transfers
         // (there is no other function except the receive function).
         // Any call with non-empty calldata to this contract will execute
-        // the fallback function (even if Ether is sent along with the call).
+        // the fallback function (even if Quanta is sent along with the call).
         fallback() external payable { x = 1; y = msg.value; }
 
-        // This function is called for plain Ether transfers, i.e.
+        // This function is called for plain Quanta transfers, i.e.
         // for every call with empty calldata.
         receive() external payable { x = 2; y = msg.value; }
     }
@@ -435,9 +435,9 @@ operations as long as there is enough gas passed on to it.
             // It has to be converted to the ``address payable`` type to even allow calling ``send`` on it.
             address payable testPayable = payable(address(test));
 
-            // If someone sends Ether to that contract,
+            // If someone sends Quanta to that contract,
             // the transfer will fail, i.e. this returns false here.
-            return testPayable.send(2 ether);
+            return testPayable.send(2 quanta);
         }
 
         function callTestPayable(TestPayable test) public returns (bool) {
@@ -448,12 +448,12 @@ operations as long as there is enough gas passed on to it.
             require(success);
             // results in test.x becoming == 1 and test.y becoming 1.
 
-            // If someone sends Ether to that contract, the receive function in TestPayable will be called.
+            // If someone sends Quanta to that contract, the receive function in TestPayable will be called.
             // Since that function writes to storage, it takes more gas than is available with a
             // simple ``send`` or ``transfer``. Because of that, we have to use a low-level call.
-            (success,) = address(test).call{value: 2 ether}("");
+            (success,) = address(test).call{value: 2 quanta}("");
             require(success);
-            // results in test.x becoming == 2 and test.y becoming 2 ether.
+            // results in test.x becoming == 2 and test.y becoming 2 quanta.
 
             return true;
         }
@@ -475,7 +475,7 @@ The following example shows overloading of the function
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.16 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract A {
         function f(uint value) public pure returns (uint out) {
@@ -494,7 +494,7 @@ externally visible functions differ by their Hyperion types but not by their ext
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.16 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     // This will not compile
     contract A {
@@ -528,7 +528,7 @@ candidate, resolution fails.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.16 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract A {
         function f(uint8 val) public pure returns (uint8 out) {

@@ -25,12 +25,12 @@
 #include <libyul/AsmAnalysisInfo.h>
 #include <libyul/AsmAnalysis.h>
 #include <libyul/Dialect.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 #include <libyul/YulStack.h>
 
 #include <liblangutil/DebugInfoSelection.h>
 #include <liblangutil/Exceptions.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 #include <liblangutil/SourceReferenceFormatter.h>
 
 #include <libhyputil/CommonIO.h>
@@ -58,7 +58,7 @@ namespace
 pair<shared_ptr<Block>, shared_ptr<AsmAnalysisInfo>> parse(string const& _source)
 {
 	YulStack stack(
-		langutil::ZVMVersion(),
+		langutil::QRVMVersion(),
 		YulStack::Language::StrictAssembly,
 		hyperion::frontend::OptimiserSettings::none(),
 		DebugInfoSelection::Default()
@@ -87,7 +87,7 @@ void interpret(string const& _source, bool _inspect, bool _disableExternalCalls)
 	state.maxTraceSize = 10000;
 	try
 	{
-		Dialect const& dialect(ZVMDialect::strictAssemblyForZVMObjects(langutil::ZVMVersion{}));
+		Dialect const& dialect(QRVMDialect::strictAssemblyForQRVMObjects(langutil::QRVMVersion{}));
 
 		if (_inspect)
 			InspectedInterpreter::run(std::make_shared<Inspector>(_source, state), state, dialect, *ast, _disableExternalCalls, /*disableMemoryTracing=*/false);

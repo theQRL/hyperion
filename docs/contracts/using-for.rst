@@ -107,7 +107,7 @@ instead of library functions.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.13;
+    pragma hyperion >=0.1.0;
 
     struct Data { mapping(uint => bool) flags; }
     // Now we attach functions to the type.
@@ -163,7 +163,7 @@ In this example, we will use a library.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.13;
+    pragma hyperion >=0.1.0;
 
     library Search {
         function indexOf(uint[] storage self, uint value)
@@ -195,7 +195,7 @@ In this example, we will use a library.
         }
     }
 
-Note that all external library calls are actual ZVM function calls. This means that
+Note that all external library calls are actual QRVM function calls. This means that
 if you pass memory or value types, a copy will be performed, even in case of the
 ``self`` variable. The only situation where no copy will be performed
 is when storage reference variables are used or when internal library
@@ -206,7 +206,7 @@ Another example shows how to define a custom operator for a user-defined type:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.19;
+    pragma hyperion >=0.1.0;
 
     type UFixed16x2 is uint16;
 

@@ -109,8 +109,8 @@
                 ],
                 "id": 5,
                 "nodeType": "InlineAssembly",
-                "src": "63:85:1",
-                "zvmVersion": %ZVMVERSION%
+                "qrvmVersion": %QRVMVERSION%,
+                "src": "63:85:1"
               }
             ]
           },

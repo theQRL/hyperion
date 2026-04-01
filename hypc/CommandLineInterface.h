@@ -24,8 +24,8 @@
 
 #include <hypc/CommandLineParser.h>
 
-#include <libzvmasm/AbstractAssemblyStack.h>
-#include <libzvmasm/ZVMAssemblyStack.h>
+#include <libqrvmasm/AbstractAssemblyStack.h>
+#include <libqrvmasm/QRVMAssemblyStack.h>
 #include <libhyperion/interface/CompilerStack.h>
 #include <libhyperion/interface/DebugSettings.h>
 #include <libhyperion/interface/FileReader.h>
@@ -86,14 +86,14 @@ private:
 	void printVersion();
 	void printLicense();
 	void compile();
-	void assembleFromZVMAssemblyJSON();
+	void assembleFromQRVMAssemblyJSON();
 	void serveLSP();
 	void link();
 	void writeLinkedFiles();
 	/// @returns the ``// <identifier> -> name`` hint for library placeholders.
 	static std::string libraryPlaceholderHint(std::string const& _libraryName);
 	/// @returns the full object with library placeholder hints in hex.
-	static std::string objectWithLinkRefsHex(zvmasm::LinkerObject const& _obj);
+	static std::string objectWithLinkRefsHex(qrvmasm::LinkerObject const& _obj);
 
 	void assembleYul(yul::YulStack::Language _language, yul::YulStack::Machine _targetMachine);
 
@@ -101,7 +101,7 @@ private:
 
 	void handleCombinedJSON();
 	void handleAst();
-	void handleZVMAssembly(std::string const& _contract);
+	void handleQRVMAssembly(std::string const& _contract);
 	void handleBinary(std::string const& _contract);
 	void handleOpcode(std::string const& _contract);
 	void handleIR(std::string const& _contract);
@@ -151,8 +151,8 @@ private:
 	UniversalCallback m_universalCallback{&m_fileReader, m_solverCommand};
 	std::optional<std::string> m_standardJsonInput;
 	std::unique_ptr<frontend::CompilerStack> m_compiler;
-	std::unique_ptr<zvmasm::ZVMAssemblyStack> m_zvmAssemblyStack;
-	zvmasm::AbstractAssemblyStack* m_assemblyStack = nullptr;
+	std::unique_ptr<qrvmasm::QRVMAssemblyStack> m_qrvmAssemblyStack;
+	qrvmasm::AbstractAssemblyStack* m_assemblyStack = nullptr;
 	CommandLineOptions m_options;
 };
 

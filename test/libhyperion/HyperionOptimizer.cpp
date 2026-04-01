@@ -24,8 +24,8 @@
 #include <test/Metadata.h>
 #include <test/libhyperion/HyperionExecutionFramework.h>
 
-#include <libzvmasm/Instruction.h>
-#include <libzvmasm/Disassemble.h>
+#include <libqrvmasm/Instruction.h>
+#include <libqrvmasm/Disassemble.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -36,7 +36,7 @@
 #include <limits>
 
 using namespace hyperion::util;
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 using namespace hyperion::test;
 
 namespace hyperion::frontend::test
@@ -108,7 +108,7 @@ public:
 		bytes realCode = bytecodeSansMetadata(_bytecode);
 		BOOST_REQUIRE_MESSAGE(!realCode.empty(), "Invalid or missing metadata in bytecode.");
 		size_t instructions = 0;
-		zvmasm::eachInstruction(realCode, [&](Instruction _instr, u256 const&) {
+		qrvmasm::eachInstruction(realCode, [&](Instruction _instr, u256 const&) {
 			if (!_which || *_which == _instr)
 				instructions++;
 		});

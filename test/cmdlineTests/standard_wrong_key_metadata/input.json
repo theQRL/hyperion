@@ -13,7 +13,7 @@
       		"enabled": true,
       		"runs": 200
     	},
-    	"zvmVersion": "shanghai",
+    	"qrvmVersion": "zond",
     	"metadata": {
 			"key1": "test",
       		"useLiteralContent": true

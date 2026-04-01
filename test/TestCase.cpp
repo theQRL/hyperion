@@ -97,10 +97,10 @@ TestCase::TestResult TestCase::checkResult(std::ostream& _stream, const std::str
 	return TestResult::Success;
 }
 
-ZVMVersionRestrictedTestCase::ZVMVersionRestrictedTestCase(string const& _filename):
+QRVMVersionRestrictedTestCase::QRVMVersionRestrictedTestCase(string const& _filename):
 	TestCase(_filename)
 {
-	string versionString = m_reader.stringSetting("ZVMVersion", "any");
+	string versionString = m_reader.stringSetting("QRVMVersion", "any");
 	if (versionString == "any")
 		return;
 
@@ -116,26 +116,26 @@ ZVMVersionRestrictedTestCase::ZVMVersionRestrictedTestCase(string const& _filena
 			break;
 
 	versionString = versionString.substr(versionBegin);
-	std::optional<langutil::ZVMVersion> version = langutil::ZVMVersion::fromString(versionString);
+	std::optional<langutil::QRVMVersion> version = langutil::QRVMVersion::fromString(versionString);
 	if (!version)
-		BOOST_THROW_EXCEPTION(runtime_error{"Invalid ZVM version: \"" + versionString + "\""});
+		BOOST_THROW_EXCEPTION(runtime_error{"Invalid QRVM version: \"" + versionString + "\""});
 
-	langutil::ZVMVersion zvmVersion = hyperion::test::CommonOptions::get().zvmVersion();
+	langutil::QRVMVersion qrvmVersion= hyperion::test::CommonOptions::get().qrvmVersion();
 	bool comparisonResult;
 	if (comparator == ">")
-		comparisonResult = zvmVersion > version;
+		comparisonResult = qrvmVersion> version;
 	else if (comparator == ">=")
-		comparisonResult = zvmVersion >= version;
+		comparisonResult = qrvmVersion>= version;
 	else if (comparator == "<")
-		comparisonResult = zvmVersion < version;
+		comparisonResult = qrvmVersion< version;
 	else if (comparator == "<=")
-		comparisonResult = zvmVersion <= version;
+		comparisonResult = qrvmVersion<= version;
 	else if (comparator == "=")
-		comparisonResult = zvmVersion == version;
+		comparisonResult = qrvmVersion== version;
 	else if (comparator == "!")
-		comparisonResult = !(zvmVersion == version);
+		comparisonResult = !(qrvmVersion== version);
 	else
-		BOOST_THROW_EXCEPTION(runtime_error{"Invalid ZVM comparator: \"" + comparator + "\""});
+		BOOST_THROW_EXCEPTION(runtime_error{"Invalid QRVM comparator: \"" + comparator + "\""});
 
 	if (!comparisonResult)
 		m_shouldRun = false;

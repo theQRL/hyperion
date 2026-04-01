@@ -32,7 +32,7 @@
 #include <algorithm>
 #include <set>
 
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 using namespace std::string_literals;
 
 namespace hyperion::frontend::test
@@ -102,9 +102,9 @@ Json::Value getContractResult(Json::Value const& _compilerResult, std::string co
 void checkLinkReferencesSchema(Json::Value const& _contractResult)
 {
 	BOOST_TEST_REQUIRE(_contractResult.isObject());
-	BOOST_TEST_REQUIRE(_contractResult["zvm"]["bytecode"].isObject());
+	BOOST_TEST_REQUIRE(_contractResult["qrvm"]["bytecode"].isObject());
 
-	Json::Value const& linkReferenceResult = _contractResult["zvm"]["bytecode"]["linkReferences"];
+	Json::Value const& linkReferenceResult = _contractResult["qrvm"]["bytecode"]["linkReferences"];
 	BOOST_TEST_REQUIRE(linkReferenceResult.isObject());
 
 	for (std::string const& fileName: linkReferenceResult.getMemberNames())
@@ -129,7 +129,7 @@ void expectLinkReferences(Json::Value const& _contractResult, std::map<std::stri
 {
 	checkLinkReferencesSchema(_contractResult);
 
-	Json::Value const& linkReferenceResult = _contractResult["zvm"]["bytecode"]["linkReferences"];
+	Json::Value const& linkReferenceResult = _contractResult["qrvm"]["bytecode"]["linkReferences"];
 	BOOST_TEST(linkReferenceResult.size() == _expectedLinkReferences.size());
 
 	for (auto const& [fileName, libraries]: _expectedLinkReferences)
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE(basic_compilation)
 		"settings": {
 			"outputSelection": {
 				"fileA": {
-					"A": [ "abi", "devdoc", "userdoc", "zvm.bytecode", "zvm.assembly", "zvm.gasEstimates", "zvm.legacyAssembly", "metadata" ],
+					"A": [ "abi", "devdoc", "userdoc", "qrvm.bytecode", "qrvm.assembly", "qrvm.gasEstimates", "qrvm.legacyAssembly", "metadata" ],
 					"": [ "ast" ]
 				}
 			}
@@ -377,18 +377,18 @@ BOOST_AUTO_TEST_CASE(basic_compilation)
 	BOOST_CHECK_EQUAL(util::jsonCompactPrint(contract["devdoc"]), R"({"kind":"dev","methods":{},"version":1})");
 	BOOST_CHECK(contract["userdoc"].isObject());
 	BOOST_CHECK_EQUAL(util::jsonCompactPrint(contract["userdoc"]), R"({"kind":"user","methods":{},"version":1})");
-	BOOST_CHECK(contract["zvm"].isObject());
-	/// @TODO check zvm.methodIdentifiers, legacyAssembly, bytecode, deployedBytecode
-	BOOST_CHECK(contract["zvm"]["bytecode"].isObject());
-	BOOST_CHECK(contract["zvm"]["bytecode"]["object"].isString());
+	BOOST_CHECK(contract["qrvm"].isObject());
+	/// @TODO check qrvm.methodIdentifiers, legacyAssembly, bytecode, deployedBytecode
+	BOOST_CHECK(contract["qrvm"]["bytecode"].isObject());
+	BOOST_CHECK(contract["qrvm"]["bytecode"]["object"].isString());
 	BOOST_CHECK_EQUAL(
-		hyperion::test::bytecodeSansMetadata(contract["zvm"]["bytecode"]["object"].asString()),
+		hyperion::test::bytecodeSansMetadata(contract["qrvm"]["bytecode"]["object"].asString()),
 		std::string("6080604052348015600e575f80fd5b5060") +
 		(VersionIsRelease ? "3e" : util::toHex(bytes{uint8_t(60 + VersionStringStrict.size())})) +
 		"80601a5f395ff3fe60806040525f80fdfe"
 	);
-	BOOST_CHECK(contract["zvm"]["assembly"].isString());
-	BOOST_CHECK(contract["zvm"]["assembly"].asString().find(
+	BOOST_CHECK(contract["qrvm"]["assembly"].isString());
+	BOOST_CHECK(contract["qrvm"]["assembly"].asString().find(
 		"    /* \"fileA\":0:14  contract A { } */\n  mstore(0x40, 0x80)\n  "
 		"callvalue\n  dup1\n  "
 		"iszero\n  tag_1\n  jumpi\n  "
@@ -400,24 +400,24 @@ BOOST_AUTO_TEST_CASE(basic_compilation)
 		"0x00\n      "
 		"dup1\n      revert\n\n    auxdata: 0xa26469706673582212"
 	) == 0);
-	BOOST_CHECK(contract["zvm"]["gasEstimates"].isObject());
-	BOOST_CHECK_EQUAL(contract["zvm"]["gasEstimates"].size(), 1);
-	BOOST_CHECK(contract["zvm"]["gasEstimates"]["creation"].isObject());
-	BOOST_CHECK_EQUAL(contract["zvm"]["gasEstimates"]["creation"].size(), 3);
-	BOOST_CHECK(contract["zvm"]["gasEstimates"]["creation"]["codeDepositCost"].isString());
-	BOOST_CHECK(contract["zvm"]["gasEstimates"]["creation"]["executionCost"].isString());
-	BOOST_CHECK(contract["zvm"]["gasEstimates"]["creation"]["totalCost"].isString());
+	BOOST_CHECK(contract["qrvm"]["gasEstimates"].isObject());
+	BOOST_CHECK_EQUAL(contract["qrvm"]["gasEstimates"].size(), 1);
+	BOOST_CHECK(contract["qrvm"]["gasEstimates"]["creation"].isObject());
+	BOOST_CHECK_EQUAL(contract["qrvm"]["gasEstimates"]["creation"].size(), 3);
+	BOOST_CHECK(contract["qrvm"]["gasEstimates"]["creation"]["codeDepositCost"].isString());
+	BOOST_CHECK(contract["qrvm"]["gasEstimates"]["creation"]["executionCost"].isString());
+	BOOST_CHECK(contract["qrvm"]["gasEstimates"]["creation"]["totalCost"].isString());
 	BOOST_CHECK_EQUAL(
-		u256(contract["zvm"]["gasEstimates"]["creation"]["codeDepositCost"].asString()) +
-		u256(contract["zvm"]["gasEstimates"]["creation"]["executionCost"].asString()),
-		u256(contract["zvm"]["gasEstimates"]["creation"]["totalCost"].asString())
+		u256(contract["qrvm"]["gasEstimates"]["creation"]["codeDepositCost"].asString()) +
+		u256(contract["qrvm"]["gasEstimates"]["creation"]["executionCost"].asString()),
+		u256(contract["qrvm"]["gasEstimates"]["creation"]["totalCost"].asString())
 	);
 	// Lets take the top level `.code` section (the "deployer code"), that should expose most of the features of
 	// the assembly JSON. What we want to check here is Operation, Push, PushTag, PushSub, PushSubSize and Tag.
-	BOOST_CHECK(contract["zvm"]["legacyAssembly"].isObject());
-	BOOST_CHECK(contract["zvm"]["legacyAssembly"][".code"].isArray());
+	BOOST_CHECK(contract["qrvm"]["legacyAssembly"].isObject());
+	BOOST_CHECK(contract["qrvm"]["legacyAssembly"][".code"].isArray());
 	BOOST_CHECK_EQUAL(
-		util::jsonCompactPrint(contract["zvm"]["legacyAssembly"][".code"]),
+		util::jsonCompactPrint(contract["qrvm"]["legacyAssembly"][".code"]),
 		"[{\"begin\":0,\"end\":14,\"name\":\"PUSH\",\"source\":0,\"value\":\"80\"},"
 		"{\"begin\":0,\"end\":14,\"name\":\"PUSH\",\"source\":0,\"value\":\"40\"},"
 		"{\"begin\":0,\"end\":14,\"name\":\"MSTORE\",\"source\":0},"
@@ -710,7 +710,7 @@ BOOST_AUTO_TEST_CASE(library_filename_with_colon)
 			"outputSelection": {
 				"fileA": {
 					"A": [
-						"zvm.bytecode"
+						"qrvm.bytecode"
 					]
 				}
 			}
@@ -780,7 +780,7 @@ BOOST_AUTO_TEST_CASE(libraries_invalid_hex)
 		"settings": {
 			"libraries": {
 				"library.hyp": {
-					"L": "Z4200000000000000000000000000000000000xx1"
+					"L": "Q4200000000000000000000000000000000000xx1"
 				}
 			}
 		},
@@ -792,7 +792,7 @@ BOOST_AUTO_TEST_CASE(libraries_invalid_hex)
 	}
 	)";
 	Json::Value result = compile(input);
-	BOOST_CHECK(containsError(result, "JSONError", "Invalid library address (\"Z4200000000000000000000000000000000000xx1\") supplied."));
+	BOOST_CHECK(containsError(result, "JSONError", "Invalid library address (\"Q4200000000000000000000000000000000000xx1\") supplied."));
 }
 
 BOOST_AUTO_TEST_CASE(libraries_invalid_length)
@@ -803,8 +803,8 @@ BOOST_AUTO_TEST_CASE(libraries_invalid_length)
 		"settings": {
 			"libraries": {
 				"library.hyp": {
-					"L1": "Z42",
-					"L2": "Z4200000000000000000000000000000000000001ff"
+					"L1": "Q42",
+					"L2": "Q4200000000000000000000000000000000000001ff"
 				}
 			}
 		},
@@ -839,7 +839,7 @@ BOOST_AUTO_TEST_CASE(libraries_missing_address_prefix)
 	}
 	)";
 	Json::Value result = compile(input);
-	BOOST_CHECK(containsError(result, "JSONError", "Library address is not prefixed with \"Z\"."));
+	BOOST_CHECK(containsError(result, "JSONError", "Library address is not prefixed with \"Q\"."));
 }
 
 BOOST_AUTO_TEST_CASE(library_linking)
@@ -850,13 +850,13 @@ BOOST_AUTO_TEST_CASE(library_linking)
 		"settings": {
 			"libraries": {
 				"library.hyp": {
-					"L": "Z4200000000000000000000000000000000000001"
+					"L": "Q4200000000000000000000000000000000000001"
 				}
 			},
 			"outputSelection": {
 				"fileA": {
 					"A": [
-						"zvm.bytecode"
+						"qrvm.bytecode"
 					]
 				}
 			}
@@ -888,13 +888,13 @@ BOOST_AUTO_TEST_CASE(linking_yul)
 		"settings": {
 			"libraries": {
 				"fileB": {
-					"L": "Z4200000000000000000000000000000000000001"
+					"L": "Q4200000000000000000000000000000000000001"
 				}
 			},
 			"outputSelection": {
 				"fileA": {
 					"*": [
-						"zvm.bytecode.linkReferences"
+						"qrvm.bytecode.linkReferences"
 					]
 				}
 			}
@@ -920,13 +920,13 @@ BOOST_AUTO_TEST_CASE(linking_yul_empty_link_reference)
 		"settings": {
 			"libraries": {
 				"": {
-					"": "Z4200000000000000000000000000000000000001"
+					"": "Q4200000000000000000000000000000000000001"
 				}
 			},
 			"outputSelection": {
 				"fileA": {
 					"*": [
-						"zvm.bytecode.linkReferences"
+						"qrvm.bytecode.linkReferences"
 					]
 				}
 			}
@@ -952,13 +952,13 @@ BOOST_AUTO_TEST_CASE(linking_yul_no_filename_in_link_reference)
 		"settings": {
 			"libraries": {
 				"": {
-					"L": "Z4200000000000000000000000000000000000001"
+					"L": "Q4200000000000000000000000000000000000001"
 				}
 			},
 			"outputSelection": {
 				"fileA": {
 					"*": [
-						"zvm.bytecode.linkReferences"
+						"qrvm.bytecode.linkReferences"
 					]
 				}
 			}
@@ -984,13 +984,13 @@ BOOST_AUTO_TEST_CASE(linking_yul_same_library_name_different_files)
 		"settings": {
 			"libraries": {
 				"fileB": {
-					"L": "Z4200000000000000000000000000000000000001"
+					"L": "Q4200000000000000000000000000000000000001"
 				}
 			},
 			"outputSelection": {
 				"fileA": {
 					"*": [
-						"zvm.bytecode.linkReferences"
+						"qrvm.bytecode.linkReferences"
 					]
 				}
 			}
@@ -1008,7 +1008,7 @@ BOOST_AUTO_TEST_CASE(linking_yul_same_library_name_different_files)
 	expectLinkReferences(contractResult, {{"fileC", {"L"}}});
 }
 
-BOOST_AUTO_TEST_CASE(zvm_version)
+BOOST_AUTO_TEST_CASE(qrvm_version)
 {
 	auto inputForVersion = [](std::string const& _version)
 	{
@@ -1028,14 +1028,14 @@ BOOST_AUTO_TEST_CASE(zvm_version)
 		)";
 	};
 	Json::Value result;
-	result = compile(inputForVersion("\"zvmVersion\": \"shanghai\","));
-	BOOST_CHECK(result["contracts"]["fileA"]["A"]["metadata"].asString().find("\"zvmVersion\":\"shanghai\"") != std::string::npos);
+	result = compile(inputForVersion("\"qrvmVersion\": \"zond\","));
+	BOOST_CHECK(result["contracts"]["fileA"]["A"]["metadata"].asString().find("\"qrvmVersion\":\"zond\"") != std::string::npos);
 	// test default
 	result = compile(inputForVersion(""));
-	BOOST_CHECK(result["contracts"]["fileA"]["A"]["metadata"].asString().find("\"zvmVersion\":\"shanghai\"") != std::string::npos);
+	BOOST_CHECK(result["contracts"]["fileA"]["A"]["metadata"].asString().find("\"qrvmVersion\":\"zond\"") != std::string::npos);
 	// test invalid
-	result = compile(inputForVersion("\"zvmVersion\": \"invalid\","));
-	BOOST_CHECK(result["errors"][0]["message"].asString() == "Invalid ZVM version requested.");
+	result = compile(inputForVersion("\"qrvmVersion\": \"invalid\","));
+	BOOST_CHECK(result["errors"][0]["message"].asString() == "Invalid QRVM version requested.");
 }
 
 BOOST_AUTO_TEST_CASE(optimizer_settings_default_disabled)
@@ -1284,7 +1284,7 @@ BOOST_AUTO_TEST_CASE(common_pattern)
 		"settings": {
 			"outputSelection": {
 				"*": {
-					"*": [ "zvm.bytecode.object", "metadata" ]
+					"*": [ "qrvm.bytecode.object", "metadata" ]
 				}
 			}
 		},
@@ -1301,8 +1301,8 @@ BOOST_AUTO_TEST_CASE(common_pattern)
 	BOOST_CHECK(contract.isObject());
 	BOOST_CHECK(contract["metadata"].isString());
 	BOOST_CHECK(hyperion::test::isValidMetadata(contract["metadata"].asString()));
-	BOOST_CHECK(contract["zvm"]["bytecode"].isObject());
-	BOOST_CHECK(contract["zvm"]["bytecode"]["object"].isString());
+	BOOST_CHECK(contract["qrvm"]["bytecode"].isObject());
+	BOOST_CHECK(contract["qrvm"]["bytecode"]["object"].isString());
 }
 
 BOOST_AUTO_TEST_CASE(use_stack_optimization)
@@ -1315,7 +1315,7 @@ BOOST_AUTO_TEST_CASE(use_stack_optimization)
 		"settings": {
 			"optimizer": { "enabled": true, "details": { "yul": true } },
 			"outputSelection": {
-				"fileA": { "A": [ "zvm.bytecode.object" ] }
+				"fileA": { "A": [ "qrvm.bytecode.object" ] }
 			}
 		},
 		"sources": {
@@ -1362,8 +1362,8 @@ BOOST_AUTO_TEST_CASE(use_stack_optimization)
 	BOOST_CHECK(containsAtMostWarnings(result));
 	Json::Value contract = getContractResult(result, "fileA", "A");
 	BOOST_REQUIRE(contract.isObject());
-	BOOST_REQUIRE(contract["zvm"]["bytecode"]["object"].isString());
-	BOOST_CHECK(contract["zvm"]["bytecode"]["object"].asString().length() > 20);
+	BOOST_REQUIRE(contract["qrvm"]["bytecode"]["object"].isString());
+	BOOST_CHECK(contract["qrvm"]["bytecode"]["object"].asString().length() > 20);
 
 	// Now disable stack optimizations and UnusedFunctionParameterPruner (p)
 	// results in "stack too deep"
@@ -1399,7 +1399,7 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard)
 		{
 			"outputSelection":
 			{
-				"*": { "C": ["zvm.bytecode"] }
+				"*": { "C": ["qrvm.bytecode"] }
 			}
 		}
 	}
@@ -1416,8 +1416,8 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard)
 	BOOST_REQUIRE(result["contracts"]["A"].isObject());
 	BOOST_REQUIRE(result["contracts"]["A"].size() == 1);
 	BOOST_REQUIRE(result["contracts"]["A"]["C"].isObject());
-	BOOST_REQUIRE(result["contracts"]["A"]["C"]["zvm"].isObject());
-	BOOST_REQUIRE(result["contracts"]["A"]["C"]["zvm"]["bytecode"].isObject());
+	BOOST_REQUIRE(result["contracts"]["A"]["C"]["qrvm"].isObject());
+	BOOST_REQUIRE(result["contracts"]["A"]["C"]["qrvm"]["bytecode"].isObject());
 	BOOST_REQUIRE(result["sources"].isObject());
 	BOOST_REQUIRE(result["sources"].size() == 1);
 	BOOST_REQUIRE(result["sources"]["A"].isObject());
@@ -1440,7 +1440,7 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_colon_source)
 		{
 			"outputSelection":
 			{
-				"*": { "C": ["zvm.bytecode"] }
+				"*": { "C": ["qrvm.bytecode"] }
 			}
 		}
 	}
@@ -1457,8 +1457,8 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_colon_source)
 	BOOST_REQUIRE(result["contracts"][":A"].isObject());
 	BOOST_REQUIRE(result["contracts"][":A"].size() == 1);
 	BOOST_REQUIRE(result["contracts"][":A"]["C"].isObject());
-	BOOST_REQUIRE(result["contracts"][":A"]["C"]["zvm"].isObject());
-	BOOST_REQUIRE(result["contracts"][":A"]["C"]["zvm"]["bytecode"].isObject());
+	BOOST_REQUIRE(result["contracts"][":A"]["C"]["qrvm"].isObject());
+	BOOST_REQUIRE(result["contracts"][":A"]["C"]["qrvm"]["bytecode"].isObject());
 	BOOST_REQUIRE(result["sources"].isObject());
 	BOOST_REQUIRE(result["sources"].size() == 1);
 	BOOST_REQUIRE(result["sources"][":A"].isObject());
@@ -1480,7 +1480,7 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_empty_source)
 		{
 			"outputSelection":
 			{
-				"*": { "C": ["zvm.bytecode"] }
+				"*": { "C": ["qrvm.bytecode"] }
 			}
 		}
 	}
@@ -1497,8 +1497,8 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_empty_source)
 	BOOST_REQUIRE(result["contracts"][""].isObject());
 	BOOST_REQUIRE(result["contracts"][""].size() == 1);
 	BOOST_REQUIRE(result["contracts"][""]["C"].isObject());
-	BOOST_REQUIRE(result["contracts"][""]["C"]["zvm"].isObject());
-	BOOST_REQUIRE(result["contracts"][""]["C"]["zvm"]["bytecode"].isObject());
+	BOOST_REQUIRE(result["contracts"][""]["C"]["qrvm"].isObject());
+	BOOST_REQUIRE(result["contracts"][""]["C"]["qrvm"]["bytecode"].isObject());
 	BOOST_REQUIRE(result["sources"].isObject());
 	BOOST_REQUIRE(result["sources"].size() == 1);
 	BOOST_REQUIRE(result["sources"][""].isObject());
@@ -1524,7 +1524,7 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_multiple_sources)
 		{
 			"outputSelection":
 			{
-				"*": { "D": ["zvm.bytecode"] }
+				"*": { "D": ["qrvm.bytecode"] }
 			}
 		}
 	}
@@ -1541,8 +1541,8 @@ BOOST_AUTO_TEST_CASE(standard_output_selection_wildcard_multiple_sources)
 	BOOST_REQUIRE(result["contracts"]["B"].isObject());
 	BOOST_REQUIRE(result["contracts"]["B"].size() == 1);
 	BOOST_REQUIRE(result["contracts"]["B"]["D"].isObject());
-	BOOST_REQUIRE(result["contracts"]["B"]["D"]["zvm"].isObject());
-	BOOST_REQUIRE(result["contracts"]["B"]["D"]["zvm"]["bytecode"].isObject());
+	BOOST_REQUIRE(result["contracts"]["B"]["D"]["qrvm"].isObject());
+	BOOST_REQUIRE(result["contracts"]["B"]["D"]["qrvm"]["bytecode"].isObject());
 	BOOST_REQUIRE(result["sources"].isObject());
 	BOOST_REQUIRE(result["sources"].size() == 2);
 	BOOST_REQUIRE(result["sources"]["A"].isObject());
@@ -1561,7 +1561,7 @@ BOOST_AUTO_TEST_CASE(stopAfter_invalid_value)
 			"stopAfter": "rrr",
 			"outputSelection":
 			{
-				"*": { "C": ["zvm.bytecode"] }
+				"*": { "C": ["qrvm.bytecode"] }
 			}
 		}
 	}
@@ -1582,7 +1582,7 @@ BOOST_AUTO_TEST_CASE(stopAfter_invalid_type)
 			"stopAfter": 3,
 			"outputSelection":
 			{
-				"*": { "C": ["zvm.bytecode"] }
+				"*": { "C": ["qrvm.bytecode"] }
 			}
 		}
 	}
@@ -1603,7 +1603,7 @@ BOOST_AUTO_TEST_CASE(stopAfter_bin_conflict)
 			"stopAfter": "parsing",
 			"outputSelection":
 			{
-				"*": { "C": ["zvm.bytecode"] }
+				"*": { "C": ["qrvm.bytecode"] }
 			}
 		}
 	}
@@ -1650,7 +1650,7 @@ BOOST_AUTO_TEST_CASE(dependency_tracking_of_abstract_contract)
 		"settings": {
 			"outputSelection": {
 				"BlockRewardAuRaCoins.hyp": {
-					"BlockRewardAuRaCoins": ["ir", "zvm.bytecode.sourceMap"]
+					"BlockRewardAuRaCoins": ["ir", "qrvm.bytecode.sourceMap"]
 				}
 			}
 		}
@@ -1668,9 +1668,9 @@ BOOST_AUTO_TEST_CASE(dependency_tracking_of_abstract_contract)
 	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.hyp"].isObject());
 	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.hyp"].size() == 1);
 	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.hyp"]["BlockRewardAuRaCoins"].isObject());
-	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.hyp"]["BlockRewardAuRaCoins"]["zvm"].isObject());
+	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.hyp"]["BlockRewardAuRaCoins"]["qrvm"].isObject());
 	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.hyp"]["BlockRewardAuRaCoins"]["ir"].isString());
-	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.hyp"]["BlockRewardAuRaCoins"]["zvm"]["bytecode"].isObject());
+	BOOST_REQUIRE(result["contracts"]["BlockRewardAuRaCoins.hyp"]["BlockRewardAuRaCoins"]["qrvm"]["bytecode"].isObject());
 	BOOST_REQUIRE(result["sources"].isObject());
 	BOOST_REQUIRE(result["sources"].size() == 2);
 }
@@ -1737,7 +1737,7 @@ BOOST_AUTO_TEST_CASE(source_location_of_bare_block)
 		"settings": {
 			"outputSelection": {
 				"A.hyp": {
-					"A": ["zvm.bytecode.sourceMap"]
+					"A": ["qrvm.bytecode.sourceMap"]
 				}
 			}
 		}
@@ -1750,7 +1750,7 @@ BOOST_AUTO_TEST_CASE(source_location_of_bare_block)
 	hyperion::frontend::StandardCompiler compiler;
 	Json::Value result = compiler.compile(parsedInput);
 
-	std::string sourceMap = result["contracts"]["A.hyp"]["A"]["zvm"]["bytecode"]["sourceMap"].asString();
+	std::string sourceMap = result["contracts"]["A.hyp"]["A"]["qrvm"]["bytecode"]["sourceMap"].asString();
 
 	// Check that the bare block's source location is referenced.
 	std::string sourceRef =

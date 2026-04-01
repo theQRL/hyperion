@@ -6,18 +6,18 @@ Safe Remote Purchase
 
 Purchasing goods remotely currently requires multiple parties that need to trust each other.
 The simplest configuration involves a seller and a buyer. The buyer would like to receive
-an item from the seller and the seller would like to get some compensation, e.g. Ether,
+an item from the seller and the seller would like to get some compensation, e.g. quanta,
 in return. The problematic part is the shipment here: There is no way to determine for
 sure that the item arrived at the buyer.
 
 There are multiple ways to solve this problem, but all fall short in one or the other way.
 In the following example, both parties have to put twice the value of the item into the
-contract as escrow. As soon as this happened, the Ether will stay locked inside
+contract as escrow. As soon as this happened, the Quanta will stay locked inside
 the contract until the buyer confirms that they received the item. After that,
 the buyer is returned the value (half of their deposit) and the seller gets three
 times the value (their deposit plus the value). The idea behind
 this is that both parties have an incentive to resolve the situation or otherwise
-their Ether is locked forever.
+their Quanta is locked forever.
 
 This contract of course does not solve the problem, but gives an overview of how
 you can use state machine-like constructs inside a contract.
@@ -26,7 +26,7 @@ you can use state machine-like constructs inside a contract.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.4;
+    pragma hyperion >=0.1.0;
     contract Purchase {
         uint public value;
         address payable public seller;
@@ -83,7 +83,7 @@ you can use state machine-like constructs inside a contract.
                 revert ValueNotEven();
         }
 
-        /// Abort the purchase and reclaim the ether.
+        /// Abort the purchase and reclaim the quanta.
         /// Can only be called by the seller before
         /// the contract is locked.
         function abort()
@@ -101,8 +101,8 @@ you can use state machine-like constructs inside a contract.
         }
 
         /// Confirm the purchase as buyer.
-        /// Transaction has to include `2 * value` ether.
-        /// The ether will be locked until confirmReceived
+        /// Transaction has to include `2 * value` quanta.
+        /// The quanta will be locked until confirmReceived
         /// is called.
         function confirmPurchase()
             external
@@ -116,7 +116,7 @@ you can use state machine-like constructs inside a contract.
         }
 
         /// Confirm that you (the buyer) received the item.
-        /// This will release the locked ether.
+        /// This will release the locked quanta.
         function confirmReceived()
             external
             onlyBuyer

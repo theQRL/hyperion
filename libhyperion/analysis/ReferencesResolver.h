@@ -25,7 +25,7 @@
 
 #include <libhyperion/ast/ASTVisitor.h>
 #include <libhyperion/ast/ASTAnnotations.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 #include <libyul/optimiser/ASTWalker.h>
 
 #include <list>
@@ -52,12 +52,12 @@ public:
 	ReferencesResolver(
 		langutil::ErrorReporter& _errorReporter,
 		NameAndTypeResolver& _resolver,
-		langutil::ZVMVersion _zvmVersion,
+		langutil::QRVMVersion _qrvmVersion,
 		bool _resolveInsideCode = false
 	):
 		m_errorReporter(_errorReporter),
 		m_resolver(_resolver),
-		m_zvmVersion(_zvmVersion),
+		m_qrvmVersion(_qrvmVersion),
 		m_resolveInsideCode(_resolveInsideCode)
 	{}
 
@@ -97,7 +97,7 @@ private:
 
 	langutil::ErrorReporter& m_errorReporter;
 	NameAndTypeResolver& m_resolver;
-	langutil::ZVMVersion m_zvmVersion;
+	langutil::QRVMVersion m_qrvmVersion;
 	/// Stack of return parameters.
 	std::vector<ParameterList const*> m_returnParameters;
 	bool const m_resolveInsideCode;

@@ -6,5 +6,5 @@
     )
 }
 // ====
-// dialect: zvm
+// dialect: qrvm
 // ----

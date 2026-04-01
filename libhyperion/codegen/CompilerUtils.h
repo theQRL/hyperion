@@ -77,7 +77,7 @@ public:
 	);
 
 	/// Allocates a new array and copies the return data to it.
-	/// If the ZVM does not support return data, creates an empty array.
+	/// If the QRVM does not support return data, creates an empty array.
 	void returnDataToArray();
 
 	/// Computes the absolute calldata offset of a tail given a base reference and the (absolute)
@@ -277,7 +277,7 @@ public:
 	/// Pops slots from the stack such that its height is _toHeight.
 	/// Adds jump to _jumpTo.
 	/// Readjusts the stack offset to the original value.
-	void popAndJump(unsigned _toHeight, zvmasm::AssemblyItem const& _jumpTo);
+	void popAndJump(unsigned _toHeight, qrvmasm::AssemblyItem const& _jumpTo);
 
 	template <class T>
 	static unsigned sizeOnStack(std::vector<T> const& _variables);

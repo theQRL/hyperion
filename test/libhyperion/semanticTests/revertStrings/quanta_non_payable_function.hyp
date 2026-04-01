@@ -1,0 +1,8 @@
+contract C {
+	function f() public {}
+}
+// ====
+// revertStrings: debug
+// ----
+// f(), 1 quanta -> FAILURE, hex"08c379a0", 0x20, 35, "Quanta sent to non-payable funct","ion"
+// () -> FAILURE, hex"08c379a0", 0x20, 53, "Contract does not have fallback ", "nor receive functions"

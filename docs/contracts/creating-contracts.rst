@@ -4,12 +4,12 @@
 Creating Contracts
 ******************
 
-Contracts can be created "from outside" via Ethereum transactions or from within Hyperion contracts.
+Contracts can be created "from outside" via QRL transactions or from within Hyperion contracts.
 
 IDEs, such as `Remix <https://remix.ethereum.org/>`_, make the creation process seamless using UI elements.
 
-One way to create contracts programmatically on Ethereum is via the JavaScript API `web3.js <https://github.com/web3/web3.js>`_.
-It has a function called `web3.zond.Contract <https://web3js.readthedocs.io/en/1.0/web3-eth-contract.html#new-contract>`_
+One way to create contracts programmatically on QRL is via the JavaScript API `web3.js <https://github.com/theQRL/web3.js>`_.
+It has a function called `web3.qrl.Contract <https://web3js.readthedocs.io/en/1.0/web3-eth-contract.html#new-contract>`_
 to facilitate contract creation.
 
 When a contract is created, its :ref:`constructor <constructor>` (a function declared with
@@ -35,8 +35,7 @@ This means that cyclic creation dependencies are impossible.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.22 <0.9.0;
-
+    pragma hyperion >=0.1.0;
 
     contract OwnedToken {
         // `TokenCreator` is a contract type that is defined below.

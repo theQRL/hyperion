@@ -36,7 +36,7 @@ message LowLevelCall {
   required Expression gas = 2;
   required Expression addr = 3;
   // Valid for call only
-  required Expression wei = 4;
+  required Expression planck = 4;
   required Expression in = 5;
   required Expression insize = 6;
   required Expression out = 7;
@@ -49,7 +49,7 @@ message Create {
     CREATE2 = 1;
   }
   required Type createty = 1;
-  required Expression wei = 2;
+  required Expression planck = 2;
   required Expression position = 3;
   required Expression size = 4;
   // Valid for create2 only
@@ -382,7 +382,7 @@ message Data {
 
 message Program {
   enum Version {
-    SHANGHAI = 11;
+    ZOND = 11;
   }
   oneof program_oneof {
     Block block = 1;

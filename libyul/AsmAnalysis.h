@@ -22,14 +22,14 @@
 #pragma once
 
 #include <liblangutil/Exceptions.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 #include <libyul/ASTForward.h>
 #include <libyul/Dialect.h>
 #include <libyul/Scope.h>
 
-#include <libyul/backends/zvm/AbstractAssembly.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/AbstractAssembly.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 #include <functional>
 #include <list>
@@ -69,8 +69,8 @@ public:
 		m_dialect(_dialect),
 		m_dataNames(std::move(_dataNames))
 	{
-		if (ZVMDialect const* zvmDialect = dynamic_cast<ZVMDialect const*>(&m_dialect))
-			m_zvmVersion = zvmDialect->zvmVersion();
+		if (QRVMDialect const* qrvmDialect = dynamic_cast<QRVMDialect const*>(&m_dialect))
+			m_qrvmVersion = qrvmDialect->qrvmVersion();
 	}
 
 	bool analyze(Block const& _block);
@@ -114,7 +114,7 @@ private:
 	void expectValidType(YulString _type, langutil::SourceLocation const& _location);
 	void expectType(YulString _expectedType, YulString _givenType, langutil::SourceLocation const& _location);
 
-	bool validateInstructions(zvmasm::Instruction _instr, langutil::SourceLocation const& _location);
+	bool validateInstructions(qrvmasm::Instruction _instr, langutil::SourceLocation const& _location);
 	bool validateInstructions(std::string const& _instrIdentifier, langutil::SourceLocation const& _location);
 	bool validateInstructions(FunctionCall const& _functionCall);
 
@@ -125,7 +125,7 @@ private:
 	std::set<Scope::Variable const*> m_activeVariables;
 	AsmAnalysisInfo& m_info;
 	langutil::ErrorReporter& m_errorReporter;
-	langutil::ZVMVersion m_zvmVersion;
+	langutil::QRVMVersion m_qrvmVersion;
 	Dialect const& m_dialect;
 	/// Names of data objects to be referenced by builtin functions with literal arguments.
 	std::set<YulString> m_dataNames;

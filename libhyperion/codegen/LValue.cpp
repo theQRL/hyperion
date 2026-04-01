@@ -26,12 +26,12 @@
 #include <libhyperion/ast/AST.h>
 #include <libhyperion/ast/Types.h>
 #include <libhyperion/codegen/CompilerUtils.h>
-#include <libzvmasm/Instruction.h>
+#include <libqrvmasm/Instruction.h>
 
 #include <libhyputil/StackTooDeepString.h>
 
 using namespace hyperion;
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 using namespace hyperion::frontend;
 using namespace hyperion::langutil;
 using namespace hyperion::util;

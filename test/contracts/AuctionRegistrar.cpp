@@ -23,7 +23,7 @@
 
 #include <test/libhyperion/HyperionExecutionFramework.h>
 #include <test/contracts/ContractInterface.h>
-#include <test/ZVMHost.h>
+#include <test/QRVMHost.h>
 
 #include <libhyputil/LazyInit.h>
 
@@ -42,7 +42,7 @@ namespace hyperion::frontend::test
 namespace
 {
 static char const* registrarCode = R"DELIMITER(
-pragma hyperion >=0.7.0 <0.9.0;
+pragma hyperion >=0.1.0;
 
 abstract contract NameRegister {
 	function addr(string memory _name) public virtual view returns (address o_owner);
@@ -125,7 +125,7 @@ contract GlobalRegistrar is Registrar, AuctionSystem {
 		record.renewalDate = block.timestamp + c_renewalInterval;
 		record.owner = auction.highestBidder;
 		emit Changed(_name);
-		if (previousOwner != Z0000000000000000000000000000000000000000) {
+		if (previousOwner != Q0000000000000000000000000000000000000000) {
 			if (!record.owner.send(auction.sumOfBids - auction.highestBid / 100))
 				revert();
 		} else {
@@ -145,7 +145,7 @@ contract GlobalRegistrar is Registrar, AuctionSystem {
 			bid(_name, payable(msg.sender), msg.value);
 		} else {
 			Record storage record = m_toRecord[_name];
-			if (record.owner != Z0000000000000000000000000000000000000000)
+			if (record.owner != Q0000000000000000000000000000000000000000)
 				revert();
 			m_toRecord[_name].owner = payable(msg.sender);
 			emit Changed(_name);
@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE(double_reserve_long)
 	registrar.reserve(name);
 	BOOST_CHECK_EQUAL(registrar.owner(name), m_sender);
 
-	sendEther(account(1), u256(10) * ether);
+	sendQuanta(account(1), u256(10) * quanta);
 	m_sender = account(1);
 	registrar.reserve(name);
 	BOOST_CHECK_EQUAL(registrar.owner(name), account(0));
@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE(properties)
 	for (std::string const& name: names)
 	{
 		m_sender = account(0);
-		sendEther(account(count), u256(20) * ether);
+		sendQuanta(account(count), u256(20) * quanta);
 		m_sender = account(count);
 		auto sender = m_sender;
 		addr += count;
@@ -390,7 +390,7 @@ BOOST_AUTO_TEST_CASE(disown)
 	BOOST_CHECK_EQUAL(registrar.name(h160(124)), name);
 
 	// someone else tries disowning
-	sendEther(account(1), u256(10) * ether);
+	sendQuanta(account(1), u256(10) * quanta);
 	m_sender = account(1);
 	registrar.disown(name);
 	BOOST_CHECK_EQUAL(registrar.owner(name), account(0));
@@ -416,7 +416,7 @@ BOOST_AUTO_TEST_CASE(auction_simple)
 	BOOST_CHECK_EQUAL(registrar.owner(name), h160());
 	// "wait" until auction end
 
-	m_zvmcHost->tx_context.block_timestamp += m_biddingTime + 10;
+	m_qrvmcHost->tx_context.block_timestamp += m_biddingTime + 10;
 	// trigger auction again
 	registrar.reserve(name);
 	BOOST_CHECK_EQUAL(registrar.owner(name), m_sender);
@@ -428,7 +428,7 @@ BOOST_AUTO_TEST_CASE(auction_bidding)
 	std::string name = "x";
 
 	unsigned startTime = 0x776347e2;
-	m_zvmcHost->tx_context.block_timestamp = startTime;
+	m_qrvmcHost->tx_context.block_timestamp = startTime;
 
 	RegistrarInterface registrar(*this);
 	// initiate auction
@@ -436,19 +436,19 @@ BOOST_AUTO_TEST_CASE(auction_bidding)
 	registrar.reserve(name);
 	BOOST_CHECK_EQUAL(registrar.owner(name), h160());
 	// overbid self
-	m_zvmcHost->tx_context.block_timestamp = startTime + m_biddingTime - 10;
+	m_qrvmcHost->tx_context.block_timestamp = startTime + m_biddingTime - 10;
 	registrar.setNextValue(12);
 	registrar.reserve(name);
 	// another bid by someone else
-	sendEther(account(1), 10 * ether);
+	sendQuanta(account(1), 10 * quanta);
 	m_sender = account(1);
-	m_zvmcHost->tx_context.block_timestamp = startTime + 2 * m_biddingTime - 50;
+	m_qrvmcHost->tx_context.block_timestamp = startTime + 2 * m_biddingTime - 50;
 	registrar.setNextValue(13);
 	registrar.reserve(name);
 	BOOST_CHECK_EQUAL(registrar.owner(name), h160());
 	// end auction by first bidder (which is not highest) trying to overbid again (too late)
 	m_sender = account(0);
-	m_zvmcHost->tx_context.block_timestamp = startTime + 4 * m_biddingTime;
+	m_qrvmcHost->tx_context.block_timestamp = startTime + 4 * m_biddingTime;
 	registrar.setNextValue(20);
 	registrar.reserve(name);
 	BOOST_CHECK_EQUAL(registrar.owner(name), account(1));

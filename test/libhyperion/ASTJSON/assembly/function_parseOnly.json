@@ -114,8 +114,8 @@
                 "externalReferences": [],
                 "id": 3,
                 "nodeType": "InlineAssembly",
-                "src": "52:52:1",
-                "zvmVersion": %ZVMVERSION%
+                "qrvmVersion": %QRVMVERSION%,
+                "src": "52:52:1"
               }
             ]
           },

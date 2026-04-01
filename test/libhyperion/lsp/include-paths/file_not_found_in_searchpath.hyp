@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma hyperion >=0.8.0;
+pragma hyperion >=0.1.0;
 
    import "test.hyp";
 // ^^^^^^^^^^^^^^^^^^ @IncludeLocation

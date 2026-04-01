@@ -4,6 +4,6 @@
 	x, 123:u256 := f()
 }
 // ====
-// dialect: zvmTyped
+// dialect: qrvmTyped 
 // ----
 // ParserError 2856: (62-64): Variable name must precede ":=" in assignment.

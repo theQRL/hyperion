@@ -169,10 +169,10 @@ void IRGenerationContext::internalFunctionCalledThroughDispatch(YulArity const& 
 
 YulUtilFunctions IRGenerationContext::utils()
 {
-	return YulUtilFunctions(m_zvmVersion, m_revertStrings, m_functions);
+	return YulUtilFunctions(m_qrvmVersion, m_revertStrings, m_functions);
 }
 
 ABIFunctions IRGenerationContext::abiFunctions()
 {
-	return ABIFunctions(m_zvmVersion, m_revertStrings, m_functions);
+	return ABIFunctions(m_qrvmVersion, m_revertStrings, m_functions);
 }

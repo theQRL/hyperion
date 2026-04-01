@@ -57,9 +57,9 @@ bytes HyperionExecutionFramework::multiSourceCompileContract(
 	));
 	m_compiler.setLibraries(_libraryAddresses);
 	m_compiler.setRevertStringBehaviour(m_revertStrings);
-	m_compiler.setZVMVersion(m_zvmVersion);
+	m_compiler.setQRVMVersion(m_qrvmVersion);
 	m_compiler.setOptimiserSettings(m_optimiserSettings);
-	m_compiler.enableZvmBytecodeGeneration(true);
+	m_compiler.enableQrvmBytecodeGeneration(true);
 	m_compiler.setViaIR(m_compileViaYul);
 	m_compiler.setRevertStringBehaviour(m_revertStrings);
 	if (!m_appendCBORMetadata) {
@@ -80,7 +80,7 @@ bytes HyperionExecutionFramework::multiSourceCompileContract(
 		BOOST_ERROR("Compiling contract failed");
 	}
 	std::string contractName(_contractName.empty() ? m_compiler.lastContractName(_mainSourceName) : _contractName);
-	zvmasm::LinkerObject obj = m_compiler.object(contractName);
+	qrvmasm::LinkerObject obj = m_compiler.object(contractName);
 	BOOST_REQUIRE(obj.linkReferences.empty());
 	if (m_showMetadata)
 		std::cout << "metadata: " << m_compiler.metadata(contractName) << std::endl;

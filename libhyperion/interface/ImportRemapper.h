@@ -63,7 +63,7 @@ public:
 	static std::optional<Remapping> parseRemapping(std::string_view _input);
 
 private:
-	/// list of path prefix remappings, e.g. mylibrary: github.com/ethereum = /usr/local/ethereum
+	/// list of path prefix remappings, e.g. mylibrary: github.com/theQRL = /usr/local/theQRL
 	/// "context:prefix=target"
 	std::vector<Remapping> m_remappings = {};
 };

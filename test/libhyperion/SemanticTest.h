@@ -53,14 +53,14 @@ std::ostream& operator<<(std::ostream& _output, RequiresYulOptimizer _requiresYu
  * section from the given file. This comment section should define a set of functions to be called
  * and an expected result they return after being executed.
  */
-class SemanticTest: public HyperionExecutionFramework, public ZVMVersionRestrictedTestCase
+class SemanticTest: public HyperionExecutionFramework, public QRVMVersionRestrictedTestCase
 {
 public:
 	static std::unique_ptr<TestCase> create(Config const& _options)
 	{
 		return std::make_unique<SemanticTest>(
 			_options.filename,
-			_options.zvmVersion,
+			_options.qrvmVersion,
 			_options.vmPaths,
 			_options.enforceGasCost,
 			_options.enforceGasCostMinValue
@@ -69,7 +69,7 @@ public:
 
 	explicit SemanticTest(
 		std::string const& _filename,
-		langutil::ZVMVersion _zvmVersion,
+		langutil::QRVMVersion _qrvmVersion,
 		std::vector<boost::filesystem::path> const& _vmPaths,
 		bool _enforceGasCost = false,
 		u256 _enforceGasCostMinValue = 100000

@@ -1,1 +1,1 @@
---yul-dialect zvm --machine zvm
+--yul-dialect qrvm --machine qrvm

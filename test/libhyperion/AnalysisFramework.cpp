@@ -89,7 +89,7 @@ void AnalysisFramework::setupCompiler(CompilerStack& _compiler)
 	// These are just defaults based on the (global) CLI options.
 	// Technically, every TestCase should override these with values passed to it in TestCase::Config.
 	// In practice TestCase::Config always matches global config so most test cases don't care.
-	_compiler.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+	_compiler.setQRVMVersion(hyperion::test::CommonOptions::get().qrvmVersion());
 	_compiler.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 }
 

@@ -24,10 +24,10 @@
 #   - first exporting a .hyp file to JSON, then loading it into the compiler
 #     and exporting it again. The second JSON should be identical to the first.
 #
-# zvm-assembly import/export tests:
-#   - first a .hyp file will be compiled and the ZVM Assembly will be exported
+# qrvm-assembly import/export tests:
+#   - first a .hyp file will be compiled and the QRVM Assembly will be exported
 #     to JSON format using --asm-json command-line option.
-#     The ZVM Assembly JSON output is then imported with --import-asm-json
+#     The QRVM Assembly JSON output is then imported with --import-asm-json
 #     and compiled again. The binary generated initially and after the import
 #     should be identical.
 
@@ -54,7 +54,7 @@ source "${REPO_ROOT}/scripts/common_cmdline.sh"
 
 function print_usage
 {
-    echo "Usage: ${0} ast|zvm-assembly [--exit-on-error|--help]."
+    echo "Usage: ${0} ast|qrvm-assembly [--exit-on-error|--help]."
 }
 
 function print_used_commands
@@ -96,7 +96,7 @@ for PARAM in "$@"
 do
     case "$PARAM" in
         ast) check_import_test_type_unset ; IMPORT_TEST_TYPE="ast" ;;
-        zvm-assembly) check_import_test_type_unset ; IMPORT_TEST_TYPE="zvm-assembly" ;;
+        qrvm-assembly) check_import_test_type_unset ; IMPORT_TEST_TYPE="qrvm-assembly" ;;
         --help) print_usage ; exit 0 ;;
         --exit-on-error) EXIT_ON_ERROR=1 ;;
         *) fail "Unknown option '$PARAM'. Aborting. $(print_usage)" ;;
@@ -199,12 +199,12 @@ function run_hypc_store_stdout
     rm "${output_file}.error"
 }
 
-function test_zvmjson_import_export_equivalence
+function test_qrvmjson_import_export_equivalence
 {
     local sol_file="$1"
     local input_files=( "${@:2}" )
 
-    # Generate bytecode and ZVM assembly JSON through normal complication
+    # Generate bytecode and QRVM assembly JSON through normal complication
     mkdir -p export/
     local export_options=(--bin --asm-json "${input_files[@]}" --output-dir export/)
     run_hypc "${export_options[@]}"
@@ -218,10 +218,10 @@ function test_zvmjson_import_export_equivalence
 
     for asm_json_file in export/*.json
     do
-        mv "${asm_json_file}" "${asm_json_file/_zvm/}"
+        mv "${asm_json_file}" "${asm_json_file/_qrvm/}"
     done
 
-    # Import ZVM assembly JSON
+    # Import QRVM assembly JSON
     mkdir -p import/
     for asm_json_file in export/*.json
     do
@@ -241,7 +241,7 @@ function test_zvmjson_import_export_equivalence
         local bin_file_from_asm_import=${bin_file/export/import}
         if ! diff --strip-trailing-cr --ignore-all-space "${bin_file}" "${bin_file_from_asm_import}" > diff_error
         then
-            printError "ERROR: Bytecode from compilation (${bin_file}) differs from bytecode from ZVM asm import (${bin_file_from_asm_import}):"
+            printError "ERROR: Bytecode from compilation (${bin_file}) differs from bytecode from QRVM asm import (${bin_file_from_asm_import}):"
             printError "    $(cat diff_error)"
             if (( EXIT_ON_ERROR == 1 ))
             then
@@ -271,7 +271,7 @@ function test_import_export_equivalence {
 
     case "$IMPORT_TEST_TYPE" in
         ast) compile_test="--ast-compact-json" ;;
-        zvm-assembly) compile_test="--bin" ;;
+        qrvm-assembly) compile_test="--bin" ;;
         *) assertFail "Unknown import test type '${IMPORT_TEST_TYPE}'. Aborting." ;;
     esac
 
@@ -285,7 +285,7 @@ function test_import_export_equivalence {
     then
         case "$IMPORT_TEST_TYPE" in
             ast) test_ast_import_export_equivalence "${sol_file}" "${input_files[@]}" ;;
-            zvm-assembly) test_zvmjson_import_export_equivalence "${sol_file}" "${input_files[@]}" ;;
+            qrvm-assembly) test_qrvmjson_import_export_equivalence "${sol_file}" "${input_files[@]}" ;;
             *) assertFail "Unknown import test type '${IMPORT_TEST_TYPE}'. Aborting." ;;
         esac
     else
@@ -296,7 +296,7 @@ function test_import_export_equivalence {
         # and print some details about the corresponding hypc invocation.
         if (( hypc_return_code == 2 ))
         then
-            # For the zvm-assembly import/export tests, this script uses only the old code generator.
+            # For the qrvm-assembly import/export tests, this script uses only the old code generator.
             # Some semantic tests can only be compiled with --via-ir (some need to be additionally
             # compiled with --optimize). The tests that are meant to be compiled with --via-ir are
             # throwing an UnimplementedFeatureError exception, e.g.:
@@ -319,7 +319,7 @@ command_available "$READLINK" --version
 
 case "$IMPORT_TEST_TYPE" in
     ast) TEST_DIRS=("${SYNTAXTESTS_DIR}" "${ASTJSONTESTS_DIR}") ;;
-    zvm-assembly) TEST_DIRS=("${SEMANTICTESTS_DIR}") ;;
+    qrvm-assembly) TEST_DIRS=("${SEMANTICTESTS_DIR}") ;;
     *) assertFail "Import test type not defined. $(print_usage)" ;;
 esac
 

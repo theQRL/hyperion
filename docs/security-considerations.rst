@@ -50,18 +50,18 @@ Reentrancy
 ==========
 
 Any interaction from a contract (A) with another contract (B)
-and any transfer of Ether hands over control to that contract (B).
+and any transfer of Quanta hands over control to that contract (B).
 This makes it possible for B to call back into A before this interaction is completed.
 To give an example, the following code contains a bug (it is just a snippet and not a complete contract):
 
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     // THIS CONTRACT CONTAINS A BUG - DO NOT USE
     contract Fund {
-        /// @dev Mapping of ether shares of the contract.
+        /// @dev Mapping of quanta shares of the contract.
         mapping(address => uint) shares;
         /// Withdraw your share.
         function withdraw() public {
@@ -72,20 +72,20 @@ To give an example, the following code contains a bug (it is just a snippet and 
 
 The problem is not too serious here because of the limited gas as part of ``send``,
 but it still exposes a weakness:
-Ether transfer can always include code execution,
+Quanta transfer can always include code execution,
 so the recipient could be a contract that calls back into ``withdraw``.
-This would let it get multiple refunds and, basically, retrieve all the Ether in the contract.
+This would let it get multiple refunds and, basically, retrieve all the Quanta in the contract.
 In particular, the following contract will allow an attacker to refund multiple times
 as it uses ``call`` which forwards all remaining gas by default:
 
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.2 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     // THIS CONTRACT CONTAINS A BUG - DO NOT USE
     contract Fund {
-        /// @dev Mapping of ether shares of the contract.
+        /// @dev Mapping of quanta shares of the contract.
         mapping(address => uint) shares;
         /// Withdraw your share.
         function withdraw() public {
@@ -100,10 +100,10 @@ To avoid reentrancy, you can use the Checks-Effects-Interactions pattern as demo
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Fund {
-        /// @dev Mapping of ether shares of the contract.
+        /// @dev Mapping of quanta shares of the contract.
         mapping(address => uint) shares;
         /// Withdraw your share.
         function withdraw() public {
@@ -123,7 +123,7 @@ where an externally called malicious contract can double-spend an allowance,
 double-withdraw a balance, among other things,
 by using logic that calls back into the original contract before it has finalized its transaction.
 
-Note that reentrancy is not only an effect of Ether transfer
+Note that reentrancy is not only an effect of Quanta transfer
 but of any function call on another contract.
 Furthermore, you also have to take multi-contract situations into account.
 A called contract could modify the state of another contract you depend on.
@@ -141,20 +141,20 @@ This may not apply to ``view`` functions that are only executed to read data fro
 Still, such functions may be called by other contracts as part of on-chain operations and stall those.
 Please be explicit about such cases in the documentation of your contracts.
 
-Sending and Receiving Ether
+Sending and Receiving Quanta
 ===========================
 
-- Neither contracts nor "external accounts" are currently able to prevent someone from sending them Ether.
-  Contracts can react on and reject a regular transfer, but there are ways to move Ether without creating a message call.
+- Neither contracts nor "external accounts" are currently able to prevent someone from sending them Quanta.
+  Contracts can react on and reject a regular transfer, but there are ways to move Quanta without creating a message call.
   One way is to simply "mine to" the contract address.
 
-- If a contract receives Ether (without a function being called), either the :ref:`receive Ether <receive-ether-function>`
+- If a contract receives Quanta (without a function being called), either the :ref:`receive Quanta <receive-quanta-function>`
   or the :ref:`fallback <fallback-function>` function is executed.
-  If it does not have a ``receive`` nor a ``fallback`` function, the Ether will be rejected (by throwing an exception).
+  If it does not have a ``receive`` nor a ``fallback`` function, the Quanta will be rejected (by throwing an exception).
   During the execution of one of these functions, the contract can only rely on the "gas stipend" it is passed (2300 gas)
   being available to it at that time.
   This stipend is not enough to modify storage (do not take this for granted though, the stipend might change with future hard forks).
-  To be sure that your contract can receive Ether in that way, check the gas requirements of the receive and fallback functions
+  To be sure that your contract can receive Quanta in that way, check the gas requirements of the receive and fallback functions
   (for example in the "details" section in Remix).
 
 - There is a way to forward more gas to the receiving contract using ``addr.call{value: x}("")``.
@@ -164,18 +164,18 @@ Sending and Receiving Ether
   This might include calling back into the sending contract or other state changes you might not have thought of.
   So it allows for great flexibility for honest users but also for malicious actors.
 
-- Use the most precise units to represent the Wei amount as possible, as you lose any that is rounded due to a lack of precision.
+- Use the most precise units to represent the Planck amount as possible, as you lose any that is rounded due to a lack of precision.
 
-- If you want to send Ether using ``address.transfer``, there are certain details to be aware of:
+- If you want to send Quanta using ``address.transfer``, there are certain details to be aware of:
 
   1. If the recipient is a contract, it causes its receive or fallback function
      to be executed which can, in turn, call back the sending contract.
-  2. Sending Ether can fail due to the call depth going above 1024. Since the
+  2. Sending Quanta can fail due to the call depth going above 1024. Since the
      caller is in total control of the call depth, they can force the
      transfer to fail; take this possibility into account or use ``send`` and
      make sure to always check its return value. Better yet, write your
-     contract using a pattern where the recipient can withdraw Ether instead.
-  3. Sending Ether can also fail because the execution of the recipient
+     contract using a pattern where the recipient can withdraw Quanta instead.
+  3. Sending Quanta can also fail because the execution of the recipient
      contract requires more than the allotted amount of gas (explicitly by
      using :ref:`require <assert-and-require>`, :ref:`assert <assert-and-require>`,
      :ref:`revert <assert-and-require>` or because the
@@ -214,7 +214,7 @@ If needed, you can accomplish that using a second proxy:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.0;
+    pragma hyperion >=0.1.0;
     contract ProxyWithMoreFunctionality {
         PermissionlessProxy proxy;
 
@@ -243,7 +243,7 @@ Let's say you have a wallet contract like this:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.7.0 <0.9.0;
+    pragma hyperion >=0.1.0;
     // THIS CONTRACT CONTAINS A BUG - DO NOT USE
     contract TxUserWallet {
         address owner;
@@ -259,12 +259,12 @@ Let's say you have a wallet contract like this:
         }
     }
 
-Now someone tricks you into sending Ether to the address of this attack wallet:
+Now someone tricks you into sending Quanta to the address of this attack wallet:
 
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.7.0 <0.9.0;
+    pragma hyperion >=0.1.0;
     interface TxUserWallet {
         function transferTo(address payable dest, uint amount) external;
     }
@@ -337,7 +337,7 @@ The ``mapping`` is also ignored in assignments of structs or arrays containing a
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Map {
         mapping(uint => uint)[] array;
@@ -400,12 +400,12 @@ Messages of type ``info``, issued by the compiler, are not dangerous
 and simply represent extra suggestions and optional information
 that the compiler thinks might be useful to the user.
 
-Restrict the Amount of Ether
+Restrict the Amount of Quanta
 ============================
 
-Restrict the amount of Ether (or other tokens) that can be stored in a smart contract.
+Restrict the amount of Quanta (or other tokens) that can be stored in a smart contract.
 If your source code, the compiler or the platform has a bug, these funds may be lost.
-If you want to limit your loss, limit the amount of Ether.
+If you want to limit your loss, limit the amount of Quanta.
 
 Keep it Small and Modular
 =========================
@@ -421,7 +421,7 @@ Use the Checks-Effects-Interactions Pattern
 ===========================================
 
 Most functions will first perform some checks and they should be done first
-(who called the function, are the arguments in range, did they send enough Ether,
+(who called the function, are the arguments in range, did they send enough Quanta,
 does the person have tokens, etc.).
 
 As the second step, if all checks passed, effects to the state variables of the current contract should be made.
@@ -439,7 +439,7 @@ Include a Fail-Safe Mode
 While making your system fully decentralized will remove any intermediary,
 it might be a good idea, especially for new code, to include some kind of fail-safe mechanism:
 
-You can add a function in your smart contract that performs some self-checks like "Has any Ether leaked?",
+You can add a function in your smart contract that performs some self-checks like "Has any Quanta leaked?",
 "Is the sum of the tokens equal to the balance of the contract?" or similar things.
 Keep in mind that you cannot use too much gas for that,
 so help through off-chain computations might be needed there.
@@ -447,7 +447,7 @@ so help through off-chain computations might be needed there.
 If the self-check fails, the contract automatically switches into some kind of "failsafe" mode,
 which, for example, disables most of the features,
 hands over control to a fixed and trusted third party
-or just converts the contract into a simple "give me back my Ether" contract.
+or just converts the contract into a simple "give me back my Quanta" contract.
 
 Ask for Peer Review
 ===================

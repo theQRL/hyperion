@@ -27,7 +27,7 @@
 #include <libhyperion/ast/AST.h>
 #include <json/json.h>
 #include <libhyperion/ast/ASTAnnotations.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 #include <liblangutil/Exceptions.h>
 #include <liblangutil/SourceLocation.h>
 
@@ -40,8 +40,8 @@ namespace hyperion::frontend
 class ASTJsonImporter
 {
 public:
-	ASTJsonImporter(langutil::ZVMVersion _zvmVersion)
-		:m_zvmVersion(_zvmVersion)
+	ASTJsonImporter(langutil::QRVMVersion _qrvmVersion)
+		:m_qrvmVersion(_qrvmVersion)
 	{}
 
 	/// Converts the AST from JSON-format to ASTPointer
@@ -163,8 +163,8 @@ private:
 	std::map<std::string, ASTPointer<SourceUnit>> m_sourceUnits;
 	/// IDs already used by the nodes
 	std::set<int64_t> m_usedIDs;
-	/// Configured ZVM version
-	langutil::ZVMVersion m_zvmVersion;
+	/// Configured QRVM version
+	langutil::QRVMVersion m_qrvmVersion;
 };
 
 }

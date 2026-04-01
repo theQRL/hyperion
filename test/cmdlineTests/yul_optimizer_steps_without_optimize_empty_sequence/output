@@ -9,7 +9,7 @@ object "C_28" {
             mstore(64, memoryguard(0x80))
             if callvalue()
             {
-                revert_error_ca66f745a3ce8ff40e2ccaf1ad45db7774001b90d25810abd9040049be7bf4bb()
+                revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8()
             }
             constructor_C()
             let _1 := allocate_unbounded()
@@ -18,7 +18,7 @@ object "C_28" {
         }
         function allocate_unbounded() -> memPtr
         { memPtr := mload(64) }
-        function revert_error_ca66f745a3ce8ff40e2ccaf1ad45db7774001b90d25810abd9040049be7bf4bb()
+        function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8()
         { revert(0, 0) }
         /// @ast-id 5 @src 0:77:93  "constructor() {}"
         function constructor_C()
@@ -43,7 +43,7 @@ object "C_28" {
             { newValue := shr(224, value) }
             function allocate_unbounded() -> memPtr
             { memPtr := mload(64) }
-            function revert_error_ca66f745a3ce8ff40e2ccaf1ad45db7774001b90d25810abd9040049be7bf4bb()
+            function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8()
             { revert(0, 0) }
             function revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b()
             { revert(0, 0) }
@@ -71,7 +71,7 @@ object "C_28" {
             {
                 if callvalue()
                 {
-                    revert_error_ca66f745a3ce8ff40e2ccaf1ad45db7774001b90d25810abd9040049be7bf4bb()
+                    revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8()
                 }
                 abi_decode(4, calldatasize())
                 let ret := fun_foo()
@@ -130,4 +130,4 @@ object "C_28" {
 }
 
 Metadata:
-{"compiler":{"version": "<VERSION REMOVED>"},"language":"Hyperion","output":{"abi":[{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"foo","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"}],"devdoc":{"kind":"dev","methods":{},"version":1},"userdoc":{"kind":"user","methods":{},"version":1}},"settings":{"compilationTarget":{"yul_optimizer_steps_without_optimize_empty_sequence/input.hyp":"C"},"libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"details":{"constantOptimizer":false,"cse":false,"deduplicate":false,"inliner":false,"jumpdestRemover":true,"orderLiterals":false,"peephole":true,"simpleCounterForLoopUncheckedIncrement":true,"yul":false,"yulDetails":{"optimizerSteps":":"}},"runs":200},"remappings":[],"zvmVersion":"shanghai"},"sources":{"yul_optimizer_steps_without_optimize_empty_sequence/input.hyp":{"keccak256":"0x3ca1ad8ab5267533241acc9d7a1d3c2cabc72af799cf3d55d3111256db2e26cb","license":"GPL-3.0","urls":["bzz-raw://8332d8597c0dfd1464cafed518c0ecd8d2584220b8418e2297e20563d883eaba","dweb:/ipfs/QmXMdbCvA8KFykznqo7xSLwZB7YPMqdESktWMVDpDfC1xA"]}},"version":1}
+{"compiler":{"version": "<VERSION REMOVED>"},"language":"Hyperion","output":{"abi":[{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"foo","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"}],"devdoc":{"kind":"dev","methods":{},"version":1},"userdoc":{"kind":"user","methods":{},"version":1}},"settings":{"compilationTarget":{"yul_optimizer_steps_without_optimize_empty_sequence/input.hyp":"C"},"libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"details":{"constantOptimizer":false,"cse":false,"deduplicate":false,"inliner":false,"jumpdestRemover":true,"orderLiterals":false,"peephole":true,"simpleCounterForLoopUncheckedIncrement":true,"yul":false,"yulDetails":{"optimizerSteps":":"}},"runs":200},"qrvmVersion":"zond","remappings":[]},"sources":{"yul_optimizer_steps_without_optimize_empty_sequence/input.hyp":{"keccak256":"0x3ca1ad8ab5267533241acc9d7a1d3c2cabc72af799cf3d55d3111256db2e26cb","license":"GPL-3.0","urls":["bzz-raw://8332d8597c0dfd1464cafed518c0ecd8d2584220b8418e2297e20563d883eaba","dweb:/ipfs/QmXMdbCvA8KFykznqo7xSLwZB7YPMqdESktWMVDpDfC1xA"]}},"version":1}

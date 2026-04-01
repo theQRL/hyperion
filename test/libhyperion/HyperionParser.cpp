@@ -44,7 +44,7 @@ ASTPointer<ContractDefinition> parseText(std::string const& _source, ErrorList& 
 	auto charStream = CharStream(_source, "");
 	ASTPointer<SourceUnit> sourceUnit = Parser(
 		errorReporter,
-		hyperion::test::CommonOptions::get().zvmVersion()
+		hyperion::test::CommonOptions::get().qrvmVersion()
 	).parse(charStream);
 	if (!sourceUnit)
 		return ASTPointer<ContractDefinition>();

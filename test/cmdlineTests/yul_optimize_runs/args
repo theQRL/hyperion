@@ -1,1 +1,1 @@
---yul --yul-dialect zvm --optimize --optimize-runs 10000
+--yul --yul-dialect qrvm --optimize --optimize-runs 10000

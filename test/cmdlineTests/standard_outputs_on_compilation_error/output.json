@@ -33,7 +33,14 @@
                     "methods": {},
                     "version": 1
                 },
-                "metadata": "{\"compiler\":{\"version\":\"<VERSION REMOVED>\"},\"language\":\"Hyperion\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"x\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"C\":\"C\"},\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"zvmVersion\":\"shanghai\"},\"sources\":{\"C\":{\"keccak256\":\"0xb50f7b2cffcaf11d510135a85f70583877ab645dae721d28f2f1dd054ae61f42\",\"license\":\"GPL-3.0\",\"urls\":[\"bzz-raw://89e34e553543a2d6dc4ed744eda20d68c2c5ec1db2575a4f72108ddf1947e05f\",\"dweb:/ipfs/QmVSsAgMAWR24GarU8ps3JoLhYtJ18hpkUYsMpRQdgkUwE\"]}},\"version\":1}",
+                "metadata": "{\"compiler\":{\"version\":\"<VERSION REMOVED>\"},\"language\":\"Hyperion\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"x\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"C\":\"C\"},\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"qrvmVersion\":\"zond\",\"remappings\":[]},\"sources\":{\"C\":{\"keccak256\":\"0xb50f7b2cffcaf11d510135a85f70583877ab645dae721d28f2f1dd054ae61f42\",\"license\":\"GPL-3.0\",\"urls\":[\"bzz-raw://89e34e553543a2d6dc4ed744eda20d68c2c5ec1db2575a4f72108ddf1947e05f\",\"dweb:/ipfs/QmVSsAgMAWR24GarU8ps3JoLhYtJ18hpkUYsMpRQdgkUwE\"]}},\"version\":1}",
+                "qrvm":
+                {
+                    "methodIdentifiers":
+                    {
+                        "x()": "0c55699c"
+                    }
+                },
                 "storageLayout":
                 {
                     "storage": [],
@@ -44,13 +51,6 @@
                     "kind": "user",
                     "methods": {},
                     "version": 1
-                },
-                "zvm":
-                {
-                    "methodIdentifiers":
-                    {
-                        "x()": "0c55699c"
-                    }
                 }
             }
         }

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 #include <libhyperion/ast/Types.h>
 #include <libhyperion/codegen/MultiUseYulFunctionCollector.h>
@@ -50,11 +50,11 @@ class YulUtilFunctions
 {
 public:
 	explicit YulUtilFunctions(
-		langutil::ZVMVersion _zvmVersion,
+		langutil::QRVMVersion _qrvmVersion,
 		RevertStrings _revertStrings,
 		MultiUseYulFunctionCollector& _functionCollector
 	):
-		m_zvmVersion(_zvmVersion),
+		m_qrvmVersion(_qrvmVersion),
 		m_revertStrings(_revertStrings),
 		m_functionCollector(_functionCollector)
 	{}
@@ -603,7 +603,7 @@ private:
 	/// signature: (array, index)
 	std::string longByteArrayStorageIndexAccessNoCheckFunction();
 
-	langutil::ZVMVersion m_zvmVersion;
+	langutil::QRVMVersion m_qrvmVersion;
 	RevertStrings m_revertStrings;
 	MultiUseYulFunctionCollector& m_functionCollector;
 };

@@ -1,6 +1,6 @@
 
 ======= dup_opt_peephole/input.hyp:C =======
-ZVM assembly:
+QRVM assembly:
     /* "dup_opt_peephole/input.hyp":60:171  contract C {... */
   mstore(0x40, 0x80)
   callvalue

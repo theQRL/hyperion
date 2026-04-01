@@ -24,7 +24,7 @@
 #include <libyul/ASTForward.h>
 #include <libyul/optimiser/ASTWalker.h>
 
-#include <libzvmasm/Instruction.h>
+#include <libqrvmasm/Instruction.h>
 
 #include <libhyputil/FixedHash.h>
 #include <libhyputil/CommonData.h>
@@ -96,7 +96,7 @@ struct InterpreterState
 	u256 prevrandao = (u256(1) << 64) + 1;
 	u256 gaslimit = 4000000;
 	u256 chainid = 0x01;
-	/// The minimum value of basefee: 7 wei.
+	/// The minimum value of basefee: 7 planck.
 	u256 basefee = 0x07;
 	/// Log of changes / effects. Sholud be structured data in the future.
 	std::vector<std::string> trace;
@@ -247,7 +247,7 @@ public:
 	std::vector<u256> values() const { return m_values; }
 
 protected:
-	void runExternalCall(zvmasm::Instruction _instruction);
+	void runExternalCall(qrvmasm::Instruction _instruction);
 	virtual std::unique_ptr<Interpreter> makeInterpreterCopy(std::map<YulString, u256> _variables = {}) const
 	{
 		return std::make_unique<Interpreter>(

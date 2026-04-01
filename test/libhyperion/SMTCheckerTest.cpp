@@ -26,7 +26,7 @@ using namespace hyperion::langutil;
 using namespace hyperion::frontend;
 using namespace hyperion::frontend::test;
 
-SMTCheckerTest::SMTCheckerTest(std::string const& _filename): SyntaxTest(_filename, ZVMVersion{})
+SMTCheckerTest::SMTCheckerTest(std::string const& _filename): SyntaxTest(_filename, QRVMVersion{})
 {
 	auto contract = m_reader.stringSetting("SMTContract", "");
 	if (!contract.empty())

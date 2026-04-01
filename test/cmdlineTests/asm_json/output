@@ -1,6 +1,6 @@
 
 ======= asm_json/input.hyp:C =======
-ZVM assembly:
+QRVM assembly:
 {
   ".code":
   [

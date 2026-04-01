@@ -1,4 +1,4 @@
-pragma hyperion >= 0.6.0;
+pragma hyperion >= 0.1.0;
 
 contract C {
     function g(uint n) external payable returns (uint, uint) {
@@ -10,5 +10,5 @@ contract C {
     }
 }
 // ----
-// g(uint256), 1 ether: 4 -> 1000000000000000000000, 4
-// f(uint256), 11 ether: 2 -> 10000, 2
+// g(uint256), 1 quanta: 4 -> 1000000000000000000000, 4
+// f(uint256), 11 quanta: 2 -> 10000, 2

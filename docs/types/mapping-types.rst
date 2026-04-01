@@ -39,14 +39,14 @@ each ``KeyType``, recursively.
 
 In the example below, the ``MappingExample`` contract defines a public ``balances``
 mapping, with the key type an ``address``, and a value type a ``uint``, mapping
-an Ethereum address to an unsigned integer value. As ``uint`` is a value type, the getter
+a QRL address to an unsigned integer value. As ``uint`` is a value type, the getter
 returns a value that matches the type, which you can see in the ``MappingUser``
 contract that returns the value at the specified address.
 
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract MappingExample {
         mapping(address => uint) public balances;
@@ -65,7 +65,7 @@ contract that returns the value at the specified address.
     }
 
 The example below is a simplified version of an
-`ERC20 token <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol>`_.
+`SQRCTF1 token <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol>`_.
 ``_allowances`` is an example of a mapping type inside another mapping type.
 
 In the example below, the optional ``KeyName`` and ``ValueName`` are provided for the mapping.
@@ -75,7 +75,7 @@ for the inputs and outputs in the ABI for the mapping's getter.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.18;
+    pragma hyperion >=0.1.0;
 
     contract MappingExampleWithNames {
         mapping(address user => uint balance) public balances;
@@ -91,7 +91,7 @@ The example below uses ``_allowances`` to record the amount someone else is allo
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.22 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract MappingExample {
 
@@ -106,14 +106,14 @@ The example below uses ``_allowances`` to record the amount someone else is allo
         }
 
         function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
-            require(_allowances[sender][msg.sender] >= amount, "ERC20: Allowance not high enough.");
+            require(_allowances[sender][msg.sender] >= amount, "SQRCTF1: Allowance not high enough.");
             _allowances[sender][msg.sender] -= amount;
             _transfer(sender, recipient, amount);
             return true;
         }
 
         function approve(address spender, uint256 amount) public returns (bool) {
-            require(spender != address(0), "ERC20: approve to the zero address");
+            require(spender != address(0), "SQRCTF1: approve to the zero address");
 
             _allowances[msg.sender][spender] = amount;
             emit Approval(msg.sender, spender, amount);
@@ -121,9 +121,9 @@ The example below uses ``_allowances`` to record the amount someone else is allo
         }
 
         function _transfer(address sender, address recipient, uint256 amount) internal {
-            require(sender != address(0), "ERC20: transfer from the zero address");
-            require(recipient != address(0), "ERC20: transfer to the zero address");
-            require(_balances[sender] >= amount, "ERC20: Not enough funds.");
+            require(sender != address(0), "SQRCTF1: transfer from the zero address");
+            require(recipient != address(0), "SQRCTF1: transfer to the zero address");
+            require(_balances[sender] >= amount, "SQRCTF1: Not enough funds.");
 
             _balances[sender] -= amount;
             _balances[recipient] += amount;
@@ -148,7 +148,7 @@ the ``sum`` function iterates over to sum all the values.
     :force:
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.8;
+    pragma hyperion >=0.1.0;
 
     struct IndexValue { uint keyIndex; uint value; }
     struct KeyFlag { uint key; bool deleted; }

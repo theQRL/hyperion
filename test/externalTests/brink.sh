@@ -46,11 +46,11 @@ function brink_test
 
     local compile_only_presets=(
         ir-no-optimize             # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
-        ir-optimize-zvm-only       # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
-        ir-optimize-zvm+yul        # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
-        legacy-optimize-zvm+yul    # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
+        ir-optimize-qrvm-only       # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
+        ir-optimize-qrvm+yul        # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
+        legacy-optimize-qrvm+yul    # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
         legacy-no-optimize         # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
-        legacy-optimize-zvm-only   # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
+        legacy-optimize-qrvm-only   # Lots of test failures. Tests depend on constants.js, which seems to be calculated specifically for 0.8.10.
     )
     local settings_presets=(
         "${compile_only_presets[@]}"
@@ -68,7 +68,7 @@ function brink_test
     neutralize_package_lock
     neutralize_package_json_hooks
     force_hardhat_compiler_binary "$config_file" "$BINARY_TYPE" "$BINARY_PATH"
-    force_hardhat_compiler_settings "$config_file" "$(first_word "$SELECTED_PRESETS")" "$config_var" "$CURRENT_ZVM_VERSION" "$extra_settings" "$extra_optimizer_settings"
+    force_hardhat_compiler_settings "$config_file" "$(first_word "$SELECTED_PRESETS")" "$config_var" "$CURRENT_QRVM_VERSION" "$extra_settings" "$extra_optimizer_settings"
     yarn install
     yarn add hardhat-gas-reporter
 

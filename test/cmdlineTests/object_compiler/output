@@ -1,5 +1,5 @@
 
-======= object_compiler/input.yul (ZVM) =======
+======= object_compiler/input.yul (QRVM) =======
 
 Pretty printed source:
 object "MyContract" {

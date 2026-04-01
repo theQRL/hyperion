@@ -35,12 +35,12 @@
 #include <libhyperion/ast/TypeProvider.h>
 #include <libhyperion/analysis/TypeChecker.h>
 #include <liblangutil/ErrorReporter.h>
-#include <libzvmasm/LinkerObject.h>
+#include <libqrvmasm/LinkerObject.h>
 #include <test/Common.h>
 
 #include <boost/test/unit_test.hpp>
 
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 using namespace hyperion::langutil;
 
 namespace hyperion::frontend::test
@@ -107,7 +107,7 @@ bytes compileFirstExpression(
 	{
 		ErrorList errors;
 		ErrorReporter errorReporter(errors);
-		sourceUnit = Parser(errorReporter, hyperion::test::CommonOptions::get().zvmVersion()).parse(stream);
+		sourceUnit = Parser(errorReporter, hyperion::test::CommonOptions::get().qrvmVersion()).parse(stream);
 		if (!sourceUnit)
 			return bytes();
 	}
@@ -127,13 +127,13 @@ bytes compileFirstExpression(
 	GlobalContext globalContext;
 	Scoper::assignScopes(*sourceUnit);
 	BOOST_REQUIRE(SyntaxChecker(errorReporter, false).checkSyntax(*sourceUnit));
-	NameAndTypeResolver resolver(globalContext, hyperion::test::CommonOptions::get().zvmVersion(), errorReporter);
+	NameAndTypeResolver resolver(globalContext, hyperion::test::CommonOptions::get().qrvmVersion(), errorReporter);
 	resolver.registerDeclarations(*sourceUnit);
 	BOOST_REQUIRE_MESSAGE(resolver.resolveNamesAndTypes(*sourceUnit), "Resolving names failed");
-	DeclarationTypeChecker declarationTypeChecker(errorReporter, hyperion::test::CommonOptions::get().zvmVersion());
+	DeclarationTypeChecker declarationTypeChecker(errorReporter, hyperion::test::CommonOptions::get().qrvmVersion());
 	for (ASTPointer<ASTNode> const& node: sourceUnit->nodes())
 		BOOST_REQUIRE(declarationTypeChecker.check(*node));
-	TypeChecker typeChecker(hyperion::test::CommonOptions::get().zvmVersion(), errorReporter);
+	TypeChecker typeChecker(hyperion::test::CommonOptions::get().qrvmVersion(), errorReporter);
 	BOOST_REQUIRE(typeChecker.checkTypeRequirements(*sourceUnit));
 	for (ASTPointer<ASTNode> const& node: sourceUnit->nodes())
 		if (ContractDefinition* contract = dynamic_cast<ContractDefinition*>(node.get()))
@@ -142,7 +142,7 @@ bytes compileFirstExpression(
 			BOOST_REQUIRE(extractor.expression() != nullptr);
 
 			CompilerContext context(
-				hyperion::test::CommonOptions::get().zvmVersion(),
+				hyperion::test::CommonOptions::get().qrvmVersion(),
 				RevertStrings::Default
 			);
 			context.resetVisitedNodes(contract);
@@ -176,7 +176,7 @@ bytes compileFirstExpression(
 			BOOST_REQUIRE(object.immutableReferences.empty());
 			bytes instructions = object.bytecode;
 			// debug
-			// cout << zvmasm::disassemble(instructions) << endl;
+			// cout << qrvmasm::disassemble(instructions) << endl;
 			return instructions;
 		}
 	BOOST_FAIL("No contract found in source.");
@@ -228,12 +228,12 @@ BOOST_AUTO_TEST_CASE(int_literal)
 	BOOST_CHECK_EQUAL_COLLECTIONS(code.begin(), code.end(), expectation.begin(), expectation.end());
 }
 
-BOOST_AUTO_TEST_CASE(int_with_wei_ether_subdenomination)
+BOOST_AUTO_TEST_CASE(int_with_planck_qrl_subdenomination)
 {
 	char const* sourceCode = R"(
 		contract test {
 			constructor() {
-				 uint x = 1 wei;
+				 uint x = 1 planck;
 			}
 		}
 	)";
@@ -243,12 +243,12 @@ BOOST_AUTO_TEST_CASE(int_with_wei_ether_subdenomination)
 	BOOST_CHECK_EQUAL_COLLECTIONS(code.begin(), code.end(), expectation.begin(), expectation.end());
 }
 
-BOOST_AUTO_TEST_CASE(int_with_gwei_ether_subdenomination)
+BOOST_AUTO_TEST_CASE(int_with_shor_qrl_subdenomination)
 {
 	char const* sourceCode = R"(
 		contract test {
 			function f() public {
-				uint x = 1 gwei;
+				uint x = 1 shor;
 			}
 		}
 	)";
@@ -258,12 +258,12 @@ BOOST_AUTO_TEST_CASE(int_with_gwei_ether_subdenomination)
 	BOOST_CHECK_EQUAL_COLLECTIONS(code.begin(), code.end(), expectation.begin(), expectation.end());
 }
 
-BOOST_AUTO_TEST_CASE(int_with_ether_ether_subdenomination)
+BOOST_AUTO_TEST_CASE(int_with_quanta_qrl_subdenomination)
 {
 	char const* sourceCode = R"(
 		contract test {
 			constructor() {
-				 uint x = 1 ether;
+				 uint x = 1 quanta;
 			}
 		}
 	)";

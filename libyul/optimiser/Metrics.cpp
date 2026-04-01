@@ -20,13 +20,13 @@
 
 #include <libyul/optimiser/Metrics.h>
 #include <libyul/optimiser/OptimizerUtilities.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 #include <libyul/AST.h>
 #include <libyul/Exceptions.h>
 #include <libyul/Utilities.h>
 
-#include <libzvmasm/Instruction.h>
+#include <libqrvmasm/Instruction.h>
 
 #include <libhyputil/CommonData.h>
 
@@ -137,7 +137,7 @@ void CodeCost::operator()(FunctionCall const& _funCall)
 {
 	ASTWalker::operator()(_funCall);
 
-	if (auto instruction = toZVMInstruction(m_dialect, _funCall.functionName.name))
+	if (auto instruction = toQRVMInstruction(m_dialect, _funCall.functionName.name))
 	{
 		addInstructionCost(*instruction);
 		return;
@@ -180,12 +180,12 @@ void CodeCost::visit(Expression const& _expression)
 	ASTWalker::visit(_expression);
 }
 
-void CodeCost::addInstructionCost(zvmasm::Instruction _instruction)
+void CodeCost::addInstructionCost(qrvmasm::Instruction _instruction)
 {
-	zvmasm::Tier gasPriceTier = zvmasm::instructionInfo(_instruction).gasPriceTier;
-	if (gasPriceTier < zvmasm::Tier::VeryLow)
+	qrvmasm::Tier gasPriceTier = qrvmasm::instructionInfo(_instruction).gasPriceTier;
+	if (gasPriceTier < qrvmasm::Tier::VeryLow)
 		m_cost -= 1;
-	else if (gasPriceTier < zvmasm::Tier::High)
+	else if (gasPriceTier < qrvmasm::Tier::High)
 		m_cost += 1;
 	else
 		m_cost += 49;

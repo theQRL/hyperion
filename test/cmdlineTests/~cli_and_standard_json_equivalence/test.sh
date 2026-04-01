@@ -49,13 +49,13 @@ test_cli_and_standard_json_equivalence \
     '--optimize' \
     '--asm' \
     '"optimizer": {"enabled": true}' \
-    'zvm.assembly' \
-    "test/libhyperion/semanticTests/various/erc20.hyp"
+    'qrvm.assembly' \
+    "test/libhyperion/semanticTests/various/sqrctf1.hyp"
 
 printTask "    - --optimize-yul vs optimizer.details.yul: true (--asm output)"
 test_cli_and_standard_json_equivalence \
     '--optimize-yul' \
     '--asm' \
     '"optimizer": {"enabled": false, "details": {"yul": true}}' \
-    'zvm.assembly' \
-    "test/libhyperion/semanticTests/various/erc20.hyp"
+    'qrvm.assembly' \
+    "test/libhyperion/semanticTests/various/sqrctf1.hyp"

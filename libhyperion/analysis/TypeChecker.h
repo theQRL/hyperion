@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 #include <libhyperion/ast/ASTAnnotations.h>
 #include <libhyperion/ast/ASTForward.h>
@@ -47,8 +47,8 @@ class TypeChecker: private ASTConstVisitor
 {
 public:
 	/// @param _errorReporter provides the error logging functionality.
-	TypeChecker(langutil::ZVMVersion _zvmVersion, langutil::ErrorReporter& _errorReporter):
-		m_zvmVersion(_zvmVersion),
+	TypeChecker(langutil::QRVMVersion _qrvmVersion, langutil::ErrorReporter& _errorReporter):
+		m_qrvmVersion(_qrvmVersion),
 		m_errorReporter(_errorReporter)
 	{}
 
@@ -200,7 +200,7 @@ private:
 	SourceUnit const* m_currentSourceUnit = nullptr;
 	ContractDefinition const* m_currentContract = nullptr;
 
-	langutil::ZVMVersion m_zvmVersion;
+	langutil::QRVMVersion m_qrvmVersion;
 
 	langutil::ErrorReporter& m_errorReporter;
 };

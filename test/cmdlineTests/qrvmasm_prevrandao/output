@@ -1,0 +1,13 @@
+
+======= qrvmasm_prevrandao/input.hyp:C =======
+QRVM assembly:
+  sstore(0x00, prevrandao)
+  stop
+stop
+
+sub_0: assembly {
+      stop
+}
+
+Opcodes:
+PREVRANDAO PUSH0 SSTORE STOP INVALID 

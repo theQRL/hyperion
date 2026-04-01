@@ -23,7 +23,7 @@ contract C {
 // ====
 // revertStrings: debug
 // ----
-// constructor(), 1 ether ->
+// constructor(), 1 quanta ->
 // gas irOptimized: 390464
 // gas legacy: 809985
 // gas legacyOptimized: 498331

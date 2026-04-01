@@ -31,12 +31,12 @@
 #include <libyul/ControlFlowSideEffectsCollector.h>
 #include <libyul/AST.h>
 
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 #include <libhyputil/CommonData.h>
 
-#include <libzvmasm/Instruction.h>
-#include <libzvmasm/SemanticInformation.h>
+#include <libqrvmasm/Instruction.h>
+#include <libqrvmasm/SemanticInformation.h>
 
 #include <range/v3/algorithm/all_of.hpp>
 
@@ -78,8 +78,8 @@ void UnusedStoreEliminator::run(OptimiserStepContext& _context, Block& _ast)
 	};
 	rse(_ast);
 
-	auto zvmDialect = dynamic_cast<ZVMDialect const*>(&_context.dialect);
-	if (zvmDialect && zvmDialect->providesObjectAccess())
+	auto qrvmDialect = dynamic_cast<QRVMDialect const*>(&_context.dialect);
+	if (qrvmDialect && qrvmDialect->providesObjectAccess())
 		rse.clearActive(Location::Memory);
 	else
 		rse.markActiveAsUsed(Location::Memory);
@@ -143,7 +143,7 @@ void UnusedStoreEliminator::operator()(Leave const&)
 
 void UnusedStoreEliminator::visit(Statement const& _statement)
 {
-	using zvmasm::Instruction;
+	using qrvmasm::Instruction;
 
 	UnusedStoreBase::visit(_statement);
 
@@ -153,7 +153,7 @@ void UnusedStoreEliminator::visit(Statement const& _statement)
 
 	FunctionCall const* funCall = std::get_if<FunctionCall>(&exprStatement->expression);
 	yulAssert(funCall);
-	std::optional<Instruction> instruction = toZVMInstruction(m_dialect, funCall->functionName.name);
+	std::optional<Instruction> instruction = toQRVMInstruction(m_dialect, funCall->functionName.name);
 	if (!instruction)
 		return;
 
@@ -165,7 +165,7 @@ void UnusedStoreEliminator::visit(Statement const& _statement)
 	// We determine if this is a store instruction without additional side-effects
 	// both by querying a combination of semantic information and by listing the instructions.
 	// This way the assert below should be triggered on any change.
-	using zvmasm::SemanticInformation;
+	using qrvmasm::SemanticInformation;
 	bool isStorageWrite = (*instruction == Instruction::SSTORE);
 	bool isMemoryWrite =
 		*instruction == Instruction::EXTCODECOPY ||
@@ -198,7 +198,7 @@ void UnusedStoreEliminator::visit(Statement const& _statement)
 				if (
 					m_knowledgeBase.knownToBeZero(*startOffset) &&
 					lengthCall &&
-					toZVMInstruction(m_dialect, lengthCall->functionName.name) == Instruction::RETURNDATASIZE
+					toQRVMInstruction(m_dialect, lengthCall->functionName.name) == Instruction::RETURNDATASIZE
 				)
 					allowReturndatacopyToBeRemoved = true;
 			}
@@ -220,7 +220,7 @@ std::vector<UnusedStoreEliminator::Operation> UnusedStoreEliminator::operationsF
 	FunctionCall const& _functionCall
 ) const
 {
-	using zvmasm::Instruction;
+	using qrvmasm::Instruction;
 
 	YulString functionName = _functionCall.functionName.name;
 	SideEffects sideEffects;
@@ -229,7 +229,7 @@ std::vector<UnusedStoreEliminator::Operation> UnusedStoreEliminator::operationsF
 	else
 		sideEffects = m_functionSideEffects.at(functionName);
 
-	std::optional<Instruction> instruction = toZVMInstruction(m_dialect, functionName);
+	std::optional<Instruction> instruction = toQRVMInstruction(m_dialect, functionName);
 	if (!instruction)
 	{
 		std::vector<Operation> result;
@@ -241,7 +241,7 @@ std::vector<UnusedStoreEliminator::Operation> UnusedStoreEliminator::operationsF
 		return result;
 	}
 
-	using zvmasm::SemanticInformation;
+	using qrvmasm::SemanticInformation;
 
 	return util::applyMap(
 		SemanticInformation::readWriteOperations(*instruction),

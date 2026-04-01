@@ -16,7 +16,7 @@
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Full assembly stack that can support ZVM-assembly and Yul as input and ZVM, ZVM1.5
+ * Full assembly stack that can support QRVM-assembly and Yul as input and QRVM, QRVM1.5
  */
 
 
@@ -24,15 +24,15 @@
 
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AsmAnalysisInfo.h>
-#include <libyul/backends/zvm/ZondAssemblyAdapter.h>
-#include <libyul/backends/zvm/ZVMCodeTransform.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
-#include <libyul/backends/zvm/ZVMObjectCompiler.h>
-#include <libyul/backends/zvm/ZVMMetrics.h>
+#include <libyul/backends/qrvm/QRLAssemblyAdapter.h>
+#include <libyul/backends/qrvm/QRVMCodeTransform.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
+#include <libyul/backends/qrvm/QRVMObjectCompiler.h>
+#include <libyul/backends/qrvm/QRVMMetrics.h>
 #include <libyul/ObjectParser.h>
 #include <libyul/optimiser/Semantics.h>
 #include <libyul/optimiser/Suite.h>
-#include <libzvmasm/Assembly.h>
+#include <libqrvmasm/Assembly.h>
 #include <liblangutil/Scanner.h>
 #include <libhyperion/interface/OptimiserSettings.h>
 
@@ -47,15 +47,15 @@ using namespace hyperion::langutil;
 
 namespace
 {
-Dialect const& languageToDialect(YulStack::Language _language, ZVMVersion _version)
+Dialect const& languageToDialect(YulStack::Language _language, QRVMVersion _version)
 {
 	switch (_language)
 	{
 	case YulStack::Language::Assembly:
 	case YulStack::Language::StrictAssembly:
-		return ZVMDialect::strictAssemblyForZVMObjects(_version);
+		return QRVMDialect::strictAssemblyForQRVMObjects(_version);
 	case YulStack::Language::Yul:
-		return ZVMDialectTyped::instance(_version);
+		return QRVMDialectTyped::instance(_version);
 	}
 	yulAssert(false, "");
 	return Dialect::yulDeprecated();
@@ -77,7 +77,7 @@ bool YulStack::parseAndAnalyze(std::string const& _sourceName, std::string const
 	m_analysisSuccessful = false;
 	m_charStream = std::make_unique<CharStream>(_source, _sourceName);
 	std::shared_ptr<Scanner> scanner = std::make_shared<Scanner>(*m_charStream);
-	m_parserResult = ObjectParser(m_errorReporter, languageToDialect(m_language, m_zvmVersion)).parse(scanner, false);
+	m_parserResult = ObjectParser(m_errorReporter, languageToDialect(m_language, m_qrvmVersion)).parse(scanner, false);
 	if (!m_errorReporter.errors().empty())
 		return false;
 	yulAssert(m_parserResult, "");
@@ -93,7 +93,7 @@ void YulStack::optimize()
 
 	if (
 		!m_optimiserSettings.runYulOptimiser &&
-		yul::MSizeFinder::containsMSize(languageToDialect(m_language, m_zvmVersion), *m_parserResult)
+		yul::MSizeFinder::containsMSize(languageToDialect(m_language, m_qrvmVersion), *m_parserResult)
 	)
 		return;
 
@@ -118,7 +118,7 @@ bool YulStack::analyzeParsed(Object& _object)
 	AsmAnalyzer analyzer(
 		*_object.analysisInfo,
 		m_errorReporter,
-		languageToDialect(m_language, m_zvmVersion),
+		languageToDialect(m_language, m_qrvmVersion),
 		{},
 		_object.qualifiedDataNames()
 	);
@@ -130,24 +130,24 @@ bool YulStack::analyzeParsed(Object& _object)
 	return success;
 }
 
-void YulStack::compileZVM(AbstractAssembly& _assembly, bool _optimize) const
+void YulStack::compileQRVM(AbstractAssembly& _assembly, bool _optimize) const
 {
-	ZVMDialect const* dialect = nullptr;
+	QRVMDialect const* dialect = nullptr;
 	switch (m_language)
 	{
 		case Language::Assembly:
 		case Language::StrictAssembly:
-			dialect = &ZVMDialect::strictAssemblyForZVMObjects(m_zvmVersion);
+			dialect = &QRVMDialect::strictAssemblyForQRVMObjects(m_qrvmVersion);
 			break;
 		case Language::Yul:
-			dialect = &ZVMDialectTyped::instance(m_zvmVersion);
+			dialect = &QRVMDialectTyped::instance(m_qrvmVersion);
 			break;
 		default:
 			yulAssert(false, "Invalid language.");
 			break;
 	}
 
-	ZVMObjectCompiler::compile(*m_parserResult, _assembly, *dialect, _optimize);
+	QRVMObjectCompiler::compile(*m_parserResult, _assembly, *dialect, _optimize);
 }
 
 void YulStack::optimize(Object& _object, bool _isCreation)
@@ -161,10 +161,10 @@ void YulStack::optimize(Object& _object, bool _isCreation)
 			optimize(*subObject, isCreation);
 		}
 
-	Dialect const& dialect = languageToDialect(m_language, m_zvmVersion);
+	Dialect const& dialect = languageToDialect(m_language, m_qrvmVersion);
 	std::unique_ptr<GasMeter> meter;
-	if (ZVMDialect const* zvmDialect = dynamic_cast<ZVMDialect const*>(&dialect))
-		meter = std::make_unique<GasMeter>(*zvmDialect, _isCreation, m_optimiserSettings.expectedExecutionsPerDeployment);
+	if (QRVMDialect const* qrvmDialect = dynamic_cast<QRVMDialect const*>(&dialect))
+		meter = std::make_unique<GasMeter>(*qrvmDialect, _isCreation, m_optimiserSettings.expectedExecutionsPerDeployment);
 
 	auto [optimizeStackAllocation, yulOptimiserSteps, yulOptimiserCleanupSteps] = [&]() -> std::tuple<bool, std::string, std::string>
 	{
@@ -213,7 +213,7 @@ MachineAssemblyObject YulStack::assemble(Machine _machine) const
 
 	switch (_machine)
 	{
-	case Machine::ZVM:
+	case Machine::QRVM:
 		return assembleWithDeployed().first;
 	}
 	// unreachable
@@ -223,16 +223,16 @@ MachineAssemblyObject YulStack::assemble(Machine _machine) const
 std::pair<MachineAssemblyObject, MachineAssemblyObject>
 YulStack::assembleWithDeployed(std::optional<std::string_view> _deployName) const
 {
-	auto [creationAssembly, deployedAssembly] = assembleZVMWithDeployed(_deployName);
+	auto [creationAssembly, deployedAssembly] = assembleQRVMWithDeployed(_deployName);
 	yulAssert(creationAssembly, "");
 	yulAssert(m_charStream, "");
 
 	MachineAssemblyObject creationObject;
-	creationObject.bytecode = std::make_shared<zvmasm::LinkerObject>(creationAssembly->assemble());
+	creationObject.bytecode = std::make_shared<qrvmasm::LinkerObject>(creationAssembly->assemble());
 	yulAssert(creationObject.bytecode->immutableReferences.empty(), "Leftover immutables.");
 	creationObject.assembly = creationAssembly->assemblyString(m_debugInfoSelection);
 	creationObject.sourceMappings = std::make_unique<std::string>(
-		zvmasm::AssemblyItem::computeSourceMapping(
+		qrvmasm::AssemblyItem::computeSourceMapping(
 			creationAssembly->items(),
 			{{m_charStream->name(), 0}}
 		)
@@ -241,10 +241,10 @@ YulStack::assembleWithDeployed(std::optional<std::string_view> _deployName) cons
 	MachineAssemblyObject deployedObject;
 	if (deployedAssembly)
 	{
-		deployedObject.bytecode = std::make_shared<zvmasm::LinkerObject>(deployedAssembly->assemble());
+		deployedObject.bytecode = std::make_shared<qrvmasm::LinkerObject>(deployedAssembly->assemble());
 		deployedObject.assembly = deployedAssembly->assemblyString(m_debugInfoSelection);
 		deployedObject.sourceMappings = std::make_unique<std::string>(
-			zvmasm::AssemblyItem::computeSourceMapping(
+			qrvmasm::AssemblyItem::computeSourceMapping(
 				deployedAssembly->items(),
 				{{m_charStream->name(), 0}}
 			)
@@ -254,27 +254,27 @@ YulStack::assembleWithDeployed(std::optional<std::string_view> _deployName) cons
 	return {std::move(creationObject), std::move(deployedObject)};
 }
 
-std::pair<std::shared_ptr<zvmasm::Assembly>, std::shared_ptr<zvmasm::Assembly>>
-YulStack::assembleZVMWithDeployed(std::optional<std::string_view> _deployName) const
+std::pair<std::shared_ptr<qrvmasm::Assembly>, std::shared_ptr<qrvmasm::Assembly>>
+YulStack::assembleQRVMWithDeployed(std::optional<std::string_view> _deployName) const
 {
 	yulAssert(m_analysisSuccessful, "");
 	yulAssert(m_parserResult, "");
 	yulAssert(m_parserResult->code, "");
 	yulAssert(m_parserResult->analysisInfo, "");
 
-	zvmasm::Assembly assembly(m_zvmVersion, true, {});
-	ZondAssemblyAdapter adapter(assembly);
+	qrvmasm::Assembly assembly(m_qrvmVersion, true, {});
+	QRLAssemblyAdapter adapter(assembly);
 
 	// NOTE: We always need stack optimization when Yul optimizer is disabled (unless code contains
 	// msize). It being disabled just means that we don't use the full step sequence. We still run
 	// it with the minimal steps required to avoid "stack too deep".
 	bool optimize = m_optimiserSettings.optimizeStackAllocation || (
 		!m_optimiserSettings.runYulOptimiser &&
-		!yul::MSizeFinder::containsMSize(languageToDialect(m_language, m_zvmVersion), *m_parserResult)
+		!yul::MSizeFinder::containsMSize(languageToDialect(m_language, m_qrvmVersion), *m_parserResult)
 	);
-	compileZVM(adapter, optimize);
+	compileQRVM(adapter, optimize);
 
-	assembly.optimise(zvmasm::Assembly::OptimiserSettings::translateSettings(m_optimiserSettings, m_zvmVersion));
+	assembly.optimise(qrvmasm::Assembly::OptimiserSettings::translateSettings(m_optimiserSettings, m_qrvmVersion));
 
 	std::optional<size_t> subIndex;
 
@@ -296,11 +296,11 @@ YulStack::assembleZVMWithDeployed(std::optional<std::string_view> _deployName) c
 
 	if (subIndex.has_value())
 	{
-		zvmasm::Assembly& runtimeAssembly = assembly.sub(*subIndex);
-		return {std::make_shared<zvmasm::Assembly>(assembly), std::make_shared<zvmasm::Assembly>(runtimeAssembly)};
+		qrvmasm::Assembly& runtimeAssembly = assembly.sub(*subIndex);
+		return {std::make_shared<qrvmasm::Assembly>(assembly), std::make_shared<qrvmasm::Assembly>(runtimeAssembly)};
 	}
 
-	return {std::make_shared<zvmasm::Assembly>(assembly), {}};
+	return {std::make_shared<qrvmasm::Assembly>(assembly), {}};
 }
 
 std::string YulStack::print(
@@ -309,7 +309,7 @@ std::string YulStack::print(
 {
 	yulAssert(m_parserResult, "");
 	yulAssert(m_parserResult->code, "");
-	return m_parserResult->toString(&languageToDialect(m_language, m_zvmVersion), m_debugInfoSelection, _hyperionSourceProvider) + "\n";
+	return m_parserResult->toString(&languageToDialect(m_language, m_qrvmVersion), m_debugInfoSelection, _hyperionSourceProvider) + "\n";
 }
 
 Json::Value YulStack::astJson() const

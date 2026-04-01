@@ -24,12 +24,12 @@
 #pragma once
 
 #include <test/Common.h>
-#include <test/ZVMHost.h>
+#include <test/QRVMHost.h>
 
 #include <libhyperion/interface/OptimiserSettings.h>
 #include <libhyperion/interface/DebugSettings.h>
 
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 #include <libhyputil/FunctionSelector.h>
 #include <libhyputil/ErrorCodes.h>
@@ -48,15 +48,15 @@ namespace hyperion::test
 {
 using rational = boost::rational<bigint>;
 
-// The ether and gwei denominations; here for ease of use where needed within code.
-static u256 const gwei = u256(1) << 9;
-static u256 const ether = u256(1) << 18;
+// The quanta and shor denominations; here for ease of use where needed within code.
+static u256 const shor = u256(1) << 9;
+static u256 const quanta = u256(1) << 18;
 class ExecutionFramework
 {
 
 public:
 	ExecutionFramework();
-	ExecutionFramework(langutil::ZVMVersion _zvmVersion, std::vector<boost::filesystem::path> const& _vmPaths);
+	ExecutionFramework(langutil::QRVMVersion _qrvmVersion, std::vector<boost::filesystem::path> const& _vmPaths);
 	virtual ~ExecutionFramework() = default;
 
 	virtual bytes const& compileAndRunWithoutCheck(
@@ -204,7 +204,7 @@ public:
 		return bytes();
 	}
 	/// @returns error returndata corresponding to the Panic(uint256) error code,
-	/// if REVERT is supported by the current ZVM version and the empty string otherwise.
+	/// if REVERT is supported by the current QRVM version and the empty string otherwise.
 	bytes panicData(util::PanicCode _code);
 
 	//@todo might be extended in the future
@@ -274,11 +274,11 @@ private:
 protected:
 	u256 const InitialGas = 100000000;
 
-	void selectVM(zvmc_capabilities _cap = zvmc_capabilities::ZVMC_CAPABILITY_ZVM1);
+	void selectVM(qrvmc_capabilities _cap = qrvmc_capabilities::QRVMC_CAPABILITY_QRVM1);
 	void reset();
 
 	void sendMessage(bytes const& _data, bool _isCreation, u256 const& _value = 0);
-	void sendEther(util::h160 const& _to, u256 const& _value);
+	void sendQuanta(util::h160 const& _to, u256 const& _value);
 	size_t currentTimestamp();
 	size_t blockTimestamp(u256 _number);
 
@@ -291,11 +291,11 @@ protected:
 
 	std::vector<frontend::test::LogRecord> recordedLogs() const;
 
-	langutil::ZVMVersion m_zvmVersion;
+	langutil::QRVMVersion m_qrvmVersion;
 	hyperion::frontend::RevertStrings m_revertStrings = hyperion::frontend::RevertStrings::Default;
 	hyperion::frontend::OptimiserSettings m_optimiserSettings = hyperion::frontend::OptimiserSettings::minimal();
 	bool m_showMessages = false;
-	std::unique_ptr<ZVMHost> m_zvmcHost;
+	std::unique_ptr<QRVMHost> m_qrvmcHost;
 
 	std::vector<boost::filesystem::path> m_vmPaths;
 

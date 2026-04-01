@@ -28,7 +28,7 @@
 #include <libyul/AsmPrinter.h>
 #include <libyul/YulStack.h>
 #include <libyul/AST.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 #include <liblangutil/DebugInfoSelection.h>
 #include <liblangutil/ErrorReporter.h>
@@ -47,14 +47,14 @@ namespace
 {
 Dialect const& defaultDialect(bool _yul)
 {
-	return _yul ? yul::Dialect::yulDeprecated() : yul::ZVMDialect::strictAssemblyForZVM(hyperion::test::CommonOptions::get().zvmVersion());
+	return _yul ? yul::Dialect::yulDeprecated() : yul::QRVMDialect::strictAssemblyForQRVM(hyperion::test::CommonOptions::get().qrvmVersion());
 }
 }
 
 pair<shared_ptr<Block>, shared_ptr<yul::AsmAnalysisInfo>> yul::test::parse(string const& _source, bool _yul)
 {
 	YulStack stack(
-		hyperion::test::CommonOptions::get().zvmVersion(),
+		hyperion::test::CommonOptions::get().qrvmVersion(),
 		_yul ? YulStack::Language::Yul : YulStack::Language::StrictAssembly,
 		hyperion::test::CommonOptions::get().optimize ?
 			hyperion::frontend::OptimiserSettings::standard() :
@@ -101,20 +101,20 @@ string yul::test::format(string const& _source, bool _yul)
 
 namespace
 {
-std::map<string const, yul::Dialect const& (*)(langutil::ZVMVersion)> const validDialects = {
+std::map<string const, yul::Dialect const& (*)(langutil::QRVMVersion)> const validDialects = {
 	{
-		"zvm",
-		[](langutil::ZVMVersion _zvmVersion) -> yul::Dialect const&
-		{ return yul::ZVMDialect::strictAssemblyForZVMObjects(_zvmVersion); }
+		"qrvm",
+		[](langutil::QRVMVersion _qrvmVersion) -> yul::Dialect const&
+		{ return yul::QRVMDialect::strictAssemblyForQRVMObjects(_qrvmVersion); }
 	},
 	{
-		"zvmTyped",
-		[](langutil::ZVMVersion _zvmVersion) -> yul::Dialect const&
-		{ return yul::ZVMDialectTyped::instance(_zvmVersion); }
+		"qrvmTyped",
+		[](langutil::QRVMVersion _qrvmVersion) -> yul::Dialect const&
+		{ return yul::QRVMDialectTyped::instance(_qrvmVersion); }
 	},
 	{
 		"yul",
-		[](langutil::ZVMVersion) -> yul::Dialect const&
+		[](langutil::QRVMVersion) -> yul::Dialect const&
 		{ return yul::Dialect::yulDeprecated(); }
 	}
 };
@@ -128,7 +128,7 @@ vector<string> validDialectNames()
 }
 }
 
-yul::Dialect const& yul::test::dialect(std::string const& _name, langutil::ZVMVersion _zvmVersion)
+yul::Dialect const& yul::test::dialect(std::string const& _name, langutil::QRVMVersion _qrvmVersion)
 {
 	if (!validDialects.count(_name))
 		BOOST_THROW_EXCEPTION(runtime_error{
@@ -139,5 +139,5 @@ yul::Dialect const& yul::test::dialect(std::string const& _name, langutil::ZVMVe
 			"."
 		});
 
-	return validDialects.at(_name)(_zvmVersion);
+	return validDialects.at(_name)(_qrvmVersion);
 }

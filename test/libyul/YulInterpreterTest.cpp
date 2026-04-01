@@ -22,7 +22,7 @@
 
 #include <test/Common.h>
 
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 #include <libyul/YulStack.h>
 #include <libyul/AsmAnalysisInfo.h>
 
@@ -47,7 +47,7 @@ using namespace hyperion::frontend::test;
 using namespace std;
 
 YulInterpreterTest::YulInterpreterTest(string const& _filename):
-	ZVMVersionRestrictedTestCase(_filename)
+	QRVMVersionRestrictedTestCase(_filename)
 {
 	m_source = m_reader.source();
 	m_expectation = m_reader.simpleExpectations();
@@ -67,7 +67,7 @@ TestCase::TestResult YulInterpreterTest::run(ostream& _stream, string const& _li
 bool YulInterpreterTest::parse(ostream& _stream, string const& _linePrefix, bool const _formatted)
 {
 	YulStack stack(
-		hyperion::test::CommonOptions::get().zvmVersion(),
+		hyperion::test::CommonOptions::get().qrvmVersion(),
 		YulStack::Language::StrictAssembly,
 		hyperion::frontend::OptimiserSettings::none(),
 		DebugInfoSelection::All()
@@ -97,7 +97,7 @@ string YulInterpreterTest::interpret()
 	{
 		Interpreter::run(
 			state,
-			ZVMDialect::strictAssemblyForZVMObjects(hyperion::test::CommonOptions::get().zvmVersion()),
+			QRVMDialect::strictAssemblyForQRVMObjects(hyperion::test::CommonOptions::get().qrvmVersion()),
 			*m_ast,
 			/*disableExternalCalls=*/ !m_simulateExternalCallsToSelf,
 			/*disableMemoryTracing=*/ false

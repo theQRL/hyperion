@@ -1,0 +1,13 @@
+{
+	"language": "Hyperion",
+	"sources": {
+		"C": {"urls": ["standard_debug_info_in_yul_and_qrvm_asm_print_all/in.hyp"]}
+	},
+	"settings": {
+		"debug": {"debugInfo": ["*"]},
+		"optimizer": {"enabled": true},
+		"outputSelection": {
+			"*": {"*": ["ir", "irOptimized", "qrvm.assembly"]}
+		}
+	}
+}

@@ -39,7 +39,7 @@
   let private := 1
   let pure := 1
   let receive := 1
-  // return is a builtin in ZVMDialect
+  // return is a builtin in QRVMDialect
   return(0, 0)
   let returns := 1
   let storage := 1
@@ -52,9 +52,9 @@
   let view := 1
   let virtual := 1
   let while := 1
-  let wei := 1
-  let gwei := 1
-  let ether := 1
+  let planck := 1
+  let shor := 1
+  let quanta := 1
   let seconds := 1
   let minutes := 1
   let hours := 1
@@ -63,10 +63,10 @@
   let int := 1
   let uint := 1
   let bytes := 1
-  // byte is a builtin in ZVMDialect
+  // byte is a builtin in QRVMDialect
   pop(byte(1, 1))
   let string := 1
-  // address is a builtin in ZVMDialect
+  // address is a builtin in QRVMDialect
   pop(address())
   let bool := 1
   let fixed := 1
@@ -104,5 +104,5 @@
   let var := 1
 }
 // ====
-// dialect: zvm
+// dialect: qrvm
 // ----

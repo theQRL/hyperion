@@ -1,6 +1,6 @@
 
 ======= optimizer_inliner_dynamic_reference_constructor/input.hyp:C =======
-ZVM assembly:
+QRVM assembly:
     /* "optimizer_inliner_dynamic_reference_constructor/input.hyp":60:361  contract C {... */
   mstore(0x40, 0x80)
     /* "optimizer_inliner_dynamic_reference_constructor/input.hyp":77:101  constructor() { x = f; } */

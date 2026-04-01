@@ -16,7 +16,7 @@
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Full assembly stack that can support ZVM-assembly and Yul as input and ZVM.
+ * Full assembly stack that can support QRVM-assembly and Yul as input and QRVM.
  */
 
 #pragma once
@@ -24,21 +24,21 @@
 #include <liblangutil/CharStreamProvider.h>
 #include <liblangutil/DebugInfoSelection.h>
 #include <liblangutil/ErrorReporter.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 #include <libyul/Object.h>
 #include <libyul/ObjectParser.h>
 
 #include <libhyperion/interface/OptimiserSettings.h>
 
-#include <libzvmasm/LinkerObject.h>
+#include <libqrvmasm/LinkerObject.h>
 
 #include <json/json.h>
 
 #include <memory>
 #include <string>
 
-namespace hyperion::zvmasm
+namespace hyperion::qrvmasm
 {
 class Assembly;
 }
@@ -55,23 +55,23 @@ class AbstractAssembly;
 
 struct MachineAssemblyObject
 {
-	std::shared_ptr<zvmasm::LinkerObject> bytecode;
+	std::shared_ptr<qrvmasm::LinkerObject> bytecode;
 	std::string assembly;
 	std::unique_ptr<std::string> sourceMappings;
 };
 
 /*
- * Full assembly stack that can support ZVM-assembly and Yul as input and ZVM as output.
+ * Full assembly stack that can support QRVM-assembly and Yul as input and QRVM as output.
  */
 class YulStack: public langutil::CharStreamProvider
 {
 public:
 	enum class Language { Yul, Assembly, StrictAssembly };
-	enum class Machine { ZVM };
+	enum class Machine { QRVM };
 
 	YulStack():
 		YulStack(
-			langutil::ZVMVersion{},
+			langutil::QRVMVersion{},
 			Language::Assembly,
 			hyperion::frontend::OptimiserSettings::none(),
 			langutil::DebugInfoSelection::Default()
@@ -79,13 +79,13 @@ public:
 	{}
 
 	YulStack(
-		langutil::ZVMVersion _zvmVersion,
+		langutil::QRVMVersion _qrvmVersion,
 		Language _language,
 		hyperion::frontend::OptimiserSettings _optimiserSettings,
 		langutil::DebugInfoSelection const& _debugInfoSelection
 	):
 		m_language(_language),
-		m_zvmVersion(_zvmVersion),
+		m_qrvmVersion(_qrvmVersion),
 		m_optimiserSettings(std::move(_optimiserSettings)),
 		m_debugInfoSelection(_debugInfoSelection),
 		m_errorReporter(m_errors)
@@ -108,17 +108,17 @@ public:
 	/// Run the assembly step (should only be called after parseAndAnalyze).
 	/// In addition to the value returned by @a assemble, returns
 	/// a second object that is the runtime code.
-	/// Only available for ZVM.
+	/// Only available for QRVM.
 	std::pair<MachineAssemblyObject, MachineAssemblyObject>
 	assembleWithDeployed(
 		std::optional<std::string_view> _deployName = {}
 	) const;
 
 	/// Run the assembly step (should only be called after parseAndAnalyze).
-	/// Similar to @a assemblyWithDeployed, but returns ZVM assembly objects.
-	/// Only available for ZVM.
-	std::pair<std::shared_ptr<zvmasm::Assembly>, std::shared_ptr<zvmasm::Assembly>>
-	assembleZVMWithDeployed(
+	/// Similar to @a assemblyWithDeployed, but returns QRVM assembly objects.
+	/// Only available for QRVM.
+	std::pair<std::shared_ptr<qrvmasm::Assembly>, std::shared_ptr<qrvmasm::Assembly>>
+	assembleQRVMWithDeployed(
 		std::optional<std::string_view> _deployName = {}
 	) const;
 
@@ -137,12 +137,12 @@ private:
 	bool analyzeParsed();
 	bool analyzeParsed(yul::Object& _object);
 
-	void compileZVM(yul::AbstractAssembly& _assembly, bool _optimize) const;
+	void compileQRVM(yul::AbstractAssembly& _assembly, bool _optimize) const;
 
 	void optimize(yul::Object& _object, bool _isCreation);
 
 	Language m_language = Language::Assembly;
-	langutil::ZVMVersion m_zvmVersion;
+	langutil::QRVMVersion m_qrvmVersion;
 	hyperion::frontend::OptimiserSettings m_optimiserSettings;
 	langutil::DebugInfoSelection m_debugInfoSelection{};
 

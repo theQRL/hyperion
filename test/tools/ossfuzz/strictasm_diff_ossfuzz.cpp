@@ -19,12 +19,12 @@
 #include <libyul/AsmAnalysisInfo.h>
 #include <libyul/AsmAnalysis.h>
 #include <libyul/Dialect.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 #include <libyul/YulStack.h>
 
 #include <liblangutil/DebugInfoSelection.h>
 #include <liblangutil/Exceptions.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 #include <libhyputil/CommonIO.h>
 #include <libhyputil/CommonData.h>
@@ -61,7 +61,7 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t const* _data, size_t _size)
 	YulStringRepository::reset();
 
 	YulStack stack(
-		langutil::ZVMVersion(),
+		langutil::QRVMVersion(),
 		YulStack::Language::StrictAssembly,
 		hyperion::frontend::OptimiserSettings::full(),
 		DebugInfoSelection::All()
@@ -89,7 +89,7 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t const* _data, size_t _size)
 	yulFuzzerUtil::TerminationReason termReason = yulFuzzerUtil::interpret(
 		os1,
 		stack.parserResult()->code,
-		ZVMDialect::strictAssemblyForZVMObjects(langutil::ZVMVersion()),
+		QRVMDialect::strictAssemblyForQRVMObjects(langutil::QRVMVersion()),
 		/*disableMemoryTracing=*/true
 	);
 	if (yulFuzzerUtil::resourceLimitsExceeded(termReason))
@@ -99,7 +99,7 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t const* _data, size_t _size)
 	termReason = yulFuzzerUtil::interpret(
 		os2,
 		stack.parserResult()->code,
-		ZVMDialect::strictAssemblyForZVMObjects(langutil::ZVMVersion()),
+		QRVMDialect::strictAssemblyForQRVMObjects(langutil::QRVMVersion()),
 		/*disableMemoryTracing=*/true
 	);
 

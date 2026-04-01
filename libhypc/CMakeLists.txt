@@ -10,7 +10,7 @@ if (EMSCRIPTEN)
 	)
 	# Specify which functions to export in hypjson.js.
 	# Note that additional Emscripten-generated methods needed by hypc-js are
-	# defined to be exported in cmake/ZondCompilerSettings.cmake.
+	# defined to be exported in cmake/QRLCompilerSettings.cmake.
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s EXPORTED_FUNCTIONS='${ExportedFunctions}'")
 	add_executable(hypjson libhypc.cpp libhypc.h)
 	target_link_libraries(hypjson PRIVATE hyperion)

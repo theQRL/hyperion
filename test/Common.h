@@ -19,11 +19,11 @@
 #pragma once
 
 #include <libhyputil/Exceptions.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 #include <liblangutil/Exceptions.h>
 #include <libhyputil/Numeric.h>
 
-#include <test/zvmc/zvmc.h>
+#include <test/qrvmc/qrvmc.h>
 
 #include <boost/filesystem/path.hpp>
 #include <boost/program_options.hpp>
@@ -32,14 +32,14 @@ namespace hyperion::test
 {
 
 #ifdef _WIN32
-static constexpr auto zvmoneFilename = "zvmone.dll";
-static constexpr auto zvmoneDownloadLink = "https://github.com/theQRL/zvmone/releases/download/v0.1.0/zvmone-0.1.0-windows-amd64.zip";
+static constexpr auto qrvmoneFilename = "qrvmone.dll";
+static constexpr auto qrvmoneDownloadLink = "https://github.com/theQRL/qrvmone/releases/download/v0.1.0/qrvmone-0.1.0-windows-amd64.zip";
 #elif defined(__APPLE__)
-static constexpr auto zvmoneFilename = "libzvmone.dylib";
-static constexpr auto zvmoneDownloadLink = "https://github.com/theQRL/zvmone/releases/download/v0.1.0/zvmone-0.1.0-darwin-x86_64.tar.gz";
+static constexpr auto qrvmoneFilename = "libqrvmone.dylib";
+static constexpr auto qrvmoneDownloadLink = "https://github.com/theQRL/qrvmone/releases/download/v0.1.0/qrvmone-0.1.0-darwin-x86_64.tar.gz";
 #else
-static constexpr auto zvmoneFilename = "libzvmone.so";
-static constexpr auto zvmoneDownloadLink = "https://github.com/theQRL/zvmone/releases/download/v0.1.0/zvmone-0.1.0-linux-x86_64.tar.gz";
+static constexpr auto qrvmoneFilename = "libqrvmone.so";
+static constexpr auto qrvmoneDownloadLink = "https://github.com/theQRL/qrvmone/releases/download/v0.1.0/qrvmone-0.1.0-linux-x86_64.tar.gz";
 #endif
 
 struct ConfigException: public util::Exception {};
@@ -63,7 +63,7 @@ struct CommonOptions
 	size_t batches = 1;
 	size_t selectedBatch = 0;
 
-	langutil::ZVMVersion zvmVersion() const;
+	langutil::QRVMVersion qrvmVersion() const;
 
 	virtual void addOptions();
 	// @returns true if the program should continue, false if it should exit immediately without
@@ -74,7 +74,7 @@ struct CommonOptions
 	virtual void validate() const;
 
 	/// @returns string with a key=value list of the options separated by comma
-	/// Ex.: "zvmVersion=shanghai, optimize=true, useABIEncoderV1=false"
+	/// Ex.: "qrvmVersion=zond, optimize=true, useABIEncoderV1=false"
 	virtual std::string toString(std::vector<std::string> const& _selectedOptions) const;
 	/// Helper to print the value of settings used
 	virtual void printSelectedOptions(std::ostream& _stream, std::string const& _linePrefix, std::vector<std::string> const& _selectedOptions) const;
@@ -89,7 +89,7 @@ protected:
 	boost::program_options::options_description options;
 
 private:
-	std::string zvmVersionString;
+	std::string qrvmVersionString;
 	static std::unique_ptr<CommonOptions const> m_singleton;
 };
 

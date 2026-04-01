@@ -30,7 +30,7 @@
 #include <libhyperion/parsing/Token.h>
 
 #include <liblangutil/SourceLocation.h>
-#include <libzvmasm/Instruction.h>
+#include <libqrvmasm/Instruction.h>
 #include <libhyputil/FixedHash.h>
 #include <libhyputil/LazyInit.h>
 #include <libhyputil/Visitor.h>
@@ -566,7 +566,7 @@ public:
 	/// Returns the fallback function or nullptr if no fallback function was specified.
 	FunctionDefinition const* fallbackFunction() const;
 
-	/// Returns the ether receiver function or nullptr if no receive function was specified.
+	/// Returns the quanta receiver function or nullptr if no receive function was specified.
 	FunctionDefinition const* receiveFunction() const;
 
 	std::string fullyQualifiedName() const { return sourceUnitName() + ":" + name(); }
@@ -2390,9 +2390,9 @@ public:
 	enum class SubDenomination
 	{
 		None = static_cast<int>(Token::Illegal),
-		Wei = static_cast<int>(Token::SubWei),
-		Gwei = static_cast<int>(Token::SubGwei),
-		Ether = static_cast<int>(Token::SubEther),
+		Planck = static_cast<int>(Token::SubPlanck),
+		Shor = static_cast<int>(Token::SubShor),
+		Quanta = static_cast<int>(Token::SubQuanta),
 		Second = static_cast<int>(Token::SubSecond),
 		Minute = static_cast<int>(Token::SubMinute),
 		Hour = static_cast<int>(Token::SubHour),

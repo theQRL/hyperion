@@ -19,7 +19,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <test/Common.h>
-#include <test/ZVMHost.h>
+#include <test/QRVMHost.h>
 #include <test/libhyperion/util/HyptestErrors.h>
 
 #include <libhyputil/Assertions.h>
@@ -40,7 +40,7 @@ namespace hyperion::test
 namespace
 {
 
-/// If non-empty returns the value of the env. variable ZOND_TEST_PATH, otherwise
+/// If non-empty returns the value of the env. variable QRL_TEST_PATH, otherwise
 /// it tries to find a path that contains the directories "libhyperion/syntaxTests"
 /// and returns it if found.
 /// The routine searches in the current directory, and inside the "test" directory
@@ -48,7 +48,7 @@ namespace
 /// @returns the path of the first match or an empty path if not found.
 boost::filesystem::path testPath()
 {
-	if (auto path = getenv("ZOND_TEST_PATH"))
+	if (auto path = getenv("QRL_TEST_PATH"))
 		return path;
 
 	auto const searchPath =
@@ -103,9 +103,9 @@ CommonOptions::CommonOptions(std::string _caption):
 void CommonOptions::addOptions()
 {
 	options.add_options()
-		("zvm-version", po::value(&zvmVersionString), "which ZVM version to use")
+		("qrvm-version", po::value(&qrvmVersionString), "which QRVM version to use")
 		("testpath", po::value<fs::path>(&this->testPath)->default_value(hyperion::test::testPath()), "path to test files")
-		("vm", po::value<std::vector<fs::path>>(&vmPaths), "path to zvmc library, can be supplied multiple times.")
+		("vm", po::value<std::vector<fs::path>>(&vmPaths), "path to qrvmc library, can be supplied multiple times.")
 		("batches", po::value<size_t>(&this->batches)->default_value(1), "set number of batches to split the tests into")
 		("selected-batch", po::value<size_t>(&this->selectedBatch)->default_value(0), "zero-based number of batch to execute")
 		("no-semantic-tests", po::bool_switch(&disableSemanticTests)->default_value(disableSemanticTests), "disable semantic tests")
@@ -144,9 +144,9 @@ void CommonOptions::validate() const
 	if (enforceGasTest)
 	{
 		assertThrow(
-			zvmVersion() == langutil::ZVMVersion{},
+			qrvmVersion() == langutil::QRVMVersion{},
 			ConfigException,
-			"Gas costs can only be enforced on latest zvm version."
+			"Gas costs can only be enforced on latest qrvm version."
 		);
 		assertThrow(
 			useABIEncoderV1 == false,
@@ -191,12 +191,12 @@ bool CommonOptions::parse(int argc, char const* const* argv)
 
 	if (vmPaths.empty())
 	{
-		if (auto envPath = getenv("ZOND_ZVMONE"))
+		if (auto envPath = getenv("QRL_QRVMONE"))
 			vmPaths.emplace_back(envPath);
-		else if (auto repoPath = findInDefaultPath(zvmoneFilename))
+		else if (auto repoPath = findInDefaultPath(qrvmoneFilename))
 			vmPaths.emplace_back(*repoPath);
 		else
-			vmPaths.emplace_back(zvmoneFilename);
+			vmPaths.emplace_back(qrvmoneFilename);
 	}
 
 	return true;
@@ -210,7 +210,7 @@ string CommonOptions::toString(vector<string> const& _selectedOptions) const
 	auto boolToString = [](bool _value) -> string { return _value ? "true" : "false"; };
 	// Using std::map to avoid if-else/switch-case block
 	map<string, string> optionValueMap = {
-		{"zvmVersion", zvmVersion().name()},
+		{"qrvmVersion", qrvmVersion().name()},
 		{"optimize", boolToString(optimize)},
 		{"useABIEncoderV1", boolToString(useABIEncoderV1)},
 		{"batch", to_string(selectedBatch + 1) + "/" + to_string(batches)},
@@ -236,17 +236,17 @@ void CommonOptions::printSelectedOptions(ostream& _stream, string const& _linePr
 	_stream << _linePrefix << "Run Settings: " << toString(_selectedOptions) << endl;
 }
 
-langutil::ZVMVersion CommonOptions::zvmVersion() const
+langutil::QRVMVersion CommonOptions::qrvmVersion() const
 {
-	if (!zvmVersionString.empty())
+	if (!qrvmVersionString.empty())
 	{
-		auto version = langutil::ZVMVersion::fromString(zvmVersionString);
+		auto version = langutil::QRVMVersion::fromString(qrvmVersionString);
 		if (!version)
-			BOOST_THROW_EXCEPTION(std::runtime_error("Invalid ZVM version: " + zvmVersionString));
+			BOOST_THROW_EXCEPTION(std::runtime_error("Invalid QRVM version: " + qrvmVersionString));
 		return *version;
 	}
 	else
-		return langutil::ZVMVersion();
+		return langutil::QRVMVersion();
 }
 
 CommonOptions const& CommonOptions::get()
@@ -284,13 +284,13 @@ bool loadVMs(CommonOptions const& _options)
 	if (_options.disableSemanticTests)
 		return true;
 
-	bool zvmSupported = hyperion::test::ZVMHost::checkVmPaths(_options.vmPaths);
-	if (!_options.disableSemanticTests && !zvmSupported)
+	bool qrvmSupported = hyperion::test::QRVMHost::checkVmPaths(_options.vmPaths);
+	if (!_options.disableSemanticTests && !qrvmSupported)
 	{
-		std::cerr << "Unable to find " << hyperion::test::zvmoneFilename;
+		std::cerr << "Unable to find " << hyperion::test::qrvmoneFilename;
 		std::cerr << ". Please disable semantics tests with --no-semantic-tests or provide a path using --vm <path>." << std::endl;
 		std::cerr << "You can download it at" << std::endl;
-		std::cerr << hyperion::test::zvmoneDownloadLink << std::endl;
+		std::cerr << hyperion::test::qrvmoneDownloadLink << std::endl;
 		return false;
 	}
 	return true;

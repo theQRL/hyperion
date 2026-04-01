@@ -523,8 +523,8 @@ std::string AddressType::canonicalName() const
 u256 AddressType::literalValue(Literal const* _literal) const
 {
 	hypAssert(_literal, "");
-	hypAssert(boost::starts_with(_literal->value(), "Z"), "");
-	return u256(boost::replace_all_copy(_literal->value(), "Z", "0x"));
+	hypAssert(boost::starts_with(_literal->value(), "Q"), "");
+	return u256(boost::replace_all_copy(_literal->value(), "Q", "0x"));
 }
 
 TypeResult AddressType::unaryOperatorResult(Token _operator) const
@@ -915,10 +915,10 @@ std::tuple<bool, rational> RationalNumberType::isValidLiteral(Literal const& _li
 			// process as hex
 			value = bigint(valueString);
 		}
-		else if (boost::starts_with(valueString, "Z")) 
+		else if (boost::starts_with(valueString, "Q")) 
 		{
 			// process as hex
-			value = bigint(boost::replace_all_copy(valueString, "Z", "0x"));
+			value = bigint(boost::replace_all_copy(valueString, "Q", "0x"));
 		}
 		else if (expPoint != valueString.end())
 		{
@@ -975,13 +975,13 @@ std::tuple<bool, rational> RationalNumberType::isValidLiteral(Literal const& _li
 	switch (_literal.subDenomination())
 	{
 		case Literal::SubDenomination::None:
-		case Literal::SubDenomination::Wei:
+		case Literal::SubDenomination::Planck:
 		case Literal::SubDenomination::Second:
 			break;
-		case Literal::SubDenomination::Gwei:
+		case Literal::SubDenomination::Shor:
 			value *= bigint("1000000000");
 			break;
-		case Literal::SubDenomination::Ether:
+		case Literal::SubDenomination::Quanta:
 			value *= bigint("1000000000000000000");
 			break;
 		case Literal::SubDenomination::Minute:
@@ -3136,7 +3136,7 @@ BoolResult FunctionType::isImplicitlyConvertibleTo(Type const& _convertTo) const
 	if (m_stateMutability != StateMutability::Payable && convertTo.stateMutability() == StateMutability::Payable)
 		return false;
 
-	// payable should be convertible to non-payable, because you are free to pay 0 ether
+	// payable should be convertible to non-payable, because you are free to pay 0 quanta
 	if (m_stateMutability == StateMutability::Payable && convertTo.stateMutability() == StateMutability::NonPayable)
 		return true;
 

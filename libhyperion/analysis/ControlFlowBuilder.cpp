@@ -19,7 +19,7 @@
 #include <libhyperion/analysis/ControlFlowBuilder.h>
 #include <libhyperion/ast/ASTUtils.h>
 #include <libyul/AST.h>
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 using namespace hyperion::langutil;
 using namespace hyperion::frontend;

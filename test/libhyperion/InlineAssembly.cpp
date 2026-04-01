@@ -33,7 +33,7 @@
 #include <liblangutil/Scanner.h>
 #include <liblangutil/SourceReferenceFormatter.h>
 
-#include <libzvmasm/Assembly.h>
+#include <libqrvmasm/Assembly.h>
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/test/unit_test.hpp>
@@ -56,11 +56,11 @@ std::optional<Error> parseAndReturnFirstError(
 	bool _assemble = false,
 	bool _allowWarnings = true,
 	YulStack::Language _language = YulStack::Language::Assembly,
-	YulStack::Machine _machine = YulStack::Machine::ZVM
+	YulStack::Machine _machine = YulStack::Machine::QRVM
 )
 {
 	YulStack stack(
-		hyperion::test::CommonOptions::get().zvmVersion(),
+		hyperion::test::CommonOptions::get().qrvmVersion(),
 		_language,
 		hyperion::frontend::OptimiserSettings::none(),
 		DebugInfoSelection::None()
@@ -101,7 +101,7 @@ bool successParse(
 	bool _assemble = false,
 	bool _allowWarnings = true,
 	YulStack::Language _language = YulStack::Language::Assembly,
-	YulStack::Machine _machine = YulStack::Machine::ZVM
+	YulStack::Machine _machine = YulStack::Machine::QRVM
 )
 {
 	return !parseAndReturnFirstError(_source, _assemble, _allowWarnings, _language, _machine);
@@ -110,7 +110,7 @@ bool successParse(
 bool successAssemble(std::string const& _source, bool _allowWarnings = true, YulStack::Language _language = YulStack::Language::Assembly)
 {
 	return
-		successParse(_source, true, _allowWarnings, _language, YulStack::Machine::ZVM);
+		successParse(_source, true, _allowWarnings, _language, YulStack::Machine::QRVM);
 }
 
 Error expectError(
@@ -129,7 +129,7 @@ Error expectError(
 void parsePrintCompare(std::string const& _source, bool _canWarn = false)
 {
 	YulStack stack(
-		hyperion::test::CommonOptions::get().zvmVersion(),
+		hyperion::test::CommonOptions::get().qrvmVersion(),
 		YulStack::Language::Assembly,
 		OptimiserSettings::none(),
 		DebugInfoSelection::None()
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE(print_string_literal_unicode)
 	std::string source = "{ let x := \"\\u1bac\" }";
 	std::string parsed = "object \"object\" {\n    code { let x := \"\\xe1\\xae\\xac\" }\n}\n";
 	YulStack stack(
-		hyperion::test::CommonOptions::get().zvmVersion(),
+		hyperion::test::CommonOptions::get().qrvmVersion(),
 		YulStack::Language::Assembly,
 		OptimiserSettings::none(),
 		DebugInfoSelection::None()

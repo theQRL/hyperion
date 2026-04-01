@@ -38,7 +38,7 @@
 #include <libyul/optimiser/VarNameCleaner.h>
 #include <libyul/optimiser/Suite.h>
 
-#include <libyul/backends/zvm/ZVMDialect.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
 
 #include <libhyputil/JSON.h>
 
@@ -244,7 +244,7 @@ public:
 
 private:
 	shared_ptr<yul::Block> m_ast;
-	Dialect const& m_dialect{ZVMDialect::strictAssemblyForZVMObjects(ZVMVersion{})};
+	Dialect const& m_dialect{QRVMDialect::strictAssemblyForQRVMObjects(QRVMVersion{})};
 	unique_ptr<AsmAnalysisInfo> m_analysisInfo;
 	set<YulString> const m_reservedIdentifiers = {};
 	NameDispenser m_nameDispenser{m_dialect, m_reservedIdentifiers};

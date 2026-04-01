@@ -5,7 +5,7 @@
         {
             "A1":
             {
-                "zvm":
+                "qrvm":
                 {
                     "bytecode":
                     {
@@ -15,7 +15,7 @@
             },
             "A2":
             {
-                "zvm":
+                "qrvm":
                 {
                     "bytecode":
                     {
@@ -28,7 +28,7 @@
         {
             "A1":
             {
-                "zvm":
+                "qrvm":
                 {
                     "bytecode":
                     {
@@ -38,7 +38,7 @@
             },
             "B2":
             {
-                "zvm":
+                "qrvm":
                 {
                     "bytecode":
                     {

@@ -1,9 +1,9 @@
-contract ERC20 {
+contract SQRCTF1 {
   function balanceOf(address) external virtual view returns (uint) {}
   function balanceOf(uint) external virtual view returns (uint) {}
   function balanceOf() external virtual view returns (uint) {}
 }
-contract C is ERC20 {
+contract C is SQRCTF1 {
   mapping(address => uint) public override balanceOf;
 }
 // ----

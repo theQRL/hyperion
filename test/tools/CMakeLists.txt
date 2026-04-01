@@ -2,10 +2,10 @@ add_subdirectory(ossfuzz)
 
 add_subdirectory(yulInterpreter)
 add_executable(yulrun yulrun.cpp)
-target_link_libraries(yulrun PRIVATE yulInterpreter libhypc zvmasm Boost::boost Boost::program_options)
+target_link_libraries(yulrun PRIVATE yulInterpreter libhypc qrvmasm Boost::boost Boost::program_options)
 
 add_executable(hypfuzzer afl_fuzzer.cpp fuzzer_common.cpp)
-target_link_libraries(hypfuzzer PRIVATE libhypc zvmasm Boost::boost Boost::program_options Boost::system)
+target_link_libraries(hypfuzzer PRIVATE libhypc qrvmasm Boost::boost Boost::program_options Boost::system)
 
 add_executable(yulopti yulopti.cpp)
 target_link_libraries(yulopti PRIVATE hyperion Boost::boost Boost::program_options Boost::system)
@@ -15,7 +15,7 @@ add_executable(ihyptest
 	IhypTestOptions.cpp
 	../Common.cpp
 	../CommonSyntaxTest.cpp
-	../ZVMHost.cpp
+	../QRVMHost.cpp
 	../TestCase.cpp
 	../TestCaseReader.cpp
 	../libhyperion/util/BytesUtils.cpp
@@ -38,7 +38,7 @@ add_executable(ihyptest
 	../libyul/Common.cpp
 	../libyul/ControlFlowGraphTest.cpp
 	../libyul/ControlFlowSideEffectsTest.cpp
-	../libyul/ZVMCodeTransformTest.cpp
+	../libyul/QRVMCodeTransformTest.cpp
 	../libyul/FunctionSideEffects.cpp
 	../libyul/ObjectCompilerTest.cpp
 	../libyul/SyntaxTest.cpp
@@ -49,4 +49,4 @@ add_executable(ihyptest
 	../libyul/YulInterpreterTest.cpp
 )
 target_compile_definitions(ihyptest PRIVATE IHYPTEST)
-target_link_libraries(ihyptest PRIVATE zvmc libhypc hyperion yulInterpreter zvmasm Boost::boost Boost::program_options Boost::unit_test_framework Threads::Threads)
+target_link_libraries(ihyptest PRIVATE qrvmc libhypc hyperion yulInterpreter qrvmasm Boost::boost Boost::program_options Boost::unit_test_framework Threads::Threads)

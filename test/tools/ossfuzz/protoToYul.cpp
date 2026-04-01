@@ -92,12 +92,12 @@ string ProtoConverter::createAlphaNum(string const& _strBytes)
 	return tmp;
 }
 
-ZVMVersion ProtoConverter::zvmVersionMapping(Program_Version const& _ver)
+QRVMVersion ProtoConverter::qrvmVersionMapping(Program_Version const& _ver)
 {
 	switch (_ver)
 	{
-	case Program::SHANGHAI:
-		return ZVMVersion::shanghai();
+	case Program::ZOND:
+		return QRVMVersion::zond();
 	}
 }
 
@@ -236,7 +236,7 @@ void ProtoConverter::visit(Expression const& _x)
 	case Expression::kUnopdata:
 		// Filter datasize and dataoffset because these instructions may return
 		// a value that is a function of optimisation. Therefore, when run on
-		// an ZVM client, the execution traces for unoptimised vs optimised
+		// a QRVM client, the execution traces for unoptimised vs optimised
 		// programs may differ. This ends up as a false-positive bug report.
 		if (m_isObject && !m_filterStatefulInstructions)
 			visit(_x.unopdata());
@@ -553,7 +553,7 @@ void ProtoConverter::visit(UnaryOp const& _x)
 {
 	UnaryOp_UOp op = _x.op();
 
-	// The following instructions may lead to change of ZVM state and are hence
+	// The following instructions may lead to change of QRVM state and are hence
 	// excluded to avoid false positives.
 	if (
 		m_filterStatefulInstructions &&
@@ -634,7 +634,7 @@ void ProtoConverter::visit(TernaryOp const& _x)
 void ProtoConverter::visit(NullaryOp const& _x)
 {
 	auto op = _x.op();
-	// The following instructions may lead to a change in ZVM state and are
+	// The following instructions may lead to a change in QRVM state and are
 	// excluded to avoid false positive reports.
 	if (
 		m_filterStatefulInstructions &&
@@ -967,7 +967,7 @@ void ProtoConverter::visit(LowLevelCall const& _x)
 	m_output << ", ";
 	if (type == LowLevelCall::CALL)
 	{
-		visit(_x.wei());
+		visit(_x.planck());
 		m_output << ", ";
 	}
 	m_output << "mod(";
@@ -1001,7 +1001,7 @@ void ProtoConverter::visit(Create const& _x)
 		m_output << "create2(";
 		break;
 	}
-	visit(_x.wei());
+	visit(_x.planck());
 	m_output << ", ";
 	m_output << "mod(";
 	visit(_x.position());
@@ -1848,8 +1848,8 @@ void ProtoConverter::visit(Program const& _x)
 	// Initialize input size
 	m_inputSize = static_cast<unsigned>(_x.ByteSizeLong());
 
-	// Record ZVM Version
-	m_zvmVersion = zvmVersionMapping(_x.ver());
+	// Record QRVM Version
+	m_qrvmVersion = qrvmVersionMapping(_x.ver());
 
 	// Program is either a Yul object or a block of
 	// statements.

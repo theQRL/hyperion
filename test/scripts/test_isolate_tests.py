@@ -29,7 +29,7 @@ class TestExtractDocsCases(unittest.TestCase):
         expected_cases = [formatCase(case) for case in [
             """
                 // SPDX-License-Identifier: GPL-3.0
-                pragma hyperion >=0.7.0 <0.9.0;
+                pragma hyperion >=0.1.0;
 
                 contract C {
                     function foo() public view {}
@@ -47,7 +47,7 @@ class TestExtractDocsCases(unittest.TestCase):
         expected_cases = [formatCase(case) for case in [
             """
                 // SPDX-License-Identifier: GPL-3.0
-                pragma hyperion >=0.7.0 <0.9.0;
+                pragma hyperion >=0.1.0;
 
                 contract C {
                     function foo() public view {}

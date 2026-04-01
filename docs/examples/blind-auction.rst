@@ -5,7 +5,7 @@ Blind Auction
 *************
 
 In this section, we will show how easy it is to create a completely blind
-auction contract on Ethereum.  We will start with an open auction where
+auction contract on QRL.  We will start with an open auction where
 everyone can see the bids that are made and then extend this contract into a
 blind auction where it is not possible to see the actual bid until the bidding
 period ends.
@@ -17,15 +17,15 @@ Simple Open Auction
 
 The general idea of the following simple auction contract is that everyone can
 send their bids during a bidding period. The bids already include sending some compensation,
-e.g. Ether, in order to bind the bidders to their bid. If the highest bid is
-raised, the previous highest bidder gets their Ether back.  After the end of
+e.g. Quanta, in order to bind the bidders to their bid. If the highest bid is
+raised, the previous highest bidder gets their Quanta back.  After the end of
 the bidding period, the contract has to be called manually for the beneficiary
-to receive their Ether - contracts cannot activate themselves.
+to receive their Quanta - contracts cannot activate themselves.
 
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.4;
+    pragma hyperion >=0.1.0;
     contract SimpleAuction {
         // Parameters of the auction. Times are either
         // absolute unix timestamps (seconds since 1970-01-01)
@@ -84,7 +84,7 @@ to receive their Ether - contracts cannot activate themselves.
             // information is already part of
             // the transaction. The keyword payable
             // is required for the function to
-            // be able to receive Ether.
+            // be able to receive Quanta.
 
             // Revert the call if the bidding
             // period is over.
@@ -92,19 +92,19 @@ to receive their Ether - contracts cannot activate themselves.
                 revert AuctionAlreadyEnded();
 
             // If the bid is not higher, send the
-            // Ether back (the revert statement
+            // Quanta back (the revert statement
             // will revert all changes in this
             // function execution including
-            // it having received the Ether).
+            // it having received the Quanta).
             if (msg.value <= highestBid)
                 revert BidNotHighEnough(highestBid);
 
             if (highestBid != 0) {
-                // Sending back the Ether by simply using
+                // Sending back the Quanta by simply using
                 // highestBidder.send(highestBid) is a security risk
                 // because it could execute an untrusted contract.
                 // It is always safer to let the recipients
-                // withdraw their Ether themselves.
+                // withdraw their Quanta themselves.
                 pendingReturns[highestBidder] += highestBid;
             }
             highestBidder = msg.sender;
@@ -137,14 +137,14 @@ to receive their Ether - contracts cannot activate themselves.
         /// to the beneficiary.
         function auctionEnd() external {
             // It is a good guideline to structure functions that interact
-            // with other contracts (i.e. they call functions or send Ether)
+            // with other contracts (i.e. they call functions or send Quanta)
             // into three phases:
             // 1. checking conditions
             // 2. performing actions (potentially changing conditions)
             // 3. interacting with other contracts
             // If these phases are mixed up, the other contract could call
             // back into the current contract and modify the state or cause
-            // effects (ether payout) to be performed multiple times.
+            // effects (quanta payout) to be performed multiple times.
             // If functions called internally include interaction with external
             // contracts, they also have to be considered interaction with
             // external contracts.
@@ -182,9 +182,9 @@ the contract checks that the hash value is the same as the one provided during
 the bidding period.
 
 Another challenge is how to make the auction **binding and blind** at the same
-time: The only way to prevent the bidder from just not sending the Ether after
+time: The only way to prevent the bidder from just not sending the Quanta after
 they won the auction is to make them send it together with the bid. Since value
-transfers cannot be blinded in Ethereum, anyone can see the value.
+transfers cannot be blinded in QRL, anyone can see the value.
 
 The following contract solves this problem by accepting any value that is
 larger than the highest bid. Since this can of course only be checked during
@@ -198,7 +198,8 @@ invalid bids.
     :force:
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.4;
+    pragma hyperion >=0.1.0;
+    
     contract BlindAuction {
         struct Bid {
             bytes32 blindedBid;
@@ -256,9 +257,9 @@ invalid bids.
 
         /// Place a blinded bid with `blindedBid` =
         /// keccak256(abi.encodePacked(value, fake, secret)).
-        /// The sent ether is only refunded if the bid is correctly
+        /// The sent quanta is only refunded if the bid is correctly
         /// revealed in the revealing phase. The bid is valid if the
-        /// ether sent together with the bid is at least "value" and
+        /// quanta sent together with the bid is at least "value" and
         /// "fake" is not true. Setting "fake" to true and sending
         /// not the exact amount are ways to hide the real bid but
         /// still make the required deposit. The same address can

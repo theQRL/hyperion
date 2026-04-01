@@ -44,7 +44,7 @@ this nonsensical example:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.22 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     // This will report a warning
     contract C {
@@ -52,7 +52,7 @@ this nonsensical example:
         function f() internal pure returns (uint ret) { return g(7) + f(); }
     }
 
-These function calls are translated into simple jumps inside the ZVM. This has
+These function calls are translated into simple jumps inside the QRVM. This has
 the effect that the current memory is not cleared, i.e. passing memory references
 to internally-called functions is very efficient. Only functions of the same
 contract instance can be called internally.
@@ -79,16 +79,16 @@ all function arguments have to be copied to memory.
     A function call from one contract to another does not create its own transaction,
     it is a message call as part of the overall transaction.
 
-When calling functions of other contracts, you can specify the amount of Wei or
+When calling functions of other contracts, you can specify the amount of Planck or
 gas sent with the call with the special options ``{value: 10, gas: 10000}``.
 Note that it is discouraged to specify gas values explicitly, since the gas costs
-of opcodes can change in the future. Any Wei you send to the contract is added
+of opcodes can change in the future. Any Planck you send to the contract is added
 to the total balance of that contract:
 
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.2 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract InfoFeed {
         function info() public payable returns (uint ret) { return 42; }
@@ -111,7 +111,7 @@ otherwise, the ``value`` option would not be available.
   the ``value`` and ``gas`` settings are lost, only
   ``feed.info{value: 10, gas: 800}()`` performs the function call.
 
-Due to the fact that the ZVM considers a call to a non-existing contract to
+Due to the fact that the QRVM considers a call to a non-existing contract to
 always succeed, Hyperion uses the ``extcodesize`` opcode to check that
 the contract that is about to be called actually exists (it contains code)
 and causes an exception if it does not. This check is skipped if the return
@@ -156,7 +156,7 @@ parameters from the function declaration, but can be in arbitrary order.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract C {
         mapping(uint => uint) data;
@@ -181,7 +181,7 @@ can still return a value to the caller by use of the ``return`` statement.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.22 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract C {
         // omitted name for parameter
@@ -205,7 +205,7 @@ is compiled so recursive creation-dependencies are not possible.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.7.0 <0.9.0;
+    pragma hyperion >=0.1.0;
     contract D {
         uint public x;
         constructor(uint a) payable {
@@ -222,13 +222,13 @@ is compiled so recursive creation-dependencies are not possible.
         }
 
         function createAndEndowD(uint arg, uint amount) public payable {
-            // Send ether along with the creation
+            // Send quanta along with the creation
             D newD = new D{value: amount}(arg);
             newD.x();
         }
     }
 
-As seen in the example, it is possible to send Ether while creating
+As seen in the example, it is possible to send Quanta while creating
 an instance of ``D`` using the ``value`` option, but it is not possible
 to limit the amount of gas.
 If the creation fails (due to out-of-stack, not enough balance or other problems),
@@ -260,7 +260,7 @@ which only need to be created if there is a dispute.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.7.0 <0.9.0;
+    pragma hyperion >=0.1.0;
     contract D {
         uint public x;
         constructor(uint a) {
@@ -329,7 +329,7 @@ groupings of expressions.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.5.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract C {
         uint index;
@@ -375,7 +375,7 @@ because only a reference and not a copy is passed.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.4.22 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract C {
         uint[20] x;
@@ -434,7 +434,7 @@ the two variables have the same name but disjoint scopes.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.5.0 <0.9.0;
+    pragma hyperion >=0.1.0;
     contract C {
         function minimalScoping() pure public {
             {
@@ -456,7 +456,7 @@ In any case, you will get a warning about the outer variable being shadowed.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.5.0 <0.9.0;
+    pragma hyperion >=0.1.0;
     // This will report a warning
     contract C {
         function f() pure public returns (uint) {
@@ -478,7 +478,7 @@ In any case, you will get a warning about the outer variable being shadowed.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.5.0 <0.9.0;
+    pragma hyperion >=0.1.0;
     // This will not compile
     contract C {
         function f() pure public returns (uint) {
@@ -510,7 +510,7 @@ To obtain the previous behavior, an ``unchecked`` block can be used:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.0;
+    pragma hyperion >=0.1.0;
     contract C {
         function f(uint a, uint b) pure public returns (uint) {
             // This subtraction will wrap on underflow.
@@ -581,7 +581,7 @@ of an exception instead of "bubbling up".
     The low-level functions ``call``, ``delegatecall`` and
     ``staticcall`` return ``true`` as their first return value
     if the account called is non-existent, as part of the design
-    of the ZVM. Account existence must be checked prior to calling if needed.
+    of the QRVM. Account existence must be checked prior to calling if needed.
 
 Exceptions can contain error data that is passed back to the caller
 in the form of :ref:`error instances <errors>`.
@@ -639,9 +639,9 @@ in the following situations:
 #. Calling ``require(x)`` where ``x`` evaluates to ``false``.
 #. If you use ``revert()`` or ``revert("description")``.
 #. If you perform an external function call targeting a contract that contains no code.
-#. If your contract receives Ether via a public function without
+#. If your contract receives Quanta via a public function without
    ``payable`` modifier (including the constructor and the fallback function).
-#. If your contract receives Ether via a public getter function.
+#. If your contract receives Quanta via a public getter function.
 
 For the following cases, the error data from the external call
 (if provided) is forwarded. This means that it can either cause
@@ -671,7 +671,7 @@ and ``assert`` for internal error checking.
     :force:
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.5.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     contract Sharer {
         function sendHalf(address payable addr) public payable returns (uint balance) {
@@ -680,7 +680,7 @@ and ``assert`` for internal error checking.
             addr.transfer(msg.value / 2);
             // Since transfer throws an exception on failure and
             // cannot call back here, there should be no way for us to
-            // still have half of the Ether.
+            // still have half of the Quanta.
             assert(address(this).balance == balanceBeforeTransfer - msg.value / 2);
             return address(this).balance;
         }
@@ -688,7 +688,7 @@ and ``assert`` for internal error checking.
 
 Internally, Hyperion performs a revert operation (instruction
 ``0xfd``). This causes
-the ZVM to revert all changes made to the state. The reason for reverting
+the QRVM to revert all changes made to the state. The reason for reverting
 is that there is no safe way to continue execution, because an expected effect
 did not occur. Because we want to keep the atomicity of transactions, the
 safest action is to revert all changes and make the whole transaction
@@ -735,18 +735,18 @@ together with ``revert`` and the equivalent ``require``:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.4;
+    pragma hyperion >0.1.0;
 
     contract VendingMachine {
         address owner;
         error Unauthorized();
         function buy(uint amount) public payable {
-            if (amount > msg.value / 2 ether)
-                revert("Not enough Ether provided.");
+            if (amount > msg.value / 2 quanta)
+                revert("Not enough Quanta provided.");
             // Alternative way to do it:
             require(
-                amount <= msg.value / 2 ether,
-                "Not enough Ether provided."
+                amount <= msg.value / 2 quanta,
+                "Not enough Quanta provided."
             );
             // Perform the purchase.
         }
@@ -769,7 +769,7 @@ for example if they are just strings.
     ``condition`` is true.
 
 The provided string is :ref:`abi-encoded <ABI>` as if it were a call to a function ``Error(string)``.
-In the above example, ``revert("Not enough Ether provided.");`` returns the following hexadecimal as error return data:
+In the above example, ``revert("Not enough Quanta provided.");`` returns the following hexadecimal as error return data:
 
 .. code::
 
@@ -790,7 +790,7 @@ A failure in an external call can be caught using a try/catch statement, as foll
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.1;
+    pragma hyperion >=0.1.0;
 
     interface DataFeed { function getData(address token) external returns (uint value); }
 

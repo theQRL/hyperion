@@ -2,7 +2,7 @@
 
 This directory contains the new experimental code generator that
 compiles Hyperion to an intermediate representation in Yul
-with ZVM dialect.
+with QRVM dialect.
 
 The main semantic differences to the legacy code generator are the following:
 

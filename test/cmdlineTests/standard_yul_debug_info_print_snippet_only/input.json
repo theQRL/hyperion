@@ -6,7 +6,7 @@
 	"settings": {
 		"debug": {"debugInfo": ["snippet"]},
 		"outputSelection": {
-			"*": {"*": ["zvm.assembly"]}
+			"*": {"*": ["qrvm.assembly"]}
 		}
 	}
 }

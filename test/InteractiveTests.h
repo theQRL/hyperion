@@ -29,7 +29,7 @@
 #include <test/libhyperion/SemanticTest.h>
 #include <test/libhyperion/SMTCheckerTest.h>
 #include <test/libyul/ControlFlowGraphTest.h>
-#include <test/libyul/ZVMCodeTransformTest.h>
+#include <test/libyul/QRVMCodeTransformTest.h>
 #include <test/libyul/YulOptimizerTest.h>
 #include <test/libyul/YulInterpreterTest.h>
 #include <test/libyul/ObjectCompilerTest.h>
@@ -70,7 +70,7 @@ Testsuite const g_interactiveTestsuites[] = {
 	{"Control Flow Side Effects","libyul",    "controlFlowSideEffects",false, false, &yul::test::ControlFlowSideEffectsTest::create},
 	{"Function Side Effects",  "libyul",      "functionSideEffects",   false, false, &yul::test::FunctionSideEffects::create},
 	{"Yul Syntax",             "libyul",      "yulSyntaxTests",        false, false, &yul::test::SyntaxTest::create},
-	{"ZVM Code Transform",     "libyul",      "zvmCodeTransform",      false, false, &yul::test::ZVMCodeTransformTest::create, {"nooptions"}},
+	{"QRVM Code Transform",    "libyul",      "qrvmCodeTransform",     false, false, &yul::test::QRVMCodeTransformTest::create, {"nooptions"}},
 	{"Syntax",                 "libhyperion", "syntaxTests",           false, false, &SyntaxTest::create},
 	{"Semantic",               "libhyperion", "semanticTests",         false, true,  &SemanticTest::create},
 	{"JSON AST",               "libhyperion", "ASTJSON",               false, false, &ASTJSONTest::create},

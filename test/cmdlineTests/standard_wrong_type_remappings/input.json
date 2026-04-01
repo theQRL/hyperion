@@ -8,7 +8,7 @@
 	"settings": {
 		"outputSelection": {
 			"fileA": {
-				"A": [ "abi", "devdoc", "userdoc", "zvm.bytecode", "zvm.assembly", "zvm.gasEstimates", "zvm.legacyAssembly", "metadata" ],
+				"A": [ "abi", "devdoc", "userdoc", "qrvm.bytecode", "qrvm.assembly", "qrvm.gasEstimates", "qrvm.legacyAssembly", "metadata" ],
 				"": [ "ast" ]
 			}
 		},

@@ -116,7 +116,7 @@ version using the following commands:
 
 .. code-block:: bash
 
-    sudo add-apt-repository ppa:theqrl/zond
+    sudo add-apt-repository ppa:theqrl/qrl
     sudo apt-get update
     sudo apt-get install hypc
 
@@ -183,14 +183,14 @@ If you need a specific version of Hyperion you can install a
 Homebrew formula directly from Github.
 
 View
-`hyperion.rb commits on Github <https://github.com/theQRL/homebrew-zond/commits/master/hyperion.rb>`_.
+`hyperion.rb commits on Github <https://github.com/theQRL/homebrew-qrl/commits/master/hyperion.rb>`_.
 
 Copy the commit hash of the version you want and check it out on your machine.
 
 .. code-block:: bash
 
-    git clone https://github.com/theQRL/homebrew-zond.git
-    cd homebrew-zond
+    git clone https://github.com/theQRL/homebrew-qrl.git
+    cd homebrew-qrl
     git checkout <your-hash-goes-here>
 
 Install it using ``brew``:

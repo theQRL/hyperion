@@ -176,7 +176,7 @@ def parse_standard_json_output(source_file_name: Path, standard_json_output: str
             file_report.contract_reports.append(ContractReport(
                 contract_name=contract_name,
                 file_name=Path(file_name),
-                bytecode=clean_string(contract_results.get('zvm', {}).get('bytecode', {}).get('object')),
+                bytecode=clean_string(contract_results.get('qrvm', {}).get('bytecode', {}).get('object')),
                 metadata=clean_string(contract_results.get('metadata')),
             ))
 
@@ -231,7 +231,7 @@ def prepare_compiler_input(
                 'optimizer': {'enabled': settings.optimize},
                 # NOTE: We omit viaIR rather than set it to false to handle older versions that don't have it.
                 **({'viaIR': True} if settings.via_ir else {}),
-                'outputSelection': {'*': {'*': ['zvm.bytecode.object', 'metadata']}},
+                'outputSelection': {'*': {'*': ['qrvm.bytecode.object', 'metadata']}},
             }
         }
 

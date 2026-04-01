@@ -40,13 +40,13 @@ test_config = TestConfig(
     compile_only_presets=[
         # pylint: disable=line-too-long
         # SettingsPreset.IR_NO_OPTIMIZE,       # Error: Yul exception:Variable expr_15699_address is 2 slot(s) too deep inside the stack. Stack too deep.
-        # SettingsPreset.IR_OPTIMIZE_ZVM_ONLY, # Error: Yul exception:Variable expr_15699_address is 2 slot(s) too deep inside the stack. Stack too deep.
+        # SettingsPreset.IR_OPTIMIZE_QRVM_ONLY, # Error: Yul exception:Variable expr_15699_address is 2 slot(s) too deep inside the stack. Stack too deep.
     ],
     settings_presets=[
         SettingsPreset.LEGACY_NO_OPTIMIZE,
-        SettingsPreset.LEGACY_OPTIMIZE_ZVM_ONLY,
-        SettingsPreset.LEGACY_OPTIMIZE_ZVM_YUL,
-        SettingsPreset.IR_OPTIMIZE_ZVM_YUL,
+        SettingsPreset.LEGACY_OPTIMIZE_QRVM_ONLY,
+        SettingsPreset.LEGACY_OPTIMIZE_QRVM_YUL,
+        SettingsPreset.IR_OPTIMIZE_QRVM_YUL,
     ],
 )
 

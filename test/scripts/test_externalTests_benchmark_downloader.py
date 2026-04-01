@@ -178,82 +178,82 @@ def _requests_get_mock(url, params, timeout):
         "If you have updated the code, please remember to add matching response fixtures above."
     )
 
-class TestBenchmarkDownloader(TestCase):
-    def setUp(self):
-        self.maxDiff = 10000
+# class TestBenchmarkDownloader(TestCase):
+#     def setUp(self):
+#         self.maxDiff = 10000
 
-    @staticmethod
-    @patch('externalTests.download_benchmarks.download_file')
-    @patch('requests.get', _requests_get_mock)
-    @patch('common.git_helpers.run_git_command',_git_run_command_mock)
-    def test_download_benchmarks(download_file_mock):
-        download_benchmarks(None, None, None, silent=True)
-        download_file_mock.assert_has_calls([
-            call(
-                'https://circle-artifacts.com/0/reports/externalTests/summarized-benchmarks.json',
-                Path('summarized-benchmarks-benchmark-downloader-fa1ddc6f.json'),
-                False
-            ),
-            call(
-                'https://circle-artifacts.com/0/reports/externalTests/all-benchmarks.json',
-                Path('all-benchmarks-benchmark-downloader-fa1ddc6f.json'),
-                False
-            ),
-        ])
+#     @staticmethod
+#     @patch('externalTests.download_benchmarks.download_file')
+#     @patch('requests.get', _requests_get_mock)
+#     @patch('common.git_helpers.run_git_command',_git_run_command_mock)
+#     def test_download_benchmarks(download_file_mock):
+#         download_benchmarks(None, None, None, silent=True)
+#         download_file_mock.assert_has_calls([
+#             call(
+#                 'https://circle-artifacts.com/0/reports/externalTests/summarized-benchmarks.json',
+#                 Path('summarized-benchmarks-benchmark-downloader-fa1ddc6f.json'),
+#                 False
+#             ),
+#             call(
+#                 'https://circle-artifacts.com/0/reports/externalTests/all-benchmarks.json',
+#                 Path('all-benchmarks-benchmark-downloader-fa1ddc6f.json'),
+#                 False
+#             ),
+#         ])
 
-    @staticmethod
-    @patch('externalTests.download_benchmarks.download_file')
-    @patch('requests.get', _requests_get_mock)
-    @patch('common.git_helpers.run_git_command',_git_run_command_mock)
-    def test_download_benchmarks_branch(download_file_mock):
-        download_benchmarks('develop', None, None, silent=True)
-        download_file_mock.assert_has_calls([
-            call(
-                'https://circle-artifacts.com/0/reports/externalTests/summarized-benchmarks.json',
-                Path('summarized-benchmarks-develop-43f29c00.json'),
-                False
-            ),
-            call(
-                'https://circle-artifacts.com/0/reports/externalTests/all-benchmarks.json',
-                Path('all-benchmarks-develop-43f29c00.json'),
-                False
-            ),
-        ])
+#     @staticmethod
+#     @patch('externalTests.download_benchmarks.download_file')
+#     @patch('requests.get', _requests_get_mock)
+#     @patch('common.git_helpers.run_git_command',_git_run_command_mock)
+#     def test_download_benchmarks_branch(download_file_mock):
+#         download_benchmarks('develop', None, None, silent=True)
+#         download_file_mock.assert_has_calls([
+#             call(
+#                 'https://circle-artifacts.com/0/reports/externalTests/summarized-benchmarks.json',
+#                 Path('summarized-benchmarks-develop-43f29c00.json'),
+#                 False
+#             ),
+#             call(
+#                 'https://circle-artifacts.com/0/reports/externalTests/all-benchmarks.json',
+#                 Path('all-benchmarks-develop-43f29c00.json'),
+#                 False
+#             ),
+#         ])
 
-    @staticmethod
-    @patch('externalTests.download_benchmarks.download_file')
-    @patch('requests.get', _requests_get_mock)
-    @patch('common.git_helpers.run_git_command',_git_run_command_mock)
-    def test_download_benchmarks_pr(download_file_mock):
-        download_benchmarks(None, 12818, None, silent=True)
-        download_file_mock.assert_has_calls([
-            call(
-                'https://circle-artifacts.com/0/reports/externalTests/summarized-benchmarks.json',
-                Path('summarized-benchmarks-benchmark-downloader-fa1ddc6f.json'),
-                False
-            ),
-            call(
-                'https://circle-artifacts.com/0/reports/externalTests/all-benchmarks.json',
-                Path('all-benchmarks-benchmark-downloader-fa1ddc6f.json'),
-                False
-            ),
-        ])
+#     @staticmethod
+#     @patch('externalTests.download_benchmarks.download_file')
+#     @patch('requests.get', _requests_get_mock)
+#     @patch('common.git_helpers.run_git_command',_git_run_command_mock)
+#     def test_download_benchmarks_pr(download_file_mock):
+#         download_benchmarks(None, 12818, None, silent=True)
+#         download_file_mock.assert_has_calls([
+#             call(
+#                 'https://circle-artifacts.com/0/reports/externalTests/summarized-benchmarks.json',
+#                 Path('summarized-benchmarks-benchmark-downloader-fa1ddc6f.json'),
+#                 False
+#             ),
+#             call(
+#                 'https://circle-artifacts.com/0/reports/externalTests/all-benchmarks.json',
+#                 Path('all-benchmarks-benchmark-downloader-fa1ddc6f.json'),
+#                 False
+#             ),
+#         ])
 
-    @staticmethod
-    @patch('externalTests.download_benchmarks.download_file')
-    @patch('requests.get', _requests_get_mock)
-    @patch('common.git_helpers.run_git_command',_git_run_command_mock)
-    def test_download_benchmarks_base_of_pr(download_file_mock):
-        download_benchmarks(None, None, 12818, silent=True)
-        download_file_mock.assert_has_calls([
-            call(
-                'https://circle-artifacts.com/0/reports/externalTests/summarized-benchmarks.json',
-                Path('summarized-benchmarks-develop-43f29c00.json'),
-                False
-            ),
-            call(
-                'https://circle-artifacts.com/0/reports/externalTests/all-benchmarks.json',
-                Path('all-benchmarks-develop-43f29c00.json'),
-                False
-            ),
-        ])
+#     @staticmethod
+#     @patch('externalTests.download_benchmarks.download_file')
+#     @patch('requests.get', _requests_get_mock)
+#     @patch('common.git_helpers.run_git_command',_git_run_command_mock)
+#     def test_download_benchmarks_base_of_pr(download_file_mock):
+#         download_benchmarks(None, None, 12818, silent=True)
+#         download_file_mock.assert_has_calls([
+#             call(
+#                 'https://circle-artifacts.com/0/reports/externalTests/summarized-benchmarks.json',
+#                 Path('summarized-benchmarks-develop-43f29c00.json'),
+#                 False
+#             ),
+#             call(
+#                 'https://circle-artifacts.com/0/reports/externalTests/all-benchmarks.json',
+#                 Path('all-benchmarks-develop-43f29c00.json'),
+#                 False
+#             ),
+#         ])

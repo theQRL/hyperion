@@ -22,7 +22,7 @@ tape('Deterministic Compilation', function (t) {
           },
           outputSelection: {
             '*': {
-              '*': ['zvm.bytecode']
+              '*': ['qrvm.bytecode']
             }
           }
         },
@@ -32,8 +32,8 @@ tape('Deterministic Compilation', function (t) {
       st.ok(output.contracts);
       st.ok(output.contracts['DAO.hyp']);
       st.ok(output.contracts['DAO.hyp'].DAO);
-      st.ok(output.contracts['DAO.hyp'].DAO.zvm.bytecode.object);
-      const bytecode = output.contracts['DAO.hyp'].DAO.zvm.bytecode.object;
+      st.ok(output.contracts['DAO.hyp'].DAO.qrvm.bytecode.object);
+      const bytecode = output.contracts['DAO.hyp'].DAO.qrvm.bytecode.object;
       st.ok(bytecode.length > 0);
       if (prevBytecode !== null) {
         st.equal(prevBytecode, bytecode);

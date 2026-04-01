@@ -43,14 +43,14 @@ function colony_test
 
     local compile_only_presets=(
         ir-no-optimize            # Compiles but tests run out of gas
-        ir-optimize-zvm-only      # Compiles but tests run out of gas
+        ir-optimize-qrvm-only      # Compiles but tests run out of gas
         legacy-no-optimize        # Compiles but tests run out of gas
-        legacy-optimize-zvm-only  # Compiles but tests run out of gas
+        legacy-optimize-qrvm-only  # Compiles but tests run out of gas
     )
     local settings_presets=(
         "${compile_only_presets[@]}"
-        ir-optimize-zvm+yul
-        legacy-optimize-zvm+yul
+        ir-optimize-qrvm+yul
+        legacy-optimize-qrvm+yul
     )
 
     [[ $SELECTED_PRESETS != "" ]] || SELECTED_PRESETS=$(circleci_select_steps_multiarg "${settings_presets[@]}")

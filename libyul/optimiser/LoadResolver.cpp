@@ -22,8 +22,8 @@
 
 #include <libyul/optimiser/LoadResolver.h>
 
-#include <libyul/backends/zvm/ZVMDialect.h>
-#include <libyul/backends/zvm/ZVMMetrics.h>
+#include <libyul/backends/qrvm/QRVMDialect.h>
+#include <libyul/backends/qrvm/QRVMMetrics.h>
 #include <libyul/optimiser/Semantics.h>
 #include <libyul/optimiser/CallGraphGenerator.h>
 #include <libyul/optimiser/OptimizerUtilities.h>
@@ -31,14 +31,14 @@
 #include <libyul/AST.h>
 #include <libyul/Utilities.h>
 
-#include <libzvmasm/GasMeter.h>
+#include <libqrvmasm/GasMeter.h>
 #include <libhyputil/Keccak256.h>
 
 #include <limits>
 
 using namespace hyperion;
 using namespace hyperion::util;
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 using namespace hyperion::yul;
 
 void LoadResolver::run(OptimiserStepContext& _context, Block& _ast)
@@ -114,7 +114,7 @@ void LoadResolver::tryEvaluateKeccak(
 
 	// The costs are only correct for hashes of 32 bytes or 1 word (when rounded up).
 	GasMeter gasMeter{
-		dynamic_cast<ZVMDialect const&>(m_dialect),
+		dynamic_cast<QRVMDialect const&>(m_dialect),
 		!m_expectedExecutionsPerDeployment,
 		m_expectedExecutionsPerDeployment ? *m_expectedExecutionsPerDeployment : 1
 	};

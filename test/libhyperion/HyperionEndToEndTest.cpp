@@ -25,12 +25,12 @@
 #include <test/libhyperion/HyperionExecutionFramework.h>
 
 #include <test/Common.h>
-#include <test/ZVMHost.h>
+#include <test/QRVMHost.h>
 
 #include <liblangutil/Exceptions.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
-#include <libzvmasm/Assembly.h>
+#include <libqrvmasm/Assembly.h>
 
 #include <libhyputil/Keccak256.h>
 #include <libhyputil/ErrorCodes.h>
@@ -823,7 +823,7 @@ BOOST_AUTO_TEST_CASE(constructor)
 	)
 }
 
-BOOST_AUTO_TEST_CASE(send_ether)
+BOOST_AUTO_TEST_CASE(send_quanta)
 {
 	char const* sourceCode = R"(
 		contract test {
@@ -843,7 +843,7 @@ BOOST_AUTO_TEST_CASE(send_ether)
 	)
 }
 
-BOOST_AUTO_TEST_CASE(transfer_ether)
+BOOST_AUTO_TEST_CASE(transfer_quanta)
 {
 	char const* sourceCode = R"(
 		contract A {
@@ -1103,7 +1103,7 @@ BOOST_AUTO_TEST_CASE(contracts_as_addresses)
 {
 	char const* sourceCode = R"(
 		contract helper {
-			receive() external payable { } // can receive ether
+			receive() external payable { } // can receive quanta
 		}
 		contract test {
 			helper h;
@@ -1699,7 +1699,7 @@ BOOST_AUTO_TEST_CASE(array_copy_storage_abi)
 //	ABI_CHECK(callContractFunction("f()"), encodeArgs(5));
 //}
 
-BOOST_AUTO_TEST_CASE(zvm_exceptions_in_constructor_out_of_baund)
+BOOST_AUTO_TEST_CASE(qrvm_exceptions_in_constructor_out_of_baund)
 {
 	char const* sourceCode = R"(
 		contract A {
@@ -2454,7 +2454,7 @@ BOOST_AUTO_TEST_CASE(calldata_offset)
 	ABI_CHECK(callContractFunction("last()", encodeArgs()), encodeDyn(std::string("nd")));
 }
 
-BOOST_AUTO_TEST_CASE(reject_ether_sent_to_library)
+BOOST_AUTO_TEST_CASE(reject_quanta_sent_to_library)
 {
 	char const* sourceCode = R"(
 		library lib {}
@@ -3461,7 +3461,7 @@ BOOST_AUTO_TEST_CASE(abi_encodePacked_functionPtr)
 {
 	char const* sourceCode = R"(
 		contract C {
-			C other = C(Z1112131400000000000011121314000000000087);
+			C other = C(Q1112131400000000000011121314000000000087);
 			function testDirect() public view returns (bytes memory) {
 				return abi.encodePacked(uint8(8), other.f, uint8(2));
 			}

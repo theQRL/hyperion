@@ -19,7 +19,7 @@
 #include <libyul/AsmAnalysis.h>
 #include <libyul/AsmAnalysisInfo.h>
 
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 #include <liblangutil/Exceptions.h>
 
 #include <test/libyul/Common.h>
@@ -72,9 +72,9 @@ void SyntaxTest::parseAndAnalyze()
 
 }
 
-SyntaxTest::SyntaxTest(string const& _filename, langutil::ZVMVersion _zvmVersion):
-	CommonSyntaxTest(_filename, _zvmVersion)
+SyntaxTest::SyntaxTest(string const& _filename, langutil::QRVMVersion _qrvmVersion):
+	CommonSyntaxTest(_filename, _qrvmVersion)
 {
-	string dialectName = m_reader.stringSetting("dialect", "zvmTyped");
-	m_dialect = &dialect(dialectName, hyperion::test::CommonOptions::get().zvmVersion());
+	string dialectName = m_reader.stringSetting("dialect", "qrvmTyped");
+	m_dialect = &dialect(dialectName, hyperion::test::CommonOptions::get().qrvmVersion());
 }

@@ -22,13 +22,13 @@
 #pragma once
 
 #include <libyul/optimiser/ASTWalker.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 namespace hyperion::yul
 {
 
 struct Dialect;
-struct ZVMDialect;
+struct QRVMDialect;
 
 /**
  * Weights to be assigned to specific yul statements and expressions by a metric.
@@ -124,7 +124,7 @@ private:
 	void visit(Expression const& _expression) override;
 
 private:
-	void addInstructionCost(zvmasm::Instruction _instruction);
+	void addInstructionCost(qrvmasm::Instruction _instruction);
 
 	Dialect const& m_dialect;
 	size_t m_cost = 0;

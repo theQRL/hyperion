@@ -43,9 +43,9 @@
 
 #include <libyul/YulStack.h>
 
-#include <libzvmasm/Instruction.h>
-#include <libzvmasm/Disassemble.h>
-#include <libzvmasm/GasMeter.h>
+#include <libqrvmasm/Instruction.h>
+#include <libqrvmasm/Disassemble.h>
+#include <libqrvmasm/GasMeter.h>
 
 #include <liblangutil/Exceptions.h>
 #include <liblangutil/SourceReferenceFormatter.h>
@@ -166,12 +166,12 @@ static bool coloredOutput(CommandLineOptions const& _options)
 		(_options.formatting.coloredOutput.has_value() && _options.formatting.coloredOutput.value());
 }
 
-void CommandLineInterface::handleZVMAssembly(std::string const& _contract)
+void CommandLineInterface::handleQRVMAssembly(std::string const& _contract)
 {
 	hypAssert(m_assemblyStack);
 	hypAssert(
 		CompilerInputModes.count(m_options.input.mode) == 1 ||
-		m_options.input.mode == frontend::InputMode::ZVMAssemblerJSON
+		m_options.input.mode == frontend::InputMode::QRVMAssemblerJSON
 	);
 
 	if (!m_options.compiler.outputs.asm_ && !m_options.compiler.outputs.asmJson)
@@ -186,11 +186,11 @@ void CommandLineInterface::handleZVMAssembly(std::string const& _contract)
 	if (!m_options.output.dir.empty())
 		createFile(
 			m_compiler->filesystemFriendlyName(_contract) +
-			(m_options.compiler.outputs.asmJson ? "_zvm.json" : ".zvm"),
+			(m_options.compiler.outputs.asmJson ? "_qrvm.json" : ".qrvm"),
 			assembly
 		);
 	else
-		sout() << "ZVM assembly:" << std::endl << assembly << std::endl;
+		sout() << "QRVM assembly:" << std::endl << assembly << std::endl;
 }
 
 void CommandLineInterface::handleBinary(std::string const& _contract)
@@ -198,7 +198,7 @@ void CommandLineInterface::handleBinary(std::string const& _contract)
 	hypAssert(m_assemblyStack);
 	hypAssert(
 		CompilerInputModes.count(m_options.input.mode) == 1 ||
-		m_options.input.mode == frontend::InputMode::ZVMAssemblerJSON
+		m_options.input.mode == frontend::InputMode::QRVMAssemblerJSON
 	);
 
 	std::string binary;
@@ -235,10 +235,10 @@ void CommandLineInterface::handleOpcode(std::string const& _contract)
 	hypAssert(m_assemblyStack);
 	hypAssert(
 		CompilerInputModes.count(m_options.input.mode) == 1 ||
-		m_options.input.mode == frontend::InputMode::ZVMAssemblerJSON
+		m_options.input.mode == frontend::InputMode::QRVMAssemblerJSON
 	);
 
-	std::string opcodes{zvmasm::disassemble(m_assemblyStack->object(_contract).bytecode)};
+	std::string opcodes{qrvmasm::disassemble(m_assemblyStack->object(_contract).bytecode)};
 
 	if (!m_options.output.dir.empty())
 		createFile(m_assemblyStack->filesystemFriendlyName(_contract) + ".opcode", opcodes);
@@ -339,7 +339,7 @@ void CommandLineInterface::handleBytecode(std::string const& _contract)
 {
 	hypAssert(
 		CompilerInputModes.count(m_options.input.mode) == 1 ||
-		m_options.input.mode == frontend::InputMode::ZVMAssemblerJSON
+		m_options.input.mode == frontend::InputMode::QRVMAssemblerJSON
 	);
 
 	if (m_options.compiler.outputs.opcodes)
@@ -763,11 +763,11 @@ void CommandLineInterface::processInput()
 		compile();
 		outputCompilationResults();
 		break;
-	case InputMode::ZVMAssemblerJSON:
-		assembleFromZVMAssemblyJSON();
+	case InputMode::QRVMAssemblerJSON:
+		assembleFromQRVMAssemblyJSON();
 		handleCombinedJSON();
 		handleBytecode(m_assemblyStack->contractNames().front());
-		handleZVMAssembly(m_assemblyStack->contractNames().front());
+		handleQRVMAssembly(m_assemblyStack->contractNames().front());
 		break;
 	}
 }
@@ -785,38 +785,38 @@ void CommandLineInterface::printLicense()
 	sout() << licenseText << std::endl;
 }
 
-void CommandLineInterface::assembleFromZVMAssemblyJSON()
+void CommandLineInterface::assembleFromQRVMAssemblyJSON()
 {
-	hypAssert(m_options.input.mode == InputMode::ZVMAssemblerJSON);
+	hypAssert(m_options.input.mode == InputMode::QRVMAssemblerJSON);
 	hypAssert(!m_assemblyStack);
-	hypAssert(!m_zvmAssemblyStack && !m_compiler);
+	hypAssert(!m_qrvmAssemblyStack && !m_compiler);
 
 	hypAssert(m_fileReader.sourceUnits().size() == 1);
 	auto&& [sourceUnitName, source] = *m_fileReader.sourceUnits().begin();
 
-	auto zvmAssemblyStack = std::make_unique<zvmasm::ZVMAssemblyStack>(m_options.output.zvmVersion);
+	auto qrvmAssemblyStack = std::make_unique<qrvmasm::QRVMAssemblyStack>(m_options.output.qrvmVersion);
 	try
 	{
-		zvmAssemblyStack->parseAndAnalyze(sourceUnitName, source);
+		qrvmAssemblyStack->parseAndAnalyze(sourceUnitName, source);
 	}
-	catch (zvmasm::AssemblyImportException const& _exception)
+	catch (qrvmasm::AssemblyImportException const& _exception)
 	{
 		hypThrow(CommandLineExecutionError, "Assembly Import Error: "s + _exception.what());
 	}
 
 	if (m_options.output.debugInfoSelection.has_value())
-		zvmAssemblyStack->selectDebugInfo(m_options.output.debugInfoSelection.value());
-	zvmAssemblyStack->assemble();
+		qrvmAssemblyStack->selectDebugInfo(m_options.output.debugInfoSelection.value());
+	qrvmAssemblyStack->assemble();
 
-	m_zvmAssemblyStack = std::move(zvmAssemblyStack);
-	m_assemblyStack = m_zvmAssemblyStack.get();
+	m_qrvmAssemblyStack = std::move(qrvmAssemblyStack);
+	m_assemblyStack = m_qrvmAssemblyStack.get();
 }
 
 void CommandLineInterface::compile()
 {
 	hypAssert(CompilerInputModes.count(m_options.input.mode) == 1);
 	hypAssert(!m_assemblyStack);
-	hypAssert(!m_zvmAssemblyStack && !m_compiler);
+	hypAssert(!m_qrvmAssemblyStack && !m_compiler);
 
 	m_compiler = std::make_unique<CompilerStack>(m_universalCallback.callback());
 	m_assemblyStack = m_compiler.get();
@@ -834,7 +834,7 @@ void CommandLineInterface::compile()
 		m_compiler->setRemappings(m_options.input.remappings);
 		m_compiler->setLibraries(m_options.linker.libraries);
 		m_compiler->setViaIR(m_options.output.viaIR);
-		m_compiler->setZVMVersion(m_options.output.zvmVersion);
+		m_compiler->setQRVMVersion(m_options.output.qrvmVersion);
 		m_compiler->setRevertStringBehaviour(m_options.output.revertStrings);
 		if (m_options.output.debugInfoSelection.has_value())
 			m_compiler->selectDebugInfo(m_options.output.debugInfoSelection.value());
@@ -845,7 +845,7 @@ void CommandLineInterface::compile()
 			m_options.compiler.outputs.irAstJson ||
 			m_options.compiler.outputs.irOptimizedAstJson
 		);
-		m_compiler->enableZvmBytecodeGeneration(
+		m_compiler->enableQrvmBytecodeGeneration(
 			m_options.compiler.estimateGas ||
 			m_options.compiler.outputs.asm_ ||
 			m_options.compiler.outputs.asmJson ||
@@ -931,7 +931,7 @@ void CommandLineInterface::handleCombinedJSON()
 	hypAssert(m_assemblyStack);
 	hypAssert(
 		CompilerInputModes.count(m_options.input.mode) == 1 ||
-		m_options.input.mode == frontend::InputMode::ZVMAssemblerJSON
+		m_options.input.mode == frontend::InputMode::QRVMAssemblerJSON
 	);
 
 	if (!m_options.compiler.combinedJsonRequests.has_value())
@@ -977,7 +977,7 @@ void CommandLineInterface::handleCombinedJSON()
 			if (m_options.compiler.combinedJsonRequests->binaryRuntime)
 				contractData[g_strBinaryRuntime] = m_assemblyStack->runtimeObject(contractName).toHex();
 			if (m_options.compiler.combinedJsonRequests->opcodes)
-				contractData[g_strOpcodes] = zvmasm::disassemble(m_assemblyStack->object(contractName).bytecode);
+				contractData[g_strOpcodes] = qrvmasm::disassemble(m_assemblyStack->object(contractName).bytecode);
 			if (m_options.compiler.combinedJsonRequests->asm_)
 				contractData[g_strAsm] = m_assemblyStack->assemblyJSON(contractName);
 			if (m_options.compiler.combinedJsonRequests->srcMap)
@@ -1092,7 +1092,7 @@ void CommandLineInterface::link()
 		// be just the cropped or '_'-padded library name, but this changed to
 		// the cropped hex representation of the hash of the library name.
 		// We support both ways of linking here.
-		librariesReplacements["__" + zvmasm::LinkerObject::libraryPlaceholder(name) + "__"] = library.second;
+		librariesReplacements["__" + qrvmasm::LinkerObject::libraryPlaceholder(name) + "__"] = library.second;
 
 		std::string replacement = "__";
 		for (size_t i = 0; i < placeholderSize - 4; ++i)
@@ -1162,10 +1162,10 @@ void CommandLineInterface::writeLinkedFiles()
 
 std::string CommandLineInterface::libraryPlaceholderHint(std::string const& _libraryName)
 {
-	return "// " + zvmasm::LinkerObject::libraryPlaceholder(_libraryName) + " -> " + _libraryName;
+	return "// " + qrvmasm::LinkerObject::libraryPlaceholder(_libraryName) + " -> " + _libraryName;
 }
 
-std::string CommandLineInterface::objectWithLinkRefsHex(zvmasm::LinkerObject const& _obj)
+std::string CommandLineInterface::objectWithLinkRefsHex(qrvmasm::LinkerObject const& _obj)
 {
 	std::string out = _obj.toHex();
 	if (!_obj.linkReferences.empty())
@@ -1186,7 +1186,7 @@ void CommandLineInterface::assembleYul(yul::YulStack::Language _language, yul::Y
 	for (auto const& src: m_fileReader.sourceUnits())
 	{
 		auto& stack = yulStacks[src.first] = yul::YulStack(
-			m_options.output.zvmVersion,
+			m_options.output.qrvmVersion,
 			_language,
 			m_options.optimiserSettings(),
 			m_options.output.debugInfoSelection.has_value() ?
@@ -1222,8 +1222,8 @@ void CommandLineInterface::assembleYul(yul::YulStack::Language _language, yul::Y
 
 	for (auto const& src: m_fileReader.sourceUnits())
 	{
-		hypAssert(_targetMachine == yul::YulStack::Machine::ZVM);
-		std::string machine = "ZVM";
+		hypAssert(_targetMachine == yul::YulStack::Machine::QRVM);
+		std::string machine = "QRVM";
 		sout() << std::endl << "======= " << src.first << " (" << machine << ") =======" << std::endl;
 
 		yul::YulStack& stack = yulStacks[src.first];
@@ -1253,7 +1253,7 @@ void CommandLineInterface::assembleYul(yul::YulStack::Language _language, yul::Y
 			sout() << "AST:" << std::endl << std::endl;
 			sout() << util::jsonPrint(stack.astJson(), m_options.formatting.json) << std::endl;
 		}
-		hypAssert(_targetMachine == yul::YulStack::Machine::ZVM, "");
+		hypAssert(_targetMachine == yul::YulStack::Machine::QRVM, "");
 		if (m_options.compiler.outputs.asm_)
 		{
 			sout() << std::endl << "Text representation:" << std::endl;
@@ -1287,7 +1287,7 @@ void CommandLineInterface::outputCompilationResults()
 			if (needsHumanTargetedStdout(m_options))
 				sout() << std::endl << "======= " << contract << " =======" << std::endl;
 
-			handleZVMAssembly(contract);
+			handleQRVMAssembly(contract);
 
 			if (m_options.compiler.estimateGas)
 				handleGasEstimation(contract);

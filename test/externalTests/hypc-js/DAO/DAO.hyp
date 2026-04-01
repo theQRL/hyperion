@@ -27,7 +27,7 @@ import "./ManagedAccount.hyp";
 abstract contract DAOInterface {
 
     // The amount of days for which people who try to participate in the
-    // creation by calling the fallback function will still get their ether back
+    // creation by calling the fallback function will still get their quanta back
     uint constant creationGracePeriod = 40 days;
     // The minimum debate period that a generic proposal can have
     uint constant minProposalDebatePeriod = 2 weeks;
@@ -41,10 +41,10 @@ abstract contract DAOInterface {
     // (used in the case `executeProposal` fails because it throws)
     uint constant executeProposalPeriod = 10 days;
     // Denotes the maximum proposal deposit that can be given. It is given as
-    // a fraction of total Ether spent plus balance of the DAO
+    // a fraction of total Quanta spent plus balance of the DAO
     uint constant maxDepositDivisor = 100;
 
-    // Proposals to spend the DAO's ether or to choose a new Curator
+    // Proposals to spend the DAO's quanta or to choose a new Curator
     Proposal[] public proposals;
     // The quorum needed for each proposal is partially calculated by
     // totalSupply / minQuorumDivisor
@@ -54,13 +54,13 @@ abstract contract DAOInterface {
 
     // Address of the curator
     address payable public curator;
-    // The whitelist: List of addresses the DAO is allowed to send ether to
+    // The whitelist: List of addresses the DAO is allowed to send quanta to
     mapping (address => bool) public allowedRecipients;
 
     // Tracks the addresses that own Reward Tokens. Those addresses can only be
     // DAOs that have split from the original DAO. Conceptually, Reward Tokens
     // represent the proportion of the rewards that the DAO has the right to
-    // receive. These Reward Tokens are generated when the DAO spends ether.
+    // receive. These Reward Tokens are generated when the DAO spends quanta.
     mapping (address => uint) public rewardToken;
     // Total supply of rewardToken
     uint public totalRewardToken;
@@ -73,16 +73,16 @@ abstract contract DAOInterface {
     // any DAO that holds Reward Tokens
     ManagedAccount public DAOrewardAccount;
 
-    // Amount of rewards (in wei) already paid out to a certain DAO
+    // Amount of rewards (in planck) already paid out to a certain DAO
     mapping (address => uint) public DAOpaidOut;
 
-    // Amount of rewards (in wei) already paid out to a certain address
+    // Amount of rewards (in planck) already paid out to a certain address
     mapping (address => uint) public paidOut;
     // Map of addresses blocked during a vote (not allowed to transfer DAO
     // tokens). The address points to the proposal ID.
     mapping (address => uint) public blocked;
 
-    // The minimum deposit (in wei) required to submit any proposal that is not
+    // The minimum deposit (in planck) required to submit any proposal that is not
     // requesting a new Curator (no deposit is required for splits)
     uint public proposalDeposit;
 
@@ -114,7 +114,7 @@ abstract contract DAOInterface {
         bool proposalPassed;
         // A hash to check validity of a proposal
         bytes32 proposalHash;
-        // Deposit in wei the creator added when submitting their proposal. It
+        // Deposit in planck the creator added when submitting their proposal. It
         // is taken from the msg.value of a newProposal call.
         uint proposalDeposit;
         // True if this proposal is to assign a new Curator
@@ -151,7 +151,7 @@ abstract contract DAOInterface {
     /// @param _curator The Curator
     /// @param _daoCreator The contract able to (re)create this DAO
     /// @param _proposalDeposit The deposit to be paid for a regular proposal
-    /// @param _minTokensToCreate Minimum required wei-equivalent tokens
+    /// @param _minTokensToCreate Minimum required planck-equivalent tokens
     ///        to be created for a successful DAO Token Creation
     /// @param _closingTime Date (in Unix time) of the end of the DAO Token Creation
     /// @param _privateCreation If zero the DAO Token Creation is open to public, a
@@ -177,18 +177,18 @@ abstract contract DAOInterface {
     receive() virtual external payable;
 
 
-    /// @dev This function is used to send ether back
+    /// @dev This function is used to send quanta back
     /// to the DAO, it can also be used to receive payments that should not be
     /// counted as rewards (donations, grants, etc.)
-    /// @return Whether the DAO received the ether successfully
-    function receiveEther() public virtual returns (bool);
+    /// @return Whether the DAO received the quanta successfully
+    function receiveQuanta() public virtual returns (bool);
 
-    /// @notice `msg.sender` creates a proposal to send `_amount` Wei to
+    /// @notice `msg.sender` creates a proposal to send `_amount` Planck to
     /// `_recipient` with the transaction data `_transactionData`. If
     /// `_newCurator` is true, then this is a proposal that splits the
     /// DAO and sets `_recipient` as the new DAO's Curator.
     /// @param _recipient Address of the recipient of the proposed transaction
-    /// @param _amount Amount of wei to be sent with the proposed transaction
+    /// @param _amount Amount of planck to be sent with the proposed transaction
     /// @param _description String describing the proposal
     /// @param _transactionData Data of the proposed transaction
     /// @param _debatingPeriod Time used for debating a proposal, at least 2
@@ -210,7 +210,7 @@ abstract contract DAOInterface {
     /// to `_recipient`
     /// @param _proposalID The proposal ID
     /// @param _recipient The recipient of the proposed transaction
-    /// @param _amount The amount of wei to be sent in the proposed transaction
+    /// @param _amount The amount of planck to be sent in the proposed transaction
     /// @param _transactionData The data of the proposed transaction
     /// @return _codeChecksOut Whether the proposal ID matches the transaction data or not
     function checkProposalCode(
@@ -240,7 +240,7 @@ abstract contract DAOInterface {
         bytes memory _transactionData
     ) public virtual returns (bool _success);
 
-    /// @notice ATTENTION! I confirm to move my remaining ether to a new DAO
+    /// @notice ATTENTION! I confirm to move my remaining quanta to a new DAO
     /// with `_newCurator` as the new Curator, as has been
     /// proposed in proposal `_proposalID`. This will burn my tokens. This can
     /// not be undone and will split the DAO into two DAO's, with two
@@ -249,7 +249,7 @@ abstract contract DAOInterface {
     /// @param _newCurator The new Curator of the new DAO
     /// @dev This function, when called for the first time for this proposal,
     /// will create a new DAO and send the sender's portion of the remaining
-    /// ether and Reward Tokens to the new DAO. It will also burn the DAO Tokens
+    /// quanta and Reward Tokens to the new DAO. It will also burn the DAO Tokens
     /// of the sender.
     function splitDAO(
         uint _proposalID,
@@ -257,7 +257,7 @@ abstract contract DAOInterface {
     ) public virtual returns (bool _success);
 
     /// @dev can only be called by the DAO itself through a proposal
-    /// updates the contract of the DAO by sending all ether and rewardTokens
+    /// updates the contract of the DAO by sending all quanta and rewardTokens
     /// to the new DAO. The new DAO needs to be approved by the Curator
     /// @param _newContract the address of the new contract
     function newContract(address payable _newContract) virtual public;
@@ -377,9 +377,9 @@ contract DAO is DAOInterface, Token, TokenCreation {
         proposalDeposit = _proposalDeposit;
         rewardAccount = new ManagedAccount(address(this), false);
         DAOrewardAccount = new ManagedAccount(address(this), false);
-        if (address(rewardAccount) == Z0000000000000000000000000000000000000000)
+        if (address(rewardAccount) == Q0000000000000000000000000000000000000000)
             revert();
-        if (address(DAOrewardAccount) == Z0000000000000000000000000000000000000000)
+        if (address(DAOrewardAccount) == Q0000000000000000000000000000000000000000)
             revert();
         lastTimeMinQuorumMet = block.timestamp;
         minQuorumDivisor = 5; // sets the minimal quorum to 20%
@@ -393,11 +393,11 @@ contract DAO is DAOInterface, Token, TokenCreation {
         if (block.timestamp < closingTime + creationGracePeriod && msg.sender != address(extraBalance))
             createTokenProxy(payable(msg.sender));
         else
-            receiveEther();
+            receiveQuanta();
     }
 
 
-    function receiveEther() public override returns (bool) {
+    function receiveQuanta() public override returns (bool) {
         return true;
     }
 
@@ -439,7 +439,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         if (block.timestamp + _debatingPeriod < block.timestamp) // prevents overflow
             revert();
 
-        // to prevent a 51% attacker to convert the ether into deposit
+        // to prevent a 51% attacker to convert the quanta into deposit
         if (msg.sender == address(this))
             revert();
 
@@ -593,7 +593,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
             _success = true;
 
-            // only create reward tokens when ether is not sent to the DAO itself and
+            // only create reward tokens when quanta is not sent to the DAO itself and
             // related addresses. Proxy addresses should be forbidden by the curator.
             if (p.recipient != address(this) && p.recipient != address(rewardAccount)
                 && p.recipient != address(DAOrewardAccount)
@@ -645,10 +645,10 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         // If the new DAO doesn't exist yet, create the new DAO and store the
         // current split data
-        if (address(p.splitData[0].newDAO) == Z0000000000000000000000000000000000000000) {
+        if (address(p.splitData[0].newDAO) == Q0000000000000000000000000000000000000000) {
             p.splitData[0].newDAO = createNewDAO(_newCurator);
             // Call depth limit reached, etc.
-            if (address(p.splitData[0].newDAO) == Z0000000000000000000000000000000000000000)
+            if (address(p.splitData[0].newDAO) == Q0000000000000000000000000000000000000000)
                 revert();
             // should never happen
             if (address(this).balance < sumOfProposalDeposits)
@@ -659,7 +659,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
             p.proposalPassed = true;
         }
 
-        // Move ether and assign new Tokens
+        // Move quanta and assign new Tokens
         uint fundsToBeMoved =
             (balances[msg.sender] * p.splitData[0].splitBalance) /
             p.splitData[0].totalSupply;
@@ -686,7 +686,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         DAOpaidOut[address(this)] -= paidOutToBeMoved;
 
         // Burn DAO Tokens
-        emit Transfer(msg.sender, Z0000000000000000000000000000000000000000, balances[msg.sender]);
+        emit Transfer(msg.sender, Q0000000000000000000000000000000000000000, balances[msg.sender]);
         withdrawRewardFor(payable(msg.sender)); // be nice, and get his rewards
         totalSupply -= balances[msg.sender];
         balances[msg.sender] = 0;
@@ -696,7 +696,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
     function newContract(address payable _newContract) public override {
         if (msg.sender != address(this) || !allowedRecipients[_newContract]) return;
-        // move all ether
+        // move all quanta
         (bool success,) = _newContract.call{value: address(this).balance}("");
         if (!success) {
             revert();
@@ -740,7 +740,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
     }
 
 
-    function withdrawRewardFor(address payable _account) noEther internal
+    function withdrawRewardFor(address payable _account) noQuanta internal
 override returns (bool _success) {
         if ((balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply < paidOut[_account])
             revert();

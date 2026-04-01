@@ -2,4 +2,4 @@ contract C {
     constructor() payable {}
 }
 // ----
-// constructor(), 27 wei ->
+// constructor(), 27 planck ->

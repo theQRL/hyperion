@@ -7,8 +7,8 @@ set(sources
 	DebugInfoSelection.h
 	ErrorReporter.cpp
 	ErrorReporter.h
-	ZVMVersion.h
-	ZVMVersion.cpp
+	QRVMVersion.h
+	QRVMVersion.cpp
 	Exceptions.cpp
 	Exceptions.h
 	ParserBase.cpp

@@ -8,7 +8,7 @@ Libraries
 
 Libraries are similar to contracts, but their purpose is that they are deployed
 only once at a specific address and their code is reused using the ``DELEGATECALL``
-feature of the ZVM. This means that if library functions are called, their code
+feature of the QRVM. This means that if library functions are called, their code
 is executed in the context of the calling contract, i.e. ``this`` points to the
 calling contract, and especially the storage from the calling contract can be
 accessed. As a library is an isolated piece of source code, it can only access
@@ -33,7 +33,7 @@ contracts (using qualified access like ``L.f()``).
 Of course, calls to internal functions
 use the internal calling convention, which means that all internal types
 can be passed and types :ref:`stored in memory <data-location>` will be passed by reference and not copied.
-To realize this in the ZVM, the code of internal library functions
+To realize this in the QRVM, the code of internal library functions
 that are called from a contract
 and all functions called from therein will at compile time be included in the calling
 contract, and a regular ``JUMP`` call will be used instead of a ``DELEGATECALL``.
@@ -53,7 +53,7 @@ more advanced example to implement a set).
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.6.0 <0.9.0;
+    pragma hyperion >=0.1.0;
 
 
     // We define a new struct datatype that will be used to
@@ -132,7 +132,7 @@ custom types without the overhead of external function calls:
     :force:
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion ^0.8.0;
+    pragma hyperion >=0.1.0;
 
     struct bigint {
         uint[] limbs;
@@ -207,7 +207,7 @@ In comparison to contracts, libraries are restricted in the following ways:
 
 - they cannot have state variables
 - they cannot inherit nor be inherited
-- they cannot receive Ether
+- they cannot receive Quanta
 - they cannot be destroyed
 
 (These might be lifted at a later point.)
@@ -244,7 +244,7 @@ Its value can be obtained from Hyperion using the ``.selector`` member as follow
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.5.14 <0.9.0;
+    pragma hyperion >=0.1.0;
 
     library L {
         function f(uint256) external {}
@@ -267,7 +267,7 @@ As mentioned in the introduction, if a library's code is executed
 using a ``CALL`` instead of a ``DELEGATECALL``, it will revert
 unless a ``view`` or ``pure`` function is called.
 
-The ZVM does not provide a direct way for a contract to detect
+The QRVM does not provide a direct way for a contract to detect
 whether it was called using ``CALL`` or not, but a contract
 can use the ``ADDRESS`` opcode to find out "where" it is
 currently running. The generated code compares this address

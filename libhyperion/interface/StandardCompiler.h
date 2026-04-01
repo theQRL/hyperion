@@ -64,7 +64,7 @@ public:
 	std::string compile(std::string const& _input) noexcept;
 
 	static Json::Value formatFunctionDebugData(
-		std::map<std::string, zvmasm::LinkerObject::FunctionDebugData> const& _debugInfo
+		std::map<std::string, qrvmasm::LinkerObject::FunctionDebugData> const& _debugInfo
 	);
 
 private:
@@ -75,7 +75,7 @@ private:
 		CompilerStack::State stopAfter = CompilerStack::State::CompilationSuccessful;
 		std::map<std::string, std::string> sources;
 		std::map<util::h256, std::string> smtLib2Responses;
-		langutil::ZVMVersion zvmVersion;
+		langutil::QRVMVersion qrvmVersion;
 		std::vector<ImportRemapper::Remapping> remappings;
 		RevertStrings revertStrings = RevertStrings::Default;
 		OptimiserSettings optimiserSettings = OptimiserSettings::minimal();

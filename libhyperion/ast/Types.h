@@ -991,8 +991,8 @@ public:
 	/// See documentation of m_super
 	bool isSuper() const { return m_super; }
 
-	// @returns true if and only if the contract has a receive ether function or a payable fallback function, i.e.
-	// if it has code that will be executed on plain ether transfers
+	// @returns true if and only if the contract has a receive quanta function or a payable fallback function, i.e.
+	// if it has code that will be executed on plain quanta transfers
 	bool isPayable() const;
 
 	ContractDefinition const& contractDefinition() const { return m_contract; }
@@ -1244,7 +1244,7 @@ private:
 class FunctionType: public Type
 {
 public:
-	/// How this function is invoked on the ZVM.
+	/// How this function is invoked on the QRVM.
 	enum class Kind
 	{
 		Internal, ///< stack-call using plain JUMP
@@ -1702,7 +1702,7 @@ private:
 
 /**
  * Special type that is used for dynamic types in returns from external function calls
- * (The ZVM currently cannot access dynamically-sized return values).
+ * (The QRVM currently cannot access dynamically-sized return values).
  */
 class InaccessibleDynamicType: public Type
 {

@@ -35,7 +35,7 @@
 #include <libhyputil/StringUtils.h>
 #include <libhyputil/Visitor.h>
 
-#include <libzvmasm/Instruction.h>
+#include <libqrvmasm/Instruction.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -662,20 +662,20 @@ void AsmAnalyzer::expectType(YulString _expectedType, YulString _givenType, Sour
 
 bool AsmAnalyzer::validateInstructions(std::string const& _instructionIdentifier, langutil::SourceLocation const& _location)
 {
-	auto const builtin = ZVMDialect::strictAssemblyForZVM(ZVMVersion{}).builtin(YulString(_instructionIdentifier));
+	auto const builtin = QRVMDialect::strictAssemblyForQRVM(QRVMVersion{}).builtin(YulString(_instructionIdentifier));
 	if (builtin && builtin->instruction.has_value())
 		return validateInstructions(builtin->instruction.value(), _location);
 	else
 		return false;
 }
 
-bool AsmAnalyzer::validateInstructions(zvmasm::Instruction _instr, SourceLocation const& _location)
+bool AsmAnalyzer::validateInstructions(qrvmasm::Instruction _instr, SourceLocation const& _location)
 {
 	// These instructions are disabled in the dialect.
 	yulAssert(
-		_instr != zvmasm::Instruction::JUMP &&
-		_instr != zvmasm::Instruction::JUMPI &&
-		_instr != zvmasm::Instruction::JUMPDEST,
+		_instr != qrvmasm::Instruction::JUMP &&
+		_instr != qrvmasm::Instruction::JUMPI &&
+		_instr != qrvmasm::Instruction::JUMPDEST,
 	"");
 
 	// NOTE(rgeraldes24): unused for now
@@ -687,17 +687,17 @@ bool AsmAnalyzer::validateInstructions(zvmasm::Instruction _instr, SourceLocatio
 	// 			"The \"{instruction}\" instruction is {kind} VMs (you are currently compiling for \"{version}\").",
 	// 			fmt::arg("instruction", boost::to_lower_copy(instructionInfo(_instr).name)),
 	// 			fmt::arg("kind", vmKindMessage),
-	// 			fmt::arg("version", m_zvmVersion.name())
+	// 			fmt::arg("version", m_qrvmVersion.name())
 	// 		)
 	// 	);
 	// };
 
-	if (_instr == zvmasm::Instruction::PC)
+	if (_instr == qrvmasm::Instruction::PC)
 		m_errorReporter.error(
 			2450_error,
 			Error::Type::SyntaxError,
 			_location,
-			"PC instruction is a low-level ZVM feature. "
+			"PC instruction is a low-level QRVM feature. "
 			"Because of that PC is disallowed in strict assembly."
 		);
 	else

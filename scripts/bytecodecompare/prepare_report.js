@@ -2,7 +2,7 @@
 const process = require('process')
 const fs = require('fs')
 
-const compiler = require('hypc')
+const compiler = require('@theqrl/hypc')
 
 SETTINGS_PRESETS = {
     'legacy-optimize':    {optimize: true,  viaIR: false},
@@ -71,7 +71,7 @@ for (const preset of presets)
                 optimizer: {enabled: settings.optimize},
                 // NOTE: We omit viaIR rather than set it to false to handle older versions that don't have it.
                 viaIR: settings.viaIR ? true : undefined,
-                outputSelection: {'*': {'*': ['zvm.bytecode.object', 'metadata']}}
+                outputSelection: {'*': {'*': ['qrvm.bytecode.object', 'metadata']}}
             }
         }
         if (!stripSMTPragmas)
@@ -125,12 +125,12 @@ for (const preset of presets)
                     let metadata = '<NO METADATA>'
 
                     if (
-                        'zvm' in contractResults &&
-                        'bytecode' in contractResults['zvm'] &&
-                        'object' in contractResults['zvm']['bytecode'] &&
-                        cleanString(contractResults.zvm.bytecode.object) !== undefined
+                        'qrvm' in contractResults &&
+                        'bytecode' in contractResults['qrvm'] &&
+                        'object' in contractResults['qrvm']['bytecode'] &&
+                        cleanString(contractResults.qrvm.bytecode.object) !== undefined
                     )
-                        bytecode = cleanString(contractResults.zvm.bytecode.object)
+                        bytecode = cleanString(contractResults.qrvm.bytecode.object)
 
                     if ('metadata' in contractResults && cleanString(contractResults.metadata) !== undefined)
                         metadata = contractResults.metadata

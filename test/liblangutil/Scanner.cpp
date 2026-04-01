@@ -572,12 +572,12 @@ BOOST_AUTO_TEST_CASE(comments_mixed_in_sequence)
 	BOOST_CHECK_EQUAL(scanner.currentCommentLiteral(), "documentation comment ");
 }
 
-BOOST_AUTO_TEST_CASE(ether_subdenominations)
+BOOST_AUTO_TEST_CASE(qrl_subdenominations)
 {
-	TestScanner scanner("wei gwei ether");
-	BOOST_CHECK_EQUAL(scanner.currentToken(), Token::SubWei);
-	BOOST_CHECK_EQUAL(scanner.next(), Token::SubGwei);
-	BOOST_CHECK_EQUAL(scanner.next(), Token::SubEther);
+	TestScanner scanner("planck shor quanta");
+	BOOST_CHECK_EQUAL(scanner.currentToken(), Token::SubPlanck);
+	BOOST_CHECK_EQUAL(scanner.next(), Token::SubShor);
+	BOOST_CHECK_EQUAL(scanner.next(), Token::SubQuanta);
 }
 
 BOOST_AUTO_TEST_CASE(time_subdenominations)

@@ -21,7 +21,7 @@ EXCLUDE_FILES_JOINED=$(printf "%s\|" "${EXCLUDE_FILES[@]}")
 EXCLUDE_FILES_JOINED=${EXCLUDE_FILES_JOINED%??}
 
 NAMESPACE_STD_FREE_FILES=(
-    libzvmasm/*
+    libqrvmasm/*
     liblangutil/*
     libsmtutil/*
     libhypc/*
@@ -35,11 +35,11 @@ NAMESPACE_STD_FREE_FILES=(
     libhyperion/parsing/*
     libhyputil/*
     libyul/*
-    libyul/backends/zvm/*
+    libyul/backends/qrvm/*
     libyul/optimiser/*
     hypc/*
     test/contracts/*
-    test/libzvmasm/*
+    test/libqrvmasm/*
     test/liblangutil/*
     test/libhyputil/*
     test/libhyperion/*

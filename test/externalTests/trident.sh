@@ -55,11 +55,11 @@ function trident_test
     local settings_presets=(
         "${compile_only_presets[@]}"
         ir-no-optimize
-        ir-optimize-zvm-only
-        ir-optimize-zvm+yul        # Needs memory-safe inline assembly patch
+        ir-optimize-qrvm-only
+        ir-optimize-qrvm+yul        # Needs memory-safe inline assembly patch
         legacy-no-optimize
-        legacy-optimize-zvm-only
-        legacy-optimize-zvm+yul
+        legacy-optimize-qrvm-only
+        legacy-optimize-qrvm+yul
     )
 
     [[ $SELECTED_PRESETS != "" ]] || SELECTED_PRESETS=$(circleci_select_steps_multiarg "${settings_presets[@]}")
@@ -85,7 +85,7 @@ function trident_test
     sed -i 's|uint128(-1)|type(uint128).max|g' contracts/flat/BentoBoxV1Flat.hyp
     sed -i 's|uint64(-1)|type(uint64).max|g' contracts/flat/BentoBoxV1Flat.hyp
     sed -i 's|uint32(-1)|type(uint32).max|g' contracts/flat/BentoBoxV1Flat.hyp
-    sed -i 's|IERC20(0)|IERC20(address(0))|g' contracts/flat/BentoBoxV1Flat.hyp
+    sed -i 's|ISQRCTF1(0)|ISQRCTF1(address(0))|g' contracts/flat/BentoBoxV1Flat.hyp
     sed -i 's|IStrategy(0)|IStrategy(address(0))|g' contracts/flat/BentoBoxV1Flat.hyp
     find contracts -name "*.hyp" -exec sed -i -e 's/^\(\s*\)\(assembly\)/\1\/\/\/ @hyperion memory-safe-assembly\n\1\2/' '{}' \;
 

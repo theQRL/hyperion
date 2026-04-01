@@ -7,8 +7,8 @@
 Hyperion IR-based Codegen Changes
 *********************************
 
-Hyperion can generate ZVM bytecode in two different ways:
-Either directly from Hyperion to ZVM opcodes ("old codegen") or through
+Hyperion can generate QRVM bytecode in two different ways:
+Either directly from Hyperion to QRVM opcodes ("old codegen") or through
 an intermediate representation ("IR") in Yul ("new codegen" or "IR-based codegen").
 
 The IR-based code generator was introduced with an aim to not only allow
@@ -56,7 +56,7 @@ hiding new and different behavior in existing code.
   .. code-block:: hyperion
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma hyperion >=0.7.1;
+      pragma hyperion >=0.1.0;
 
       contract A {
           uint x;
@@ -85,7 +85,7 @@ hiding new and different behavior in existing code.
   .. code-block:: hyperion
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma hyperion >=0.7.1;
+      pragma hyperion >=0.1.0;
 
       contract C {
           struct S {
@@ -116,7 +116,7 @@ hiding new and different behavior in existing code.
   .. code-block:: hyperion
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma hyperion >=0.7.0;
+      pragma hyperion >=0.1.0;
       contract C {
           function f(uint a) public pure mod() returns (uint r) {
               r = a++;
@@ -130,7 +130,7 @@ hiding new and different behavior in existing code.
   .. code-block:: hyperion
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma hyperion >=0.7.1 <0.9.0;
+      pragma hyperion >=0.1.0;
 
       contract C {
           bool active = true;
@@ -167,7 +167,7 @@ hiding new and different behavior in existing code.
   .. code-block:: hyperion
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma hyperion >=0.8.1;
+      pragma hyperion >=0.1.0;
       contract C {
           function preincr_u8(uint8 a) public pure returns (uint8) {
               return ++a + a;
@@ -188,7 +188,7 @@ hiding new and different behavior in existing code.
   .. code-block:: hyperion
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma hyperion >=0.8.1;
+      pragma hyperion >=0.1.0;
       contract C {
           function add(uint8 a, uint8 b) public pure returns (uint8) {
               return a + b;
@@ -210,7 +210,7 @@ hiding new and different behavior in existing code.
   .. code-block:: hyperion
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma hyperion >=0.8.1;
+      pragma hyperion >=0.1.0;
       contract C {
           function f() public pure returns (uint256 aMod, uint256 mMod) {
               uint256 x = 3;
@@ -237,7 +237,7 @@ hiding new and different behavior in existing code.
       :force:
 
       // SPDX-License-Identifier: GPL-3.0
-      pragma hyperion >0.8.0;
+      pragma hyperion >=0.1.0;
       contract C {
           function f() public {
               uint[] memory arr;
@@ -291,7 +291,7 @@ For example:
     :force:
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.1;
+    pragma hyperion >=0.1.0;
     contract C {
         function f(uint8 a) public pure returns (uint r1, uint r2)
         {

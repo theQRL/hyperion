@@ -9,11 +9,11 @@
   }
  },
  "settings": {
-  "zvmVersion": "shanghai",
+  "qrvmVersion": "zond",
   "outputSelection": {
    "": {
     "": [
-     "zvm.bytecode.object"
+     "qrvm.bytecode.object"
     ]
    }
   }

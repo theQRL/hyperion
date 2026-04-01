@@ -8,7 +8,7 @@ The Optimizer
 The Hyperion compiler uses two different optimizer modules: The "old" optimizer
 that operates at the opcode level and the "new" optimizer that operates on Yul IR code.
 
-The opcode-based optimizer applies a set of `simplification rules <https://github.com/theQRL/hyperion/blob/develop/libzvmasm/RuleList.h>`_
+The opcode-based optimizer applies a set of `simplification rules <https://github.com/theQRL/hyperion/blob/develop/libqrvmasm/RuleList.h>`_
 to opcodes. It also combines equal code sets and removes unused code.
 
 The Yul-based optimizer is much more powerful, because it can work across function
@@ -934,7 +934,7 @@ The ControlFlowSimplifier does record the presence or absence of ``break``
 and ``continue`` statements during its traversal.
 
 Prerequisite: Disambiguator, FunctionHoister, ForLoopInitRewriter.
-Important: Introduces ZVM opcodes and thus can only be used on ZVM code for now.
+Important: Introduces QRVM opcodes and thus can only be used on QRVM code for now.
 
 .. _dead-code-eliminator:
 
@@ -1315,11 +1315,11 @@ SSA transform.
 StackCompressor
 ^^^^^^^^^^^^^^^
 
-One problem that makes code generation for the Zond Virtual Machine
+One problem that makes code generation for the Quantum Resistant Virtual Machine
 hard is the fact that there is a hard limit of 16 slots for reaching
 down the expression stack. This more or less translates to a limit
 of 16 local variables. The stack compressor takes Yul code and
-compiles it to ZVM bytecode. Whenever the stack difference is too
+compiles it to QRVM bytecode. Whenever the stack difference is too
 large, it records the function this happened in.
 
 For each function that caused such a problem, the Rematerialiser
@@ -1339,7 +1339,7 @@ is comparatively cheap to evaluate. Furthermore, it is only semantically equival
 the value of the expression did not change between the point of assignment and the
 point of use. The main benefit of this stage is that it can save stack slots if it
 leads to a variable being eliminated completely (see below), but it can also
-save a DUP opcode on the ZVM if the expression is very cheap.
+save a DUP opcode on the QRVM if the expression is very cheap.
 
 The Rematerialiser uses the Dataflow Analyzer to track the current values of variables,
 which are always movable.

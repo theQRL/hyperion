@@ -25,7 +25,7 @@
 #include <libyul/ControlFlowSideEffectsCollector.h>
 #include <libyul/AST.h>
 
-#include <libzvmasm/SemanticInformation.h>
+#include <libqrvmasm/SemanticInformation.h>
 
 #include <algorithm>
 #include <limits>

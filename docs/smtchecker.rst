@@ -67,7 +67,7 @@ Overflow
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.0;
+    pragma hyperion >=0.1.0;
 
     contract Overflow {
         uint immutable x;
@@ -116,7 +116,7 @@ the SMTChecker proves that no overflow is reachable (by not reporting warnings):
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.0;
+    pragma hyperion >=0.1.0;
 
     contract Overflow {
         uint immutable x;
@@ -154,7 +154,7 @@ definition to see what results come out!
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.0;
+    pragma hyperion >=0.1.0;
 
     contract Monotonic {
         function f(uint x) internal pure returns (uint) {
@@ -176,7 +176,7 @@ equal every element in the array.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.0;
+    pragma hyperion >=0.1.0;
 
     contract Max {
         function max(uint[] memory a) public pure returns (uint) {
@@ -210,7 +210,7 @@ For example, changing the code to
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.0;
+    pragma hyperion >=0.1.0;
 
     contract Max {
         function max(uint[] memory a) public pure returns (uint) {
@@ -262,7 +262,7 @@ below.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.0;
+    pragma hyperion >=0.1.0;
 
     contract Robot {
         int x = 0;
@@ -362,7 +362,7 @@ anything, including reenter the caller contract.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.0;
+    pragma hyperion >=0.1.0;
 
     interface Unknown {
         function run() external;
@@ -544,7 +544,7 @@ as an example:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.0;
+    pragma hyperion >=0.1.0;
 
     contract Ext {
         uint public x;
@@ -583,7 +583,7 @@ unsound results if the assumptions are inconsistent, such as the example below:
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.0;
+    pragma hyperion >=0.1.0;
 
     contract D {
         constructor(uint _x) { x = _x; }
@@ -630,7 +630,7 @@ most derived type in case of inheritance.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.0;
+    pragma hyperion >=0.1.0;
 
     interface Token {
         function balanceOf(address _a) external view returns (uint);
@@ -691,7 +691,7 @@ transactions to ``B``.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.0;
+    pragma hyperion >=0.1.0;
 
     contract A {
         uint public x;
@@ -970,7 +970,7 @@ types.
 .. code-block:: hyperion
 
     // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.8.0;
+    pragma hyperion >=0.1.0;
 
     contract Aliasing
     {
@@ -1030,7 +1030,7 @@ deployment transaction.
 However, the contract's address may already have funds before deployment,
 which are kept by the contract.
 Therefore, the SMTChecker assumes that ``address(this).balance >= msg.value``
-in the constructor in order to be consistent with the ZVM rules.
+in the constructor in order to be consistent with the QRVM rules.
 The contract's balance may also increase without triggering any calls to the
 contract, if
 
@@ -1043,7 +1043,7 @@ the contract's balance may grow by at least ``msg.value``.
 Real World Assumptions
 **********************
 
-Some scenarios can be expressed in Hyperion and the ZVM, but are expected to
+Some scenarios can be expressed in Hyperion and the QRVM, but are expected to
 never occur in practice.
 One of such cases is the length of a dynamic storage array overflowing during a
 push: If the ``push`` operation is applied to an array of length 2^256 - 1, its

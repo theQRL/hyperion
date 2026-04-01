@@ -35,7 +35,7 @@ class CompilerStack;
 namespace hyperion::frontend::test
 {
 
-class ASTJSONTest: public ZVMVersionRestrictedTestCase
+class ASTJSONTest: public QRVMVersionRestrictedTestCase
 {
 public:
 	struct TestVariant

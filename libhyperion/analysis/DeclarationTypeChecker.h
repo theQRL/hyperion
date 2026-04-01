@@ -20,7 +20,7 @@
 
 #include <libhyperion/ast/ASTVisitor.h>
 #include <libhyperion/ast/ASTAnnotations.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 #include <list>
 #include <map>
@@ -41,10 +41,10 @@ class DeclarationTypeChecker: private ASTConstVisitor
 public:
 	DeclarationTypeChecker(
 		langutil::ErrorReporter& _errorReporter,
-		langutil::ZVMVersion _zvmVersion
+		langutil::QRVMVersion _qrvmVersion
 	):
 		m_errorReporter(_errorReporter),
-		m_zvmVersion(_zvmVersion)
+		m_qrvmVersion(_qrvmVersion)
 	{}
 
 	bool check(ASTNode const& _contract);
@@ -65,7 +65,7 @@ private:
 	bool visit(InheritanceSpecifier const& _inheritanceSpecifier) override;
 
 	langutil::ErrorReporter& m_errorReporter;
-	langutil::ZVMVersion m_zvmVersion;
+	langutil::QRVMVersion m_qrvmVersion;
 	bool m_insideFunctionType = false;
 	bool m_recursiveStructSeen = false;
 	std::set<StructDefinition const*> m_currentStructsSeen;

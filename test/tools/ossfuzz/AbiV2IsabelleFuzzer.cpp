@@ -16,7 +16,7 @@
 */
 // SPDX-License-Identifier: GPL-3.0
 
-#include <test/tools/ossfuzz/HyperionZvmoneInterface.h>
+#include <test/tools/ossfuzz/HyperionQrvmoneInterface.h>
 
 #include <test/tools/ossfuzz/protoToAbiV2.h>
 
@@ -32,7 +32,7 @@ using namespace hyperion;
 using namespace std;
 
 static constexpr size_t abiCoderHeapSize = 1024 * 512;
-static zvmc::VM zvmone = zvmc::VM{zvmc_create_zvmone()};
+static qrvmc::VM qrvmone = qrvmc::VM{qrvmc_create_qrvmone()};
 
 DEFINE_PROTO_FUZZER(Contract const& _contract)
 {
@@ -55,24 +55,24 @@ DEFINE_PROTO_FUZZER(Contract const& _contract)
 		auto [encodeStatus, encodedData] = coder.encode(typeString, valueString);
 		hypAssert(encodeStatus, "Isabelle abicoder fuzzer: Encoding failed");
 
-		// We target the default ZVM which is the latest
-		langutil::ZVMVersion version;
-		ZVMHost hostContext(version, zvmone);
+		// We target the default QRVM which is the latest
+		langutil::QRVMVersion version;
+		QRVMHost hostContext(version, qrvmone);
 		string contractName = "C";
 		StringMap source({{"test.hyp", contractSource}});
 		CompilerInput cInput(version, source, contractName, OptimiserSettings::minimal(), {});
-		ZvmoneUtility zvmoneUtil(
+		QrvmoneUtility qrvmoneUtil(
 			hostContext,
 			cInput,
 			contractName,
 			{},
 			{}
 		);
-		auto result = zvmoneUtil.compileDeployAndExecute(encodedData);
-		hypAssert(result.status_code != ZVMC_REVERT, "Proto ABIv2 fuzzer: ZVM One reverted.");
-		if (result.status_code == ZVMC_SUCCESS)
+		auto result = qrvmoneUtil.compileDeployAndExecute(encodedData);
+		hypAssert(result.status_code != QRVMC_REVERT, "Proto ABIv2 fuzzer: QRVM One reverted.");
+		if (result.status_code == QRVMC_SUCCESS)
 			hypAssert(
-				ZvmoneUtility::zeroWord(result.output_data, result.output_size),
+				QrvmoneUtility::zeroWord(result.output_data, result.output_size),
 				"Proto ABIv2 fuzzer: ABIv2 coding failure found."
 			);
 	}

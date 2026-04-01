@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13.0)
 
-set(ZOND_CMAKE_DIR   "${CMAKE_CURRENT_LIST_DIR}/cmake"   CACHE PATH "The path to the cmake directory")
-list(APPEND CMAKE_MODULE_PATH ${ZOND_CMAKE_DIR})
+set(QRL_CMAKE_DIR   "${CMAKE_CURRENT_LIST_DIR}/cmake"   CACHE PATH "The path to the cmake directory")
+list(APPEND CMAKE_MODULE_PATH ${QRL_CMAKE_DIR})
 
 # Set the build type, if none was specified.
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -14,14 +14,14 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
 endif()
 
-include(ZondToolchains)
+include(QRLToolchains)
 
 # Set cmake_policies
-include(ZondPolicy)
-zond_policy()
+include(QRLPolicy)
+qrl_policy()
 
 # project name and version should be set after cmake_policy CMP0048
-set(PROJECT_VERSION "0.1.0")
+set(PROJECT_VERSION "0.2.0")
 # OSX target needed in order to support std::visit
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14")
 project(hyperion VERSION ${PROJECT_VERSION} LANGUAGES C CXX)
@@ -39,10 +39,10 @@ option(PEDANTIC "Enable extra warnings and pedantic build flags. Treat all warni
 option(PROFILE_OPTIMIZER_STEPS "Output performance metrics for the optimiser steps." OFF)
 
 # Setup cccache.
-include(ZondCcache)
+include(QRLCcache)
 
 # Let's find our dependencies
-include(ZondDependencies)
+include(QRLDependencies)
 include(fmtlib)
 include(jsoncpp)
 include(range-v3)
@@ -59,10 +59,10 @@ if (PROFILE_OPTIMIZER_STEPS)
 endif()
 
 # Figure out what compiler and system are we using
-include(ZondCompilerSettings)
+include(QRLCompilerSettings)
 
 # Include utils
-include(ZondUtils)
+include(QRLUtils)
 
 # Create license.h from LICENSE.txt and template
 # Converting to char array is required due to MSVC's string size limit.
@@ -73,7 +73,7 @@ set(LICENSE_TEXT "0x${LICENSE_TEXT}")
 
 configure_file("${PROJECT_SOURCE_DIR}/cmake/templates/license.h.in" include/license.h)
 
-include(ZondOptions)
+include(QRLOptions)
 configure_project(TESTS)
 set(LATEST_Z3_VERSION "4.12.1")
 set(MINIMUM_Z3_VERSION "4.8.16")
@@ -136,7 +136,7 @@ endif()
 add_subdirectory(libhyputil)
 add_subdirectory(liblangutil)
 add_subdirectory(libsmtutil)
-add_subdirectory(libzvmasm)
+add_subdirectory(libqrvmasm)
 add_subdirectory(libyul)
 add_subdirectory(libhyperion)
 add_subdirectory(libhypc)

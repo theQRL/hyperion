@@ -82,7 +82,7 @@ bool IhypTestOptions::parse(int _argc, char const* const* _argv)
 		return false;
 	}
 
-	enforceGasTest = enforceGasTest || (zvmVersion() == langutil::ZVMVersion{} && !useABIEncoderV1);
+	enforceGasTest = enforceGasTest || (qrvmVersion() == langutil::QRVMVersion{} && !useABIEncoderV1);
 
 	return shouldContinue;
 }

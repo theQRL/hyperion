@@ -20,22 +20,22 @@
  */
 
 #include <test/libhyperion/HyperionExecutionFramework.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 #include <libhyputil/IpfsHash.h>
-#include <libzvmasm/GasMeter.h>
+#include <libqrvmasm/GasMeter.h>
 
 #include <cmath>
 
 using namespace hyperion::langutil;
 using namespace hyperion::langutil;
-using namespace hyperion::zvmasm;
+using namespace hyperion::qrvmasm;
 using namespace hyperion::frontend;
 using namespace hyperion::test;
 
 namespace hyperion::frontend::test
 {
 
-#define CHECK_DEPLOY_GAS(_gasNoOpt, _gasOpt, _zvmVersion) \
+#define CHECK_DEPLOY_GAS(_gasNoOpt, _gasOpt, _qrvmVersion) \
 	do \
 	{ \
 		u256 metaCost = GasMeter::dataGas(m_compiler.cborMetadata(m_compiler.lastContractName()), true); \
@@ -98,16 +98,16 @@ BOOST_AUTO_TEST_CASE(string_storage)
 	{
 		if (CommonOptions::get().optimize)
 		{
-			CHECK_DEPLOY_GAS(0, 97071, zvmVersion);
+			CHECK_DEPLOY_GAS(0, 97071, qrvmVersion);
 		}
 		else
 		{
-			CHECK_DEPLOY_GAS(121493, 110969, zvmVersion);
+			CHECK_DEPLOY_GAS(121493, 110969, qrvmVersion);
 		}
 	}
 	// TODO(now.youtrack.cloud/issue/TS-14): Gas used: 102421 - expected: 114077
 	// else
-		// CHECK_DEPLOY_GAS(114077, 95835, zvmVersion);
+		// CHECK_DEPLOY_GAS(114077, 95835, qrvmVersion);
 
 	callContractFunction("f()");
 	if (!CommonOptions::get().useABIEncoderV1)

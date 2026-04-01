@@ -4,7 +4,7 @@
 Cleaning Up Variables
 *********************
 
-Ultimately, all values in the ZVM are stored in 256 bit words.
+Ultimately, all values in the QRVM are stored in 256 bit words.
 Thus, in some cases, when the type of a value has less than 256 bits,
 it is necessary to clean the remaining bits.
 The Hyperion compiler is designed to do such cleaning before any operations

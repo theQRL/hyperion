@@ -41,11 +41,11 @@ class HyperionExecutionFramework: public hyperion::test::ExecutionFramework
 public:
 	HyperionExecutionFramework(): m_showMetadata(hyperion::test::CommonOptions::get().showMetadata) {}
 	explicit HyperionExecutionFramework(
-		langutil::ZVMVersion _zvmVersion,
+		langutil::QRVMVersion _qrvmVersion,
 		std::vector<boost::filesystem::path> const& _vmPaths,
 		bool _appendCBORMetadata = true
 	):
-		ExecutionFramework(_zvmVersion, _vmPaths),
+		ExecutionFramework(_qrvmVersion, _vmPaths),
 		m_showMetadata(hyperion::test::CommonOptions::get().showMetadata),
 		m_appendCBORMetadata(_appendCBORMetadata)
 	{}

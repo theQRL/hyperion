@@ -78,10 +78,10 @@ identify which libraries the placeholders represent. Note that the fully qualifi
 is the path of its source file and the library name separated by ``:``.
 You can use ``hypc`` as a linker meaning that it will insert the library addresses for you at those points:
 
-Either add ``--libraries "file.hyp:Math=Z1234567890123456789012345678901234567890 file.hyp:Heap=ZabCD567890123456789012345678901234567890"`` to your command to provide an address for each library (use commas or spaces as separators) or store the string in a file (one library per line) and run ``hypc`` using ``--libraries fileName``.
+Either add ``--libraries "file.hyp:Math=Q1234567890123456789012345678901234567890 file.hyp:Heap=QabCD567890123456789012345678901234567890"`` to your command to provide an address for each library (use commas or spaces as separators) or store the string in a file (one library per line) and run ``hypc`` using ``--libraries fileName``.
 
 .. note::
-    Starting Hyperion 0.8.1 accepts ``=`` as separator between library and address, and ``:`` as a separator is deprecated. It will be removed in the future. Currently ``--libraries "file.hyp:Math:Z1234567890123456789012345678901234567890 file.hyp:Heap:ZabCD567890123456789012345678901234567890"`` will work too.
+    Starting Hyperion 0.8.1 accepts ``=`` as separator between library and address, and ``:`` as a separator is deprecated. It will be removed in the future. Currently ``--libraries "file.hyp:Math:Q1234567890123456789012345678901234567890 file.hyp:Heap:QabCD567890123456789012345678901234567890"`` will work too.
 
 .. index:: --standard-json, --base-path
 
@@ -107,28 +107,28 @@ If ``hypc`` is called with the option ``--link``, all input files are interprete
     the likelihood of a collision between libraries, since only the first 36 characters
     of the fully qualified library name could be used.
 
-.. _zvm-version:
-.. index:: ! ZVM version, compile target
+.. _qrvm-version:
+.. index:: ! QRVM version, compile target
 
-Setting the ZVM Version to Target
+Setting the QRVM Version to Target
 *********************************
 
-When you compile your contract code you can specify the Ethereum virtual machine
+When you compile your contract code you can specify the Quantum Resistant virtual machine
 version to compile for to avoid particular features or behaviors.
 
 .. warning::
 
-   Compiling for the wrong ZVM version can result in wrong, strange and failing
+   Compiling for the wrong QRVM version can result in wrong, strange and failing
    behavior. Please ensure, especially if running a private chain, that you
-   use matching ZVM versions.
+   use matching QRVM versions.
 
-On the command-line, you can select the ZVM version as follows:
+On the command-line, you can select the QRVM version as follows:
 
 .. code-block:: shell
 
-  hypc --zvm-version <VERSION> contract.hyp
+  hypc --qrvm-version <VERSION> contract.hyp
 
-In the :ref:`standard JSON interface <compiler-api>`, use the ``"zvmVersion"``
+In the :ref:`standard JSON interface <compiler-api>`, use the ``"qrvmVersion"``
 key in the ``"settings"`` field:
 
 .. code-block:: javascript
@@ -137,17 +137,17 @@ key in the ``"settings"`` field:
       "sources": {/* ... */},
       "settings": {
         "optimizer": {/* ... */},
-        "zvmVersion": "<VERSION>"
+        "qrvmVersion": "<VERSION>"
       }
     }
 
 Target Options
 --------------
 
-Below is a list of target ZVM versions and the compiler-relevant changes introduced
+Below is a list of target QRVM versions and the compiler-relevant changes introduced
 at each version. Backward compatibility is not guaranteed between each version.
 
-- ``shanghai`` (**default**)
+- ``zond`` (**default**)
 
 .. index:: ! standard JSON, ! --standard-json
 .. _compiler-api:
@@ -289,9 +289,9 @@ Input Description
             }
           }
         },
-        // Version of the ZVM to compile for.
-        // Affects type checking and code generation. Can be shanghai (default)
-        "zvmVersion": "shanghai",
+        // Version of the QRVM to compile for.
+        // Affects type checking and code generation. Can be zond (default)
+        "qrvmVersion": "zond",
         // Optional: Change compilation pipeline to go through the Yul intermediate representation.
         // This is false by default.
         "viaIR": true,
@@ -304,7 +304,7 @@ Input Description
           // "debug" injects strings for compiler-generated internal reverts, implemented for ABI encoders V1 and V2 for now.
           // "verboseDebug" even appends further information to user-supplied revert strings (not yet implemented)
           "revertStrings": "default",
-          // Optional: How much extra debug information to include in comments in the produced ZVM
+          // Optional: How much extra debug information to include in comments in the produced QRVM
           // assembly and Yul code. Available components are:
           // - `location`: Annotations of the form `@src <index>:<start>:<end>` indicating the
           //    location of the corresponding element in the original Hyperion file, where:
@@ -337,7 +337,7 @@ Input Description
           // after remappings were applied.
           // If this key is an empty string, that refers to a global level.
           "myFile.hyp": {
-            "MyLib": "Z123123..."
+            "MyLib": "Q123123..."
           }
         },
         // The following can be used to select desired outputs based
@@ -368,27 +368,27 @@ Input Description
         //   irOptimized - Intermediate representation after optimization
         //   irOptimizedAst - AST of intermediate representation after optimization
         //   storageLayout - Slots, offsets and types of the contract's state variables.
-        //   zvm.assembly - New assembly format
-        //   zvm.legacyAssembly - Old-style assembly format in JSON
-        //   zvm.bytecode.functionDebugData - Debugging information at function level
-        //   zvm.bytecode.object - Bytecode object
-        //   zvm.bytecode.opcodes - Opcodes list
-        //   zvm.bytecode.sourceMap - Source mapping (useful for debugging)
-        //   zvm.bytecode.linkReferences - Link references (if unlinked object)
-        //   zvm.bytecode.generatedSources - Sources generated by the compiler
-        //   zvm.deployedBytecode* - Deployed bytecode (has all the options that zvm.bytecode has)
-        //   zvm.deployedBytecode.immutableReferences - Map from AST ids to bytecode ranges that reference immutables
-        //   zvm.methodIdentifiers - The list of function hashes
-        //   zvm.gasEstimates - Function gas estimates
+        //   qrvm.assembly - New assembly format
+        //   qrvm.legacyAssembly - Old-style assembly format in JSON
+        //   qrvm.bytecode.functionDebugData - Debugging information at function level
+        //   qrvm.bytecode.object - Bytecode object
+        //   qrvm.bytecode.opcodes - Opcodes list
+        //   qrvm.bytecode.sourceMap - Source mapping (useful for debugging)
+        //   qrvm.bytecode.linkReferences - Link references (if unlinked object)
+        //   qrvm.bytecode.generatedSources - Sources generated by the compiler
+        //   qrvm.deployedBytecode* - Deployed bytecode (has all the options that qrvm.bytecode has)
+        //   qrvm.deployedBytecode.immutableReferences - Map from AST ids to bytecode ranges that reference immutables
+        //   qrvm.methodIdentifiers - The list of function hashes
+        //   qrvm.gasEstimates - Function gas estimates
         //
-        // Note that using `zvm`, `zvm.bytecode`, etc. will select every
+        // Note that using `qrvm`, `qrvm.bytecode`, etc. will select every
         // target part of that output. Additionally, `*` can be used as a wildcard to request everything.
         //
         "outputSelection": {
           "*": {
             "*": [
-              "metadata", "zvm.bytecode" // Enable the metadata and bytecode outputs of every single contract.
-              , "zvm.bytecode.sourceMap" // Enable the source map output of every single contract.
+              "metadata", "qrvm.bytecode" // Enable the metadata and bytecode outputs of every single contract.
+              , "qrvm.bytecode.sourceMap" // Enable the source map output of every single contract.
             ],
             "": [
               "ast" // Enable the AST output of every single file.
@@ -396,7 +396,7 @@ Input Description
           },
           // Enable the abi and opcodes output of MyContract defined in file def.
           "def": {
-            "MyContract": [ "abi", "zvm.bytecode.opcodes" ]
+            "MyContract": [ "abi", "qrvm.bytecode.opcodes" ]
           }
         },
         // The modelChecker object is experimental and subject to changes.
@@ -503,7 +503,7 @@ Output Description
         "sourceFile.hyp": {
           // If the language used has no contract names, this field should equal to an empty string.
           "ContractName": {
-            // The Ethereum Contract ABI. If empty, it is represented as an empty array.
+            // The QRL Contract ABI. If empty, it is represented as an empty array.
             // See https://docs.soliditylang.org/en/develop/abi-spec.html
             "abi": [],
             // See the Metadata Output documentation (serialised JSON string)
@@ -522,8 +522,8 @@ Output Description
             "irOptimizedAst": {/* ... */},
             // See the Storage Layout documentation.
             "storageLayout": {"storage": [/* ... */], "types": {/* ... */} },
-            // ZVM-related outputs
-            "zvm": {
+            // QRVM-related outputs
+            "qrvm": {
               // Assembly (string)
               "assembly": "",
               // Old-style assembly (object)
@@ -537,8 +537,8 @@ Output Description
                   "@mint_13": { // Internal name of the function
                     "entryPoint": 128, // Byte offset into the bytecode where the function starts (optional)
                     "id": 13, // AST ID of the function definition or null for compiler-internal functions (optional)
-                    "parameterSlots": 2, // Number of ZVM stack slots for the function parameters (optional)
-                    "returnSlots": 1 // Number of ZVM stack slots for the return values (optional)
+                    "parameterSlots": 2, // Number of QRVM stack slots for the function parameters (optional)
+                    "returnSlots": 1 // Number of QRVM stack slots for the return values (optional)
                   }
                 },
                 // The bytecode as a hex string.

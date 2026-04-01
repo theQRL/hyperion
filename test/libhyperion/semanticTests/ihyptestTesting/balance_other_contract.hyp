@@ -15,7 +15,7 @@ contract ClientReceipt {
     }
 }
 // ----
-// constructor(), 2000 wei ->
+// constructor(), 2000 planck ->
 // gas irOptimized: 169915
 // gas legacy: 230038
 // gas legacyOptimized: 173883
@@ -23,5 +23,5 @@ contract ClientReceipt {
 // gas irOptimized: 191881
 // gas legacy: 235167
 // gas legacyOptimized: 180756
-// getAddress() -> Z137aa4dfc0911524504fcd4d98501f179bc13b4a
-// balance: Z137aa4dfc0911524504fcd4d98501f179bc13b4a -> 500
+// getAddress() -> Q137aa4dfc0911524504fcd4d98501f179bc13b4a
+// balance: Q137aa4dfc0911524504fcd4d98501f179bc13b4a -> 500

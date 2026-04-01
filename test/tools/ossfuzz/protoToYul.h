@@ -32,7 +32,7 @@
 #include <libhyputil/FixedHash.h>
 #include <libhyputil/Whiskers.h>
 
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 namespace hyperion::yul::test::yul_fuzzer
 {
@@ -64,10 +64,10 @@ public:
 	ProtoConverter(ProtoConverter&&) = delete;
 	std::string programToString(Program const& _input);
 
-	/// Returns zvm version
-	hyperion::langutil::ZVMVersion version()
+	/// Returns qrvm version
+	hyperion::langutil::QRVMVersion version()
 	{
-		return m_zvmVersion;
+		return m_qrvmVersion;
 	}
 private:
 	void visit(BinaryOp const&);
@@ -268,9 +268,9 @@ private:
 	/// dictionarySize is the total number of entries in the dictionary.
 	std::string dictionaryToken(util::HexPrefix _p = util::HexPrefix::Add);
 
-	/// Returns an ZVMVersion object corresponding to the protobuf
+	/// Returns a QRVMVersion object corresponding to the protobuf
 	/// enum of type Program_Version
-	static hyperion::langutil::ZVMVersion zvmVersionMapping(Program_Version const& _x);
+	static hyperion::langutil::QRVMVersion qrvmVersionMapping(Program_Version const& _x);
 
 	/// @returns name of Yul function with return type of @param _numReturns.
 	std::optional<std::string> functionExists(NumFunctionReturns _numReturns);
@@ -378,8 +378,8 @@ private:
 	/// Flag to track whether scope extension of variables defined in for-init
 	/// block is enabled.
 	bool m_forInitScopeExtEnabled;
-	/// Object that holds the targeted zvm version specified by protobuf input
-	hyperion::langutil::ZVMVersion m_zvmVersion;
+	/// Object that holds the targeted qrvm version specified by protobuf input
+	hyperion::langutil::QRVMVersion m_qrvmVersion;
 	/// Flag that, if set, stops the converter from generating state changing
 	/// opcodes.
 	bool m_filterStatefulInstructions;

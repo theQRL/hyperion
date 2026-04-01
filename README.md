@@ -1,6 +1,6 @@
 # The Hyperion Contract-Oriented Programming Language
 
-Hyperion is a statically typed, contract-oriented, high-level language for implementing smart contracts on the Zond platform.
+Hyperion is a statically typed, contract-oriented, high-level language for implementing smart contracts on the QRL platform.
 
 For a good overview and starting point, please check out the official [Hyperion Language Portal](https://soliditylang.org).
 
@@ -18,7 +18,7 @@ For a good overview and starting point, please check out the official [Hyperion 
 ## Background
 
 Hyperion is a statically-typed curly-braces programming language designed for developing smart contracts
-that run on the Zond Virtual Machine. Smart contracts are programs that are executed inside a peer-to-peer
+that run on the Quantum Resistant Virtual Machine. Smart contracts are programs that are executed inside a peer-to-peer
 network where nobody has special authority over the execution, and thus they allow anyone to implement tokens of value,
 ownership, voting, and other kinds of logic.
 
@@ -39,7 +39,7 @@ A "Hello World" program in Hyperion is of even less use than in other languages,
 
 ```hyperion
 // SPDX-License-Identifier: MIT
-pragma hyperion >=0.6.0 <0.9.0;
+pragma hyperion >=0.1.0;
 
 contract HelloWorld {
     function helloWorld() external pure returns (string memory) {

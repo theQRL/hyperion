@@ -23,7 +23,7 @@
 #include <test/Common.h>
 #include <test/tools/IhypTestOptions.h>
 #include <test/InteractiveTests.h>
-#include <test/ZVMHost.h>
+#include <test/QRVMHost.h>
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
@@ -158,7 +158,7 @@ TestTool::Result TestTool::process()
 
 			m_test = m_testCaseCreator(TestCase::Config{
 				m_path.string(),
-				m_options.zvmVersion(),
+				m_options.qrvmVersion(),
 				m_options.vmPaths,
 				m_options.enforceGasTest,
 				m_options.enforceGasTestMinValue

@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(metadata_stamp)
 			CompilerStack compilerStack;
 			compilerStack.setMetadataFormat(metadataFormat);
 			compilerStack.setSources({{"", sourceCode}});
-			compilerStack.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+			compilerStack.setQRVMVersion(hyperion::test::CommonOptions::get().qrvmVersion());
 			compilerStack.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 			compilerStack.setMetadataHash(metadataHash);
 			BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(metadata_stamp_experimental)
 			CompilerStack compilerStack;
 			compilerStack.setMetadataFormat(metadataFormat);
 			compilerStack.setSources({{"", sourceCode}});
-			compilerStack.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+			compilerStack.setQRVMVersion(hyperion::test::CommonOptions::get().qrvmVersion());
 			compilerStack.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 			compilerStack.setMetadataHash(metadataHash);
 			BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE(metadata_relevant_sources)
 		{"A", sourceCodeA},
 		{"B", sourceCodeB},
 	});
-	compilerStack.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+	compilerStack.setQRVMVersion(hyperion::test::CommonOptions::get().qrvmVersion());
 	compilerStack.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 	BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");
 
@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE(metadata_relevant_sources_imports)
 		{"B", sourceCodeB},
 		{"C", sourceCodeC}
 	});
-	compilerStack.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+	compilerStack.setQRVMVersion(hyperion::test::CommonOptions::get().qrvmVersion());
 	compilerStack.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 	BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");
 
@@ -313,7 +313,7 @@ BOOST_AUTO_TEST_CASE(metadata_useLiteralContent)
 	{
 		CompilerStack compilerStack;
 		compilerStack.setSources({{"", _src}});
-		compilerStack.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+		compilerStack.setQRVMVersion(hyperion::test::CommonOptions::get().qrvmVersion());
 		compilerStack.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 		compilerStack.useMetadataLiteralSources(_literal);
 		BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");
@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE(metadata_viair)
 	{
 		CompilerStack compilerStack;
 		compilerStack.setSources({{"", _src}});
-		compilerStack.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+		compilerStack.setQRVMVersion(hyperion::test::CommonOptions::get().qrvmVersion());
 		compilerStack.setOptimiserSettings(hyperion::test::CommonOptions::get().optimize);
 		compilerStack.setViaIR(_viaIR);
 		BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");
@@ -424,7 +424,7 @@ BOOST_AUTO_TEST_CASE(metadata_optimiser_sequence)
 		optimizerSettings.yulOptimiserCleanupSteps = _optimizerCleanupSequence;
 		CompilerStack compilerStack;
 		compilerStack.setSources({{"", sourceCode}});
-		compilerStack.setZVMVersion(hyperion::test::CommonOptions::get().zvmVersion());
+		compilerStack.setQRVMVersion(hyperion::test::CommonOptions::get().qrvmVersion());
 		compilerStack.setOptimiserSettings(optimizerSettings);
 
 		BOOST_REQUIRE_MESSAGE(compilerStack.compile(), "Compiling contract failed");

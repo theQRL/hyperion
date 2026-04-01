@@ -74,14 +74,12 @@ externalContracts=(
     libhyperion/semanticTests/externalContracts/_stringutils/stringutils.hyp
     libhyperion/semanticTests/externalContracts/deposit_contract.hyp
     libhyperion/semanticTests/externalContracts/FixedFeeRegistrar.hyp
-    libhyperion/semanticTests/externalContracts/snark.hyp
 )
 
 requiresOptimizer=(
     externalTests/hypc-js/DAO/TokenCreation.hyp
     libhyperion/semanticTests/externalContracts/deposit_contract.hyp
     libhyperion/semanticTests/externalContracts/FixedFeeRegistrar.hyp
-    libhyperion/semanticTests/externalContracts/snark.hyp
 )
 
 for contractFile in "${externalContracts[@]}"

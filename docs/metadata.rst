@@ -58,7 +58,7 @@ explanatory purposes.
           // Contents of the @author NatSpec field of the contract
           "author": "John Doe",
           // Contents of the @dev NatSpec field of the contract
-          "details": "Interface of the ERC20 standard as defined in the EIP. See https://eips.ethereum.org/EIPS/eip-20 for details",
+          "details": "Interface of the SQRCTF1 standard as defined in the EIP. See https://eips.ethereum.org/EIPS/eip-20 for details",
           "errors": {
             "MintToZeroAddress()" : {
               "details": "Cannot mint to zero address"
@@ -98,7 +98,7 @@ explanatory purposes.
             }
           },
           // Contents of the @title NatSpec field of the contract
-          "title": "MyERC20: an example ERC20",
+          "title": "MySQRCTF1: an example SQRCTF1",
           "version": 1 // NatSpec version
         },
         // Required: NatSpec user documentation of the contract. See "NatSpec Format"
@@ -133,7 +133,7 @@ explanatory purposes.
           "myDirectory/myFile.hyp": "MyContract"
         },
         // Required for Hyperion.
-        "zvmVersion": "shanghai",
+        "qrvmVersion": "zond",
         // Required for Hyperion: Addresses for libraries used.
         "libraries": {
           "MyLib": "0x123123..."

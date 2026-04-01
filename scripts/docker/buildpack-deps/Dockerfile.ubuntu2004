@@ -45,13 +45,13 @@ RUN set -ex; \
 
 FROM base AS libraries
 
-# ZVMONE
+# QRVMONE
 RUN set -ex; \
-	wget -O /usr/src/zvmone.tar.gz https://github.com/theQRL/zvmone/releases/download/v0.10.0/zvmone-0.10.0-linux-x86_64.tar.gz; \
-	test "$(sha256sum /usr/src/zvmone.tar.gz)" = "6052b6a4eba6e81bb1bccfa9fec2caf220a25f5ff5c32c544984883ed95e6552  /usr/src/zvmone.tar.gz"; \
+	wget -O /usr/src/qrvmone.tar.gz https://github.com/theQRL/qrvmone/releases/download/v0.10.0/qrvmone-0.10.0-linux-x86_64.tar.gz; \
+	test "$(sha256sum /usr/src/qrvmone.tar.gz)" = "6052b6a4eba6e81bb1bccfa9fec2caf220a25f5ff5c32c544984883ed95e6552  /usr/src/qrvmone.tar.gz"; \
 	cd /usr; \
-	tar -xf /usr/src/zvmone.tar.gz; \
-	rm -rf /usr/src/zvmone.tar.gz
+	tar -xf /usr/src/qrvmone.tar.gz; \
+	rm -rf /usr/src/qrvmone.tar.gz
 
 FROM base
 COPY --from=libraries /usr/lib /usr/lib

@@ -14,7 +14,7 @@ In particular, we appreciate support in the following areas:
 * Improving the documentation.
 * `Translating <https://github.com/hyperion-docs>`_ the documentation into more languages.
 * Responding to questions from other users on `StackExchange
-  <https://ethereum.stackexchange.com>`_ and the `Hyperion Gitter Chat
+  <https://theqrl.stackexchange.com>`_ and the `Hyperion Gitter Chat
   <https://gitter.im/theQRL/hyperion>`_.
 * Getting involved in the language design process by proposing language changes or new features in the `Hyperion forum <https://forum.soliditylang.org/>`_ and providing feedback.
 
@@ -92,7 +92,7 @@ Prerequisites
 -------------
 
 For running all compiler tests you may want to optionally install a few
-dependencies (`zvmone <https://github.com/theQRL/zvmone/releases>`_,
+dependencies (`qrvmone <https://github.com/theQRL/qrvmone/releases>`_,
 `libz3 <https://github.com/Z3Prover/z3>`_).
 
 On macOS systems, some of the testing scripts expect GNU coreutils to be installed.
@@ -118,17 +118,17 @@ application ``hyptest`` (or its wrapper ``scripts/hyptest.sh``), as well as comm
 compilation tests.
 
 The test system automatically tries to discover the location of
-the `zvmone <https://github.com/theQRL/zvmone/releases>`_ for running the semantic tests.
+the `qrvmone <https://github.com/theQRL/qrvmone/releases>`_ for running the semantic tests.
 
-The ``zvmone`` library must be located in the ``deps`` or ``deps/lib`` directory relative to the
+The ``qrvmone`` library must be located in the ``deps`` or ``deps/lib`` directory relative to the
 current working directory, to its parent or its parent's parent. Alternatively, an explicit location
-for the ``zvmone`` shared object can be specified via the ``ZOND_ZVMONE`` environment variable.
+for the ``qrvmone`` shared object can be specified via the ``QRL_QRVMONE`` environment variable.
 
-``zvmone`` is needed mainly for running semantic and gas tests.
+``qrvmone`` is needed mainly for running semantic and gas tests.
 If you do not have it installed, you can skip these tests by passing the ``--no-semantic-tests``
 flag to ``scripts/hyptest.sh``.
 
-The ``zvmone`` library should both end with the file name
+The ``qrvmone`` library should both end with the file name
 extension ``.so`` on Linux, ``.dll`` on Windows systems and ``.dylib`` on macOS.
 
 For running SMT tests, the ``libz3`` library must be installed and locatable
@@ -498,7 +498,7 @@ voice is sometimes more applicable.
 
 As a summary:
 
-* Use passive voice for technical reference, for example language definition and internals of the Ethereum VM.
+* Use passive voice for technical reference, for example language definition and internals of the Quantum Resistant VM.
 * Use active voice when describing recommendations on how to apply an aspect of Hyperion.
 
 For example, the below is in passive voice as it specifies an aspect of Hyperion:
@@ -524,7 +524,7 @@ or ``interface`` using the ``./test/cmdlineTests.sh`` script when you create a P
 ensure they work and pass tests before creating the PR.
 
 Ensure that all code examples begin with a ``pragma`` version that spans the largest where the contract code is valid.
-For example ``pragma hyperion >=0.4.0 <0.9.0;``.
+For example ``pragma hyperion >=0.1.0 <0.2.0;``.
 
 Running Documentation Tests
 ---------------------------

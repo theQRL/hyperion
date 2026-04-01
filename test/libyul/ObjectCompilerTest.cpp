@@ -26,8 +26,8 @@
 
 #include <libyul/YulStack.h>
 
-#include <libzvmasm/Instruction.h>
-#include <libzvmasm/Disassemble.h>
+#include <libqrvmasm/Instruction.h>
+#include <libqrvmasm/Disassemble.h>
 
 #include <liblangutil/DebugInfoSelection.h>
 #include <liblangutil/SourceReferenceFormatter.h>
@@ -65,7 +65,7 @@ ObjectCompilerTest::ObjectCompilerTest(string const& _filename):
 TestCase::TestResult ObjectCompilerTest::run(ostream& _stream, string const& _linePrefix, bool const _formatted)
 {
 	YulStack stack(
-		ZVMVersion(),
+		QRVMVersion(),
 		YulStack::Language::StrictAssembly,
 		OptimiserSettings::preset(m_optimisationPreset),
 		DebugInfoSelection::All()
@@ -79,7 +79,7 @@ TestCase::TestResult ObjectCompilerTest::run(ostream& _stream, string const& _li
 	}
 	stack.optimize();
 
-	MachineAssemblyObject obj = stack.assemble(YulStack::Machine::ZVM);
+	MachineAssemblyObject obj = stack.assemble(YulStack::Machine::QRVM);
 	hypAssert(obj.bytecode, "");
 	hypAssert(obj.sourceMappings, "");
 
@@ -91,7 +91,7 @@ TestCase::TestResult ObjectCompilerTest::run(ostream& _stream, string const& _li
 			"Bytecode: " +
 			util::toHex(obj.bytecode->bytecode) +
 			"\nOpcodes: " +
-			boost::trim_copy(zvmasm::disassemble(obj.bytecode->bytecode)) +
+			boost::trim_copy(qrvmasm::disassemble(obj.bytecode->bytecode)) +
 			"\nSourceMappings:" +
 			(obj.sourceMappings->empty() ? "" : " " + *obj.sourceMappings) +
 			"\n";

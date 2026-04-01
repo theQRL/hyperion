@@ -1,4 +1,4 @@
-contract ERC20 {
+contract SQRCTF1 {
     /// @notice This event is emitted when a transfer occurs.
     /// @param from The source account.
     /// @param to The destination account.
@@ -6,7 +6,7 @@ contract ERC20 {
     /// @dev A test case!
     event Transfer(address indexed from, address indexed to, uint amount);
 }
-contract A is ERC20 {
+contract A is SQRCTF1 {
 }
 contract B is A {
 }
@@ -81,7 +81,7 @@ contract B is A {
 //     "version": 1
 // }
 //
-// :ERC20 devdoc
+// :SQRCTF1 devdoc
 // {
 //     "events":
 //     {
@@ -101,7 +101,7 @@ contract B is A {
 //     "version": 1
 // }
 //
-// :ERC20 userdoc
+// :SQRCTF1 userdoc
 // {
 //     "events":
 //     {

@@ -39,10 +39,10 @@ namespace fs = boost::filesystem;
 
 SyntaxTest::SyntaxTest(
 	std::string const& _filename,
-	langutil::ZVMVersion _zvmVersion,
+	langutil::QRVMVersion _qrvmVersion,
 	Error::Severity _minSeverity
 ):
-	CommonSyntaxTest(_filename, _zvmVersion),
+	CommonSyntaxTest(_filename, _qrvmVersion),
 	m_minSeverity(_minSeverity)
 {
 	static std::set<std::string> const compileViaYulAllowedValues{"true", "false"};
@@ -57,7 +57,7 @@ void SyntaxTest::setupCompiler(CompilerStack& _compiler)
 {
 	AnalysisFramework::setupCompiler(_compiler);
 
-	_compiler.setZVMVersion(m_zvmVersion);
+	_compiler.setQRVMVersion(m_qrvmVersion);
 	_compiler.setOptimiserSettings(
 		m_optimiseYul ?
 		OptimiserSettings::full() :

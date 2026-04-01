@@ -28,7 +28,7 @@
 #include <libyul/YulStack.h>
 
 #include <liblangutil/DebugInfoSelection.h>
-#include <liblangutil/ZVMVersion.h>
+#include <liblangutil/QRVMVersion.h>
 
 #include <libhyputil/JSON.h>
 
@@ -57,7 +57,7 @@ enum class InputMode
 	Linker,
 	Assembler,
 	LanguageServer,
-	ZVMAssemblerJSON
+	QRVMAssemblerJSON
 };
 
 struct CompilerOutputs
@@ -182,7 +182,7 @@ struct CommandLineOptions
 	{
 		boost::filesystem::path dir;
 		bool overwriteFiles = false;
-		langutil::ZVMVersion zvmVersion;
+		langutil::QRVMVersion qrvmVersion;
 		bool viaIR = false;
 		RevertStrings revertStrings = RevertStrings::Default;
 		std::optional<langutil::DebugInfoSelection> debugInfoSelection;
@@ -191,7 +191,7 @@ struct CommandLineOptions
 
 	struct
 	{
-		yul::YulStack::Machine targetMachine = yul::YulStack::Machine::ZVM;
+		yul::YulStack::Machine targetMachine = yul::YulStack::Machine::QRVM;
 		yul::YulStack::Language inputLanguage = yul::YulStack::Language::StrictAssembly;
 	} assembly;
 
@@ -223,7 +223,7 @@ struct CommandLineOptions
 
 	struct
 	{
-		bool optimizeZvmasm = false;
+		bool optimizeQrvmasm = false;
 		bool optimizeYul = false;
 		std::optional<unsigned> expectedExecutionsPerDeployment;
 		std::optional<std::string> yulSteps;

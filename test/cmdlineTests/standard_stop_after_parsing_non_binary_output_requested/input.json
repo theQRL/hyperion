@@ -12,7 +12,7 @@
 				"userdoc",
 				"metadata",
 				"storageLayout",
-				"zvm.methodIdentifiers"
+				"qrvm.methodIdentifiers"
 			]}
 		}
 	}

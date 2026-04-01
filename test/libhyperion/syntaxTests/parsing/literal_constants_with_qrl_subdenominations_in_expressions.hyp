@@ -1,0 +1,8 @@
+contract c {
+    constructor()
+    {
+         a = 1 planck * 100 planck + 7 shor - 3;
+    }
+    uint256 a;
+}
+// ----

@@ -11,6 +11,6 @@ contract C {
     receive() external payable {}
 }
 // ----
-// (), 1 ether
+// (), 1 quanta
 // call() -> 1, 2, 2, 2
 // bal() -> 1000000000000000000

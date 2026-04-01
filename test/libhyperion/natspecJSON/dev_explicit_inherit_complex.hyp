@@ -1,5 +1,5 @@
 ==== Source: Interfaces.hyp ====
-interface ERC20 {
+interface SQRCTF1 {
     /// Transfer ``amount`` from ``msg.sender`` to ``to``.
     /// @dev test
     /// @param to address to transfer to
@@ -18,17 +18,17 @@ interface ERC21 {
 ==== Source: Testfile.hyp ====
 import "Interfaces.hyp" as myInterfaces;
 
-contract Token is myInterfaces.ERC20, myInterfaces.ERC21 {
-    /// @inheritdoc myInterfaces.ERC20
+contract Token is myInterfaces.SQRCTF1, myInterfaces.ERC21 {
+    /// @inheritdoc myInterfaces.SQRCTF1
     function transfer(address too, uint amount)
-        override(myInterfaces.ERC20, myInterfaces.ERC21) external returns (bool) {
+        override(myInterfaces.SQRCTF1, myInterfaces.ERC21) external returns (bool) {
         return false;
     }
 }
 
 // ----
 // ----
-// Interfaces.hyp:ERC20 devdoc
+// Interfaces.hyp:SQRCTF1 devdoc
 // {
 //     "kind": "dev",
 //     "methods":
@@ -46,7 +46,7 @@ contract Token is myInterfaces.ERC20, myInterfaces.ERC21 {
 //     "version": 1
 // }
 //
-// Interfaces.hyp:ERC20 userdoc
+// Interfaces.hyp:SQRCTF1 userdoc
 // {
 //     "kind": "user",
 //     "methods":
