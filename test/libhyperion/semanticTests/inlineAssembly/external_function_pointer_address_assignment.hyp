@@ -11,6 +11,8 @@ contract C {
 		return fp.address;
 	}
 }
+// ====
+// QRVMVersion: >zond
 // ----
 // testYul(address): Q1234567890 -> Q1234567890
 // testYul(address): QC0FFEE3EA7 -> QC0FFEE3EA7

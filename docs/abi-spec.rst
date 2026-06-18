@@ -49,11 +49,11 @@ Types
 
 The following elementary types exist:
 
-- ``uint<M>``: unsigned integer type of ``M`` bits, ``0 < M <= 256``, ``M % 8 == 0``. e.g. ``uint32``, ``uint8``, ``uint256``.
+- ``uint<M>``: unsigned integer type of ``M`` bits, ``0 < M <= 512``, ``M % 8 == 0``. e.g. ``uint32``, ``uint8``, ``uint256``, ``uint512``.
 
-- ``int<M>``: two's complement signed integer type of ``M`` bits, ``0 < M <= 256``, ``M % 8 == 0``.
+- ``int<M>``: two's complement signed integer type of ``M`` bits, ``0 < M <= 512``, ``M % 8 == 0``.
 
-- ``address``: equivalent to ``uint160``, except for the assumed interpretation and language typing.
+- ``address``: equivalent to ``uint512``, except for the assumed interpretation and language typing.
   For computing the function selector, ``address`` is used.
 
 - ``uint``, ``int``: synonyms for ``uint256``, ``int256`` respectively. For computing the function
@@ -69,9 +69,10 @@ The following elementary types exist:
 - ``fixed``, ``ufixed``: synonyms for ``fixed128x18``, ``ufixed128x18`` respectively. For
   computing the function selector, ``fixed128x18`` and ``ufixed128x18`` have to be used.
 
-- ``bytes<M>``: binary type of ``M`` bytes, ``0 < M <= 32``.
+- ``bytes<M>``: binary type of ``M`` bytes, ``0 < M <= 64``.
 
-- ``function``: an address (20 bytes) followed by a function selector (4 bytes). Encoded identical to ``bytes24``.
+- ``function``: not supported for the 64-byte QRL address ABI because address (64 bytes)
+  plus selector (4 bytes) does not fit in one 64-byte VM word.
 
 The following (fixed-size) array type exists:
 
@@ -209,17 +210,17 @@ on the type of ``X`` being
   encoding is the number of bytes of the UTF-8 encoded string, not its number of characters.
 
 - ``uint<M>``: ``enc(X)`` is the big-endian encoding of ``X``, padded on the higher-order
-  (left) side with zero-bytes such that the length is 32 bytes.
-- ``address``: as in the ``uint160`` case
-- ``int<M>``: ``enc(X)`` is the big-endian two's complement encoding of ``X``, padded on the higher-order (left) side with ``0xff`` bytes for negative ``X`` and with zero-bytes for non-negative ``X`` such that the length is 32 bytes.
+  (left) side with zero-bytes such that the length is 64 bytes.
+- ``address``: as in the ``uint512`` case
+- ``int<M>``: ``enc(X)`` is the big-endian two's complement encoding of ``X``, padded on the higher-order (left) side with ``0xff`` bytes for negative ``X`` and with zero-bytes for non-negative ``X`` such that the length is 64 bytes.
 - ``bool``: as in the ``uint8`` case, where ``1`` is used for ``true`` and ``0`` for ``false``
 - ``fixed<M>x<N>``: ``enc(X)`` is ``enc(X * 10**N)`` where ``X * 10**N`` is interpreted as a ``int256``.
 - ``fixed``: as in the ``fixed128x18`` case
 - ``ufixed<M>x<N>``: ``enc(X)`` is ``enc(X * 10**N)`` where ``X * 10**N`` is interpreted as a ``uint256``.
 - ``ufixed``: as in the ``ufixed128x18`` case
-- ``bytes<M>``: ``enc(X)`` is the sequence of bytes in ``X`` padded with trailing zero-bytes to a length of 32 bytes.
+- ``bytes<M>``: ``enc(X)`` is the sequence of bytes in ``X`` padded with trailing zero-bytes to a length of 64 bytes.
 
-Note that for any ``X``, ``len(enc(X))`` is a multiple of 32.
+Note that for any ``X``, ``len(enc(X))`` is a multiple of 64.
 
 Function Selector and Argument Encoding
 =======================================
@@ -272,9 +273,9 @@ If we wanted to call ``baz`` with the parameters ``69`` and
 - ``0xcdcd77c0``: the Method ID. This is derived as the first 4 bytes of the Keccak hash of
   the ASCII form of the signature ``baz(uint32,bool)``.
 - ``0x0000000000000000000000000000000000000000000000000000000000000045``: the first parameter,
-  a uint32 value ``69`` padded to 32 bytes
+  a uint32 value ``69`` padded to 64 bytes
 - ``0x0000000000000000000000000000000000000000000000000000000000000001``: the second parameter - boolean
-  ``true``, padded to 32 bytes
+  ``true``, padded to 64 bytes
 
 In total:
 
@@ -293,7 +294,7 @@ pass 292 bytes total, broken down into:
 - ``0x0000000000000000000000000000000000000000000000000000000000000001``: the second parameter: boolean true.
 - ``0x00000000000000000000000000000000000000000000000000000000000000a0``: the location of the data part of the third parameter (dynamic type), measured in bytes. In this case, ``0xa0``.
 - ``0x0000000000000000000000000000000000000000000000000000000000000004``: the data part of the first argument, it starts with the length of the byte array in elements, in this case, 4.
-- ``0x6461766500000000000000000000000000000000000000000000000000000000``: the contents of the first argument: the UTF-8 (equal to ASCII in this case) encoding of ``"dave"``, padded on the right to 32 bytes.
+- ``0x6461766500000000000000000000000000000000000000000000000000000000``: the contents of the first argument: the UTF-8 (equal to ASCII in this case) encoding of ``"dave"``, padded on the right to 64 bytes.
 - ``0x0000000000000000000000000000000000000000000000000000000000000003``: the data part of the third argument, it starts with the length of the array in elements, in this case, 3.
 - ``0x0000000000000000000000000000000000000000000000000000000000000001``: the first entry of the third parameter.
 - ``0x0000000000000000000000000000000000000000000000000000000000000002``: the second entry of the third parameter.
@@ -317,10 +318,10 @@ these are directly the values we want to pass, whereas for the dynamic types ``u
 we use the offset in bytes to the start of their data area, measured from the start of the value
 encoding (i.e. not counting the first four bytes containing the hash of the function signature). These are:
 
-- ``0x0000000000000000000000000000000000000000000000000000000000000123`` (``0x123`` padded to 32 bytes)
-- ``0x0000000000000000000000000000000000000000000000000000000000000080`` (offset to start of data part of second parameter, 4*32 bytes, exactly the size of the head part)
-- ``0x3132333435363738393000000000000000000000000000000000000000000000`` (``"1234567890"`` padded to 32 bytes on the right)
-- ``0x00000000000000000000000000000000000000000000000000000000000000e0`` (offset to start of data part of fourth parameter = offset to start of data part of first dynamic parameter + size of data part of first dynamic parameter = 4\*32 + 3\*32 (see below))
+- ``0x0000000000000000000000000000000000000000000000000000000000000123`` (``0x123`` padded to 64 bytes)
+- ``0x0000000000000000000000000000000000000000000000000000000000000080`` (offset to start of data part of second parameter, 4*64 bytes, exactly the size of the head part)
+- ``0x3132333435363738393000000000000000000000000000000000000000000000`` (``"1234567890"`` padded to 64 bytes on the right)
+- ``0x00000000000000000000000000000000000000000000000000000000000000e0`` (offset to start of data part of fourth parameter = offset to start of data part of first dynamic parameter + size of data part of first dynamic parameter = 4\*64 + 3\*64 (see below))
 
 After this, the data part of the first dynamic argument, ``[0x456, 0x789]`` follows:
 
@@ -331,9 +332,9 @@ After this, the data part of the first dynamic argument, ``[0x456, 0x789]`` foll
 Finally, we encode the data part of the second dynamic argument, ``"Hello, world!"``:
 
 - ``0x000000000000000000000000000000000000000000000000000000000000000d`` (number of elements (bytes in this case): 13)
-- ``0x48656c6c6f2c20776f726c642100000000000000000000000000000000000000`` (``"Hello, world!"`` padded to 32 bytes on the right)
+- ``0x48656c6c6f2c20776f726c642100000000000000000000000000000000000000`` (``"Hello, world!"`` padded to 64 bytes on the right)
 
-All together, the encoding is (newline after function selector and each 32-bytes for clarity):
+All together, the encoding is (newline after function selector and each 64-bytes for clarity):
 
 .. code-block:: none
 
@@ -488,8 +489,8 @@ In effect, a log entry using this ABI is described as:
   that are not indexed, ``abi_encode`` is the ABI encoding function used for returning a series of typed values
   from a function, as described above).
 
-For all types of length at most 32 bytes, the ``EVENT_INDEXED_ARGS`` array contains
-the value directly, padded or sign-extended (for signed integers) to 32 bytes, just as for regular ABI encoding.
+For all types of length at most 64 bytes, the ``EVENT_INDEXED_ARGS`` array contains
+the value directly, padded or sign-extended (for signed integers) to 64 bytes, just as for regular ABI encoding.
 However, for all "complex" types or types of dynamic length, including all arrays, ``string``, ``bytes`` and structs,
 ``EVENT_INDEXED_ARGS`` will contain the *Keccak hash* of a special in-place encoded value
 (see :ref:`indexed_event_encoding`), rather than the encoded value directly.
@@ -749,7 +750,7 @@ Non-standard Packed Mode
 
 Through ``abi.encodePacked()``, Hyperion supports a non-standard packed mode where:
 
-- types shorter than 32 bytes are concatenated directly, without padding or sign extension
+- types shorter than 64 bytes are concatenated directly, without padding or sign extension
 - dynamic types are encoded in-place and without the length.
 - array elements are padded, but still encoded in-place
 
@@ -778,7 +779,7 @@ More specifically:
   without their length field.
 - The encoding of ``string`` or ``bytes`` does not apply padding at the end,
   unless it is part of an array or struct (then it is padded to a multiple of
-  32 bytes).
+  64 bytes).
 
 In general, the encoding is ambiguous as soon as there are two dynamically-sized elements,
 because of the missing length field.
@@ -810,10 +811,10 @@ is defined as follows:
 - the encoding of a ``bytes`` and ``string`` value is just the string contents
   without any padding or length prefix.
 - the encoding of a struct is the concatenation of the encoding of its members,
-  always padded to a multiple of 32 bytes (even ``bytes`` and ``string``).
+  always padded to a multiple of 64 bytes (even ``bytes`` and ``string``).
 - the encoding of an array (both dynamically- and statically-sized) is
   the concatenation of the encoding of its elements, always padded to a multiple
-  of 32 bytes (even ``bytes`` and ``string``) and without any length prefix
+  of 64 bytes (even ``bytes`` and ``string``) and without any length prefix
 
 In the above, as usual, a negative number is padded by sign extension and not zero padded.
 ``bytesNN`` types are padded on the right while ``uintNN`` / ``intNN`` are padded on the left.

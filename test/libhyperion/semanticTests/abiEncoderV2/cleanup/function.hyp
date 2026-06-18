@@ -16,13 +16,15 @@ contract C {
         return (this.ggg(s.f), this.h(s));
     }
 }
+// ====
+// QRVMVersion: >zond
 // ----
 // ffff(uint256): 0 -> 0, 0
 // ggg(function): 0 -> 0
-// ffff(uint256): "01234567890123456789abcd" -> "01234567890123456789abcd", "01234567890123456789abcd"
-// ggg(function): "01234567890123456789abcd" -> "01234567890123456789abcd"
-// h((function)): "01234567890123456789abcd" -> "01234567890123456789abcd"
+// ffff(uint256): "01234567890123456789abcd" -> FAILURE
+// ggg(function): "01234567890123456789abcd" -> 0
+// h((function)): "01234567890123456789abcd" -> 0
 // h((function)): 0 -> 0
-// ffff(uint256): "01234567890123456789abcdX" -> "01234567890123456789abcd", "01234567890123456789abcd"
-// ggg(function): "01234567890123456789abcdX" -> FAILURE
-// h((function)): "01234567890123456789abcdX" -> FAILURE
+// ffff(uint256): "01234567890123456789abcdX" -> FAILURE
+// ggg(function): "01234567890123456789abcdX" -> 0
+// h((function)): "01234567890123456789abcdX" -> 0

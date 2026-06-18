@@ -107,7 +107,7 @@ public:
 	bool knownNonZero(Id _c);
 	/// @returns a pointer to the value if the given class is known to be a constant,
 	/// and a nullptr otherwise.
-	u256 const* knownConstant(Id _c);
+	u512 const* knownConstant(Id _c);
 
 	/// Stores a copy of the given AssemblyItem and returns a pointer to the copy that is valid for
 	/// the lifetime of the ExpressionClasses object.

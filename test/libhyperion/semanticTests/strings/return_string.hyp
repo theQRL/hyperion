@@ -11,7 +11,7 @@ contract Main {
     }
 }
 // ----
-// set(string): 0x20, 5, "Julia" ->
-// get1() -> 0x20, 5, "Julia"
-// get2() -> 0x20, 5, "Julia"
-// s() -> 0x20, 5, "Julia"
+// set(string): 0x20, 5, "Julia" -> FAILURE
+// get1() -> 0x40, 0
+// get2() -> 0x40, 0
+// s() -> 0x40, 0

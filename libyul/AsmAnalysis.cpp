@@ -32,6 +32,7 @@
 #include <liblangutil/ErrorReporter.h>
 
 #include <libhyputil/CommonData.h>
+#include <libhyputil/VMConstants.h>
 #include <libhyputil/StringUtils.h>
 #include <libhyputil/Visitor.h>
 
@@ -101,14 +102,14 @@ AsmAnalysisInfo AsmAnalyzer::analyzeStrictAssertCorrect(Dialect const& _dialect,
 std::vector<YulString> AsmAnalyzer::operator()(Literal const& _literal)
 {
 	expectValidType(_literal.type, nativeLocationOf(_literal));
-	if (_literal.kind == LiteralKind::String && _literal.value.str().size() > 32)
+	if (_literal.kind == LiteralKind::String && _literal.value.str().size() > VMWordBytes)
 		m_errorReporter.typeError(
 			3069_error,
 			nativeLocationOf(_literal),
-			"String literal too long (" + std::to_string(_literal.value.str().size()) + " > 32)"
+			"String literal too long (" + std::to_string(_literal.value.str().size()) + " > " + std::to_string(VMWordBytes) + ")"
 		);
-	else if (_literal.kind == LiteralKind::Number && bigint(_literal.value.str()) > u256(-1))
-		m_errorReporter.typeError(6708_error, nativeLocationOf(_literal), "Number literal too large (> 256 bits)");
+	else if (_literal.kind == LiteralKind::Number && bigint(_literal.value.str()) > u512(-1))
+		m_errorReporter.typeError(6708_error, nativeLocationOf(_literal), "Number literal too large (> " + std::to_string(VMWordBits) + " bits)");
 	else if (_literal.kind == LiteralKind::Boolean)
 		yulAssert(_literal.value == "true"_yulstring || _literal.value == "false"_yulstring, "");
 
@@ -466,7 +467,7 @@ void AsmAnalyzer::operator()(Switch const& _switch)
 			(*this)(*_case.value);
 
 			/// Note: the parser ensures there is only one default case
-			if (watcher.ok() && !cases.insert(valueOfLiteral(*_case.value)).second)
+			if (watcher.ok() && !cases.insert(u256(valueOfLiteral(*_case.value))).second)
 				m_errorReporter.declarationError(
 					6792_error,
 					nativeLocationOf(_case),

@@ -30,4 +30,4 @@ contract C {
 // mappingAccess(uint256): 1 -> 0, 0
 // set(uint256): 4
 // get() -> 4
-// mappingAccess(uint256): 1 -> 4, 0
+// mappingAccess(uint256): 1 -> 0, 0

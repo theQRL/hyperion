@@ -44,7 +44,7 @@ public:
 	int stackHeight() const override;
 	void setStackHeight(int height) override;
 	void appendInstruction(qrvmasm::Instruction _instruction) override;
-	void appendConstant(u256 const& _constant) override;
+	void appendConstant(u512 const& _constant) override;
 	void appendLabel(LabelID _labelId) override;
 	void appendLabelReference(LabelID _labelId) override;
 	size_t newLabelId() override;

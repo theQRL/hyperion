@@ -26,6 +26,7 @@
 #include <libhyputil/FixedHash.h>
 #include <libhyputil/Keccak256.h>
 #include <libhyputil/StringUtils.h>
+#include <libhyputil/VMConstants.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -125,39 +126,23 @@ bytes hyperion::util::fromHex(std::string const& _s, WhenError _throw)
 
 bool hyperion::util::passesAddressChecksum(std::string const& _str, bool _strict)
 {
-	if (_str.length() != 41 || !boost::starts_with(_str, "Q"))
+	(void)_strict;
+	if (_str.length() != AddressBytes * 2 + 1 || !boost::starts_with(_str, "Q"))
 		return false;
-	
-	std::string s = _str.substr(1);
-	if (!_strict && (
-		s.find_first_of("abcdef") == std::string::npos ||
-		s.find_first_of("ABCDEF") == std::string::npos
-	))
-		return true;
 
-	return _str == hyperion::util::getChecksummedAddress(_str);
+	std::string s = _str.substr(1);
+	return s.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos;
 }
 
 std::string hyperion::util::getChecksummedAddress(std::string const& _addr)
 {
-	assertThrow(_addr.length() == 41, InvalidAddress, _addr);
+	assertThrow(_addr.length() == AddressBytes * 2 + 1, InvalidAddress, _addr);
 	assertThrow(boost::starts_with(_addr, "Q"), InvalidAddress, "");
 	std::string s = _addr.substr(1);
 	assertThrow(s.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos, InvalidAddress, "");
 
-	h256 hash = keccak256(boost::algorithm::to_lower_copy(s, std::locale::classic()));
-
-	std::string ret = "Q";
-	for (unsigned i = 0; i < 40; ++i)
-	{
-		char addressCharacter = s[i];
-		uint8_t nibble = hash[i / 2u] >> (4u * (1u - (i % 2u))) & 0xf;
-		if (nibble >= 8)
-			ret += toUpper(addressCharacter);
-		else
-			ret += toLower(addressCharacter);
-	}
-	return ret;
+	std::string lower = boost::algorithm::to_lower_copy(s, std::locale::classic());
+	return "Q" + lower;
 }
 
 bool hyperion::util::isValidHex(std::string const& _string)
@@ -185,11 +170,22 @@ bool hyperion::util::isValidDecimal(std::string const& _string)
 
 std::string hyperion::util::formatAsStringOrNumber(std::string const& _value)
 {
-	assertThrow(_value.length() <= 32, StringTooLong, "String to be formatted longer than 32 bytes.");
+	assertThrow(_value.length() <= 64, StringTooLong, "String to be formatted longer than 64 bytes.");
 
 	for (auto const& c: _value)
 		if (c <= 0x1f || c >= 0x7f || c == '"')
-			return "0x" + h256(_value, h256::AlignLeft).hex();
+		{
+			// Left-align value in hex, padded to word size
+			std::string hex;
+			for (char ch: _value)
+			{
+				uint8_t b = static_cast<uint8_t>(ch);
+				hex += "0123456789abcdef"[b >> 4];
+				hex += "0123456789abcdef"[b & 0xf];
+			}
+			hex.resize(128, '0'); // pad to 64 bytes = 128 hex chars
+			return "0x" + hex;
+		}
 
 	return escapeAndQuoteString(_value);
 }

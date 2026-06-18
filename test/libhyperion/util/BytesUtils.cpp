@@ -40,15 +40,15 @@ using namespace hyperion::frontend::test;
 
 bytes BytesUtils::alignLeft(bytes _bytes)
 {
-	hyptestAssert(_bytes.size() <= 32, "");
+	hyptestAssert(_bytes.size() <= 64, "");
 	size_t size = _bytes.size();
-	return std::move(_bytes) + bytes(32 - size, 0);
+	return std::move(_bytes) + bytes(64 - size, 0);
 }
 
 bytes BytesUtils::alignRight(bytes _bytes)
 {
-	hyptestAssert(_bytes.size() <= 32, "");
-	return bytes(32 - _bytes.size(), 0) + std::move(_bytes);
+	hyptestAssert(_bytes.size() <= 64, "");
+	return bytes(64 - _bytes.size(), 0) + std::move(_bytes);
 }
 
 bytes BytesUtils::applyAlign(
@@ -86,7 +86,10 @@ bytes BytesUtils::convertNumber(std::string const& _literal)
 {
 	try
 	{
-		return toCompactBigEndian(u256{_literal});
+		// Handle negative numbers via two's complement in u512 (to support 64-byte slots)
+		if (!_literal.empty() && _literal.at(0) == '-')
+			return toCompactBigEndian(u512(0) - u512{_literal.substr(1)});
+		return toCompactBigEndian(u512{_literal});
 	}
 	catch (std::exception const&)
 	{
@@ -108,7 +111,7 @@ bytes BytesUtils::convertFixedPoint(std::string const& _literal, size_t& o_fract
 		valueInteger = "0";
 	try
 	{
-		u256 value(valueInteger);
+		u512 value(valueInteger);
 		if (negative)
 			value = s2u(-u2s(value));
 		return toBigEndian(value);
@@ -147,21 +150,26 @@ std::string BytesUtils::formatUnsigned(bytes const& _bytes)
 {
 	std::stringstream os;
 
-	hyptestAssert(!_bytes.empty() && _bytes.size() <= 32, "");
+	hyptestAssert(!_bytes.empty() && _bytes.size() <= 64, "");
 
-	return fromBigEndian<u256>(_bytes).str();
+	return fromBigEndian<u512>(_bytes).str();
 }
 
 std::string BytesUtils::formatSigned(bytes const& _bytes)
 {
 	std::stringstream os;
 
-	hyptestAssert(!_bytes.empty() && _bytes.size() <= 32, "");
+	hyptestAssert(!_bytes.empty() && _bytes.size() <= 64, "");
 
-	if (*_bytes.begin() & 0x80)
-		os << u2s(fromBigEndian<u256>(_bytes));
+	if (_bytes[0] & 0x80)
+	{
+		// Sign-extend to 64 bytes for proper 512-bit two's complement interpretation
+		bytes extended(64, 0xff);
+		std::copy(_bytes.begin(), _bytes.end(), extended.end() - static_cast<std::ptrdiff_t>(_bytes.size()));
+		os << u2s(fromBigEndian<u512>(extended));
+	}
 	else
-		os << fromBigEndian<u256>(_bytes);
+		os << fromBigEndian<u512>(_bytes);
 
 	return os.str();
 }
@@ -169,7 +177,7 @@ std::string BytesUtils::formatSigned(bytes const& _bytes)
 std::string BytesUtils::formatBoolean(bytes const& _bytes)
 {
 	std::stringstream os;
-	u256 result = fromBigEndian<u256>(_bytes);
+	u512 result = fromBigEndian<u512>(_bytes);
 
 	if (result == 0)
 		os << "false";
@@ -183,8 +191,8 @@ std::string BytesUtils::formatBoolean(bytes const& _bytes)
 
 std::string BytesUtils::formatHex(bytes const& _bytes, bool _shorten)
 {
-	hyptestAssert(!_bytes.empty() && _bytes.size() <= 32, "");
-	u256 value = fromBigEndian<u256>(_bytes);
+	hyptestAssert(!_bytes.empty() && _bytes.size() <= 64, "");
+	u512 value = fromBigEndian<u512>(_bytes);
 	std::string output = toCompactHexWithPrefix(value);
 
 	if (_shorten)
@@ -235,12 +243,19 @@ std::string BytesUtils::formatFixedPoint(bytes const& _bytes, bool _signed, size
 	bool negative = false;
 	if (_signed)
 	{
-		s256 signedValue{u2s(fromBigEndian<u256>(_bytes))};
+		bytes effective = _bytes;
+		if (_bytes[0] & 0x80 && _bytes.size() < 64)
+		{
+			// Sign-extend to 64 bytes for proper 512-bit two's complement
+			effective = bytes(64, 0xff);
+			std::copy(_bytes.begin(), _bytes.end(), effective.end() - static_cast<std::ptrdiff_t>(_bytes.size()));
+		}
+		s512 signedValue{u2s(fromBigEndian<u512>(effective))};
 		negative = (signedValue < 0);
 		decimal = signedValue.str();
 	}
 	else
-		decimal = fromBigEndian<u256>(_bytes).str();
+		decimal = fromBigEndian<u512>(_bytes).str();
 	if (_fractionalDigits > 0)
 	{
 		size_t numDigits = decimal.length() - (negative ? 1 : 0);
@@ -263,16 +278,16 @@ std::string BytesUtils::formatRawBytes(
 
 	if (_bytes.size() != ContractABIUtils::encodingSize(_parameters))
 	{
-		// Interpret all full 32-byte values as integers.
-		parameters = ContractABIUtils::defaultParameters(_bytes.size() / 32);
+		// Interpret all full 64-byte values as integers.
+		parameters = ContractABIUtils::defaultParameters(_bytes.size() / 64);
 
 		// We'd introduce trailing zero bytes if we interpreted the final bit as an integer.
 		// We want a right-aligned sequence of bytes instead.
-		if (_bytes.size() % 32 != 0)
+		if (_bytes.size() % 64 != 0)
 			parameters.push_back({
 				bytes(),
 				"",
-				ABIType{ABIType::HexString, ABIType::AlignRight, _bytes.size() % 32},
+				ABIType{ABIType::HexString, ABIType::AlignRight, _bytes.size() % 64},
 				FormatInfo{},
 			});
 	}
@@ -313,13 +328,13 @@ std::string BytesUtils::formatBytes(
 		// be signed. If an unsigned was detected in the expectations,
 		// but the actual result returned a signed, it would be formatted
 		// incorrectly.
-		if (*_bytes.begin() & 0x80)
+		if (_bytes[0] & 0x80)
 			os << formatSigned(_bytes);
 		else
 		{
 			std::string decimal(formatUnsigned(_bytes));
 			std::string hexadecimal(formatHex(_bytes));
-			unsigned int value = u256(_bytes).convert_to<unsigned int>();
+			unsigned int value = fromBigEndian<u512>(_bytes).convert_to<unsigned int>();
 			if (value < 0x10)
 				os << decimal;
 			else if (value >= 0x10 && value <= 0xff) {
@@ -390,16 +405,16 @@ std::string BytesUtils::formatBytesRange(
 
 	if (_bytes.size() != ContractABIUtils::encodingSize(_parameters))
 	{
-		// Interpret all full 32-byte values as integers.
-		parameters = ContractABIUtils::defaultParameters(_bytes.size() / 32);
+		// Interpret all full 64-byte values as integers.
+		parameters = ContractABIUtils::defaultParameters(_bytes.size() / 64);
 
 		// We'd introduce trailing zero bytes if we interpreted the final bit as an integer.
 		// We want a right-aligned sequence of bytes instead.
-		if (_bytes.size() % 32 != 0)
+		if (_bytes.size() % 64 != 0)
 			parameters.push_back({
 				bytes(),
 				"",
-				ABIType{ABIType::HexString, ABIType::AlignRight, _bytes.size() % 32},
+				ABIType{ABIType::HexString, ABIType::AlignRight, _bytes.size() % 64},
 				FormatInfo{},
 			});
 	}

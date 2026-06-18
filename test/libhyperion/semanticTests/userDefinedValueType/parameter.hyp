@@ -25,16 +25,16 @@ contract C {
 // ----
 // id(address): 5 -> 5
 // id(address): 0xffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffff
-// id(address): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> FAILURE
+// id(address): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 // unwrap(address): 5 -> 5
 // unwrap(address): 0xffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffff
-// unwrap(address): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> FAILURE
+// unwrap(address): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 // wrap(address): 5 -> 5
 // wrap(address): 0xffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffff
-// wrap(address): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> FAILURE
+// wrap(address): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 // unwrap_assembly(address): 5 -> 5
 // unwrap_assembly(address): 0xffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffff
-// unwrap_assembly(address): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> FAILURE
+// unwrap_assembly(address): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 // wrap_assembly(address): 5 -> 5
 // wrap_assembly(address): 0xffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffff
-// wrap_assembly(address): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> FAILURE
+// wrap_assembly(address): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff

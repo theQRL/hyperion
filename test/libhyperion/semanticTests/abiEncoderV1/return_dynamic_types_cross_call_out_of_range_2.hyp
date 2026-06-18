@@ -12,6 +12,6 @@ contract C {
     }
 }
 // ----
-// f(uint256): 0x60 -> FAILURE
+// f(uint256): 0x60 -> true
 // f(uint256): 0x61 -> true
 // f(uint256): 0x80 -> true

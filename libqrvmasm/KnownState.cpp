@@ -394,7 +394,7 @@ KnownState::Id KnownState::applyKeccak256(
 {
 	AssemblyItem keccak256Item(Instruction::KECCAK256, _location);
 	// Special logic if length is a short constant, otherwise we cannot tell.
-	u256 const* l = m_expressionClasses->knownConstant(_length);
+	u512 const* l = m_expressionClasses->knownConstant(_length);
 	// unknown or too large length
 	if (!l || *l > 128)
 		return m_expressionClasses->find(keccak256Item, {_start, _length}, true, m_sequenceNumber);
@@ -404,7 +404,7 @@ KnownState::Id KnownState::applyKeccak256(
 	{
 		Id slot = m_expressionClasses->find(
 			AssemblyItem(Instruction::ADD, _location),
-			{_start, m_expressionClasses->find(u256(i))}
+			{_start, m_expressionClasses->find(AssemblyItem(u512(i)))}
 		);
 		arguments.push_back(loadFromMemory(slot, _location));
 	}
@@ -416,9 +416,9 @@ KnownState::Id KnownState::applyKeccak256(
 	{
 		bytes data;
 		for (Id a: arguments)
-			data += toBigEndian(*m_expressionClasses->knownConstant(a));
+			data += toBigEndian(u256(*m_expressionClasses->knownConstant(a)));
 		data.resize(length);
-		v = m_expressionClasses->find(AssemblyItem(u256(util::keccak256(data)), _location));
+		v = m_expressionClasses->find(AssemblyItem(u512(u256(util::keccak256(data))), _location));
 	}
 	else
 		v = m_expressionClasses->find(keccak256Item, {_start, _length}, true, m_sequenceNumber);
@@ -432,7 +432,10 @@ std::set<u256> KnownState::tagsInExpression(KnownState::Id _expressionId)
 	// Might be a tag, then return the set of itself.
 	ExpressionClasses::Expression expr = m_expressionClasses->representative(_expressionId);
 	if (expr.item && expr.item->type() == PushTag)
-		return std::set<u256>({expr.item->data()});
+	{
+		u256 tagVal = u256(expr.item->data());
+		return std::set<u256>{tagVal};
+	}
 	else
 		return std::set<u256>();
 }

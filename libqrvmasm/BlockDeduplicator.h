@@ -50,7 +50,7 @@ public:
 	/// @returns true if something was changed
 	bool deduplicate();
 	/// @returns the tags that were replaced.
-	std::map<u256, u256> const& replacedTags() const { return m_replacedTags; }
+	std::map<u512, u512> const& replacedTags() const { return m_replacedTags; }
 
 	/// Replaces all PushTag operations insied @a _items that match a key in
 	/// @a _replacements by the respective value. If @a _subID is not -1, only
@@ -58,7 +58,7 @@ public:
 	/// @returns true iff a replacement was performed.
 	static bool applyTagReplacement(
 		AssemblyItems& _items,
-		std::map<u256, u256> const& _replacements,
+		std::map<u512, u512> const& _replacements,
 		size_t _subID = size_t(-1)
 	);
 
@@ -91,7 +91,7 @@ private:
 		AssemblyItem const* replaceWith;
 	};
 
-	std::map<u256, u256> m_replacedTags;
+	std::map<u512, u512> m_replacedTags;
 	AssemblyItems& m_items;
 };
 

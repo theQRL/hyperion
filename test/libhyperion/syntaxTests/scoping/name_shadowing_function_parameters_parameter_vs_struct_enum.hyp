@@ -10,3 +10,4 @@ library C {
     function f3(function (EnumType, StructType memory) external f) external {}
 }
 // ----
+// TypeError 4888: (104-143): External function types are not supported with this address size: address (512 bits) plus selector (32 bits) exceeds the VM word size (512 bits).

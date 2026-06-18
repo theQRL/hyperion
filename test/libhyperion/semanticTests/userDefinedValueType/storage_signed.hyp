@@ -30,4 +30,4 @@ contract C {
 // toMemDirect() -> -2
 // toMemIndirect() -> -2
 // div() -> -1
-// viaasm() -> 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe
+// viaasm() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000

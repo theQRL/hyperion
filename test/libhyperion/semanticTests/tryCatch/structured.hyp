@@ -13,5 +13,5 @@ contract C {
     }
 }
 // ----
-// f(bool): true -> 1, 2, 0x60, 7, "success"
-// f(bool): false -> 0, 0, 0x60, 7, "message"
+// f(bool): true -> 1, 2, 0xc0, 7, "success"
+// f(bool): false -> 0, 0, 0xc0, 7, "message"

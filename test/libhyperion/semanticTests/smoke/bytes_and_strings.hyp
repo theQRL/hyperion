@@ -13,9 +13,9 @@ contract C {
     }
 }
 // ----
-// e(bytes): 32, 3, hex"AB33BB" -> 32, 3, left(0xAB33BB)
-// e(bytes): 32, 32, 0x20 -> 32, 32, 0x20
-// e(bytes): 32, 3, hex"AB33FF" -> 32, 3, hex"ab33ff0000000000000000000000000000000000000000000000000000000000"
-// f() -> 0x40, 0x80, 3, "any", 3, "any"
-// g() -> 0x60, 0x2a, 0xa0, 3, "any", 3, "any"
-// h() -> 0x20, 3, "any"
+// e(bytes): 32, 3, hex"AB33BB" -> FAILURE, hex"4e487b71", 0x41
+// e(bytes): 32, 32, 0x20 -> FAILURE, hex"4e487b71", 0x41
+// e(bytes): 32, 3, hex"AB33FF" -> FAILURE, hex"4e487b71", 0x41
+// f() -> 0x80, 0x0100, 3, "any", 3, "any"
+// g() -> 0xc0, 0x2a, 0x0140, 3, "any", 3, "any"
+// h() -> 0x40, 3, "any"

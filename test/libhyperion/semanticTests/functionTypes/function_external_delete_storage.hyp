@@ -19,13 +19,15 @@ contract C {
         delete x;
     }
 }
+// ====
+// QRVMVersion: >zond
 // ----
 // x() -> 0
 // y() -> 0
 // increment() ->
 // y() -> 1
 // set() ->
-// x() -> 0xc06afe3a8444fc0004668591e8306bfb9968e79ed09de08a0000000000000000
+// x() -> 0xee3da6d6aa102f25f3c5068dd336d879697b4b247f1cbefb4b191862f0adbae8d09de08a000000000000000000000000
 // increment() ->
 // y() -> 2
 // incrementIndirectly() ->

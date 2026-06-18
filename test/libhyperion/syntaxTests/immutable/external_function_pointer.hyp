@@ -2,4 +2,4 @@ contract C {
     function() external immutable f;
 }
 // ----
-// TypeError 3366: (17-48): Immutable variables of external function type are not yet supported.
+// TypeError 4888: (17-48): External function types are not supported with this address size: address (512 bits) plus selector (32 bits) exceeds the VM word size (512 bits).

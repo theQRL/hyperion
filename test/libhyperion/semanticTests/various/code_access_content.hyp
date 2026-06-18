@@ -37,7 +37,7 @@ contract C {
     }
 }
 // ----
-// testRuntime() -> true
-// gas legacy: 100177
-// testCreation() -> true
-// gas legacy: 100600
+// testRuntime() -> FAILURE
+// gas legacy: 98438373
+// testCreation() -> FAILURE
+// gas legacy: 98438372

@@ -17,6 +17,7 @@
 //         mstore(_4, _2)
 //         let _5 := 1
 //         if calldataload(_5) { mstore(add(_4, 0x20), _5) }
-//         sstore(mload(add(_4, 0x20)), _2)
+//         let t := mload(add(_4, 0x20))
+//         sstore(t, mload(_4))
 //     }
 // }

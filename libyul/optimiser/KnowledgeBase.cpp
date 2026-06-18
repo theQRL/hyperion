@@ -26,6 +26,7 @@
 #include <libyul/optimiser/DataFlowAnalyzer.h>
 
 #include <libhyputil/CommonData.h>
+#include <libhyputil/VMConstants.h>
 
 #include <variant>
 
@@ -55,10 +56,10 @@ std::optional<u256> KnowledgeBase::differenceIfKnownConstant(YulString _a, YulSt
 }
 
 
-bool KnowledgeBase::knownToBeDifferentByAtLeast32(YulString _a, YulString _b)
+bool KnowledgeBase::knownToBeDifferentByAtLeastWordSize(YulString _a, YulString _b)
 {
 	if (std::optional<u256> difference = differenceIfKnownConstant(_a, _b))
-		return difference >= 32 && difference <= u256(0) - 32;
+		return difference >= VMWordBytes && difference <= u256(0) - VMWordBytes;
 
 	return false;
 }
@@ -78,7 +79,7 @@ std::optional<u256> KnowledgeBase::valueIfKnownConstant(Expression const& _expre
 	if (Identifier const* ident = std::get_if<Identifier>(&_expression))
 		return valueIfKnownConstant(ident->name);
 	else if (Literal const* lit = std::get_if<Literal>(&_expression))
-		return valueOfLiteral(*lit);
+		return u256(valueOfLiteral(*lit));
 	else
 		return std::nullopt;
 }
@@ -113,7 +114,7 @@ KnowledgeBase::VariableOffset KnowledgeBase::explore(YulString _var)
 std::optional<KnowledgeBase::VariableOffset> KnowledgeBase::explore(Expression const& _value)
 {
 	if (Literal const* literal = std::get_if<Literal>(&_value))
-		return VariableOffset{YulString{}, valueOfLiteral(*literal)};
+		return VariableOffset{YulString{}, u256(valueOfLiteral(*literal))};
 	else if (Identifier const* identifier = std::get_if<Identifier>(&_value))
 		return explore(identifier->name);
 	else if (FunctionCall const* f = std::get_if<FunctionCall>(&_value))

@@ -36,6 +36,7 @@
 
 #include <libhyputil/JSON.h>
 #include <libhyputil/StringUtils.h>
+#include <libhyputil/VMConstants.h>
 
 #include <fmt/format.h>
 
@@ -209,7 +210,7 @@ AssemblyItem Assembly::createAssemblyItemFromJSON(Json::Value const& _json, std:
 		if (name == "PUSH")
 		{
 			requireValueDefinedForInstruction(name, value);
-			result = {AssemblyItemType::Push, u256("0x" + value)};
+			result = {AssemblyItemType::Push, u512(u256("0x" + value))};
 		}
 		else if (name == "PUSH [ErrorTag]")
 		{
@@ -239,7 +240,7 @@ AssemblyItem Assembly::createAssemblyItemFromJSON(Json::Value const& _json, std:
 		else if (name == "PUSHLIB")
 		{
 			requireValueDefinedForInstruction(name, value);
-			result = {AssemblyItemType::PushLibraryAddress, storeLibraryHash(value)};
+			result = {AssemblyItemType::PushLibraryAddress, u512(u256(storeLibraryHash(value)))};
 		}
 		else if (name == "PUSHDEPLOYADDRESS")
 		{
@@ -249,22 +250,22 @@ AssemblyItem Assembly::createAssemblyItemFromJSON(Json::Value const& _json, std:
 		else if (name == "PUSHIMMUTABLE")
 		{
 			requireValueDefinedForInstruction(name, value);
-			result = {AssemblyItemType::PushImmutable, storeImmutableHash(value)};
+			result = {AssemblyItemType::PushImmutable, u512(u256(storeImmutableHash(value)))};
 		}
 		else if (name == "ASSIGNIMMUTABLE")
 		{
 			requireValueDefinedForInstruction(name, value);
-			result = {AssemblyItemType::AssignImmutable, storeImmutableHash(value)};
+			result = {AssemblyItemType::AssignImmutable, u512(u256(storeImmutableHash(value)))};
 		}
 		else if (name == "tag")
 		{
 			requireValueDefinedForInstruction(name, value);
-			result = {AssemblyItemType::Tag, updateUsedTags(u256(value))};
+			result = {AssemblyItemType::Tag, u512(updateUsedTags(u256(value)))};
 		}
 		else if (name == "PUSH data")
 		{
 			requireValueDefinedForInstruction(name, value);
-			result = {AssemblyItemType::PushData, u256("0x" + value)};
+			result = {AssemblyItemType::PushData, u512(u256("0x" + value))};
 		}
 		else if (name == "VERBATIM")
 		{
@@ -670,21 +671,21 @@ AssemblyItem Assembly::newPushLibraryAddress(std::string const& _identifier)
 {
 	h256 h(util::keccak256(_identifier));
 	m_libraries[h] = _identifier;
-	return AssemblyItem{PushLibraryAddress, h};
+	return AssemblyItem{PushLibraryAddress, u512(u256(h))};
 }
 
 AssemblyItem Assembly::newPushImmutable(std::string const& _identifier)
 {
 	h256 h(util::keccak256(_identifier));
 	m_immutables[h] = _identifier;
-	return AssemblyItem{PushImmutable, h};
+	return AssemblyItem{PushImmutable, u512(u256(h))};
 }
 
 AssemblyItem Assembly::newImmutableAssignment(std::string const& _identifier)
 {
 	h256 h(util::keccak256(_identifier));
 	m_immutables[h] = _identifier;
-	return AssemblyItem{AssignImmutable, h};
+	return AssemblyItem{AssignImmutable, u512(u256(h))};
 }
 
 Assembly& Assembly::optimise(OptimiserSettings const& _settings)
@@ -693,7 +694,7 @@ Assembly& Assembly::optimise(OptimiserSettings const& _settings)
 	return *this;
 }
 
-std::map<u256, u256> const& Assembly::optimiseInternal(
+std::map<u512, u512> const& Assembly::optimiseInternal(
 	OptimiserSettings const& _settings,
 	std::set<size_t> _tagsReferencedFromOutside
 )
@@ -706,7 +707,7 @@ std::map<u256, u256> const& Assembly::optimiseInternal(
 	{
 		OptimiserSettings settings = _settings;
 		Assembly& sub = *m_subs[subId];
-		std::map<u256, u256> const& subTagReplacements = sub.optimiseInternal(
+		std::map<u512, u512> const& subTagReplacements = sub.optimiseInternal(
 			settings,
 			JumpdestRemover::referencedTags(m_items, subId)
 		);
@@ -714,7 +715,7 @@ std::map<u256, u256> const& Assembly::optimiseInternal(
 		BlockDeduplicator::applyTagReplacement(m_items, subTagReplacements, subId);
 	}
 
-	std::map<u256, u256> tagReplacements;
+	std::map<u512, u512> tagReplacements;
 	// Iterate until no new optimisation possibilities are found.
 	for (unsigned count = 1; count > 0;)
 	{
@@ -872,7 +873,7 @@ LinkerObject const& Assembly::assemble() const
 	for (auto const& i: m_items)
 		if (i.type() == AssignImmutable)
 		{
-			i.setImmutableOccurrences(immutableReferencesBySub[i.data()].second.size());
+			i.setImmutableOccurrences(immutableReferencesBySub[u256(i.data())].second.size());
 			setsImmutables = true;
 		}
 		else if (i.type() == PushImmutable)
@@ -933,7 +934,7 @@ LinkerObject const& Assembly::assemble() const
 		}
 		case PushData:
 			ret.bytecode.push_back(dataRefPush);
-			dataRef.insert(std::make_pair(h256(i.data()), ret.bytecode.size()));
+			dataRef.insert(std::make_pair(h256(u256(i.data())), ret.bytecode.size()));
 			ret.bytecode.resize(ret.bytecode.size() + bytesPerDataRef);
 			break;
 		case PushSub:
@@ -946,7 +947,7 @@ LinkerObject const& Assembly::assemble() const
 		{
 			assertThrow(i.data() <= std::numeric_limits<size_t>::max(), AssemblyException, "");
 			auto s = subAssemblyById(static_cast<size_t>(i.data()))->assemble().bytecode.size();
-			i.setPushedValue(u256(s));
+			i.setPushedValue(u512(s));
 			unsigned b = std::max<unsigned>(1, numberEncodingSize(s));
 			ret.bytecode.push_back(static_cast<uint8_t>(pushInstruction(b)));
 			ret.bytecode.resize(ret.bytecode.size() + b);
@@ -962,18 +963,18 @@ LinkerObject const& Assembly::assemble() const
 			break;
 		}
 		case PushLibraryAddress:
-			ret.bytecode.push_back(static_cast<uint8_t>(Instruction::PUSH20));
-			ret.linkReferences[ret.bytecode.size()] = m_libraries.at(i.data());
-			ret.bytecode.resize(ret.bytecode.size() + 20);
+			ret.bytecode.push_back(static_cast<uint8_t>(pushInstruction(hyperion::AddressBytes)));
+			ret.linkReferences[ret.bytecode.size()] = m_libraries.at(h256(u256(i.data())));
+			ret.bytecode.resize(ret.bytecode.size() + hyperion::AddressBytes);
 			break;
 		case PushImmutable:
-			ret.bytecode.push_back(static_cast<uint8_t>(Instruction::PUSH32));
+			ret.bytecode.push_back(static_cast<uint8_t>(Instruction::PUSH64));
 			// Maps keccak back to the "identifier" std::string of that immutable.
-			ret.immutableReferences[i.data()].first = m_immutables.at(i.data());
-			// Record the bytecode offset of the PUSH32 argument.
-			ret.immutableReferences[i.data()].second.emplace_back(ret.bytecode.size());
-			// Advance bytecode by 32 bytes (default initialized).
-			ret.bytecode.resize(ret.bytecode.size() + 32);
+			ret.immutableReferences[u256(i.data())].first = m_immutables.at(h256(u256(i.data())));
+			// Record the bytecode offset of the PUSH64 argument.
+			ret.immutableReferences[u256(i.data())].second.emplace_back(ret.bytecode.size());
+			// Advance bytecode by 64 bytes (default initialized).
+			ret.bytecode.resize(ret.bytecode.size() + 64);
 			break;
 		case VerbatimBytecode:
 			ret.bytecode += i.verbatimData();
@@ -981,7 +982,7 @@ LinkerObject const& Assembly::assemble() const
 		case AssignImmutable:
 		{
 			// Expect 2 elements on stack (source, dest_base)
-			auto const& offsets = immutableReferencesBySub[i.data()].second;
+			auto const& offsets = immutableReferencesBySub[u256(i.data())].second;
 			for (size_t i = 0; i < offsets.size(); ++i)
 			{
 				if (i != offsets.size() - 1)
@@ -1001,12 +1002,12 @@ LinkerObject const& Assembly::assemble() const
 				ret.bytecode.push_back(uint8_t(Instruction::POP));
 				ret.bytecode.push_back(uint8_t(Instruction::POP));
 			}
-			immutableReferencesBySub.erase(i.data());
+			immutableReferencesBySub.erase(u256(i.data()));
 			break;
 		}
 		case PushDeployTimeAddress:
-			ret.bytecode.push_back(static_cast<uint8_t>(Instruction::PUSH20));
-			ret.bytecode.resize(ret.bytecode.size() + 20);
+			ret.bytecode.push_back(static_cast<uint8_t>(pushInstruction(hyperion::AddressBytes)));
+			ret.bytecode.resize(ret.bytecode.size() + hyperion::AddressBytes);
 			break;
 		case Tag:
 		{

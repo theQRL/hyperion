@@ -7,4 +7,4 @@ contract C {
 // ====
 // revertStrings: debug
 // ----
-// f(uint256[][]): 0x20, 1 -> FAILURE, hex"08c379a0", 0x20, 43, "ABI decoding: invalid calldata a", "rray stride"
+// f(uint256[][]): 0x20, 1 -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array length"

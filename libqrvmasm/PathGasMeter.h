@@ -78,7 +78,7 @@ private:
 	/// item per jumpdest, because of the behaviour of `queue` above.
 	std::map<size_t, std::unique_ptr<GasPath>> m_queue;
 	std::map<size_t, GasMeter::GasConsumption> m_highestGasUsagePerJumpdest;
-	std::map<u256, size_t> m_tagPositions;
+	std::map<u512, size_t> m_tagPositions;
 	AssemblyItems const& m_items;
 	langutil::QRVMVersion m_qrvmVersion;
 };

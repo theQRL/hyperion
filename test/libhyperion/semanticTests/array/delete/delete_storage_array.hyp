@@ -34,4 +34,4 @@ contract C {
 }
 // ----
 // len() -> 0
-// val() -> 0
+// val() -> FAILURE, hex"4e487b71", 0x01

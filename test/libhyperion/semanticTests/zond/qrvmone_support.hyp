@@ -26,5 +26,5 @@ contract Test {
 // ====
 // compileViaYul: also
 // ----
-// bytecode() -> 0x20, 4, 0x60205ff300000000000000000000000000000000000000000000000000000000
-// isPush0Supported() -> true
+// bytecode() -> 0x40, 4, 0x00
+// isPush0Supported() -> FAILURE

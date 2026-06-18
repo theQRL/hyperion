@@ -153,9 +153,9 @@ bool ExpressionClasses::knownToBeDifferent(ExpressionClasses::Id _a, ExpressionC
 bool ExpressionClasses::knownToBeDifferentBy32(ExpressionClasses::Id _a, ExpressionClasses::Id _b)
 {
 	// Try to simplify "_a - _b" and return true iff the value is at least 32 away from zero.
-	u256 const* v = knownConstant(find(Instruction::SUB, {_a, _b}));
+	u512 const* v = knownConstant(find(Instruction::SUB, {_a, _b}));
 	// forbidden interval is ["-31", 31]
-	return v && *v + 31 > u256(62);
+	return v && *v + 31 > u512(62);
 }
 
 bool ExpressionClasses::knownZero(Id _c)
@@ -168,14 +168,14 @@ bool ExpressionClasses::knownNonZero(Id _c)
 	return Pattern(u256(0)).matches(representative(find(Instruction::ISZERO, {_c})), *this);
 }
 
-u256 const* ExpressionClasses::knownConstant(Id _c)
+u512 const* ExpressionClasses::knownConstant(Id _c)
 {
 	std::map<unsigned, Expression const*> matchGroups;
 	Pattern constant(Push);
 	constant.setMatchGroup(1, matchGroups);
 	if (!constant.matches(representative(_c), *this))
 		return nullptr;
-	return &constant.d();
+	return &matchGroups[1]->item->data();
 }
 
 AssemblyItem const* ExpressionClasses::storeItem(AssemblyItem const& _item)

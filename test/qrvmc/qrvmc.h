@@ -44,31 +44,31 @@ enum
      *
      * @see @ref versioning
      */
-    QRVMC_ABI_VERSION = 1
+    QRVMC_ABI_VERSION = 2
 };
 
 
 /**
  * The fixed size array of 32 bytes.
  *
- * 32 bytes of data capable of storing e.g. 256-bit hashes.
+ * 64 bytes of data capable of storing e.g. 512-bit values.
  */
 typedef struct qrvmc_bytes32
 {
-    /** The 32 bytes. */
-    uint8_t bytes[32];
+    /** The 64 bytes. */
+    uint8_t bytes[64];
 } qrvmc_bytes32;
 
 /**
- * The alias for qrvmc_bytes32 to represent a big-endian 256-bit integer.
+ * The alias for qrvmc_bytes32 to represent a big-endian 512-bit integer.
  */
 typedef struct qrvmc_bytes32 qrvmc_uint256be;
 
-/** Big-endian 160-bit hash suitable for keeping a QRL address. */
+/** Big-endian 512-bit hash suitable for keeping a QRL address. */
 typedef struct qrvmc_address
 {
-    /** The 20 bytes of the hash. */
-    uint8_t bytes[20];
+    /** The 64 bytes of the hash. */
+    uint8_t bytes[64];
 } qrvmc_address;
 
 /** The kind of call-like instruction. */
@@ -463,8 +463,8 @@ struct qrvmc_result
     /**
      * Reserved data that MAY be used by a qrvmc_result object creator.
      *
-     * This reserved 4 bytes together with 20 bytes from create_address form
-     * 24 bytes of memory called "optional data" within qrvmc_result struct
+     * This reserved 4 bytes together with 64 bytes from create_address form
+     * 52 bytes of memory called "optional data" within qrvmc_result struct
      * to be optionally used by the qrvmc_result object creator.
      *
      * @see qrvmc_result_optional_data, qrvmc_get_optional_data().

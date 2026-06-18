@@ -123,12 +123,12 @@ struct ABIType
 	explicit ABIType(
 		Type _type,
 		Align _align = ABIType::AlignRight,
-		size_t _size = 32
+		size_t _size = 64
 	): type(_type), align(_align), size(_size) {}
 
 	Type type = ABIType::None;
 	Align align = ABIType::AlignRight;
-	size_t size = 32;
+	size_t size = 64;
 
 	size_t fractionalDigits = 0;
 
@@ -172,7 +172,7 @@ struct Parameter
 	/// Types that were used to encode `rawBytes`. Expectations
 	/// are usually comma separated literals. Their type is auto-
 	/// detected and retained in order to format them later on.
-	ABIType abiType = ABIType{ABIType::UnsignedDec, ABIType::AlignRight, 32};
+	ABIType abiType = ABIType{ABIType::UnsignedDec, ABIType::AlignRight, 64};
 	/// Format info attached to the parameter. It handles newlines given
 	/// in the declaration of it.
 	FormatInfo format;
@@ -325,11 +325,11 @@ using SideEffectHook = std::function<std::vector<std::string>(FunctionCall const
 
 struct LogRecord
 {
-	util::h160 creator;
+	util::h512 creator;
 	bytes data;
 	std::vector<util::h256> topics;
 
-	LogRecord(util::h160 _creator, bytes _data, std::vector<util::h256> _topics):
+	LogRecord(util::h512 _creator, bytes _data, std::vector<util::h256> _topics):
 		creator(std::move(_creator)), data(std::move(_data)), topics(std::move(_topics)) {}
 
 	bool operator==(LogRecord const& other) const noexcept

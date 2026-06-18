@@ -81,13 +81,14 @@ BOOST_AUTO_TEST_CASE(storage_layout_simple)
 		{"second", TypeProvider::fromElementaryTypeName("uint120")},
 		{"wraps", TypeProvider::fromElementaryTypeName("uint16")}
 	}));
-	BOOST_REQUIRE_EQUAL(u256(2), members.storageSize());
+	// With 64-byte slot, uint128(16) + uint120(15) + uint16(2) = 33 bytes fits in one slot
+	BOOST_REQUIRE_EQUAL(u256(1), members.storageSize());
 	BOOST_REQUIRE(members.memberStorageOffset("first") != nullptr);
 	BOOST_REQUIRE(members.memberStorageOffset("second") != nullptr);
 	BOOST_REQUIRE(members.memberStorageOffset("wraps") != nullptr);
 	BOOST_CHECK(*members.memberStorageOffset("first") == std::make_pair(u256(0), unsigned(0)));
 	BOOST_CHECK(*members.memberStorageOffset("second") == std::make_pair(u256(0), unsigned(16)));
-	BOOST_CHECK(*members.memberStorageOffset("wraps") == std::make_pair(u256(1), unsigned(0)));
+	BOOST_CHECK(*members.memberStorageOffset("wraps") == std::make_pair(u256(0), unsigned(31)));
 }
 
 BOOST_AUTO_TEST_CASE(storage_layout_mapping)
@@ -122,12 +123,12 @@ BOOST_AUTO_TEST_CASE(storage_layout_mapping)
 BOOST_AUTO_TEST_CASE(storage_layout_arrays)
 {
 	BOOST_CHECK(ArrayType(DataLocation::Storage, TypeProvider::fixedBytes(1), 32).storageSize() == 1);
-	BOOST_CHECK(ArrayType(DataLocation::Storage, TypeProvider::fixedBytes(1), 33).storageSize() == 2);
-	BOOST_CHECK(ArrayType(DataLocation::Storage, TypeProvider::fixedBytes(2), 31).storageSize() == 2);
-	BOOST_CHECK(ArrayType(DataLocation::Storage, TypeProvider::fixedBytes(7), 8).storageSize() == 2);
-	BOOST_CHECK(ArrayType(DataLocation::Storage, TypeProvider::fixedBytes(7), 9).storageSize() == 3);
-	BOOST_CHECK(ArrayType(DataLocation::Storage, TypeProvider::fixedBytes(31), 9).storageSize() == 9);
-	BOOST_CHECK(ArrayType(DataLocation::Storage, TypeProvider::fixedBytes(32), 9).storageSize() == 9);
+	BOOST_CHECK(ArrayType(DataLocation::Storage, TypeProvider::fixedBytes(1), 33).storageSize() == 1);
+	BOOST_CHECK(ArrayType(DataLocation::Storage, TypeProvider::fixedBytes(2), 31).storageSize() == 1);
+	BOOST_CHECK(ArrayType(DataLocation::Storage, TypeProvider::fixedBytes(7), 8).storageSize() == 1);
+	BOOST_CHECK(ArrayType(DataLocation::Storage, TypeProvider::fixedBytes(7), 9).storageSize() == 1);
+	BOOST_CHECK(ArrayType(DataLocation::Storage, TypeProvider::fixedBytes(31), 9).storageSize() == 5);
+	BOOST_CHECK(ArrayType(DataLocation::Storage, TypeProvider::fixedBytes(32), 9).storageSize() == 5);
 }
 
 BOOST_AUTO_TEST_CASE(type_identifier_escaping)
@@ -223,13 +224,13 @@ BOOST_AUTO_TEST_CASE(type_identifiers)
 
 BOOST_AUTO_TEST_CASE(encoded_sizes)
 {
-	BOOST_CHECK_EQUAL(IntegerType(16).calldataEncodedSize(true), 32);
+	BOOST_CHECK_EQUAL(IntegerType(16).calldataEncodedSize(true), 64);
 	BOOST_CHECK_EQUAL(IntegerType(16).calldataEncodedSize(false), 2);
 
-	BOOST_CHECK_EQUAL(FixedBytesType(16).calldataEncodedSize(true), 32);
+	BOOST_CHECK_EQUAL(FixedBytesType(16).calldataEncodedSize(true), 64);
 	BOOST_CHECK_EQUAL(FixedBytesType(16).calldataEncodedSize(false), 16);
 
-	BOOST_CHECK_EQUAL(BoolType().calldataEncodedSize(true), 32);
+	BOOST_CHECK_EQUAL(BoolType().calldataEncodedSize(true), 64);
 	BOOST_CHECK_EQUAL(BoolType().calldataEncodedSize(false), 1);
 
 	ArrayType const* uint24Array = TypeProvider::array(
@@ -237,12 +238,12 @@ BOOST_AUTO_TEST_CASE(encoded_sizes)
 		TypeProvider::uint(24),
 		9
 	);
-	BOOST_CHECK_EQUAL(uint24Array->calldataEncodedSize(true), 9 * 32);
-	BOOST_CHECK_EQUAL(uint24Array->calldataEncodedSize(false), 9 * 32);
+	BOOST_CHECK_EQUAL(uint24Array->calldataEncodedSize(true), 9 * 64);
+	BOOST_CHECK_EQUAL(uint24Array->calldataEncodedSize(false), 9 * 64);
 
 	ArrayType twoDimArray(DataLocation::Memory, uint24Array, 3);
-	BOOST_CHECK_EQUAL(twoDimArray.calldataEncodedSize(true),  9 * 3 * 32);
-	BOOST_CHECK_EQUAL(twoDimArray.calldataEncodedSize(false), 9 * 3 * 32);
+	BOOST_CHECK_EQUAL(twoDimArray.calldataEncodedSize(true),  9 * 3 * 64);
+	BOOST_CHECK_EQUAL(twoDimArray.calldataEncodedSize(false), 9 * 3 * 64);
 }
 
 BOOST_AUTO_TEST_CASE(helper_bool_result)

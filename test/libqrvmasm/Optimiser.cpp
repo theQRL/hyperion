@@ -354,7 +354,7 @@ BOOST_AUTO_TEST_CASE(cse_byte_ordering_fix)
 {
 	AssemblyItems input{
 		Instruction::CALLVALUE,
-		u256(31),
+		u256(63),
 		Instruction::BYTE
 	};
 	checkCSE(input, {u256(0xff), Instruction::CALLVALUE, Instruction::AND});
@@ -870,7 +870,7 @@ BOOST_AUTO_TEST_CASE(block_deduplicator)
 	std::set<u256> pushTags;
 	for (AssemblyItem const& item: input)
 		if (item.type() == PushTag)
-			pushTags.insert(item.data());
+			pushTags.insert(u256(item.data()));
 	BOOST_CHECK_EQUAL(pushTags.size(), 2);
 }
 
@@ -964,7 +964,7 @@ BOOST_AUTO_TEST_CASE(block_deduplicator_loops)
 	std::set<u256> pushTags;
 	for (AssemblyItem const& item: input)
 		if (item.type() == PushTag)
-			pushTags.insert(item.data());
+			pushTags.insert(u256(item.data()));
 	BOOST_CHECK_EQUAL(pushTags.size(), 1);
 }
 
@@ -1455,81 +1455,83 @@ BOOST_AUTO_TEST_CASE(verbatim_knownstate)
 
 BOOST_AUTO_TEST_CASE(cse_remove_redundant_shift_masking)
 {
-	for (unsigned i = 1; i < 256; i++)
+	for (unsigned i = 1; i < 512; i++)
 	{
 		checkCSE({
-			u256(boost::multiprecision::pow(u256(2), i) - 1),
+			u512(boost::multiprecision::pow(bigint(2), i) - 1),
 			Instruction::CALLVALUE,
-			u256(256-i),
+			u512(512-i),
 			Instruction::SHR,
 			Instruction::AND
 		}, {
 			Instruction::CALLVALUE,
-			u256(256-i),
+			u512(512-i),
 			Instruction::SHR,
 		});
 
 		checkCSE({
 			Instruction::CALLVALUE,
-			u256(256-i),
+			u512(512-i),
 			Instruction::SHR,
-			u256(boost::multiprecision::pow(u256(2), i)-1),
+			u512(boost::multiprecision::pow(bigint(2), i)-1),
 			Instruction::AND
 		}, {
 			Instruction::CALLVALUE,
-			u256(256-i),
+			u512(512-i),
 			Instruction::SHR,
 		});
 	}
 
 	// Check that opt. does NOT trigger
-	for (unsigned i = 1; i < 255; i++)
+	for (unsigned i = 1; i < 511; i++)
 	{
 		checkCSE({
-			u256(boost::multiprecision::pow(u256(2), i) - 1),
+			u512(boost::multiprecision::pow(bigint(2), i) - 1),
 			Instruction::CALLVALUE,
-			u256(255-i),
+			u512(511-i),
 			Instruction::SHR,
 			Instruction::AND
 		}, { // Opt. did some reordering
 			Instruction::CALLVALUE,
-			u256(255-i),
+			u512(511-i),
 			Instruction::SHR,
-			u256(boost::multiprecision::pow(u256(2), i)-1),
+			u512(boost::multiprecision::pow(bigint(2), i)-1),
 			Instruction::AND
 		});
 
 		checkCSE({
 			Instruction::CALLVALUE,
-			u256(255-i),
+			u512(511-i),
 			Instruction::SHR,
-			u256(boost::multiprecision::pow(u256(2), i)-1),
+			u512(boost::multiprecision::pow(bigint(2), i)-1),
 			Instruction::AND
 		}, { // Opt. did some reordering
-			u256(boost::multiprecision::pow(u256(2), i)-1),
+			u512(boost::multiprecision::pow(bigint(2), i)-1),
 			Instruction::CALLVALUE,
-			u256(255-i),
+			u512(511-i),
 			Instruction::SHR,
 			Instruction::AND
 		});
 	}
 
-	//(x >> (31*8)) & 0xffffffff
+	//(x >> (63*8)) & 0xffffffff
 	checkCSE({
 		Instruction::CALLVALUE,
-		u256(31*8),
+		u512(63*8),
 		Instruction::SHR,
-		u256(0xffffffff),
+		u512(0xffffffff),
 		Instruction::AND
 	}, {
 		Instruction::CALLVALUE,
-		u256(31*8),
+		u512(63*8),
 		Instruction::SHR
 	});
 }
 
 BOOST_AUTO_TEST_CASE(cse_remove_unwanted_masking_of_address)
 {
+	u512 const addressMask = ~u512(0);
+	u512 const nonAddressMask("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
 	std::vector<Instruction> ops{
 		Instruction::ADDRESS,
 		Instruction::CALLER,
@@ -1539,7 +1541,7 @@ BOOST_AUTO_TEST_CASE(cse_remove_unwanted_masking_of_address)
 	for (auto const& op: ops)
 	{
 		checkCSE({
-			u256("0xffffffffffffffffffffffffffffffffffffffff"),
+			addressMask,
 			op,
 			Instruction::AND
 		}, {
@@ -1548,7 +1550,7 @@ BOOST_AUTO_TEST_CASE(cse_remove_unwanted_masking_of_address)
 
 		checkCSE({
 			op,
-			u256("0xffffffffffffffffffffffffffffffffffffffff"),
+			addressMask,
 			Instruction::AND
 		}, {
 			op
@@ -1578,21 +1580,21 @@ BOOST_AUTO_TEST_CASE(cse_remove_unwanted_masking_of_address)
 
 	// leave other opcodes untouched
 	checkCSE({
-		u256("0xffffffffffffffffffffffffffffffffffffffff"),
+		nonAddressMask,
 		Instruction::CALLVALUE,
 		Instruction::AND
 	}, {
 		Instruction::CALLVALUE,
-		u256("0xffffffffffffffffffffffffffffffffffffffff"),
+		nonAddressMask,
 		Instruction::AND
 	});
 
 	checkCSE({
 		Instruction::CALLVALUE,
-		u256("0xffffffffffffffffffffffffffffffffffffffff"),
+		nonAddressMask,
 		Instruction::AND
 	}, {
-		u256("0xffffffffffffffffffffffffffffffffffffffff"),
+		nonAddressMask,
 		Instruction::CALLVALUE,
 		Instruction::AND
 	});
@@ -1600,9 +1602,10 @@ BOOST_AUTO_TEST_CASE(cse_remove_unwanted_masking_of_address)
 
 BOOST_AUTO_TEST_CASE(cse_replace_too_large_shift)
 {
+	// Shift >= WordSize (512) should be optimized to 0
 	checkCSE({
 		Instruction::CALLVALUE,
-		u256(299),
+		u256(555),
 		Instruction::SHL
 	}, {
 		u256(0)
@@ -1610,29 +1613,30 @@ BOOST_AUTO_TEST_CASE(cse_replace_too_large_shift)
 
 	checkCSE({
 		Instruction::CALLVALUE,
-		u256(299),
+		u256(555),
 		Instruction::SHR
 	}, {
 		u256(0)
 	});
 
+	// Shift < WordSize should NOT be optimized away
 	checkCSE({
 		Instruction::CALLVALUE,
-		u256(255),
+		u256(511),
 		Instruction::SHL
 	}, {
 		Instruction::CALLVALUE,
-		u256(255),
+		u256(511),
 		Instruction::SHL
 	});
 
 	checkCSE({
 		Instruction::CALLVALUE,
-		u256(255),
+		u256(511),
 		Instruction::SHR
 	}, {
 		Instruction::CALLVALUE,
-		u256(255),
+		u256(511),
 		Instruction::SHR
 	});
 }

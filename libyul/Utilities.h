@@ -30,10 +30,10 @@ namespace hyperion::yul
 
 std::string reindent(std::string const& _code);
 
-u256 valueOfNumberLiteral(Literal const& _literal);
-u256 valueOfStringLiteral(Literal const& _literal);
-u256 valueOfBoolLiteral(Literal const& _literal);
-u256 valueOfLiteral(Literal const& _literal);
+u512 valueOfNumberLiteral(Literal const& _literal);
+u512 valueOfStringLiteral(Literal const& _literal);
+u512 valueOfBoolLiteral(Literal const& _literal);
+u512 valueOfLiteral(Literal const& _literal);
 
 /**
  * Linear order on Yul AST nodes.

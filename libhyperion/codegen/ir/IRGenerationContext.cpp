@@ -94,7 +94,7 @@ void IRGenerationContext::registerImmutableVariable(VariableDeclaration const& _
 	);
 	hypAssert(m_reservedMemory.has_value(), "Reserved memory has already been reset.");
 	m_immutableVariables[&_variable] = CompilerUtils::generalPurposeMemoryStart + *m_reservedMemory;
-	hypAssert(_variable.annotation().type->memoryHeadSize() == 32, "Memory writes might overlap.");
+	hypAssert(_variable.annotation().type->memoryHeadSize() == VMWordBytes, "Memory writes might overlap.");
 	*m_reservedMemory += _variable.annotation().type->memoryHeadSize();
 }
 

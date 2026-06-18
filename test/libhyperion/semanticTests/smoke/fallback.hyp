@@ -14,10 +14,10 @@ contract A {
 // data() -> 1
 // (): hex"42ef"
 // data() -> 2
-// externalData() -> 0x20, 2, left(0x42ef)
+// externalData() -> 0x40, 2, left(0x42ef)
 // balance() -> 0
 // (), 1 planck
 // balance() -> 1
 // (), 2 planck: hex"fefe"
 // balance() -> 2
-// externalData() -> 0x20, 2, left(0xfefe)
+// externalData() -> 0x40, 2, left(0xfefe)

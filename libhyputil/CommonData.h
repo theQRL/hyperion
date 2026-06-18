@@ -532,12 +532,12 @@ void iterateReplacingWindow(std::vector<T>& _vector, F const& _f)
 	detail::iterateReplacingWindow(_vector, _f, std::make_index_sequence<N>{});
 }
 
-/// @returns true iff @a _str passess the hex address checksum test.
-/// @param _strict if false, hex strings with only uppercase or only lowercase letters
-/// are considered valid.
+/// @returns true iff @a _str is a Q-prefixed hex address matching the
+/// current AddressBytes width.
+/// @param _strict accepted for API compatibility and ignored.
 bool passesAddressChecksum(std::string const& _str, bool _strict);
 
-/// @returns the checksummed version of an address
+/// @returns the canonical lowercase version of an address
 /// @param hex strings that look like an address
 std::string getChecksummedAddress(std::string const& _addr);
 

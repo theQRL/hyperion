@@ -241,7 +241,7 @@ void CompilerStack::setModelCheckerSettings(ModelCheckerSettings _settings)
 	m_modelCheckerSettings = _settings;
 }
 
-void CompilerStack::setLibraries(std::map<std::string, util::h160> const& _libraries)
+void CompilerStack::setLibraries(std::map<std::string, util::h512> const& _libraries)
 {
 	if (m_stackState >= ParsedAndImported)
 		hypThrow(CompilerError, "Must set libraries before parsing.");

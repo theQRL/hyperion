@@ -4,5 +4,5 @@ contract C {
 // ====
 // revertStrings: debug
 // ----
-// f(), 1 quanta -> FAILURE, hex"08c379a0", 0x20, 35, "Quanta sent to non-payable funct","ion"
-// () -> FAILURE, hex"08c379a0", 0x20, 53, "Contract does not have fallback ", "nor receive functions"
+// f(), 1 quanta -> FAILURE, hex"08c379a0", 0x40, 0x23, "Quanta sent to non-payable function"
+// () -> FAILURE, hex"08c379a0", 0x40, 0x35, "Contract does not have fallback nor receive functions"

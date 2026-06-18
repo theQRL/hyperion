@@ -48,6 +48,8 @@ namespace hyperion
 using bigint = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<>>;
 using u256 = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<256, 256, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void>>;
 using s256 = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<256, 256, boost::multiprecision::signed_magnitude, boost::multiprecision::unchecked, void>>;
+using u512 = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<512, 512, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void>>;
+using s512 = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<512, 512, boost::multiprecision::signed_magnitude, boost::multiprecision::unchecked, void>>;
 
 /// Interprets @a _u as a two's complement signed number and returns the resulting s256.
 inline s256 u2s(u256 _u)
@@ -67,6 +69,26 @@ inline u256 s2u(s256 _u)
 		return u256(_u);
 	else
 		return u256(c_end + _u);
+}
+
+/// Interprets @a _u as a two's complement signed number and returns the resulting s512.
+inline s512 u2s(u512 _u)
+{
+	static bigint const c_end = bigint(1) << 512;
+	if (boost::multiprecision::bit_test(_u, 511))
+		return s512(-(c_end - _u));
+	else
+		return s512(_u);
+}
+
+/// @returns the two's complement signed representation of the signed number _u.
+inline u512 s2u(s512 _u)
+{
+	static bigint const c_end = bigint(1) << 512;
+	if (_u >= 0)
+		return u512(_u);
+	else
+		return u512(c_end + _u);
 }
 
 inline u256 exp256(u256 _base, u256 _exponent)
@@ -118,6 +140,7 @@ inline T fromBigEndian(In const& _bytes)
 	return ret;
 }
 inline bytes toBigEndian(u256 _val) { bytes ret(32); toBigEndian(_val, ret); return ret; }
+inline bytes toBigEndian(u512 _val) { bytes ret(64); toBigEndian(_val, ret); return ret; }
 
 /// Convenience function for toBigEndian.
 /// @returns a byte array just big enough to represent @a _val.
@@ -138,6 +161,12 @@ inline std::string toHex(u256 val)
 	return util::toHex(toBigEndian(val));
 }
 
+/// Convenience function for conversion of a u512 to hex
+inline std::string toHex(u512 val)
+{
+	return util::toHex(toCompactBigEndian(val, 1));
+}
+
 template <class T>
 inline std::string toCompactHexWithPrefix(T _value)
 {
@@ -155,7 +184,8 @@ inline std::string formatNumber(bigint const& _value)
 		return _value.str();
 }
 
-inline std::string formatNumber(u256 const& _value)
+template <class T>
+inline std::string formatNumber(T const& _value)
 {
 	if (_value > 0x1000000)
 		return toCompactHexWithPrefix(_value);

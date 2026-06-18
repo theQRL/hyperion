@@ -8,6 +8,6 @@
 //
 // {
 //     {
-//         sstore(0, shl(248, calldataload(0)))
+//         sstore(0, signextend(31, shl(248, calldataload(0))))
 //     }
 // }

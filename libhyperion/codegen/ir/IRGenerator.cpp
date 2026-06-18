@@ -997,7 +997,7 @@ std::string IRGenerator::dispatchRoutine(ContractDefinition const& _contract)
 		<?+receiveQuanta>if iszero(calldatasize()) { <receiveQuanta> }</+receiveQuanta>
 		<fallback>
 	)X");
-	t("shr224", m_utils.shiftRightFunction(224));
+	t("shr224", m_utils.shiftRightFunction(VMWordBits - 32));
 	std::vector<std::map<std::string, std::string>> functions;
 	for (auto const& function: _contract.interfaceFunctions())
 	{
@@ -1043,7 +1043,7 @@ std::string IRGenerator::dispatchRoutine(ContractDefinition const& _contract)
 		{
 			hypAssert(fallback->parameters().size() == 1 && fallback->returnParameters().size() == 1, "");
 			fallbackCode += "let retval := " + m_context.enqueueFunctionForCodeGeneration(*fallback) + "(0, calldatasize())\n";
-			fallbackCode += "return(add(retval, 0x20), mload(retval))\n";
+			fallbackCode += "return(add(retval, 0x40), mload(retval))\n";
 
 		}
 

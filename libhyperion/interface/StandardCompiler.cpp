@@ -38,6 +38,7 @@
 #include <libhyputil/JSON.h>
 #include <libhyputil/Keccak256.h>
 #include <libhyputil/CommonData.h>
+#include <libhyputil/VMConstants.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -888,7 +889,7 @@ std::variant<StandardCompiler::InputsAndSettings, Json::Value> StandardCompiler:
 					"Library address is not prefixed with \"Q\"."
 				);
 
-			if (address.length() != 41)
+			if (address.length() != 1 + AddressBytes * 2)
 				return formatFatalError(
 					Error::Type::JSONError,
 					"Library address is of invalid length."
@@ -896,7 +897,7 @@ std::variant<StandardCompiler::InputsAndSettings, Json::Value> StandardCompiler:
 
 			try
 			{
-				ret.libraries[sourceName + ":" + library] = util::h160(boost::replace_all_copy(address, "Q", "0x"));
+				ret.libraries[sourceName + ":" + library] = util::h512(boost::replace_all_copy(address, "Q", "0x"));
 			}
 			catch (util::BadHexCharacter const&)
 			{

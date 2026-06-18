@@ -134,8 +134,8 @@ GasMeter::GasConsumption GasMeter::estimateMax(AssemblyItem const& _item, bool _
 		{
 			gas = GasCosts::logGas + GasCosts::logTopicGas * getLogNumber(_item.instruction());
 			gas += memoryGas(0, -1);
-			if (u256 const* value = classes.knownConstant(m_state->relativeStackElement(-1)))
-				gas += GasCosts::logDataGas * (*value);
+			if (u512 const* value = classes.knownConstant(m_state->relativeStackElement(-1)))
+				gas += GasCosts::logDataGas * u256(*value);
 			else
 				gas = GasConsumption::infinite();
 			break;
@@ -150,8 +150,8 @@ GasMeter::GasConsumption GasMeter::estimateMax(AssemblyItem const& _item, bool _
 			else
 			{
 				gas = GasCosts::callGas;
-				if (u256 const* value = classes.knownConstant(m_state->relativeStackElement(0)))
-					gas += (*value);
+				if (u512 const* value = classes.knownConstant(m_state->relativeStackElement(0)))
+					gas += u256(*value);
 				else
 					gas = GasConsumption::infinite();
 				if (_item.instruction() == Instruction::CALL)
@@ -179,7 +179,7 @@ GasMeter::GasConsumption GasMeter::estimateMax(AssemblyItem const& _item, bool _
 			break;
 		case Instruction::EXP:
 			gas = GasCosts::expGas;
-			if (u256 const* value = classes.knownConstant(m_state->relativeStackElement(-1)))
+			if (u512 const* value = classes.knownConstant(m_state->relativeStackElement(-1)))
 			{
 				if (*value)
 				{
@@ -217,27 +217,27 @@ GasMeter::GasConsumption GasMeter::estimateMax(AssemblyItem const& _item, bool _
 
 GasMeter::GasConsumption GasMeter::wordGas(u256 const& _multiplier, ExpressionClasses::Id _value)
 {
-	u256 const* value = m_state->expressionClasses().knownConstant(_value);
+	u512 const* value = m_state->expressionClasses().knownConstant(_value);
 	if (!value)
 		return GasConsumption::infinite();
-	return GasConsumption(_multiplier * ((*value + 31) / 32));
+	return GasConsumption(_multiplier * ((u256(*value) + 31) / 32));
 }
 
 GasMeter::GasConsumption GasMeter::memoryGas(ExpressionClasses::Id _position)
 {
-	u256 const* value = m_state->expressionClasses().knownConstant(_position);
+	u512 const* value = m_state->expressionClasses().knownConstant(_position);
 	if (!value)
 		return GasConsumption::infinite();
 	if (*value < m_largestMemoryAccess)
 		return GasConsumption(0);
 	u256 previous = m_largestMemoryAccess;
-	m_largestMemoryAccess = *value;
+	m_largestMemoryAccess = u256(*value);
 	auto memGas = [=](u256 const& pos) -> u256
 	{
 		u256 size = (pos + 31) / 32;
 		return GasCosts::memoryGas * size + size * size / GasCosts::quadCoeffDiv;
 	};
-	return memGas(*value) - memGas(previous);
+	return memGas(u256(*value)) - memGas(previous);
 }
 
 GasMeter::GasConsumption GasMeter::memoryGas(int _stackPosOffset, int _stackPosSize)

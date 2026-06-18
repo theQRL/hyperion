@@ -25,6 +25,7 @@
 #include <libhyputil/Numeric.h>
 #include <libhyputil/StringUtils.h>
 #include <libhyputil/FixedHash.h>
+#include <libhyputil/VMConstants.h>
 #include <liblangutil/SourceLocation.h>
 
 #include <fstream>
@@ -40,7 +41,7 @@ static_assert(sizeof(size_t) <= 8, "size_t must be at most 64-bits wide");
 namespace
 {
 
-std::string toStringInHex(u256 _value)
+std::string toStringInHex(u512 _value)
 {
 	std::stringstream hexStr;
 	hexStr << std::uppercase << std::hex << _value;
@@ -51,9 +52,9 @@ std::string toStringInHex(u256 _value)
 
 AssemblyItem AssemblyItem::toSubAssemblyTag(size_t _subId) const
 {
-	assertThrow(data() < (u256(1) << 64), util::Exception, "Tag already has subassembly set.");
+	assertThrow(data() < (u512(1) << 64), util::Exception, "Tag already has subassembly set.");
 	assertThrow(m_type == PushTag || m_type == Tag, util::Exception, "");
-	auto tag = static_cast<size_t>(u256(data()) & 0xffffffffffffffffULL);
+	auto tag = static_cast<size_t>(data() & u512(0xffffffffffffffffULL));
 	AssemblyItem r = *this;
 	r.m_type = PushTag;
 	r.setPushTagSubIdAndTag(_subId, tag);
@@ -63,9 +64,9 @@ AssemblyItem AssemblyItem::toSubAssemblyTag(size_t _subId) const
 std::pair<size_t, size_t> AssemblyItem::splitForeignPushTag() const
 {
 	assertThrow(m_type == PushTag || m_type == Tag, util::Exception, "");
-	u256 combined = u256(data());
+	u512 combined = data();
 	size_t subId = static_cast<size_t>((combined >> 64) - 1);
-	size_t tag = static_cast<size_t>(combined & 0xffffffffffffffffULL);
+	size_t tag = static_cast<size_t>(combined & u512(0xffffffffffffffffULL));
 	return std::make_pair(subId, tag);
 }
 
@@ -83,19 +84,19 @@ std::pair<std::string, std::string> AssemblyItem::nameAndData() const
 		else
 			return {"PUSH [tag]", util::toString(data())};
 	case PushSub:
-		return {"PUSH [$]", toString(util::h256(data()))};
+		return {"PUSH [$]", toString(util::h256(u256(data())))};
 	case PushSubSize:
-		return {"PUSH #[$]", toString(util::h256(data()))};
+		return {"PUSH #[$]", toString(util::h256(u256(data())))};
 	case PushProgramSize:
 		return {"PUSHSIZE", ""};
 	case PushLibraryAddress:
-		return {"PUSHLIB", toString(util::h256(data()))};
+		return {"PUSHLIB", toString(util::h256(u256(data())))};
 	case PushDeployTimeAddress:
 		return {"PUSHDEPLOYADDRESS", ""};
 	case PushImmutable:
-		return {"PUSHIMMUTABLE", toString(util::h256(data()))};
+		return {"PUSHIMMUTABLE", toString(util::h256(u256(data())))};
 	case AssignImmutable:
-		return {"ASSIGNIMMUTABLE", toString(util::h256(data()))};
+		return {"ASSIGNIMMUTABLE", toString(util::h256(u256(data())))};
 	case Tag:
 		return {"tag", util::toString(data())};
 	case PushData:
@@ -110,9 +111,9 @@ std::pair<std::string, std::string> AssemblyItem::nameAndData() const
 void AssemblyItem::setPushTagSubIdAndTag(size_t _subId, size_t _tag)
 {
 	assertThrow(m_type == PushTag || m_type == Tag, util::Exception, "");
-	u256 data = _tag;
+	u512 data = _tag;
 	if (_subId != std::numeric_limits<size_t>::max())
-		data |= (u256(_subId) + 1) << 64;
+		data |= (u512(_subId) + 1) << 64;
 	setData(data);
 }
 
@@ -134,9 +135,9 @@ size_t AssemblyItem::bytesRequired(size_t _addressLength, Precision _precision) 
 		return 1 + _addressLength;
 	case PushLibraryAddress:
 	case PushDeployTimeAddress:
-		return 1 + 20;
+		return 1 + hyperion::AddressBytes;
 	case PushImmutable:
-		return 1 + 32;
+		return 1 + 64;
 	case AssignImmutable:
 	{
 		unsigned long immutableOccurrences = 0;
@@ -152,7 +153,7 @@ size_t AssemblyItem::bytesRequired(size_t _addressLength, Precision _precision) 
 
 		if (immutableOccurrences != 0)
 			// (DUP DUP PUSH <n> ADD MSTORE)* (PUSH <n> ADD MSTORE)
-			return (immutableOccurrences - 1) * (5 + 32) + (3 + 32);
+			return (immutableOccurrences - 1) * (5 + 64) + (3 + 64);
 		else
 			// POP POP
 			return 2;
@@ -374,7 +375,7 @@ std::ostream& hyperion::qrvmasm::operator<<(std::ostream& _out, AssemblyItem con
 		break;
 	case PushLibraryAddress:
 	{
-		std::string hash(util::h256((_item.data())).hex());
+		std::string hash(util::h256(u256(_item.data())).hex());
 		_out << " PushLibraryAddress " << hash.substr(0, 8) + "..." + hash.substr(hash.length() - 8);
 		break;
 	}

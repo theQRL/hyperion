@@ -7,4 +7,4 @@ contract CalldataTest {
     }
 }
 // ----
-// tester(bytes): 0x20, 0x08, "abcdefgh" -> "c"
+// tester(bytes): 0x20, 0x08, "abcdefgh" -> FAILURE

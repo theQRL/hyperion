@@ -91,15 +91,16 @@ public:
 	using Id = ExpressionClasses::Id;
 
 	using Builtins = qrvmasm::QRVMBuiltins<Pattern>;
-	static constexpr size_t WordSize = 256;
-	using Word = u256;
+	static constexpr size_t WordSize = 512;
+	using Word = u512;
 
 	// Matches a specific constant value.
-	Pattern(unsigned _value): Pattern(u256(_value)) {}
-	Pattern(int _value): Pattern(u256(_value)) {}
-	Pattern(long unsigned _value): Pattern(u256(_value)) {}
+	Pattern(unsigned _value): Pattern(Word(_value)) {}
+	Pattern(int _value): Pattern(Word(_value)) {}
+	Pattern(long unsigned _value): Pattern(Word(_value)) {}
 	// Matches a specific constant value.
-	Pattern(u256 const& _value): m_type(Push), m_requireDataMatch(true), m_data(std::make_shared<u256>(_value)) {}
+	Pattern(u256 const& _value): m_type(Push), m_requireDataMatch(true), m_data(std::make_shared<Word>(_value)) {}
+	Pattern(u512 const& _value): m_type(Push), m_requireDataMatch(true), m_data(std::make_shared<Word>(_value)) {}
 	// Matches a specific assembly item type or anything if not given.
 	Pattern(AssemblyItemType _type = UndefinedItem): m_type(_type) {}
 	// Matches a given instruction with given arguments
@@ -117,7 +118,7 @@ public:
 	/// @returns the id of the matched expression if this pattern is part of a match group.
 	Id id() const { return matchGroupValue().id; }
 	/// @returns the data of the matched expression if this pattern is part of a match group.
-	u256 const& d() const { return matchGroupValue().item->data(); }
+	Word const& d() const { return matchGroupValue().item->data(); }
 
 	std::string toString() const;
 
@@ -131,12 +132,12 @@ public:
 private:
 	bool matchesBaseItem(AssemblyItem const* _item) const;
 	Expression const& matchGroupValue() const;
-	u256 const& data() const;
+	Word const& data() const;
 
 	AssemblyItemType m_type;
 	bool m_requireDataMatch = false;
 	Instruction m_instruction; ///< Only valid if m_type is Operation
-	std::shared_ptr<u256> m_data; ///< Only valid if m_type is not Operation
+	std::shared_ptr<Word> m_data; ///< Only valid if m_type is not Operation
 	std::vector<Pattern> m_arguments;
 	unsigned m_matchGroup = 0;
 	std::map<unsigned, Expression const*>* m_matchGroups = nullptr;

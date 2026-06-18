@@ -47,7 +47,7 @@ class BlockId
 public:
 	BlockId() { *this = invalid(); }
 	explicit BlockId(unsigned _id): m_id(_id) {}
-	explicit BlockId(u256 const& _id);
+	explicit BlockId(u512 const& _id);
 	static BlockId initial() { return BlockId(std::numeric_limits<unsigned>::max() - 1); }
 	static BlockId invalid() { return BlockId(std::numeric_limits<unsigned>::max()); }
 

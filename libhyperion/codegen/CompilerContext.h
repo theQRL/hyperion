@@ -252,7 +252,12 @@ public:
 	/// Append elements to the current instruction list and adjust @a m_stackOffset.
 	CompilerContext& operator<<(qrvmasm::AssemblyItem const& _item) { m_asm->append(_item); return *this; }
 	CompilerContext& operator<<(qrvmasm::Instruction _instruction) { m_asm->append(_instruction); return *this; }
+	CompilerContext& operator<<(int _value) { m_asm->append(_value); return *this; }
+	CompilerContext& operator<<(unsigned _value) { m_asm->append(_value); return *this; }
+	CompilerContext& operator<<(long _value) { m_asm->append(_value); return *this; }
+	CompilerContext& operator<<(unsigned long _value) { m_asm->append(_value); return *this; }
 	CompilerContext& operator<<(u256 const& _value) { m_asm->append(_value); return *this; }
+	CompilerContext& operator<<(u512 const& _value) { m_asm->append(_value); return *this; }
 	CompilerContext& operator<<(bytes const& _data) { m_asm->append(_data); return *this; }
 
 	/// Appends inline assembly (strict-QRVM dialect for the current version).

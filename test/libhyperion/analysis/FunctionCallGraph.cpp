@@ -1321,6 +1321,12 @@ BOOST_AUTO_TEST_CASE(indirect_calls)
 
 BOOST_AUTO_TEST_CASE(calls_via_pointers)
 {
+	if (AddressBits + 32 > VMWordBits)
+	{
+		BOOST_TEST_MESSAGE("External function pointers do not fit in a VM word with 64-byte addresses.");
+		return;
+	}
+
 	std::unique_ptr<CompilerStack> compilerStack = parseAndAnalyzeContracts(R"(
 		function free1() {}
 		function free2() {}
@@ -1532,6 +1538,12 @@ BOOST_AUTO_TEST_CASE(pointer_to_overridden_function)
 
 BOOST_AUTO_TEST_CASE(pointer_to_nonexistent_function)
 {
+	if (AddressBits + 32 > VMWordBits)
+	{
+		BOOST_TEST_MESSAGE("External function pointers do not fit in a VM word with 64-byte addresses.");
+		return;
+	}
+
 	std::unique_ptr<CompilerStack> compilerStack = parseAndAnalyzeContracts(R"(
 		interface I {
 			function f() external;

@@ -183,7 +183,7 @@ Address
 
 The address type comes in two largely identical flavors:
 
-- ``address``: Holds a 20 byte value (size of a QRL address).
+- ``address``: Holds a 64 byte value (size of a QRL address).
 - ``address payable``: Same as ``address``, but with the additional members ``transfer`` and ``send``.
 
 The idea behind this distinction is that ``address payable`` is an address you can send Quanta to,
@@ -195,8 +195,8 @@ Type conversions:
 Implicit conversions from ``address payable`` to ``address`` are allowed, whereas conversions from ``address`` to ``address payable``
 must be explicit via ``payable(<address>)``.
 
-Explicit conversions to and from ``address`` are allowed for ``uint160``, integer literals,
-``bytes20`` and contract types.
+Explicit conversions to and from ``address`` are allowed for ``uint512``, integer literals,
+``bytes64`` and contract types.
 
 Only expressions of type ``address`` and contract-type can be converted to the type ``address
 payable`` via the explicit conversion ``payable(...)``. For contract-type, this conversion is only
@@ -223,8 +223,8 @@ Operators:
     To reduce conversion ambiguity, starting with version 0.4.24, the compiler will force you to make the truncation explicit in the conversion.
     Take for example the 32-byte value ``0x111122223333444455556666777788889999AAAABBBBCCCCDDDDEEEEFFFFCCCC``.
 
-    You can use ``address(uint160(bytes20(b)))``, which results in ``Q111122223333444455556666777788889999aAaa``,
-    or you can use ``address(uint160(uint256(b)))``, which results in ``Q777788889999AaAAbBbbCcccddDdeeeEfFFfCcCc``.
+    You can use ``address(uint512(bytes64(b)))``, which results in ``Q111122223333444455556666777788889999aAaa``,
+    or you can use ``address(uint512(uint256(b)))``, which results in ``Q777788889999AaAAbBbbCcccddDdeeeEfFFfCcCc``.
 
 .. note::
     Mixed-case hexadecimal numbers conforming to `EIP-55 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md>`_ are automatically treated as literals of the ``address`` type. See :ref:`Address Literals<address_literals>`.

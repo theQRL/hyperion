@@ -43,4 +43,8 @@ contract C
     }
 }
 // ----
+// TypeError 9640: (376-414): Explicit type conversion not allowed from "uint160" to "address".
+// TypeError 9640: (450-469): Explicit type conversion not allowed from "address" to "uint160".
+// TypeError 9640: (548-567): Explicit type conversion not allowed from "uint160" to "address".
+// TypeError 9640: (715-747): Explicit type conversion not allowed from "uint160" to "address".
 // TypeError 9640: (801-809): Explicit type conversion not allowed from "uint8" to "int16".

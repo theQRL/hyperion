@@ -14,4 +14,4 @@ contract E {
     }
 }
 // ----
-// f(bool,(bytes,uint256[3]),bytes32[2]): 1, 0x80, "a", "b", 0x80, 11, 12, 13, 4, "abcd" -> 1, 0x80, "a", "b", 0x80, 11, 12, 13, 4, "abcd"
+// f(bool,(bytes,uint256[3]),bytes32[2]): 1, 0x80, "a", "b", 0x80, 11, 12, 13, 4, "abcd" -> FAILURE

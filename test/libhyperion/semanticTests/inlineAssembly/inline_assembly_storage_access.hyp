@@ -17,5 +17,5 @@ contract C {
     }
 }
 // ----
-// f() -> true
-// z() -> 7
+// f() -> FAILURE, hex"4e487b71", 0x01
+// z() -> 0

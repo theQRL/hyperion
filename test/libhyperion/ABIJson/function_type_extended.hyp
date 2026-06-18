@@ -1,6 +1,8 @@
 contract test {
     function g(function(test) external returns (test[] memory) x) public {}
 }
+// ====
+// QRVMVersion: >zond
 // ----
 //     :test
 // [

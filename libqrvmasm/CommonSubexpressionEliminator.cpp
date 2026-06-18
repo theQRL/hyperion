@@ -265,8 +265,8 @@ void CSECodeGenerator::addDependencies(Id _c)
 				Id length = expr.arguments.at(1);
 				AssemblyItem offsetInstr(Instruction::SUB, expr.item->location());
 				Id offsetToStart = m_expressionClasses.find(offsetInstr, {slot, slotToLoadFrom});
-				u256 const* o = m_expressionClasses.knownConstant(offsetToStart);
-				u256 const* l = m_expressionClasses.knownConstant(length);
+				u512 const* o = m_expressionClasses.knownConstant(offsetToStart);
+				u512 const* l = m_expressionClasses.knownConstant(length);
 				if (l && *l == 0)
 					knownToBeIndependent = true;
 				else if (o)

@@ -39,7 +39,7 @@ contract Store is BinarySearch {
     }
 }
 // ----
-// find(uint256): 7 -> -1
+// find(uint256): 7 -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 // add(uint256): 7 ->
 // find(uint256): 7 -> 0
 // add(uint256): 11 ->
@@ -52,6 +52,6 @@ contract Store is BinarySearch {
 // find(uint256): 7 -> 0
 // find(uint256): 27 -> 3
 // find(uint256): 32 -> 5
-// find(uint256): 176 -> -1
-// find(uint256): 0 -> -1
-// find(uint256): 400 -> -1
+// find(uint256): 176 -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+// find(uint256): 0 -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+// find(uint256): 400 -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff

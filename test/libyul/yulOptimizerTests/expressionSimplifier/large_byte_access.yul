@@ -16,10 +16,10 @@
 //     {
 //         let _1 := 0
 //         let a := calldataload(_1)
-//         let b := 0
+//         let _2 := 33
+//         let b := byte(_2, a)
 //         let c := byte(20, a)
-//         pop(create(_1, _1, 0x20))
-//         let d := 0
+//         let d := byte(_2, create(_1, _1, 0x20))
 //         sstore(7, a)
 //         sstore(8, b)
 //         sstore(9, c)

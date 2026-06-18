@@ -81,16 +81,16 @@ struct InterpreterState
 	/// This is different than memory.size() because we ignore gas.
 	u256 msize;
 	std::map<util::h256, util::h256> storage;
-	util::h160 address = util::h160("0x0000000000000000000000000000000011111111");
+	util::h512 address = util::h512("0x0000000000000000000000000000000011111111");
 	u256 balance = 0x22222222;
 	u256 selfbalance = 0x22223333;
-	util::h160 origin = util::h160("0x0000000000000000000000000000000033333333");
-	util::h160 caller = util::h160("0x0000000000000000000000000000000044444444");
+	util::h512 origin = util::h512("0x0000000000000000000000000000000033333333");
+	util::h512 caller = util::h512("0x0000000000000000000000000000000044444444");
 	u256 callvalue = 0x55555555;
 	/// Deployed code
 	bytes code = util::asBytes("codecodecodecodecode");
 	u256 gasprice = 0x66666666;
-	util::h160 coinbase = util::h160("0x0000000000000000000000000000000077777777");
+	util::h512 coinbase = util::h512("0x0000000000000000000000000000000077777777");
 	u256 timestamp = 0x88888888;
 	u256 blockNumber = 1024;
 	u256 prevrandao = (u256(1) << 64) + 1;

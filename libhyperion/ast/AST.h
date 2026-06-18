@@ -2421,11 +2421,11 @@ public:
 	/// @returns true if this is a number with a hex prefix.
 	bool isHexNumber() const;
 
-	/// @returns true if this looks like a checksummed address.
+	/// @returns true if this looks like a QRL address.
 	bool looksLikeAddress() const;
-	/// @returns true if it passes the address checksum test.
+	/// @returns true if it is a structurally valid QRL address.
 	bool passesAddressChecksum() const;
-	/// @returns the checksummed version of an address (or empty string if not valid)
+	/// @returns the canonical lowercase version of an address (or empty string if not valid)
 	std::string getChecksummedAddress() const;
 
 private:

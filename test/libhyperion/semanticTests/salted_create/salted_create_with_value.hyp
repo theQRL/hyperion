@@ -20,5 +20,5 @@ contract A {
 // ----
 // f(), 10 quanta -> 3007, 3008, 3009
 // gas irOptimized: 253005
-// gas legacy: 381063
+// gas legacy: 460599
 // gas legacyOptimized: 279694

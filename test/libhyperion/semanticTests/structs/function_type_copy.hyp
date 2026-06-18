@@ -37,5 +37,7 @@ contract Test {
     function random3() external {
     }
 }
+// ====
+// QRVMVersion: >zond
 // ----
 // test() -> true

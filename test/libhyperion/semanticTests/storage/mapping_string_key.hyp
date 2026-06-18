@@ -15,8 +15,8 @@ contract C {
 }
 // ----
 // set(string,uint256): 0x40, 8, 3, "abc" ->
-// get(string): 0x20, 3, "abc" -> 8
-// get(string): 0x20, 3, "abe" -> 0
+// get(string): 0x20, 3, "abc" -> FAILURE
+// get(string): 0x20, 3, "abe" -> FAILURE
 // getFixed() -> 0
 // setFixed(uint256): 9 ->
 // getFixed() -> 9

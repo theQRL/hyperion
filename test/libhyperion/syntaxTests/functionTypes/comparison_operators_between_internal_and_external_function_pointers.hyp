@@ -19,5 +19,4 @@ contract C {
     }
 }
 // ----
-// TypeError 2271: (606-672): Built-in binary operator != cannot be applied to types function () and function () external.
-// TypeError 2271: (688-741): Built-in binary operator != cannot be applied to types function () and function () external.
+// TypeError 4888: (231-283): External function types are not supported with this address size: address (512 bits) plus selector (32 bits) exceeds the VM word size (512 bits).

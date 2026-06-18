@@ -16,6 +16,6 @@ contract Main {
 // ----
 // constructor(), 20 planck ->
 // gas irOptimized: 100264
-// gas legacy: 113411
+// gas legacy: 123765
 // gas legacyOptimized: 100361
 // s() -> true

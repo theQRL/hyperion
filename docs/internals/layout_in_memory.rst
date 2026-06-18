@@ -5,20 +5,20 @@
 Layout in Memory
 ****************
 
-Hyperion reserves four 32-byte slots, with specific byte ranges (inclusive of endpoints) being used as follows:
+Hyperion reserves four 64-byte slots, with specific byte ranges (inclusive of endpoints) being used as follows:
 
-- ``0x00`` - ``0x3f`` (64 bytes): scratch space for hashing methods
-- ``0x40`` - ``0x5f`` (32 bytes): currently allocated memory size (aka. free memory pointer)
-- ``0x60`` - ``0x7f`` (32 bytes): zero slot
+- ``0x00`` - ``0x7f`` (128 bytes): scratch space for hashing methods
+- ``0x80`` - ``0xbf`` (64 bytes): currently allocated memory size (aka. free memory pointer)
+- ``0xc0`` - ``0xff`` (64 bytes): zero slot
 
 Scratch space can be used between statements (i.e. within inline assembly). The zero slot
 is used as initial value for dynamic memory arrays and should never be written to
-(the free memory pointer points to ``0x80`` initially).
+(the free memory pointer points to ``0x100`` initially).
 
 Hyperion always places new objects at the free memory pointer and
 memory is never freed (this might change in the future).
 
-Elements in memory arrays in Hyperion always occupy multiples of 32 bytes (this
+Elements in memory arrays in Hyperion always occupy multiples of 64 bytes (this
 is even true for ``bytes1[]``, but not for ``bytes`` and ``string``).
 Multi-dimensional memory arrays are pointers to memory arrays. The length of a
 dynamic array is stored at the first slot of the array and followed by the array
@@ -46,8 +46,8 @@ As described above the layout in memory is different from the layout in
 Example for Difference in Arrays
 --------------------------------
 
-The following array occupies 32 bytes (1 slot) in storage, but 128
-bytes (4 items with 32 bytes each) in memory.
+The following array occupies 64 bytes (1 slot) in storage, but 256
+bytes (4 items with 64 bytes each) in memory.
 
 .. code-block:: hyperion
 
@@ -58,8 +58,8 @@ bytes (4 items with 32 bytes each) in memory.
 Example for Difference in Struct Layout
 ---------------------------------------
 
-The following struct occupies 96 bytes (3 slots of 32 bytes) in storage,
-but 128 bytes (4 items with 32 bytes each) in memory.
+The following struct occupies 192 bytes (3 slots of 64 bytes) in storage,
+but 256 bytes (4 items with 64 bytes each) in memory.
 
 
 .. code-block:: hyperion

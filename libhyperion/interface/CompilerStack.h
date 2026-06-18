@@ -152,7 +152,7 @@ public:
 
 	/// Sets library addresses. Addresses are cleared iff @a _libraries is missing.
 	/// Must be set before parsing.
-	void setLibraries(std::map<std::string, util::h160> const& _libraries = {});
+	void setLibraries(std::map<std::string, util::h512> const& _libraries = {});
 
 	/// Changes the optimiser settings.
 	/// Must be set before parsing.
@@ -499,7 +499,7 @@ private:
 	std::map<std::string, std::set<std::string>> m_requestedContractNames;
 	bool m_generateQrvmBytecode = true;
 	bool m_generateIR = false;
-	std::map<std::string, util::h160> m_libraries;
+	std::map<std::string, util::h512> m_libraries;
 	ImportRemapper m_importRemapper;
 	std::map<std::string const, Source> m_sources;
 	std::vector<std::string> m_unhandledSMTLib2Queries;

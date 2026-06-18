@@ -14,7 +14,7 @@
 //         let c := calldataload(0)
 //         mstore(c, 4)
 //         let _3 := 8
-//         let _5 := add(c, 0x20)
+//         mstore(add(c, 0x20), _3)
 //         sstore(0, mload(c))
 //         let _8 := 9
 //         let _9 := 20

@@ -57,6 +57,6 @@ object "A" {
 // }
 //
 // auxdata: 0x4d32
-// Bytecode: 600e6003905f5560205500fe4d32
+// Bytecode: 600e6003b05f5560205500fe4d32
 // Opcodes: PUSH1 0xE PUSH1 0x3 SWAP1 PUSH0 SSTORE PUSH1 0x20 SSTORE STOP INVALID 0x4D ORIGIN
 // SourceMappings: 35:13:0:-:0;62;80:12;87:1;80:12;104:2;97:13;20:94

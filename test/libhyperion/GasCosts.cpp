@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(string_storage)
 		}
 		else
 		{
-			CHECK_DEPLOY_GAS(121493, 110969, qrvmVersion);
+			CHECK_DEPLOY_GAS(133665, 110969, qrvmVersion);
 		}
 	}
 	// TODO(now.youtrack.cloud/issue/TS-14): Gas used: 102421 - expected: 114077
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(string_storage)
 		}
 		else
 		{
-			CHECK_GAS(21528, 21351, 20);
+			CHECK_GAS(21503, 21351, 20);
 		}
 	}
 	// TODO(now.youtrack.cloud/issue/TS-14)
@@ -134,11 +134,11 @@ BOOST_AUTO_TEST_CASE(single_callvaluecheck)
 			function f(address b) public {
 				a = b;
 			}
-			function f1(address b) public pure returns (uint c) {
-				return uint160(b) + 2;
+			function f1(address b) public pure returns (uint512 c) {
+				return uint512(b) + 2;
 			}
-			function f2(address b) public pure returns (uint) {
-				return uint160(b) + 8;
+			function f2(address b) public pure returns (uint512) {
+				return uint512(b) + 8;
 			}
 			function f3(address, uint c) pure public returns (uint) {
 				return c - 5;
@@ -150,11 +150,11 @@ BOOST_AUTO_TEST_CASE(single_callvaluecheck)
 			function f(address b) public {
 				a = b;
 			}
-			function f1(address b) public pure returns (uint c) {
-				return uint160(b) + 2;
+			function f1(address b) public pure returns (uint512 c) {
+				return uint512(b) + 2;
 			}
-			function f2(address b) public pure returns (uint) {
-				return uint160(b) + 8;
+			function f2(address b) public pure returns (uint512) {
+				return uint512(b) + 8;
 			}
 			function f3(address, uint c) payable public returns (uint) {
 				return c - 5;

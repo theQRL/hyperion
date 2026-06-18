@@ -12,7 +12,7 @@ Except for dynamically-sized arrays and mappings (see below), data is stored
 contiguously item after item starting with the first state variable,
 which is stored in slot ``0``. For each variable,
 a size in bytes is determined according to its type.
-Multiple, contiguous items that need less than 32 bytes are packed into a single
+Multiple, contiguous items that need less than 64 bytes are packed into a single
 storage slot if possible, according to the following rules:
 
 - The first item in a storage slot is stored lower-order aligned.
@@ -29,9 +29,9 @@ The elements of structs and arrays are stored after each other, just as if they 
 as individual values.
 
 .. warning::
-    When using elements that are smaller than 32 bytes, your contract's gas usage may be higher.
-    This is because the QRVM operates on 32 bytes at a time. Therefore, if the element is smaller
-    than that, the QRVM must use more operations in order to reduce the size of the element from 32
+    When using elements that are smaller than 64 bytes, your contract's gas usage may be higher.
+    This is because the QRVM operates on 64 bytes at a time. Therefore, if the element is smaller
+    than that, the QRVM must use more operations in order to reduce the size of the element from 64
     bytes to the desired size.
 
     It might be beneficial to use reduced-size types if you are dealing with storage values
@@ -67,7 +67,7 @@ Mappings and Dynamic Arrays
 
 Due to their unpredictable size, mappings and dynamically-sized array types cannot be stored
 "in between" the state variables preceding and following them.
-Instead, they are considered to occupy only 32 bytes with regards to the
+Instead, they are considered to occupy only 64 bytes with regards to the
 :ref:`rules above <storage-inplace-encoding>` and the elements they contain are stored starting at a different
 storage slot that is computed using a Keccak-256 hash.
 
@@ -90,7 +90,7 @@ the element can be obtained from the slot data ``v`` using ``(v >> ((j % floor(2
 The value corresponding to a mapping key ``k`` is located at ``keccak256(h(k) . p)``
 where ``.`` is concatenation and ``h`` is a function that is applied to the key depending on its type:
 
-- for value types, ``h`` pads the value to 32 bytes in the same way as when storing the value in memory.
+- for value types, ``h`` pads the value to 64 bytes in the same way as when storing the value in memory.
 - for strings and byte arrays, ``h(k)`` is just the unpadded data.
 
 If the mapping value is a
@@ -112,7 +112,7 @@ As an example, consider the following contract:
     }
 
 Let us compute the storage location of ``data[4][9].c``.
-The position of the mapping itself is ``1`` (the variable ``x`` with 32 bytes precedes it).
+The position of the mapping itself is ``1`` (the variable ``x`` with 64 bytes precedes it).
 This means ``data[4]`` is stored at ``keccak256(uint256(4) . uint256(1))``. The type of ``data[4]`` is
 again a mapping and the data for ``data[4][9]`` starts at slot
 ``keccak256(uint256(9) . keccak256(uint256(4) . uint256(1)))``.
@@ -130,7 +130,7 @@ The type of the value is ``uint256``, so it uses a single slot.
 ``bytes`` and ``string`` are encoded identically.
 In general, the encoding is similar to ``bytes1[]``, in the sense that there is a slot for the array itself and
 a data area that is computed using a ``keccak256`` hash of that slot's position.
-However, for short values (shorter than 32 bytes) the array elements are stored together with the length in the same slot.
+However, for short values (shorter than 64 bytes) the array elements are stored together with the length in the same slot.
 
 In particular: if the data is at most ``31`` bytes long, the elements are stored
 in the higher-order bytes (left aligned) and the lowest-order byte stores the value ``length * 2``.

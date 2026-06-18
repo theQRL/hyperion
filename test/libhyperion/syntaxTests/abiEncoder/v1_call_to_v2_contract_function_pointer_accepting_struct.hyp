@@ -20,4 +20,4 @@ contract Test {
     }
 }
 // ----
-// TypeError 2443: (B:166-175): The type of this parameter, struct C.Item memory, is only supported in ABI coder v2. Use "pragma abicoder v2;" to enable the feature.
+// TypeError 4888: (B:108-144): External function types are not supported with this address size: address (512 bits) plus selector (32 bits) exceeds the VM word size (512 bits).

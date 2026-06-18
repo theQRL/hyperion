@@ -63,7 +63,7 @@ void QRLAssemblyAdapter::appendInstruction(qrvmasm::Instruction _instruction)
 	m_assembly.append(_instruction);
 }
 
-void QRLAssemblyAdapter::appendConstant(u256 const& _constant)
+void QRLAssemblyAdapter::appendConstant(u512 const& _constant)
 {
 	m_assembly.append(_constant);
 }
@@ -156,7 +156,7 @@ AbstractAssembly::SubID QRLAssemblyAdapter::appendData(bytes const& _data)
 {
 	qrvmasm::AssemblyItem pushData = m_assembly.newData(_data);
 	SubID subID = m_nextDataCounter++;
-	m_dataHashBySubId[subID] = pushData.data();
+	m_dataHashBySubId[subID] = u256(pushData.data());
 	return subID;
 }
 
@@ -187,7 +187,7 @@ langutil::QRVMVersion QRLAssemblyAdapter::qrvmVersion() const
 
 QRLAssemblyAdapter::LabelID QRLAssemblyAdapter::assemblyTagToIdentifier(qrvmasm::AssemblyItem const& _tag)
 {
-	u256 id = _tag.data();
+	u256 id = u256(_tag.data());
 	yulAssert(id <= std::numeric_limits<LabelID>::max(), "Tag id too large.");
 	return LabelID(id);
 }

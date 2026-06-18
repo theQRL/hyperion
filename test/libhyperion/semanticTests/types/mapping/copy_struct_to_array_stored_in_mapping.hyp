@@ -49,8 +49,8 @@ contract C {
 }
 // ----
 // from_storage_to_static_array() -> 0, 7
-// from_storage_to_dynamic_array() -> 0x20, 1, 7
+// from_storage_to_dynamic_array() -> 0x40, 1, 7
 // from_memory_to_static_array() -> 0, 7
-// from_memory_to_dynamic_array() -> 0x20, 1, 7
+// from_memory_to_dynamic_array() -> 0x40, 1, 7
 // from_calldata_to_static_array((uint8)): 8 -> 0, 8
-// from_calldata_to_dynamic_array((uint8)): 8 -> 0x20, 1, 8
+// from_calldata_to_dynamic_array((uint8)): 8 -> 0x40, 1, 8

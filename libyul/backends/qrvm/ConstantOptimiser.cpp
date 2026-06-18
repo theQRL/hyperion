@@ -42,48 +42,49 @@ struct MiniQRVMInterpreter
 {
 	explicit MiniQRVMInterpreter(QRVMDialect const& _dialect): m_dialect(_dialect) {}
 
-	u256 eval(Expression const& _expr)
+	u512 eval(Expression const& _expr)
 	{
 		return std::visit(*this, _expr);
 	}
 
-	u256 eval(qrvmasm::Instruction _instr, std::vector<Expression> const& _arguments)
+	u512 eval(qrvmasm::Instruction _instr, std::vector<Expression> const& _arguments)
 	{
-		std::vector<u256> args;
+		std::vector<u512> args;
 		for (auto const& arg: _arguments)
 			args.emplace_back(eval(arg));
+		bigint const mask = (bigint(1) << 512) - 1;
 		switch (_instr)
 		{
 		case qrvmasm::Instruction::ADD:
-			return args.at(0) + args.at(1);
+			return u512((bigint(args.at(0)) + bigint(args.at(1))) & mask);
 		case qrvmasm::Instruction::SUB:
-			return args.at(0) - args.at(1);
+			return u512((bigint(args.at(0)) - bigint(args.at(1))) & mask);
 		case qrvmasm::Instruction::MUL:
-			return args.at(0) * args.at(1);
+			return u512((bigint(args.at(0)) * bigint(args.at(1))) & mask);
 		case qrvmasm::Instruction::EXP:
-			return exp256(args.at(0), args.at(1));
+			return u512(boost::multiprecision::pow(bigint(args.at(0)), unsigned(args.at(1))) & mask);
 		case qrvmasm::Instruction::SHL:
-			return args.at(0) > 255 ? 0 : (args.at(1) << unsigned(args.at(0)));
+			return args.at(0) > 511 ? u512(0) : u512((bigint(args.at(1)) << unsigned(args.at(0))) & mask);
 		case qrvmasm::Instruction::NOT:
-			return ~args.at(0);
+			return u512(~bigint(args.at(0)) & mask);
 		default:
 			yulAssert(false, "Invalid operation generated in constant optimizer.");
 		}
 		return 0;
 	}
 
-	u256 operator()(FunctionCall const& _funCall)
+	u512 operator()(FunctionCall const& _funCall)
 	{
 		BuiltinFunctionForQRVM const* fun = m_dialect.builtin(_funCall.functionName.name);
 		yulAssert(fun, "Expected builtin function.");
 		yulAssert(fun->instruction, "Expected QRVM instruction.");
 		return eval(*fun->instruction, _funCall.arguments);
 	}
-	u256 operator()(Literal const& _literal)
+	u512 operator()(Literal const& _literal)
 	{
 		return valueOfLiteral(_literal);
 	}
-	u256 operator()(Identifier const&) { yulAssert(false, ""); }
+	u512 operator()(Identifier const&) { yulAssert(false, ""); }
 
 	QRVMDialect const& m_dialect;
 };
@@ -108,7 +109,7 @@ void ConstantOptimiser::visit(Expression& _e)
 		ASTModifier::visit(_e);
 }
 
-Expression const* RepresentationFinder::tryFindRepresentation(u256 const& _value)
+Expression const* RepresentationFinder::tryFindRepresentation(u512 const& _value)
 {
 	if (_value < 0x10000)
 		return nullptr;
@@ -120,27 +121,28 @@ Expression const* RepresentationFinder::tryFindRepresentation(u256 const& _value
 		return repr.expression.get();
 }
 
-Representation const& RepresentationFinder::findRepresentation(u256 const& _value)
+Representation const& RepresentationFinder::findRepresentation(u512 const& _value)
 {
 	if (m_cache.count(_value))
 		return m_cache.at(_value);
 
 	Representation routine = represent(_value);
 
-	if (numberEncodingSize(~_value) < numberEncodingSize(_value))
+	u512 const notValue = u512(~bigint(_value) & ((bigint(1) << 512) - 1));
+	if (numberEncodingSize(notValue) < numberEncodingSize(_value))
 		// Negated is shorter to represent
-		routine = min(std::move(routine), represent("not"_yulstring, findRepresentation(~_value)));
+		routine = min(std::move(routine), represent("not"_yulstring, findRepresentation(notValue)));
 
 	// Decompose value into a * 2**k + b where abs(b) << 2**k
-	for (unsigned bits = 255; bits > 8 && m_maxSteps > 0; --bits)
+	for (unsigned bits = 511; bits > 8 && m_maxSteps > 0; --bits)
 	{
 		unsigned gapDetector = unsigned((_value >> (bits - 8)) & 0x1ff);
 		if (gapDetector != 0xff && gapDetector != 0x100)
 			continue;
 
-		u256 powerOfTwo = u256(1) << bits;
-		u256 upperPart = _value >> bits;
-		bigint lowerPart = _value & (powerOfTwo - 1);
+		u512 powerOfTwo = u512(1) << bits;
+		u512 upperPart = _value >> bits;
+		bigint lowerPart = bigint(_value) & bigint(powerOfTwo - 1);
 		if ((powerOfTwo - lowerPart) < lowerPart)
 		{
 			lowerPart = lowerPart - powerOfTwo; // make it negative
@@ -151,15 +153,15 @@ Representation const& RepresentationFinder::findRepresentation(u256 const& _valu
 		if (abs(lowerPart) >= (powerOfTwo >> 8))
 			continue;
 		Representation newRoutine;
-		newRoutine = represent("shl"_yulstring, represent(bits), findRepresentation(upperPart));
+		newRoutine = represent("shl"_yulstring, represent(u512(bits)), findRepresentation(upperPart));
 
 		if (newRoutine.cost >= routine.cost)
 			continue;
 
 		if (lowerPart > 0)
-			newRoutine = represent("add"_yulstring, newRoutine, findRepresentation(u256(abs(lowerPart))));
+			newRoutine = represent("add"_yulstring, newRoutine, findRepresentation(u512(abs(lowerPart))));
 		else if (lowerPart < 0)
-			newRoutine = represent("sub"_yulstring, newRoutine, findRepresentation(u256(abs(lowerPart))));
+			newRoutine = represent("sub"_yulstring, newRoutine, findRepresentation(u512(abs(lowerPart))));
 
 		if (m_maxSteps > 0)
 			m_maxSteps--;
@@ -169,7 +171,7 @@ Representation const& RepresentationFinder::findRepresentation(u256 const& _valu
 	return m_cache[_value] = std::move(routine);
 }
 
-Representation RepresentationFinder::represent(u256 const& _value) const
+Representation RepresentationFinder::represent(u512 const& _value) const
 {
 	Representation repr;
 	repr.expression = std::make_unique<Expression>(Literal{m_debugData, LiteralKind::Number, YulString{formatNumber(_value)}, {}});

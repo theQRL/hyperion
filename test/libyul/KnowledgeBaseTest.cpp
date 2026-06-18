@@ -108,10 +108,10 @@ BOOST_AUTO_TEST_CASE(difference)
 		kb.differenceIfKnownConstant("b"_yulstring, "c"_yulstring) ==
 		u256(-20)
 	);
-	BOOST_CHECK(!kb.knownToBeDifferentByAtLeast32("b"_yulstring, "c"_yulstring));
-	BOOST_CHECK(kb.knownToBeDifferentByAtLeast32("b"_yulstring, "d"_yulstring));
-	BOOST_CHECK(kb.knownToBeDifferentByAtLeast32("a"_yulstring, "b"_yulstring));
-	BOOST_CHECK(kb.knownToBeDifferentByAtLeast32("b"_yulstring, "a"_yulstring));
+	BOOST_CHECK(!kb.knownToBeDifferentByAtLeastWordSize("b"_yulstring, "c"_yulstring));
+	BOOST_CHECK(!kb.knownToBeDifferentByAtLeastWordSize("b"_yulstring, "d"_yulstring));
+	BOOST_CHECK(kb.knownToBeDifferentByAtLeastWordSize("a"_yulstring, "b"_yulstring));
+	BOOST_CHECK(kb.knownToBeDifferentByAtLeastWordSize("b"_yulstring, "a"_yulstring));
 
 	BOOST_CHECK(
 		kb.differenceIfKnownConstant("e"_yulstring, "a"_yulstring) == u256(208)

@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(metadata_stamp)
 		pragma hyperion >=0.0;
 		pragma experimental __testOnlyAnalysis;
 		contract test {
-			function g(function(uint) external returns (uint) x) public {}
+			function g(address x) public {}
 		}
 	)";
 	for (auto metadataFormat: std::set<CompilerStack::MetadataFormat>{
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(metadata_stamp_experimental)
 		pragma hyperion >=0.0;
 		pragma experimental __test;
 		contract test {
-			function g(function(uint) external returns (uint) x) public {}
+			function g(address x) public {}
 		}
 	)";
 	for (auto metadataFormat: std::set<CompilerStack::MetadataFormat>{
@@ -231,13 +231,13 @@ BOOST_AUTO_TEST_CASE(metadata_relevant_sources)
 	char const* sourceCodeA = R"(
 		pragma hyperion >=0.0;
 		contract A {
-			function g(function(uint) external returns (uint) x) public {}
+			function g(address x) public {}
 		}
 	)";
 	char const* sourceCodeB = R"(
 		pragma hyperion >=0.0;
 		contract B {
-			function g(function(uint) external returns (uint) x) public {}
+			function g(address x) public {}
 		}
 	)";
 	compilerStack.setSources({
@@ -263,21 +263,21 @@ BOOST_AUTO_TEST_CASE(metadata_relevant_sources_imports)
 	char const* sourceCodeA = R"(
 		pragma hyperion >=0.0;
 		contract A {
-			function g(function(uint) external returns (uint) x) public virtual {}
+			function g(address x) public virtual {}
 		}
 	)";
 	char const* sourceCodeB = R"(
 		pragma hyperion >=0.0;
 		import "./A";
 		contract B is A {
-			function g(function(uint) external returns (uint) x) public virtual override {}
+			function g(address x) public virtual override {}
 		}
 	)";
 	char const* sourceCodeC = R"(
 		pragma hyperion >=0.0;
 		import "./B";
 		contract C is B {
-			function g(function(uint) external returns (uint) x) public override {}
+			function g(address x) public override {}
 		}
 	)";
 	compilerStack.setSources({

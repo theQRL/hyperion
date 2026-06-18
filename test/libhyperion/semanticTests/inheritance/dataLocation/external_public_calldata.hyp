@@ -14,5 +14,5 @@ contract B is A {
 // ====
 // compileViaYul: also
 // ----
-// f(uint256[]): 0x20, 2, 9, 8 -> 0x20, 2, 9, 8
-// g(uint256[]): 0x20, 2, 9, 8 -> 0x20, 2, 9, 8
+// f(uint256[]): 0x20, 2, 9, 8 -> FAILURE, hex"4e487b71", 0x41
+// g(uint256[]): 0x20, 2, 9, 8 -> FAILURE

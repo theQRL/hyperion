@@ -290,7 +290,7 @@ void ExpressionEvaluator::operator()(Literal const& _literal)
 	static YulString const trueString("true");
 	static YulString const falseString("false");
 
-	setValue(valueOfLiteral(_literal));
+	setValue(u256(valueOfLiteral(_literal)));
 }
 
 void ExpressionEvaluator::operator()(Identifier const& _identifier)
@@ -442,7 +442,7 @@ void ExpressionEvaluator::runExternalCall(qrvmasm::Instruction _instruction)
 		yulAssert(false);
 
 	// Don't execute external call if it isn't our own address
-	if (values()[1] != util::h160::Arith(m_state.address))
+	if (values()[1] != util::h512::Arith(m_state.address))
 		return;
 
 	Scope tmpScope;

@@ -7,3 +7,4 @@ contract C {
     function f(S2 memory) public pure {}
 }
 // ----
+// TypeError 4888: (64-85): External function types are not supported with this address size: address (512 bits) plus selector (32 bits) exceeds the VM word size (512 bits).

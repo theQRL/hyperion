@@ -80,7 +80,7 @@ private:
 		RevertStrings revertStrings = RevertStrings::Default;
 		OptimiserSettings optimiserSettings = OptimiserSettings::minimal();
 		std::optional<langutil::DebugInfoSelection> debugInfoSelection;
-		std::map<std::string, util::h160> libraries;
+		std::map<std::string, util::h512> libraries;
 		bool metadataLiteralSources = false;
 		CompilerStack::MetadataFormat metadataFormat = CompilerStack::defaultMetadataFormat();
 		CompilerStack::MetadataHash metadataHash = CompilerStack::MetadataHash::IPFS;

@@ -18,5 +18,5 @@ contract C {
 // ----
 // f(), 2000 quanta -> true
 // gas irOptimized: 119441
-// gas legacy: 122621
+// gas legacy: 123221
 // gas legacyOptimized: 122490

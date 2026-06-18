@@ -23,7 +23,7 @@ contract C {
 // ----
 // constructor(), 1 quanta ->
 // gas irOptimized: 262355
-// gas legacy: 441442
+// gas legacy: 494801
 // gas legacyOptimized: 292862
 // f(uint256): 0 -> FAILURE
 // f(uint256): 1 -> FAILURE

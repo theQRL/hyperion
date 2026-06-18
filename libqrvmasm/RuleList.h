@@ -27,6 +27,7 @@
 #include <libqrvmasm/SimplificationRule.h>
 
 #include <libhyputil/CommonData.h>
+#include <libhyputil/VMConstants.h>
 
 #include <boost/multiprecision/detail/min_max.hpp>
 
@@ -54,16 +55,17 @@ template <class S> S modWorkaround(S const& _a, S const& _b)
 // https://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/map/hist.html#boost_multiprecision.map.hist.multiprecision_2_3_1_boost_1_64
 template <class S> S shlWorkaround(S const& _x, unsigned _amount)
 {
-	return u256((bigint(_x) << _amount) & u256(-1));
+	return S((bigint(_x) << _amount) & S(-1));
 }
 
 /// @returns k if _x == 2**k, nullopt otherwise
-inline std::optional<size_t> binaryLogarithm(u256 const& _x)
+template <class S>
+inline std::optional<size_t> binaryLogarithm(S const& _x)
 {
 	if (_x == 0)
 		return std::nullopt;
 	size_t msb = boost::multiprecision::msb(_x);
-	return (u256(1) << msb) == _x ? std::make_optional(msb) : std::nullopt;
+	return (S(1) << msb) == _x ? std::make_optional(msb) : std::nullopt;
 }
 
 // simplificationRuleList below was split up into parts to prevent
@@ -320,14 +322,14 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleListPart5(
 		});
 	}
 
-	// Replace SHL >=256, X with 0
+	// Replace SHL >=WordSize, X with 0
 	rules.push_back({
 		Builtins::SHL(A, X),
 		[=]() -> Pattern { return Word(0); },
 		[=]() { return A.d() >= Pattern::WordSize; }
 	});
 
-	// Replace SHR >=256, X with 0
+	// Replace SHR >=WordSize, X with 0
 	rules.push_back({
 		Builtins::SHR(A, X),
 		[=]() -> Pattern { return Word(0); },
@@ -353,7 +355,7 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleListPart5(
 		[=]() {
 			return
 				B.d() < Pattern::WordSize / 8 - 1 &&
-				(A.d() & ((u256(1) << static_cast<size_t>((B.d() + 1) * 8)) - 1)) == A.d();
+				(A.d() & ((Word(1) << static_cast<size_t>((B.d() + 1) * 8)) - 1)) == A.d();
 		}
 	});
 	rules.push_back({
@@ -362,7 +364,7 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleListPart5(
 		[=]() {
 			return
 				B.d() < Pattern::WordSize / 8 - 1 &&
-				(A.d() & ((u256(1) << static_cast<size_t>((B.d() + 1) * 8)) - 1)) == A.d();
+				(A.d() & ((Word(1) << static_cast<size_t>((B.d() + 1) * 8)) - 1)) == A.d();
 		}
 	});
 
@@ -373,8 +375,11 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleListPart5(
 		Instruction::COINBASE
 	})
 	{
-		assertThrow(Pattern::WordSize > 160, OptimizerException, "");
-		Word const mask = (Word(1) << 160) - 1;
+		assertThrow(Pattern::WordSize >= hyperion::AddressBits, OptimizerException, "");
+		// `(Word(1) << AddressBits) - 1` overflows when AddressBits == WordSize.
+		// Use a right-shift of all-ones instead, which collapses to ~Word(0)
+		// in the equality case.
+		Word const mask = ~Word(0) >> (Pattern::WordSize - hyperion::AddressBits);
 		rules.push_back({
 			Builtins::AND(Pattern{instr}, mask),
 			[=]() -> Pattern { return {instr}; }
@@ -486,7 +491,7 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleListPart7(
 
 	// Combine two SHL by constant
 	rules.push_back({
-		// SHL(B, SHL(A, X)) -> SHL(min(A+B, 256), X)
+		// SHL(B, SHL(A, X)) -> SHL(min(A+B, WordSize), X)
 		Builtins::SHL(B, Builtins::SHL(A, X)),
 		[=]() -> Pattern {
 			bigint sum = bigint(A.d()) + B.d();
@@ -499,7 +504,7 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleListPart7(
 
 	// Combine two SHR by constant
 	rules.push_back({
-		// SHR(B, SHR(A, X)) -> SHR(min(A+B, 256), X)
+		// SHR(B, SHR(A, X)) -> SHR(min(A+B, WordSize), X)
 		Builtins::SHR(B, Builtins::SHR(A, X)),
 		[=]() -> Pattern {
 			bigint sum = bigint(A.d()) + B.d();
@@ -617,14 +622,14 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleListPart7(
 	};
 
 	rules.push_back({
-		// AND(A, SHR(B, X)) -> A & ((2^256-1) >> B) == ((2^256-1) >> B)
+		// AND(A, SHR(B, X)) -> A & ((2^WordSize-1) >> B) == ((2^WordSize-1) >> B)
 		Builtins::AND(A, Builtins::SHR(B, X)),
 		[=]() -> Pattern { return Builtins::SHR(B, X); },
 		feasibilityFunction
 	});
 
 	rules.push_back({
-		// AND(SHR(B, X), A) -> ((2^256-1) >> B) & A == ((2^256-1) >> B)
+		// AND(SHR(B, X), A) -> ((2^WordSize-1) >> B) & A == ((2^WordSize-1) >> B)
 		Builtins::AND(Builtins::SHR(B, X), A),
 		[=]() -> Pattern { return Builtins::SHR(B, X); },
 		feasibilityFunction
@@ -639,7 +644,7 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleListPart7(
 	rules.push_back({
 		Builtins::BYTE(A, Builtins::SHL(B, X)),
 		[=]() -> Pattern { return Builtins::BYTE(A.d() + B.d() / 8, X); },
-		[=] { return B.d() % 8 == 0 && A.d() <= 32 && B.d() <= 256; }
+		[=] { return B.d() % 8 == 0 && A.d() <= Pattern::WordSize / 8 && B.d() <= Pattern::WordSize; }
 	});
 
 	rules.push_back({
@@ -765,17 +770,17 @@ std::vector<SimplificationRule<Pattern>> qrvmRuleList(
 	);
 	rules.emplace_back(
 		Builtins::MUL(A, X),
-		[=]() -> Pattern { return Builtins::SHL(u256(*binaryLogarithm(A.d())), X); },
+		[=]() -> Pattern { return Builtins::SHL(Word(*binaryLogarithm(A.d())), X); },
 		[=] { return binaryLogarithm(A.d()).has_value(); }
 	);
 	rules.emplace_back(
 		Builtins::MUL(X, A),
-		[=]() -> Pattern { return Builtins::SHL(u256(*binaryLogarithm(A.d())), X); },
+		[=]() -> Pattern { return Builtins::SHL(Word(*binaryLogarithm(A.d())), X); },
 		[=] { return binaryLogarithm(A.d()).has_value(); }
 	);
 	rules.emplace_back(
 		Builtins::DIV(X, A),
-		[=]() -> Pattern { return Builtins::SHR(u256(*binaryLogarithm(A.d())), X); },
+		[=]() -> Pattern { return Builtins::SHR(Word(*binaryLogarithm(A.d())), X); },
 		[=] { return binaryLogarithm(A.d()).has_value(); }
 	);
 	rules.emplace_back(
@@ -812,7 +817,7 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleList(
 	// Some sanity checks
 	assertThrow(Pattern::WordSize % 8 == 0, OptimizerException, "");
 	assertThrow(Pattern::WordSize >= 8, OptimizerException, "");
-	assertThrow(Pattern::WordSize <= 256, OptimizerException, "");
+	assertThrow(Pattern::WordSize <= 512, OptimizerException, "");
 	assertThrow(Word(-1) == ~Word(0), OptimizerException, "");
 	assertThrow(Word(-1) + 1 == Word(0), OptimizerException, "");
 

@@ -18,3 +18,4 @@ contract C {
 // Warning 2519: (193-210): This declaration shadows an existing declaration.
 // Warning 2519: (252-271): This declaration shadows an existing declaration.
 // Warning 2519: (273-299): This declaration shadows an existing declaration.
+// TypeError 4888: (93-157): External function types are not supported with this address size: address (512 bits) plus selector (32 bits) exceeds the VM word size (512 bits).

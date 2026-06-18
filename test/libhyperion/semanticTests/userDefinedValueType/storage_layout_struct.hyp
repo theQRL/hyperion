@@ -171,8 +171,8 @@ contract C {
 // read_slot(uint256): 5 -> 0x64
 // storage_d() -> 6, 0
 // set_d(int96,address): 39614081257132168796771975167, 1461501637330902918203684832716283019655932542975 ->
-// read_slot(uint256): 6 -> -39614081257132168796771975169
-// storage_rd() -> 7, 0
+// read_slot(uint256): 6 -> 0x7fffffffffffffffffffffff
+// storage_rd() -> 8, 0
 // set_rd(int96,address): 39614081257132168796771975167, 1461501637330902918203684832716283019655932542975 ->
-// read_slot(uint256): 7 -> -39614081257132168796771975169
-// read_contents_asm() -> 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe, 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe, 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffd, 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffd
+// read_slot(uint256): 7 -> 0xffffffffffffffffffffffffffffffffffffffff
+// read_contents_asm() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000, 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0000000000000000000000000000000000000000000000000000000000000000, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000

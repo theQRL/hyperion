@@ -6,5 +6,7 @@ contract C {
         return ptr("testString");
     }
 }
+// ====
+// QRVMVersion: >zond
 // ----
 // main() -> true

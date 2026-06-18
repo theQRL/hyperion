@@ -40,7 +40,7 @@ using namespace hyperion::qrvmasm;
 using namespace hyperion::yul;
 using namespace hyperion::yul::test;
 
-using hyperion::util::h160;
+using hyperion::util::h512;
 using hyperion::util::h256;
 using hyperion::util::keccak256;
 
@@ -338,7 +338,7 @@ u256 QRVMInstructionInterpreter::eval(
 		// Used for fuzzing.
 		return (
 			(arg[0] > 0) &&
-			(arg[1] == util::h160::Arith(m_state.address) || (arg[1] & 1))
+			(arg[1] == util::h512::Arith(m_state.address) || (arg[1] & 1))
 		) ? 1 : 0;
 	case Instruction::DELEGATECALL:
 	case Instruction::STATICCALL:
@@ -349,7 +349,7 @@ u256 QRVMInstructionInterpreter::eval(
 		// Used for fuzzing.
 		return (
 			(arg[0] > 0) &&
-			(arg[1] == util::h160::Arith(m_state.address) || (arg[1] & 1))
+			(arg[1] == util::h512::Arith(m_state.address) || (arg[1] & 1))
 		) ? 1 : 0;
 	case Instruction::RETURN:
 	{
@@ -408,6 +408,38 @@ u256 QRVMInstructionInterpreter::eval(
 	case Instruction::PUSH30:
 	case Instruction::PUSH31:
 	case Instruction::PUSH32:
+	case Instruction::PUSH33:
+	case Instruction::PUSH34:
+	case Instruction::PUSH35:
+	case Instruction::PUSH36:
+	case Instruction::PUSH37:
+	case Instruction::PUSH38:
+	case Instruction::PUSH39:
+	case Instruction::PUSH40:
+	case Instruction::PUSH41:
+	case Instruction::PUSH42:
+	case Instruction::PUSH43:
+	case Instruction::PUSH44:
+	case Instruction::PUSH45:
+	case Instruction::PUSH46:
+	case Instruction::PUSH47:
+	case Instruction::PUSH48:
+	case Instruction::PUSH49:
+	case Instruction::PUSH50:
+	case Instruction::PUSH51:
+	case Instruction::PUSH52:
+	case Instruction::PUSH53:
+	case Instruction::PUSH54:
+	case Instruction::PUSH55:
+	case Instruction::PUSH56:
+	case Instruction::PUSH57:
+	case Instruction::PUSH58:
+	case Instruction::PUSH59:
+	case Instruction::PUSH60:
+	case Instruction::PUSH61:
+	case Instruction::PUSH62:
+	case Instruction::PUSH63:
+	case Instruction::PUSH64:
 	case Instruction::DUP1:
 	case Instruction::DUP2:
 	case Instruction::DUP3:

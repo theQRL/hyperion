@@ -29,7 +29,7 @@ namespace hyperion::frontend::test
 {
 
 
-class ABIJsonTest: public TestCase
+class ABIJsonTest: public QRVMVersionRestrictedTestCase
 {
 public:
 	static std::unique_ptr<TestCase> create(Config const& _config)

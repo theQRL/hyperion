@@ -11,8 +11,10 @@
 //
 // {
 //     {
-//         let a := 0
-//         let b := 0
+//         let _2 := calldataload(0)
+//         let _3 := 299
+//         let a := shl(_3, _2)
+//         let b := shr(_3, calldataload(1))
 //         let _8 := calldataload(2)
 //         let _9 := 255
 //         let c := shl(_9, _8)

@@ -57,7 +57,7 @@ OptionalStatements replaceConstArgSwitch(Switch& _switchStmt, u256 const& _const
 std::optional<u256> hasLiteralValue(Expression const& _expression)
 {
 	if (std::holds_alternative<Literal>(_expression))
-		return valueOfLiteral(std::get<Literal>(_expression));
+		return u256(valueOfLiteral(std::get<Literal>(_expression)));
 	else
 		return std::optional<u256>();
 }

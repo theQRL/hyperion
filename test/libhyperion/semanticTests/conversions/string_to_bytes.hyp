@@ -4,4 +4,4 @@ contract C {
 	}
 }
 // ----
-// f(string): 32, 5, "Hello" -> 32, 5, "Hello"
+// f(string): 32, 5, "Hello" -> FAILURE, hex"4e487b71", 0x41

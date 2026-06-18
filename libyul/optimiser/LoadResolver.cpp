@@ -29,6 +29,7 @@
 #include <libyul/optimiser/OptimizerUtilities.h>
 #include <libyul/SideEffects.h>
 #include <libyul/AST.h>
+#include <libhyputil/VMConstants.h>
 #include <libyul/Utilities.h>
 
 #include <libqrvmasm/GasMeter.h>
@@ -142,7 +143,7 @@ void LoadResolver::tryEvaluateKeccak(
 	{
 		std::optional<u256> memoryContent = valueOfIdentifier(*value);
 		std::optional<u256> byteLength = valueOfIdentifier(length->name);
-		if (memoryContent && byteLength && *byteLength <= 32)
+		if (memoryContent && byteLength && *byteLength <= VMWordBytes)
 		{
 			bytes contentAsBytes = toBigEndian(*memoryContent);
 			contentAsBytes.resize(static_cast<size_t>(*byteLength));

@@ -27,6 +27,7 @@
 #include <libyul/Exceptions.h>
 
 #include <liblangutil/Exceptions.h>
+#include <libhyputil/VMConstants.h>
 #include <liblangutil/Scanner.h>
 
 #include <boost/algorithm/string/split.hpp>
@@ -197,8 +198,8 @@ Literal AsmJsonImporter::createLiteral(Json::Value const& _node)
 	{
 		lit.kind = LiteralKind::String;
 		yulAssert(
-			lit.value.str().size() <= 32,
-			"String literal too long (" + std::to_string(lit.value.str().size()) + " > 32)"
+			lit.value.str().size() <= VMWordBytes,
+			"String literal too long (" + std::to_string(lit.value.str().size()) + " > " + std::to_string(VMWordBytes) + ")"
 		);
 	}
 	else

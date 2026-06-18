@@ -29,12 +29,13 @@
 #include <liblangutil/QRVMVersion.h>
 
 #include <libhyputil/FixedHash.h>
+#include <libhyputil/VMConstants.h>
 
 #include <boost/filesystem.hpp>
 
 namespace hyperion::test
 {
-using Address = util::h160;
+using Address = util::h512;
 using StorageMap = std::map<qrvmc::bytes32, qrvmc::StorageValue>;
 
 struct QRVMPrecompileOutput {
@@ -93,8 +94,12 @@ public:
 
 	static Address convertFromQRVMC(qrvmc::address const& _addr);
 	static qrvmc::address convertToQRVMC(Address const& _addr);
+	/// Convert bytes32 treating h256 as left-aligned (for hashes, storage keys, bytes32 values)
 	static util::h256 convertFromQRVMC(qrvmc::bytes32 const& _data);
 	static qrvmc::bytes32 convertToQRVMC(util::h256 const& _data);
+	/// Convert bytes32 treating u256 as right-aligned (for uint, balance, value)
+	static u256 convertUintFromQRVMC(qrvmc::bytes32 const& _data);
+	static qrvmc::bytes32 convertUintToQRVMC(u256 const& _value);
 private:
 	/// Transfer value between accounts. Checks for sufficient balance.
 	void transfer(qrvmc::MockedAccount& _sender, qrvmc::MockedAccount& _recipient, u256 const& _value) noexcept;

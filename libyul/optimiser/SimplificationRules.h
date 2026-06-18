@@ -98,17 +98,18 @@ class Pattern
 {
 public:
 	using Builtins = qrvmasm::QRVMBuiltins<Pattern>;
-	static constexpr size_t WordSize = 256;
-	using Word = u256;
+	static constexpr size_t WordSize = 512;
+	using Word = u512;
 
 	/// Matches any expression.
 	Pattern(PatternKind _kind = PatternKind::Any): m_kind(_kind) {}
 	// Matches a specific constant value.
-	Pattern(unsigned _value): Pattern(u256(_value)) {}
-	Pattern(int _value): Pattern(u256(_value)) {}
-	Pattern(long unsigned _value): Pattern(u256(_value)) {}
+	Pattern(unsigned _value): Pattern(Word(_value)) {}
+	Pattern(int _value): Pattern(Word(_value)) {}
+	Pattern(long unsigned _value): Pattern(Word(_value)) {}
 	// Matches a specific constant value.
-	Pattern(u256 const& _value): m_kind(PatternKind::Constant), m_data(std::make_shared<u256>(_value)) {}
+	Pattern(u256 const& _value): m_kind(PatternKind::Constant), m_data(std::make_shared<Word>(_value)) {}
+	Pattern(u512 const& _value): m_kind(PatternKind::Constant), m_data(std::make_shared<Word>(_value)) {}
 	// Matches a given instruction with given arguments
 	Pattern(qrvmasm::Instruction _instruction, std::initializer_list<Pattern> _arguments = {});
 	/// Sets this pattern to be part of the match group with the identifier @a _group.
@@ -125,7 +126,7 @@ public:
 	std::vector<Pattern> arguments() const { return m_arguments; }
 
 	/// @returns the data of the matched expression if this pattern is part of a match group.
-	u256 d() const;
+	Word d() const;
 
 	qrvmasm::Instruction instruction() const;
 
@@ -138,7 +139,7 @@ private:
 
 	PatternKind m_kind = PatternKind::Any;
 	qrvmasm::Instruction m_instruction; ///< Only valid if m_kind is Operation
-	std::shared_ptr<u256> m_data; ///< Only valid if m_kind is Constant
+	std::shared_ptr<Word> m_data; ///< Only valid if m_kind is Constant
 	std::vector<Pattern> m_arguments;
 	unsigned m_matchGroup = 0;
 	std::map<unsigned, Expression const*>* m_matchGroups = nullptr;

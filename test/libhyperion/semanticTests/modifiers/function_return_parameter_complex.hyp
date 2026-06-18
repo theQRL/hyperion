@@ -29,8 +29,8 @@ contract A {
 // ----
 // f() -> 0x10, 0x20, 0x40
 // x() -> 1
-// shouldFail(uint256): 1 -> FAILURE, hex"08c379a0", 0x20, 13, "a is not zero"
-// shouldFail(uint256): 0 -> FAILURE, hex"08c379a0", 0x20, 13, "b is not zero"
+// shouldFail(uint256): 1 -> FAILURE, hex"08c379a0", 0x40, 13, "a is not zero"
+// shouldFail(uint256): 0 -> FAILURE, hex"08c379a0", 0x40, 13, "b is not zero"
 // x() -> 1
 // g() -> 5
 // x() -> 5

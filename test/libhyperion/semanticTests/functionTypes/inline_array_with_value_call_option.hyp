@@ -6,5 +6,7 @@ contract C {
         return [this.f, this.g][0]{value: 1}();
     }
 }
+// ====
+// QRVMVersion: >zond
 // ----
 // h(), 1 quanta -> 1

@@ -37,5 +37,5 @@ contract C {
 // ret() -> 0xff
 // f(uint8): 0x1ff -> FAILURE
 // f(uint8): 0xff -> 0xff
-// mem() -> 0x20, 2, 0xff, 0xff
+// mem() -> FAILURE, hex"4e487b71", 0x32
 // stor() -> 1, 0xff, 2

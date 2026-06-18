@@ -53,7 +53,7 @@ void BlockHasher::operator()(Literal const& _literal)
 {
 	hash64(compileTimeLiteralHash("Literal"));
 	if (_literal.kind == LiteralKind::Number)
-		hash64(std::hash<u256>{}(valueOfNumberLiteral(_literal)));
+		hash64(std::hash<u512>{}(valueOfNumberLiteral(_literal)));
 	else
 		hash64(_literal.value.hash());
 	hash64(_literal.type.hash());
@@ -205,7 +205,7 @@ void ExpressionHasher::operator()(Literal const& _literal)
 {
 	hash64(compileTimeLiteralHash("Literal"));
 	if (_literal.kind == LiteralKind::Number)
-		hash64(std::hash<u256>{}(valueOfNumberLiteral(_literal)));
+		hash64(std::hash<u512>{}(valueOfNumberLiteral(_literal)));
 	else
 		hash64(_literal.value.hash());
 	hash64(_literal.type.hash());

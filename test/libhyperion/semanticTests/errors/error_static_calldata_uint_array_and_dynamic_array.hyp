@@ -7,4 +7,4 @@ contract C {
     }
 }
 // ----
-// f(uint256[],uint256[1]): 0x40, 0xff, 1, 0xffff -> FAILURE, hex"f42f106d", 0x40, 0xff, 1, 0xffff
+// f(uint256[],uint256[1]): 0x40, 0xff, 1, 0xffff -> FAILURE

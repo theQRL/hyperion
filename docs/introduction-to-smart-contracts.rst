@@ -133,7 +133,7 @@ registering with a username and password, all you need is a QRL keypair.
 This contract introduces some new concepts, let us go through them one by one.
 
 The line ``address public minter;`` declares a state variable of type :ref:`address<address>`.
-The ``address`` type is a 160-bit value that does not allow any arithmetic operations.
+The ``address`` type is a 384-bit value that does not allow any arithmetic operations.
 It is suitable for storing addresses of contracts, or a hash of the public half
 of a keypair belonging to :ref:`external accounts<accounts>`.
 
@@ -355,7 +355,7 @@ of transactions sent from that address, the so-called "nonce").
 Regardless of whether or not the account stores code, the two types are
 treated equally by the QRVM.
 
-Every account has a persistent key-value store mapping 256-bit words to 256-bit
+Every account has a persistent key-value store mapping 512-bit words to 512-bit
 words called **storage**.
 
 Furthermore, every account has a **balance** in
@@ -429,7 +429,7 @@ storage, memory and the stack.
 
 Each account has a data area called **storage**, which is persistent between function calls
 and transactions.
-Storage is a key-value store that maps 256-bit words to 256-bit words.
+Storage is a key-value store that maps 512-bit words to 512-bit words.
 It is not possible to enumerate storage from within a contract, it is
 comparatively costly to read, and even more to initialise and modify storage. Because of this cost,
 you should minimize what you store in persistent storage to what the contract needs to run.
@@ -438,15 +438,15 @@ A contract can neither read nor write to any storage apart from its own.
 
 The second data area is called **memory**, of which a contract obtains
 a freshly cleared instance for each message call. Memory is linear and can be
-addressed at byte level, but reads are limited to a width of 256 bits, while writes
-can be either 8 bits or 256 bits wide. Memory is expanded by a word (256-bit), when
+addressed at byte level, but reads are limited to a width of 512 bits, while writes
+can be either 8 bits or 512 bits wide. Memory is expanded by a word (512-bit), when
 accessing (either reading or writing) a previously untouched memory word (i.e. any offset
 within a word). At the time of expansion, the cost in gas must be paid. Memory is more
 costly the larger it grows (it scales quadratically).
 
 The QRVM is not a register machine but a stack machine, so all
 computations are performed on a data area called the **stack**. It has a maximum size of
-1024 elements and contains words of 256 bits. Access to the stack is
+1024 elements and contains words of 512 bits. Access to the stack is
 limited to the top end in the following way:
 It is possible to copy one of
 the topmost 16 elements to the top of the stack or swap the
@@ -465,7 +465,7 @@ Instruction Set
 
 The instruction set of the QRVM is kept minimal in order to avoid
 incorrect or inconsistent implementations which could cause consensus problems.
-All instructions operate on the basic data type, 256-bit words or on slices of memory
+All instructions operate on the basic data type, 512-bit words or on slices of memory
 (or other byte arrays).
 The usual arithmetic, bit, logical and comparison operations are present.
 Conditional and unconditional jumps are possible. Furthermore,

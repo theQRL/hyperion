@@ -10,7 +10,7 @@ contract Creator {
 // ----
 // constructor(): 1, 2, 3, 4 ->
 // gas irOptimized: 126363
-// gas legacy: 174186
+// gas legacy: 181644
 // gas legacyOptimized: 128709
 // r() -> 4
 // ch() -> 3

@@ -9,4 +9,4 @@ contract C {
     }
 }
 // ----
-// f() -> -7
+// f() -> 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9

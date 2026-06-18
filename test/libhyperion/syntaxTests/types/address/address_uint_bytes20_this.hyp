@@ -17,3 +17,7 @@ contract C {
     }
 }
 // ----
+// TypeError 9640: (65-84): Explicit type conversion not allowed from "uint160" to "address".
+// TypeError 9640: (107-126): Explicit type conversion not allowed from "bytes20" to "address".
+// TypeError 9640: (233-252): Explicit type conversion not allowed from "uint160" to "address".
+// TypeError 9640: (292-311): Explicit type conversion not allowed from "bytes20" to "address".

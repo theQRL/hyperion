@@ -130,7 +130,7 @@ qrvmc::Result QrvmoneUtility::deployAndExecute(
 
 qrvmc::Result QrvmoneUtility::compileDeployAndExecute(string _fuzzIsabelle)
 {
-	map<string, h160> libraryAddressMap;
+	map<string, h512> libraryAddressMap;
 	// Stage 1: Compile and deploy library if present.
 	if (!m_libraryName.empty())
 	{

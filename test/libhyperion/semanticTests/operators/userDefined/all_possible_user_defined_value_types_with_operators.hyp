@@ -51,7 +51,7 @@ type Uint128 is uint128;
 type Uint136 is uint136;
 type Uint144 is uint144;
 type Uint152 is uint152;
-type Uint160 is uint160;
+type Uint160 is uint512;
 type Uint168 is uint168;
 type Uint176 is uint176;
 type Uint184 is uint184;
@@ -85,7 +85,7 @@ type Bytes16 is bytes16;
 type Bytes17 is bytes17;
 type Bytes18 is bytes18;
 type Bytes19 is bytes19;
-type Bytes20 is bytes20;
+type Bytes20 is bytes64;
 type Bytes21 is bytes21;
 type Bytes22 is bytes22;
 type Bytes23 is bytes23;
@@ -412,17 +412,17 @@ using {bitorAddressPayable as |, bitnotAddressPayable as ~} for AddressPayable g
 using {bitorBool as |, bitnotBool as ~} for Bool global;
 
 function bitorAddress(Address x, Address y) pure returns (Address) {
-    return Address.wrap(address(bytes20(Address.unwrap(x)) | bytes20(Address.unwrap(y))));
+    return Address.wrap(address(bytes64(Address.unwrap(x)) | bytes64(Address.unwrap(y))));
 }
 function bitnotAddress(Address x) pure returns (Address) {
-    return Address.wrap(address(~bytes20(Address.unwrap(x))));
+    return Address.wrap(address(~bytes64(Address.unwrap(x))));
 }
 
 function bitorAddressPayable(AddressPayable x, AddressPayable y) pure returns (AddressPayable) {
-    return AddressPayable.wrap(payable(address(bytes20(address(AddressPayable.unwrap(x))) | bytes20(address(AddressPayable.unwrap(y))))));
+    return AddressPayable.wrap(payable(address(bytes64(address(AddressPayable.unwrap(x))) | bytes64(address(AddressPayable.unwrap(y))))));
 }
 function bitnotAddressPayable(AddressPayable x) pure returns (AddressPayable) {
-    return AddressPayable.wrap(payable(address(~bytes20(address(AddressPayable.unwrap(x))))));
+    return AddressPayable.wrap(payable(address(~bytes64(address(AddressPayable.unwrap(x))))));
 }
 
 function bitorBool(Bool x, Bool y) pure returns (Bool) {
@@ -561,7 +561,7 @@ contract C {
         assert(Uint136.unwrap(~Uint136.wrap(1)) == ~uint136(1));
         assert(Uint144.unwrap(~Uint144.wrap(1)) == ~uint144(1));
         assert(Uint152.unwrap(~Uint152.wrap(1)) == ~uint152(1));
-        assert(Uint160.unwrap(~Uint160.wrap(1)) == ~uint160(1));
+        assert(Uint160.unwrap(~Uint160.wrap(1)) == ~uint512(1));
         assert(Uint168.unwrap(~Uint168.wrap(1)) == ~uint168(1));
         assert(Uint176.unwrap(~Uint176.wrap(1)) == ~uint176(1));
         assert(Uint184.unwrap(~Uint184.wrap(1)) == ~uint184(1));
@@ -597,7 +597,7 @@ contract C {
         assert(Bytes17.unwrap(Bytes17.wrap(bytes17(bytes1(0x01))) | Bytes17.wrap(bytes17(bytes1(0x02)))) == bytes17(bytes1(0x03)));
         assert(Bytes18.unwrap(Bytes18.wrap(bytes18(bytes1(0x01))) | Bytes18.wrap(bytes18(bytes1(0x02)))) == bytes18(bytes1(0x03)));
         assert(Bytes19.unwrap(Bytes19.wrap(bytes19(bytes1(0x01))) | Bytes19.wrap(bytes19(bytes1(0x02)))) == bytes19(bytes1(0x03)));
-        assert(Bytes20.unwrap(Bytes20.wrap(bytes20(bytes1(0x01))) | Bytes20.wrap(bytes20(bytes1(0x02)))) == bytes20(bytes1(0x03)));
+        assert(Bytes20.unwrap(Bytes20.wrap(bytes64(bytes1(0x01))) | Bytes20.wrap(bytes64(bytes1(0x02)))) == bytes64(bytes1(0x03)));
         assert(Bytes21.unwrap(Bytes21.wrap(bytes21(bytes1(0x01))) | Bytes21.wrap(bytes21(bytes1(0x02)))) == bytes21(bytes1(0x03)));
         assert(Bytes22.unwrap(Bytes22.wrap(bytes22(bytes1(0x01))) | Bytes22.wrap(bytes22(bytes1(0x02)))) == bytes22(bytes1(0x03)));
         assert(Bytes23.unwrap(Bytes23.wrap(bytes23(bytes1(0x01))) | Bytes23.wrap(bytes23(bytes1(0x02)))) == bytes23(bytes1(0x03)));
@@ -632,7 +632,7 @@ contract C {
         assert(Bytes17.unwrap(~Bytes17.wrap(bytes17(bytes1(0x01)))) == ~bytes17(bytes1(0x01)));
         assert(Bytes18.unwrap(~Bytes18.wrap(bytes18(bytes1(0x01)))) == ~bytes18(bytes1(0x01)));
         assert(Bytes19.unwrap(~Bytes19.wrap(bytes19(bytes1(0x01)))) == ~bytes19(bytes1(0x01)));
-        assert(Bytes20.unwrap(~Bytes20.wrap(bytes20(bytes1(0x01)))) == ~bytes20(bytes1(0x01)));
+        assert(Bytes20.unwrap(~Bytes20.wrap(bytes64(bytes1(0x01)))) == ~bytes64(bytes1(0x01)));
         assert(Bytes21.unwrap(~Bytes21.wrap(bytes21(bytes1(0x01)))) == ~bytes21(bytes1(0x01)));
         assert(Bytes22.unwrap(~Bytes22.wrap(bytes22(bytes1(0x01)))) == ~bytes22(bytes1(0x01)));
         assert(Bytes23.unwrap(~Bytes23.wrap(bytes23(bytes1(0x01)))) == ~bytes23(bytes1(0x01)));
@@ -654,8 +654,8 @@ contract C {
     }
 
     function testOtherUnary() public pure {
-        assert(Address.unwrap(~Address.wrap(address(0))) == address(~bytes20(0)));
-        assert(AddressPayable.unwrap(~AddressPayable.wrap(payable(address(0)))) == payable(address(~bytes20(0))));
+        assert(Address.unwrap(~Address.wrap(address(0))) == address(~bytes64(0)));
+        assert(AddressPayable.unwrap(~AddressPayable.wrap(payable(address(0)))) == payable(address(~bytes64(0))));
         assert(Bool.unwrap(~Bool.wrap(true)) == false);
     }
 }

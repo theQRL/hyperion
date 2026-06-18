@@ -32,6 +32,7 @@
 #include <libyul/AST.h>
 
 #include <libyul/backends/qrvm/QRVMDialect.h>
+#include <libhyputil/VMConstants.h>
 
 #include <libhyputil/CommonData.h>
 
@@ -351,9 +352,9 @@ bool UnusedStoreEliminator::knownUnrelated(
 			std::optional<u256> length1 = m_knowledgeBase.valueIfKnownConstant(*_op1.length);
 			std::optional<u256> length2 = m_knowledgeBase.valueIfKnownConstant(*_op2.length);
 			if (
-				(length1 && *length1 <= 32) &&
-				(length2 && *length2 <= 32) &&
-				m_knowledgeBase.knownToBeDifferentByAtLeast32(*_op1.start, *_op2.start)
+				(length1 && *length1 <= VMWordBytes) &&
+				(length2 && *length2 <= VMWordBytes) &&
+				m_knowledgeBase.knownToBeDifferentByAtLeastWordSize(*_op1.start, *_op2.start)
 			)
 				return true;
 		}

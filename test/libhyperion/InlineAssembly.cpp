@@ -280,7 +280,8 @@ BOOST_AUTO_TEST_CASE(string_literals)
 
 BOOST_AUTO_TEST_CASE(oversize_string_literals)
 {
-	CHECK_ASSEMBLE_ERROR("{ let x := \"123456789012345678901234567890123\" }", TypeError, "String literal too long");
+	// 65 characters - exceeds VMWordBytes (64)
+	CHECK_ASSEMBLE_ERROR("{ let x := \"12345678901234567890123456789012345678901234567890123456789012345\" }", TypeError, "String literal too long");
 }
 
 BOOST_AUTO_TEST_CASE(magic_variables)

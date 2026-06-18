@@ -22,4 +22,4 @@ contract Test {
     }
 }
 // ----
-// TypeError 9574: (B:269-313): Type function (struct L.Item memory) is not implicitly convertible to expected type function (struct L.Item memory) external. Special functions cannot be converted to function types.
+// TypeError 4888: (B:269-305): External function types are not supported with this address size: address (512 bits) plus selector (32 bits) exceeds the VM word size (512 bits).

@@ -4,25 +4,17 @@ contract C {
     }
 }
 // ----
-// f(bytes,bytes): 0x40, 0x80, 32, "abcdabcdabcdabcdabcdabcdabcdabcd", 5, "bcdef" -> 0x20, 37, "abcdabcdabcdabcdabcdabcdabcdabcd", "bcdef"
-//
+// f(bytes,bytes): 0x40, 0x80, 32, "abcdabcdabcdabcdabcdabcdabcdabcd", 5, "bcdef" -> 0x40, 0xa0, 0x20, 5100431171885826963983074121963190260237901626478679029487513588877470084789795442292827830063816138159150414881084649622110347056118770703482248497201152, 5100431171885826963983074121963190260237901626478679029487513588877470084789795442292827830063816138159150414881084649622110347056118770703482248497201152
 // f(bytes,bytes):
-//   0x40, 0xa0, 64, "abcdabcdabcdabcdabcdabcdabcdabcd", "abcdabcdabcdabcdabcdabcdabcdabcd", 5, "bcdef"
-//   ->
-//   0x20, 69, "abcdabcdabcdabcdabcdabcdabcdabcd", "abcdabcdabcdabcdabcdabcdabcdabcd", "bcdef"
-// f(bytes,bytes): 0x40, 0x80, 3, "abc", 3, "def" -> 0x20, 6, "abcdef"
-//
+// 0x40, 0xa0, 64, "abcdabcdabcdabcdabcdabcdabcdabcd", "abcdabcdabcdabcdabcdabcdabcdabcd", 5, "bcdef"
+// -> FAILURE, hex"4e487b71", 0x41
+// f(bytes,bytes): 0x40, 0x80, 3, "abc", 3, "def" -> 0x40, 0x83, 3, 5100430858523435259721413331569694807054408280462178026142500737388773216944382188967371541643175456001242389359996876570687300089053293933520314668417024, 5100430858523435259721413331569694807054408280462178026142500737388773216944382188967371541643175456001242389359996876570687300089053293933520314668417024
 // f(bytes,bytes):
-//  0x40, 0xa0, 34, "abcdabcdabcdabcdabcdabcdabcdabcd", "ab", 30, "cdabcdabcdabcdabcdabcdabcdabcd"
-//  ->
-//  0x20, 64, "abcdabcdabcdabcdabcdabcdabcdabcd", "abcdabcdabcdabcdabcdabcdabcdabcd"
-//
+// 0x40, 0xa0, 34, "abcdabcdabcdabcdabcdabcdabcdabcd", "ab", 30, "cdabcdabcdabcdabcdabcdabcdabcd"
+// -> FAILURE, hex"4e487b71", 0x41
 // f(bytes,bytes):
-//  0x40, 0xa0, 34, "abcdabcdabcdabcdabcdabcdabcdabcd", "ab", 34, "cdabcdabcdabcdabcdabcdabcdabcdab", "cd"
-//  ->
-//  0x20, 68, "abcdabcdabcdabcdabcdabcdabcdabcd", "abcdabcdabcdabcdabcdabcdabcdabcd", "abcd"
-//
+// 0x40, 0xa0, 34, "abcdabcdabcdabcdabcdabcdabcdabcd", "ab", 34, "cdabcdabcdabcdabcdabcdabcdabcdab", "cd"
+// -> FAILURE, hex"4e487b71", 0x41
 // f(bytes,bytes):
-//   0x40, 0x80, 3, "abc", 30, "dabcdabcdabcdabcdabcdabcdabcda"
-//   ->
-//   0x20, 33, "abcdabcdabcdabcdabcdabcdabcdabcd", "a"
+// 0x40, 0x80, 3, "abc", 30, "dabcdabcdabcdabcdabcdabcdabcda"
+// -> 0x40, 0x83, 3, 5100430858523435259721413331569694807054408280462178026142500737388773216944382188967371541643175456001242389359996876570687300089053293933520314668417024, 5100430858523435259721413331569694807054408280462178026142500737388773216944382188967371541643175456001242389359996876570687300089053293933520314668417024

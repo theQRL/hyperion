@@ -22,18 +22,18 @@ contract c {
 }
 // ----
 // storageEmpty -> 1
-// set(uint256,bytes,uint256): 12, 0x60, 13, 33, "12345678901234567890123456789012", "3" -> true
+// set(uint256,bytes,uint256): 12, 0x60, 13, 33, "12345678901234567890123456789012", "3" -> FAILURE
 // gas irOptimized: 133592
 // gas legacy: 134628
 // gas legacyOptimized: 133871
-// test(uint256): 32 -> "3"
-// storageEmpty -> 0
+// test(uint256): 32 -> FAILURE, hex"4e487b71", 0x32
+// storageEmpty -> 1
 // copy() -> true
 // storageEmpty -> 1
-// set(uint256,bytes,uint256): 12, 0x60, 13, 33, "12345678901234567890123456789012", "3" -> true
+// set(uint256,bytes,uint256): 12, 0x60, 13, 33, "12345678901234567890123456789012", "3" -> FAILURE
 // gas irOptimized: 133592
 // gas legacy: 134628
 // gas legacyOptimized: 133871
-// storageEmpty -> 0
+// storageEmpty -> 1
 // del() -> true
 // storageEmpty -> 1
