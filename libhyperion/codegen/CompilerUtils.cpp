@@ -226,9 +226,11 @@ void CompilerUtils::storeInMemoryDynamic(Type const& _type, bool _padToWordBound
 		dynamic_cast<FunctionType const&>(_type).kind() == FunctionType::Kind::External
 	)
 	{
-		combineExternalFunctionType(true);
+		hypAssert(_padToWordBoundaries, "External function values in memory must use word-padded representation.");
+		m_context << u256(0xffffffffUL) << Instruction::AND;
+		m_context << Instruction::DUP3 << u256(VMWordBytes) << Instruction::ADD << Instruction::MSTORE;
 		m_context << Instruction::DUP2 << Instruction::MSTORE;
-		m_context << u256(_padToWordBoundaries ? VMWordBytes : 52) << Instruction::ADD;
+		m_context << u256(2 * VMWordBytes) << Instruction::ADD;
 	}
 	else if (_type.isValueType())
 	{
@@ -1598,12 +1600,20 @@ unsigned CompilerUtils::loadFromMemoryHelper(Type const& _type, bool _fromCallda
 		m_context << Instruction::POP << u256(0);
 		return numBytes;
 	}
+	if (isExternalFunctionType)
+	{
+		hypAssert(!_fromCalldata, "External function values in calldata are not supported with 64-byte addresses.");
+		hypAssert(_padToWords, "External function values in memory must use word-padded representation.");
+		m_context << Instruction::DUP1 << Instruction::MLOAD;
+		m_context << Instruction::SWAP1 << Instruction::DUP1 << u256(VMWordBytes) << Instruction::ADD << Instruction::MLOAD;
+		m_context << u256(0xffffffffUL) << Instruction::AND;
+		m_context << Instruction::SWAP1 << Instruction::POP;
+		return 2 * VMWordBytes;
+	}
 	hypAssert(numBytes <= VMWordBytes, "Static memory load of more than VMWordBytes bytes requested.");
 	m_context << (_fromCalldata ? Instruction::CALLDATALOAD : Instruction::MLOAD);
 	bool cleanupNeeded = true;
-	if (isExternalFunctionType)
-		splitExternalFunctionType(true);
-	else if (numBytes != VMWordBytes)
+	if (numBytes != VMWordBytes)
 	{
 		// add leading or trailing zeros by dividing/multiplying depending on alignment
 		unsigned shiftFactor = (VMWordBytes - numBytes) * 8;

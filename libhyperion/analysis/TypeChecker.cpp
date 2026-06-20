@@ -1740,8 +1740,6 @@ bool TypeChecker::visit(TupleExpression const& _tuple)
 					_tuple.location(),
 					"Type " + inlineArrayType->humanReadableName() + " is only valid in storage."
 				);
-			else if (containsUnsupportedExternalFunctionType(*inlineArrayType))
-				m_errorReporter.fatalTypeError(4888_error, _tuple.location(), externalFunctionTypeTooWideMessage());
 
 			_tuple.annotation().type = TypeProvider::array(DataLocation::Memory, inlineArrayType, types.size());
 		}

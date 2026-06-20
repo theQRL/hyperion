@@ -2962,11 +2962,13 @@ std::string YulUtilFunctions::writeToMemoryFunction(Type const& _type)
 		{
 			return Whiskers(R"(
 				function <functionName>(memPtr, addr, selector) {
-					mstore(memPtr, <combine>(addr, selector))
+					mstore(memPtr, addr)
+					mstore(add(memPtr, <wordSize>), and(selector, <selectorMask>))
 				}
 			)")
 			("functionName", functionName)
-			("combine", combineExternalFunctionIdFunction())
+			("wordSize", std::to_string(VMWordBytes))
+			("selectorMask", formatNumber(u256(0xffffffffUL)))
 			.render();
 		}
 		else if (_type.isValueType())
@@ -4414,6 +4416,21 @@ std::string YulUtilFunctions::readFromMemoryOrCalldata(Type const& _type, bool _
 		}
 
 		hypAssert(_type.isValueType(), "");
+		if (auto const* funType = dynamic_cast<FunctionType const*>(&_type); funType && funType->kind() == FunctionType::Kind::External)
+		{
+			hypAssert(!_fromCalldata, "External function values in calldata are not supported with 64-byte addresses.");
+			return Whiskers(R"(
+				function <functionName>(ptr) -> addr, selector {
+					addr := mload(ptr)
+					selector := and(mload(add(ptr, <wordSize>)), <selectorMask>)
+				}
+			)")
+			("functionName", functionName)
+			("wordSize", std::to_string(VMWordBytes))
+			("selectorMask", formatNumber(u256(0xffffffffUL)))
+			.render();
+		}
+
 		Whiskers templ(R"(
 			function <functionName>(ptr) -> <returnVariables> {
 				<?fromCalldata>
