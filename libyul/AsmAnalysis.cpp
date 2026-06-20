@@ -453,7 +453,7 @@ void AsmAnalyzer::operator()(Switch const& _switch)
 
 	YulString valueType = expectExpression(*_switch.expression);
 
-	std::set<u256> cases;
+	std::set<u512> cases;
 	for (auto const& _case: _switch.cases)
 	{
 		if (_case.value)
@@ -467,7 +467,7 @@ void AsmAnalyzer::operator()(Switch const& _switch)
 			(*this)(*_case.value);
 
 			/// Note: the parser ensures there is only one default case
-			if (watcher.ok() && !cases.insert(u256(valueOfLiteral(*_case.value))).second)
+			if (watcher.ok() && !cases.insert(valueOfLiteral(*_case.value)).second)
 				m_errorReporter.declarationError(
 					6792_error,
 					nativeLocationOf(_case),

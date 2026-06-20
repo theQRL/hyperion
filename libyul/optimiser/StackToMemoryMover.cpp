@@ -22,6 +22,7 @@
 #include <libyul/AST.h>
 
 #include <libhyputil/CommonData.h>
+#include <libhyputil/VMConstants.h>
 
 #include <range/v3/algorithm/none_of.hpp>
 #include <range/v3/view/filter.hpp>
@@ -314,7 +315,8 @@ std::optional<YulString> StackToMemoryMover::VariableMemoryOffsetTracker::operat
 	{
 		uint64_t slot = m_memorySlots.at(_variable);
 		yulAssert(slot < m_numRequiredSlots, "");
-		return YulString{toCompactHexWithPrefix(m_reservedMemory + 32 * (m_numRequiredSlots - slot - 1))};
+		u256 const offset = m_reservedMemory + VMWordBytes * (m_numRequiredSlots - slot - 1);
+		return YulString{toCompactHexWithPrefix(offset)};
 	}
 	else
 		return std::nullopt;

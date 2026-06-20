@@ -367,9 +367,9 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 			convertLengthToSize(_sourceType);
 		// stack: <target> <source> <size>
 		m_context << Instruction::DUP1 << Instruction::DUP4 << Instruction::DUP4;
-		// We can resort to copying full 32 bytes only if
-		// - the length is known to be a multiple of 32 or
-		// - we will pad to full 32 bytes later anyway.
+		// We can resort to copying full VM words only if
+		// - the length is known to be a multiple of the VM word size or
+		// - we will pad to full VM words later anyway.
 		if (!_sourceType.isByteArrayOrString() || _padToWordBoundaries)
 			utils.memoryCopy32();
 		else

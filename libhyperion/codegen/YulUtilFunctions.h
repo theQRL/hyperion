@@ -73,7 +73,7 @@ public:
 
 	/// @returns a function that copies raw bytes of dynamic length from calldata
 	/// or memory to memory.
-	/// @params _cleanup If true, pads with zeros up to the 32 byte boundary after the specified length
+	/// @params _cleanup If true, pads with zeros up to the VM word boundary after the specified length
 	/// signature: (src, dst, length) ->
 	std::string copyToMemoryFunction(bool _fromCalldata, bool _cleanup);
 
@@ -574,7 +574,7 @@ private:
 	/// @returns the name of a function that cleans up elements of a storage byte array starting from startIndex.
 	/// It will not copy elements in case of transformation to short byte array, and will not change array length.
 	/// In case of startIndex is greater than len, doesn't do anything.
-	/// In case of short byte array (< 32 bytes) doesn't do anything.
+	/// In case of short byte array (< VMWordBytes) doesn't do anything.
 	/// If the first slot to be cleaned up is partially occupied, does not touch it. Cleans up only completely unused slots.
 	/// signature: (array, len, startIndex)
 	std::string cleanUpDynamicByteArrayEndSlotsFunction(ArrayType const& _type);

@@ -56,6 +56,12 @@ std::string YulUtilFunctions::combineExternalFunctionIdFunction()
 	// guard with a hypAssert that fires before any runtime code reaches this
 	// path; the helper below stays only for source backwards compatibility.
 	std::string functionName = "combine_external_function_id";
+	size_t constexpr externalFunctionIdBits = AddressBits + 32;
+	hypAssert(
+		externalFunctionIdBits <= VMWordBits,
+		"External function id address plus selector exceeds the VM word size."
+	);
+	size_t constexpr padBits = VMWordBits - externalFunctionIdBits;
 	return m_functionCollector.createFunction(functionName, [&]() {
 		return Whiskers(R"(
 			function <functionName>(addr, selector) -> combined {
@@ -64,7 +70,7 @@ std::string YulUtilFunctions::combineExternalFunctionIdFunction()
 		)")
 		("functionName", functionName)
 		("shl32", shiftLeftFunction(32))
-		("shlPad", shiftLeftFunction(VMWordBits - 416))
+		("shlPad", shiftLeftFunction(padBits))
 		.render();
 	});
 }
@@ -72,6 +78,12 @@ std::string YulUtilFunctions::combineExternalFunctionIdFunction()
 std::string YulUtilFunctions::splitExternalFunctionIdFunction()
 {
 	std::string functionName = "split_external_function_id";
+	size_t constexpr externalFunctionIdBits = AddressBits + 32;
+	hypAssert(
+		externalFunctionIdBits <= VMWordBits,
+		"External function id address plus selector exceeds the VM word size."
+	);
+	size_t constexpr padBits = VMWordBits - externalFunctionIdBits;
 	return m_functionCollector.createFunction(functionName, [&]() {
 		return Whiskers(R"(
 			function <functionName>(combined) -> addr, selector {
@@ -82,7 +94,7 @@ std::string YulUtilFunctions::splitExternalFunctionIdFunction()
 		)")
 		("functionName", functionName)
 		("shr32", shiftRightFunction(32))
-		("shrPad", shiftRightFunction(VMWordBits - 416))
+		("shrPad", shiftRightFunction(padBits))
 		.render();
 	});
 }

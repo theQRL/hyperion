@@ -547,7 +547,7 @@ bool isValidDecimal(std::string const& _string);
 
 /// @returns a quoted string if all characters are printable ASCII chars,
 /// or its hex representation otherwise.
-/// _value cannot be longer than 32 bytes.
+/// _value cannot be longer than one VM word.
 std::string formatAsStringOrNumber(std::string const& _value);
 
 /// @returns a string with the usual backslash-escapes for non-printable and non-ASCII

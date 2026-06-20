@@ -73,7 +73,7 @@ struct DebugData
 struct TypedName { std::shared_ptr<DebugData const> debugData; YulString name; Type type; };
 using TypedNameList = std::vector<TypedName>;
 
-/// Literal number or string (up to 32 bytes)
+/// Literal number or string (up to one VM word)
 enum class LiteralKind { Number, Boolean, String };
 struct Literal { std::shared_ptr<DebugData const> debugData; LiteralKind kind; YulString value; Type type; };
 /// External / internal identifier or label reference

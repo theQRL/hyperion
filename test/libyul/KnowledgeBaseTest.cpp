@@ -102,11 +102,11 @@ BOOST_AUTO_TEST_CASE(difference)
 
 	BOOST_CHECK(
 		kb.differenceIfKnownConstant("c"_yulstring, "b"_yulstring) ==
-		u256(20)
+		u512(20)
 	);
 	BOOST_CHECK(
 		kb.differenceIfKnownConstant("b"_yulstring, "c"_yulstring) ==
-		u256(-20)
+		u512(-20)
 	);
 	BOOST_CHECK(!kb.knownToBeDifferentByAtLeastWordSize("b"_yulstring, "c"_yulstring));
 	BOOST_CHECK(!kb.knownToBeDifferentByAtLeastWordSize("b"_yulstring, "d"_yulstring));
@@ -114,17 +114,36 @@ BOOST_AUTO_TEST_CASE(difference)
 	BOOST_CHECK(kb.knownToBeDifferentByAtLeastWordSize("b"_yulstring, "a"_yulstring));
 
 	BOOST_CHECK(
-		kb.differenceIfKnownConstant("e"_yulstring, "a"_yulstring) == u256(208)
+		kb.differenceIfKnownConstant("e"_yulstring, "a"_yulstring) == u512(208)
 	);
 	BOOST_CHECK(
-		kb.differenceIfKnownConstant("e"_yulstring, "b"_yulstring) == u256(8)
+		kb.differenceIfKnownConstant("e"_yulstring, "b"_yulstring) == u512(8)
 	);
 	BOOST_CHECK(
-		kb.differenceIfKnownConstant("a"_yulstring, "e"_yulstring) == u256(-208)
+		kb.differenceIfKnownConstant("a"_yulstring, "e"_yulstring) == u512(-208)
 	);
 	BOOST_CHECK(
-		kb.differenceIfKnownConstant("b"_yulstring, "e"_yulstring) == u256(-8)
+		kb.differenceIfKnownConstant("b"_yulstring, "e"_yulstring) == u512(-8)
 	);
+}
+
+BOOST_AUTO_TEST_CASE(literalsAbove256Bits)
+{
+	string const twoTo256 = "115792089237316195423570985008687907853269984665640564039457584007913129639936";
+	u512 const twoTo256Value = u512(1) << 256;
+
+	yul::KnowledgeBase kb = constructKnowledgeBase(R"({
+		let zero := 0
+		let high := )" + twoTo256 + R"(
+		let afterHigh := add(high, 64)
+	})");
+
+	BOOST_CHECK(kb.valueIfKnownConstant("zero"_yulstring) == u512(0));
+	BOOST_CHECK(kb.valueIfKnownConstant("high"_yulstring) == twoTo256Value);
+	BOOST_CHECK(!kb.knownToBeZero("high"_yulstring));
+	BOOST_CHECK(kb.knownToBeDifferent("zero"_yulstring, "high"_yulstring));
+	BOOST_CHECK(kb.differenceIfKnownConstant("high"_yulstring, "zero"_yulstring) == twoTo256Value);
+	BOOST_CHECK(kb.differenceIfKnownConstant("afterHigh"_yulstring, "high"_yulstring) == u512(64));
 }
 
 

@@ -357,7 +357,7 @@ Json::Value formatImmutableReferences(std::map<u256, std::pair<std::string, std:
 		{
 			Json::Value byteRange{Json::objectValue};
 			byteRange["start"] = Json::UInt(byteOffset);
-			byteRange["length"] = Json::UInt(32); // immutable references are currently always 32 bytes wide
+			byteRange["length"] = Json::UInt(VMWordBytes); // immutable references are one VM word wide
 			array.append(byteRange);
 		}
 		ret[identifier] = array;

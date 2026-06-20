@@ -19,6 +19,7 @@
 #include <libqrvmasm/GasMeter.h>
 
 #include <libqrvmasm/KnownState.h>
+#include <libhyputil/VMConstants.h>
 
 using namespace hyperion;
 using namespace hyperion::util;
@@ -93,7 +94,7 @@ GasMeter::GasConsumption GasMeter::estimateMax(AssemblyItem const& _item, bool _
 			gas = runGas(_item.instruction());
 			gas += memoryGas(classes.find(Instruction::ADD, {
 				m_state->relativeStackElement(0),
-				classes.find(AssemblyItem(32))
+				classes.find(AssemblyItem(VMWordBytes))
 			}));
 			break;
 		case Instruction::MSTORE8:
@@ -220,7 +221,11 @@ GasMeter::GasConsumption GasMeter::wordGas(u256 const& _multiplier, ExpressionCl
 	u512 const* value = m_state->expressionClasses().knownConstant(_value);
 	if (!value)
 		return GasConsumption::infinite();
-	return GasConsumption(_multiplier * ((u256(*value) + 31) / 32));
+	bigint wordCount = (bigint(*value) + VMWordBytes - 1) / VMWordBytes;
+	bigint gas = bigint(_multiplier) * wordCount;
+	if (gas > std::numeric_limits<u256>::max())
+		return GasConsumption::infinite();
+	return GasConsumption(u256(gas));
 }
 
 GasMeter::GasConsumption GasMeter::memoryGas(ExpressionClasses::Id _position)
@@ -228,16 +233,21 @@ GasMeter::GasConsumption GasMeter::memoryGas(ExpressionClasses::Id _position)
 	u512 const* value = m_state->expressionClasses().knownConstant(_position);
 	if (!value)
 		return GasConsumption::infinite();
+	if (*value > std::numeric_limits<u256>::max())
+		return GasConsumption::infinite();
 	if (*value < m_largestMemoryAccess)
 		return GasConsumption(0);
 	u256 previous = m_largestMemoryAccess;
-	m_largestMemoryAccess = u256(*value);
-	auto memGas = [=](u256 const& pos) -> u256
+	auto memGas = [](bigint const& pos) -> bigint
 	{
-		u256 size = (pos + 31) / 32;
-		return GasCosts::memoryGas * size + size * size / GasCosts::quadCoeffDiv;
+		bigint size = (pos + VMWordBytes - 1) / VMWordBytes;
+		return bigint(GasCosts::memoryGas) * size + size * size / GasCosts::quadCoeffDiv;
 	};
-	return memGas(u256(*value)) - memGas(previous);
+	bigint gas = memGas(bigint(*value)) - memGas(bigint(previous));
+	if (gas > std::numeric_limits<u256>::max())
+		return GasConsumption::infinite();
+	m_largestMemoryAccess = u256(*value);
+	return GasConsumption(u256(gas));
 }
 
 GasMeter::GasConsumption GasMeter::memoryGas(int _stackPosOffset, int _stackPosSize)

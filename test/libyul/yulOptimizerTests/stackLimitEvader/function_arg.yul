@@ -45,7 +45,7 @@
 //
 // {
 //     {
-//         mstore(0x40, memoryguard(0xa0))
+//         mstore(0x40, memoryguard(0xc0))
 //         sstore(0, f(0))
 //     }
 //     function f(a1) -> v

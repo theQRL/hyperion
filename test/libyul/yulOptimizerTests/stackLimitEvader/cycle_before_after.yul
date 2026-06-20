@@ -57,7 +57,7 @@
 // step: stackLimitEvader
 //
 // {
-//     mstore(0x40, memoryguard(0xa0))
+//     mstore(0x40, memoryguard(0xc0))
 //     sstore(0, g(sload(0)))
 //     function g(x) -> v
 //     {

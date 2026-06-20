@@ -33,7 +33,7 @@ namespace hyperion::yul
  * currently stored in storage resp. memory, if known.
  *
  * Also evaluates simple ``keccak256(a, c)`` when the value at memory location `a` is known and `c`
- * is a constant `<= 32`.
+ * is a constant not larger than the VM word size.
  *
  * Works best if the code is in SSA form.
  *
@@ -69,7 +69,7 @@ protected:
 	);
 
 	/// Evaluates simple ``keccak256(a, c)`` when the value at memory location ``a`` is known and
-	/// `c` is a constant `<= 32`.
+	/// `c` is a constant not larger than the VM word size.
 	void tryEvaluateKeccak(
 		Expression& _e,
 		std::vector<Expression> const& _arguments

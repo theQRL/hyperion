@@ -5,7 +5,7 @@
         calldatacopy(0, 0, 0x20)
     }
     if calldataload(1) {
-        // covered
+        // not fully covered for a full-word store
         mstore(2, 9)
         calldatacopy(1, 0, 0x21)
     }
@@ -33,8 +33,7 @@
 //         }
 //         if calldataload(1)
 //         {
-//             let _10 := 9
-//             let _11 := 2
+//             mstore(2, 9)
 //             calldatacopy(1, 0, 0x21)
 //         }
 //         if calldataload(2)

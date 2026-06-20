@@ -1635,7 +1635,7 @@ unsigned CompilerUtils::loadFromMemoryHelper(Type const& _type, bool _fromCallda
 
 void CompilerUtils::cleanHigherOrderBits(IntegerType const& _typeOnStack)
 {
-	if (_typeOnStack.numBits() == 256)
+	if (_typeOnStack.numBits() == VMWordBits)
 		return;
 	else if (_typeOnStack.isSigned())
 		m_context << u256(_typeOnStack.numBits() / 8 - 1) << Instruction::SIGNEXTEND;

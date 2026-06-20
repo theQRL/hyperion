@@ -11,7 +11,7 @@
 // step: fakeStackLimitEvader
 //
 // {
-//     mstore(0x40, memoryguard(0x80))
+//     mstore(0x40, memoryguard(0xa0))
 //     { let x, y }
 //     {
 //         let z_1, $w_2

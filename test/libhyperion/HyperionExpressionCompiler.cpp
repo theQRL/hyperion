@@ -347,20 +347,48 @@ BOOST_AUTO_TEST_CASE(arithmetic, *boost::unit_test::disabled())
 	)";
 	bytes code = compileFirstExpression(sourceCode, {}, {{"test", "f", "y"}});
 	bytes push0Bytes = bytes{uint8_t(Instruction::PUSH0)};
-	uint8_t size = 0x65;
-	bytes panic =
+	uint8_t size = 0xbd;
+	bytes uint256Cleanup =
+		bytes{
+			uint8_t(Instruction::PUSH32)
+		} +
+		bytes(32, 0xff) +
+		bytes{
+			uint8_t(Instruction::AND)
+		};
+	bytes utilities =
 		bytes{
 			uint8_t(Instruction::JUMPDEST),
+		} +
+		push0Bytes +
+		bytes{
+			uint8_t(Instruction::DUP2),
+			uint8_t(Instruction::PUSH2), 0x01, 0x00,
+			uint8_t(Instruction::SHL),
+			uint8_t(Instruction::SWAP1),
+			uint8_t(Instruction::POP),
+			uint8_t(Instruction::JUMPDEST),
+			uint8_t(Instruction::SWAP2),
+			uint8_t(Instruction::SWAP1),
+			uint8_t(Instruction::POP),
+			uint8_t(Instruction::JUMP),
+			uint8_t(Instruction::JUMPDEST),
+			uint8_t(Instruction::PUSH1), 0xaf,
 			uint8_t(Instruction::PUSH32)
 		} +
 		util::fromHex("4E487B7100000000000000000000000000000000000000000000000000000000") +
-		  push0Bytes +
+		bytes{
+			uint8_t(Instruction::PUSH1), 0x7a,
+			uint8_t(Instruction::JUMP),
+			uint8_t(Instruction::JUMPDEST),
+		} +
+		push0Bytes +
 		bytes{
 			uint8_t(Instruction::MSTORE),
 			uint8_t(Instruction::PUSH1), 0x12,
 			uint8_t(Instruction::PUSH1), 0x4,
 			uint8_t(Instruction::MSTORE),
-			uint8_t(Instruction::PUSH1), 0x24
+			uint8_t(Instruction::PUSH1), 0x44
 		} +
 		push0Bytes +
 		bytes{
@@ -386,24 +414,30 @@ BOOST_AUTO_TEST_CASE(arithmetic, *boost::unit_test::disabled())
 			uint8_t(Instruction::SUB),
 			uint8_t(Instruction::PUSH1), 0x4,
 			uint8_t(Instruction::ADD),
+		} +
+		uint256Cleanup +
+		bytes{
 			uint8_t(Instruction::DUP2),
 			uint8_t(Instruction::ISZERO),
 			uint8_t(Instruction::ISZERO),
-			uint8_t(Instruction::PUSH1), 0x20,
+			uint8_t(Instruction::PUSH1), 0x42,
 			uint8_t(Instruction::JUMPI),
-			uint8_t(Instruction::PUSH1), 0x1f,
-			uint8_t(Instruction::PUSH1), 0x36,
+			uint8_t(Instruction::PUSH1), 0x41,
+			uint8_t(Instruction::PUSH1), 0x88,
 			uint8_t(Instruction::JUMP),
 			uint8_t(Instruction::JUMPDEST),
 			uint8_t(Instruction::JUMPDEST),
 			uint8_t(Instruction::MOD),
+		} +
+		uint256Cleanup +
+		bytes{
 			uint8_t(Instruction::DUP2),
 			uint8_t(Instruction::ISZERO),
 			uint8_t(Instruction::ISZERO),
-			uint8_t(Instruction::PUSH1), 0x2e,
+			uint8_t(Instruction::PUSH1), 0x72,
 			uint8_t(Instruction::JUMPI),
-			uint8_t(Instruction::PUSH1), 0x2d,
-			uint8_t(Instruction::PUSH1), 0x36,
+			uint8_t(Instruction::PUSH1), 0x71,
+			uint8_t(Instruction::PUSH1), 0x88,
 			uint8_t(Instruction::JUMP),
 			uint8_t(Instruction::JUMPDEST),
 			uint8_t(Instruction::JUMPDEST),
@@ -412,7 +446,7 @@ BOOST_AUTO_TEST_CASE(arithmetic, *boost::unit_test::disabled())
 			uint8_t(Instruction::MUL),
 			uint8_t(Instruction::PUSH1), size,
 			uint8_t(Instruction::JUMP)
-		} + panic;
+		} + utilities;
 	else
 		expectation = bytes{
 			uint8_t(Instruction::PUSH1), 0x1,
@@ -429,24 +463,30 @@ BOOST_AUTO_TEST_CASE(arithmetic, *boost::unit_test::disabled())
 			uint8_t(Instruction::OR),
 			uint8_t(Instruction::SUB),
 			uint8_t(Instruction::ADD),
+		} +
+		uint256Cleanup +
+		bytes{
 			uint8_t(Instruction::DUP2),
 			uint8_t(Instruction::ISZERO),
 			uint8_t(Instruction::ISZERO),
-			uint8_t(Instruction::PUSH1), 0x22,
+			uint8_t(Instruction::PUSH1), 0x44,
 			uint8_t(Instruction::JUMPI),
-			uint8_t(Instruction::PUSH1), 0x21,
-			uint8_t(Instruction::PUSH1), 0x36,
+			uint8_t(Instruction::PUSH1), 0x43,
+			uint8_t(Instruction::PUSH1), 0x88,
 			uint8_t(Instruction::JUMP),
 			uint8_t(Instruction::JUMPDEST),
 			uint8_t(Instruction::JUMPDEST),
 			uint8_t(Instruction::MOD),
+		} +
+		uint256Cleanup +
+		bytes{
 			uint8_t(Instruction::DUP2),
 			uint8_t(Instruction::ISZERO),
 			uint8_t(Instruction::ISZERO),
-			uint8_t(Instruction::PUSH1), 0x30,
+			uint8_t(Instruction::PUSH1), 0x74,
 			uint8_t(Instruction::JUMPI),
-			uint8_t(Instruction::PUSH1), 0x2f,
-			uint8_t(Instruction::PUSH1), 0x36,
+			uint8_t(Instruction::PUSH1), 0x73,
+			uint8_t(Instruction::PUSH1), 0x88,
 			uint8_t(Instruction::JUMP),
 			uint8_t(Instruction::JUMPDEST),
 			uint8_t(Instruction::JUMPDEST),
@@ -454,7 +494,7 @@ BOOST_AUTO_TEST_CASE(arithmetic, *boost::unit_test::disabled())
 			uint8_t(Instruction::MUL),
 			uint8_t(Instruction::PUSH1), size,
 			uint8_t(Instruction::JUMP)
-		} + panic;
+		} + utilities;
 
 	BOOST_CHECK_EQUAL_COLLECTIONS(code.begin(), code.end(), expectation.begin(), expectation.end());
 }
@@ -481,6 +521,8 @@ BOOST_AUTO_TEST_CASE(unary_operators)
 			uint8_t(Instruction::PUSH1), 0x1f,
 			uint8_t(Instruction::SIGNEXTEND),
 			uint8_t(Instruction::NOT),
+			uint8_t(Instruction::PUSH1), 0x1f,
+			uint8_t(Instruction::SIGNEXTEND),
 			uint8_t(Instruction::PUSH1), 0x2,
 			uint8_t(Instruction::EQ),
 			uint8_t(Instruction::ISZERO)
@@ -496,6 +538,8 @@ BOOST_AUTO_TEST_CASE(unary_operators)
 			uint8_t(Instruction::PUSH1), 0x1f,
 			uint8_t(Instruction::SIGNEXTEND),
 			uint8_t(Instruction::NOT),
+			uint8_t(Instruction::PUSH1), 0x1f,
+			uint8_t(Instruction::SIGNEXTEND),
 			uint8_t(Instruction::EQ),
 			uint8_t(Instruction::ISZERO)
 		};

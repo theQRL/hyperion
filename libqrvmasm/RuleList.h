@@ -336,7 +336,7 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleListPart5(
 		[=]() { return A.d() >= Pattern::WordSize; }
 	});
 
-	// Replace BYTE(A, X), A >= 32 with 0
+	// Replace BYTE(A, X), A >= WordSize / 8 with 0
 	rules.push_back({
 		Builtins::BYTE(A, X),
 		[=]() -> Pattern { return Word(0); },

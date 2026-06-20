@@ -25,6 +25,7 @@
 #include <libqrvmasm/KnownState.h>
 #include <libqrvmasm/AssemblyItem.h>
 #include <libhyputil/Keccak256.h>
+#include <libhyputil/VMConstants.h>
 
 #include <functional>
 
@@ -362,9 +363,9 @@ KnownState::StoreOperation KnownState::storeInMemory(Id _slot, Id _value, Source
 		return StoreOperation();
 	m_sequenceNumber++;
 	decltype(m_memoryContent) memoryContents;
-	// copy over values at points where we know that they are different from _slot by at least 32
+	// copy over values at points where we know that they are at least one VM word away from _slot
 	for (auto const& memoryItem: m_memoryContent)
-		if (m_expressionClasses->knownToBeDifferentBy32(memoryItem.first, _slot))
+		if (m_expressionClasses->knownToBeDifferentByAtLeastVMWord(memoryItem.first, _slot))
 			memoryContents.insert(memoryItem);
 	m_memoryContent = std::move(memoryContents);
 
@@ -400,7 +401,7 @@ KnownState::Id KnownState::applyKeccak256(
 		return m_expressionClasses->find(keccak256Item, {_start, _length}, true, m_sequenceNumber);
 	unsigned length = unsigned(*l);
 	std::vector<Id> arguments;
-	for (unsigned i = 0; i < length; i += 32)
+	for (unsigned i = 0; i < length; i += VMWordBytes)
 	{
 		Id slot = m_expressionClasses->find(
 			AssemblyItem(Instruction::ADD, _location),
@@ -416,7 +417,7 @@ KnownState::Id KnownState::applyKeccak256(
 	{
 		bytes data;
 		for (Id a: arguments)
-			data += toBigEndian(u256(*m_expressionClasses->knownConstant(a)));
+			data += toBigEndian(*m_expressionClasses->knownConstant(a));
 		data.resize(length);
 		v = m_expressionClasses->find(AssemblyItem(u512(u256(util::keccak256(data))), _location));
 	}

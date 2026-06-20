@@ -30,6 +30,7 @@
 #include <libqrvmasm/ControlFlowGraph.h>
 #include <libqrvmasm/BlockDeduplicator.h>
 #include <libqrvmasm/Assembly.h>
+#include <libhyputil/VMConstants.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -587,7 +588,7 @@ BOOST_AUTO_TEST_CASE(cse_empty_keccak256)
 BOOST_AUTO_TEST_CASE(cse_partial_keccak256)
 {
 	AssemblyItems input{
-		u256(0xabcd) << (256 - 16),
+		u512(0xabcd) << (VMWordBits - 16),
 		u256(0),
 		Instruction::MSTORE,
 		u256(2),
@@ -595,7 +596,7 @@ BOOST_AUTO_TEST_CASE(cse_partial_keccak256)
 		Instruction::KECCAK256
 	};
 	checkCSE(input, {
-		u256(0xabcd) << (256 - 16),
+		u512(0xabcd) << (VMWordBits - 16),
 		u256(0),
 		Instruction::MSTORE,
 		u256(util::keccak256(bytes{0xab, 0xcd}))
@@ -634,22 +635,22 @@ BOOST_AUTO_TEST_CASE(cse_keccak256_twice_same_content)
 		Instruction::DUP1,
 		u256(0x80),
 		Instruction::MSTORE, // m[128] = DUP1
-		u256(0x20),
+		u256(VMWordBytes),
 		u256(0x80),
-		Instruction::KECCAK256, // keccak256(m[128..(128+32)])
+		Instruction::KECCAK256, // keccak256(m[128..(128+VMWordBytes)])
 		Instruction::DUP2,
 		u256(12),
 		Instruction::MSTORE, // m[12] = DUP1
-		u256(0x20),
+		u256(VMWordBytes),
 		u256(12),
-		Instruction::KECCAK256 // keccak256(m[12..(12+32)])
+		Instruction::KECCAK256 // keccak256(m[12..(12+VMWordBytes)])
 	};
 	checkCSE(input, {
 		u256(0x80),
 		Instruction::DUP2,
 		Instruction::DUP2,
 		Instruction::MSTORE,
-		u256(0x20),
+		u256(VMWordBytes),
 		Instruction::SWAP1,
 		Instruction::KECCAK256,
 		u256(12),
@@ -669,10 +670,10 @@ BOOST_AUTO_TEST_CASE(cse_keccak256_twice_same_content_dynamic_store_in_between)
 		Instruction::DUP2,
 		Instruction::DUP2,
 		Instruction::MSTORE, // m[128] = DUP1
-		u256(0x20),
+		u256(VMWordBytes),
 		Instruction::DUP1,
 		Instruction::DUP3,
-		Instruction::KECCAK256, // keccak256(m[128..(128+32)])
+		Instruction::KECCAK256, // keccak256(m[128..(128+VMWordBytes)])
 		u256(12),
 		Instruction::DUP5,
 		Instruction::DUP2,
@@ -683,7 +684,7 @@ BOOST_AUTO_TEST_CASE(cse_keccak256_twice_same_content_dynamic_store_in_between)
 		Instruction::SWAP2,
 		Instruction::SWAP1,
 		Instruction::SWAP2,
-		Instruction::KECCAK256 // keccak256(m[12..(12+32)])
+		Instruction::KECCAK256 // keccak256(m[12..(12+VMWordBytes)])
 	};
 	checkCSE(input, input);
 }
@@ -693,27 +694,27 @@ BOOST_AUTO_TEST_CASE(cse_keccak256_twice_same_content_noninterfering_store_in_be
 	// Keccak-256 twice from different dynamic location but with same content,
 	// dynamic mstore in between, but does not force us to re-calculate the hash
 	AssemblyItems input{
-		u256(0x80),
+		u256(0x100),
 		Instruction::DUP2,
 		Instruction::DUP2,
-		Instruction::MSTORE, // m[128] = DUP1
-		u256(0x20),
+		Instruction::MSTORE, // m[256] = DUP1
+		u256(VMWordBytes),
 		Instruction::DUP1,
 		Instruction::DUP3,
-		Instruction::KECCAK256, // keccak256(m[128..(128+32)])
+		Instruction::KECCAK256, // keccak256(m[256..(256+VMWordBytes)])
 		u256(12),
 		Instruction::DUP5,
 		Instruction::DUP2,
 		Instruction::MSTORE, // m[12] = DUP1
 		Instruction::DUP12,
-		u256(12 + 32),
+		u256(12 + VMWordBytes),
 		Instruction::MSTORE, // does not destroy memory knowledge
 		Instruction::DUP13,
-		u256(128 - 32),
+		u256(256 - VMWordBytes),
 		Instruction::MSTORE, // does not destroy memory knowledge
-		u256(0x20),
+		u256(VMWordBytes),
 		u256(12),
-		Instruction::KECCAK256 // keccak256(m[12..(12+32)])
+		Instruction::KECCAK256 // keccak256(m[12..(12+VMWordBytes)])
 	};
 	// if this changes too often, only count the number of SHA3 and MSTORE instructions
 	AssemblyItems output = CSE(input);
@@ -1345,6 +1346,24 @@ BOOST_AUTO_TEST_CASE(cse_mload_pop)
 
 	checkCSE(input, output);
 	checkFullCSE(input, output);
+}
+
+BOOST_AUTO_TEST_CASE(cse_mstore_invalidates_overlapping_word_load)
+{
+	u256 const halfWordOffset = VMWordBytes / 2;
+	AssemblyItems input{
+		u256(0xaa),
+		halfWordOffset,
+		Instruction::MSTORE,
+		u256(0xbb),
+		u256(0),
+		Instruction::MSTORE,
+		halfWordOffset,
+		Instruction::MLOAD,
+	};
+
+	AssemblyItems output = CSE(input);
+	BOOST_CHECK_EQUAL(1, count(output.begin(), output.end(), AssemblyItem(Instruction::MLOAD)));
 }
 
 BOOST_AUTO_TEST_CASE(cse_verbatim_mload)

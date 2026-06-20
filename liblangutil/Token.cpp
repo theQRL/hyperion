@@ -172,11 +172,11 @@ std::tuple<Token, unsigned int, unsigned int> fromIdentifierOrKeyword(std::strin
 		{
 			if (*it < '0' || *it > '9')
 				return -1;
-			//  Overflow check. The largest acceptable value is 384 in the callers.
-			if (ret >= 384)
-				return -1;
 			ret *= 10;
 			ret += *it - '0';
+			// Overflow guard. Callers reject values above AddressBits.
+			if (ret > static_cast<int>(AddressBits))
+				return -1;
 		}
 		return ret;
 	};

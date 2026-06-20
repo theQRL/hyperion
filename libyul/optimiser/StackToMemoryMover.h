@@ -135,7 +135,7 @@ public:
 	 * @param _reservedMemory Is the amount of previously reserved memory,
 	 *                        i.e. the lowest memory offset to which variables can be moved.
 	 * @param _memorySlots A map from variables to a slot in memory. Based on the slot a unique offset in the memory range
-	 *                     between _reservedMemory and _reservedMemory + 32 * _numRequiredSlots is calculated for each
+	 *                     between _reservedMemory and _reservedMemory + VMWordBytes * _numRequiredSlots is calculated for each
 	 *                     variable.
 	 * @param _numRequiredSlots The number of slots required in total. The maximum value that may occur in @a _memorySlots.
 	 */

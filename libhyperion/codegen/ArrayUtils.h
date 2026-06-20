@@ -81,7 +81,7 @@ public:
 	/// Stack post: end_ref
 	void clearStorageLoop(Type const* _type) const;
 	/// Converts length to size (number of storage slots or calldata/memory bytes).
-	/// if @a _pad then add padding to multiples of 32 bytes for calldata/memory.
+	/// if @a _pad then add padding to multiples of VM word bytes for calldata/memory.
 	/// Stack pre: length
 	/// Stack post: size
 	void convertLengthToSize(ArrayType const& _arrayType, bool _pad = false) const;

@@ -24,6 +24,7 @@
 
 #include <libqrvmasm/SemanticInformation.h>
 #include <libqrvmasm/AssemblyItem.h>
+#include <libhyputil/VMConstants.h>
 
 using namespace hyperion;
 using namespace hyperion::qrvmasm;
@@ -56,7 +57,7 @@ std::vector<SemanticInformation::Operation> SemanticInformation::readWriteOperat
 		op.location = Location::Memory;
 		op.startParameter = 0;
 		if (_instruction == Instruction::MSTORE || _instruction == Instruction::MLOAD)
-			op.lengthConstant = 32;
+			op.lengthConstant = VMWordBytes;
 		else if (_instruction == Instruction::MSTORE8)
 			op.lengthConstant = 1;
 

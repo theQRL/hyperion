@@ -69,11 +69,11 @@ public:
 	KnowledgeBase(std::map<YulString, AssignedValue> const& _ssaValues);
 
 	bool knownToBeDifferent(YulString _a, YulString _b);
-	std::optional<u256> differenceIfKnownConstant(YulString _a, YulString _b);
+	std::optional<u512> differenceIfKnownConstant(YulString _a, YulString _b);
 	bool knownToBeDifferentByAtLeastWordSize(YulString _a, YulString _b);
 	bool knownToBeZero(YulString _a);
-	std::optional<u256> valueIfKnownConstant(YulString _a);
-	std::optional<u256> valueIfKnownConstant(Expression const& _expression);
+	std::optional<u512> valueIfKnownConstant(YulString _a);
+	std::optional<u512> valueIfKnownConstant(Expression const& _expression);
 
 private:
 	/**
@@ -83,14 +83,14 @@ private:
 	struct VariableOffset
 	{
 		YulString reference;
-		u256 offset;
+		u512 offset;
 
 		bool isAbsolute() const
 		{
 			return reference.empty();
 		}
 
-		std::optional<u256> absoluteValue() const
+		std::optional<u512> absoluteValue() const
 		{
 			if (isAbsolute())
 				return offset;
