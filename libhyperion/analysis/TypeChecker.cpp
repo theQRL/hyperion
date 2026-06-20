@@ -520,7 +520,7 @@ bool TypeChecker::visit(FunctionDefinition const& _function)
 		else if (functionIsExternallyVisible)
 		{
 			if (containsUnsupportedExternalFunctionType(*type(_var)))
-				m_errorReporter.fatalTypeError(4888_error, _var.location(), externalFunctionTypeTooWideMessage());
+				m_errorReporter.fatalTypeError(4889_error, _var.location(), externalFunctionTypeTooWideMessage());
 
 			auto iType = type(_var)->interfaceType(_function.libraryFunction());
 
@@ -4061,7 +4061,7 @@ void TypeChecker::checkErrorAndEventParameters(CallableDeclaration const& _calla
 		if (!type(*var)->interfaceType(false))
 			m_errorReporter.typeError(3417_error, var->location(), "Internal or recursive type is not allowed as " + kind + " parameter type.");
 		if (containsUnsupportedExternalFunctionType(*type(*var)))
-			m_errorReporter.fatalTypeError(4888_error, var->location(), externalFunctionTypeTooWideMessage());
+			m_errorReporter.fatalTypeError(4890_error, var->location(), externalFunctionTypeTooWideMessage());
 		if (
 			!useABICoderV2() &&
 			!typeSupportedByOldABIEncoder(*type(*var), false /* isLibrary */)
