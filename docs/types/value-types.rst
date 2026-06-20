@@ -223,8 +223,8 @@ Operators:
     To reduce conversion ambiguity, starting with version 0.4.24, the compiler will force you to make the truncation explicit in the conversion.
     Take for example the 32-byte value ``0x111122223333444455556666777788889999AAAABBBBCCCCDDDDEEEEFFFFCCCC``.
 
-    You can use ``address(uint512(bytes64(b)))``, which results in ``Q111122223333444455556666777788889999aAaa``,
-    or you can use ``address(uint512(uint256(b)))``, which results in ``Q777788889999AaAAbBbbCcccddDdeeeEfFFfCcCc``.
+    You can use ``address(uint512(bytes64(b)))``, which results in ``Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111122223333444455556666777788889999aAaa``,
+    or you can use ``address(uint512(uint256(b)))``, which results in ``Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000777788889999AaAAbBbbCcccddDdeeeEfFFfCcCc``.
 
 .. note::
     Mixed-case hexadecimal numbers conforming to `EIP-55 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md>`_ are automatically treated as literals of the ``address`` type. See :ref:`Address Literals<address_literals>`.
@@ -428,7 +428,7 @@ Address Literals
 ----------------
 
 Address literals that pass the address checksum test, for example
-``QdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF`` are of ``address`` type.
+``Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF`` are of ``address`` type.
 Address literals that do not pass the checksum test produce
 an error.
 
@@ -731,13 +731,14 @@ context of the current contract. Calling an internal function is realized
 by jumping to its entry label, just like when calling a function of the current
 contract internally.
 
-External functions consist of an address and a function signature and they can
-be passed via and returned from external function calls.
+External function values consist of an address and a function signature.
+With 512-bit QRL addresses, external function values are not supported because
+the address plus selector exceeds the 512-bit VM word size. Pass the address and
+selector separately when you need to describe an external call target.
 
 Function types are notated as follows:
 
-.. code-block:: hyperion
-    :force:
+.. code-block:: none
 
     function (<parameter types>) {internal|external} [pure|view|payable] [returns (<return types>)]
 
@@ -783,9 +784,8 @@ If a function type variable is not initialised, calling it results
 in a :ref:`Panic error<assert-and-require>`. The same happens if you call a function after using ``delete``
 on it.
 
-If external function types are used outside of the context of Hyperion,
-they are treated as the ``function`` type, which encodes the address
-followed by the function identifier together in a single ``bytes24`` type.
+External function types are rejected on the 512-bit address target because the
+address and function identifier cannot be encoded together in one VM word.
 
 Note that public functions of the current contract can be used both as an
 internal and as an external function. To use ``f`` as an internal function,
@@ -795,8 +795,8 @@ A function of an internal type can be assigned to a variable of an internal func
 of where it is defined.
 This includes private, internal and public functions of both contracts and libraries as well as free
 functions.
-External function types, on the other hand, are only compatible with public and external contract
-functions.
+On targets where external function types are enabled, they are only compatible
+with public and external contract functions.
 
 .. note::
     External functions with ``calldata`` parameters are incompatible with external function types with ``calldata`` parameters.
@@ -815,7 +815,7 @@ Functions declared in interfaces do not have definitions so pointing at them doe
 
 Members:
 
-External (or public) functions have the following members:
+External (or public) function identifiers have the following members:
 
 * ``.address`` returns the address of the contract of the function.
 * ``.selector`` returns the :ref:`ABI function selector <abi_function_selector>`
@@ -895,52 +895,6 @@ Example that shows how to use internal function types:
 
         function sum(uint x, uint y) internal pure returns (uint) {
             return x + y;
-        }
-    }
-
-Another example that uses external function types:
-
-.. code-block:: hyperion
-
-    // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.1.0;
-
-
-    contract Oracle {
-        struct Request {
-            bytes data;
-            function(uint) external callback;
-        }
-
-        Request[] private requests;
-        event NewRequest(uint);
-
-        function query(bytes memory data, function(uint) external callback) public {
-            requests.push(Request(data, callback));
-            emit NewRequest(requests.length - 1);
-        }
-
-        function reply(uint requestID, uint response) public {
-            // Here goes the check that the reply comes from a trusted source
-            requests[requestID].callback(response);
-        }
-    }
-
-
-    contract OracleUser {
-        Oracle constant private ORACLE_CONST = Oracle(Q00000000219ab540356cBB839Cbe05303d7705Fa); // known contract
-        uint private exchangeRate;
-
-        function buySomething() public {
-            ORACLE_CONST.query("USD", this.oracleResponse);
-        }
-
-        function oracleResponse(uint response) public {
-            require(
-                msg.sender == address(ORACLE_CONST),
-                "Only oracle can call this."
-            );
-            exchangeRate = response;
         }
     }
 

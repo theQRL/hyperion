@@ -10,7 +10,7 @@
 object \"C_11\" {
     code {
         /// @src 0:78:159  \"contract C { function f() external pure returns (bytes4) { return 0xaabbccdd; } }\"
-        mstore(64, memoryguard(128))
+        mstore(128, memoryguard(256))
         if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
         constructor_C_11()
@@ -21,7 +21,7 @@ object \"C_11\" {
         return(_1, datasize(\"C_11_deployed\"))
 
         function allocate_unbounded() -> memPtr {
-            memPtr := mload(64)
+            memPtr := mload(128)
         }
 
         function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -41,11 +41,11 @@ object \"C_11\" {
     object \"C_11_deployed\" {
         code {
             /// @src 0:78:159  \"contract C { function f() external pure returns (bytes4) { return 0xaabbccdd; } }\"
-            mstore(64, memoryguard(128))
+            mstore(128, memoryguard(256))
 
             if iszero(lt(calldatasize(), 4))
             {
-                let selector := shift_right_224_unsigned(calldataload(0))
+                let selector := shift_right_480_unsigned(calldataload(0))
                 switch selector
 
                 case 0x26121ff0
@@ -60,13 +60,13 @@ object \"C_11\" {
 
             revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74()
 
-            function shift_right_224_unsigned(value) -> newValue {
+            function shift_right_480_unsigned(value) -> newValue {
                 newValue :=
-                shr(224, value)
+                shr(480, value)
             }
 
             function allocate_unbounded() -> memPtr {
-                memPtr := mload(64)
+                memPtr := mload(128)
             }
 
             function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -83,7 +83,7 @@ object \"C_11\" {
             }
 
             function cleanup_t_bytes4(value) -> cleaned {
-                cleaned := and(value, 0xffffffff00000000000000000000000000000000000000000000000000000000)
+                cleaned := and(value, 0xffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
             }
 
             function abi_encode_t_bytes4_to_t_bytes4_fromStack(value, pos) {
@@ -91,7 +91,7 @@ object \"C_11\" {
             }
 
             function abi_encode_tuple_t_bytes4__to_t_bytes4__fromStack(headStart , value0) -> tail {
-                tail := add(headStart, 32)
+                tail := add(headStart, 64)
 
                 abi_encode_t_bytes4_to_t_bytes4_fromStack(value0,  add(headStart, 0))
 
@@ -120,13 +120,13 @@ object \"C_11\" {
                 cleaned := value
             }
 
-            function shift_left_224(value) -> newValue {
+            function shift_left_480(value) -> newValue {
                 newValue :=
-                shl(224, value)
+                shl(480, value)
             }
 
             function convert_t_rational_2864434397_by_1_to_t_bytes4(value) -> converted {
-                converted := cleanup_t_bytes4(shift_left_224(cleanup_t_rational_2864434397_by_1(value)))
+                converted := cleanup_t_bytes4(shift_left_480(cleanup_t_rational_2864434397_by_1(value)))
             }
 
             /// @ast-id 10

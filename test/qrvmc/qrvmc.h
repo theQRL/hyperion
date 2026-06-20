@@ -49,7 +49,7 @@ enum
 
 
 /**
- * The fixed size array of 32 bytes.
+ * The fixed size array of 64 bytes.
  *
  * 64 bytes of data capable of storing e.g. 512-bit values.
  */

@@ -4,7 +4,7 @@ object "C_6" {
     code {
         {
             /// @src 0:60:103  "contract C..."
-            mstore(64, memoryguard(0x80))
+            mstore(128, memoryguard(0x0100))
             if callvalue()
             {
                 revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8()
@@ -15,7 +15,7 @@ object "C_6" {
         }
         function allocate_unbounded() -> memPtr
         {
-            let memPtr_1 := mload(64)
+            let memPtr_1 := mload(128)
             memPtr := memPtr_1
         }
         function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8()
@@ -26,7 +26,7 @@ object "C_6" {
         code {
             {
                 /// @src 0:60:103  "contract C..."
-                mstore(64, memoryguard(0x80))
+                mstore(128, memoryguard(0x0100))
                 if iszero(lt(calldatasize(), 4))
                 {
                     let selector := shift_right_unsigned(calldataload(0))
@@ -36,12 +36,12 @@ object "C_6" {
             }
             function shift_right_unsigned(value) -> newValue
             {
-                let newValue_1 := shr(224, value)
+                let newValue_1 := shr(480, value)
                 newValue := newValue_1
             }
             function allocate_unbounded() -> memPtr
             {
-                let memPtr_1 := mload(64)
+                let memPtr_1 := mload(128)
                 memPtr := memPtr_1
             }
             function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8()

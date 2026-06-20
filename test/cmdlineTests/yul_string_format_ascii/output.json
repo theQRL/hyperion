@@ -10,7 +10,7 @@
 object \"C_11\" {
     code {
         /// @src 0:78:164  \"contract C { function f() external pure returns (string memory) { return \\\"abcabc\\\"; } }\"
-        mstore(64, memoryguard(128))
+        mstore(128, memoryguard(256))
         if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
         constructor_C_11()
@@ -21,7 +21,7 @@ object \"C_11\" {
         return(_1, datasize(\"C_11_deployed\"))
 
         function allocate_unbounded() -> memPtr {
-            memPtr := mload(64)
+            memPtr := mload(128)
         }
 
         function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -41,11 +41,11 @@ object \"C_11\" {
     object \"C_11_deployed\" {
         code {
             /// @src 0:78:164  \"contract C { function f() external pure returns (string memory) { return \\\"abcabc\\\"; } }\"
-            mstore(64, memoryguard(128))
+            mstore(128, memoryguard(256))
 
             if iszero(lt(calldatasize(), 4))
             {
-                let selector := shift_right_224_unsigned(calldataload(0))
+                let selector := shift_right_480_unsigned(calldataload(0))
                 switch selector
 
                 case 0x26121ff0
@@ -60,13 +60,13 @@ object \"C_11\" {
 
             revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74()
 
-            function shift_right_224_unsigned(value) -> newValue {
+            function shift_right_480_unsigned(value) -> newValue {
                 newValue :=
-                shr(224, value)
+                shr(480, value)
             }
 
             function allocate_unbounded() -> memPtr {
-                memPtr := mload(64)
+                memPtr := mload(128)
             }
 
             function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -90,31 +90,39 @@ object \"C_11\" {
 
             function array_storeLengthForEncoding_t_string_memory_ptr_fromStack(pos, length) -> updated_pos {
                 mstore(pos, length)
-                updated_pos := add(pos, 0x20)
+                updated_pos := add(pos, 0x40)
             }
 
             function copy_memory_to_memory_with_cleanup(src, dst, length) {
                 let i := 0
-                for { } lt(i, length) { i := add(i, 32) }
+                for { } lt(i, length) { i := add(i, 64) }
                 {
                     mstore(add(dst, i), mload(add(src, i)))
                 }
-                mstore(add(dst, length), 0)
+
+                // Clear bytes from dst+length to dst+i (end of last copied word)
+                // using mstore8 to avoid overwriting bytes past this chunk.
+                let j := length
+                for { } lt(j, i) { j := add(j, 1) }
+                {
+                    mstore8(add(dst, j), 0)
+                }
+
             }
 
-            function round_up_to_mul_of_32(value) -> result {
-                result := and(add(value, 31), not(31))
+            function round_up_to_mul_of_64(value) -> result {
+                result := and(add(value, 63), not(63))
             }
 
             function abi_encode_t_string_memory_ptr_to_t_string_memory_ptr_fromStack(value, pos) -> end {
                 let length := array_length_t_string_memory_ptr(value)
                 pos := array_storeLengthForEncoding_t_string_memory_ptr_fromStack(pos, length)
-                copy_memory_to_memory_with_cleanup(add(value, 0x20), pos, length)
-                end := add(pos, round_up_to_mul_of_32(length))
+                copy_memory_to_memory_with_cleanup(add(value, 0x40), pos, length)
+                end := add(pos, round_up_to_mul_of_64(length))
             }
 
             function abi_encode_tuple_t_string_memory_ptr__to_t_string_memory_ptr__fromStack(headStart , value0) -> tail {
-                tail := add(headStart, 32)
+                tail := add(headStart, 64)
 
                 mstore(add(headStart, 0), sub(tail, headStart))
                 tail := abi_encode_t_string_memory_ptr_to_t_string_memory_ptr_fromStack(value0,  tail)
@@ -137,20 +145,25 @@ object \"C_11\" {
             }
 
             function zero_value_for_split_t_string_memory_ptr() -> ret {
-                ret := 96
+                ret := 192
+            }
+
+            function shift_left_256(value) -> newValue {
+                newValue :=
+                shl(256, value)
             }
 
             function panic_error_0x41() {
-                mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
+                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
                 mstore(4, 0x41)
-                revert(0, 0x24)
+                revert(0, 0x44)
             }
 
             function finalize_allocation(memPtr, size) {
-                let newFreePtr := add(memPtr, round_up_to_mul_of_32(size))
+                let newFreePtr := add(memPtr, round_up_to_mul_of_64(size))
                 // protect against overflow
                 if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, memPtr)) { panic_error_0x41() }
-                mstore(64, newFreePtr)
+                mstore(128, newFreePtr)
             }
 
             function allocate_memory(size) -> memPtr {
@@ -162,10 +175,10 @@ object \"C_11\" {
                 // Make sure we can allocate memory without overflow
                 if gt(length, 0xffffffffffffffff) { panic_error_0x41() }
 
-                size := round_up_to_mul_of_32(length)
+                size := round_up_to_mul_of_64(length)
 
                 // add length slot
-                size := add(size, 0x20)
+                size := add(size, 0x40)
 
             }
 
@@ -179,13 +192,13 @@ object \"C_11\" {
 
             function store_literal_in_memory_9f0adad0a59b05d2e04a1373342b10b9eb16c57c164c8a3bfcbf46dccee39a21(memPtr) {
 
-                mstore(add(memPtr, 0), \"abcabc\")
+                mstore(add(memPtr, 0), 0x61626361626300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
 
             }
 
             function copy_literal_to_memory_9f0adad0a59b05d2e04a1373342b10b9eb16c57c164c8a3bfcbf46dccee39a21() -> memPtr {
                 memPtr := allocate_memory_array_t_string_memory_ptr(6)
-                store_literal_in_memory_9f0adad0a59b05d2e04a1373342b10b9eb16c57c164c8a3bfcbf46dccee39a21(add(memPtr, 32))
+                store_literal_in_memory_9f0adad0a59b05d2e04a1373342b10b9eb16c57c164c8a3bfcbf46dccee39a21(add(memPtr, 64))
             }
 
             function convert_t_stringliteral_9f0adad0a59b05d2e04a1373342b10b9eb16c57c164c8a3bfcbf46dccee39a21_to_t_string_memory_ptr() -> converted {

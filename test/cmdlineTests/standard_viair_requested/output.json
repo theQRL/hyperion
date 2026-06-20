@@ -10,7 +10,7 @@
 object \"C_3\" {
     code {
         /// @src 0:79:92  \"contract C {}\"
-        mstore(64, memoryguard(128))
+        mstore(128, memoryguard(256))
         if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
         constructor_C_3()
@@ -21,7 +21,7 @@ object \"C_3\" {
         return(_1, datasize(\"C_3_deployed\"))
 
         function allocate_unbounded() -> memPtr {
-            memPtr := mload(64)
+            memPtr := mload(128)
         }
 
         function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -41,17 +41,17 @@ object \"C_3\" {
     object \"C_3_deployed\" {
         code {
             /// @src 0:79:92  \"contract C {}\"
-            mstore(64, memoryguard(128))
+            mstore(128, memoryguard(256))
 
             revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74()
 
-            function shift_right_224_unsigned(value) -> newValue {
+            function shift_right_480_unsigned(value) -> newValue {
                 newValue :=
-                shr(224, value)
+                shr(480, value)
             }
 
             function allocate_unbounded() -> memPtr {
-                memPtr := mload(64)
+                memPtr := mload(128)
             }
 
             function revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74() {
@@ -86,7 +86,7 @@ object \"C_3\" {
 object \"D_16\" {
     code {
         /// @src 0:93:146  \"contract D { function f() public { C c = new C(); } }\"
-        mstore(64, memoryguard(128))
+        mstore(128, memoryguard(256))
         if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
         constructor_D_16()
@@ -97,7 +97,7 @@ object \"D_16\" {
         return(_1, datasize(\"D_16_deployed\"))
 
         function allocate_unbounded() -> memPtr {
-            memPtr := mload(64)
+            memPtr := mload(128)
         }
 
         function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -117,11 +117,11 @@ object \"D_16\" {
     object \"D_16_deployed\" {
         code {
             /// @src 0:93:146  \"contract D { function f() public { C c = new C(); } }\"
-            mstore(64, memoryguard(128))
+            mstore(128, memoryguard(256))
 
             if iszero(lt(calldatasize(), 4))
             {
-                let selector := shift_right_224_unsigned(calldataload(0))
+                let selector := shift_right_480_unsigned(calldataload(0))
                 switch selector
 
                 case 0x26121ff0
@@ -136,13 +136,13 @@ object \"D_16\" {
 
             revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74()
 
-            function shift_right_224_unsigned(value) -> newValue {
+            function shift_right_480_unsigned(value) -> newValue {
                 newValue :=
-                shr(224, value)
+                shr(480, value)
             }
 
             function allocate_unbounded() -> memPtr {
-                memPtr := mload(64)
+                memPtr := mload(128)
             }
 
             function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -178,10 +178,15 @@ object \"D_16\" {
                 revert(0, 0)
             }
 
+            function shift_left_256(value) -> newValue {
+                newValue :=
+                shl(256, value)
+            }
+
             function panic_error_0x41() {
-                mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
+                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
                 mstore(4, 0x41)
-                revert(0, 0x24)
+                revert(0, 0x44)
             }
 
             function revert_forward_1() {
@@ -217,7 +222,7 @@ object \"D_16\" {
         object \"C_3\" {
             code {
                 /// @src 0:79:92  \"contract C {}\"
-                mstore(64, memoryguard(128))
+                mstore(128, memoryguard(256))
                 if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
                 constructor_C_3()
@@ -228,7 +233,7 @@ object \"D_16\" {
                 return(_1, datasize(\"C_3_deployed\"))
 
                 function allocate_unbounded() -> memPtr {
-                    memPtr := mload(64)
+                    memPtr := mload(128)
                 }
 
                 function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -248,17 +253,17 @@ object \"D_16\" {
             object \"C_3_deployed\" {
                 code {
                     /// @src 0:79:92  \"contract C {}\"
-                    mstore(64, memoryguard(128))
+                    mstore(128, memoryguard(256))
 
                     revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74()
 
-                    function shift_right_224_unsigned(value) -> newValue {
+                    function shift_right_480_unsigned(value) -> newValue {
                         newValue :=
-                        shr(224, value)
+                        shr(480, value)
                     }
 
                     function allocate_unbounded() -> memPtr {
-                        memPtr := mload(64)
+                        memPtr := mload(128)
                     }
 
                     function revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74() {

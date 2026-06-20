@@ -210,7 +210,7 @@ AssemblyItem Assembly::createAssemblyItemFromJSON(Json::Value const& _json, std:
 		if (name == "PUSH")
 		{
 			requireValueDefinedForInstruction(name, value);
-			result = {AssemblyItemType::Push, u512(u256("0x" + value))};
+			result = {AssemblyItemType::Push, u512("0x" + value)};
 		}
 		else if (name == "PUSH [ErrorTag]")
 		{
@@ -265,7 +265,7 @@ AssemblyItem Assembly::createAssemblyItemFromJSON(Json::Value const& _json, std:
 		else if (name == "PUSH data")
 		{
 			requireValueDefinedForInstruction(name, value);
-			result = {AssemblyItemType::PushData, u512(u256("0x" + value))};
+			result = {AssemblyItemType::PushData, u512("0x" + value)};
 		}
 		else if (name == "VERBATIM")
 		{

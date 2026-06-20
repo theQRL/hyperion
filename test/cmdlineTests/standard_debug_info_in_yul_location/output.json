@@ -10,7 +10,7 @@
 object \"C_54\" {
     code {
         /// @src 0:79:435  \"contract C...\"
-        mstore(64, memoryguard(160))
+        mstore(128, memoryguard(320))
         if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
         let _1 := copy_arguments_for_constructor_20_object_C_54()
@@ -19,33 +19,38 @@ object \"C_54\" {
         let _2 := allocate_unbounded()
         codecopy(_2, dataoffset(\"C_54_deployed\"), datasize(\"C_54_deployed\"))
 
-        setimmutable(_2, \"8\", mload(128))
+        setimmutable(_2, \"8\", mload(256))
 
         return(_2, datasize(\"C_54_deployed\"))
 
         function allocate_unbounded() -> memPtr {
-            memPtr := mload(64)
+            memPtr := mload(128)
         }
 
         function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
             revert(0, 0)
         }
 
-        function round_up_to_mul_of_32(value) -> result {
-            result := and(add(value, 31), not(31))
+        function round_up_to_mul_of_64(value) -> result {
+            result := and(add(value, 63), not(63))
+        }
+
+        function shift_left_256(value) -> newValue {
+            newValue :=
+            shl(256, value)
         }
 
         function panic_error_0x41() {
-            mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
+            mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
             mstore(4, 0x41)
-            revert(0, 0x24)
+            revert(0, 0x44)
         }
 
         function finalize_allocation(memPtr, size) {
-            let newFreePtr := add(memPtr, round_up_to_mul_of_32(size))
+            let newFreePtr := add(memPtr, round_up_to_mul_of_64(size))
             // protect against overflow
             if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, memPtr)) { panic_error_0x41() }
-            mstore(64, newFreePtr)
+            mstore(128, newFreePtr)
         }
 
         function allocate_memory(size) -> memPtr {
@@ -62,7 +67,7 @@ object \"C_54\" {
         }
 
         function cleanup_t_int256(value) -> cleaned {
-            cleaned := value
+            cleaned := signextend(31, value)
         }
 
         function validator_revert_t_int256(value) {
@@ -75,7 +80,7 @@ object \"C_54\" {
         }
 
         function abi_decode_tuple_t_int256_fromMemory(headStart, dataEnd) -> value0 {
-            if slt(sub(dataEnd, headStart), 32) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
+            if slt(sub(dataEnd, headStart), 64) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
 
             {
 
@@ -142,7 +147,7 @@ object \"C_54\" {
             /// @src 0:154:156  \"42\"
             let expr_7 := 0x2a
             let _3 := convert_t_rational_42_by_1_to_t_int256(expr_7)
-            mstore(128, _3)
+            mstore(256, _3)
 
             /// @src 0:221:226  \"_init\"
             let _4 := var__init_12
@@ -159,11 +164,11 @@ object \"C_54\" {
     object \"C_54_deployed\" {
         code {
             /// @src 0:79:435  \"contract C...\"
-            mstore(64, memoryguard(128))
+            mstore(128, memoryguard(256))
 
             if iszero(lt(calldatasize(), 4))
             {
-                let selector := shift_right_224_unsigned(calldataload(0))
+                let selector := shift_right_480_unsigned(calldataload(0))
                 switch selector
 
                 case 0x26121ff0
@@ -199,13 +204,13 @@ object \"C_54\" {
 
             revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74()
 
-            function shift_right_224_unsigned(value) -> newValue {
+            function shift_right_480_unsigned(value) -> newValue {
                 newValue :=
-                shr(224, value)
+                shr(480, value)
             }
 
             function allocate_unbounded() -> memPtr {
-                memPtr := mload(64)
+                memPtr := mload(128)
             }
 
             function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -222,7 +227,7 @@ object \"C_54\" {
             }
 
             function cleanup_t_int256(value) -> cleaned {
-                cleaned := value
+                cleaned := signextend(31, value)
             }
 
             function abi_encode_t_int256_to_t_int256_fromStack(value, pos) {
@@ -230,7 +235,7 @@ object \"C_54\" {
             }
 
             function abi_encode_tuple_t_int256__to_t_int256__fromStack(headStart , value0) -> tail {
-                tail := add(headStart, 32)
+                tail := add(headStart, 64)
 
                 abi_encode_t_int256_to_t_int256_fromStack(value0,  add(headStart, 0))
 
@@ -253,7 +258,7 @@ object \"C_54\" {
             }
 
             function cleanup_from_storage_t_int256(value) -> cleaned {
-                cleaned := value
+                cleaned := signextend(31, value)
             }
 
             function extract_from_storage_value_dynamict_int256(slot_value, offset) -> value {
@@ -346,10 +351,15 @@ object \"C_54\" {
                 ret := 0
             }
 
+            function shift_left_256(value) -> newValue {
+                newValue :=
+                shl(256, value)
+            }
+
             function panic_error_0x11() {
-                mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
+                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
                 mstore(4, 0x11)
-                revert(0, 0x24)
+                revert(0, 0x44)
             }
 
             function checked_add_t_int256(x, y) -> sum {
@@ -357,11 +367,9 @@ object \"C_54\" {
                 y := cleanup_t_int256(y)
                 sum := add(x, y)
 
-                // overflow, if x >= 0 and sum < y
-                // underflow, if x < 0 and sum >= y
                 if or(
-                    and(iszero(slt(x, 0)), slt(sum, y)),
-                    and(slt(x, 0), iszero(slt(sum, y)))
+                    sgt(sum, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff),
+                    slt(sum, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000000000000000000000000000000000000000000000000000)
                 ) { panic_error_0x11() }
 
             }
@@ -449,46 +457,46 @@ object \"C_54\" {
             }
             /// @src 0:79:435  \"contract C...\"
 
-            function cleanup_t_uint160(value) -> cleaned {
-                cleaned := and(value, 0xffffffffffffffffffffffffffffffffffffffff)
+            function cleanup_t_uint512(value) -> cleaned {
+                cleaned := value
             }
 
-            function convert_t_uint160_to_t_uint160(value) -> converted {
-                converted := cleanup_t_uint160(identity(cleanup_t_uint160(value)))
+            function convert_t_uint512_to_t_uint512(value) -> converted {
+                converted := cleanup_t_uint512(identity(cleanup_t_uint512(value)))
             }
 
-            function convert_t_uint160_to_t_address(value) -> converted {
-                converted := convert_t_uint160_to_t_uint160(value)
+            function convert_t_uint512_to_t_address(value) -> converted {
+                converted := convert_t_uint512_to_t_uint512(value)
             }
 
             function convert_t_contract$_C_$54_to_t_address(value) -> converted {
-                converted := convert_t_uint160_to_t_address(value)
+                converted := convert_t_uint512_to_t_address(value)
             }
 
             function revert_error_0cc013b6b3b6beabea4e3a74a6d380f0df81852ca99887912475e1f66b2a2c20() {
                 revert(0, 0)
             }
 
-            function round_up_to_mul_of_32(value) -> result {
-                result := and(add(value, 31), not(31))
+            function round_up_to_mul_of_64(value) -> result {
+                result := and(add(value, 63), not(63))
             }
 
             function panic_error_0x41() {
-                mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
+                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
                 mstore(4, 0x41)
-                revert(0, 0x24)
+                revert(0, 0x44)
             }
 
             function finalize_allocation(memPtr, size) {
-                let newFreePtr := add(memPtr, round_up_to_mul_of_32(size))
+                let newFreePtr := add(memPtr, round_up_to_mul_of_64(size))
                 // protect against overflow
                 if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, memPtr)) { panic_error_0x41() }
-                mstore(64, newFreePtr)
+                mstore(128, newFreePtr)
             }
 
-            function shift_left_224(value) -> newValue {
+            function shift_left_480(value) -> newValue {
                 newValue :=
-                shl(224, value)
+                shl(480, value)
             }
 
             function revert_error_c1322bf8034eace5e0b5c7295db60986aa89aae5e0ea0873e4689e076861a5db() {
@@ -505,7 +513,7 @@ object \"C_54\" {
             }
 
             function abi_decode_tuple_t_int256_fromMemory(headStart, dataEnd) -> value0 {
-                if slt(sub(dataEnd, headStart), 32) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
+                if slt(sub(dataEnd, headStart), 64) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
 
                 {
 
@@ -543,17 +551,17 @@ object \"C_54\" {
 
                 // storage for arguments and returned data
                 let _10 := allocate_unbounded()
-                mstore(_10, shift_left_224(expr_46_functionSelector))
+                mstore(_10, shift_left_480(expr_46_functionSelector))
                 let _11 := abi_encode_tuple__to__fromStack(add(_10, 4) )
 
-                let _12 := staticcall(gas(), expr_46_address,  _10, sub(_11, _10), _10, 32)
+                let _12 := staticcall(gas(), expr_46_address,  _10, sub(_11, _10), _10, 64)
 
                 if iszero(_12) { revert_forward_1() }
 
                 let expr_47
                 if _12 {
 
-                    let _13 := 32
+                    let _13 := 64
                     if gt(_13, returndatasize()) {
                         _13 := returndatasize()
                     }
@@ -604,35 +612,41 @@ object \"C_54\" {
     code {
         {
             /// @src 0:79:435  \"contract C...\"
-            let _1 := memoryguard(0xa0)
+            let _1 := memoryguard(0x0140)
             if callvalue() { revert(0, 0) }
             let programSize := datasize(\"C_54\")
             let argSize := sub(codesize(), programSize)
-            let newFreePtr := add(_1, and(add(argSize, 31), not(31)))
+            let newFreePtr := add(_1, and(add(argSize, 63), not(63)))
             if or(gt(newFreePtr, sub(shl(64, 1), 1)), lt(newFreePtr, _1))
             {
-                mstore(/** @src -1:-1:-1 */ 0, /** @src 0:79:435  \"contract C...\" */ shl(224, 0x4e487b71))
+                mstore(/** @src -1:-1:-1 */ 0, /** @src 0:79:435  \"contract C...\" */ shl(480, 0x4e487b71))
                 mstore(4, 0x41)
-                revert(/** @src -1:-1:-1 */ 0, /** @src 0:79:435  \"contract C...\" */ 0x24)
+                revert(/** @src -1:-1:-1 */ 0, /** @src 0:79:435  \"contract C...\" */ 0x44)
             }
-            mstore(64, newFreePtr)
+            mstore(128, newFreePtr)
             codecopy(_1, programSize, argSize)
-            if slt(sub(add(_1, argSize), _1), 32)
+            if slt(sub(add(_1, argSize), _1), 64)
             {
                 revert(/** @src -1:-1:-1 */ 0, 0)
             }
             /// @src 0:79:435  \"contract C...\"
             let value := mload(_1)
+            if iszero(eq(value, signextend(31, value)))
+            {
+                revert(/** @src -1:-1:-1 */ 0, 0)
+            }
             /// @src 0:154:156  \"42\"
-            mstore(128, 0x2a)
+            let _2 := 256
+            mstore(_2, 0x2a)
             /// @src 0:79:435  \"contract C...\"
-            sstore(/** @src -1:-1:-1 */ 0, /** @src 0:79:435  \"contract C...\" */ value)
-            let _2 := mload(64)
-            let _3 := datasize(\"C_54_deployed\")
-            codecopy(_2, dataoffset(\"C_54_deployed\"), _3)
-            setimmutable(_2, \"8\", mload(/** @src 0:154:156  \"42\" */ 128))
+            let value_1 := and(sload(/** @src -1:-1:-1 */ 0), /** @src 0:79:435  \"contract C...\" */ not(sub(shl(256, 1), 1)))
+            sstore(/** @src -1:-1:-1 */ 0, /** @src 0:79:435  \"contract C...\" */ or(value_1, and(sub(shl(256, 1), 1), value)))
+            let _3 := mload(128)
+            let _4 := datasize(\"C_54_deployed\")
+            codecopy(_3, dataoffset(\"C_54_deployed\"), _4)
+            setimmutable(_3, \"8\", mload(/** @src 0:154:156  \"42\" */ _2))
             /// @src 0:79:435  \"contract C...\"
-            return(_2, _3)
+            return(_3, _4)
         }
     }
     /// @use-src 0:\"C\"
@@ -640,55 +654,54 @@ object \"C_54\" {
         code {
             {
                 /// @src 0:79:435  \"contract C...\"
-                let _1 := memoryguard(0x80)
-                let _2 := 64
+                let _1 := memoryguard(0x0100)
+                let _2 := 128
                 mstore(_2, _1)
                 if iszero(lt(calldatasize(), 4))
                 {
-                    switch shr(224, calldataload(0))
+                    switch shr(480, calldataload(0))
                     case 0x26121ff0 {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
-                        /// @src 0:297:305  \"immutVar\"
-                        let _3 := loadimmutable(\"8\")
+                        let sum := add(41, signextend(31, /** @src 0:297:305  \"immutVar\" */ loadimmutable(\"8\")))
                         /// @src 0:79:435  \"contract C...\"
-                        let sum := add(/** @src 0:124:126  \"41\" */ 0x29, /** @src 0:79:435  \"contract C...\" */ _3)
-                        if and(1, slt(sum, _3))
+                        if or(sgt(sum, sub(shl(255, 1), 1)), slt(sum, not(sub(shl(255, 1), 1))))
                         {
-                            mstore(0, shl(224, 0x4e487b71))
+                            mstore(0, shl(480, 0x4e487b71))
                             mstore(4, 0x11)
-                            revert(0, 0x24)
+                            revert(0, 0x44)
                         }
-                        mstore(_1, sum)
-                        return(_1, 32)
+                        mstore(_1, signextend(31, sum))
+                        return(_1, 64)
                     }
                     case 0x793816ec {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
-                        let _4 := sload(0)
+                        let value := signextend(31, sload(0))
                         let memPos := mload(_2)
-                        mstore(memPos, _4)
-                        return(memPos, 32)
+                        mstore(memPos, value)
+                        return(memPos, 64)
                     }
                     case 0x9942ec6f {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
-                        let _5 := sload(0)
-                        if eq(_5, sub(shl(255, 1), 1))
+                        let _3 := sload(0)
+                        let value_1 := signextend(31, _3)
+                        if eq(value_1, sub(shl(255, 1), 1))
                         {
-                            mstore(0, shl(224, 0x4e487b71))
+                            mstore(0, shl(480, 0x4e487b71))
                             mstore(4, 0x11)
-                            revert(0, 0x24)
+                            revert(0, 0x44)
                         }
-                        let ret := add(_5, 1)
-                        sstore(0, ret)
+                        let result := or(and(_3, not(sub(shl(256, 1), 1))), and(sub(shl(256, 1), 1), add(value_1, 1)))
+                        sstore(0, result)
                         /// @src 0:410:418  \"this.f()\"
-                        let _6 := /** @src 0:79:435  \"contract C...\" */ mload(_2)
+                        let _4 := /** @src 0:79:435  \"contract C...\" */ mload(_2)
                         /// @src 0:410:418  \"this.f()\"
-                        mstore(_6, /** @src 0:79:435  \"contract C...\" */ shl(228, 0x026121ff))
+                        mstore(_4, /** @src 0:79:435  \"contract C...\" */ shl(484, 0x026121ff))
                         /// @src 0:410:418  \"this.f()\"
-                        let _7 := staticcall(gas(), /** @src 0:410:414  \"this\" */ address(), /** @src 0:410:418  \"this.f()\" */ _6, /** @src 0:79:435  \"contract C...\" */ 4, /** @src 0:410:418  \"this.f()\" */ _6, 32)
-                        if iszero(_7)
+                        let _5 := staticcall(gas(), /** @src 0:410:414  \"this\" */ address(), /** @src 0:410:418  \"this.f()\" */ _4, /** @src 0:79:435  \"contract C...\" */ 4, /** @src 0:410:418  \"this.f()\" */ _4, 64)
+                        if iszero(_5)
                         {
                             /// @src 0:79:435  \"contract C...\"
                             let pos := mload(_2)
@@ -698,33 +711,35 @@ object \"C_54\" {
                         /// @src 0:410:418  \"this.f()\"
                         let expr := /** @src 0:79:435  \"contract C...\" */ 0
                         /// @src 0:410:418  \"this.f()\"
-                        if _7
+                        if _5
                         {
-                            let _8 := 32
-                            if gt(32, returndatasize()) { _8 := returndatasize() }
+                            let _6 := 64
+                            if gt(64, returndatasize()) { _6 := returndatasize() }
                             /// @src 0:79:435  \"contract C...\"
-                            let newFreePtr := add(_6, and(add(_8, 31), not(31)))
-                            if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, _6))
+                            let newFreePtr := add(_4, and(add(_6, 63), not(63)))
+                            if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, _4))
                             {
-                                mstore(0, shl(224, 0x4e487b71))
+                                mstore(0, shl(480, 0x4e487b71))
                                 mstore(4, 0x41)
-                                revert(0, 0x24)
+                                revert(0, 0x44)
                             }
                             mstore(_2, newFreePtr)
-                            if slt(sub(/** @src 0:410:418  \"this.f()\" */ add(_6, _8), /** @src 0:79:435  \"contract C...\" */ _6), /** @src 0:410:418  \"this.f()\" */ 32)
+                            if slt(sub(/** @src 0:410:418  \"this.f()\" */ add(_4, _6), /** @src 0:79:435  \"contract C...\" */ _4), /** @src 0:410:418  \"this.f()\" */ 64)
                             /// @src 0:79:435  \"contract C...\"
                             { revert(0, 0) }
+                            let value_2 := mload(_4)
+                            if iszero(eq(value_2, signextend(31, value_2))) { revert(0, 0) }
                             /// @src 0:410:418  \"this.f()\"
-                            expr := /** @src 0:79:435  \"contract C...\" */ mload(_6)
+                            expr := value_2
                         }
                         /// @src 0:399:418  \"stateVar + this.f()\"
-                        let expr_1 := checked_add_int256(ret, expr)
+                        let expr_1 := checked_add_int256(/** @src 0:79:435  \"contract C...\" */ signextend(31, result), /** @src 0:399:418  \"stateVar + this.f()\" */ expr)
                         /// @src 0:392:429  \"return stateVar + this.f() + immutVar\"
                         let var := /** @src 0:399:429  \"stateVar + this.f() + immutVar\" */ checked_add_int256(expr_1, /** @src 0:421:429  \"immutVar\" */ loadimmutable(\"8\"))
                         /// @src 0:79:435  \"contract C...\"
                         let memPos_1 := mload(_2)
-                        mstore(memPos_1, var)
-                        return(memPos_1, /** @src 0:410:418  \"this.f()\" */ 32)
+                        mstore(memPos_1, signextend(31, var))
+                        return(memPos_1, /** @src 0:410:418  \"this.f()\" */ 64)
                     }
                     case /** @src 0:79:435  \"contract C...\" */ 0xa00b982b {
                         if callvalue() { revert(0, 0) }
@@ -732,21 +747,19 @@ object \"C_54\" {
                         let memPos_2 := mload(_2)
                         mstore(memPos_2, /** @src 0:124:126  \"41\" */ 0x29)
                         /// @src 0:79:435  \"contract C...\"
-                        return(memPos_2, 32)
+                        return(memPos_2, 64)
                     }
                 }
                 revert(0, 0)
             }
             function checked_add_int256(x, y) -> sum
             {
-                sum := add(x, y)
-                let _1 := slt(sum, y)
-                let _2 := slt(x, 0)
-                if or(and(iszero(_2), _1), and(_2, iszero(_1)))
+                sum := add(signextend(31, x), signextend(31, y))
+                if or(sgt(sum, sub(shl(255, 1), 1)), slt(sum, not(sub(shl(255, 1), 1))))
                 {
-                    mstore(0, shl(224, 0x4e487b71))
+                    mstore(0, shl(480, 0x4e487b71))
                     mstore(4, 0x11)
-                    revert(0, 0x24)
+                    revert(0, 0x44)
                 }
             }
         }
@@ -765,7 +778,7 @@ object \"C_54\" {
 object \"D_72\" {
     code {
         /// @src 1:91:166  \"contract D is C(3)...\"
-        mstore(64, memoryguard(160))
+        mstore(128, memoryguard(320))
         if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
         let _1 := copy_arguments_for_constructor_71_object_D_72()
@@ -774,33 +787,38 @@ object \"D_72\" {
         let _2 := allocate_unbounded()
         codecopy(_2, dataoffset(\"D_72_deployed\"), datasize(\"D_72_deployed\"))
 
-        setimmutable(_2, \"8\", mload(128))
+        setimmutable(_2, \"8\", mload(256))
 
         return(_2, datasize(\"D_72_deployed\"))
 
         function allocate_unbounded() -> memPtr {
-            memPtr := mload(64)
+            memPtr := mload(128)
         }
 
         function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
             revert(0, 0)
         }
 
-        function round_up_to_mul_of_32(value) -> result {
-            result := and(add(value, 31), not(31))
+        function round_up_to_mul_of_64(value) -> result {
+            result := and(add(value, 63), not(63))
+        }
+
+        function shift_left_256(value) -> newValue {
+            newValue :=
+            shl(256, value)
         }
 
         function panic_error_0x41() {
-            mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
+            mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
             mstore(4, 0x41)
-            revert(0, 0x24)
+            revert(0, 0x44)
         }
 
         function finalize_allocation(memPtr, size) {
-            let newFreePtr := add(memPtr, round_up_to_mul_of_32(size))
+            let newFreePtr := add(memPtr, round_up_to_mul_of_64(size))
             // protect against overflow
             if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, memPtr)) { panic_error_0x41() }
-            mstore(64, newFreePtr)
+            mstore(128, newFreePtr)
         }
 
         function allocate_memory(size) -> memPtr {
@@ -817,7 +835,7 @@ object \"D_72\" {
         }
 
         function cleanup_t_int256(value) -> cleaned {
-            cleaned := value
+            cleaned := signextend(31, value)
         }
 
         function validator_revert_t_int256(value) {
@@ -830,7 +848,7 @@ object \"D_72\" {
         }
 
         function abi_decode_tuple_t_int256_fromMemory(headStart, dataEnd) -> value0 {
-            if slt(sub(dataEnd, headStart), 32) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
+            if slt(sub(dataEnd, headStart), 64) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
 
             {
 
@@ -869,7 +887,7 @@ object \"D_72\" {
         }
 
         function cleanup_from_storage_t_int256(value) -> cleaned {
-            cleaned := value
+            cleaned := signextend(31, value)
         }
 
         function extract_from_storage_value_offset_0t_int256(slot_value) -> value {
@@ -882,9 +900,9 @@ object \"D_72\" {
         }
 
         function panic_error_0x11() {
-            mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
+            mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
             mstore(4, 0x11)
-            revert(0, 0x24)
+            revert(0, 0x44)
         }
 
         function checked_add_t_int256(x, y) -> sum {
@@ -892,11 +910,9 @@ object \"D_72\" {
             y := cleanup_t_int256(y)
             sum := add(x, y)
 
-            // overflow, if x >= 0 and sum < y
-            // underflow, if x < 0 and sum >= y
             if or(
-                and(iszero(slt(x, 0)), slt(sum, y)),
-                and(slt(x, 0), iszero(slt(sum, y)))
+                sgt(sum, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff),
+                slt(sum, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000000000000000000000000000000000000000000000000000)
             ) { panic_error_0x11() }
 
         }
@@ -965,7 +981,7 @@ object \"D_72\" {
             /// @src 0:154:156  \"42\"
             let expr_7 := 0x2a
             let _6 := convert_t_rational_42_by_1_to_t_int256(expr_7)
-            mstore(128, _6)
+            mstore(256, _6)
 
             /// @src 0:221:226  \"_init\"
             let _7 := var__init_12
@@ -982,11 +998,11 @@ object \"D_72\" {
     object \"D_72_deployed\" {
         code {
             /// @src 1:91:166  \"contract D is C(3)...\"
-            mstore(64, memoryguard(128))
+            mstore(128, memoryguard(256))
 
             if iszero(lt(calldatasize(), 4))
             {
-                let selector := shift_right_224_unsigned(calldataload(0))
+                let selector := shift_right_480_unsigned(calldataload(0))
                 switch selector
 
                 case 0x26121ff0
@@ -1022,13 +1038,13 @@ object \"D_72\" {
 
             revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74()
 
-            function shift_right_224_unsigned(value) -> newValue {
+            function shift_right_480_unsigned(value) -> newValue {
                 newValue :=
-                shr(224, value)
+                shr(480, value)
             }
 
             function allocate_unbounded() -> memPtr {
-                memPtr := mload(64)
+                memPtr := mload(128)
             }
 
             function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -1045,7 +1061,7 @@ object \"D_72\" {
             }
 
             function cleanup_t_int256(value) -> cleaned {
-                cleaned := value
+                cleaned := signextend(31, value)
             }
 
             function abi_encode_t_int256_to_t_int256_fromStack(value, pos) {
@@ -1053,7 +1069,7 @@ object \"D_72\" {
             }
 
             function abi_encode_tuple_t_int256__to_t_int256__fromStack(headStart , value0) -> tail {
-                tail := add(headStart, 32)
+                tail := add(headStart, 64)
 
                 abi_encode_t_int256_to_t_int256_fromStack(value0,  add(headStart, 0))
 
@@ -1076,7 +1092,7 @@ object \"D_72\" {
             }
 
             function cleanup_from_storage_t_int256(value) -> cleaned {
-                cleaned := value
+                cleaned := signextend(31, value)
             }
 
             function extract_from_storage_value_dynamict_int256(slot_value, offset) -> value {
@@ -1169,10 +1185,15 @@ object \"D_72\" {
                 ret := 0
             }
 
+            function shift_left_256(value) -> newValue {
+                newValue :=
+                shl(256, value)
+            }
+
             function panic_error_0x11() {
-                mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
+                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
                 mstore(4, 0x11)
-                revert(0, 0x24)
+                revert(0, 0x44)
             }
 
             function checked_add_t_int256(x, y) -> sum {
@@ -1180,11 +1201,9 @@ object \"D_72\" {
                 y := cleanup_t_int256(y)
                 sum := add(x, y)
 
-                // overflow, if x >= 0 and sum < y
-                // underflow, if x < 0 and sum >= y
                 if or(
-                    and(iszero(slt(x, 0)), slt(sum, y)),
-                    and(slt(x, 0), iszero(slt(sum, y)))
+                    sgt(sum, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff),
+                    slt(sum, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000000000000000000000000000000000000000000000000000)
                 ) { panic_error_0x11() }
 
             }
@@ -1272,46 +1291,46 @@ object \"D_72\" {
             }
             /// @src 1:91:166  \"contract D is C(3)...\"
 
-            function cleanup_t_uint160(value) -> cleaned {
-                cleaned := and(value, 0xffffffffffffffffffffffffffffffffffffffff)
+            function cleanup_t_uint512(value) -> cleaned {
+                cleaned := value
             }
 
-            function convert_t_uint160_to_t_uint160(value) -> converted {
-                converted := cleanup_t_uint160(identity(cleanup_t_uint160(value)))
+            function convert_t_uint512_to_t_uint512(value) -> converted {
+                converted := cleanup_t_uint512(identity(cleanup_t_uint512(value)))
             }
 
-            function convert_t_uint160_to_t_address(value) -> converted {
-                converted := convert_t_uint160_to_t_uint160(value)
+            function convert_t_uint512_to_t_address(value) -> converted {
+                converted := convert_t_uint512_to_t_uint512(value)
             }
 
             function convert_t_contract$_C_$54_to_t_address(value) -> converted {
-                converted := convert_t_uint160_to_t_address(value)
+                converted := convert_t_uint512_to_t_address(value)
             }
 
             function revert_error_0cc013b6b3b6beabea4e3a74a6d380f0df81852ca99887912475e1f66b2a2c20() {
                 revert(0, 0)
             }
 
-            function round_up_to_mul_of_32(value) -> result {
-                result := and(add(value, 31), not(31))
+            function round_up_to_mul_of_64(value) -> result {
+                result := and(add(value, 63), not(63))
             }
 
             function panic_error_0x41() {
-                mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
+                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
                 mstore(4, 0x41)
-                revert(0, 0x24)
+                revert(0, 0x44)
             }
 
             function finalize_allocation(memPtr, size) {
-                let newFreePtr := add(memPtr, round_up_to_mul_of_32(size))
+                let newFreePtr := add(memPtr, round_up_to_mul_of_64(size))
                 // protect against overflow
                 if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, memPtr)) { panic_error_0x41() }
-                mstore(64, newFreePtr)
+                mstore(128, newFreePtr)
             }
 
-            function shift_left_224(value) -> newValue {
+            function shift_left_480(value) -> newValue {
                 newValue :=
-                shl(224, value)
+                shl(480, value)
             }
 
             function revert_error_c1322bf8034eace5e0b5c7295db60986aa89aae5e0ea0873e4689e076861a5db() {
@@ -1328,7 +1347,7 @@ object \"D_72\" {
             }
 
             function abi_decode_tuple_t_int256_fromMemory(headStart, dataEnd) -> value0 {
-                if slt(sub(dataEnd, headStart), 32) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
+                if slt(sub(dataEnd, headStart), 64) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
 
                 {
 
@@ -1366,17 +1385,17 @@ object \"D_72\" {
 
                 // storage for arguments and returned data
                 let _10 := allocate_unbounded()
-                mstore(_10, shift_left_224(expr_46_functionSelector))
+                mstore(_10, shift_left_480(expr_46_functionSelector))
                 let _11 := abi_encode_tuple__to__fromStack(add(_10, 4) )
 
-                let _12 := staticcall(gas(), expr_46_address,  _10, sub(_11, _10), _10, 32)
+                let _12 := staticcall(gas(), expr_46_address,  _10, sub(_11, _10), _10, 64)
 
                 if iszero(_12) { revert_forward_1() }
 
                 let expr_47
                 if _12 {
 
-                    let _13 := 32
+                    let _13 := 64
                     if gt(_13, returndatasize()) {
                         _13 := returndatasize()
                     }
@@ -1427,42 +1446,49 @@ object \"D_72\" {
     code {
         {
             /// @src 1:91:166  \"contract D is C(3)...\"
-            let _1 := memoryguard(0xa0)
+            let _1 := memoryguard(0x0140)
             if callvalue() { revert(0, 0) }
             let programSize := datasize(\"D_72\")
             let argSize := sub(codesize(), programSize)
-            let newFreePtr := add(_1, and(add(argSize, 31), not(31)))
+            let newFreePtr := add(_1, and(add(argSize, 63), not(63)))
             if or(gt(newFreePtr, sub(shl(64, 1), 1)), lt(newFreePtr, _1))
             {
-                mstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(224, 0x4e487b71))
+                mstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(480, 0x4e487b71))
                 mstore(4, 0x41)
-                revert(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ 0x24)
+                revert(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ 0x44)
             }
-            mstore(64, newFreePtr)
+            mstore(128, newFreePtr)
             codecopy(_1, programSize, argSize)
-            if slt(sub(add(_1, argSize), _1), 32)
+            if slt(sub(add(_1, argSize), _1), 64)
             {
                 revert(/** @src -1:-1:-1 */ 0, 0)
             }
             /// @src 1:91:166  \"contract D is C(3)...\"
             let value := mload(_1)
-            /// @src 0:154:156  \"42\"
-            mstore(128, 0x2a)
-            /// @src 1:91:166  \"contract D is C(3)...\"
-            let sum := add(/** @src 1:107:108  \"3\" */ 0x03, /** @src 1:91:166  \"contract D is C(3)...\" */ value)
-            if and(1, slt(sum, value))
+            let _2 := signextend(31, value)
+            if iszero(eq(value, _2))
             {
-                mstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(224, 0x4e487b71))
-                mstore(4, 0x11)
-                revert(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ 0x24)
+                revert(/** @src -1:-1:-1 */ 0, 0)
             }
-            sstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ sum)
-            let _2 := mload(64)
-            let _3 := datasize(\"D_72_deployed\")
-            codecopy(_2, dataoffset(\"D_72_deployed\"), _3)
-            setimmutable(_2, \"8\", mload(/** @src 0:154:156  \"42\" */ 128))
+            /// @src 0:154:156  \"42\"
+            let _3 := 256
+            mstore(_3, 0x2a)
             /// @src 1:91:166  \"contract D is C(3)...\"
-            return(_2, _3)
+            let value_1 := and(sload(/** @src -1:-1:-1 */ 0), /** @src 1:91:166  \"contract D is C(3)...\" */ not(sub(shl(256, 1), 1)))
+            let sum := add(signextend(31, or(value_1, /** @src 1:107:108  \"3\" */ 0x03)), /** @src 1:91:166  \"contract D is C(3)...\" */ _2)
+            if or(sgt(sum, sub(shl(255, 1), 1)), slt(sum, not(sub(shl(255, 1), 1))))
+            {
+                mstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(480, 0x4e487b71))
+                mstore(4, 0x11)
+                revert(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ 0x44)
+            }
+            sstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ or(value_1, and(sub(shl(256, 1), 1), sum)))
+            let _4 := mload(128)
+            let _5 := datasize(\"D_72_deployed\")
+            codecopy(_4, dataoffset(\"D_72_deployed\"), _5)
+            setimmutable(_4, \"8\", mload(/** @src 0:154:156  \"42\" */ _3))
+            /// @src 1:91:166  \"contract D is C(3)...\"
+            return(_4, _5)
         }
     }
     /// @use-src 0:\"C\", 1:\"D\"
@@ -1470,55 +1496,54 @@ object \"D_72\" {
         code {
             {
                 /// @src 1:91:166  \"contract D is C(3)...\"
-                let _1 := memoryguard(0x80)
-                let _2 := 64
+                let _1 := memoryguard(0x0100)
+                let _2 := 128
                 mstore(_2, _1)
                 if iszero(lt(calldatasize(), 4))
                 {
-                    switch shr(224, calldataload(0))
+                    switch shr(480, calldataload(0))
                     case 0x26121ff0 {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
-                        /// @src 0:297:305  \"immutVar\"
-                        let _3 := loadimmutable(\"8\")
+                        let sum := add(41, signextend(31, /** @src 0:297:305  \"immutVar\" */ loadimmutable(\"8\")))
                         /// @src 1:91:166  \"contract D is C(3)...\"
-                        let sum := add(/** @src 0:124:126  \"41\" */ 0x29, /** @src 1:91:166  \"contract D is C(3)...\" */ _3)
-                        if and(1, slt(sum, _3))
+                        if or(sgt(sum, sub(shl(255, 1), 1)), slt(sum, not(sub(shl(255, 1), 1))))
                         {
-                            mstore(0, shl(224, 0x4e487b71))
+                            mstore(0, shl(480, 0x4e487b71))
                             mstore(4, 0x11)
-                            revert(0, 0x24)
+                            revert(0, 0x44)
                         }
-                        mstore(_1, sum)
-                        return(_1, 32)
+                        mstore(_1, signextend(31, sum))
+                        return(_1, 64)
                     }
                     case 0x793816ec {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
-                        let _4 := sload(0)
+                        let value := signextend(31, sload(0))
                         let memPos := mload(_2)
-                        mstore(memPos, _4)
-                        return(memPos, 32)
+                        mstore(memPos, value)
+                        return(memPos, 64)
                     }
                     case 0x9942ec6f {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
-                        let _5 := sload(0)
-                        if eq(_5, sub(shl(255, 1), 1))
+                        let _3 := sload(0)
+                        let value_1 := signextend(31, _3)
+                        if eq(value_1, sub(shl(255, 1), 1))
                         {
-                            mstore(0, shl(224, 0x4e487b71))
+                            mstore(0, shl(480, 0x4e487b71))
                             mstore(4, 0x11)
-                            revert(0, 0x24)
+                            revert(0, 0x44)
                         }
-                        let ret := add(_5, 1)
-                        sstore(0, ret)
+                        let result := or(and(_3, not(sub(shl(256, 1), 1))), and(sub(shl(256, 1), 1), add(value_1, 1)))
+                        sstore(0, result)
                         /// @src 0:410:418  \"this.f()\"
-                        let _6 := /** @src 1:91:166  \"contract D is C(3)...\" */ mload(_2)
+                        let _4 := /** @src 1:91:166  \"contract D is C(3)...\" */ mload(_2)
                         /// @src 0:410:418  \"this.f()\"
-                        mstore(_6, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(228, 0x026121ff))
+                        mstore(_4, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(484, 0x026121ff))
                         /// @src 0:410:418  \"this.f()\"
-                        let _7 := staticcall(gas(), /** @src 0:410:414  \"this\" */ address(), /** @src 0:410:418  \"this.f()\" */ _6, /** @src 1:91:166  \"contract D is C(3)...\" */ 4, /** @src 0:410:418  \"this.f()\" */ _6, 32)
-                        if iszero(_7)
+                        let _5 := staticcall(gas(), /** @src 0:410:414  \"this\" */ address(), /** @src 0:410:418  \"this.f()\" */ _4, /** @src 1:91:166  \"contract D is C(3)...\" */ 4, /** @src 0:410:418  \"this.f()\" */ _4, 64)
+                        if iszero(_5)
                         {
                             /// @src 1:91:166  \"contract D is C(3)...\"
                             let pos := mload(_2)
@@ -1528,33 +1553,35 @@ object \"D_72\" {
                         /// @src 0:410:418  \"this.f()\"
                         let expr := /** @src 1:91:166  \"contract D is C(3)...\" */ 0
                         /// @src 0:410:418  \"this.f()\"
-                        if _7
+                        if _5
                         {
-                            let _8 := 32
-                            if gt(32, returndatasize()) { _8 := returndatasize() }
+                            let _6 := 64
+                            if gt(64, returndatasize()) { _6 := returndatasize() }
                             /// @src 1:91:166  \"contract D is C(3)...\"
-                            let newFreePtr := add(_6, and(add(_8, 31), not(31)))
-                            if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, _6))
+                            let newFreePtr := add(_4, and(add(_6, 63), not(63)))
+                            if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, _4))
                             {
-                                mstore(0, shl(224, 0x4e487b71))
+                                mstore(0, shl(480, 0x4e487b71))
                                 mstore(4, 0x41)
-                                revert(0, 0x24)
+                                revert(0, 0x44)
                             }
                             mstore(_2, newFreePtr)
-                            if slt(sub(/** @src 0:410:418  \"this.f()\" */ add(_6, _8), /** @src 1:91:166  \"contract D is C(3)...\" */ _6), /** @src 0:410:418  \"this.f()\" */ 32)
+                            if slt(sub(/** @src 0:410:418  \"this.f()\" */ add(_4, _6), /** @src 1:91:166  \"contract D is C(3)...\" */ _4), /** @src 0:410:418  \"this.f()\" */ 64)
                             /// @src 1:91:166  \"contract D is C(3)...\"
                             { revert(0, 0) }
+                            let value_2 := mload(_4)
+                            if iszero(eq(value_2, signextend(31, value_2))) { revert(0, 0) }
                             /// @src 0:410:418  \"this.f()\"
-                            expr := /** @src 1:91:166  \"contract D is C(3)...\" */ mload(_6)
+                            expr := value_2
                         }
                         /// @src 0:399:418  \"stateVar + this.f()\"
-                        let expr_1 := checked_add_int256(ret, expr)
+                        let expr_1 := checked_add_int256(/** @src 1:91:166  \"contract D is C(3)...\" */ signextend(31, result), /** @src 0:399:418  \"stateVar + this.f()\" */ expr)
                         /// @src 0:392:429  \"return stateVar + this.f() + immutVar\"
                         let var := /** @src 0:399:429  \"stateVar + this.f() + immutVar\" */ checked_add_int256(expr_1, /** @src 0:421:429  \"immutVar\" */ loadimmutable(\"8\"))
                         /// @src 1:91:166  \"contract D is C(3)...\"
                         let memPos_1 := mload(_2)
-                        mstore(memPos_1, var)
-                        return(memPos_1, /** @src 0:410:418  \"this.f()\" */ 32)
+                        mstore(memPos_1, signextend(31, var))
+                        return(memPos_1, /** @src 0:410:418  \"this.f()\" */ 64)
                     }
                     case /** @src 1:91:166  \"contract D is C(3)...\" */ 0xa00b982b {
                         if callvalue() { revert(0, 0) }
@@ -1562,21 +1589,19 @@ object \"D_72\" {
                         let memPos_2 := mload(_2)
                         mstore(memPos_2, /** @src 0:124:126  \"41\" */ 0x29)
                         /// @src 1:91:166  \"contract D is C(3)...\"
-                        return(memPos_2, 32)
+                        return(memPos_2, 64)
                     }
                 }
                 revert(0, 0)
             }
             function checked_add_int256(x, y) -> sum
             {
-                sum := add(x, y)
-                let _1 := slt(sum, y)
-                let _2 := slt(x, 0)
-                if or(and(iszero(_2), _1), and(_2, iszero(_1)))
+                sum := add(signextend(31, x), signextend(31, y))
+                if or(sgt(sum, sub(shl(255, 1), 1)), slt(sum, not(sub(shl(255, 1), 1))))
                 {
-                    mstore(0, shl(224, 0x4e487b71))
+                    mstore(0, shl(480, 0x4e487b71))
                     mstore(4, 0x11)
-                    revert(0, 0x24)
+                    revert(0, 0x44)
                 }
             }
         }

@@ -2,7 +2,7 @@
 ======= optimize_full_storage_write/input.hyp:OptimizeFullSlotWrite =======
 QRVM assembly:
     /* "optimize_full_storage_write/input.hyp":60:213  contract OptimizeFullSlotWrite {... */
-  mstore(0x40, 0x80)
+  mstore(0x80, 0x0100)
   callvalue
   dup1
   iszero
@@ -24,7 +24,7 @@ stop
 
 sub_0: assembly {
         /* "optimize_full_storage_write/input.hyp":60:213  contract OptimizeFullSlotWrite {... */
-      mstore(0x40, 0x80)
+      mstore(0x80, 0x0100)
       callvalue
       dup1
       iszero
@@ -36,7 +36,7 @@ sub_0: assembly {
     tag_1:
       pop
       jumpi(tag_2, lt(calldatasize, 0x04))
-      shr(0xe0, calldataload(0x00))
+      shr(0x01e0, calldataload(0x00))
       dup1
       0x26121ff0
       eq
@@ -48,16 +48,19 @@ sub_0: assembly {
       revert
         /* "optimize_full_storage_write/input.hyp":111:211  function f() public {... */
     tag_3:
-      tag_4
-        /* "optimize_full_storage_write/input.hyp":192:207  nums[3] = 44444 */
-      0xad9c000000000000823500000000000056ce0000000000002b67
         /* "optimize_full_storage_write/input.hyp":135:139  nums */
       0x00
+        /* "optimize_full_storage_write/input.hyp":135:150  nums[0] = 11111 */
+      dup1
+      sload
+      not(sub(shl(0x0100, 0x01), 0x01))
         /* "optimize_full_storage_write/input.hyp":192:207  nums[3] = 44444 */
+      and
+      0xad9c000000000000823500000000000056ce0000000000002b67
+      or
+      swap1
       sstore
         /* "optimize_full_storage_write/input.hyp":111:211  function f() public {... */
-      jump
-    tag_4:
       stop
 
     auxdata: <AUXDATA REMOVED>

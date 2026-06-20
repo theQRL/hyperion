@@ -239,6 +239,7 @@ void CommandLineInterface::handleOpcode(std::string const& _contract)
 	);
 
 	std::string opcodes{qrvmasm::disassemble(m_assemblyStack->object(_contract).bytecode)};
+	boost::trim_right(opcodes);
 
 	if (!m_options.output.dir.empty())
 		createFile(m_assemblyStack->filesystemFriendlyName(_contract) + ".opcode", opcodes);

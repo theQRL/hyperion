@@ -57,7 +57,7 @@ Example of a declaration of a variable whose type is a function type:
 
 .. code-block:: hyperion
 
-    function(address) external returns (address) foo;
+    function(address) internal returns (address) foo;
 
 Abstract contracts decouple the definition of a contract from its
 implementation providing better extensibility and self-documentation and

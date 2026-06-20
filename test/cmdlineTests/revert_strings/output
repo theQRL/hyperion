@@ -4,7 +4,7 @@ IR:
 object "C_15" {
     code {
         /// @src 0:59:147  "contract C {..."
-        mstore(64, memoryguard(128))
+        mstore(128, memoryguard(256))
         if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
         constructor_C_15()
@@ -15,25 +15,23 @@ object "C_15" {
         return(_1, datasize("C_15_deployed"))
 
         function allocate_unbounded() -> memPtr {
-            memPtr := mload(64)
+            memPtr := mload(128)
         }
 
         function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
 
             let start := allocate_unbounded()
             let pos := start
-            mstore(pos, 3963877391197344453575983046348115674221700746820753546331534351508065746944)
+            mstore(pos, 0x08c379a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
             pos := add(pos, 4)
-            mstore(pos, 0x20)
-            pos := add(pos, 0x20)
+            mstore(pos, 0x40)
+            pos := add(pos, 0x40)
             mstore(pos, 35)
-            pos := add(pos, 0x20)
+            pos := add(pos, 0x40)
 
-            mstore(add(pos, 0), "Quanta sent to non-payable funct")
+            mstore(add(pos, 0), 0x5175616e74612073656e7420746f206e6f6e2d70617961626c652066756e6374696f6e0000000000000000000000000000000000000000000000000000000000)
 
-            mstore(add(pos, 32), "ion")
-
-            revert(start, 132)
+            revert(start, 196)
 
         }
 
@@ -50,11 +48,11 @@ object "C_15" {
     object "C_15_deployed" {
         code {
             /// @src 0:59:147  "contract C {..."
-            mstore(64, memoryguard(128))
+            mstore(128, memoryguard(256))
 
             if iszero(lt(calldatasize(), 4))
             {
-                let selector := shift_right_224_unsigned(calldataload(0))
+                let selector := shift_right_480_unsigned(calldataload(0))
                 switch selector
 
                 case 0x02e8cd18
@@ -69,31 +67,29 @@ object "C_15" {
 
             revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74()
 
-            function shift_right_224_unsigned(value) -> newValue {
+            function shift_right_480_unsigned(value) -> newValue {
                 newValue :=
-                shr(224, value)
+                shr(480, value)
             }
 
             function allocate_unbounded() -> memPtr {
-                memPtr := mload(64)
+                memPtr := mload(128)
             }
 
             function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
 
                 let start := allocate_unbounded()
                 let pos := start
-                mstore(pos, 3963877391197344453575983046348115674221700746820753546331534351508065746944)
+                mstore(pos, 0x08c379a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
                 pos := add(pos, 4)
-                mstore(pos, 0x20)
-                pos := add(pos, 0x20)
+                mstore(pos, 0x40)
+                pos := add(pos, 0x40)
                 mstore(pos, 35)
-                pos := add(pos, 0x20)
+                pos := add(pos, 0x40)
 
-                mstore(add(pos, 0), "Quanta sent to non-payable funct")
+                mstore(add(pos, 0), 0x5175616e74612073656e7420746f206e6f6e2d70617961626c652066756e6374696f6e0000000000000000000000000000000000000000000000000000000000)
 
-                mstore(add(pos, 32), "ion")
-
-                revert(start, 132)
+                revert(start, 196)
 
             }
 
@@ -101,18 +97,16 @@ object "C_15" {
 
                 let start := allocate_unbounded()
                 let pos := start
-                mstore(pos, 3963877391197344453575983046348115674221700746820753546331534351508065746944)
+                mstore(pos, 0x08c379a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
                 pos := add(pos, 4)
-                mstore(pos, 0x20)
-                pos := add(pos, 0x20)
+                mstore(pos, 0x40)
+                pos := add(pos, 0x40)
                 mstore(pos, 34)
-                pos := add(pos, 0x20)
+                pos := add(pos, 0x40)
 
-                mstore(add(pos, 0), "ABI decoding: tuple data too sho")
+                mstore(add(pos, 0), 0x414249206465636f64696e673a207475706c65206461746120746f6f2073686f7274000000000000000000000000000000000000000000000000000000000000)
 
-                mstore(add(pos, 32), "rt")
-
-                revert(start, 132)
+                revert(start, 196)
 
             }
 
@@ -120,18 +114,16 @@ object "C_15" {
 
                 let start := allocate_unbounded()
                 let pos := start
-                mstore(pos, 3963877391197344453575983046348115674221700746820753546331534351508065746944)
+                mstore(pos, 0x08c379a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
                 pos := add(pos, 4)
-                mstore(pos, 0x20)
-                pos := add(pos, 0x20)
+                mstore(pos, 0x40)
+                pos := add(pos, 0x40)
                 mstore(pos, 34)
-                pos := add(pos, 0x20)
+                pos := add(pos, 0x40)
 
-                mstore(add(pos, 0), "ABI decoding: invalid tuple offs")
+                mstore(add(pos, 0), 0x414249206465636f64696e673a20696e76616c6964207475706c65206f6666736574000000000000000000000000000000000000000000000000000000000000)
 
-                mstore(add(pos, 32), "et")
-
-                revert(start, 132)
+                revert(start, 196)
 
             }
 
@@ -139,36 +131,39 @@ object "C_15" {
 
                 let start := allocate_unbounded()
                 let pos := start
-                mstore(pos, 3963877391197344453575983046348115674221700746820753546331534351508065746944)
+                mstore(pos, 0x08c379a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
                 pos := add(pos, 4)
-                mstore(pos, 0x20)
-                pos := add(pos, 0x20)
+                mstore(pos, 0x40)
+                pos := add(pos, 0x40)
                 mstore(pos, 43)
-                pos := add(pos, 0x20)
+                pos := add(pos, 0x40)
 
-                mstore(add(pos, 0), "ABI decoding: invalid calldata a")
+                mstore(add(pos, 0), 0x414249206465636f64696e673a20696e76616c69642063616c6c64617461206172726179206f6666736574000000000000000000000000000000000000000000)
 
-                mstore(add(pos, 32), "rray offset")
-
-                revert(start, 132)
+                revert(start, 196)
 
             }
 
-            function round_up_to_mul_of_32(value) -> result {
-                result := and(add(value, 31), not(31))
+            function round_up_to_mul_of_64(value) -> result {
+                result := and(add(value, 63), not(63))
+            }
+
+            function shift_left_256(value) -> newValue {
+                newValue :=
+                shl(256, value)
             }
 
             function panic_error_0x41() {
-                mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
+                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
                 mstore(4, 0x41)
-                revert(0, 0x24)
+                revert(0, 0x44)
             }
 
             function finalize_allocation(memPtr, size) {
-                let newFreePtr := add(memPtr, round_up_to_mul_of_32(size))
+                let newFreePtr := add(memPtr, round_up_to_mul_of_64(size))
                 // protect against overflow
                 if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, memPtr)) { panic_error_0x41() }
-                mstore(64, newFreePtr)
+                mstore(128, newFreePtr)
             }
 
             function allocate_memory(size) -> memPtr {
@@ -180,10 +175,10 @@ object "C_15" {
                 // Make sure we can allocate memory without overflow
                 if gt(length, 0xffffffffffffffff) { panic_error_0x41() }
 
-                size := mul(length, 0x20)
+                size := mul(length, 0x40)
 
                 // add length slot
-                size := add(size, 0x20)
+                size := add(size, 0x40)
 
             }
 
@@ -191,18 +186,16 @@ object "C_15" {
 
                 let start := allocate_unbounded()
                 let pos := start
-                mstore(pos, 3963877391197344453575983046348115674221700746820753546331534351508065746944)
+                mstore(pos, 0x08c379a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
                 pos := add(pos, 4)
-                mstore(pos, 0x20)
-                pos := add(pos, 0x20)
+                mstore(pos, 0x40)
+                pos := add(pos, 0x40)
                 mstore(pos, 43)
-                pos := add(pos, 0x20)
+                pos := add(pos, 0x40)
 
-                mstore(add(pos, 0), "ABI decoding: invalid calldata a")
+                mstore(add(pos, 0), 0x414249206465636f64696e673a20696e76616c69642063616c6c6461746120617272617920737472696465000000000000000000000000000000000000000000)
 
-                mstore(add(pos, 32), "rray stride")
-
-                revert(start, 132)
+                revert(start, 196)
 
             }
 
@@ -210,15 +203,15 @@ object "C_15" {
                 // Make sure we can allocate memory without overflow
                 if gt(length, 0xffffffffffffffff) { panic_error_0x41() }
 
-                size := mul(length, 0x20)
+                size := mul(length, 0x40)
 
                 // add length slot
-                size := add(size, 0x20)
+                size := add(size, 0x40)
 
             }
 
             function cleanup_t_uint256(value) -> cleaned {
-                cleaned := value
+                cleaned := and(value, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
             }
 
             function validator_revert_t_uint256(value) {
@@ -236,27 +229,27 @@ object "C_15" {
                 let dst := array
 
                 mstore(array, length)
-                dst := add(array, 0x20)
+                dst := add(array, 0x40)
 
-                let srcEnd := add(offset, mul(length, 0x20))
+                let srcEnd := add(offset, mul(length, 0x40))
                 if gt(srcEnd, end) {
                     revert_error_81385d8c0b31fffe14be1da910c8bd3a80be4cfa248e04f42ec0faea3132a8ef()
                 }
-                for { let src := offset } lt(src, srcEnd) { src := add(src, 0x20) }
+                for { let src := offset } lt(src, srcEnd) { src := add(src, 0x40) }
                 {
 
                     let elementPos := src
 
                     mstore(dst, abi_decode_t_uint256(elementPos, end))
-                    dst := add(dst, 0x20)
+                    dst := add(dst, 0x40)
                 }
             }
 
             // uint256[]
             function abi_decode_t_array$_t_uint256_$dyn_memory_ptr(offset, end) -> array {
-                if iszero(slt(add(offset, 0x1f), end)) { revert_error_1b9f4a0a5773e33b91aa01db23bf8c55fce1411167c872835e7fa00a4f17d46d() }
+                if iszero(slt(add(offset, 0x3f), end)) { revert_error_1b9f4a0a5773e33b91aa01db23bf8c55fce1411167c872835e7fa00a4f17d46d() }
                 let length := calldataload(offset)
-                array := abi_decode_available_length_t_array$_t_uint256_$dyn_memory_ptr(add(offset, 0x20), length, end)
+                array := abi_decode_available_length_t_array$_t_uint256_$dyn_memory_ptr(add(offset, 0x40), length, end)
             }
 
             // uint256[][]
@@ -265,13 +258,13 @@ object "C_15" {
                 let dst := array
 
                 mstore(array, length)
-                dst := add(array, 0x20)
+                dst := add(array, 0x40)
 
-                let srcEnd := add(offset, mul(length, 0x20))
+                let srcEnd := add(offset, mul(length, 0x40))
                 if gt(srcEnd, end) {
                     revert_error_81385d8c0b31fffe14be1da910c8bd3a80be4cfa248e04f42ec0faea3132a8ef()
                 }
-                for { let src := offset } lt(src, srcEnd) { src := add(src, 0x20) }
+                for { let src := offset } lt(src, srcEnd) { src := add(src, 0x40) }
                 {
 
                     let innerOffset := calldataload(src)
@@ -279,15 +272,15 @@ object "C_15" {
                     let elementPos := add(offset, innerOffset)
 
                     mstore(dst, abi_decode_t_array$_t_uint256_$dyn_memory_ptr(elementPos, end))
-                    dst := add(dst, 0x20)
+                    dst := add(dst, 0x40)
                 }
             }
 
             // uint256[][]
             function abi_decode_t_array$_t_array$_t_uint256_$dyn_memory_ptr_$dyn_memory_ptr(offset, end) -> array {
-                if iszero(slt(add(offset, 0x1f), end)) { revert_error_1b9f4a0a5773e33b91aa01db23bf8c55fce1411167c872835e7fa00a4f17d46d() }
+                if iszero(slt(add(offset, 0x3f), end)) { revert_error_1b9f4a0a5773e33b91aa01db23bf8c55fce1411167c872835e7fa00a4f17d46d() }
                 let length := calldataload(offset)
-                array := abi_decode_available_length_t_array$_t_array$_t_uint256_$dyn_memory_ptr_$dyn_memory_ptr(add(offset, 0x20), length, end)
+                array := abi_decode_available_length_t_array$_t_array$_t_uint256_$dyn_memory_ptr_$dyn_memory_ptr(add(offset, 0x40), length, end)
             }
 
             function validator_revert_t_enum$_E_$3(value) {
@@ -300,7 +293,7 @@ object "C_15" {
             }
 
             function abi_decode_tuple_t_array$_t_array$_t_uint256_$dyn_memory_ptr_$dyn_memory_ptrt_enum$_E_$3(headStart, dataEnd) -> value0, value1 {
-                if slt(sub(dataEnd, headStart), 64) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
+                if slt(sub(dataEnd, headStart), 128) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
 
                 {
 
@@ -312,7 +305,7 @@ object "C_15" {
 
                 {
 
-                    let offset := 32
+                    let offset := 64
 
                     value1 := abi_decode_t_enum$_E_$3(add(headStart, offset), dataEnd)
                 }
@@ -339,18 +332,16 @@ object "C_15" {
 
                 let start := allocate_unbounded()
                 let pos := start
-                mstore(pos, 3963877391197344453575983046348115674221700746820753546331534351508065746944)
+                mstore(pos, 0x08c379a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
                 pos := add(pos, 4)
-                mstore(pos, 0x20)
-                pos := add(pos, 0x20)
+                mstore(pos, 0x40)
+                pos := add(pos, 0x40)
                 mstore(pos, 53)
-                pos := add(pos, 0x20)
+                pos := add(pos, 0x40)
 
-                mstore(add(pos, 0), "Contract does not have fallback ")
+                mstore(add(pos, 0), 0x436f6e747261637420646f6573206e6f7420686176652066616c6c6261636b206e6f7220726563656976652066756e6374696f6e730000000000000000000000)
 
-                mstore(add(pos, 32), "nor receive functions")
-
-                revert(start, 132)
+                revert(start, 196)
 
             }
 

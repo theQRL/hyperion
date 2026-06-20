@@ -218,6 +218,21 @@ BOOST_AUTO_TEST_CASE(all_assembly_items)
 	BOOST_CHECK_EQUAL(util::jsonCompactPrint(_assembly.assemblyJSON(indices)), util::jsonCompactPrint(jsonValue));
 }
 
+BOOST_AUTO_TEST_CASE(imported_push_preserves_512_bit_value)
+{
+	std::string const value = "80"s + std::string(126, '0');
+	Json::Value jsonValue;
+	BOOST_REQUIRE(util::jsonParseStrict(
+		"{\".code\":[{\"name\":\"PUSH\",\"value\":\"" + value + "\"}]}",
+		jsonValue
+	));
+
+	auto [assembly, sourceList] = Assembly::fromJSON(jsonValue);
+	BOOST_REQUIRE(assembly);
+	BOOST_CHECK(sourceList.empty());
+	BOOST_CHECK_EQUAL(assembly->assemble().toHex(), "9f" + value);
+}
+
 BOOST_AUTO_TEST_CASE(immutables_and_its_source_maps)
 {
 	QRVMVersion qrvmVersion= hyperion::test::CommonOptions::get().qrvmVersion();

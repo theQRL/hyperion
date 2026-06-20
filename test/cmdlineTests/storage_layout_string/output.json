@@ -32,7 +32,7 @@
                         {
                             "encoding": "bytes",
                             "label": "string",
-                            "numberOfBytes": "32"
+                            "numberOfBytes": "64"
                         }
                     }
                 }

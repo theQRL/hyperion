@@ -2722,7 +2722,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		// Send all gas (requires tangerine whistle QRVM)
 		m_context << Instruction::GAS;
 	}
-		
+
 	// Order is important here, STATICCALL might overlap with DELEGATECALL.
 	if (isDelegateCall)
 		m_context << Instruction::DELEGATECALL;

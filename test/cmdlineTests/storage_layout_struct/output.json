@@ -21,8 +21,8 @@
                             "astId": 17,
                             "contract": "fileA:A",
                             "label": "y",
-                            "offset": 0,
-                            "slot": "1",
+                            "offset": 32,
+                            "slot": "0",
                             "type": "t_uint256"
                         },
                         {
@@ -30,7 +30,7 @@
                             "contract": "fileA:A",
                             "label": "s",
                             "offset": 0,
-                            "slot": "2",
+                            "slot": "1",
                             "type": "t_struct(S)13_storage"
                         },
                         {
@@ -38,7 +38,7 @@
                             "contract": "fileA:A",
                             "label": "addr",
                             "offset": 0,
-                            "slot": "7",
+                            "slot": "4",
                             "type": "t_address"
                         }
                     ],
@@ -48,7 +48,7 @@
                         {
                             "encoding": "inplace",
                             "label": "address",
-                            "numberOfBytes": "20"
+                            "numberOfBytes": "64"
                         },
                         "t_array(t_uint256)2_storage":
                         {
@@ -62,7 +62,7 @@
                             "base": "t_uint256",
                             "encoding": "dynamic_array",
                             "label": "uint256[]",
-                            "numberOfBytes": "32"
+                            "numberOfBytes": "64"
                         },
                         "t_struct(S)13_storage":
                         {
@@ -82,8 +82,8 @@
                                     "astId": 5,
                                     "contract": "fileA:A",
                                     "label": "b",
-                                    "offset": 0,
-                                    "slot": "1",
+                                    "offset": 32,
+                                    "slot": "0",
                                     "type": "t_uint256"
                                 },
                                 {
@@ -91,7 +91,7 @@
                                     "contract": "fileA:A",
                                     "label": "staticArray",
                                     "offset": 0,
-                                    "slot": "2",
+                                    "slot": "1",
                                     "type": "t_array(t_uint256)2_storage"
                                 },
                                 {
@@ -99,11 +99,11 @@
                                     "contract": "fileA:A",
                                     "label": "dynArray",
                                     "offset": 0,
-                                    "slot": "4",
+                                    "slot": "2",
                                     "type": "t_array(t_uint256)dyn_storage"
                                 }
                             ],
-                            "numberOfBytes": "160"
+                            "numberOfBytes": "192"
                         },
                         "t_uint256":
                         {

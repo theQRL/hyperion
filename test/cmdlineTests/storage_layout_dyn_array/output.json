@@ -33,14 +33,14 @@
                             "base": "t_bool",
                             "encoding": "dynamic_array",
                             "label": "bool[]",
-                            "numberOfBytes": "32"
+                            "numberOfBytes": "64"
                         },
                         "t_array(t_uint256)dyn_storage":
                         {
                             "base": "t_uint256",
                             "encoding": "dynamic_array",
                             "label": "uint256[]",
-                            "numberOfBytes": "32"
+                            "numberOfBytes": "64"
                         },
                         "t_bool":
                         {

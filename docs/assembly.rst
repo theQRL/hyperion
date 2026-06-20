@@ -135,10 +135,9 @@ evaluate to the address of the variable in calldata, not the value itself.
 The variable can also be assigned a new offset, but note that no validation is performed to ensure that
 the variable will not point beyond ``calldatasize()``.
 
-For external function pointers the address and the function selector can be
-accessed using ``x.address`` and ``x.selector``.
-The selector consists of four right-aligned bytes.
-Both values can be assigned to. For example:
+Public and external function identifiers expose the target address and function
+selector using ``x.address`` and ``x.selector``.
+The selector consists of four right-aligned bytes. For example:
 
 .. code-block:: hyperion
     :force:
@@ -147,14 +146,17 @@ Both values can be assigned to. For example:
     pragma hyperion >=0.1.0;
 
     contract C {
-        // Assigns a new selector and address to the return variable @fun
-        function combineToFunctionPointer(address newAddress, uint newSelector) public pure returns (function() external fun) {
-            assembly {
-                fun.selector := newSelector
-                fun.address  := newAddress
-            }
+        function target() public pure {}
+
+        function metadata() public view returns (address targetAddress, bytes4 targetSelector) {
+            targetAddress = this.target.address;
+            targetSelector = this.target.selector;
         }
     }
+
+External function pointer variables are not supported with 512-bit addresses
+because the address plus selector does not fit in one VM word, so their
+``.address`` and ``.selector`` members cannot be assigned in inline assembly.
 
 For dynamic calldata arrays, you can access
 their calldata offset (in bytes) and length (number of elements) using ``x.offset`` and ``x.length``.

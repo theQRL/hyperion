@@ -23,7 +23,7 @@ namespace qrvmc
 /// String view of uint8_t chars.
 using bytes_view = std::basic_string_view<uint8_t>;
 
-/// The big-endian 384-bit value suitable for keeping a QRL address.
+/// The big-endian 512-bit value suitable for keeping a QRL address.
 ///
 /// This type wraps C ::qrvmc_address to make sure objects of this type are always initialized.
 struct address : qrvmc_address
@@ -35,21 +35,16 @@ struct address : qrvmc_address
 
     /// Converting constructor from unsigned integer value.
     ///
-    /// This constructor assigns the @p v value to the last 8 bytes [12:19]
+    /// This constructor assigns the @p v value to the last 8 bytes [56:63]
     /// in big-endian order.
     constexpr explicit address(uint64_t v) noexcept
-      : qrvmc_address{{0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
+      : qrvmc_address{{0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
                        static_cast<uint8_t>(v >> 56),
                        static_cast<uint8_t>(v >> 48),
                        static_cast<uint8_t>(v >> 40),
@@ -67,7 +62,7 @@ struct address : qrvmc_address
     inline constexpr operator bytes_view() const noexcept { return {bytes, sizeof(bytes)}; }
 };
 
-/// The fixed size array of 32 bytes for storing 256-bit QRVM values.
+/// The fixed size array of 64 bytes for storing 512-bit QRVM values.
 ///
 /// This type wraps C ::qrvmc_bytes32 to make sure objects of this type are always initialized.
 struct bytes32 : qrvmc_bytes32
@@ -106,7 +101,7 @@ struct bytes32 : qrvmc_bytes32
     inline constexpr operator bytes_view() const noexcept { return {bytes, sizeof(bytes)}; }
 };
 
-/// The alias for qrvmc::bytes32 to represent a big-endian 256-bit integer.
+/// The alias for qrvmc::bytes32 to represent a big-endian 512-bit integer.
 using uint256be = bytes32;
 
 

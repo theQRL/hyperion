@@ -243,18 +243,18 @@ public:
 	/// dynamically encoded types.
 	/// Always returns a value greater than zero and throws if the type cannot be encoded in calldata
 	/// (or is dynamically encoded).
-	/// If @a _padded then it is assumed that each element is padded to a multiple of 32 bytes.
+	/// If @a _padded then it is assumed that each element is padded to a multiple of the VM word size.
 	virtual unsigned calldataEncodedSize([[maybe_unused]] bool _padded) const { hypAssert(false, ""); }
 	/// Convenience version of @see calldataEncodedSize(bool)
 	unsigned calldataEncodedSize() const { return calldataEncodedSize(true); }
 	/// @returns the distance between two elements of this type in a calldata array, tuple or struct.
 	/// For statically encoded types this is the same as calldataEncodedSize(true).
-	/// For dynamically encoded types this is the distance between two tail pointers, i.e. 32.
+	/// For dynamically encoded types this is the distance between two tail pointers, i.e. VMWordBytes.
 	/// Always returns a value greater than zero and throws if the type cannot be encoded in calldata.
 	unsigned calldataHeadSize() const { return isDynamicallyEncoded() ? VMWordBytes : calldataEncodedSize(true); }
 	/// @returns the (minimal) size of the calldata tail for this type. Can only be used for
-	/// dynamically encoded types. For dynamically-sized arrays this is 32 (the size of the length),
-	/// for statically-sized, but dynamically encoded arrays this is 32*length(), for structs
+	/// dynamically encoded types. For dynamically-sized arrays this is the VM word size (the size of the length),
+	/// for statically-sized, but dynamically encoded arrays this is VMWordBytes * length(), for structs
 	/// this is the sum of the calldataHeadSize's of its members.
 	/// Always returns a value greater than zero and throws if the type cannot be encoded in calldata
 	/// (or is not dynamically encoded).
@@ -678,7 +678,7 @@ private:
 };
 
 /**
- * Bytes type with fixed length of up to 32 bytes.
+ * Bytes type with fixed length of up to 64 bytes.
  */
 class FixedBytesType: public Type
 {
@@ -1475,7 +1475,7 @@ public:
 	/// Can contain a nullptr in which case indicates absence of documentation.
 	ASTPointer<StructuredDocumentation> documentation() const;
 
-	/// true iff arguments are to be padded to multiples of 32 bytes for external calls
+	/// true iff arguments are to be padded to multiples of the VM word size for external calls
 	/// The only functions that do not pad are hash functions, the low-level call functions
 	/// and abi.encodePacked.
 	bool padArguments() const;

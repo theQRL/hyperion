@@ -2,7 +2,7 @@
 ======= optimizer_BlockDeDuplicator/input.hyp:C =======
 QRVM assembly:
     /* "optimizer_BlockDeDuplicator/input.hyp":60:213  contract C {... */
-  mstore(0x40, 0x80)
+  mstore(0x80, 0x0100)
     /* "optimizer_BlockDeDuplicator/input.hyp":179:210  function() r = true ? fun_x : f */
   0x00
   dup1
@@ -45,7 +45,7 @@ stop
 
 sub_0: assembly {
         /* "optimizer_BlockDeDuplicator/input.hyp":60:213  contract C {... */
-      mstore(0x40, 0x80)
+      mstore(0x80, 0x0100)
       callvalue
       dup1
       iszero
@@ -57,7 +57,7 @@ sub_0: assembly {
     tag_1:
       pop
       jumpi(tag_2, lt(calldatasize, 0x04))
-      shr(0xe0, calldataload(0x00))
+      shr(0x01e0, calldataload(0x00))
       dup1
       0x26121ff0
       eq
