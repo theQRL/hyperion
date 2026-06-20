@@ -53,16 +53,16 @@ enum
  *
  * 64 bytes of data capable of storing e.g. 512-bit values.
  */
-typedef struct qrvmc_bytes32
+typedef struct qrvmc_bytes64
 {
     /** The 64 bytes. */
     uint8_t bytes[64];
-} qrvmc_bytes32;
+} qrvmc_bytes64;
 
 /**
- * The alias for qrvmc_bytes32 to represent a big-endian 512-bit integer.
+ * The alias for qrvmc_bytes64 to represent a big-endian 512-bit integer.
  */
-typedef struct qrvmc_bytes32 qrvmc_uint256be;
+typedef struct qrvmc_bytes64 qrvmc_uint512be;
 
 /** Big-endian 512-bit hash suitable for keeping a QRL address. */
 typedef struct qrvmc_address
@@ -161,7 +161,7 @@ struct qrvmc_message
      * This is transferred value for ::QRVMC_CALL or apparent value for ::QRVMC_DELEGATECALL.
      * Defined as `v` or `v~` in the Yellow Paper.
      */
-    qrvmc_uint256be value;
+    qrvmc_uint512be value;
 
     /**
      * The optional value used in new contract address construction.
@@ -169,7 +169,7 @@ struct qrvmc_message
      * Needed only for a Host to calculate created address when kind is ::QRVMC_CREATE2.
      * Ignored in qrvmc_execute_fn().
      */
-    qrvmc_bytes32 create2_salt;
+    qrvmc_bytes64 create2_salt;
 
     /**
      * The address of the code to be executed.
@@ -190,15 +190,15 @@ struct qrvmc_message
 /** The transaction and block data for execution. */
 struct qrvmc_tx_context
 {
-    qrvmc_uint256be tx_gas_price;      /**< The transaction gas price. */
+    qrvmc_uint512be tx_gas_price;      /**< The transaction gas price. */
     qrvmc_address tx_origin;           /**< The transaction origin account. */
     qrvmc_address block_coinbase;      /**< The miner of the block. */
     int64_t block_number;              /**< The block number. */
     int64_t block_timestamp;           /**< The block timestamp. */
     int64_t block_gas_limit;           /**< The block gas limit. */
-    qrvmc_uint256be block_prev_randao; /**< The block previous RANDAO (EIP-4399). */
-    qrvmc_uint256be chain_id;          /**< The blockchain's ChainID. */
-    qrvmc_uint256be block_base_fee;    /**< The block base fee per gas (EIP-1559, EIP-3198). */
+    qrvmc_uint512be block_prev_randao; /**< The block previous RANDAO (EIP-4399). */
+    qrvmc_uint512be chain_id;          /**< The blockchain's ChainID. */
+    qrvmc_uint512be block_base_fee;    /**< The block base fee per gas (EIP-1559, EIP-3198). */
 };
 
 /**
@@ -231,7 +231,7 @@ typedef struct qrvmc_tx_context (*qrvmc_get_tx_context_fn)(struct qrvmc_host_con
  * @return         The block hash or null bytes
  *                 if the information about the block is not available.
  */
-typedef qrvmc_bytes32 (*qrvmc_get_block_hash_fn)(struct qrvmc_host_context* context,
+typedef qrvmc_bytes64 (*qrvmc_get_block_hash_fn)(struct qrvmc_host_context* context,
                                                  int64_t number);
 
 /**
@@ -464,12 +464,10 @@ struct qrvmc_result
      * Reserved data that MAY be used by a qrvmc_result object creator.
      *
      * This reserved 4 bytes together with 64 bytes from create_address form
-     * 52 bytes of memory called "optional data" within qrvmc_result struct
+     * 68 bytes of memory called "optional storage" within qrvmc_result struct
      * to be optionally used by the qrvmc_result object creator.
      *
-     * @see qrvmc_result_optional_data, qrvmc_get_optional_data().
-     *
-     * Also extends the size of the qrvmc_result to 64 bytes (full cache line).
+     * @see qrvmc_result_optional_storage, qrvmc_get_optional_storage().
      */
     uint8_t padding[4];
 };
@@ -498,9 +496,9 @@ typedef bool (*qrvmc_account_exists_fn)(struct qrvmc_host_context* context,
  * @return         The storage value at the given storage key or null bytes
  *                 if the account does not exist.
  */
-typedef qrvmc_bytes32 (*qrvmc_get_storage_fn)(struct qrvmc_host_context* context,
+typedef qrvmc_bytes64 (*qrvmc_get_storage_fn)(struct qrvmc_host_context* context,
                                               const qrvmc_address* address,
-                                              const qrvmc_bytes32* key);
+                                              const qrvmc_bytes64* key);
 
 
 /**
@@ -616,8 +614,8 @@ enum qrvmc_storage_status
  */
 typedef enum qrvmc_storage_status (*qrvmc_set_storage_fn)(struct qrvmc_host_context* context,
                                                           const qrvmc_address* address,
-                                                          const qrvmc_bytes32* key,
-                                                          const qrvmc_bytes32* value);
+                                                          const qrvmc_bytes64* key,
+                                                          const qrvmc_bytes64* value);
 
 /**
  * Get balance callback function.
@@ -628,7 +626,7 @@ typedef enum qrvmc_storage_status (*qrvmc_set_storage_fn)(struct qrvmc_host_cont
  * @param address  The address of the account.
  * @return         The balance of the given account or 0 if the account does not exist.
  */
-typedef qrvmc_uint256be (*qrvmc_get_balance_fn)(struct qrvmc_host_context* context,
+typedef qrvmc_uint512be (*qrvmc_get_balance_fn)(struct qrvmc_host_context* context,
                                                 const qrvmc_address* address);
 
 /**
@@ -655,7 +653,7 @@ typedef size_t (*qrvmc_get_code_size_fn)(struct qrvmc_host_context* context,
  * @param address  The address of the account.
  * @return         The hash of the code in the account or null bytes if the account does not exist.
  */
-typedef qrvmc_bytes32 (*qrvmc_get_code_hash_fn)(struct qrvmc_host_context* context,
+typedef qrvmc_bytes64 (*qrvmc_get_code_hash_fn)(struct qrvmc_host_context* context,
                                                 const qrvmc_address* address);
 
 /**
@@ -698,7 +696,7 @@ typedef void (*qrvmc_emit_log_fn)(struct qrvmc_host_context* context,
                                   const qrvmc_address* address,
                                   const uint8_t* data,
                                   size_t data_size,
-                                  const qrvmc_bytes32 topics[],
+                                  const qrvmc_bytes64 topics[],
                                   size_t topics_count);
 
 /**
@@ -745,7 +743,7 @@ typedef enum qrvmc_access_status (*qrvmc_access_account_fn)(struct qrvmc_host_co
  */
 typedef enum qrvmc_access_status (*qrvmc_access_storage_fn)(struct qrvmc_host_context* context,
                                                             const qrvmc_address* address,
-                                                            const qrvmc_bytes32* key);
+                                                            const qrvmc_bytes64* key);
 
 /**
  * Pointer to the callback function supporting QRVM calls.

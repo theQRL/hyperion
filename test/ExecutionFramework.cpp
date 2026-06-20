@@ -285,7 +285,7 @@ bool ExecutionFramework::storageEmpty(h512 const& _addr) const
 	if (it != m_qrvmcHost->accounts.end())
 	{
 		for (auto const& entry: it->second.storage)
-			if (entry.second.current != qrvmc::bytes32{})
+			if (entry.second.current != qrvmc::bytes64{})
 				return false;
 	}
 	return true;
@@ -298,7 +298,7 @@ vector<hyperion::frontend::test::LogRecord> ExecutionFramework::recordedLogs() c
 		logs.emplace_back(
 			QRVMHost::convertFromQRVMC(logRecord.creator),
 			bytes{logRecord.data.begin(), logRecord.data.end()},
-			logRecord.topics | ranges::views::transform([](qrvmc::bytes32 _bytes) { return QRVMHost::convertFromQRVMC(_bytes); }) | ranges::to<vector>
+			logRecord.topics | ranges::views::transform([](qrvmc::bytes64 _bytes) { return QRVMHost::convertFromQRVMC(_bytes); }) | ranges::to<vector>
 		);
 	return logs;
 }

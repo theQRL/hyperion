@@ -101,17 +101,16 @@ QRVMHost::QRVMHost(langutil::QRVMVersion _qrvmVersion, qrvmc::VM& _vm):
 	else
 		assertThrow(false, Exception, "Unsupported QRVM version");
 
-	
 	// This is the value from the merge block.
-	tx_context.block_prev_randao = 0xa86c2e601b6c44eb4848f7d23d9df3113fbcac42041c49cbed5000cb4f118777_bytes32;
+	tx_context.block_prev_randao = 0xa86c2e601b6c44eb4848f7d23d9df3113fbcac42041c49cbed5000cb4f118777_bytes64;
 	tx_context.block_gas_limit = 20000000;
 	tx_context.block_coinbase = "Q000000000000000000000000000000000000000000000000000000007878787878787878787878787878787878787878"_address;
-	tx_context.tx_gas_price = qrvmc::uint256be{3000000000};
+	tx_context.tx_gas_price = qrvmc::uint512be{3000000000};
 	tx_context.tx_origin = "Q000000000000000000000000000000000000000000000000000000009292929292929292929292929292929292929292"_address;
 	// Mainnet according to EIP-155
-	tx_context.chain_id = qrvmc::uint256be{1};
+	tx_context.chain_id = qrvmc::uint512be{1};
 	// The minimum value of basefee
-	tx_context.block_base_fee = qrvmc::bytes32{7};
+	tx_context.block_base_fee = qrvmc::bytes64{7};
 
 	// Reserve space for recording calls.
 	if (!recorded_calls.capacity())
@@ -138,9 +137,9 @@ void QRVMHost::reset()
 	{
 		qrvmc::address address{precompiledAddress};
 		// 1planck
-		accounts[address].balance = qrvmc::uint256be{1};
+		accounts[address].balance = qrvmc::uint512be{1};
 		// Set according to EIP-1052.
-		accounts[address].codehash = 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470_bytes32;		
+		accounts[address].codehash = 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470_bytes64;
 	}
 }
 
@@ -320,7 +319,7 @@ qrvmc::Result QRVMHost::call(qrvmc_message const& _message) noexcept
 	return result;
 }
 
-qrvmc::bytes32 QRVMHost::get_block_hash(int64_t _number) const noexcept
+qrvmc::bytes64 QRVMHost::get_block_hash(int64_t _number) const noexcept
 {
 	return convertToQRVMC(u256("0x3737373737373737373737373737373737373737373737373737373737373737") + _number);
 }
@@ -338,23 +337,23 @@ qrvmc::address QRVMHost::convertToQRVMC(h512 const& _addr)
 	return a;
 }
 
-h256 QRVMHost::convertFromQRVMC(qrvmc::bytes32 const& _data)
+h256 QRVMHost::convertFromQRVMC(qrvmc::bytes64 const& _data)
 {
 	// bytes32/hash is left-aligned: data in upper 32 bytes (big-endian MSB = bytes 0-31).
 	// This matches how VM stores bytes32 on stack (upper 256 bits of uint512).
 	return h256(bytes(_data.bytes, _data.bytes + 32));
 }
 
-qrvmc::bytes32 QRVMHost::convertToQRVMC(h256 const& _data)
+qrvmc::bytes64 QRVMHost::convertToQRVMC(h256 const& _data)
 {
-	qrvmc::bytes32 d{};
+	qrvmc::bytes64 d{};
 	// bytes32/hash left-aligned: place in upper 32 bytes (bytes 0-31).
 	for (unsigned i = 0; i < 32; ++i)
 		d.bytes[i] = _data[i];
 	return d;
 }
 
-u256 QRVMHost::convertUintFromQRVMC(qrvmc::bytes32 const& _data)
+u256 QRVMHost::convertUintFromQRVMC(qrvmc::bytes64 const& _data)
 {
 	// Same as convertFromQRVMC but returns u256
 	u256 result = 0;
@@ -363,10 +362,10 @@ u256 QRVMHost::convertUintFromQRVMC(qrvmc::bytes32 const& _data)
 	return result;
 }
 
-qrvmc::bytes32 QRVMHost::convertUintToQRVMC(u256 const& _value)
+qrvmc::bytes64 QRVMHost::convertUintToQRVMC(u256 const& _value)
 {
 	// Same layout as convertToQRVMC(h256)
-	qrvmc::bytes32 d{};
+	qrvmc::bytes64 d{};
 	bytes be = toBigEndian(_value);
 	for (unsigned i = 0; i < 32; ++i)
 		d.bytes[32 + i] = be[i];

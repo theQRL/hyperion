@@ -36,7 +36,7 @@
 namespace hyperion::test
 {
 using Address = util::h512;
-using StorageMap = std::map<qrvmc::bytes32, qrvmc::StorageValue>;
+using StorageMap = std::map<qrvmc::bytes64, qrvmc::StorageValue>;
 
 struct QRVMPrecompileOutput {
 	bytes const output;
@@ -61,7 +61,7 @@ public:
 
 	// Modified features of MockedHost.
 	qrvmc::Result call(qrvmc_message const& _message) noexcept final;
-	qrvmc::bytes32 get_block_hash(int64_t number) const noexcept final;
+	qrvmc::bytes64 get_block_hash(int64_t number) const noexcept final;
 
 	// Hyperion testing specific features.
 
@@ -94,12 +94,12 @@ public:
 
 	static Address convertFromQRVMC(qrvmc::address const& _addr);
 	static qrvmc::address convertToQRVMC(Address const& _addr);
-	/// Convert bytes32 treating h256 as left-aligned (for hashes, storage keys, bytes32 values)
-	static util::h256 convertFromQRVMC(qrvmc::bytes32 const& _data);
-	static qrvmc::bytes32 convertToQRVMC(util::h256 const& _data);
-	/// Convert bytes32 treating u256 as right-aligned (for uint, balance, value)
-	static u256 convertUintFromQRVMC(qrvmc::bytes32 const& _data);
-	static qrvmc::bytes32 convertUintToQRVMC(u256 const& _value);
+	/// Convert a QRVMC bytes64 container treating h256 as left-aligned (for hashes, storage keys, bytes32 values)
+	static util::h256 convertFromQRVMC(qrvmc::bytes64 const& _data);
+	static qrvmc::bytes64 convertToQRVMC(util::h256 const& _data);
+	/// Convert a QRVMC bytes64 container treating u256 as right-aligned (for uint, balance, value)
+	static u256 convertUintFromQRVMC(qrvmc::bytes64 const& _data);
+	static qrvmc::bytes64 convertUintToQRVMC(u256 const& _value);
 private:
 	/// Transfer value between accounts. Checks for sufficient balance.
 	void transfer(qrvmc::MockedAccount& _sender, qrvmc::MockedAccount& _recipient, u256 const& _value) noexcept;
