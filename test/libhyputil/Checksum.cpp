@@ -16,7 +16,7 @@
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Unit tests for address canonicalisation.
+ * Unit tests for address checksum validation.
  */
 
 #include <libhyputil/CommonData.h>
@@ -31,10 +31,20 @@
 namespace hyperion::util::test
 {
 
-BOOST_AUTO_TEST_SUITE(AddressCanonicalisation)
+BOOST_AUTO_TEST_SUITE(AddressChecksum)
 
 namespace
 {
+
+std::string const lowerParity =
+	"Qd5812f6cf4a0f645aa620cd57319a0ed649dd8f5519a9dde7770ae5b0e49e547"
+	"985f35eb972a2a07041561aa39c65a3991478f9b1e6749e05277dcf58a9a8b72";
+std::string const checksummedParity =
+	"Qd5812F6Cf4a0f645aa620cd57319a0Ed649dd8f5519A9dde7770ae5b0E49e547"
+	"985f35eB972A2a07041561aa39c65A3991478f9B1e6749e05277dcf58A9A8B72";
+std::string const invalidMixedParity =
+	"QD5812F6Cf4a0f645aa620cd57319a0Ed649dd8f5519A9dde7770ae5b0E49e547"
+	"985f35eB972A2a07041561aa39c65A3991478f9B1e6749e05277dcf58A9A8B72";
 
 std::string address(std::string const& _prefix, char _padding = '0')
 {
@@ -45,8 +55,8 @@ std::string address(std::string const& _prefix, char _padding = '0')
 
 BOOST_AUTO_TEST_CASE(calculate)
 {
-	BOOST_CHECK(!getChecksummedAddress(address("5aaeb6053f3e94c9b9a09f33669435e7ef1beaed")).empty());
-	BOOST_CHECK(!getChecksummedAddress(address("0123456789abcdefabcdef0123456789abcdefab")).empty());
+	BOOST_CHECK_EQUAL(getChecksummedAddress(lowerParity), checksummedParity);
+	BOOST_CHECK_EQUAL(getChecksummedAddress(checksummedParity), checksummedParity);
 	// no prefix
 	BOOST_CHECK_THROW(getChecksummedAddress(address("5aaeb6053f3e94c9b9a09f33669435e7ef1beaed").substr(1)), InvalidAddress);
 	// too short
@@ -59,25 +69,27 @@ BOOST_AUTO_TEST_CASE(calculate)
 
 BOOST_AUTO_TEST_CASE(canonical_roundtrip)
 {
-	std::string addr = address("5aaeb6053f3e94c9b9a09f33669435e7ef1beaed");
+	std::string addr = lowerParity;
 	std::string canonical = getChecksummedAddress(addr);
 	BOOST_CHECK(passesAddressChecksum(canonical, true));
-
-	std::string addr2 = address("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 'b');
-	std::string canonical2 = getChecksummedAddress(addr2);
-	BOOST_CHECK(passesAddressChecksum(canonical2, true));
+	BOOST_CHECK(passesAddressChecksum(canonical, false));
 }
 
-BOOST_AUTO_TEST_CASE(all_lowercase_valid)
+BOOST_AUTO_TEST_CASE(uniform_case_valid_for_permissive_check)
 {
-	std::string lower = address("de709f2102306220921060314715629080e2fb77", 'a');
-	BOOST_CHECK(passesAddressChecksum(lower, false));
-}
-
-BOOST_AUTO_TEST_CASE(all_uppercase_valid)
-{
+	std::string lower = lowerParity;
 	std::string upper = address("52908400098527886E0F7030069857D2E4169EE7", 'A');
+	BOOST_CHECK(passesAddressChecksum(lower, false));
 	BOOST_CHECK(passesAddressChecksum(upper, false));
+}
+
+BOOST_AUTO_TEST_CASE(strict_check_requires_canonical_checksum)
+{
+	BOOST_CHECK(!passesAddressChecksum(lowerParity, true));
+	BOOST_CHECK(passesAddressChecksum(checksummedParity, true));
+	BOOST_CHECK(!passesAddressChecksum(invalidMixedParity, false));
+	BOOST_CHECK(!passesAddressChecksum(invalidMixedParity, true));
+	BOOST_CHECK(passesAddressChecksum("Q" + std::string(AddressBytes * 2, '0'), true));
 }
 
 BOOST_AUTO_TEST_CASE(invalid_length)

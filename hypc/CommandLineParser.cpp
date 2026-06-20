@@ -442,7 +442,8 @@ void CommandLineParser::parseLibraryOption(std::string const& _input)
 				hypThrow(
 					CommandLineValidationError,
 					"Invalid address for library \"" + libName + "\": " + addrString + "\n"
-					"Expected Q followed by " + std::to_string(AddressBytes * 2) + " hex characters."
+					"Expected Q followed by " + std::to_string(AddressBytes * 2) +
+					" hex characters, either all lowercase, all uppercase, or using a valid checksum."
 				);
 			bytes binAddr = util::fromHex(addrString.substr(1));
 			util::h512 address(binAddr, util::h512::AlignRight);

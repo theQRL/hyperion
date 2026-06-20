@@ -39,6 +39,42 @@ namespace
 static char const* upperHexChars = "0123456789ABCDEF";
 static char const* lowerHexChars = "0123456789abcdef";
 
+bool isAddressHex(std::string const& _body)
+{
+	return _body.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos;
+}
+
+bool isUniformHexCase(std::string const& _body)
+{
+	bool hasLower = false;
+	bool hasUpper = false;
+	for (char c: _body)
+	{
+		hasLower = hasLower || (c >= 'a' && c <= 'f');
+		hasUpper = hasUpper || (c >= 'A' && c <= 'F');
+	}
+	return !hasLower || !hasUpper;
+}
+
+std::string checksummedAddressBody(std::string const& _body)
+{
+	std::string lower = boost::algorithm::to_lower_copy(_body, std::locale::classic());
+	bytes hash = shake256(lower, AddressBytes);
+
+	for (size_t i = 0; i < lower.size(); ++i)
+	{
+		char& c = lower[i];
+		if (c < 'a' || c > 'f')
+			continue;
+
+		uint8_t const hashByte = hash[i / 2];
+		uint8_t const nibble = (i % 2 == 0) ? (hashByte >> 4) : (hashByte & 0x0f);
+		if (nibble >= 8)
+			c = static_cast<char>(c - ('a' - 'A'));
+	}
+	return lower;
+}
+
 }
 
 std::string hyperion::util::toHex(uint8_t _data, HexCase _case)
@@ -126,12 +162,18 @@ bytes hyperion::util::fromHex(std::string const& _s, WhenError _throw)
 
 bool hyperion::util::passesAddressChecksum(std::string const& _str, bool _strict)
 {
-	(void)_strict;
 	if (_str.length() != AddressBytes * 2 + 1 || !boost::starts_with(_str, "Q"))
 		return false;
 
 	std::string s = _str.substr(1);
-	return s.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos;
+	if (!isAddressHex(s))
+		return false;
+
+	std::string checksummed = checksummedAddressBody(s);
+	if (_strict)
+		return s == checksummed;
+
+	return isUniformHexCase(s) || s == checksummed;
 }
 
 std::string hyperion::util::getChecksummedAddress(std::string const& _addr)
@@ -139,10 +181,9 @@ std::string hyperion::util::getChecksummedAddress(std::string const& _addr)
 	assertThrow(_addr.length() == AddressBytes * 2 + 1, InvalidAddress, _addr);
 	assertThrow(boost::starts_with(_addr, "Q"), InvalidAddress, "");
 	std::string s = _addr.substr(1);
-	assertThrow(s.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos, InvalidAddress, "");
+	assertThrow(isAddressHex(s), InvalidAddress, "");
 
-	std::string lower = boost::algorithm::to_lower_copy(s, std::locale::classic());
-	return "Q" + lower;
+	return "Q" + checksummedAddressBody(s);
 }
 
 bool hyperion::util::isValidHex(std::string const& _string)

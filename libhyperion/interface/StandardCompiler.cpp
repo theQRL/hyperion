@@ -895,6 +895,12 @@ std::variant<StandardCompiler::InputsAndSettings, Json::Value> StandardCompiler:
 					"Library address is of invalid length."
 				);
 
+			if (!util::passesAddressChecksum(address, false))
+				return formatFatalError(
+					Error::Type::JSONError,
+					"Invalid library address (\"" + address + "\") supplied."
+				);
+
 			try
 			{
 				ret.libraries[sourceName + ":" + library] = util::h512(boost::replace_all_copy(address, "Q", "0x"));

@@ -2425,7 +2425,7 @@ public:
 	bool looksLikeAddress() const;
 	/// @returns true if it is a structurally valid QRL address.
 	bool passesAddressChecksum() const;
-	/// @returns the canonical lowercase version of an address (or empty string if not valid)
+	/// @returns the canonical checksummed version of an address (or empty string if not valid)
 	std::string getChecksummedAddress() const;
 
 private:

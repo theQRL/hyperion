@@ -5,3 +5,4 @@ contract C {
     }
 }
 // ----
+// SyntaxError 9429: (64-193): This looks like an address but is not a valid QRL address literal. Canonical address: "Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fA0BfC97e48458494CCD857E1a85dc91f7f0046e".

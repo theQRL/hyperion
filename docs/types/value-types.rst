@@ -223,11 +223,11 @@ Operators:
     To reduce conversion ambiguity, starting with version 0.4.24, the compiler will force you to make the truncation explicit in the conversion.
     Take for example the 32-byte value ``0x111122223333444455556666777788889999AAAABBBBCCCCDDDDEEEEFFFFCCCC``.
 
-    You can use ``address(uint512(bytes64(b)))``, which results in ``Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111122223333444455556666777788889999aAaa``,
-    or you can use ``address(uint512(uint256(b)))``, which results in ``Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000777788889999AaAAbBbbCcccddDdeeeEfFFfCcCc``.
+    You can use ``address(uint512(bytes64(b)))``, which results in ``Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111122223333444455556666777788889999AAaA``,
+    or you can use ``address(uint512(uint256(b)))``, which results in ``Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000777788889999AAAabBBBccCCdDDDeEeeFFFFCcCC``.
 
 .. note::
-    Mixed-case hexadecimal numbers conforming to `EIP-55 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md>`_ are automatically treated as literals of the ``address`` type. See :ref:`Address Literals<address_literals>`.
+    Mixed-case QRL addresses using the SHAKE-256 checksum are automatically treated as literals of the ``address`` type. See :ref:`Address Literals<address_literals>`.
 
 .. _members-of-addresses:
 
@@ -428,12 +428,13 @@ Address Literals
 ----------------
 
 Address literals that pass the address checksum test, for example
-``Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF`` are of ``address`` type.
+``Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dCAD3a6d3569df655070dED06cb7A1B2cCD1d3aF`` are of ``address`` type.
 Address literals that do not pass the checksum test produce
 an error.
 
 .. note::
-    The mixed-case address checksum format is defined in `EIP-55 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md>`_.
+    The mixed-case QRL address checksum uses SHAKE-256 over the lowercase 128-character hexadecimal address body without the ``Q`` prefix.
+    Each ``a`` to ``f`` character is uppercased when the corresponding hash nibble is greater than or equal to 8.
 
 .. index:: integer, rational number, ! literal;rational
 

@@ -795,6 +795,29 @@ BOOST_AUTO_TEST_CASE(libraries_invalid_hex)
 	BOOST_CHECK(containsError(result, "JSONError", "Invalid library address (\"Q424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242xx\") supplied."));
 }
 
+BOOST_AUTO_TEST_CASE(libraries_invalid_checksum)
+{
+	char const* input = R"(
+	{
+		"language": "Hyperion",
+		"settings": {
+			"libraries": {
+				"library.hyp": {
+					"L": "Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000FA0bFc97E48458494Ccd857e1A85DC91F7F0046E"
+				}
+			}
+		},
+		"sources": {
+			"empty": {
+				"content": ""
+			}
+		}
+	}
+	)";
+	Json::Value result = compile(input);
+	BOOST_CHECK(containsError(result, "JSONError", "Invalid library address (\"Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000FA0bFc97E48458494Ccd857e1A85DC91F7F0046E\") supplied."));
+}
+
 BOOST_AUTO_TEST_CASE(libraries_invalid_length)
 {
 	char const* input = R"(

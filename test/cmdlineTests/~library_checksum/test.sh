@@ -5,6 +5,8 @@ set -euo pipefail
 source "${REPO_ROOT}/scripts/common.sh"
 
 echo '' | msg_on_error --no-stdout "$HYPC" - --link --libraries a=Q0000000000000000000000000000000090f20564390eae531e810af625a22f51385cd22200000000000000000000000000000000000000000000000000000000
+echo '' | "$HYPC" - --link --libraries a=Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000FA0bFc97E48458494Ccd857e1A85DC91F7F0046E &>/dev/null && \
+    fail "hypc --link did not reject an invalid library address checksum."
 echo '' | "$HYPC" - --link --libraries a=Q0000000000000000000000000000000080f20564390eae531e810af625a22f51385cd2220000000000000000000000000000000000000000000000000000000z &>/dev/null && \
     fail "hypc --link did not reject an invalid library address."
 
