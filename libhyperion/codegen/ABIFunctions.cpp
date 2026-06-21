@@ -324,7 +324,7 @@ std::string ABIFunctions::abiEncodingFunction(
 				else
 					return abiEncodingFunctionSimpleArray(*fromArray, *toArray, _options);
 			case DataLocation::Storage:
-				if (fromArray->baseType()->storageBytes() <= 16)
+				if (fromArray->baseType()->storageBytes() <= (VMWordBytes / 2))
 					return abiEncodingFunctionCompactStorageArray(*fromArray, *toArray, _options);
 				else
 					return abiEncodingFunctionSimpleArray(*fromArray, *toArray, _options);
@@ -347,7 +347,7 @@ std::string ABIFunctions::abiEncodingFunction(
 
 	hypAssert(_from.sizeOnStack() == 1, "");
 	hypAssert(to.isValueType(), "");
-	hypAssert(to.calldataEncodedSize() == 32, "");
+	hypAssert(to.calldataEncodedSize() == VMWordBytes, "");
 	std::string functionName =
 		"abi_encode_" +
 		_from.identifier() +
@@ -504,7 +504,7 @@ std::string ABIFunctions::abiEncodingFunctionCalldataArrayWithoutCleanup(
 		}
 		else
 		{
-			hypAssert(fromArrayType.calldataStride() == 32, "");
+			hypAssert(fromArrayType.calldataStride() == VMWordBytes, "");
 			Whiskers templ(R"(
 				// <readableTypeNameFrom> -> <readableTypeNameTo>
 				function <functionName>(start, pos) {
@@ -538,7 +538,7 @@ std::string ABIFunctions::abiEncodingFunctionSimpleArray(
 	hypAssert(_from.length() == _to.length(), "");
 	hypAssert(!_from.isByteArrayOrString(), "");
 	if (_from.dataStoredIn(DataLocation::Storage))
-		hypAssert(_from.baseType()->storageBytes() > 16, "");
+		hypAssert(_from.baseType()->storageBytes() > (VMWordBytes / 2), "");
 
 	return createFunction(functionName, [&]() {
 		bool dynamic = _to.isDynamicallyEncoded();
@@ -556,7 +556,7 @@ std::string ABIFunctions::abiEncodingFunctionSimpleArray(
 					<declareLength>
 					pos := <storeLength>(pos, length)
 					let headStart := pos
-					let tail := add(pos, mul(length, 0x20))
+					let tail := add(pos, mul(length, 0x40))
 					let baseRef := <dataAreaFun>(value)
 					let srcPtr := baseRef
 					for { let i := 0 } lt(i, length) { i := add(i, 1) }
@@ -565,7 +565,7 @@ std::string ABIFunctions::abiEncodingFunctionSimpleArray(
 						let <elementValues> := <arrayElementAccess>
 						tail := <encodeToMemoryFun>(<elementValues>, tail)
 						srcPtr := <nextArrayElement>(srcPtr)
-						pos := add(pos, 0x20)
+						pos := add(pos, 0x40)
 					}
 					pos := tail
 					<assignEnd>
@@ -612,11 +612,17 @@ std::string ABIFunctions::abiEncodingFunctionSimpleArray(
 		switch (_from.location())
 		{
 			case DataLocation::Memory:
-				templ("arrayElementAccess", "mload(srcPtr)");
+				if (
+					auto const* functionType = dynamic_cast<FunctionType const*>(_from.baseType());
+					functionType && functionType->kind() == FunctionType::Kind::External
+				)
+					templ("arrayElementAccess", m_utils.readFromMemory(*_from.baseType()) + "(srcPtr)");
+				else
+					templ("arrayElementAccess", "mload(srcPtr)");
 				break;
 			case DataLocation::Storage:
 				if (_from.baseType()->isValueType())
-					templ("arrayElementAccess", m_utils.readFromStorage(*_from.baseType(), 0, false) + "(srcPtr)");
+					templ("arrayElementAccess", m_utils.readFromStorage(*_from.baseType(), 0, true) + "(srcPtr)");
 				else
 					templ("arrayElementAccess", "srcPtr");
 				break;
@@ -655,7 +661,7 @@ std::string ABIFunctions::abiEncodingFunctionMemoryByteArray(
 			function <functionName>(value, pos) -> end {
 				let length := <lengthFun>(value)
 				pos := <storeLength>(pos, length)
-				<copyFun>(add(value, 0x20), pos, length)
+				<copyFun>(add(value, 0x40), pos, length)
 				end := add(pos, <lengthPadded>)
 			}
 		)");
@@ -705,7 +711,7 @@ std::string ABIFunctions::abiEncodingFunctionCompactStorageArray(
 						// long byte array
 						let dataPos := <arrayDataSlot>(value)
 						let i := 0
-						for { } lt(i, length) { i := add(i, 0x20) } {
+						for { } lt(i, length) { i := add(i, 0x40) } {
 							mstore(add(pos, i), sload(dataPos))
 							dataPos := add(dataPos, 1)
 						}
@@ -718,7 +724,7 @@ std::string ABIFunctions::abiEncodingFunctionCompactStorageArray(
 			templ("readableTypeNameTo", _to.toString(true));
 			templ("byteArrayLengthFunction", m_utils.extractByteArrayLengthFunction());
 			templ("storeLength", arrayStoreLengthForEncodingFunction(_to, _options));
-			templ("lengthPaddedShort", _options.padded ? "0x20" : "length");
+			templ("lengthPaddedShort", _options.padded ? "0x40" : "length");
 			templ("lengthPaddedLong", _options.padded ? "i" : "length");
 			templ("arrayDataSlot", m_utils.arrayDataAreaFunction(_from));
 			return templ.render();
@@ -726,13 +732,13 @@ std::string ABIFunctions::abiEncodingFunctionCompactStorageArray(
 		else
 		{
 			// Multiple items per slot
-			hypAssert(_from.baseType()->storageBytes() <= 16, "");
+			hypAssert(_from.baseType()->storageBytes() <= (VMWordBytes / 2), "");
 			hypAssert(!_from.baseType()->isDynamicallyEncoded(), "");
 			hypAssert(!_to.baseType()->isDynamicallyEncoded(), "");
 			hypAssert(_from.baseType()->isValueType(), "");
 			bool dynamic = _to.isDynamicallyEncoded();
 			size_t storageBytes = _from.baseType()->storageBytes();
-			size_t itemsPerSlot = 32 / storageBytes;
+			size_t itemsPerSlot = VMWordBytes / storageBytes;
 			hypAssert(itemsPerSlot > 0, "");
 			// The number of elements we need to handle manually after the loop.
 			size_t spill = static_cast<size_t>(_from.length() % itemsPerSlot);
@@ -890,7 +896,15 @@ std::string ABIFunctions::abiEncodingFunctionStruct(
 					u256 storageSlotOffset;
 					size_t intraSlotOffset;
 					std::tie(storageSlotOffset, intraSlotOffset) = _from.storageOffsetsOfMember(member.name);
-					if (memberTypeFrom->isValueType())
+					if (
+						auto const* functionType = dynamic_cast<FunctionType const*>(memberTypeFrom);
+						functionType && functionType->kind() == FunctionType::Kind::External
+					)
+					{
+						hypAssert(intraSlotOffset == 0, "");
+						members.back()["retrieveValue"] = m_utils.readFromStorage(*memberTypeFrom, 0, true) + "(add(value, " + toCompactHexWithPrefix(storageSlotOffset) + "))";
+					}
+					else if (memberTypeFrom->isValueType())
 					{
 						if (storageSlotOffset != previousSlotOffset)
 						{
@@ -910,7 +924,13 @@ std::string ABIFunctions::abiEncodingFunctionStruct(
 				case DataLocation::Memory:
 				{
 					std::string sourceOffset = toCompactHexWithPrefix(_from.memoryOffsetOfMember(member.name));
-					members.back()["retrieveValue"] = "mload(add(value, " + sourceOffset + "))";
+					if (
+						auto const* functionType = dynamic_cast<FunctionType const*>(memberTypeFrom);
+						functionType && functionType->kind() == FunctionType::Kind::External
+					)
+						members.back()["retrieveValue"] = m_utils.readFromMemory(*memberTypeFrom) + "(add(value, " + sourceOffset + "))";
+					else
+						members.back()["retrieveValue"] = "mload(add(value, " + sourceOffset + "))";
 					break;
 				}
 				case DataLocation::CallData:
@@ -1000,7 +1020,7 @@ std::string ABIFunctions::abiEncodingFunctionStringLiteral(
 			templ("length", std::to_string(value.size()));
 			templ("storeLength", arrayStoreLengthForEncodingFunction(dynamic_cast<ArrayType const&>(_to), _options));
 			if (_options.padded)
-				templ("overallSize", std::to_string(((value.size() + 31) / 32) * 32));
+				templ("overallSize", std::to_string(((value.size() + VMWordAlignmentMask) / VMWordBytes) * VMWordBytes));
 			else
 				templ("overallSize", std::to_string(value.size()));
 			templ("storeLiteralInMemory", m_utils.storeLiteralInMemoryFunction(value));
@@ -1009,14 +1029,20 @@ std::string ABIFunctions::abiEncodingFunctionStringLiteral(
 		else
 		{
 			hypAssert(_to.category() == Type::Category::FixedBytes, "");
-			hypAssert(value.size() <= 32, "");
+			hypAssert(value.size() <= VMWordBytes, "");
 			Whiskers templ(R"(
 				function <functionName>(pos) {
 					mstore(pos, <wordValue>)
 				}
 			)");
 			templ("functionName", functionName);
-			templ("wordValue", formatAsStringOrNumber(value));
+			// Left-align the literal bytes in the 64-byte word.
+			u512 leftAligned = 0;
+			for (char c: value)
+				leftAligned = (leftAligned << 8) | static_cast<uint8_t>(c);
+			if (value.size() < VMWordBytes)
+				leftAligned <<= (VMWordBytes - value.size()) * 8;
+			templ("wordValue", formatNumber(leftAligned));
 			return templ.render();
 		}
 	});
@@ -1042,30 +1068,27 @@ std::string ABIFunctions::abiEncodingFunctionFunctionType(
 		_to.identifier() +
 		_options.toFunctionNameSuffix();
 
-	if (_options.encodeFunctionFromStack)
-		return createFunction(functionName, [&]() {
-			return Whiskers(R"(
-				function <functionName>(addr, function_id, pos) {
-					addr, function_id := <convert>(addr, function_id)
-					mstore(pos, <combineExtFun>(addr, function_id))
-				}
-			)")
-			("functionName", functionName)
-			("combineExtFun", m_utils.combineExternalFunctionIdFunction())
-			("convert", m_utils.conversionFunction(_from, _to))
-			.render();
-		});
-	else
-		return createFunction(functionName, [&]() {
-			return Whiskers(R"(
-				function <functionName>(addr_and_function_id, pos) {
-					mstore(pos, <cleanExtFun>(addr_and_function_id))
-				}
-			)")
-			("functionName", functionName)
-			("cleanExtFun", m_utils.cleanupFunction(_to))
-			.render();
-		});
+	return createFunction(functionName, [&]() {
+		return Whiskers(R"(
+			function <functionName>(addr, function_id, pos) {
+				addr, function_id := <convert>(addr, function_id)
+				mstore(pos, addr)
+				<?padded>
+					mstore(add(pos, <wordSize>), and(function_id, <selectorMask>))
+				<!padded>
+					mstore(add(pos, <addressSize>), <shlSelector>(and(function_id, <selectorMask>)))
+				</padded>
+			}
+		)")
+		("functionName", functionName)
+		("convert", m_utils.conversionFunction(_from, _to))
+		("padded", _options.padded)
+		("wordSize", toCompactHexWithPrefix(u256(VMWordBytes)))
+		("addressSize", toCompactHexWithPrefix(u256(AddressBytes)))
+		("selectorMask", formatNumber(u256(0xffffffffUL)))
+		("shlSelector", m_utils.shiftLeftFunction(VMWordBits - 32))
+		.render();
+	});
 }
 
 std::string ABIFunctions::abiDecodingFunction(Type const& _type, bool _fromMemory, bool _forUseOnStack)
@@ -1110,7 +1133,7 @@ std::string ABIFunctions::abiDecodingFunctionValueType(Type const& _type, bool _
 	hypAssert(decodingType->sizeOnStack() == 1, "");
 	hypAssert(decodingType->isValueType(), "");
 	hypAssert(!decodingType->isDynamicallyEncoded(), "");
-	hypAssert(decodingType->calldataEncodedSize() == 32, "");
+	hypAssert(decodingType->calldataEncodedSize() == VMWordBytes, "");
 
 	std::string functionName =
 		"abi_decode_" +
@@ -1148,7 +1171,7 @@ std::string ABIFunctions::abiDecodingFunctionArray(ArrayType const& _type, bool 
 			R"(
 				// <readableTypeName>
 				function <functionName>(offset, end) -> array {
-					if iszero(slt(add(offset, 0x1f), end)) { <revertString>() }
+					if iszero(slt(add(offset, 0x3f), end)) { <revertString>() }
 					let length := <retrieveLength>
 					array := <abiDecodeAvailableLen>(<offset>, length, end)
 				}
@@ -1159,7 +1182,7 @@ std::string ABIFunctions::abiDecodingFunctionArray(ArrayType const& _type, bool 
 		templ("functionName", functionName);
 		templ("readableTypeName", _type.toString(true));
 		templ("retrieveLength", _type.isDynamicallySized() ? (load + "(offset)") : toCompactHexWithPrefix(_type.length()));
-		templ("offset", _type.isDynamicallySized() ? "add(offset, 0x20)" : "offset");
+		templ("offset", _type.isDynamicallySized() ? "add(offset, 0x40)" : "offset");
 		templ("abiDecodeAvailableLen", abiDecodingFunctionArrayAvailableLength(_type, _fromMemory));
 		return templ.render();
 	});
@@ -1185,7 +1208,7 @@ std::string ABIFunctions::abiDecodingFunctionArrayAvailableLength(ArrayType cons
 				let dst := array
 				<?dynamic>
 					mstore(array, length)
-					dst := add(array, 0x20)
+					dst := add(array, 0x40)
 				</dynamic>
 				let srcEnd := add(offset, mul(length, <stride>))
 				if gt(srcEnd, end) {
@@ -1200,8 +1223,9 @@ std::string ABIFunctions::abiDecodingFunctionArrayAvailableLength(ArrayType cons
 					<!dynamicBase>
 						let elementPos := src
 					</dynamicBase>
-					mstore(dst, <decodingFun>(elementPos, end))
-					dst := add(dst, 0x20)
+					let <elementValues> := <decodingFun>(elementPos, end)
+					<writeToMemory>(dst, <elementValues>)
+					dst := add(dst, <memoryStride>)
 				}
 			}
 		)");
@@ -1213,6 +1237,9 @@ std::string ABIFunctions::abiDecodingFunctionArrayAvailableLength(ArrayType cons
 		templ("dynamic", _type.isDynamicallySized());
 		templ("load", _fromMemory ? "mload" : "calldataload");
 		templ("dynamicBase", _type.baseType()->isDynamicallyEncoded());
+		templ("elementValues", suffixedVariableNameList("elementValue_", 0, _type.baseType()->sizeOnStack()));
+		templ("writeToMemory", m_utils.writeToMemoryFunction(*_type.baseType()));
+		templ("memoryStride", toCompactHexWithPrefix(u256(_type.memoryStride())));
 		templ(
 			"revertInvalidStride",
 			revertReasonIfDebugFunction("ABI decoding: invalid calldata array stride")
@@ -1241,10 +1268,10 @@ std::string ABIFunctions::abiDecodingFunctionCalldataArray(ArrayType const& _typ
 			w = Whiskers(R"(
 				// <readableTypeName>
 				function <functionName>(offset, end) -> arrayPos, length {
-					if iszero(slt(add(offset, 0x1f), end)) { <revertStringOffset>() }
+					if iszero(slt(add(offset, 0x3f), end)) { <revertStringOffset>() }
 					length := calldataload(offset)
 					if gt(length, 0xffffffffffffffff) { <revertStringLength>() }
-					arrayPos := add(offset, 0x20)
+					arrayPos := add(offset, 0x40)
 					if gt(add(arrayPos, mul(length, <stride>)), end) { <revertStringPos>() }
 				}
 			)");
@@ -1287,7 +1314,7 @@ std::string ABIFunctions::abiDecodingFunctionByteArrayAvailableLength(ArrayType 
 			function <functionName>(src, length, end) -> array {
 				array := <allocate>(<allocationSize>(length))
 				mstore(array, length)
-				let dst := add(array, 0x20)
+				let dst := add(array, 0x40)
 				if gt(add(src, length), end) { <revertStringLength>() }
 				<copyToMemFun>(src, dst, length)
 			}
@@ -1369,7 +1396,8 @@ std::string ABIFunctions::abiDecodingFunctionStruct(StructType const& _type, boo
 				<!dynamic>
 					let offset := <pos>
 				</dynamic>
-				mstore(add(value, <memoryOffset>), <abiDecode>(add(headStart, offset), end))
+				let <memberValues> := <abiDecode>(add(headStart, offset), end)
+				<writeToMemory>(add(value, <memoryOffset>), <memberValues>)
 			)");
 			memberTempl("dynamic", decodingType->isDynamicallyEncoded());
 			// TODO add test
@@ -1378,6 +1406,8 @@ std::string ABIFunctions::abiDecodingFunctionStruct(StructType const& _type, boo
 			memberTempl("pos", std::to_string(headPos));
 			memberTempl("memoryOffset", toCompactHexWithPrefix(_type.memoryOffsetOfMember(member.name)));
 			memberTempl("abiDecode", abiDecodingFunction(*member.type, _fromMemory, false));
+			memberTempl("memberValues", suffixedVariableNameList("memberValue_", 0, member.type->sizeOnStack()));
+			memberTempl("writeToMemory", m_utils.writeToMemoryFunction(*member.type));
 
 			members.emplace_back();
 			members.back()["decode"] = memberTempl.render();
@@ -1405,25 +1435,25 @@ std::string ABIFunctions::abiDecodingFunctionFunctionType(FunctionType const& _t
 		{
 			return Whiskers(R"(
 				function <functionName>(offset, end) -> addr, function_selector {
-					addr, function_selector := <splitExtFun>(<decodeFun>(offset, end))
+					addr, function_selector := <decodeFun>(offset, end)
 				}
 			)")
 			("functionName", functionName)
 			("decodeFun", abiDecodingFunctionFunctionType(_type, _fromMemory, false))
-			("splitExtFun", m_utils.splitExternalFunctionIdFunction())
 			.render();
 		}
 		else
 		{
 			return Whiskers(R"(
-				function <functionName>(offset, end) -> fun {
-					fun := <load>(offset)
-					<validateExtFun>(fun)
+				function <functionName>(offset, end) -> addr, function_selector {
+					addr := <load>(offset)
+					function_selector := and(<load>(add(offset, <wordSize>)), <selectorMask>)
 				}
 			)")
 			("functionName", functionName)
 			("load", _fromMemory ? "mload" : "calldataload")
-			("validateExtFun", m_utils.validatorFunction(_type, true))
+			("wordSize", toCompactHexWithPrefix(u256(VMWordBytes)))
+			("selectorMask", formatNumber(u256(0xffffffffUL)))
 			.render();
 		}
 	});
@@ -1452,7 +1482,7 @@ std::string ABIFunctions::calldataAccessFunction(Type const& _type)
 				hypAssert(!!arrayType, "");
 				w("handleLength", Whiskers(R"(
 					length := calldataload(value)
-					value := add(value, 0x20)
+					value := add(value, 0x40)
 					if gt(length, 0xffffffffffffffff) { <revertStringLength>() }
 					if sgt(value, sub(calldatasize(), mul(length, <calldataStride>))) { <revertStringStride>() }
 				)")
@@ -1477,18 +1507,21 @@ std::string ABIFunctions::calldataAccessFunction(Type const& _type)
 		else if (_type.isValueType())
 		{
 			std::string decodingFunction;
-			if (auto const* functionType = dynamic_cast<FunctionType const*>(&_type))
-				decodingFunction = abiDecodingFunctionFunctionType(*functionType, false, false);
+			auto const* functionType = dynamic_cast<FunctionType const*>(&_type);
+			if (functionType)
+				decodingFunction = abiDecodingFunctionFunctionType(*functionType, false, true);
 			else
 				decodingFunction = abiDecodingFunctionValueType(_type, false);
 			// Note that the second argument to the decoding function should be discarded after inlining.
 			return Whiskers(R"(
-				function <functionName>(baseRef, ptr) -> value {
-					value := <decodingFunction>(ptr, add(ptr, 32))
+				function <functionName>(baseRef, ptr) -> <values> {
+					<values> := <decodingFunction>(ptr, add(ptr, <headSize>))
 				}
 			)")
 			("functionName", functionName)
 			("decodingFunction", decodingFunction)
+			("values", suffixedVariableNameList("value", 0, _type.sizeOnStack()))
+			("headSize", toCompactHexWithPrefix(_type.calldataHeadSize()))
 			.render();
 		}
 		else
@@ -1517,7 +1550,7 @@ std::string ABIFunctions::arrayStoreLengthForEncodingFunction(ArrayType const& _
 			return Whiskers(R"(
 				function <functionName>(pos, length) -> updated_pos {
 					mstore(pos, length)
-					updated_pos := add(pos, 0x20)
+					updated_pos := add(pos, 0x40)
 				}
 			)")
 			("functionName", functionName)
@@ -1549,10 +1582,8 @@ size_t ABIFunctions::headSize(TypePointers const& _targetTypes)
 
 size_t ABIFunctions::numVariablesForType(Type const& _type, EncodingOptions const& _options)
 {
-	if (_type.category() == Type::Category::Function && !_options.encodeFunctionFromStack)
-		return 1;
-	else
-		return _type.sizeOnStack();
+	(void)_options;
+	return _type.sizeOnStack();
 }
 
 std::string ABIFunctions::revertReasonIfDebugFunction(std::string const& _message)

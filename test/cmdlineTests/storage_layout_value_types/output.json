@@ -21,8 +21,8 @@
                             "astId": 5,
                             "contract": "fileA:A",
                             "label": "y",
-                            "offset": 0,
-                            "slot": "1",
+                            "offset": 32,
+                            "slot": "0",
                             "type": "t_uint256"
                         },
                         {
@@ -30,7 +30,7 @@
                             "contract": "fileA:A",
                             "label": "addr",
                             "offset": 0,
-                            "slot": "2",
+                            "slot": "1",
                             "type": "t_address"
                         },
                         {
@@ -38,7 +38,7 @@
                             "contract": "fileA:A",
                             "label": "array",
                             "offset": 0,
-                            "slot": "3",
+                            "slot": "2",
                             "type": "t_array(t_uint256)2_storage"
                         }
                     ],
@@ -48,7 +48,7 @@
                         {
                             "encoding": "inplace",
                             "label": "address",
-                            "numberOfBytes": "20"
+                            "numberOfBytes": "64"
                         },
                         "t_array(t_uint256)2_storage":
                         {

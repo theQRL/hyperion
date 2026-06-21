@@ -180,4 +180,13 @@ h256 keccak256(bytesConstRef _input)
 	return output;
 }
 
+bytes shake256(bytesConstRef _input, size_t _outlen)
+{
+	bytes output(_outlen);
+	if (_outlen == 0)
+		return output;
+	hash(output.data(), output.size(), _input.data(), _input.size(), 200 - (256 / 4), 0x1f);
+	return output;
+}
+
 }

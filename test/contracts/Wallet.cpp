@@ -102,19 +102,19 @@ contract multiowned {
 	// as well as the selection of addresses capable of confirming them.
 	constructor(address[] memory _owners, uint _required) {
 		m_numOwners = _owners.length + 1;
-		m_owners[1] = uint160(msg.sender);
-		m_ownerIndex[uint160(msg.sender)] = 1;
+		m_owners[1] = uint512(msg.sender);
+		m_ownerIndex[uint512(msg.sender)] = 1;
 		for (uint i = 0; i < _owners.length; ++i)
 		{
-			m_owners[2 + i] = uint160(_owners[i]);
-			m_ownerIndex[uint160(_owners[i])] = 2 + i;
+			m_owners[2 + i] = uint512(_owners[i]);
+			m_ownerIndex[uint512(_owners[i])] = 2 + i;
 		}
 		m_required = _required;
 	}
 
 	// Revokes a prior confirmation of the given operation
 	function revoke(bytes32 _operation) external {
-		uint ownerIndex = m_ownerIndex[uint160(msg.sender)];
+		uint ownerIndex = m_ownerIndex[uint512(msg.sender)];
 		// make sure they're an owner
 		if (ownerIndex == 0) return;
 		uint ownerIndexBit = 2**ownerIndex;
@@ -129,13 +129,13 @@ contract multiowned {
 	// Replaces an owner `_from` with another `_to`.
 	function changeOwner(address _from, address _to) onlymanyowners(keccak256(msg.data)) public virtual {
 		if (isOwner(_to)) return;
-		uint ownerIndex = m_ownerIndex[uint160(_from)];
+		uint ownerIndex = m_ownerIndex[uint512(_from)];
 		if (ownerIndex == 0) return;
 
 		clearPending();
-		m_owners[ownerIndex] = uint160(_to);
-		m_ownerIndex[uint160(_from)] = 0;
-		m_ownerIndex[uint160(_to)] = ownerIndex;
+		m_owners[ownerIndex] = uint512(_to);
+		m_ownerIndex[uint512(_from)] = 0;
+		m_ownerIndex[uint512(_to)] = ownerIndex;
 		emit OwnerChanged(_from, _to);
 	}
 
@@ -148,18 +148,18 @@ contract multiowned {
 		if (m_numOwners >= c_maxOwners)
 			return;
 		m_numOwners++;
-		m_owners[m_numOwners] = uint160(_owner);
-		m_ownerIndex[uint160(_owner)] = m_numOwners;
+		m_owners[m_numOwners] = uint512(_owner);
+		m_ownerIndex[uint512(_owner)] = m_numOwners;
 		emit OwnerAdded(_owner);
 	}
 
 	function removeOwner(address _owner) onlymanyowners(keccak256(msg.data)) external {
-		uint ownerIndex = m_ownerIndex[uint160(_owner)];
+		uint ownerIndex = m_ownerIndex[uint512(_owner)];
 		if (ownerIndex == 0) return;
 		if (m_required > m_numOwners - 1) return;
 
 		m_owners[ownerIndex] = 0;
-		m_ownerIndex[uint160(_owner)] = 0;
+		m_ownerIndex[uint512(_owner)] = 0;
 		clearPending();
 		reorganizeOwners(); //make sure m_numOwner is equal to the number of owners and always points to the optimal free slot
 		emit OwnerRemoved(_owner);
@@ -173,12 +173,12 @@ contract multiowned {
 	}
 
 	function isOwner(address _addr) public returns (bool) {
-		return m_ownerIndex[uint160(_addr)] > 0;
+		return m_ownerIndex[uint512(_addr)] > 0;
 	}
 
 	function hasConfirmed(bytes32 _operation, address _owner) public view returns (bool) {
 		PendingState storage pending = m_pending[_operation];
-		uint ownerIndex = m_ownerIndex[uint160(_owner)];
+		uint ownerIndex = m_ownerIndex[uint512(_owner)];
 
 		// make sure they're an owner
 		if (ownerIndex == 0) return false;
@@ -196,7 +196,7 @@ contract multiowned {
 
 	function confirmAndCheck(bytes32 _operation) internal returns (bool) {
 		// determine what index the present sender is:
-		uint ownerIndex = m_ownerIndex[uint160(msg.sender)];
+		uint ownerIndex = m_ownerIndex[uint512(msg.sender)];
 		// make sure they're an owner
 		if (ownerIndex == 0) return false;
 
@@ -263,10 +263,10 @@ contract multiowned {
 	uint public m_numOwners;
 
 	// list of owners
-	uint[256] m_owners;
+	uint512[256] m_owners;
 	uint constant c_maxOwners = 250;
 	// index on the list of owners to allow reverse lookup
-	mapping(uint => uint) m_ownerIndex;
+	mapping(uint512 => uint) m_ownerIndex;
 	// the ongoing operations.
 	mapping(bytes32 => PendingState) m_pending;
 	bytes32[] m_pendingIndex;
@@ -401,7 +401,7 @@ contract Wallet is multisig, multiowned, daylimit {
 		}
 		// determine our operation hash.
 		_r = keccak256(abi.encodePacked(msg.data, block.number));
-		if (!confirm(_r) && m_txs[_r].to == Q0000000000000000000000000000000000000000) {
+		if (!confirm(_r) && m_txs[_r].to == Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) {
 			m_txs[_r].to = _to;
 			m_txs[_r].value = _value;
 			m_txs[_r].data = _data;
@@ -412,7 +412,7 @@ contract Wallet is multisig, multiowned, daylimit {
 	// confirm a transaction through just the hash. we use the previous transactions map, m_txs, in order
 	// to determine the body of the transaction from the hash provided.
 	function confirm(bytes32 _h) onlymanyowners(_h) public override returns (bool) {
-		if (m_txs[_h].to != Q0000000000000000000000000000000000000000) {
+		if (m_txs[_h].to != Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) {
 			m_txs[_h].to.call{value: m_txs[_h].value}(m_txs[_h].data);
 			emit MultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data);
 			delete m_txs[_h];
@@ -443,7 +443,7 @@ class WalletTestFramework: public HyperionExecutionFramework
 protected:
 	void deployWallet(
 		u256 const& _value = 0,
-		std::vector<h160> const& _owners = std::vector<h160>{},
+		std::vector<h512> const& _owners = std::vector<h512>{},
 		u256 _required = 1,
 		u256 _dailyLimit = 0
 	)
@@ -452,7 +452,7 @@ protected:
 			return compileContract(walletCode, "Wallet");
 		});
 
-		bytes args = encodeArgs(u256(0x60), _required, _dailyLimit, u256(_owners.size()), _owners);
+		bytes args = encodeArgs(u256(0xc0), _required, _dailyLimit, u256(_owners.size()), _owners);
 		sendMessage(compiled + args, true, _value);
 		BOOST_REQUIRE(m_transactionSuccessful);
 		BOOST_REQUIRE(!m_output.empty());
@@ -466,41 +466,40 @@ BOOST_AUTO_TEST_CASE(creation)
 {
 	deployWallet(200);
 	BOOST_REQUIRE(callContractFunction("isOwner(address)", m_sender) == encodeArgs(true));
-	bool v2 = !hyperion::test::CommonOptions::get().useABIEncoderV1;
-	BOOST_REQUIRE(callContractFunction("isOwner(address)", h256(~0)) == (v2 ? encodeArgs() : encodeArgs(false)));
+	BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(~0)) == encodeArgs(false));
 }
 
 BOOST_AUTO_TEST_CASE(add_owners)
 {
 	deployWallet(200);
-	h160 originalOwner = m_sender;
+	h512 originalOwner = m_sender;
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", account(1)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("isOwner(address)", account(1)) == encodeArgs(true));
 	// now let the new owner add someone
 	sendQuanta(account(1), 10 * quanta);
 	m_sender = account(1);
-	BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x13)) == encodeArgs());
-	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x13)) == encodeArgs(true));
+	BOOST_REQUIRE(callContractFunction("addOwner(address)", h512(0x13)) == encodeArgs());
+	BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(0x13)) == encodeArgs(true));
 	// and check that a non-owner cannot add a new owner
 	m_sender = account(0);
 	sendQuanta(account(2), 10 * quanta);
 	m_sender = account(2);
-	BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x20)) == encodeArgs());
-	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x20)) == encodeArgs(false));
+	BOOST_REQUIRE(callContractFunction("addOwner(address)", h512(0x20)) == encodeArgs());
+	BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(0x20)) == encodeArgs(false));
 	// finally check that all the owners are there
 	BOOST_REQUIRE(callContractFunction("isOwner(address)", originalOwner) == encodeArgs(true));
 	BOOST_REQUIRE(callContractFunction("isOwner(address)", account(1)) == encodeArgs(true));
-	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x13)) == encodeArgs(true));
+	BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(0x13)) == encodeArgs(true));
 }
 
 BOOST_AUTO_TEST_CASE(change_owners)
 {
 	deployWallet(200);
-	BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x12)) == encodeArgs());
-	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x12)) == encodeArgs(true));
-	BOOST_REQUIRE(callContractFunction("changeOwner(address,address)", h160(0x12), h160(0x13)) == encodeArgs());
-	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x12)) == encodeArgs(false));
-	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x13)) == encodeArgs(true));
+	BOOST_REQUIRE(callContractFunction("addOwner(address)", h512(0x12)) == encodeArgs());
+	BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(0x12)) == encodeArgs(true));
+	BOOST_REQUIRE(callContractFunction("changeOwner(address,address)", h512(0x12), h512(0x13)) == encodeArgs());
+	BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(0x12)) == encodeArgs(false));
+	BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(0x13)) == encodeArgs(true));
 }
 
 BOOST_AUTO_TEST_CASE(remove_owner)
@@ -509,43 +508,43 @@ BOOST_AUTO_TEST_CASE(remove_owner)
 	// add 10 owners
 	for (unsigned i = 0; i < 10; ++i)
 	{
-		BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x12 + i)) == encodeArgs());
-		BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x12 + i)) == encodeArgs(true));
+		BOOST_REQUIRE(callContractFunction("addOwner(address)", h512(0x12 + i)) == encodeArgs());
+		BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(0x12 + i)) == encodeArgs(true));
 	}
 	// check they are there again
 	for (unsigned i = 0; i < 10; ++i)
-		BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x12 + i)) == encodeArgs(true));
+		BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(0x12 + i)) == encodeArgs(true));
 	// remove the odd owners
 	for (unsigned i = 0; i < 10; ++i)
 		if (i % 2 == 1)
-			BOOST_REQUIRE(callContractFunction("removeOwner(address)", h160(0x12 + i)) == encodeArgs());
+			BOOST_REQUIRE(callContractFunction("removeOwner(address)", h512(0x12 + i)) == encodeArgs());
 	// check the result
 	for (unsigned i = 0; i < 10; ++i)
-		BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x12 + i)) == encodeArgs(i % 2 == 0));
+		BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(0x12 + i)) == encodeArgs(i % 2 == 0));
 	// add them again
 	for (unsigned i = 0; i < 10; ++i)
 		if (i % 2 == 1)
-			BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x12 + i)) == encodeArgs());
+			BOOST_REQUIRE(callContractFunction("addOwner(address)", h512(0x12 + i)) == encodeArgs());
 	// check everyone is there
 	for (unsigned i = 0; i < 10; ++i)
-		BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x12 + i)) == encodeArgs(true));
+		BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(0x12 + i)) == encodeArgs(true));
 }
 
 BOOST_AUTO_TEST_CASE(initial_owners)
 {
-	std::vector<h160> owners{
-		h160("0x42c56279432962a17176998a4747d1b4d6ed4367"),
-		h160("0xd4d4669f5ba9f4c27d38ef02a358c339b5560c47"),
-		h160("0xe6716f9544a56c530d868e4bfbacb172315bdead"),
-		h160("0x775e18be7a50a0abb8a4e82b1bd697d79f31fe04"),
-		h160("0xf4dd5c3794f1fd0cdc0327a83aa472609c806e99"),
-		h160("0x4c9113886af165b2de069d6e99430647e94a9fff"),
-		h160("0x3fb1cd2cd96c6d5c0b5eb3322d807b34482481d4")
+	std::vector<h512> owners{
+		h512("0x42c56279432962a17176998a4747d1b4d6ed4367"),
+		h512("0xd4d4669f5ba9f4c27d38ef02a358c339b5560c47"),
+		h512("0xe6716f9544a56c530d868e4bfbacb172315bdead"),
+		h512("0x775e18be7a50a0abb8a4e82b1bd697d79f31fe04"),
+		h512("0xf4dd5c3794f1fd0cdc0327a83aa472609c806e99"),
+		h512("0x4c9113886af165b2de069d6e99430647e94a9fff"),
+		h512("0x3fb1cd2cd96c6d5c0b5eb3322d807b34482481d4")
 	};
 	deployWallet(0, owners, 4, 2);
 	BOOST_CHECK(callContractFunction("m_numOwners()") == encodeArgs(u256(8)));
 	BOOST_CHECK(callContractFunction("isOwner(address)", m_sender) == encodeArgs(true));
-	for (h160 const& owner: owners)
+	for (h512 const& owner: owners)
 	{
 		BOOST_CHECK(callContractFunction("isOwner(address)", owner) == encodeArgs(true));
 	}
@@ -559,12 +558,12 @@ BOOST_AUTO_TEST_CASE(multisig_value_transfer)
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", account(3)) == encodeArgs());
 	// 4 owners, set required to 3
 	BOOST_REQUIRE(callContractFunction("changeRequirement(uint256)", u256(3)) == encodeArgs());
-	h160 destination = h160("0x5c6d6026d3fb35cd7175fd0054ae8df50d8f8b41");
+	h512 destination = h512(h256(u256{"0x5c6d6026d3fb35cd7175fd0054ae8df50d8f8b41"}), h512::AlignRight);
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	m_sender = account(0);
 	sendQuanta(account(1), 10 * quanta);
 	m_sender = account(1);
-	auto ophash = callContractFunction("execute(address,uint256,bytes)", destination, 100, 0x60, 0x00);
+	auto ophash = callContractFunction("execute(address,uint256,bytes)", destination, 100, 0xc0, 0x00);
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	m_sender = account(0);
 	sendQuanta(account(2), 10 * quanta);
@@ -588,28 +587,28 @@ BOOST_AUTO_TEST_CASE(revoke_addOwner)
 	// 4 owners, set required to 3
 	BOOST_REQUIRE(callContractFunction("changeRequirement(uint256)", u256(3)) == encodeArgs());
 	// add a new owner
-	h160 deployer = m_sender;
-	h256 opHash = util::keccak256(util::selectorFromSignatureH32("addOwner(address)").asBytes() + h256(0x33).asBytes());
-	BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x33)) == encodeArgs());
-	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x33)) == encodeArgs(false));
+	h512 deployer = m_sender;
+	h256 opHash = util::keccak256(util::selectorFromSignatureH32("addOwner(address)").asBytes() + encode(h512(0x33)));
+	BOOST_REQUIRE(callContractFunction("addOwner(address)", h512(0x33)) == encodeArgs());
+	BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(0x33)) == encodeArgs(false));
 	m_sender = account(0);
 	sendQuanta(account(1), 10 * quanta);
 	m_sender = account(1);
-	BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x33)) == encodeArgs());
-	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x33)) == encodeArgs(false));
+	BOOST_REQUIRE(callContractFunction("addOwner(address)", h512(0x33)) == encodeArgs());
+	BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(0x33)) == encodeArgs(false));
 	// revoke one confirmation
 	m_sender = deployer;
 	BOOST_REQUIRE(callContractFunction("revoke(bytes32)", opHash) == encodeArgs());
 	m_sender = account(0);
 	sendQuanta(account(2), 10 * quanta);
 	m_sender = account(2);
-	BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x33)) == encodeArgs());
-	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x33)) == encodeArgs(false));
+	BOOST_REQUIRE(callContractFunction("addOwner(address)", h512(0x33)) == encodeArgs());
+	BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(0x33)) == encodeArgs(false));
 	m_sender = account(0);
 	sendQuanta(account(3), 10 * quanta);
 	m_sender = account(3);
-	BOOST_REQUIRE(callContractFunction("addOwner(address)", h160(0x33)) == encodeArgs());
-	BOOST_REQUIRE(callContractFunction("isOwner(address)", h160(0x33)) == encodeArgs(true));
+	BOOST_REQUIRE(callContractFunction("addOwner(address)", h512(0x33)) == encodeArgs());
+	BOOST_REQUIRE(callContractFunction("isOwner(address)", h512(0x33)) == encodeArgs(true));
 }
 
 BOOST_AUTO_TEST_CASE(revoke_transaction)
@@ -621,13 +620,13 @@ BOOST_AUTO_TEST_CASE(revoke_transaction)
 	// 4 owners, set required to 3
 	BOOST_REQUIRE(callContractFunction("changeRequirement(uint256)", u256(3)) == encodeArgs());
 	// create a transaction
-	h160 deployer = m_sender;
-	h160 destination = h160("0x5c6d6026d3fb35cd7175fd0054ae8df50d8f8b41");
+	h512 deployer = m_sender;
+	h512 destination = h512(h256(u256{"0x5c6d6026d3fb35cd7175fd0054ae8df50d8f8b41"}), h512::AlignRight);
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	m_sender = account(0);
 	sendQuanta(account(1), 10 * quanta);
 	m_sender = account(1);
-	auto opHash = callContractFunction("execute(address,uint256,bytes)", destination, 100, 0x60, 0x00);
+	auto opHash = callContractFunction("execute(address,uint256,bytes)", destination, 100, 0xc0, 0x00);
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	m_sender = account(0);
 	sendQuanta(account(2), 10 * quanta);
@@ -662,12 +661,12 @@ BOOST_AUTO_TEST_CASE(daylimit)
 	BOOST_REQUIRE(callContractFunction("changeRequirement(uint256)", u256(3)) == encodeArgs());
 
 	// try to send tx over daylimit
-	h160 destination = h160("0x5c6d6026d3fb35cd7175fd0054ae8df50d8f8b41");
+	h512 destination = h512(h256(u256{"0x5c6d6026d3fb35cd7175fd0054ae8df50d8f8b41"}), h512::AlignRight);
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	sendQuanta(account(1), 10 * quanta);
 	m_sender = account(1);
 	BOOST_REQUIRE(
-		callContractFunction("execute(address,uint256,bytes)", destination, 150, 0x60, 0x00) !=
+		callContractFunction("execute(address,uint256,bytes)", destination, 150, 0xc0, 0x00) !=
 		encodeArgs(u256(0))
 	);
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
@@ -676,7 +675,7 @@ BOOST_AUTO_TEST_CASE(daylimit)
 	sendQuanta(account(4), 10 * quanta);
 	m_sender = account(4);
 	BOOST_REQUIRE(
-		callContractFunction("execute(address,uint256,bytes)", destination, 90, 0x60, 0x00) ==
+		callContractFunction("execute(address,uint256,bytes)", destination, 90, 0xc0, 0x00) ==
 		encodeArgs(u256(0))
 	);
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
@@ -684,7 +683,7 @@ BOOST_AUTO_TEST_CASE(daylimit)
 	m_sender = account(0);
 	sendQuanta(account(1), 10 * quanta);
 	BOOST_REQUIRE(
-		callContractFunction("execute(address,uint256,bytes)", destination, 90, 0x60, 0x00) ==
+		callContractFunction("execute(address,uint256,bytes)", destination, 90, 0xc0, 0x00) ==
 		encodeArgs(u256(0))
 	);
 	BOOST_CHECK_EQUAL(balanceAt(destination), 90);

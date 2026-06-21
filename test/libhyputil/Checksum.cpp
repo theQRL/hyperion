@@ -16,11 +16,12 @@
 */
 // SPDX-License-Identifier: GPL-3.0
 /**
- * Unit tests for the address checksum.
+ * Unit tests for address checksum validation.
  */
 
 #include <libhyputil/CommonData.h>
 #include <libhyputil/Exceptions.h>
+#include <libhyputil/VMConstants.h>
 
 #include <test/Common.h>
 
@@ -30,84 +31,73 @@
 namespace hyperion::util::test
 {
 
-BOOST_AUTO_TEST_SUITE(Checksum)
+BOOST_AUTO_TEST_SUITE(AddressChecksum)
+
+namespace
+{
+
+std::string const lowerParity =
+	"Qd5812f6cf4a0f645aa620cd57319a0ed649dd8f5519a9dde7770ae5b0e49e547"
+	"985f35eb972a2a07041561aa39c65a3991478f9b1e6749e05277dcf58a9a8b72";
+std::string const checksummedParity =
+	"Qd5812F6Cf4a0f645aa620cd57319a0Ed649dd8f5519A9dde7770ae5b0E49e547"
+	"985f35eB972A2a07041561aa39c65A3991478f9B1e6749e05277dcf58A9A8B72";
+std::string const invalidMixedParity =
+	"QD5812F6Cf4a0f645aa620cd57319a0Ed649dd8f5519A9dde7770ae5b0E49e547"
+	"985f35eB972A2a07041561aa39c65A3991478f9B1e6749e05277dcf58A9A8B72";
+
+std::string address(std::string const& _prefix, char _padding = '0')
+{
+	return "Q" + _prefix + std::string(AddressBytes * 2 - _prefix.size(), _padding);
+}
+
+}
 
 BOOST_AUTO_TEST_CASE(calculate)
 {
-	BOOST_CHECK(!getChecksummedAddress("Q5aaeb6053f3e94c9b9a09f33669435e7ef1beaed").empty());
-	BOOST_CHECK(!getChecksummedAddress("Q0123456789abcdefABCDEF0123456789abcdefAB").empty());
+	BOOST_CHECK_EQUAL(getChecksummedAddress(lowerParity), checksummedParity);
+	BOOST_CHECK_EQUAL(getChecksummedAddress(checksummedParity), checksummedParity);
 	// no prefix
-	BOOST_CHECK_THROW(getChecksummedAddress("5aaeb6053f3e94c9b9a09f33669435e7ef1beaed"), InvalidAddress);
+	BOOST_CHECK_THROW(getChecksummedAddress(address("5aaeb6053f3e94c9b9a09f33669435e7ef1beaed").substr(1)), InvalidAddress);
 	// too short
-	BOOST_CHECK_THROW(getChecksummedAddress("Q5aaeb6053f3e94c9b9a09f33669435e7ef1beae"), InvalidAddress);
+	BOOST_CHECK_THROW(getChecksummedAddress("Q" + std::string(AddressBytes * 2 - 1, '0')), InvalidAddress);
 	// too long
-	BOOST_CHECK_THROW(getChecksummedAddress("Q5aaeb6053f3e94c9b9a09f33669435e7ef1beaed1"), InvalidAddress);
+	BOOST_CHECK_THROW(getChecksummedAddress("Q" + std::string(AddressBytes * 2 + 1, '0')), InvalidAddress);
 	// non-hex character
-	BOOST_CHECK_THROW(getChecksummedAddress("Q5aaeb6053f3e94c9b9a09f33669435e7ef1beaeK"), InvalidAddress);
-
-	// the official test suite from EIP-55
-	std::vector<std::string> cases {
-		// all upper case
-		"Q52908400098527886E0F7030069857D2E4169EE7",
-		"Q8617E340B3D01FA5F11F306F4090FD50E238070D",
-		// all lower case
-		"Qde709f2102306220921060314715629080e2fb77",
-		"Q27b1fdb04752bbc536007a920d24acb045561c26",
-		// regular
-		"Q5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
-		"QfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
-		"QdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB",
-		"QD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb"
-	};
-
-	for (size_t i = 0; i < cases.size(); i++)
-		BOOST_REQUIRE_MESSAGE(getChecksummedAddress(cases[i]) == cases[i], cases[i]);
+	BOOST_CHECK_THROW(getChecksummedAddress(address("5aaeb6053f3e94c9b9a09f33669435e7ef1beaed").substr(0, AddressBytes * 2) + "K"), InvalidAddress);
 }
 
-BOOST_AUTO_TEST_CASE(regular)
+BOOST_AUTO_TEST_CASE(canonical_roundtrip)
 {
-	BOOST_CHECK(passesAddressChecksum("Q5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed", true));
-	BOOST_CHECK(passesAddressChecksum("QfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359", true));
-	BOOST_CHECK(passesAddressChecksum("QdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB", true));
-	BOOST_CHECK(passesAddressChecksum("QD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb", true));
+	std::string addr = lowerParity;
+	std::string canonical = getChecksummedAddress(addr);
+	BOOST_CHECK(passesAddressChecksum(canonical, true));
+	BOOST_CHECK(passesAddressChecksum(canonical, false));
 }
 
-BOOST_AUTO_TEST_CASE(regular_negative)
+BOOST_AUTO_TEST_CASE(uniform_case_valid_for_permissive_check)
 {
-	BOOST_CHECK(!passesAddressChecksum("Q6aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed", true));
-	BOOST_CHECK(!passesAddressChecksum("QeB6916095ca1df60bB79Ce92cE3Ea74c37c5d359", true));
-	BOOST_CHECK(!passesAddressChecksum("QebF03B407c01E7cD3CBea99509d93f8DDDC8C6FB", true));
-	BOOST_CHECK(!passesAddressChecksum("QE1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb", true));
-}
-
-BOOST_AUTO_TEST_CASE(regular_invalid_length)
-{
-	BOOST_CHECK(passesAddressChecksum("Q9426cbfc57389778d313268E7F85F1CDc2fdad60", true));
-	BOOST_CHECK(!passesAddressChecksum("Q9426cbfc57389778d313268E7F85F1CDc2fdad6", true));
-	BOOST_CHECK(passesAddressChecksum("Q08A61851FFa4637dE289D630Ae8c5dFb0ff9171F", true));
-	BOOST_CHECK(!passesAddressChecksum("Q8A61851FFa4637dE289D630Ae8c5dFb0ff9171F", true));
-	BOOST_CHECK(passesAddressChecksum("Q00c40cC30cb4675673c9ee382de805c19734986A", true));
-	BOOST_CHECK(!passesAddressChecksum("Qc40cC30cb4675673c9ee382de805c19734986A", true));
-	BOOST_CHECK(passesAddressChecksum("QC40CC30cb4675673C9ee382dE805c19734986a00", true));
-	BOOST_CHECK(!passesAddressChecksum("QC40CC30cb4675673C9ee382dE805c19734986a", true));
-}
-
-BOOST_AUTO_TEST_CASE(homocaps_valid)
-{
-	BOOST_CHECK(passesAddressChecksum("Q52908400098527886E0F7030069857D2E4169EE7", true));
-	BOOST_CHECK(passesAddressChecksum("Q8617E340B3D01FA5F11F306F4090FD50E238070D", true));
-	BOOST_CHECK(passesAddressChecksum("Qde709f2102306220921060314715629080e2fb77", true));
-	BOOST_CHECK(passesAddressChecksum("Q27b1fdb04752bbc536007a920d24acb045561c26", true));
-}
-
-BOOST_AUTO_TEST_CASE(homocaps_invalid)
-{
-	std::string upper = "Q00AA0000000012400000000DDEEFF000000000BB";
-	BOOST_CHECK(passesAddressChecksum(upper, false));
-	BOOST_CHECK(!passesAddressChecksum(upper, true));
-	std::string lower = "Q11aa000000000000000d00cc00000000000000bb";
+	std::string lower = lowerParity;
+	std::string upper = address("52908400098527886E0F7030069857D2E4169EE7", 'A');
 	BOOST_CHECK(passesAddressChecksum(lower, false));
-	BOOST_CHECK(!passesAddressChecksum(lower, true));
+	BOOST_CHECK(passesAddressChecksum(upper, false));
+}
+
+BOOST_AUTO_TEST_CASE(strict_check_requires_canonical_checksum)
+{
+	BOOST_CHECK(!passesAddressChecksum(lowerParity, true));
+	BOOST_CHECK(passesAddressChecksum(checksummedParity, true));
+	BOOST_CHECK(!passesAddressChecksum(invalidMixedParity, false));
+	BOOST_CHECK(!passesAddressChecksum(invalidMixedParity, true));
+	BOOST_CHECK(passesAddressChecksum("Q" + std::string(AddressBytes * 2, '0'), true));
+}
+
+BOOST_AUTO_TEST_CASE(invalid_length)
+{
+	BOOST_CHECK(!passesAddressChecksum("Q" + std::string(AddressBytes * 2 - 1, '0'), true));
+	BOOST_CHECK(!passesAddressChecksum("Q" + std::string(AddressBytes * 2 + 1, '0'), true));
+	BOOST_CHECK(!passesAddressChecksum("", true));
+	BOOST_CHECK(!passesAddressChecksum("Q", true));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

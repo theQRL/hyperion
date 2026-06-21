@@ -10,7 +10,7 @@ contract C {
 // ====
 // revertStrings: debug
 // ----
-// f() -> FAILURE, hex"08c379a0", 0x20, 0
-// g(string): "" -> FAILURE, hex"08c379a0", 0x20, 0
-// g(string): 0x20, 0, "" -> FAILURE, hex"08c379a0", 0x20, 0
-// g(string): 0x20, 0 -> FAILURE, hex"08c379a0", 0x20, 0
+// f() -> FAILURE, hex"08c379a0", 0x40, 0
+// g(string): "" -> FAILURE, hex"08c379a0", 0x40, 0
+// g(string): 0x20, 0, "" -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array length"
+// g(string): 0x20, 0 -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array length"

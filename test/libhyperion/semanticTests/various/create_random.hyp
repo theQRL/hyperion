@@ -17,21 +17,21 @@ contract C {
 
     function testCalc() external returns (address a1, address a2) {
         a1 = calculateCreate(address(this), 1);
-        a2 = calculateCreate2(address(this), keccak256(hex"60016000f3"), bytes32(uint256(uint160(address(this)))));
+        a2 = calculateCreate2(address(this), keccak256(hex"60016000f3"), bytes32(uint256(uint512(address(this)))));
     }
 
     function calculateCreate(address from, uint256 nonce) private pure returns (address) {
         assert(nonce <= 127);
         bytes memory data =
-            bytes.concat(hex"d694", bytes20(uint160(from)), nonce == 0 ? bytes1(hex"80") : bytes1(uint8(nonce)));
-        return address(uint160(uint256(keccak256(data)))); // Take the lower 160-bits
+            bytes.concat(hex"d694", bytes64(uint512(from)), nonce == 0 ? bytes1(hex"80") : bytes1(uint8(nonce)));
+        return address(uint512(uint256(keccak256(data)))); // Expand the 256-bit hash into the 512-bit address type.
     }
 
     function calculateCreate2(address creator, bytes32 codehash, bytes32 salt) private pure returns (address) {
-        return address(uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), creator, salt, codehash)))));
+        return address(uint512(uint256(keccak256(abi.encodePacked(bytes1(0xff), creator, salt, codehash)))));
     }
 }
 // ----
-// addr() -> Qc06afe3a8444fc0004668591e8306bfb9968e79e
-// testRunner() -> Q137aa4dfc0911524504fcd4d98501f179bc13b4a, Q2c1c30623ddd93e0b765a6caaca0c859eeb0644d
-// testCalc() -> Q137aa4dfc0911524504fcd4d98501f179bc13b4a, Q2c1c30623ddd93e0b765a6caaca0c859eeb0644d
+// addr() -> 0x254f38cb8201943b6e48e06b3847a41d40c0c5f7cf5c0c3f4b4006528454c7ff
+// testRunner() -> 0xa2c09b0901c4385dddc8a62d8dd8cb54995b78bbd757bfdee5a32af7ef8f0059, 0x9a7259598b1b73fcddba374ece82fbbefdebfc7a9076ff2fc00913851d287318
+// testCalc() -> 0x83a4d7a1adb4b1ea71603d155a5caa15a273344b40fae902b35e534157fa2775, 0x77de2d563e7b06bbd8bb32499974ade83ba1e75c353a520db44bb2dd4ef55ff0

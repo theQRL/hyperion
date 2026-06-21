@@ -8,8 +8,8 @@ contract c {
 // ----
 // (): 1, 2, 3, 4, 5 ->
 // gas irOptimized: 155130
-// gas legacy: 155473
+// gas legacy: 156113
 // gas legacyOptimized: 155295
 // checkIfDataIsEmpty() -> false
-// sendMessage() -> true, 0x40, 0
+// sendMessage() -> true, 0x80, 0
 // checkIfDataIsEmpty() -> true

@@ -25,4 +25,4 @@ contract Test {
 	}
 }
 // ----
-// withinArray() -> FAILURE
+// withinArray() -> FAILURE, hex"4e487b71", 0x41

@@ -15,7 +15,7 @@ object "object" {
 
 
 Binary representation:
-600b565b5f8051905090565b5f8060136003565b5f525050
+600b565b5fa051b050b0565b5fa060136003565b5f525050
 
 Text representation:
   jump(tag_2)

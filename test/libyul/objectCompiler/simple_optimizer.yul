@@ -17,6 +17,6 @@
 //   sstore
 //     /* "source":0:101   */
 //   stop
-// Bytecode: 5f80355500
+// Bytecode: 5fa0355500
 // Opcodes: PUSH0 DUP1 CALLDATALOAD SSTORE STOP
 // SourceMappings: 26:1:0:-:0;13:15;;79:20;0:101

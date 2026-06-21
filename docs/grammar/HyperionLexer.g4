@@ -41,7 +41,11 @@ FixedBytes:
 	'bytes1' | 'bytes2' | 'bytes3' | 'bytes4' | 'bytes5' | 'bytes6' | 'bytes7' | 'bytes8' |
 	'bytes9' | 'bytes10' | 'bytes11' | 'bytes12' | 'bytes13' | 'bytes14' | 'bytes15' | 'bytes16' |
 	'bytes17' | 'bytes18' | 'bytes19' | 'bytes20' | 'bytes21' | 'bytes22' | 'bytes23' | 'bytes24' |
-	'bytes25' | 'bytes26' | 'bytes27' | 'bytes28' | 'bytes29' | 'bytes30' | 'bytes31' | 'bytes32';
+	'bytes25' | 'bytes26' | 'bytes27' | 'bytes28' | 'bytes29' | 'bytes30' | 'bytes31' | 'bytes32' |
+	'bytes33' | 'bytes34' | 'bytes35' | 'bytes36' | 'bytes37' | 'bytes38' | 'bytes39' | 'bytes40' |
+	'bytes41' | 'bytes42' | 'bytes43' | 'bytes44' | 'bytes45' | 'bytes46' | 'bytes47' | 'bytes48' |
+	'bytes49' | 'bytes50' | 'bytes51' | 'bytes52' | 'bytes53' | 'bytes54' | 'bytes55' | 'bytes56' |
+	'bytes57' | 'bytes58' | 'bytes59' | 'bytes60' | 'bytes61' | 'bytes62' | 'bytes63' | 'bytes64';
 For: 'for';
 From: 'from'; // not a real keyword
 Function: 'function';
@@ -81,7 +85,11 @@ SignedIntegerType:
 	'int' | 'int8' | 'int16' | 'int24' | 'int32' | 'int40' | 'int48' | 'int56' | 'int64' |
 	'int72' | 'int80' | 'int88' | 'int96' | 'int104' | 'int112' | 'int120' | 'int128' |
 	'int136' | 'int144' | 'int152' | 'int160' | 'int168' | 'int176' | 'int184' | 'int192' |
-	'int200' | 'int208' | 'int216' | 'int224' | 'int232' | 'int240' | 'int248' | 'int256';
+	'int200' | 'int208' | 'int216' | 'int224' | 'int232' | 'int240' | 'int248' | 'int256' |
+	'int264' | 'int272' | 'int280' | 'int288' | 'int296' | 'int304' | 'int312' | 'int320' |
+	'int328' | 'int336' | 'int344' | 'int352' | 'int360' | 'int368' | 'int376' | 'int384' |
+	'int392' | 'int400' | 'int408' | 'int416' | 'int424' | 'int432' | 'int440' | 'int448' |
+	'int456' | 'int464' | 'int472' | 'int480' | 'int488' | 'int496' | 'int504' | 'int512';
 Storage: 'storage';
 String: 'string';
 Struct: 'struct';
@@ -99,7 +107,11 @@ UnsignedIntegerType:
 	'uint' | 'uint8' | 'uint16' | 'uint24' | 'uint32' | 'uint40' | 'uint48' | 'uint56' | 'uint64' |
 	'uint72' | 'uint80' | 'uint88' | 'uint96' | 'uint104' | 'uint112' | 'uint120' | 'uint128' |
 	'uint136' | 'uint144' | 'uint152' | 'uint160' | 'uint168' | 'uint176' | 'uint184' | 'uint192' |
-	'uint200' | 'uint208' | 'uint216' | 'uint224' | 'uint232' | 'uint240' | 'uint248' | 'uint256';
+	'uint200' | 'uint208' | 'uint216' | 'uint224' | 'uint232' | 'uint240' | 'uint248' | 'uint256' |
+	'uint264' | 'uint272' | 'uint280' | 'uint288' | 'uint296' | 'uint304' | 'uint312' | 'uint320' |
+	'uint328' | 'uint336' | 'uint344' | 'uint352' | 'uint360' | 'uint368' | 'uint376' | 'uint384' |
+	'uint392' | 'uint400' | 'uint408' | 'uint416' | 'uint424' | 'uint432' | 'uint440' | 'uint448' |
+	'uint456' | 'uint464' | 'uint472' | 'uint480' | 'uint488' | 'uint496' | 'uint504' | 'uint512';
 Using: 'using';
 View: 'view';
 Virtual: 'virtual';

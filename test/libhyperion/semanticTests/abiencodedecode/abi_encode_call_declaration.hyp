@@ -47,4 +47,4 @@ contract C is Base {
 
 }
 // ----
-// test() -> 11116
+// test() -> FAILURE

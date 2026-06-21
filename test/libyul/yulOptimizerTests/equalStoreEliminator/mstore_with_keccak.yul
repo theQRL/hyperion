@@ -25,7 +25,13 @@
 //     mstore(_1, var_k)
 //     mstore(_2, _1)
 //     sstore(keccak256(_1, 0x40), 0x01)
+//     mstore(_1, var_k)
+//     mstore(_2, _1)
 //     sstore(add(keccak256(_1, 0x40), 0x01), 0x03)
+//     mstore(_1, var_k)
+//     mstore(_2, _1)
 //     sstore(add(keccak256(_1, 0x40), 2), 0x04)
+//     mstore(_1, var_k)
+//     mstore(_2, _1)
 //     sstore(add(keccak256(_1, 0x40), 0x03), 2)
 // }

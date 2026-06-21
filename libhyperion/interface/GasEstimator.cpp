@@ -56,12 +56,12 @@ GasEstimator::GasConsumption GasEstimator::functionalEstimation(
 		using Ids = std::vector<Id>;
 		Id hashValue = classes.find(u256(util::selectorFromSignatureU32(_signature)));
 		Id calldata = classes.find(Instruction::CALLDATALOAD, Ids{classes.find(u256(0))});
-		// shr(0xe0, calldataload(0)) equals to hashValue
+		// shr(VMWordBits - 32, calldataload(0)) equals to hashValue
 		classes.forceEqual(
 			hashValue,
 			Instruction::SHR,
-			Ids{classes.find(u256(0xe0)), calldata}
-		);	
+			Ids{classes.find(u256(VMWordBits - 32)), calldata}
+		);
 		// lt(calldatasize(), 4) equals to 0 (ignore the shortcut for fallback functions)
 		classes.forceEqual(
 			classes.find(u256(0)),

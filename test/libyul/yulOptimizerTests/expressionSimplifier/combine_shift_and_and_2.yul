@@ -35,8 +35,9 @@
 //         let c := shl(_15, _19)
 //         let d := shl(_15, and(shr(255, x), 0))
 //         let e := shl(_10, _19)
-//         let f := 0
-//         let g := 0
+//         let _33 := 256
+//         let f := shl(_15, and(shr(256, x), 0))
+//         let g := shl(_33, _19)
 //         sstore(10, a)
 //         sstore(11, b)
 //         sstore(_15, c)

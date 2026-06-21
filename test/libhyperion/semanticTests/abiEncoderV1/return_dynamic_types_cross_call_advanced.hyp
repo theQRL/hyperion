@@ -1,15 +1,15 @@
 contract C {
-	function dyn() public returns (bytes memory a, uint b, bytes20[] memory c, uint d) {
+	function dyn() public returns (bytes memory a, uint b, bytes64[] memory c, uint d) {
 		a = "1234567890123456789012345678901234567890";
 		b = type(uint).max;
-		c = new bytes20[](4);
-		c[0] = bytes20(uint160(1234));
-		c[3] = bytes20(uint160(6789));
+		c = new bytes64[](4);
+		c[0] = bytes64(uint512(1234));
+		c[3] = bytes64(uint512(6789));
 		d = 0x1234;
 	}
-	function f() public returns (bytes memory, uint, bytes20[] memory, uint) {
+	function f() public returns (bytes memory, uint, bytes64[] memory, uint) {
 		return this.dyn();
 	}
 }
 // ----
-// f() -> 0x80, -1, 0xe0, 0x1234, 40, "12345678901234567890123456789012", "34567890", 4, 97767552542602192590433234714624, 0, 0, 537879995309340587922569878831104
+// f() -> 0x0100, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0x0180, 4660, 0x28, 2576608502769130232314798560284120952513968844798402608870341189467708750664197974170214517283912787110108518047198478582761207552448710623437254138265600, 4, 0x04d2, 0, 0, 0x1a85

@@ -10,8 +10,9 @@ object "C_12" {
             sstore(0, keccak256(0, 32))
             /// @src 0:62:463  "contract C {..."
             let _1 := datasize("C_12_deployed")
-            codecopy(128, dataoffset("C_12_deployed"), _1)
-            return(128, _1)
+            let _2 := 256
+            codecopy(_2, dataoffset("C_12_deployed"), _1)
+            return(_2, _1)
         }
     }
     /// @use-src 0:"keccak_optimization_deploy_code/input.hyp"

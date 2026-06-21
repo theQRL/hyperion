@@ -26,6 +26,7 @@
 
 #include <libhyputil/CommonData.h>
 #include <libhyputil/FixedHash.h>
+#include <libhyputil/VMConstants.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -86,11 +87,11 @@ std::string hyperion::yul::reindent(std::string const& _code)
 	return out.str();
 }
 
-u256 hyperion::yul::valueOfNumberLiteral(Literal const& _literal)
+u512 hyperion::yul::valueOfNumberLiteral(Literal const& _literal)
 {
 	yulAssert(_literal.kind == LiteralKind::Number, "Expected number literal!");
 
-	static std::map<YulString, u256> numberCache;
+	static std::map<YulString, u512> numberCache;
 	static YulStringRepository::ResetCallback callback{[&] { numberCache.clear(); }};
 
 	auto&& [it, isNew] = numberCache.try_emplace(_literal.value, 0);
@@ -98,32 +99,37 @@ u256 hyperion::yul::valueOfNumberLiteral(Literal const& _literal)
 	{
 		std::string const& literalString = _literal.value.str();
 		yulAssert(isValidDecimal(literalString) || isValidHex(literalString), "Invalid number literal!");
-		it->second = u256(literalString);
+		it->second = u512(literalString);
 	}
 	return it->second;
 }
 
-u256 hyperion::yul::valueOfStringLiteral(Literal const& _literal)
+u512 hyperion::yul::valueOfStringLiteral(Literal const& _literal)
 {
 	yulAssert(_literal.kind == LiteralKind::String, "Expected string literal!");
-	yulAssert(_literal.value.str().size() <= 32, "Literal string too long!");
+	yulAssert(_literal.value.str().size() <= VMWordBytes, "Literal string too long!");
 
-	return u256(h256(_literal.value.str(), h256::FromBinary, h256::AlignLeft));
+	// String literals on the VM stack are right-aligned integers,
+	// same as PUSH data. Left-alignment is done explicitly by shl in generated code.
+	u512 value = 0;
+	for (char c: _literal.value.str())
+		value = (value << 8) | uint8_t(c);
+	return value;
 }
 
-u256 yul::valueOfBoolLiteral(Literal const& _literal)
+u512 yul::valueOfBoolLiteral(Literal const& _literal)
 {
 	yulAssert(_literal.kind == LiteralKind::Boolean, "Expected bool literal!");
 
 	if (_literal.value == "true"_yulstring)
-		return u256(1);
+		return u512(1);
 	else if (_literal.value == "false"_yulstring)
-		return u256(0);
+		return u512(0);
 
 	yulAssert(false, "Unexpected bool literal value!");
 }
 
-u256 hyperion::yul::valueOfLiteral(Literal const& _literal)
+u512 hyperion::yul::valueOfLiteral(Literal const& _literal)
 {
 	switch (_literal.kind)
 	{

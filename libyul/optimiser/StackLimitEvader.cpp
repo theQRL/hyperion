@@ -31,6 +31,7 @@
 #include <libyul/Utilities.h>
 #include <libhyputil/Algorithms.h>
 #include <libhyputil/CommonData.h>
+#include <libhyputil/VMConstants.h>
 
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/concat.hpp>
@@ -108,7 +109,7 @@ struct MemoryOffsetAllocator
 	std::map<YulString, uint64_t> slotsRequiredForFunction{};
 };
 
-u256 literalArgumentValue(FunctionCall const& _call)
+u512 literalArgumentValue(FunctionCall const& _call)
 {
 	yulAssert(_call.arguments.size() == 1, "");
 	Literal const* literal = std::get_if<Literal>(&_call.arguments.front());
@@ -183,11 +184,12 @@ void StackLimitEvader::run(
 		return;
 
 	// Make sure all calls to ``memoryguard`` we found have the same value as argument (otherwise, abort).
-	u256 reservedMemory = literalArgumentValue(*memoryGuardCalls.front());
-	yulAssert(reservedMemory < u256(1) << 32 - 1, "");
+	u512 reservedMemoryLiteral = literalArgumentValue(*memoryGuardCalls.front());
+	yulAssert(reservedMemoryLiteral < (u512(1) << 32) - 1, "");
+	u256 reservedMemory = u256(reservedMemoryLiteral);
 
 	for (FunctionCall const* memoryGuardCall: memoryGuardCalls)
-		if (reservedMemory != literalArgumentValue(*memoryGuardCall))
+		if (reservedMemoryLiteral != literalArgumentValue(*memoryGuardCall))
 			return;
 
 	CallGraph callGraph = CallGraphGenerator::callGraph(*_object.code);
@@ -205,7 +207,7 @@ void StackLimitEvader::run(
 
 	StackToMemoryMover::run(_context, reservedMemory, memoryOffsetAllocator.slotAllocations, requiredSlots, *_object.code);
 
-	reservedMemory += 32 * requiredSlots;
+	reservedMemory += VMWordBytes * requiredSlots;
 	for (FunctionCall* memoryGuardCall: FunctionCallFinder::run(*_object.code, "memoryguard"_yulstring))
 	{
 		Literal* literal = std::get_if<Literal>(&memoryGuardCall->arguments.front());

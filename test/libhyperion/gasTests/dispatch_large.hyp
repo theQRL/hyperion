@@ -24,11 +24,11 @@ contract Large {
 }
 // ----
 // creation:
-//   codeDepositCost: 618400
-//   executionCost: 649
-//   totalCost: 619049
+//   codeDepositCost: 890400
+//   executionCost: 927
+//   totalCost: 891327
 // external:
-//   a(): 2470
+//   a(): 2524
 //   b(uint256): infinite
 //   f0(uint256): infinite
 //   f1(uint256): infinite

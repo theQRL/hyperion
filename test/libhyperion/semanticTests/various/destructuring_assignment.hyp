@@ -32,7 +32,7 @@ contract C {
     }
 }
 // ----
-// f(bytes): 0x20, 0x5, "abcde" -> 0
+// f(bytes): 0x20, 0x5, "abcde" -> FAILURE, hex"4e487b71", 0x41
 // gas irOptimized: 241837
 // gas legacy: 243284
 // gas legacyOptimized: 242420

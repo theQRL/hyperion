@@ -39,7 +39,7 @@ void NoOutputAssembly::appendInstruction(qrvmasm::Instruction _instr)
 	m_stackHeight += instructionInfo(_instr).ret - instructionInfo(_instr).args;
 }
 
-void NoOutputAssembly::appendConstant(u256 const&)
+void NoOutputAssembly::appendConstant(u512 const&)
 {
 	appendInstruction(qrvmasm::pushInstruction(1));
 }

@@ -38,7 +38,7 @@ contract test {
 // ----
 // constructor(), 20 planck ->
 // gas irOptimized: 252642
-// gas legacy: 391588
+// gas legacy: 424678
 // gas legacyOptimized: 268089
 // sendAmount(uint256): 5 -> 5
 // outOfGas() -> FAILURE # call to helper should not succeed but amount should be transferred anyway #

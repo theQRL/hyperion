@@ -65,12 +65,12 @@ protected:
 		langutil::QRVMVersion qrvmVersion; ///< Version of the QRVM
 	};
 
-	explicit ConstantOptimisationMethod(Params const& _params, u256 const& _value):
+	explicit ConstantOptimisationMethod(Params const& _params, u512 const& _value):
 		m_params(_params), m_value(_value) {}
 	virtual ~ConstantOptimisationMethod() = default;
 	virtual bigint gasNeeded() const = 0;
 	/// Executes the method, potentially appending to the assembly and returns a vector of
-	/// assembly items the constant should be relpaced with in one sweep.
+	/// assembly items the constant should be replaced with in one sweep.
 	/// If the vector is empty, the constants will not be deleted.
 	virtual AssemblyItems execute(Assembly& _assembly) const = 0;
 
@@ -92,10 +92,10 @@ protected:
 	}
 
 	/// Replaces all constants i by the code given in @a _replacement[i].
-	static void replaceConstants(AssemblyItems& _items, std::map<u256, AssemblyItems> const& _replacements);
+	static void replaceConstants(AssemblyItems& _items, std::map<u512, AssemblyItems> const& _replacements);
 
 	Params m_params;
-	u256 const& m_value;
+	u512 const& m_value;
 };
 
 /**
@@ -105,7 +105,7 @@ protected:
 class LiteralMethod: public ConstantOptimisationMethod
 {
 public:
-	explicit LiteralMethod(Params const& _params, u256 const& _value):
+	explicit LiteralMethod(Params const& _params, u512 const& _value):
 		ConstantOptimisationMethod(_params, _value) {}
 	bigint gasNeeded() const override;
 	AssemblyItems execute(Assembly&) const override { return AssemblyItems{}; }
@@ -117,7 +117,7 @@ public:
 class CodeCopyMethod: public ConstantOptimisationMethod
 {
 public:
-	explicit CodeCopyMethod(Params const& _params, u256 const& _value):
+	explicit CodeCopyMethod(Params const& _params, u512 const& _value):
 		ConstantOptimisationMethod(_params, _value) {}
 	bigint gasNeeded() const override;
 	AssemblyItems execute(Assembly& _assembly) const override;
@@ -132,7 +132,7 @@ protected:
 class ComputeMethod: public ConstantOptimisationMethod
 {
 public:
-	explicit ComputeMethod(Params const& _params, u256 const& _value):
+	explicit ComputeMethod(Params const& _params, u512 const& _value):
 		ConstantOptimisationMethod(_params, _value)
 	{
 		m_routine = findRepresentation(m_value);
@@ -151,9 +151,9 @@ public:
 
 protected:
 	/// Tries to recursively find a way to compute @a _value.
-	AssemblyItems findRepresentation(u256 const& _value);
+	AssemblyItems findRepresentation(u512 const& _value);
 	/// Recomputes the value from the calculated representation and checks for correctness.
-	bool checkRepresentation(u256 const& _value, AssemblyItems const& _routine) const;
+	bool checkRepresentation(u512 const& _value, AssemblyItems const& _routine) const;
 	bigint gasNeeded(AssemblyItems const& _routine) const;
 
 	/// Counter for the complexity of optimization, will stop when it reaches zero.

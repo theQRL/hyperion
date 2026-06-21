@@ -146,7 +146,7 @@ void ExpressionCompiler::appendStateVariableAccessor(VariableDeclaration const& 
 	{
 		if (auto mappingType = dynamic_cast<MappingType const*>(returnType))
 		{
-			hypAssert(CompilerUtils::freeMemoryPointer >= 0x40, "");
+			hypAssert(CompilerUtils::freeMemoryPointer >= 2 * VMWordBytes, "");
 
 			// pop offset
 			m_context << Instruction::POP;
@@ -166,10 +166,10 @@ void ExpressionCompiler::appendStateVariableAccessor(VariableDeclaration const& 
 					let key_len := mload(key_ptr)
 					// Temp. use the memory after the array data for the slot
 					// position
-					let post_data_ptr := add(key_ptr, add(key_len, 0x20))
+					let post_data_ptr := add(key_ptr, add(key_len, 0x40))
 					let orig_data := mload(post_data_ptr)
 					mstore(post_data_ptr, slot_pos)
-					let hash := keccak256(add(key_ptr, 0x20), add(key_len, 0x20))
+					let hash := keccak256(add(key_ptr, 0x40), add(key_len, 0x40))
 					mstore(post_data_ptr, orig_data)
 					slot_pos := hash
 				})", {"slot_pos", "key_ptr"});
@@ -181,12 +181,12 @@ void ExpressionCompiler::appendStateVariableAccessor(VariableDeclaration const& 
 				hypAssert(paramTypes[i]->isValueType(), "Expected value type for mapping key");
 
 				// move storage offset to memory.
-				utils().storeInMemory(32);
+				utils().storeInMemory(VMWordBytes);
 
 				// move key to memory.
 				utils().copyToStackTop(static_cast<unsigned>(paramTypes.size() - i), 1);
 				utils().storeInMemory(0);
-				m_context << u256(64) << u256(0);
+				m_context << u256(2 * VMWordBytes) << u256(0);
 				m_context << Instruction::KECCAK256;
 			}
 
@@ -369,7 +369,7 @@ bool ExpressionCompiler::visit(TupleExpression const& _tuple)
 		ArrayType const& arrayType = dynamic_cast<ArrayType const&>(*_tuple.annotation().type);
 
 		hypAssert(!arrayType.isDynamicallySized(), "Cannot create dynamically sized inline array.");
-		utils().allocateMemory(std::max(u256(32u), arrayType.memoryDataSize()));
+		utils().allocateMemory(std::max(u256(VMWordBytes), arrayType.memoryDataSize()));
 		m_context << Instruction::DUP1;
 
 		for (auto const& component: _tuple.components())
@@ -520,7 +520,17 @@ bool ExpressionCompiler::visit(UnaryOperation const& _unaryOperation)
 		if (m_context.arithmetic() == Arithmetic::Checked)
 			m_context.callYulFunction(m_context.utilFunctions().negateNumberCheckedFunction(type), 1, 1);
 		else
+		{
 			m_context << u256(0) << Instruction::SUB;
+			// In 512-bit VM, need to cleanup/truncate to the target type's bit width
+			if (auto const* intType = dynamic_cast<IntegerType const*>(&type))
+			{
+				if (intType->isSigned())
+					m_context << u256(intType->numBits() / 8 - 1) << Instruction::SIGNEXTEND;
+				else
+					m_context.callYulFunction(m_context.utilFunctions().cleanupFunction(type), 1, 1);
+			}
+		}
 		break;
 	default:
 		hypAssert(false, "Invalid unary operator: " + std::string(TokenTraits::toString(_unaryOperation.getOperator())));
@@ -665,7 +675,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 		TypeType const& type = dynamic_cast<TypeType const&>(*_functionCall.expression().annotation().type);
 		auto const& structType = dynamic_cast<StructType const&>(*type.actualType());
 
-		utils().allocateMemory(std::max(u256(32u), structType.memoryDataSize()));
+		utils().allocateMemory(std::max(u256(VMWordBytes), structType.memoryDataSize()));
 		m_context << Instruction::DUP1;
 
 		for (unsigned i = 0; i < arguments.size(); ++i)
@@ -893,14 +903,16 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			arguments.front()->accept(*this);
 			if (auto const* stringLiteral = dynamic_cast<StringLiteralType const*>(argType))
 				// Optimization: Compute keccak256 on string literals at compile-time.
-				m_context << u256(keccak256(stringLiteral->value()));
+				// keccak256 result is bytes32, must be left-aligned in 512-bit word.
+				m_context << (u512(h256::Arith(keccak256(stringLiteral->value()))) << (VMWordBits - 256));
 			else if (*argType == *TypeProvider::bytesMemory() || *argType == *TypeProvider::stringMemory())
 			{
 				// Optimization: If type is bytes or string, then do not encode,
 				// but directly compute keccak256 on memory.
 				ArrayUtils(m_context).retrieveLength(*TypeProvider::bytesMemory());
-				m_context << Instruction::SWAP1 << u256(0x20) << Instruction::ADD;
+				m_context << Instruction::SWAP1 << u256(VMWordBytes) << Instruction::ADD;
 				m_context << Instruction::KECCAK256;
+				utils().leftShiftNumberOnStack(VMWordBits - 256);
 			}
 			else
 			{
@@ -908,6 +920,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 				utils().packedEncode({argType}, TypePointers());
 				utils().toSizeAfterFreeMemoryPointer();
 				m_context << Instruction::KECCAK256;
+				utils().leftShiftNumberOnStack(VMWordBits - 256);
 			}
 			break;
 		}
@@ -932,6 +945,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 						);
 						utils().toSizeAfterFreeMemoryPointer();
 						m_context << Instruction::KECCAK256;
+						utils().leftShiftNumberOnStack(VMWordBits - 256);
 					}
 					else
 					{
@@ -948,7 +962,14 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 								""
 							);
 
-							utils().combineExternalFunctionType(true);
+							utils().fetchFreeMemoryPointer();
+							utils().packedEncode(
+								{arguments[arg - 1]->annotation().type},
+								{paramTypes[arg - 1]}
+							);
+							utils().toSizeAfterFreeMemoryPointer();
+							m_context << Instruction::KECCAK256;
+							utils().leftShiftNumberOnStack(VMWordBits - 256);
 						}
 						else
 							utils().convertType(
@@ -960,7 +981,8 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 				}
 			if (!event.isAnonymous())
 			{
-				m_context << u256(h256::Arith(keccak256(function.externalSignature())));
+				// Event signature hash is bytes32 — left-align in the 64-byte VM word.
+				m_context << (u512(h256::Arith(keccak256(function.externalSignature()))) << (VMWordBits - 256));
 				++numIndexed;
 			}
 			hypAssert(numIndexed <= 4, "Too many indexed arguments.");
@@ -1153,7 +1175,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 					targetTypes.emplace_back(argument->annotation().type);
 				else if (
 					auto const* literalType = dynamic_cast<StringLiteralType const*>(argument->annotation().type);
-					literalType && !literalType->value().empty() && literalType->value().size() <= 32
+					literalType && !literalType->value().empty() && literalType->value().size() <= AddressBytes
 				)
 					targetTypes.emplace_back(TypeProvider::fixedBytes(static_cast<unsigned>(literalType->value().size())));
 				else
@@ -1173,11 +1195,11 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			}
 			utils().fetchFreeMemoryPointer();
 			// stack: <arg1> <arg2> ... <argn> <free mem>
-			m_context << u256(32) << Instruction::ADD;
+			m_context << u256(VMWordBytes) << Instruction::ADD;
 			utils().packedEncode(argumentTypes, targetTypes);
 			utils().fetchFreeMemoryPointer();
 			m_context.appendInlineAssembly(R"({
-				mstore(mem_ptr, sub(sub(mem_end, mem_ptr), 0x20))
+				mstore(mem_ptr, sub(sub(mem_end, mem_ptr), 0x40))
 			})", {"mem_end", "mem_ptr"});
 			m_context << Instruction::SWAP1;
 			utils().storeFreeMemoryPointer();
@@ -1212,12 +1234,12 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			m_context << Instruction::DUP1;
 			// Stack: memptr requested_length requested_length
 			if (arrayType.isByteArrayOrString())
-				// Round up to multiple of 32
-				m_context << u256(31) << Instruction::ADD << u256(31) << Instruction::NOT << Instruction::AND;
+				// Round up to multiple of VMWordBytes
+				m_context << u256(VMWordAlignmentMask) << Instruction::ADD << u256(VMWordAlignmentMask) << Instruction::NOT << Instruction::AND;
 			else
 				m_context << arrayType.baseType()->memoryHeadSize() << Instruction::MUL;
 			// stacK: memptr requested_length data_size
-			m_context << u256(32) << Instruction::ADD;
+			m_context << u256(VMWordBytes) << Instruction::ADD;
 			m_context << Instruction::DUP3 << Instruction::ADD;
 			utils().storeFreeMemoryPointer();
 			// Stack: memptr requested_length
@@ -1227,7 +1249,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			auto skipInit = m_context.appendConditionalJump();
 			// Always initialize because the free memory pointer might point at
 			// a dirty memory area.
-			m_context << Instruction::DUP2 << u256(32) << Instruction::ADD;
+			m_context << Instruction::DUP2 << u256(VMWordBytes) << Instruction::ADD;
 			utils().zeroInitialiseMemoryArray(arrayType);
 			m_context << skipInit;
 			m_context << Instruction::POP;
@@ -1326,8 +1348,8 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			utils().fetchFreeMemoryPointer();
 			// stack now: [<selector/functionPointer/signature>] <arg1> .. <argN> <free_mem>
 
-			// adjust by 32(+4) bytes to accommodate the length(+selector)
-			m_context << u256(32 + (hasSelectorOrSignature ? 4 : 0)) << Instruction::ADD;
+			// adjust by VMWordBytes(+4) bytes to accommodate the length(+selector)
+			m_context << u256(VMWordBytes + (hasSelectorOrSignature ? 4 : 0)) << Instruction::ADD;
 			// stack now: [<selector/functionPointer/signature>] <arg1> .. <argN> <data_encoding_area_start>
 
 			if (isPacked)
@@ -1345,7 +1367,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 
 			// size is end minus start minus length slot
 			m_context.appendInlineAssembly(R"({
-				mstore(mem_ptr, sub(sub(mem_end, mem_ptr), 0x20))
+				mstore(mem_ptr, sub(sub(mem_end, mem_ptr), 0x40))
 			})", {"mem_end", "mem_ptr"});
 			m_context << Instruction::SWAP1;
 			utils().storeFreeMemoryPointer();
@@ -1365,7 +1387,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 					// hash the signature
 					if (auto const* stringType = dynamic_cast<StringLiteralType const*>(selectorType))
 					{
-						m_context << util::selectorFromSignatureU256(stringType->value());
+						m_context << (u512(util::selectorFromSignatureU256(stringType->value())) << (VMWordBits - 256));
 						dataOnStack = TypeProvider::fixedBytes(4);
 					}
 					else
@@ -1407,9 +1429,9 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 				// stack: <memory pointer> <selector>
 
 				// load current memory, mask and combine the selector
-				std::string mask = formatNumber((u256(-1) >> 32));
+				std::string mask = formatNumber((u512(-1) >> 32));
 				m_context.appendInlineAssembly(R"({
-					let data_start := add(mem_ptr, 0x20)
+					let data_start := add(mem_ptr, 0x40)
 					let data := mload(data_start)
 					let mask := )" + mask + R"(
 					mstore(data_start, or(and(data, mask), selector))
@@ -1441,7 +1463,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			else
 			{
 				utils().convertType(*firstArgType, *TypeProvider::bytesMemory());
-				m_context << Instruction::DUP1 << u256(32) << Instruction::ADD;
+				m_context << Instruction::DUP1 << u256(VMWordBytes) << Instruction::ADD;
 				m_context << Instruction::SWAP1 << Instruction::MLOAD;
 				// stack now: <mem_pos> <length>
 
@@ -1653,12 +1675,12 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			utils().popStackElement(*functionType);
 
 			if (functionType->kind() == FunctionType::Kind::Event)
-				m_context << u256(h256::Arith(util::keccak256(functionType->externalSignature())));
+				m_context << (u512(h256::Arith(util::keccak256(functionType->externalSignature()))) << (VMWordBits - 256));
 			else
 			{
 				m_context << functionType->externalIdentifier();
 				/// need to store it as bytes4
-				utils().leftShiftNumberOnStack(224);
+				utils().leftShiftNumberOnStack(VMWordBits - 32);
 			}
 			return false;
 		}
@@ -1676,7 +1698,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 							hypAssert(false, "Contract member is neither variable nor function.");
 						m_context << identifier;
 						/// need to store it as bytes4
-						utils().leftShiftNumberOnStack(224);
+						utils().leftShiftNumberOnStack(VMWordBits - 32);
 						return false;
 					}
 	}
@@ -1778,7 +1800,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 
 			m_context << Instruction::DUP1;
 			// Account for the size field of `bytes memory`
-			m_context << u256(32) << Instruction::ADD;
+			m_context << u256(VMWordBytes) << Instruction::ADD;
 			utils().allocateMemory();
 			// Stack post: <address> <size> <mem_offset>
 
@@ -1788,7 +1810,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			m_context << u256(0) << Instruction::SWAP1 << Instruction::DUP1;
 			// Stack post: <address> <size> 0 <mem_offset> <mem_offset>
 
-			m_context << u256(32) << Instruction::ADD << Instruction::SWAP1;
+			m_context << u256(VMWordBytes) << Instruction::ADD << Instruction::SWAP1;
 			// Stack post: <address> <size> 0 <mem_offset_adjusted> <mem_offset>
 
 			m_context << Instruction::SWAP4;
@@ -1837,7 +1859,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			m_context << Instruction::SWAP1 << Instruction::POP;
 
 			/// need to store it as bytes4
-			utils().leftShiftNumberOnStack(224);
+			utils().leftShiftNumberOnStack(VMWordBits - 32);
 		}
 		else if (member == "address")
 		{
@@ -1879,7 +1901,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			m_context << u256(0) << Instruction::CALLDATASIZE;
 		else if (member == "sig")
 			m_context << u256(0) << Instruction::CALLDATALOAD
-				<< (u256(0xffffffff) << (256 - 32)) << Instruction::AND;
+				<< (u512(0xffffffff) << (VMWordBits - 32)) << Instruction::AND;
 		else if (member == "gas")
 			hypAssert(false, "Gas has been removed.");
 		else if (member == "blockhash")
@@ -1891,13 +1913,13 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			hypAssert(!contractType.isSuper(), "");
 			ContractDefinition const& contract = contractType.contractDefinition();
 			utils().fetchFreeMemoryPointer();
-			m_context << Instruction::DUP1 << u256(32) << Instruction::ADD;
+			m_context << Instruction::DUP1 << u256(VMWordBytes) << Instruction::ADD;
 			utils().copyContractCodeToMemory(contract, member == "creationCode");
 			// Stack: start end
 			m_context.appendInlineAssembly(
 				Whiskers(R"({
-					mstore(start, sub(end, add(start, 0x20)))
-					mstore(<free>, and(add(end, 31), not(31)))
+					mstore(start, sub(end, add(start, 0x40)))
+					mstore(<free>, and(add(end, 63), not(63)))
 				})")("free", std::to_string(CompilerUtils::freeMemoryPointer)).render(),
 				{"start", "end"}
 			);
@@ -1910,18 +1932,18 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			ContractDefinition const& contract = contractType.isSuper() ?
 				*contractType.contractDefinition().superContract(m_context.mostDerivedContract()) :
 				dynamic_cast<ContractType const&>(*arg).contractDefinition();
-			utils().allocateMemory(((contract.name().length() + 31) / 32) * 32 + 32);
+			utils().allocateMemory(((contract.name().length() + VMWordAlignmentMask) / VMWordBytes) * VMWordBytes + VMWordBytes);
 			// store string length
 			m_context << u256(contract.name().length()) << Instruction::DUP2 << Instruction::MSTORE;
 			// adjust pointer
-			m_context << Instruction::DUP1 << u256(32) << Instruction::ADD;
+			m_context << Instruction::DUP1 << u256(VMWordBytes) << Instruction::ADD;
 			utils().storeStringData(contract.name());
 		}
 		else if (member == "interfaceId")
 		{
 			Type const* arg = dynamic_cast<MagicType const&>(*_memberAccess.expression().annotation().type).typeArgument();
 			ContractDefinition const& contract = dynamic_cast<ContractType const&>(*arg).contractDefinition();
-			m_context << (u256{contract.interfaceId()} << (256 - 32));
+			m_context << (u512{contract.interfaceId()} << (VMWordBits - 32));
 		}
 		else if (member == "min" || member == "max")
 		{
@@ -1975,10 +1997,10 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 				if (memberType->isValueType())
 				{
 					hypAssert(memberType->calldataEncodedSize() > 0, "");
-					hypAssert(memberType->storageBytes() <= 32, "");
-					if (memberType->storageBytes() < 32 && m_context.useABICoderV2())
+					hypAssert(memberType->storageBytes() <= VMWordBytes, "");
+					if (memberType->storageBytes() < VMWordBytes && m_context.useABICoderV2())
 					{
-						m_context << u256(32);
+						m_context << u256(VMWordBytes);
 						CompilerUtils(m_context).abiDecodeV2({memberType}, false);
 					}
 					else
@@ -2126,7 +2148,7 @@ bool ExpressionCompiler::visit(IndexAccess const& _indexAccess)
 				m_context << u256(0); // memory position
 				appendExpressionCopyToMemory(*keyType, *_indexAccess.indexExpression());
 				m_context << Instruction::SWAP1;
-				hypAssert(CompilerUtils::freeMemoryPointer >= 0x40, "");
+				hypAssert(CompilerUtils::freeMemoryPointer >= 2 * VMWordBytes, "");
 				utils().storeInMemoryDynamic(*TypeProvider::uint256());
 				m_context << u256(0);
 			}
@@ -2194,7 +2216,7 @@ bool ExpressionCompiler::visit(IndexAccess const& _indexAccess)
 			m_context.appendConditionalPanic(util::PanicCode::ArrayOutOfBounds);
 
 			m_context << Instruction::BYTE;
-			utils().leftShiftNumberOnStack(256 - 8);
+			utils().leftShiftNumberOnStack(VMWordBits - 8);
 			break;
 		}
 		case Type::Category::TypeType:
@@ -2366,9 +2388,9 @@ void ExpressionCompiler::appendCompareOperatorCode(Token _operator, Type const& 
 			hypUnimplementedAssert(functionType->sizeOnStack() == 2, "");
 			m_context << Instruction::SWAP3;
 
-			m_context << ((u256(1) << 160) - 1) << Instruction::AND;
+			m_context << (~u512(0) >> (VMWordBits - AddressBits)) << Instruction::AND;
 			m_context << Instruction::SWAP1;
-			m_context << ((u256(1) << 160) - 1) << Instruction::AND;
+			m_context << (~u512(0) >> (VMWordBits - AddressBits)) << Instruction::AND;
 			m_context << Instruction::EQ;
 			m_context << Instruction::SWAP2;
 			m_context << ((u256(1) << 32) - 1) << Instruction::AND;
@@ -2707,7 +2729,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		// Send all gas (requires tangerine whistle QRVM)
 		m_context << Instruction::GAS;
 	}
-		
+
 	// Order is important here, STATICCALL might overlap with DELEGATECALL.
 	if (isDelegateCall)
 		m_context << Instruction::DELEGATECALL;
@@ -2776,14 +2798,31 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		else
 			hypAssert(retSize > 0, "");
 		// Always use the actual return length, and not our calculated expected length, if returndatacopy is supported.
-		// This ensures it can catch badly formatted input from external calls.
+		// This ensures it can catch badly formatted input from external calls. Round the size up to the
+		// next VM word boundary so abi_decode_tuple_* (which expects whole-word padded slots) sees a complete
+		// word — precompiles like SHA-256 return the raw 32 bytes in a 64-byte-word VM, so without this the
+		// decoder's `slt(sub(end, start), <minimumSize>)` check trips.
+		// We also zero-fill the bytes between returndatasize and the rounded size: STATICCALL only writes
+		// returndatasize bytes into the output memory window, so the trailing bytes of the rounded slot
+		// may contain stale data left over from earlier call frames. Without this, mload-based cleanup
+		// validators (which require the value to match `value & cleanupMask`) see non-zero padding bits
+		// and revert.
 		m_context << qrvmasm::AssemblyItem(Instruction::RETURNDATASIZE);
-		// Stack: return_data_start return_data_size
+		m_context << u256(VMWordAlignmentMask) << Instruction::ADD;
+		m_context << u256(VMWordAlignmentMask) << Instruction::NOT << Instruction::AND;
+		// Stack: return_data_start padded_return_data_size
+		m_context.appendInlineAssembly(R"({
+			let copied := returndatasize()
+			if lt(copied, paddedSize) {
+				// calldatacopy beyond calldatasize() returns zero, which is exactly the padding we want.
+				calldatacopy(add(start, copied), calldatasize(), sub(paddedSize, copied))
+			}
+		})", {"start", "paddedSize"});
 		if (needToUpdateFreeMemoryPtr)
 			m_context.appendInlineAssembly(R"({
-				// round size to the next multiple of 32
-				let newMem := add(start, and(add(size, 0x1f), not(0x1f)))
-				mstore(0x40, newMem)
+				// size is already rounded to the next multiple of 64
+				let newMem := add(start, size)
+				mstore(0x80, newMem)
 			})", {"start", "size"});
 
 		utils().abiDecode(returnTypes, true);

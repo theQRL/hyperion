@@ -64,21 +64,31 @@ class AssemblyItem
 public:
 	enum class JumpType { Ordinary, IntoFunction, OutOfFunction };
 
-	AssemblyItem(u256 _push, langutil::SourceLocation _location = langutil::SourceLocation()):
+	AssemblyItem(u512 _push, langutil::SourceLocation _location = langutil::SourceLocation()):
 		AssemblyItem(Push, std::move(_push), std::move(_location)) { }
+	AssemblyItem(u256 _push, langutil::SourceLocation _location = langutil::SourceLocation()):
+		AssemblyItem(Push, u512(std::move(_push)), std::move(_location)) { }
+	AssemblyItem(int _push, langutil::SourceLocation _location = langutil::SourceLocation()):
+		AssemblyItem(Push, u512(_push), std::move(_location)) { }
+	AssemblyItem(unsigned _push, langutil::SourceLocation _location = langutil::SourceLocation()):
+		AssemblyItem(Push, u512(_push), std::move(_location)) { }
+	AssemblyItem(long _push, langutil::SourceLocation _location = langutil::SourceLocation()):
+		AssemblyItem(Push, u512(_push), std::move(_location)) { }
+	AssemblyItem(unsigned long _push, langutil::SourceLocation _location = langutil::SourceLocation()):
+		AssemblyItem(Push, u512(_push), std::move(_location)) { }
 	AssemblyItem(Instruction _i, langutil::SourceLocation _location = langutil::SourceLocation()):
 		m_type(Operation),
 		m_instruction(_i),
 		m_location(std::move(_location))
 	{}
-	AssemblyItem(AssemblyItemType _type, u256 _data = 0, langutil::SourceLocation _location = langutil::SourceLocation()):
+	AssemblyItem(AssemblyItemType _type, u512 _data = 0, langutil::SourceLocation _location = langutil::SourceLocation()):
 		m_type(_type),
 		m_location(std::move(_location))
 	{
 		if (m_type == Operation)
 			m_instruction = Instruction(uint8_t(_data));
 		else
-			m_data = std::make_shared<u256>(std::move(_data));
+			m_data = std::make_shared<u512>(std::move(_data));
 	}
 	explicit AssemblyItem(bytes _verbatimData, size_t _arguments, size_t _returnVariables):
 		m_type(VerbatimBytecode),
@@ -103,8 +113,8 @@ public:
 	void setPushTagSubIdAndTag(size_t _subId, size_t _tag);
 
 	AssemblyItemType type() const { return m_type; }
-	u256 const& data() const { assertThrow(m_type != Operation, util::Exception, ""); return *m_data; }
-	void setData(u256 const& _data) { assertThrow(m_type != Operation, util::Exception, ""); m_data = std::make_shared<u256>(_data); }
+	u512 const& data() const { assertThrow(m_type != Operation, util::Exception, ""); return *m_data; }
+	void setData(u512 const& _data) { assertThrow(m_type != Operation, util::Exception, ""); m_data = std::make_shared<u512>(_data); }
 
 	/// This function is used in `Assembly::assemblyJSON`.
 	/// It returns the name & data of the current assembly item.
@@ -178,8 +188,8 @@ public:
 	JumpType getJumpType() const { return m_jumpType; }
 	std::string getJumpTypeAsString() const;
 
-	void setPushedValue(u256 const& _value) const { m_pushedValue = std::make_shared<u256>(_value); }
-	u256 const* pushedValue() const { return m_pushedValue.get(); }
+	void setPushedValue(u512 const& _value) const { m_pushedValue = std::make_shared<u512>(_value); }
+	u512 const* pushedValue() const { return m_pushedValue.get(); }
 
 	std::string toAssemblyText(Assembly const& _assembly) const;
 
@@ -192,7 +202,7 @@ private:
 
 	AssemblyItemType m_type;
 	Instruction m_instruction; ///< Only valid if m_type == Operation
-	std::shared_ptr<u256> m_data; ///< Only valid if m_type != Operation
+	std::shared_ptr<u512> m_data; ///< Only valid if m_type != Operation
 	/// If m_type == VerbatimBytecode, this holds number of arguments, number of
 	/// return variables and verbatim bytecode.
 	std::optional<std::tuple<size_t, size_t, bytes>> m_verbatimBytecode;
@@ -200,7 +210,7 @@ private:
 	JumpType m_jumpType = JumpType::Ordinary;
 	/// Pushed value for operations with data to be determined during assembly stage,
 	/// e.g. PushSubSize, PushTag, PushSub, etc.
-	mutable std::shared_ptr<u256> m_pushedValue;
+	mutable std::shared_ptr<u512> m_pushedValue;
 	/// Number of PushImmutable's with the same hash. Only used for AssignImmutable.
 	mutable std::optional<size_t> m_immutableOccurrences;
 };

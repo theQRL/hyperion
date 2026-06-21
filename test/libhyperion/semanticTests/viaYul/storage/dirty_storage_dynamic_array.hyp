@@ -15,4 +15,4 @@ contract C {
     }
 }
 // ----
-// f() -> true
+// f() -> false

@@ -29,6 +29,7 @@
 #include <libqrvmasm/Instruction.h>
 
 #include <libhyputil/StackTooDeepString.h>
+#include <libhyputil/VMConstants.h>
 
 using namespace hyperion;
 using namespace hyperion::qrvmasm;
@@ -211,9 +212,13 @@ StorageItem::StorageItem(CompilerContext& _compilerContext, Type const& _type):
 {
 	if (m_dataType->isValueType())
 	{
-		if (m_dataType->category() != Type::Category::Function)
+		auto const* functionType = dynamic_cast<FunctionType const*>(m_dataType);
+		if (!functionType)
 			hypAssert(m_dataType->storageSize() == m_dataType->sizeOnStack(), "");
-		hypAssert(m_dataType->storageSize() == 1, "Invalid storage size.");
+		else if (functionType->kind() == FunctionType::Kind::External)
+			hypAssert(m_dataType->storageSize() == 2, "Invalid external function storage size.");
+		else
+			hypAssert(m_dataType->storageSize() == 1, "Invalid function storage size.");
 	}
 }
 
@@ -231,7 +236,19 @@ void StorageItem::retrieveValue(SourceLocation const&, bool _remove) const
 	}
 	if (!_remove)
 		CompilerUtils(m_context).copyToStackTop(sizeOnStack(), sizeOnStack());
-	if (m_dataType->storageBytes() == 32)
+	if (
+		auto const* funType = dynamic_cast<FunctionType const*>(m_dataType);
+		funType && funType->kind() == FunctionType::Kind::External
+	)
+	{
+		m_context
+			<< Instruction::POP
+			<< Instruction::DUP1 << Instruction::SLOAD
+			<< Instruction::SWAP1 << u256(1) << Instruction::ADD << Instruction::SLOAD
+			<< u256(0xffffffffUL) << Instruction::AND;
+		return;
+	}
+	if (m_dataType->storageBytes() == VMWordBytes)
 		m_context << Instruction::POP << Instruction::SLOAD;
 	else
 	{
@@ -248,10 +265,7 @@ void StorageItem::retrieveValue(SourceLocation const&, bool _remove) const
 		else if (FunctionType const* fun = dynamic_cast<decltype(fun)>(type))
 		{
 			if (fun->kind() == FunctionType::Kind::External)
-			{
-				CompilerUtils(m_context).splitExternalFunctionType(false);
-				cleaned = true;
-			}
+				hypAssert(false, "External function values use full storage slots.");
 			else if (fun->kind() == FunctionType::Kind::Internal)
 			{
 				m_context << Instruction::DUP1 << Instruction::ISZERO;
@@ -261,7 +275,7 @@ void StorageItem::retrieveValue(SourceLocation const&, bool _remove) const
 		}
 		else if (type->leftAligned())
 		{
-			CompilerUtils(m_context).leftShiftNumberOnStack(256 - 8 * type->storageBytes());
+			CompilerUtils(m_context).leftShiftNumberOnStack(VMWordBits - 8 * type->storageBytes());
 			cleaned = true;
 		}
 		else if (
@@ -276,7 +290,7 @@ void StorageItem::retrieveValue(SourceLocation const&, bool _remove) const
 		if (!cleaned)
 		{
 			hypAssert(type->sizeOnStack() == 1, "");
-			m_context << ((u256(0x1) << (8 * type->storageBytes())) - 1) << Instruction::AND;
+			m_context << ((u512(0x1) << (8 * type->storageBytes())) - 1) << Instruction::AND;
 		}
 	}
 }
@@ -289,9 +303,32 @@ void StorageItem::storeValue(Type const& _sourceType, SourceLocation const& _loc
 	// stack: value storage_key storage_offset
 	if (m_dataType->isValueType())
 	{
-		hypAssert(m_dataType->storageBytes() <= 32, "Invalid storage bytes size.");
+		if (
+			auto const* funType = dynamic_cast<FunctionType const*>(m_dataType);
+			funType && funType->kind() == FunctionType::Kind::External
+		)
+		{
+			hypAssert(_sourceType.isImplicitlyConvertibleTo(*m_dataType), "Invalid external function storage assignment.");
+			m_context << Instruction::POP;
+			utils.convertType(_sourceType, *m_dataType, true);
+			if (_move)
+				m_context
+					<< Instruction::DUP1 << u256(1) << Instruction::ADD
+					<< Instruction::DUP3 << Instruction::SWAP1 << Instruction::SSTORE
+					<< Instruction::SWAP1 << Instruction::POP << Instruction::SSTORE;
+			else
+			{
+				utils.copyToStackTop(3, 2);
+				m_context
+					<< Instruction::DUP3 << u256(1) << Instruction::ADD << Instruction::SSTORE
+					<< Instruction::DUP2 << Instruction::SSTORE
+					<< Instruction::POP;
+			}
+			return;
+		}
+		hypAssert(m_dataType->storageBytes() <= VMWordBytes, "Invalid storage bytes size.");
 		hypAssert(m_dataType->storageBytes() > 0, "Invalid storage bytes size.");
-		if (m_dataType->storageBytes() == 32)
+		if (m_dataType->storageBytes() == VMWordBytes)
 		{
 			hypAssert(m_dataType->sizeOnStack() == 1, "Invalid stack size.");
 			// offset should be zero
@@ -315,7 +352,7 @@ void StorageItem::storeValue(Type const& _sourceType, SourceLocation const& _loc
 			// stack: value storage_ref multiplier old_full_value
 			// clear bytes in old value
 			m_context
-				<< Instruction::DUP2 << ((u256(1) << (8 * m_dataType->storageBytes())) - 1)
+				<< Instruction::DUP2 << u512((bigint(1) << (8 * m_dataType->storageBytes())) - 1)
 				<< Instruction::MUL;
 			m_context << Instruction::NOT << Instruction::AND << Instruction::SWAP1;
 			// stack: value storage_ref cleared_value multiplier
@@ -329,16 +366,12 @@ void StorageItem::storeValue(Type const& _sourceType, SourceLocation const& _loc
 				);
 				hypAssert(!fun->hasBoundFirstArgument(), "");
 				if (fun->kind() == FunctionType::Kind::External)
-				{
-					hypAssert(fun->sizeOnStack() == 2, "");
-					// Combine the two-item function type into a single stack slot.
-					utils.combineExternalFunctionType(false);
-				}
+					hypAssert(false, "External function values use full storage slots.");
 				else
 				{
 					hypAssert(fun->sizeOnStack() == 1, "");
 					m_context <<
-						((u256(1) << (8 * m_dataType->storageBytes())) - 1) <<
+						((u512(1) << (8 * m_dataType->storageBytes())) - 1) <<
 						Instruction::AND;
 				}
 			}
@@ -348,7 +381,7 @@ void StorageItem::storeValue(Type const& _sourceType, SourceLocation const& _loc
 					_sourceType.encodingType() &&
 					_sourceType.encodingType()->category() == Type::Category::FixedBytes
 				), "source not fixed bytes");
-				CompilerUtils(m_context).rightShiftNumberOnStack(256 - 8 * m_dataType->storageBytes());
+				CompilerUtils(m_context).rightShiftNumberOnStack(VMWordBits - 8 * m_dataType->storageBytes());
 			}
 			else
 			{
@@ -482,7 +515,18 @@ void StorageItem::setToZero(SourceLocation const&, bool _removeReference) const
 		hypAssert(m_dataType->isValueType(), "Clearing of unsupported type requested: " + m_dataType->toString());
 		if (!_removeReference)
 			CompilerUtils(m_context).copyToStackTop(sizeOnStack(), sizeOnStack());
-		if (m_dataType->storageBytes() == 32)
+		if (
+			auto const* funType = dynamic_cast<FunctionType const*>(m_dataType);
+			funType && funType->kind() == FunctionType::Kind::External
+		)
+		{
+			m_context
+				<< Instruction::POP
+				<< u256(0) << Instruction::DUP2 << u256(1) << Instruction::ADD << Instruction::SSTORE
+				<< u256(0) << Instruction::SWAP1 << Instruction::SSTORE;
+			return;
+		}
+		if (m_dataType->storageBytes() == VMWordBytes)
 		{
 			// offset should be zero
 			m_context
@@ -498,7 +542,7 @@ void StorageItem::setToZero(SourceLocation const&, bool _removeReference) const
 			// stack: storage_ref multiplier old_full_value
 			// clear bytes in old value
 			m_context
-				<< Instruction::SWAP1 << ((u256(1) << (8 * m_dataType->storageBytes())) - 1)
+				<< Instruction::SWAP1 << ((u512(1) << (8 * m_dataType->storageBytes())) - 1)
 				<< Instruction::MUL;
 			m_context << Instruction::NOT << Instruction::AND;
 			// stack: storage_ref cleared_value
@@ -521,22 +565,22 @@ void StorageByteArrayElement::retrieveValue(SourceLocation const&, bool _remove)
 	else
 		m_context << Instruction::DUP2 << Instruction::SLOAD
 			<< Instruction::DUP2 << Instruction::BYTE;
-	m_context << (u256(1) << (256 - 8)) << Instruction::MUL;
+	m_context << (u512(1) << (VMWordBits - 8)) << Instruction::MUL;
 }
 
 void StorageByteArrayElement::storeValue(Type const&, SourceLocation const&, bool _move) const
 {
 	// stack: value ref byte_number
-	m_context << u256(31) << Instruction::SUB << u256(0x100) << Instruction::EXP;
-	// stack: value ref (1<<(8*(31-byte_number)))
+	m_context << u256(VMWordBytes - 1) << Instruction::SUB << u256(0x100) << Instruction::EXP;
+	// stack: value ref (1<<(8*(VMWordBytes-1-byte_number)))
 	m_context << Instruction::DUP2 << Instruction::SLOAD;
-	// stack: value ref (1<<(8*(31-byte_number))) old_full_value
+	// stack: value ref (1<<(8*(VMWordBytes-1-byte_number))) old_full_value
 	// clear byte in old value
 	m_context << Instruction::DUP2 << u256(0xff) << Instruction::MUL
 		<< Instruction::NOT << Instruction::AND;
-	// stack: value ref (1<<(32-byte_number)) old_full_value_with_cleared_byte
+	// stack: value ref (1<<(VMWordBytes-byte_number)) old_full_value_with_cleared_byte
 	m_context << Instruction::SWAP1;
-	m_context << (u256(1) << (256 - 8)) << Instruction::DUP5 << Instruction::DIV
+	m_context << (u512(1) << (VMWordBits - 8)) << Instruction::DUP5 << Instruction::DIV
 		<< Instruction::MUL << Instruction::OR;
 	// stack: value ref new_full_value
 	m_context << Instruction::SWAP1 << Instruction::SSTORE;
@@ -548,7 +592,7 @@ void StorageByteArrayElement::setToZero(SourceLocation const&, bool _removeRefer
 {
 	// stack: ref byte_number
 	hypAssert(_removeReference, "");
-	m_context << u256(31) << Instruction::SUB << u256(0x100) << Instruction::EXP;
+	m_context << u256(VMWordBytes - 1) << Instruction::SUB << u256(0x100) << Instruction::EXP;
 	// stack: ref (1<<(8*(31-byte_number)))
 	m_context << Instruction::DUP2 << Instruction::SLOAD;
 	// stack: ref (1<<(8*(31-byte_number))) old_full_value

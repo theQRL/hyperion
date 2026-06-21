@@ -4,3 +4,4 @@ contract c {
     function f() public mod1(7) mod2 { }
 }
 // ----
+// TypeError 9640: (59-78): Explicit type conversion not allowed from "uint160" to "address".

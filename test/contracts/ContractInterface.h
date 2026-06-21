@@ -44,49 +44,50 @@ protected:
 
 	void callString(std::string const& _name, std::string const& _arg)
 	{
-		BOOST_CHECK(call(_name + "(string)", u256(0x20), _arg.length(), _arg).empty());
+		BOOST_CHECK(call(_name + "(string)", u256(0x40), _arg.length(), _arg).empty());
 	}
 
-	void callStringAddress(std::string const& _name, std::string const& _arg1, util::h160 const& _arg2)
+	void callStringAddress(std::string const& _name, std::string const& _arg1, util::h512 const& _arg2)
 	{
-		BOOST_CHECK(call(_name + "(string,address)", u256(0x40), _arg2, _arg1.length(), _arg1).empty());
+		BOOST_CHECK(call(_name + "(string,address)", u256(0x80), _arg2, _arg1.length(), _arg1).empty());
 	}
 
-	void callStringAddressBool(std::string const& _name, std::string const& _arg1, util::h160 const& _arg2, bool _arg3)
+	void callStringAddressBool(std::string const& _name, std::string const& _arg1, util::h512 const& _arg2, bool _arg3)
 	{
-		BOOST_CHECK(call(_name + "(string,address,bool)", u256(0x60), _arg2, _arg3, _arg1.length(), _arg1).empty());
+		BOOST_CHECK(call(_name + "(string,address,bool)", u256(0xc0), _arg2, _arg3, _arg1.length(), _arg1).empty());
 	}
 
 	void callStringBytes32(std::string const& _name, std::string const& _arg1, util::h256 const& _arg2)
 	{
-		BOOST_CHECK(call(_name + "(string,bytes32)", u256(0x40), _arg2, _arg1.length(), _arg1).empty());
+		BOOST_CHECK(call(_name + "(string,bytes32)", u256(0x80), _arg2, _arg1.length(), _arg1).empty());
 	}
 
-	util::h160 callStringReturnsAddress(std::string const& _name, std::string const& _arg)
+	util::h512 callStringReturnsAddress(std::string const& _name, std::string const& _arg)
 	{
-		bytes const& ret = call(_name + "(string)", u256(0x20), _arg.length(), _arg);
-		BOOST_REQUIRE(ret.size() == 0x20);
-		BOOST_CHECK(std::count(ret.begin(), ret.begin() + 12, 0) == 12);
-		bytes const addr{ret.begin() + 12, ret.end()};
-		return util::h160(addr);
+		bytes const& ret = call(_name + "(string)", u256(0x40), _arg.length(), _arg);
+		BOOST_REQUIRE(ret.size() == 0x40);
+		bytes const addr{ret.begin(), ret.end()};
+		return util::h512(addr);
 	}
 
-	std::string callAddressReturnsString(std::string const& _name, util::h160 const& _arg)
+	std::string callAddressReturnsString(std::string const& _name, util::h512 const& _arg)
 	{
 		bytesConstRef const ret(&call(_name + "(address)", _arg));
-		BOOST_REQUIRE(ret.size() >= 0x40);
-		u256 offset(util::h256(ret.cropped(0, 0x20)));
-		BOOST_REQUIRE_EQUAL(offset, 0x20);
-		u256 len(util::h256(ret.cropped(0x20, 0x20)));
-		BOOST_REQUIRE_EQUAL(ret.size(), 0x40 + ((len + 0x1f) / 0x20) * 0x20);
-		return ret.cropped(0x40, size_t(len)).toString();
+		BOOST_REQUIRE(ret.size() >= 0x80);
+		// uint values are right-aligned in 64-byte slots: data in lower 32 bytes.
+		u256 offset(util::h256(ret.cropped(0x20, 0x20)));
+		BOOST_REQUIRE_EQUAL(offset, 0x40);
+		u256 len(util::h256(ret.cropped(0x60, 0x20)));
+		BOOST_REQUIRE_EQUAL(ret.size(), 0x80 + ((len + 0x3f) / 0x40) * 0x40);
+		return ret.cropped(0x80, size_t(len)).toString();
 	}
 
 	util::h256 callStringReturnsBytes32(std::string const& _name, std::string const& _arg)
 	{
-		bytes const& ret = call(_name + "(string)", u256(0x20), _arg.length(), _arg);
-		BOOST_REQUIRE(ret.size() == 0x20);
-		return util::h256(ret);
+		bytes const& ret = call(_name + "(string)", u256(0x40), _arg.length(), _arg);
+		BOOST_REQUIRE(ret.size() == 0x40);
+		// bytes32 is left-aligned in 64-byte slot: data in upper 32 bytes.
+		return util::h256(bytes(ret.begin(), ret.begin() + 32));
 	}
 
 private:
@@ -95,4 +96,3 @@ private:
 };
 
 } // end namespaces
-

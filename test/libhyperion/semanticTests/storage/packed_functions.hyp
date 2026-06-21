@@ -38,6 +38,8 @@ contract C {
         return 8;
     }
 }
+// ====
+// QRVMVersion: >zond
 // ----
 // set() ->
 // t1() -> 7

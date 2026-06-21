@@ -136,7 +136,7 @@ protected:
 	bool inScope(YulString _variableName) const;
 
 	/// Returns the literal value of the identifier, if it exists.
-	std::optional<u256> valueOfIdentifier(YulString const& _name) const;
+	std::optional<u512> valueOfIdentifier(YulString const& _name) const;
 
 	enum class StoreLoadLocation {
 		Memory = 0,

@@ -27,6 +27,7 @@
 #include <libqrvmasm/Assembly.h>
 #include <libqrvmasm/CommonSubexpressionEliminator.h>
 #include <libqrvmasm/SimplificationRules.h>
+#include <libhyputil/VMConstants.h>
 
 #include <boost/container_hash/hash.hpp>
 
@@ -150,12 +151,12 @@ bool ExpressionClasses::knownToBeDifferent(ExpressionClasses::Id _a, ExpressionC
 	return knownNonZero(find(Instruction::SUB, {_a, _b}));
 }
 
-bool ExpressionClasses::knownToBeDifferentBy32(ExpressionClasses::Id _a, ExpressionClasses::Id _b)
+bool ExpressionClasses::knownToBeDifferentByAtLeastVMWord(ExpressionClasses::Id _a, ExpressionClasses::Id _b)
 {
-	// Try to simplify "_a - _b" and return true iff the value is at least 32 away from zero.
-	u256 const* v = knownConstant(find(Instruction::SUB, {_a, _b}));
-	// forbidden interval is ["-31", 31]
-	return v && *v + 31 > u256(62);
+	// Try to simplify "_a - _b" and return true iff the value is at least one VM word away from zero.
+	u512 const* v = knownConstant(find(Instruction::SUB, {_a, _b}));
+	u512 const forbiddenIntervalRadius = u512(VMWordBytes - 1);
+	return v && *v + forbiddenIntervalRadius > 2 * forbiddenIntervalRadius;
 }
 
 bool ExpressionClasses::knownZero(Id _c)
@@ -168,14 +169,14 @@ bool ExpressionClasses::knownNonZero(Id _c)
 	return Pattern(u256(0)).matches(representative(find(Instruction::ISZERO, {_c})), *this);
 }
 
-u256 const* ExpressionClasses::knownConstant(Id _c)
+u512 const* ExpressionClasses::knownConstant(Id _c)
 {
 	std::map<unsigned, Expression const*> matchGroups;
 	Pattern constant(Push);
 	constant.setMatchGroup(1, matchGroups);
 	if (!constant.matches(representative(_c), *this))
 		return nullptr;
-	return &constant.d();
+	return &matchGroups[1]->item->data();
 }
 
 AssemblyItem const* ExpressionClasses::storeItem(AssemblyItem const& _item)

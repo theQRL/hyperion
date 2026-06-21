@@ -31,6 +31,7 @@
 #include <liblangutil/Exceptions.h>
 
 #include <libhyputil/FixedHash.h>
+#include <libhyputil/VMConstants.h>
 
 #include <range/v3/view/reverse.hpp>
 
@@ -42,12 +43,12 @@ using namespace hyperion;
 using namespace hyperion::yul;
 using namespace hyperion::yul::test;
 
-using hyperion::util::h256;
+using hyperion::util::h512;
 
 void InterpreterState::dumpStorage(ostream& _out) const
 {
 	for (auto const& slot: storage)
-		if (slot.second != h256{})
+		if (slot.second != h512{})
 			_out << "  " << slot.first.hex() << ": " << slot.second.hex() << endl;
 }
 
@@ -59,12 +60,13 @@ void InterpreterState::dumpTraceAndState(ostream& _out, bool _disableMemoryTrace
 	if (!_disableMemoryTrace)
 	{
 		_out << "Memory dump:\n";
-		map<u256, u256> words;
+		map<u512, u512> words;
 		for (auto const& [offset, value]: memory)
-			words[(offset / 0x20) * 0x20] |= u256(uint32_t(value)) << (256 - 8 - 8 * static_cast<size_t>(offset % 0x20));
+			words[(offset / VMWordBytes) * VMWordBytes] |=
+				u512(uint32_t(value)) << (VMWordBits - 8 - 8 * static_cast<size_t>(offset % VMWordBytes));
 		for (auto const& [offset, value]: words)
 			if (value != 0)
-				_out << "  " << std::uppercase << std::hex << std::setw(4) << offset << ": " << h256(value).hex() << endl;
+				_out << "  " << std::uppercase << std::hex << std::setw(4) << offset << ": " << h512(value).hex() << endl;
 	}
 	_out << "Storage dump:" << endl;
 	dumpStorage(_out);
@@ -76,7 +78,7 @@ void InterpreterState::dumpTraceAndState(ostream& _out, bool _disableMemoryTrace
 		for (size_t offset = 0; offset < calldata.size(); ++offset)
 			if (calldata[offset] != 0)
 			{
-				if (offset % 32 == 0)
+				if (offset % VMWordBytes == 0)
 					_out <<
 						std::endl <<
 						"  " <<
@@ -118,7 +120,7 @@ void Interpreter::operator()(ExpressionStatement const& _expressionStatement)
 void Interpreter::operator()(Assignment const& _assignment)
 {
 	hypAssert(_assignment.value, "");
-	vector<u256> values = evaluateMulti(*_assignment.value);
+	vector<u512> values = evaluateMulti(*_assignment.value);
 	hypAssert(values.size() == _assignment.variableNames.size(), "");
 	for (size_t i = 0; i < values.size(); ++i)
 	{
@@ -130,7 +132,7 @@ void Interpreter::operator()(Assignment const& _assignment)
 
 void Interpreter::operator()(VariableDeclaration const& _declaration)
 {
-	vector<u256> values(_declaration.variables.size(), 0);
+	vector<u512> values(_declaration.variables.size(), 0);
 	if (_declaration.value)
 		values = evaluateMulti(*_declaration.value);
 
@@ -154,7 +156,7 @@ void Interpreter::operator()(If const& _if)
 void Interpreter::operator()(Switch const& _switch)
 {
 	hypAssert(_switch.expression, "");
-	u256 val = evaluate(*_switch.expression);
+	u512 val = evaluate(*_switch.expression);
 	hypAssert(!_switch.cases.empty(), "");
 	for (auto const& c: _switch.cases)
 		// Default case has to be last.
@@ -240,14 +242,14 @@ void Interpreter::operator()(Block const& _block)
 	leaveScope();
 }
 
-u256 Interpreter::evaluate(Expression const& _expression)
+u512 Interpreter::evaluate(Expression const& _expression)
 {
 	ExpressionEvaluator ev(m_state, m_dialect, *m_scope, m_variables, m_disableExternalCalls, m_disableMemoryTrace);
 	ev.visit(_expression);
 	return ev.value();
 }
 
-vector<u256> Interpreter::evaluateMulti(Expression const& _expression)
+vector<u512> Interpreter::evaluateMulti(Expression const& _expression)
 {
 	ExpressionEvaluator ev(m_state, m_dialect, *m_scope, m_variables, m_disableExternalCalls, m_disableMemoryTrace);
 	ev.visit(_expression);
@@ -290,7 +292,7 @@ void ExpressionEvaluator::operator()(Literal const& _literal)
 	static YulString const trueString("true");
 	static YulString const falseString("false");
 
-	setValue(valueOfLiteral(_literal));
+	setValue(u512(valueOfLiteral(_literal)));
 }
 
 void ExpressionEvaluator::operator()(Identifier const& _identifier)
@@ -314,7 +316,7 @@ void ExpressionEvaluator::operator()(FunctionCall const& _funCall)
 		{
 			QRVMInstructionInterpreter interpreter(dialect->qrvmVersion(), m_state, m_disableMemoryTrace);
 
-			u256 const value = interpreter.evalBuiltin(*fun, _funCall.arguments, values());
+			u512 const value = interpreter.evalBuiltin(*fun, _funCall.arguments, values());
 
 			if (
 				!m_disableExternalCalls &&
@@ -337,7 +339,7 @@ void ExpressionEvaluator::operator()(FunctionCall const& _funCall)
 	FunctionDefinition const* fun = scope->names.at(_funCall.functionName.name);
 	yulAssert(fun, "Function not found.");
 	yulAssert(m_values.size() == fun->parameters.size(), "");
-	map<YulString, u256> variables;
+	map<YulString, u512> variables;
 	for (size_t i = 0; i < fun->parameters.size(); ++i)
 		variables[fun->parameters.at(i).name] = m_values.at(i);
 	for (size_t i = 0; i < fun->returnVariables.size(); ++i)
@@ -353,13 +355,13 @@ void ExpressionEvaluator::operator()(FunctionCall const& _funCall)
 		m_values.emplace_back(interpreter->valueOfVariable(retVar.name));
 }
 
-u256 ExpressionEvaluator::value() const
+u512 ExpressionEvaluator::value() const
 {
 	hypAssert(m_values.size() == 1, "");
 	return m_values.front();
 }
 
-void ExpressionEvaluator::setValue(u256 _value)
+void ExpressionEvaluator::setValue(u512 _value)
 {
 	m_values.clear();
 	m_values.emplace_back(std::move(_value));
@@ -371,7 +373,7 @@ void ExpressionEvaluator::evaluateArgs(
 )
 {
 	incrementStep();
-	vector<u256> values;
+	vector<u512> values;
 	size_t i = 0;
 	/// Function arguments are evaluated in reverse.
 	for (auto const& expr: _expr | ranges::views::reverse)
@@ -384,11 +386,11 @@ void ExpressionEvaluator::evaluateArgs(
 
 			try
 			{
-				m_values = {u256(literal)};
+				m_values = {u512(literal)};
 			}
 			catch (exception&)
 			{
-				m_values = {u256(0)};
+				m_values = {u512(0)};
 			}
 		}
 
@@ -411,11 +413,11 @@ void ExpressionEvaluator::incrementStep()
 
 void ExpressionEvaluator::runExternalCall(qrvmasm::Instruction _instruction)
 {
-	u256 memOutOffset = 0;
-	u256 memOutSize = 0;
-	u256 callvalue = 0;
-	u256 memInOffset = 0;
-	u256 memInSize = 0;
+	u512 memOutOffset = 0;
+	u512 memOutSize = 0;
+	u512 callvalue = 0;
+	u512 memInOffset = 0;
+	u512 memInSize = 0;
 
 	// Setup memOut* values
 	if (
@@ -442,7 +444,7 @@ void ExpressionEvaluator::runExternalCall(qrvmasm::Instruction _instruction)
 		yulAssert(false);
 
 	// Don't execute external call if it isn't our own address
-	if (values()[1] != util::h160::Arith(m_state.address))
+	if (values()[1] != util::h512::Arith(m_state.address))
 		return;
 
 	Scope tmpScope;

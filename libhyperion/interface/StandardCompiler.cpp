@@ -38,6 +38,7 @@
 #include <libhyputil/JSON.h>
 #include <libhyputil/Keccak256.h>
 #include <libhyputil/CommonData.h>
+#include <libhyputil/VMConstants.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -334,7 +335,7 @@ Json::Value formatLinkReferences(std::map<size_t, std::string> const& linkRefere
 
 		Json::Value entry{Json::objectValue};
 		entry["start"] = Json::UInt(ref.first);
-		entry["length"] = 20;
+		entry["length"] = Json::UInt(AddressBytes);
 
 		libraryArray.append(entry);
 		fileObject[name] = libraryArray;
@@ -356,7 +357,7 @@ Json::Value formatImmutableReferences(std::map<u256, std::pair<std::string, std:
 		{
 			Json::Value byteRange{Json::objectValue};
 			byteRange["start"] = Json::UInt(byteOffset);
-			byteRange["length"] = Json::UInt(32); // immutable references are currently always 32 bytes wide
+			byteRange["length"] = Json::UInt(VMWordBytes); // immutable references are one VM word wide
 			array.append(byteRange);
 		}
 		ret[identifier] = array;
@@ -888,15 +889,21 @@ std::variant<StandardCompiler::InputsAndSettings, Json::Value> StandardCompiler:
 					"Library address is not prefixed with \"Q\"."
 				);
 
-			if (address.length() != 41)
+			if (address.length() != 1 + AddressBytes * 2)
 				return formatFatalError(
 					Error::Type::JSONError,
 					"Library address is of invalid length."
 				);
 
+			if (!util::passesAddressChecksum(address, false))
+				return formatFatalError(
+					Error::Type::JSONError,
+					"Invalid library address (\"" + address + "\") supplied."
+				);
+
 			try
 			{
-				ret.libraries[sourceName + ":" + library] = util::h160(boost::replace_all_copy(address, "Q", "0x"));
+				ret.libraries[sourceName + ":" + library] = util::h512(boost::replace_all_copy(address, "Q", "0x"));
 			}
 			catch (util::BadHexCharacter const&)
 			{

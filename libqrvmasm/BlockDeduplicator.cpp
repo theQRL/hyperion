@@ -41,7 +41,7 @@ bool BlockDeduplicator::deduplicate()
 
 	// Virtual tag that signifies "the current block" and which is used to optimise loops.
 	// We abort if this virtual tag actually exists.
-	AssemblyItem pushSelf{PushTag, u256(-4)};
+	AssemblyItem pushSelf{PushTag, u512(-4)};
 	if (
 		std::count(m_items.cbegin(), m_items.cend(), pushSelf.tag()) ||
 		std::count(m_items.cbegin(), m_items.cend(), pushSelf.pushTag())
@@ -100,7 +100,7 @@ bool BlockDeduplicator::deduplicate()
 
 bool BlockDeduplicator::applyTagReplacement(
 	AssemblyItems& _items,
-	std::map<u256, u256> const& _replacements,
+	std::map<u512, u512> const& _replacements,
 	size_t _subId
 )
 {

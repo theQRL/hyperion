@@ -14,7 +14,7 @@ contract C {
             0.1,
             0x1234567,
             0x11112222333344445555666677778888999900,
-            Q1111222233334444555566667777888899990000,
+            Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000001111222233334444555566667777888899990000,
             0x111122223333444455556666777788889999000011,
             0x00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff,  // exactly 32 bytes
             -0x0000000000000000000000000000000000000000000000000000000000000001, // exactly 32 bytes
@@ -32,9 +32,9 @@ contract C {
     }
 }
 // ----
-// TypeError 9640: (614-696): Explicit type conversion not allowed from "bytes32" to "bytes memory".
-// TypeError 1227: (614-699): Index range access is only supported for dynamic calldata arrays.
-// TypeError 1227: (781-787): Index range access is only supported for dynamic calldata arrays.
+// TypeError 9640: (702-784): Explicit type conversion not allowed from "bytes32" to "bytes memory".
+// TypeError 1227: (702-787): Index range access is only supported for dynamic calldata arrays.
+// TypeError 1227: (869-875): Index range access is only supported for dynamic calldata arrays.
 // TypeError 9977: (134-139): Invalid type for argument in the string.concat function call. string type is required, but t_bool provided.
 // TypeError 9977: (153-154): Invalid type for argument in the string.concat function call. string type is required, but t_rational_1_by_1 provided.
 // TypeError 9977: (168-172): Invalid type for argument in the string.concat function call. string type is required, but t_rational_10000000000_by_1 provided.
@@ -42,17 +42,17 @@ contract C {
 // TypeError 9977: (205-208): Invalid type for argument in the string.concat function call. string type is required, but t_rational_1_by_10 provided.
 // TypeError 9977: (222-231): Invalid type for argument in the string.concat function call. string type is required, but t_rational_19088743_by_1 provided.
 // TypeError 9977: (245-285): Invalid type for argument in the string.concat function call. string type is required, but t_rational_380605192295934637532253317235440047844071680_by_1 provided.
-// TypeError 9977: (299-340): Invalid type for argument in the string.concat function call. string type is required, but t_address provided.
-// TypeError 9977: (354-398): Invalid type for argument in the string.concat function call. string type is required, but t_rational_24943341882306372405313753398341798975509081620497_by_1 provided.
-// TypeError 9977: (412-478): Invalid type for argument in the string.concat function call. string type is required, but t_rational_30272441630670900764332283662402067049651745785153368133042924362431065855_by_1 provided.
-// TypeError 9977: (513-580): Invalid type for argument in the string.concat function call. string type is required, but t_rational_minus_1_by_1 provided.
-// TypeError 9977: (614-699): Invalid type for argument in the string.concat function call. string type is required, but t_bytes_memory_ptr_slice provided.
-// TypeError 9977: (713-714): Invalid type for argument in the string.concat function call. string type is required, but t_function_internal_nonpayable$__$returns$__$ provided.
-// TypeError 9977: (728-730): Invalid type for argument in the string.concat function call. string type is required, but t_tuple$__$ provided.
-// TypeError 9977: (744-750): Invalid type for argument in the string.concat function call. string type is required, but t_tuple$_t_rational_0_by_1_$_t_rational_0_by_1_$ provided.
-// TypeError 9977: (764-767): Invalid type for argument in the string.concat function call. string type is required, but t_array$_t_uint8_$1_memory_ptr provided.
-// TypeError 9977: (781-787): Invalid type for argument in the string.concat function call. string type is required, but t_array$_t_uint8_$1_memory_ptr_slice provided.
-// TypeError 9977: (801-807): Invalid type for argument in the string.concat function call. string type is required, but t_uint8 provided.
-// TypeError 9977: (821-828): Invalid type for argument in the string.concat function call. string type is required, but t_contract$_C_$61 provided.
-// TypeError 9977: (842-846): Invalid type for argument in the string.concat function call. string type is required, but t_struct$_S_$4_memory_ptr provided.
-// TypeError 9977: (860-863): Invalid type for argument in the string.concat function call. string type is required, but t_enum$_E_$8 provided.
+// TypeError 9977: (299-428): Invalid type for argument in the string.concat function call. string type is required, but t_address provided.
+// TypeError 9977: (442-486): Invalid type for argument in the string.concat function call. string type is required, but t_rational_24943341882306372405313753398341798975509081620497_by_1 provided.
+// TypeError 9977: (500-566): Invalid type for argument in the string.concat function call. string type is required, but t_rational_30272441630670900764332283662402067049651745785153368133042924362431065855_by_1 provided.
+// TypeError 9977: (601-668): Invalid type for argument in the string.concat function call. string type is required, but t_rational_minus_1_by_1 provided.
+// TypeError 9977: (702-787): Invalid type for argument in the string.concat function call. string type is required, but t_bytes_memory_ptr_slice provided.
+// TypeError 9977: (801-802): Invalid type for argument in the string.concat function call. string type is required, but t_function_internal_nonpayable$__$returns$__$ provided.
+// TypeError 9977: (816-818): Invalid type for argument in the string.concat function call. string type is required, but t_tuple$__$ provided.
+// TypeError 9977: (832-838): Invalid type for argument in the string.concat function call. string type is required, but t_tuple$_t_rational_0_by_1_$_t_rational_0_by_1_$ provided.
+// TypeError 9977: (852-855): Invalid type for argument in the string.concat function call. string type is required, but t_array$_t_uint8_$1_memory_ptr provided.
+// TypeError 9977: (869-875): Invalid type for argument in the string.concat function call. string type is required, but t_array$_t_uint8_$1_memory_ptr_slice provided.
+// TypeError 9977: (889-895): Invalid type for argument in the string.concat function call. string type is required, but t_uint8 provided.
+// TypeError 9977: (909-916): Invalid type for argument in the string.concat function call. string type is required, but t_contract$_C_$61 provided.
+// TypeError 9977: (930-934): Invalid type for argument in the string.concat function call. string type is required, but t_struct$_S_$4_memory_ptr provided.
+// TypeError 9977: (948-951): Invalid type for argument in the string.concat function call. string type is required, but t_enum$_E_$8 provided.

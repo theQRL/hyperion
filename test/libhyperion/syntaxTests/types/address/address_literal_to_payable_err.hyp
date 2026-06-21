@@ -1,9 +1,9 @@
 contract C {
     function f() public pure {
-        address payable a = address(Q00000000219ab540356cBB839Cbe05303d7705Fa);
-        address payable b = Q00000000219ab540356cBB839Cbe05303d7705Fa;
+        address payable a = address(Q000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000219AB540356cbB839cBE05303D7705fA);
+        address payable b = Q000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000219AB540356cbB839cBE05303D7705fA;
     }
 }
 // ----
-// TypeError 9574: (52-122): Type address is not implicitly convertible to expected type address payable.
-// TypeError 9574: (132-193): Type address is not implicitly convertible to expected type address payable.
+// TypeError 9574: (52-210): Type address is not implicitly convertible to expected type address payable.
+// TypeError 9574: (220-369): Type address is not implicitly convertible to expected type address payable.

@@ -1,4 +1,4 @@
-// QRVMC: Quantum Resistant Client-VM Connector API.
+// EVMC: Ethereum Client-VM Connector API.
 // Copyright 2019 The EVMC Authors.
 // Licensed under the Apache License, Version 2.0.
 #pragma once
@@ -20,10 +20,10 @@ using bytes = std::basic_string<uint8_t>;
 struct StorageValue
 {
     /// The current storage value.
-    bytes32 current;
+    bytes64 current;
 
     /// The original storage value.
-    bytes32 original;
+    bytes64 original;
 
     /// Is the storage key cold or warm.
     qrvmc_access_status access_status = QRVMC_ACCESS_COLD;
@@ -32,14 +32,14 @@ struct StorageValue
     StorageValue() noexcept = default;
 
     /// Constructor sets the current and original to the same value. Optional access status.
-    StorageValue(const bytes32& _value,  // NOLINT(hicpp-explicit-conversions)
+    StorageValue(const bytes64& _value,  // NOLINT(hicpp-explicit-conversions)
                  qrvmc_access_status _access_status = QRVMC_ACCESS_COLD) noexcept
       : current{_value}, original{_value}, access_status{_access_status}
     {}
 
     /// Constructor with original value and optional access status
-    StorageValue(const bytes32& _value,
-                 const bytes32& _original,
+    StorageValue(const bytes64& _value,
+                 const bytes64& _original,
                  qrvmc_access_status _access_status = QRVMC_ACCESS_COLD) noexcept
       : current{_value}, original{_original}, access_status{_access_status}
     {}
@@ -55,18 +55,18 @@ struct MockedAccount
     bytes code;
 
     /// The code hash. Can be a value not related to the actual code.
-    bytes32 codehash;
+    bytes64 codehash;
 
     /// The account balance.
-    uint256be balance;
+    uint512be balance;
 
     /// The account storage map.
-    std::map<bytes32, StorageValue> storage;
+    std::map<bytes64, StorageValue> storage;
 
     /// Helper method for setting balance by numeric type.
     void set_balance(uint64_t x) noexcept
     {
-        balance = uint256be{};
+        balance = uint512be{};
         for (std::size_t i = 0; i < sizeof(x); ++i)
             balance.bytes[sizeof(balance) - 1 - i] = static_cast<uint8_t>(x >> (8 * i));
     }
@@ -86,7 +86,7 @@ public:
         bytes data;
 
         /// The log topics.
-        std::vector<bytes32> topics;
+        std::vector<bytes64> topics;
 
         /// Equal operator.
         bool operator==(const log_record& other) const noexcept
@@ -102,7 +102,7 @@ public:
     qrvmc_tx_context tx_context = {};
 
     /// The block header hash value to be returned by get_block_hash().
-    bytes32 block_hash = {};
+    bytes64 block_hash = {};
 
     /// The call result to be returned by the call() method.
     qrvmc_result call_result = {};
@@ -151,7 +151,7 @@ public:
     }
 
     /// Get the account's storage value at the given key (QRVMC Host method).
-    bytes32 get_storage(const address& addr, const bytes32& key) const noexcept override
+    bytes64 get_storage(const address& addr, const bytes64& key) const noexcept override
     {
         record_account_access(addr);
 
@@ -167,8 +167,8 @@ public:
 
     /// Set the account's storage value (QRVMC Host method).
     qrvmc_storage_status set_storage(const address& addr,
-                                     const bytes32& key,
-                                     const bytes32& value) noexcept override
+                                     const bytes64& key,
+                                     const bytes64& value) noexcept override
     {
         record_account_access(addr);
 
@@ -311,7 +311,7 @@ public:
     }
 
     /// Get the account's balance (QRVMC Host method).
-    uint256be get_balance(const address& addr) const noexcept override
+    uint512be get_balance(const address& addr) const noexcept override
     {
         record_account_access(addr);
         const auto it = accounts.find(addr);
@@ -332,7 +332,7 @@ public:
     }
 
     /// Get the account's code hash (QRVMC host method).
-    bytes32 get_code_hash(const address& addr) const noexcept override
+    bytes64 get_code_hash(const address& addr) const noexcept override
     {
         record_account_access(addr);
         const auto it = accounts.find(addr);
@@ -393,7 +393,7 @@ public:
     qrvmc_tx_context get_tx_context() const noexcept override { return tx_context; }
 
     /// Get the block header hash (QRVMC host method).
-    bytes32 get_block_hash(int64_t block_number) const noexcept override
+    bytes64 get_block_hash(int64_t block_number) const noexcept override
     {
         recorded_blockhashes.emplace_back(block_number);
         return block_hash;
@@ -403,7 +403,7 @@ public:
     void emit_log(const address& addr,
                   const uint8_t* data,
                   size_t data_size,
-                  const bytes32 topics[],
+                  const bytes64 topics[],
                   size_t topics_count) noexcept override
     {
         recorded_logs.push_back({addr, {data, data_size}, {topics, topics + topics_count}});
@@ -435,8 +435,8 @@ public:
         record_account_access(addr);
 
         // Accessing precompiled contracts is always warm.
-        if (addr >= "Q0000000000000000000000000000000000000001"_address &&
-            addr <= "Q0000000000000000000000000000000000000009"_address)
+        if (addr >= "Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"_address &&
+            addr <= "Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000009"_address)
             return QRVMC_ACCESS_WARM;
 
         return already_accessed ? QRVMC_ACCESS_WARM : QRVMC_ACCESS_COLD;
@@ -457,7 +457,7 @@ public:
     /// @return      The ::QRVMC_ACCESS_WARM if the storage key has been accessed
     /// before,
     ///              the ::QRVMC_ACCESS_COLD otherwise.
-    qrvmc_access_status access_storage(const address& addr, const bytes32& key) noexcept override
+    qrvmc_access_status access_storage(const address& addr, const bytes64& key) noexcept override
     {
         auto& value = accounts[addr].storage[key];
         const auto access_status = value.access_status;

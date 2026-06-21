@@ -40,8 +40,10 @@ contract C {
         return this.e;
     }
 }
+// ====
+// QRVMVersion: >zond
 // ----
 // test() -> 5, 6, 7
 // gas irOptimized: 255728
-// gas legacy: 440376
+// gas legacy: 465436
 // gas legacyOptimized: 278651

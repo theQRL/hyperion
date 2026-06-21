@@ -21,4 +21,4 @@ contract C {
 // ----
 // x() -> -5
 // create_dirty_slot() ->
-// read_unclean_value() -> 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffb
+// read_unclean_value() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000

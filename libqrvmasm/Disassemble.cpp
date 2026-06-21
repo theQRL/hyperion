@@ -29,7 +29,7 @@ using namespace hyperion::qrvmasm;
 
 void hyperion::qrvmasm::eachInstruction(
 	bytes const& _mem,
-	std::function<void(Instruction,u256 const&)> const& _onInstruction
+	std::function<void(Instruction,u512 const&)> const& _onInstruction
 )
 {
 	for (auto it = _mem.begin(); it < _mem.end(); ++it)
@@ -39,7 +39,7 @@ void hyperion::qrvmasm::eachInstruction(
 		if (isValidInstruction(instr))
 			additional = instructionInfo(instr).additional;
 
-		u256 data{};
+		u512 data{};
 
 		// fill the data with the additional data bytes from the instruction stream
 		while (additional > 0 && std::next(it) < _mem.end())
@@ -59,7 +59,7 @@ void hyperion::qrvmasm::eachInstruction(
 std::string hyperion::qrvmasm::disassemble(bytes const& _mem, std::string const& _delimiter)
 {
 	std::stringstream ret;
-	eachInstruction(_mem, [&](Instruction _instr, u256 const& _data) {
+	eachInstruction(_mem, [&](Instruction _instr, u512 const& _data) {
 		if (!isValidInstruction(_instr))
 			ret << "0x" << std::uppercase << std::hex << static_cast<int>(_instr) << _delimiter;
 		else

@@ -97,8 +97,8 @@ public:
 	/// @returns true if the values of the given classes are known to be different (on every input).
 	/// @note that this function might still return false for some different inputs.
 	bool knownToBeDifferent(Id _a, Id _b);
-	/// Similar to @a knownToBeDifferent but require that abs(_a - b) >= 32.
-	bool knownToBeDifferentBy32(Id _a, Id _b);
+	/// Similar to @a knownToBeDifferent but require that abs(_a - b) is at least one VM word.
+	bool knownToBeDifferentByAtLeastVMWord(Id _a, Id _b);
 	/// @returns true if the value of the given class is known to be zero.
 	/// @note that this is not the negation of knownNonZero
 	bool knownZero(Id _c);
@@ -107,7 +107,7 @@ public:
 	bool knownNonZero(Id _c);
 	/// @returns a pointer to the value if the given class is known to be a constant,
 	/// and a nullptr otherwise.
-	u256 const* knownConstant(Id _c);
+	u512 const* knownConstant(Id _c);
 
 	/// Stores a copy of the given AssemblyItem and returns a pointer to the copy that is valid for
 	/// the lifetime of the ExpressionClasses object.

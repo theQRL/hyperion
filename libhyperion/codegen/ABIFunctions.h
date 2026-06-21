@@ -127,7 +127,7 @@ public:
 
 	struct EncodingOptions
 	{
-		/// Pad/signextend value types and bytes/string to multiples of 32 bytes.
+		/// Pad/signextend value types and bytes/string to multiples of VM word bytes.
 		/// If false, data is always left-aligned.
 		/// Note that this is always re-set to true for the elements of arrays and structs.
 		bool padded = true;

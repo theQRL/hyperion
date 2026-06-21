@@ -374,7 +374,7 @@ allowing you to traverse the keys and delete their values in the appropriate ``m
 Minor Details
 =============
 
-- Types that do not occupy the full 32 bytes might contain "dirty higher order bits".
+- Types that do not occupy the full VM word might contain "dirty higher order bits".
   This is especially important if you access ``msg.data`` - it poses a malleability risk:
   You can craft transactions that call a function ``f(uint8 x)``
   with a raw byte argument of ``0xff000001`` and with ``0x00000001``.

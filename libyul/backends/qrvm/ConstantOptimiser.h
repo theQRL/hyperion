@@ -64,7 +64,7 @@ public:
 private:
 	QRVMDialect const& m_dialect;
 	GasMeter const& m_meter;
-	std::map<u256, Representation> m_cache;
+	std::map<u512, Representation> m_cache;
 };
 
 class RepresentationFinder
@@ -75,7 +75,7 @@ public:
 		QRVMDialect const& _dialect,
 		GasMeter const& _meter,
 		std::shared_ptr<DebugData const> _debugData,
-		std::map<u256, Representation>& _cache
+		std::map<u512, Representation>& _cache
 	):
 		m_dialect(_dialect),
 		m_meter(_meter),
@@ -85,14 +85,14 @@ public:
 
 	/// @returns a cheaper representation for the number than its representation
 	/// as a literal or nullptr otherwise.
-	Expression const* tryFindRepresentation(u256 const& _value);
+	Expression const* tryFindRepresentation(u512 const& _value);
 
 private:
 	/// Recursively try to find the cheapest representation of the given number,
 	/// literal if necessary.
-	Representation const& findRepresentation(u256 const& _value);
+	Representation const& findRepresentation(u512 const& _value);
 
-	Representation represent(u256 const& _value) const;
+	Representation represent(u512 const& _value) const;
 	Representation represent(YulString _instruction, Representation const& _arg) const;
 	Representation represent(YulString _instruction, Representation const& _arg1, Representation const& _arg2) const;
 
@@ -103,7 +103,7 @@ private:
 	std::shared_ptr<DebugData const> m_debugData;
 	/// Counter for the complexity of optimization, will stop when it reaches zero.
 	size_t m_maxSteps = 10000;
-	std::map<u256, Representation>& m_cache;
+	std::map<u512, Representation>& m_cache;
 };
 
 }

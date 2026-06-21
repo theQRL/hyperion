@@ -65,8 +65,8 @@ contract C {
 // ----
 // storage_a() -> 0, 0
 // storage_b() -> 0, 1
-// storage_c() -> 0, 2
-// storage_d() -> 0, 3
-// storage_e() -> 1, 0
-// storage_f() -> 2, 0
-// storage_g() -> 2, 0x14
+// storage_c() -> 1, 2
+// storage_d() -> 1, 0
+// storage_e() -> 2, 0
+// storage_f() -> 3, 0
+// storage_g() -> 4, 0

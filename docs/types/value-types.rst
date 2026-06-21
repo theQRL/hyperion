@@ -183,7 +183,7 @@ Address
 
 The address type comes in two largely identical flavors:
 
-- ``address``: Holds a 20 byte value (size of a QRL address).
+- ``address``: Holds a 64 byte value (size of a QRL address).
 - ``address payable``: Same as ``address``, but with the additional members ``transfer`` and ``send``.
 
 The idea behind this distinction is that ``address payable`` is an address you can send Quanta to,
@@ -195,8 +195,8 @@ Type conversions:
 Implicit conversions from ``address payable`` to ``address`` are allowed, whereas conversions from ``address`` to ``address payable``
 must be explicit via ``payable(<address>)``.
 
-Explicit conversions to and from ``address`` are allowed for ``uint160``, integer literals,
-``bytes20`` and contract types.
+Explicit conversions to and from ``address`` are allowed for ``uint512``, integer literals,
+``bytes64`` and contract types.
 
 Only expressions of type ``address`` and contract-type can be converted to the type ``address
 payable`` via the explicit conversion ``payable(...)``. For contract-type, this conversion is only
@@ -219,15 +219,13 @@ Operators:
 * ``<=``, ``<``, ``==``, ``!=``, ``>=`` and ``>``
 
 .. warning::
-    If you convert a type that uses a larger byte size to an ``address``, for example ``bytes32``, then the ``address`` is truncated.
-    To reduce conversion ambiguity, starting with version 0.4.24, the compiler will force you to make the truncation explicit in the conversion.
-    Take for example the 32-byte value ``0x111122223333444455556666777788889999AAAABBBBCCCCDDDDEEEEFFFFCCCC``.
-
-    You can use ``address(uint160(bytes20(b)))``, which results in ``Q111122223333444455556666777788889999aAaa``,
-    or you can use ``address(uint160(uint256(b)))``, which results in ``Q777788889999AaAAbBbbCcccddDdeeeEfFFfCcCc``.
+    QRL addresses are 64-byte values. If you convert smaller fixed bytes or integer values to an ``address``,
+    first make the widening explicit, for example by converting through ``uint512`` or ``bytes64``.
+    This avoids ambiguity about whether the source value is interpreted as a numeric value or as
+    left-aligned fixed bytes.
 
 .. note::
-    Mixed-case hexadecimal numbers conforming to `EIP-55 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md>`_ are automatically treated as literals of the ``address`` type. See :ref:`Address Literals<address_literals>`.
+    Mixed-case QRL addresses using the SHAKE-256 checksum are automatically treated as literals of the ``address`` type. See :ref:`Address Literals<address_literals>`.
 
 .. _members-of-addresses:
 
@@ -428,12 +426,13 @@ Address Literals
 ----------------
 
 Address literals that pass the address checksum test, for example
-``QdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF`` are of ``address`` type.
+``Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dCAD3a6d3569df655070dED06cb7A1B2cCD1d3aF`` are of ``address`` type.
 Address literals that do not pass the checksum test produce
 an error.
 
 .. note::
-    The mixed-case address checksum format is defined in `EIP-55 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md>`_.
+    The mixed-case QRL address checksum uses SHAKE-256 over the lowercase 128-character hexadecimal address body without the ``Q`` prefix.
+    Each ``a`` to ``f`` character is uppercased when the corresponding hash nibble is greater than or equal to 8.
 
 .. index:: integer, rational number, ! literal;rational
 
@@ -731,13 +730,15 @@ context of the current contract. Calling an internal function is realized
 by jumping to its entry label, just like when calling a function of the current
 contract internally.
 
-External functions consist of an address and a function signature and they can
-be passed via and returned from external function calls.
+External function values consist of a 512-bit address and a four-byte selector.
+They are represented internally as two stack values and encoded in the ABI as
+two VM words: the address word followed by the selector word.
+In ``abi.encodePacked``, they are encoded without word padding as the 64-byte
+address followed by the four selector bytes.
 
 Function types are notated as follows:
 
-.. code-block:: hyperion
-    :force:
+.. code-block:: none
 
     function (<parameter types>) {internal|external} [pure|view|payable] [returns (<return types>)]
 
@@ -783,10 +784,6 @@ If a function type variable is not initialised, calling it results
 in a :ref:`Panic error<assert-and-require>`. The same happens if you call a function after using ``delete``
 on it.
 
-If external function types are used outside of the context of Hyperion,
-they are treated as the ``function`` type, which encodes the address
-followed by the function identifier together in a single ``bytes24`` type.
-
 Note that public functions of the current contract can be used both as an
 internal and as an external function. To use ``f`` as an internal function,
 just use ``f``, if you want to use its external form, use ``this.f``.
@@ -795,7 +792,7 @@ A function of an internal type can be assigned to a variable of an internal func
 of where it is defined.
 This includes private, internal and public functions of both contracts and libraries as well as free
 functions.
-External function types, on the other hand, are only compatible with public and external contract
+External function types are only compatible with public and external contract
 functions.
 
 .. note::
@@ -815,7 +812,7 @@ Functions declared in interfaces do not have definitions so pointing at them doe
 
 Members:
 
-External (or public) functions have the following members:
+External (or public) function identifiers have the following members:
 
 * ``.address`` returns the address of the contract of the function.
 * ``.selector`` returns the :ref:`ABI function selector <abi_function_selector>`
@@ -895,52 +892,6 @@ Example that shows how to use internal function types:
 
         function sum(uint x, uint y) internal pure returns (uint) {
             return x + y;
-        }
-    }
-
-Another example that uses external function types:
-
-.. code-block:: hyperion
-
-    // SPDX-License-Identifier: GPL-3.0
-    pragma hyperion >=0.1.0;
-
-
-    contract Oracle {
-        struct Request {
-            bytes data;
-            function(uint) external callback;
-        }
-
-        Request[] private requests;
-        event NewRequest(uint);
-
-        function query(bytes memory data, function(uint) external callback) public {
-            requests.push(Request(data, callback));
-            emit NewRequest(requests.length - 1);
-        }
-
-        function reply(uint requestID, uint response) public {
-            // Here goes the check that the reply comes from a trusted source
-            requests[requestID].callback(response);
-        }
-    }
-
-
-    contract OracleUser {
-        Oracle constant private ORACLE_CONST = Oracle(Q00000000219ab540356cBB839Cbe05303d7705Fa); // known contract
-        uint private exchangeRate;
-
-        function buySomething() public {
-            ORACLE_CONST.query("USD", this.oracleResponse);
-        }
-
-        function oracleResponse(uint response) public {
-            require(
-                msg.sender == address(ORACLE_CONST),
-                "Only oracle can call this."
-            );
-            exchangeRate = response;
         }
     }
 

@@ -63,17 +63,9 @@ public:
 	/// Sometimes needed to satisfy templates.
 	std::string identityFunction();
 
-	/// @returns a function that combines the address and selector to a single value
-	/// for use in the ABI.
-	std::string combineExternalFunctionIdFunction();
-
-	/// @returns a function that splits the address and selector from a single value
-	/// for use in the ABI.
-	std::string splitExternalFunctionIdFunction();
-
 	/// @returns a function that copies raw bytes of dynamic length from calldata
 	/// or memory to memory.
-	/// @params _cleanup If true, pads with zeros up to the 32 byte boundary after the specified length
+	/// @params _cleanup If true, pads with zeros up to the VM word boundary after the specified length
 	/// signature: (src, dst, length) ->
 	std::string copyToMemoryFunction(bool _fromCalldata, bool _cleanup);
 
@@ -134,13 +126,13 @@ public:
 	std::string maskLowerOrderBytesFunctionDynamic();
 
 	/// @returns the name of a function that rounds its input to the next multiple
-	/// of 32 or the input if it is a multiple of 32.
+	/// of VMWordBytes or the input if it is a multiple of VMWordBytes.
 	/// Ignores overflow.
 	/// signature: (value) -> result
 	std::string roundUpFunction();
 
-	/// @returns the name of a function that divides by 32 and rounds up during the division.
-	/// In other words, on input x it returns the smallest y such that y * 32 >= x.
+	/// @returns the name of a function that divides by VMWordBytes and rounds up during the division.
+	/// In other words, on input x it returns the smallest y such that y * VMWordBytes >= x.
 	/// Ignores overflow.
 	/// signature: (x) -> y
 	std::string divide32CeilFunction();
@@ -574,23 +566,23 @@ private:
 	/// @returns the name of a function that cleans up elements of a storage byte array starting from startIndex.
 	/// It will not copy elements in case of transformation to short byte array, and will not change array length.
 	/// In case of startIndex is greater than len, doesn't do anything.
-	/// In case of short byte array (< 32 bytes) doesn't do anything.
+	/// In case of short byte array (< VMWordBytes) doesn't do anything.
 	/// If the first slot to be cleaned up is partially occupied, does not touch it. Cleans up only completely unused slots.
 	/// signature: (array, len, startIndex)
 	std::string cleanUpDynamicByteArrayEndSlotsFunction(ArrayType const& _type);
 
 	/// @returns the name of a function that increases size of byte array
-	/// when we resize byte array frextractUsedSetLenom < 32 elements to >= 32 elements or we push to byte array of size 31 copying of data will  occur
+	/// when we resize byte array from < VMWordBytes elements to >= VMWordBytes elements or push to byte array of size VMWordBytes - 1, copying of data will occur.
 	/// signature: (array, data, oldLen, newLen)
 	std::string increaseByteArraySizeFunction(ArrayType const& _type);
 
 	/// @returns the name of a function that decreases size of byte array
-	/// when we resize byte array from >= 32 elements to < 32 elements or we pop from byte array of size 32 copying of data will  occur
+	/// when we resize byte array from >= VMWordBytes elements to < VMWordBytes elements or pop from byte array of size VMWordBytes, copying of data will occur.
 	/// signature: (array, data, oldLen, newLen)
 	std::string decreaseByteArraySizeFunction(ArrayType const& _type);
 
 	/// @returns the name of a function that sets size of short byte array while copying data
-	/// should be called when we resize from long byte array (more than 32 elements) to short byte array
+	/// should be called when we resize from long byte array (more than VMWordBytes elements) to short byte array
 	/// signature: (array, data, len)
 	std::string byteArrayTransitLongToShortFunction(ArrayType const& _type);
 

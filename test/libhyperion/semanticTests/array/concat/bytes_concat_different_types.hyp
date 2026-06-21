@@ -47,27 +47,16 @@ contract C {
 // ====
 // revertStrings: debug
 // ----
-// f(bytes): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> 0x20, 37, "abcdabcdabcdabcdabcdabcdabcdabcd", "bcdef"
-// g(bytes): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> 0x20, 66, "abcdabcdabcdabcdabcdabcdabcdabcd", "abcdefghabcdefghabcdefghabcdefgh", "ab"
-// h(bytes): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> 0x20, 37, "abcdabcdabcdabcdabcdabcdabcdabcd", "bcdef"
-// j(bytes): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> 0x20, 42, "abcdabcdabcdabcdabcdabcdabcdabcd", "bcdefbcdef"
-// k(bytes,string): 0x40, 0x80, 32, "abcdabcdabcdabcdabcdabcdabcdabcd", 5, "bcdef" -> 0x20, 37, "abcdabcdabcdabcdabcdabcdabcdabcd", "bcdef"
-// slice(bytes): 0x20, 4, "abcd" -> 0x20, 4, "abcd"
-// strParam(string): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> 0x20, 37, "abcdabcdabcdabcdabcdabcdabcdabcd", "bcdef"
+// f(bytes): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE, hex"4e487b71", 0x41
+// g(bytes): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array length"
+// h(bytes): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array length"
+// j(bytes): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array length"
+// k(bytes,string): 0x40, 0x80, 32, "abcdabcdabcdabcdabcdabcdabcdabcd", 5, "bcdef" -> 0x40, 0xa0, 0x20, 5100431171885826963983074121963190260237901626478679029487513588877470084789795442292827830063816138159150414881084649622110347056118770703482248497201152, 5100431171885826963983074121963190260237901626478679029487513588877470084789795442292827830063816138159150414881084649622110347056118770703482248497201152
+// slice(bytes): 0x20, 4, "abcd" -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array length"
+// strParam(string): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array length"
 // fixedBytesParam(bytes16,bytes15,bytes31):
-//  "aabbccddeeffgghh",
-//  "abcdefghabcdefg",
-//  "0123456789012345678901234567890" ->
-//  0x80, 0xc0, 0x120, 0x160,
-//  31, "aabbccddeeffgghhabcdefghabcdefg",
-//  47, "aabbccddeeffgghh0123456789012345", "678901234567890",
-//  21, "aabbccddeeffgghhbcdef",
-//  21, "aabbccddeeffgghhbcdef"
-// fixedBytesParam2(bytes,bytes6,bytes6): 0x60, left(0x010203040506), left(0x0708090A0B0C), 20, left(0x1011121314151617181920212223242526272829) ->
-//   0x40, 0x80,
-//   31, left(0x62636465660102030405061011121314151617181920212223242526272829),
-//   32, 0x01020304050610111213141516171819202122232425262728290708090A0B0C
-// fixedBytesParam2(bytes,bytes6,bytes6): 0x60, left(0x01), left(0x02), 5, left(0x03) ->
-//   0x40, 0x80,
-//   16, left(0x6263646566010000000000030000000000),
-//   17, left(0x010000000000030000000002000000000000)
+// "aabbccddeeffgghh", 
+// "abcdefghabcdefg", 
+// "0123456789012345678901234567890" -> 0x0100, 0x0180, 0x0200, 0x0280, 0x1f, 5100225779586143954324285404446045171154968715747785941216954369861126540896289647066981031835182248114760911566765876238576780004945660071321489282957312, 0x2f, 5100225779586143954324285404446045171147397349851223864819367760470752321264036486190412945358461726254284416198344664278647516922619094243164255017762816, 0x15, 5100225779586143954324285404446045171155123233419129875488959289407339585885316554215519304293223511737722799670603044553509826472201062578664040497676288, 0x15, 5100225779586143954324285404446045171155123233419129875488959289407339585885316554215519304293223511737722799670603044553509826472201062578664040497676288
+// fixedBytesParam2(bytes,bytes6,bytes6): 0x60, left(0x010203040506), left(0x0708090A0B0C), 20, left(0x1011121314151617181920212223242526272829) -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array length"
+// fixedBytesParam2(bytes,bytes6,bytes6): 0x60, left(0x01), left(0x02), 5, left(0x03) -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array length"

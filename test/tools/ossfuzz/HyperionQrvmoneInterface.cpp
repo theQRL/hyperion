@@ -21,6 +21,8 @@
 #include <liblangutil/Exceptions.h>
 #include <liblangutil/SourceReferenceFormatter.h>
 
+#include <libhyputil/VMConstants.h>
+
 #include <range/v3/algorithm/all_of.hpp>
 #include <range/v3/span.hpp>
 
@@ -64,7 +66,7 @@ optional<CompilerOutput> HyperionCompilationFramework::compileContract()
 
 bool QrvmoneUtility::zeroWord(uint8_t const* _result, size_t _length)
 {
-	return _length == 32 &&
+	return _length == VMWordBytes &&
 		ranges::all_of(
 			ranges::span(_result, static_cast<long>(_length)),
 			[](uint8_t _v) { return _v == 0; });
@@ -130,7 +132,7 @@ qrvmc::Result QrvmoneUtility::deployAndExecute(
 
 qrvmc::Result QrvmoneUtility::compileDeployAndExecute(string _fuzzIsabelle)
 {
-	map<string, h160> libraryAddressMap;
+	map<string, h512> libraryAddressMap;
 	// Stage 1: Compile and deploy library if present.
 	if (!m_libraryName.empty())
 	{

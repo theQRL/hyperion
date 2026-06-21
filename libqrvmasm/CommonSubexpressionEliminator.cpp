@@ -27,6 +27,7 @@
 #include <libqrvmasm/CommonSubexpressionEliminator.h>
 #include <libqrvmasm/AssemblyItem.h>
 #include <libhyputil/StackTooDeepString.h>
+#include <libhyputil/VMConstants.h>
 
 #include <range/v3/view/reverse.hpp>
 
@@ -258,15 +259,15 @@ void CSECodeGenerator::addDependencies(Id _c)
 				knownToBeIndependent = m_expressionClasses.knownToBeDifferent(slot, slotToLoadFrom);
 				break;
 			case Instruction::MLOAD:
-				knownToBeIndependent = m_expressionClasses.knownToBeDifferentBy32(slot, slotToLoadFrom);
+				knownToBeIndependent = m_expressionClasses.knownToBeDifferentByAtLeastVMWord(slot, slotToLoadFrom);
 				break;
 			case Instruction::KECCAK256:
 			{
 				Id length = expr.arguments.at(1);
 				AssemblyItem offsetInstr(Instruction::SUB, expr.item->location());
 				Id offsetToStart = m_expressionClasses.find(offsetInstr, {slot, slotToLoadFrom});
-				u256 const* o = m_expressionClasses.knownConstant(offsetToStart);
-				u256 const* l = m_expressionClasses.knownConstant(length);
+				u512 const* o = m_expressionClasses.knownConstant(offsetToStart);
+				u512 const* l = m_expressionClasses.knownConstant(length);
 				if (l && *l == 0)
 					knownToBeIndependent = true;
 				else if (o)
@@ -274,7 +275,7 @@ void CSECodeGenerator::addDependencies(Id _c)
 					// We could get problems here if both *o and *l are larger than 2**254
 					// but it is probably ok for the optimizer to produce wrong code for such cases
 					// which cannot be executed anyway because of the non-payable price.
-					if (u2s(*o) <= -32)
+					if (u2s(*o) <= -s512(VMWordBytes))
 						knownToBeIndependent = true;
 					else if (l && u2s(*o) >= 0 && *o >= *l)
 						knownToBeIndependent = true;

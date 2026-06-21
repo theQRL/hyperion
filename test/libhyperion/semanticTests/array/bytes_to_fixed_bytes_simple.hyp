@@ -19,8 +19,8 @@ contract C {
     }
 }
 // ----
-// fromMemory(bytes): 0x20, 16, "abcdefghabcdefgh" -> "abcdefghabcdefgh"
-// fromCalldata(bytes): 0x20, 16, "abcdefghabcdefgh" -> "abcdefghabcdefgh"
+// fromMemory(bytes): 0x20, 16, "abcdefghabcdefgh" -> FAILURE, hex"4e487b71", 0x41
+// fromCalldata(bytes): 0x20, 16, "abcdefghabcdefgh" -> FAILURE
 // fromStorage() -> "abcdefghabcdefgh"
 // fromStorageLong() -> "abcdefghabcdefghabcdefghabcdefgh"
-// fromSlice(bytes): 0x20, 16, "abcdefghabcdefgh" -> "bcdefgha"
+// fromSlice(bytes): 0x20, 16, "abcdefghabcdefgh" -> FAILURE

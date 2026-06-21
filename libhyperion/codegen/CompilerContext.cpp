@@ -76,7 +76,7 @@ void CompilerContext::addImmutable(VariableDeclaration const& _variable)
 	hypUnimplementedAssert(_variable.annotation().type->isValueType(), "Only immutable variables of value type are supported.");
 	hypAssert(m_runtimeContext, "Attempted to register an immutable variable for runtime code generation.");
 	m_immutableVariables[&_variable] = CompilerUtils::generalPurposeMemoryStart + *m_reservedMemory;
-	hypAssert(_variable.annotation().type->memoryHeadSize() == 32, "Memory writes might overlap.");
+	hypAssert(_variable.annotation().type->memoryHeadSize() == VMWordBytes, "Memory writes might overlap.");
 	*m_reservedMemory += _variable.annotation().type->memoryHeadSize();
 }
 

@@ -17,6 +17,6 @@ contract D {
 // ----
 // constructor(), 27 planck ->
 // gas irOptimized: 167865
-// gas legacy: 218459
+// gas legacy: 250735
 // gas legacyOptimized: 167292
 // f() -> 27

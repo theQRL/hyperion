@@ -12,7 +12,7 @@
 //
 // {
 //     {
-//         mstore(0x40, memoryguard(0xa0))
+//         mstore(0x40, memoryguard(0xc0))
 //         let a1_1, a2_2, a3_3, a4_4, a5_5, a6_6, a7_7, a8_8, a9_9, a10_10, a13_11, a14_12, a15_13, a16_14, a17_15, a18_16 := verbatim_0i_16o("test")
 //         mstore(0x80, a1_1)
 //         let a18 := a18_16

@@ -55,7 +55,7 @@ contract C {
 // ggg8(uint8): 0x0100 -> FAILURE
 // f8(uint256): 0x0101 -> 0x01
 // ggg8(uint8): 0x0101 -> FAILURE
-// f8(uint256): -1 -> 0xFF
+// f8(uint256): -1 -> FAILURE
 // ggg8(uint8): -1 -> FAILURE
 // f16(uint256): 0 -> 0
 // gg16(uint16): 0 -> 0
@@ -69,7 +69,7 @@ contract C {
 // gg16(uint16): 0x010000 -> FAILURE
 // f16(uint256): 0x010001 -> 0x0001
 // gg16(uint16): 0x010001 -> FAILURE
-// f16(uint256): -1 -> 0xFFFF
+// f16(uint256): -1 -> FAILURE
 // gg16(uint16): -1 -> FAILURE
 // f32(uint256): 0 -> 0
 // gg32(uint32): 0 -> 0
@@ -83,7 +83,7 @@ contract C {
 // gg32(uint32): 0x0100000000 -> FAILURE
 // f32(uint256): 0x0100000001 -> 0x00000001
 // gg32(uint32): 0x0100000001 -> FAILURE
-// f32(uint256): -1 -> 0xFFFFFFFF
+// f32(uint256): -1 -> FAILURE
 // gg32(uint32): -1 -> FAILURE
 // f64(uint256): 0 -> 0
 // gg64(uint64): 0 -> 0
@@ -97,7 +97,7 @@ contract C {
 // gg64(uint64): 0x010000000000000000 -> FAILURE
 // f64(uint256): 0x010000000000000001 -> 0x0000000000000001
 // gg64(uint64): 0x010000000000000001 -> FAILURE
-// f64(uint256): -1 -> 0xFFFFFFFFFFFFFFFF
+// f64(uint256): -1 -> FAILURE
 // gg64(uint64): -1 -> FAILURE
 // f128(uint256): 0 -> 0
 // g128(uint128): 0 -> 0
@@ -111,5 +111,5 @@ contract C {
 // g128(uint128): 0x0100000000000000000000000000000000 -> FAILURE
 // f128(uint256): 0x0100000000000000000000000000000001 -> 0x00000000000000000000000000000001
 // g128(uint128): 0x0100000000000000000000000000000001 -> FAILURE
-// f128(uint256): -1 -> 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+// f128(uint256): -1 -> FAILURE
 // g128(uint128): -1 -> FAILURE

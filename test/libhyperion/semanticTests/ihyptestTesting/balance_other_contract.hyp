@@ -17,11 +17,11 @@ contract ClientReceipt {
 // ----
 // constructor(), 2000 planck ->
 // gas irOptimized: 169915
-// gas legacy: 230038
+// gas legacy: 228592
 // gas legacyOptimized: 173883
 // balance -> 1500
 // gas irOptimized: 191881
 // gas legacy: 235167
 // gas legacyOptimized: 180756
-// getAddress() -> Q137aa4dfc0911524504fcd4d98501f179bc13b4a
-// balance: Q137aa4dfc0911524504fcd4d98501f179bc13b4a -> 500
+// getAddress() -> 0xa2c09b0901c4385dddc8a62d8dd8cb54995b78bbd757bfdee5a32af7ef8f0059
+// balance: 0x137aa4dfc0911524504fcd4d98501f179bc13b4a -> 0

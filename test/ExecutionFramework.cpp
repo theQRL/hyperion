@@ -84,7 +84,7 @@ void ExecutionFramework::reset()
 	m_qrvmcHost->reset();
 	for (size_t i = 0; i < 10; i++)
 		m_qrvmcHost->accounts[QRVMHost::convertToQRVMC(account(i))].balance =
-			QRVMHost::convertToQRVMC(u256(1) << 100);
+			QRVMHost::convertUintToQRVMC(u256(1) << 100);
 }
 
 std::pair<bool, string> ExecutionFramework::compareAndCreateMessage(
@@ -128,14 +128,14 @@ u256 ExecutionFramework::gasPrice() const
 	// here and below we use "return u256{....}" instead of just "return {....}"
 	// to please MSVC and avoid unexpected
 	// warning C4927 : illegal conversion; more than one user - defined conversion has been implicitly applied
-	return u256{QRVMHost::convertFromQRVMC(m_qrvmcHost->tx_context.tx_gas_price)};
+	return QRVMHost::convertUintFromQRVMC(m_qrvmcHost->tx_context.tx_gas_price);
 }
 
-u256 ExecutionFramework::blockHash(u256 const& _number) const
+h256 ExecutionFramework::blockHash(u256 const& _number) const
 {
-	return u256{QRVMHost::convertFromQRVMC(
+	return QRVMHost::convertFromQRVMC(
 		m_qrvmcHost->get_block_hash(static_cast<int64_t>(_number & numeric_limits<uint64_t>::max()))
-	)};
+	);
 }
 
 u256 ExecutionFramework::blockNumber() const
@@ -161,7 +161,7 @@ void ExecutionFramework::sendMessage(bytes const& _data, bool _isCreation, u256 
 	message.input_data = _data.data();
 	message.input_size = _data.size();
 	message.sender = QRVMHost::convertToQRVMC(m_sender);
-	message.value = QRVMHost::convertToQRVMC(_value);
+	message.value = QRVMHost::convertUintToQRVMC(_value);
 
 	if (_isCreation)
 	{
@@ -202,7 +202,7 @@ void ExecutionFramework::sendMessage(bytes const& _data, bool _isCreation, u256 
 	}
 }
 
-void ExecutionFramework::sendQuanta(h160 const& _addr, u256 const& _amount)
+void ExecutionFramework::sendQuanta(h512 const& _addr, u256 const& _amount)
 {
 	m_qrvmcHost->newBlock();
 
@@ -214,7 +214,7 @@ void ExecutionFramework::sendQuanta(h160 const& _addr, u256 const& _amount)
 	}
 	qrvmc_message message{};
 	message.sender = QRVMHost::convertToQRVMC(m_sender);
-	message.value = QRVMHost::convertToQRVMC(_amount);
+	message.value = QRVMHost::convertUintToQRVMC(_amount);
 	message.kind = QRVMC_CALL;
 	message.recipient = QRVMHost::convertToQRVMC(_addr);
 	message.code_address = message.recipient;
@@ -236,12 +236,12 @@ size_t ExecutionFramework::blockTimestamp(u256 _block)
 		return static_cast<size_t>((currentTimestamp() / blockNumber()) * _block);
 }
 
-h160 ExecutionFramework::account(size_t _idx)
+h512 ExecutionFramework::account(size_t _idx)
 {
-	return h160(h256(u256{"0x1212121212121212121212121212120000000012"} + _idx * 0x1000), h160::AlignRight);
+	return h512(h256(u256{"0x1212121212121212121212121212120000000012"} + _idx * 0x1000), h512::AlignRight);
 }
 
-bool ExecutionFramework::addressHasCode(h160 const& _addr) const
+bool ExecutionFramework::addressHasCode(h512 const& _addr) const
 {
 	return m_qrvmcHost->get_code_size(QRVMHost::convertToQRVMC(_addr)) != 0;
 }
@@ -261,7 +261,7 @@ h256 ExecutionFramework::logTopic(size_t _logIdx, size_t _topicIdx) const
 	return QRVMHost::convertFromQRVMC(m_qrvmcHost->recorded_logs.at(_logIdx).topics.at(_topicIdx));
 }
 
-h160 ExecutionFramework::logAddress(size_t _logIdx) const
+h512 ExecutionFramework::logAddress(size_t _logIdx) const
 {
 	return QRVMHost::convertFromQRVMC(m_qrvmcHost->recorded_logs.at(_logIdx).creator);
 }
@@ -274,18 +274,18 @@ bytes ExecutionFramework::logData(size_t _logIdx) const
 	return {data.begin(), data.end()};
 }
 
-u256 ExecutionFramework::balanceAt(h160 const& _addr) const
+u256 ExecutionFramework::balanceAt(h512 const& _addr) const
 {
-	return u256(QRVMHost::convertFromQRVMC(m_qrvmcHost->get_balance(QRVMHost::convertToQRVMC(_addr))));
+	return QRVMHost::convertUintFromQRVMC(m_qrvmcHost->get_balance(QRVMHost::convertToQRVMC(_addr)));
 }
 
-bool ExecutionFramework::storageEmpty(h160 const& _addr) const
+bool ExecutionFramework::storageEmpty(h512 const& _addr) const
 {
 	const auto it = m_qrvmcHost->accounts.find(QRVMHost::convertToQRVMC(_addr));
 	if (it != m_qrvmcHost->accounts.end())
 	{
 		for (auto const& entry: it->second.storage)
-			if (entry.second.current != qrvmc::bytes32{})
+			if (entry.second.current != qrvmc::bytes64{})
 				return false;
 	}
 	return true;
@@ -298,7 +298,7 @@ vector<hyperion::frontend::test::LogRecord> ExecutionFramework::recordedLogs() c
 		logs.emplace_back(
 			QRVMHost::convertFromQRVMC(logRecord.creator),
 			bytes{logRecord.data.begin(), logRecord.data.end()},
-			logRecord.topics | ranges::views::transform([](qrvmc::bytes32 _bytes) { return QRVMHost::convertFromQRVMC(_bytes); }) | ranges::to<vector>
+			logRecord.topics | ranges::views::transform([](qrvmc::bytes64 _bytes) { return QRVMHost::convertFromQRVMC(_bytes); }) | ranges::to<vector>
 		);
 	return logs;
 }

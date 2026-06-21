@@ -26,8 +26,8 @@
 //         sstore(11, b)
 //         sstore(12, b)
 //         sstore(13, 0)
-//         sstore(14, and(shl(251, x), shl(255, 1)))
+//         sstore(14, and(shl(251, x), shl(255, 3855)))
 //         sstore(0xf, 0)
-//         sstore(16, 0)
+//         sstore(16, and(shl(252, x), shl(256, 3855)))
 //     }
 // }

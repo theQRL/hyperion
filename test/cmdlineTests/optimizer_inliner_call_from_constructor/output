@@ -2,7 +2,7 @@
 ======= optimizer_inliner_call_from_constructor/input.hyp:C =======
 QRVM assembly:
     /* "optimizer_inliner_call_from_constructor/input.hyp":60:263  contract C {... */
-  mstore(0x40, 0x80)
+  mstore(0x80, 0x0100)
     /* "optimizer_inliner_call_from_constructor/input.hyp":89:115  constructor() { x = a(); } */
   callvalue
   dup1
@@ -14,17 +14,26 @@ QRVM assembly:
   revert
 tag_1:
   pop
-    /* "optimizer_inliner_call_from_constructor/input.hyp":257:258  6 */
-  0x06
     /* "optimizer_inliner_call_from_constructor/input.hyp":105:106  x */
   0x00
     /* "optimizer_inliner_call_from_constructor/input.hyp":105:112  x = a() */
+  dup1
+  sload
+  not(sub(shl(0x0100, 0x01), 0x01))
+  and
+    /* "optimizer_inliner_call_from_constructor/input.hyp":257:258  6 */
+  0x06
+    /* "optimizer_inliner_call_from_constructor/input.hyp":105:112  x = a() */
+  or
+  dup2
   sstore
     /* "optimizer_inliner_call_from_constructor/input.hyp":60:263  contract C {... */
   dataSize(sub_0)
-  dup1
+  swap1
+  dup2
+  swap1
   dataOffset(sub_0)
-  0x00
+  swap1
   codecopy
   0x00
   return
@@ -32,7 +41,7 @@ stop
 
 sub_0: assembly {
         /* "optimizer_inliner_call_from_constructor/input.hyp":60:263  contract C {... */
-      mstore(0x40, 0x80)
+      mstore(0x80, 0x0100)
       callvalue
       dup1
       iszero
@@ -44,7 +53,7 @@ sub_0: assembly {
     tag_1:
       pop
       jumpi(tag_2, lt(calldatasize, 0x04))
-      shr(0xe0, calldataload(0x00))
+      shr(0x01e0, calldataload(0x00))
       dup1
       0x0dbe671f
       eq
@@ -56,23 +65,25 @@ sub_0: assembly {
       revert
         /* "optimizer_inliner_call_from_constructor/input.hyp":120:175  function a() public pure returns (uint) { return f(); } */
     tag_3:
+      0x80
+      dup1
+      mload
         /* "optimizer_inliner_call_from_constructor/input.hyp":257:258  6 */
       0x06
-        /* "optimizer_inliner_call_from_constructor/input.hyp":120:175  function a() public pure returns (uint) { return f(); } */
-      mload(0x40)
-        /* "#utility.yul":160:185   */
-      swap1
+        /* "#utility.yul":160:211   */
       dup2
       mstore
-        /* "#utility.yul":148:150   */
-      0x20
-        /* "#utility.yul":133:151   */
-      add
         /* "optimizer_inliner_call_from_constructor/input.hyp":120:175  function a() public pure returns (uint) { return f(); } */
-      mload(0x40)
-      dup1
-      swap2
+      swap1
+      mload
+      swap1
+      dup2
+      swap1
       sub
+        /* "#utility.yul":148:150   */
+      0x40
+        /* "optimizer_inliner_call_from_constructor/input.hyp":120:175  function a() public pure returns (uint) { return f(); } */
+      add
       swap1
       return
 

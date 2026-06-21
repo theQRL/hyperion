@@ -221,7 +221,7 @@ restrictions highly readable.
         {
             owner = newOwner;
             // just some example condition
-            if (uint160(owner) & 0 == 1)
+            if (uint512(owner) & 0 == 1)
                 // This did not refund for Hyperion
                 // before version 0.4.0.
                 return;

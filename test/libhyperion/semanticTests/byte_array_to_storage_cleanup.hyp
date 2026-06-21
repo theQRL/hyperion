@@ -12,7 +12,7 @@ contract C {
     function g() external returns (bytes memory) {
         bytes memory m = new bytes(63);
         assembly {
-            mstore8(add(m, add(32, 63)), 0x42)
+            mstore8(add(m, add(64, 63)), 0x42)
         }
         s = m;
         s.push();
@@ -29,9 +29,9 @@ contract C {
 // ----
 // constructor() ->
 // gas irOptimized: 443406
-// gas legacy: 711299
+// gas legacy: 691591
 // gas legacyOptimized: 482382
-// h() -> 0x20, 0x40, 0x00, 0
-// ~ emit ev(uint256[],uint256): 0x40, 0x21, 0x02, 0x00, 0x00
-// g() -> 0x20, 0x40, 0, 0x00
-// f(bytes): 0x20, 33, 0, -1 -> 0x20, 0x22, 0, 0xff00000000000000000000000000000000000000000000000000000000000000
+// h() -> 0x40, 0x40, 0x00
+// ~ emit ev(uint256[],uint256): 0x80, 0x21, 0x02, 0x00, 0x00
+// g() -> 0x40, 0x40, 0
+// f(bytes): 0x20, 33, 0, -1 -> FAILURE

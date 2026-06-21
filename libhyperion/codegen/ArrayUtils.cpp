@@ -32,6 +32,7 @@
 #include <libhyputil/FunctionSelector.h>
 #include <libhyputil/Whiskers.h>
 #include <libhyputil/StackTooDeepString.h>
+#include <libhyputil/VMConstants.h>
 
 #include <libqrvmasm/Instruction.h>
 #include <liblangutil/Exceptions.h>
@@ -57,8 +58,8 @@ void ArrayUtils::copyArrayToStorage(ArrayType const& _targetType, ArrayType cons
 	bool sourceIsStorage = _sourceType.location() == DataLocation::Storage;
 	bool fromCalldata = _sourceType.location() == DataLocation::CallData;
 	bool directCopy = sourceIsStorage && sourceBaseType->isValueType() && *sourceBaseType == *targetBaseType;
-	bool haveByteOffsetSource = !directCopy && sourceIsStorage && sourceBaseType->storageBytes() <= 16;
-	bool haveByteOffsetTarget = !directCopy && targetBaseType->storageBytes() <= 16;
+	bool haveByteOffsetSource = !directCopy && sourceIsStorage && sourceBaseType->storageBytes() <= (VMWordBytes / 2);
+	bool haveByteOffsetTarget = !directCopy && targetBaseType->storageBytes() <= (VMWordBytes / 2);
 	unsigned byteOffsetSize = (haveByteOffsetSource ? 1u : 0u) + (haveByteOffsetTarget ? 1u : 0u);
 
 	// stack: source_ref [source_length] target_ref
@@ -104,7 +105,7 @@ void ArrayUtils::copyArrayToStorage(ArrayType const& _targetType, ArrayType cons
 	if (_sourceType.location() == DataLocation::Memory && _sourceType.isDynamicallySized())
 	{
 		// increment source pointer to point to data
-		m_context << Instruction::SWAP1 << u256(0x20);
+		m_context << Instruction::SWAP1 << u256(0x40);
 		m_context << Instruction::ADD << Instruction::SWAP1;
 	}
 
@@ -289,7 +290,7 @@ void ArrayUtils::copyArrayToStorage(ArrayType const& _targetType, ArrayType cons
 			// stack: target_ref target_data_end source_data_pos target_data_pos_updated source_data_end
 			_context << Instruction::POP << Instruction::SWAP1 << Instruction::POP;
 			// stack: target_ref target_data_end target_data_pos_updated
-			if (targetBaseType->storageBytes() < 32)
+			if (targetBaseType->storageBytes() < VMWordBytes)
 				utils.clearStorageLoop(TypeProvider::uint256());
 			else
 				utils.clearStorageLoop(targetBaseType);
@@ -318,7 +319,7 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 			routine += R"(
 				// Set padding suffix to zero
 				mstore(add(target, len), 0)
-				len := and(add(len, 0x1f), not(0x1f))
+				len := and(add(len, 0x3f), not(0x3f))
 			)";
 		routine += "target := add(target, len)\n";
 		m_context.appendInlineAssembly("{" + routine + "}", {"target", "source", "len"});
@@ -359,16 +360,16 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 		if (_sourceType.isDynamicallySized())
 		{
 			// change pointer to data part
-			m_context << Instruction::SWAP1 << u256(32) << Instruction::ADD;
+			m_context << Instruction::SWAP1 << u256(VMWordBytes) << Instruction::ADD;
 			m_context << Instruction::SWAP1;
 		}
 		if (!_sourceType.isByteArrayOrString())
 			convertLengthToSize(_sourceType);
 		// stack: <target> <source> <size>
 		m_context << Instruction::DUP1 << Instruction::DUP4 << Instruction::DUP4;
-		// We can resort to copying full 32 bytes only if
-		// - the length is known to be a multiple of 32 or
-		// - we will pad to full 32 bytes later anyway.
+		// We can resort to copying full VM words only if
+		// - the length is known to be a multiple of the VM word size or
+		// - we will pad to full VM words later anyway.
 		if (!_sourceType.isByteArrayOrString() || _padToWordBoundaries)
 			utils.memoryCopy32();
 		else
@@ -384,8 +385,8 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 			// stack: <target> <size>
 			m_context << Instruction::SWAP1 << Instruction::DUP2 << Instruction::ADD;
 			// stack: <length> <target + size>
-			m_context << Instruction::SWAP1 << u256(31) << Instruction::AND;
-			// stack: <target + size> <remainder = size % 32>
+			m_context << Instruction::SWAP1 << u256(VMWordAlignmentMask) << Instruction::AND;
+			// stack: <target + size> <remainder = size % VMWordBytes>
 			qrvmasm::AssemblyItem skip = m_context.newTag();
 			if (_sourceType.isDynamicallySized())
 			{
@@ -393,27 +394,27 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 				m_context.appendConditionalJumpTo(skip);
 			}
 			// round off, load from there.
-			// stack <target + size> <remainder = size % 32>
+			// stack <target + size> <remainder = size % VMWordBytes>
 			m_context << Instruction::DUP1 << Instruction::DUP3;
 			m_context << Instruction::SUB;
 			// stack: target+size remainder <target + size - remainder>
 			m_context << Instruction::DUP1 << Instruction::MLOAD;
-			// Now we AND it with ~(2**(8 * (32 - remainder)) - 1)
+			// Now we AND it with ~(2**(8 * (VMWordBytes - remainder)) - 1)
 			m_context << u256(1);
-			m_context << Instruction::DUP4 << u256(32) << Instruction::SUB;
-			// stack: ...<v> 1 <32 - remainder>
+			m_context << Instruction::DUP4 << u256(VMWordBytes) << Instruction::SUB;
+			// stack: ...<v> 1 <VMWordBytes - remainder>
 			m_context << u256(0x100) << Instruction::EXP << Instruction::SUB;
 			m_context << Instruction::NOT << Instruction::AND;
 			// stack: target+size remainder target+size-remainder <v & ...>
 			m_context << Instruction::DUP2 << Instruction::MSTORE;
 			// stack: target+size remainder target+size-remainder
-			m_context << u256(32) << Instruction::ADD;
+			m_context << u256(VMWordBytes) << Instruction::ADD;
 			// stack: target+size remainder <new_padded_end>
 			m_context << Instruction::SWAP2 << Instruction::POP;
 
 			if (_sourceType.isDynamicallySized())
 				m_context << skip.tag();
-			// stack <target + "size"> <remainder = size % 32>
+			// stack <target + "size"> <remainder = size % VMWordBytes>
 			m_context << Instruction::POP;
 		}
 		else
@@ -436,7 +437,7 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 		if (_sourceType.isByteArrayOrString())
 		{
 			// stack here: memory_offset storage_offset length
-			m_context << Instruction::DUP1 << u256(31) << Instruction::LT;
+			m_context << Instruction::DUP1 << u256(VMWordAlignmentMask) << Instruction::LT;
 			qrvmasm::AssemblyItem longByteArray = m_context.appendConditionalJump();
 			// store the short byte array (discard lower-order byte)
 			m_context << u256(0x100) << Instruction::DUP1;
@@ -447,7 +448,7 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 			// add 32 or length to memory offset
 			m_context << Instruction::SWAP2;
 			if (_padToWordBoundaries)
-				m_context << u256(32);
+				m_context << u256(VMWordBytes);
 			else
 				m_context << Instruction::DUP3;
 			m_context << Instruction::ADD;
@@ -469,7 +470,7 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 		}
 
 		// stack here: memory_end_offset storage_data_offset memory_offset
-		bool haveByteOffset = !_sourceType.isByteArrayOrString() && storageBytes <= 16;
+		bool haveByteOffset = !_sourceType.isByteArrayOrString() && storageBytes <= (VMWordBytes / 2);
 		if (haveByteOffset)
 			m_context << u256(0) << Instruction::SWAP1;
 		// stack here: memory_end_offset storage_data_offset [storage_byte_offset] memory_offset
@@ -483,8 +484,8 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 			m_context << Instruction::DUP2 << Instruction::MSTORE;
 			// increment storage_data_offset by 1
 			m_context << Instruction::SWAP1 << u256(1) << Instruction::ADD;
-			// increment memory offset by 32
-			m_context << Instruction::SWAP1 << u256(32) << Instruction::ADD;
+			// increment memory offset by VMWordBytes
+			m_context << Instruction::SWAP1 << u256(VMWordBytes) << Instruction::ADD;
 		}
 		else
 		{
@@ -517,16 +518,16 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 			m_context << Instruction::SWAP1 << Instruction::POP;
 		if (!_sourceType.isByteArrayOrString())
 		{
-			hypAssert(_sourceType.calldataStride() % 32 == 0, "");
-			hypAssert(_sourceType.memoryStride() % 32 == 0, "");
+			hypAssert(_sourceType.calldataStride() % VMWordBytes == 0, "");
+			hypAssert(_sourceType.memoryStride() % VMWordBytes == 0, "");
 		}
 		if (_padToWordBoundaries && _sourceType.isByteArrayOrString())
 		{
 			// memory_end_offset - start is the actual length (we want to compute the ceil of).
-			// memory_offset - start is its next multiple of 32, but it might be off by 32.
-			// so we compute: memory_end_offset += (memory_offset - memory_end_offest) & 31
+			// memory_offset - start is its next multiple of VMWordBytes, but it might be off by VMWordBytes.
+			// so we compute: memory_end_offset += (memory_offset - memory_end_offest) & VMWordAlignmentMask
 			m_context << Instruction::DUP3 << Instruction::SWAP1 << Instruction::SUB;
-			m_context << u256(31) << Instruction::AND;
+			m_context << u256(VMWordAlignmentMask) << Instruction::AND;
 			m_context << Instruction::DUP3 << Instruction::ADD;
 			m_context << Instruction::SWAP2;
 		}
@@ -546,14 +547,11 @@ void ArrayUtils::clearArray(ArrayType const& _typeIn) const
 			ArrayType const& _type = dynamic_cast<ArrayType const&>(*type);
 			unsigned stackHeightStart = _context.stackHeight();
 			hypAssert(_type.location() == DataLocation::Storage, "");
-			if (_type.baseType()->storageBytes() < 32)
+			if (_type.baseType()->storageBytes() < VMWordBytes)
 			{
 				hypAssert(_type.baseType()->isValueType(), "Invalid storage size for non-value type.");
 				hypAssert(_type.baseType()->storageSize() <= 1, "Invalid storage size for type.");
 			}
-			if (_type.baseType()->isValueType())
-				hypAssert(_type.baseType()->storageSize() <= 1, "Invalid size for value type.");
-
 			_context << Instruction::POP; // remove byte offset
 			if (_type.isDynamicallySized())
 				ArrayUtils(_context).clearDynamicArray(_type);
@@ -572,7 +570,7 @@ void ArrayUtils::clearArray(ArrayType const& _typeIn) const
 			else if (!_type.baseType()->isValueType() && _type.length() <= 4)
 			{
 				// unroll loop for small arrays @todo choose a good value
-				hypAssert(_type.baseType()->storageBytes() >= 32, "Invalid storage size.");
+				hypAssert(_type.baseType()->storageBytes() >= VMWordBytes, "Invalid storage size.");
 				for (unsigned i = 1; i < _type.length(); ++i)
 				{
 					_context << u256(0);
@@ -589,7 +587,7 @@ void ArrayUtils::clearArray(ArrayType const& _typeIn) const
 				_context << Instruction::DUP1 << _type.length();
 				ArrayUtils(_context).convertLengthToSize(_type);
 				_context << Instruction::ADD << Instruction::SWAP1;
-				if (_type.baseType()->storageBytes() < 32)
+				if (_type.baseType()->storageBytes() < VMWordBytes)
 					ArrayUtils(_context).clearStorageLoop(TypeProvider::uint256());
 				else
 					ArrayUtils(_context).clearStorageLoop(_type.baseType());
@@ -614,7 +612,7 @@ void ArrayUtils::clearDynamicArray(ArrayType const& _type) const
 	if (_type.isByteArrayOrString())
 	{
 		// stack: ref old_length
-		m_context << Instruction::DUP1 << u256(31) << Instruction::LT;
+		m_context << Instruction::DUP1 << u256(VMWordAlignmentMask) << Instruction::LT;
 		qrvmasm::AssemblyItem longByteArray = m_context.appendConditionalJump();
 		m_context << Instruction::POP;
 		m_context.appendJumpTo(endTag);
@@ -630,7 +628,7 @@ void ArrayUtils::clearDynamicArray(ArrayType const& _type) const
 	m_context << Instruction::SWAP1 << Instruction::DUP2 << Instruction::ADD
 		<< Instruction::SWAP1;
 	// stack: data_pos_end data_pos
-	if (_type.storageStride() < 32)
+	if (_type.storageStride() < VMWordBytes)
 		clearStorageLoop(TypeProvider::uint256());
 	else
 		clearStorageLoop(_type.baseType());
@@ -651,7 +649,7 @@ void ArrayUtils::resizeDynamicArray(ArrayType const& _typeIn) const
 			ArrayType const& _type = dynamic_cast<ArrayType const&>(*type);
 			hypAssert(_type.location() == DataLocation::Storage, "");
 			hypAssert(_type.isDynamicallySized(), "");
-			if (!_type.isByteArrayOrString() && _type.baseType()->storageBytes() < 32)
+			if (!_type.isByteArrayOrString() && _type.baseType()->storageBytes() < VMWordBytes)
 				hypAssert(_type.baseType()->isValueType(), "Invalid storage size for non-value type.");
 
 			unsigned stackHeightStart = _context.stackHeight();
@@ -673,18 +671,18 @@ void ArrayUtils::resizeDynamicArray(ArrayType const& _typeIn) const
 				// stack: ref new_length current_length ref_value
 
 				hypAssert(_context.stackHeight() - stackHeightStart == 4 - 2, "3");
-				_context << Instruction::DUP2 << u256(31) << Instruction::LT;
+				_context << Instruction::DUP2 << u256(VMWordAlignmentMask) << Instruction::LT;
 				qrvmasm::AssemblyItem currentIsLong = _context.appendConditionalJump();
-				_context << Instruction::DUP3 << u256(31) << Instruction::LT;
+				_context << Instruction::DUP3 << u256(VMWordAlignmentMask) << Instruction::LT;
 				qrvmasm::AssemblyItem newIsLong = _context.appendConditionalJump();
 
 				// Here: short -> short
 
-				// Compute 1 << (256 - 8 * new_size)
+				// Compute 1 << (512 - 8 * new_size)
 				qrvmasm::AssemblyItem shortToShort = _context.newTag();
 				_context << shortToShort;
 				_context << Instruction::DUP3 << u256(8) << Instruction::MUL;
-				_context << u256(0x100) << Instruction::SUB;
+				_context << u256(0x200) << Instruction::SUB;
 				_context << u256(2) << Instruction::EXP;
 				// Divide and multiply by that value, clearing bits.
 				_context << Instruction::DUP1 << Instruction::SWAP2;
@@ -721,7 +719,7 @@ void ArrayUtils::resizeDynamicArray(ArrayType const& _typeIn) const
 				_context.adjustStackOffset(1); // we have to do that because of the jumps
 
 				_context << currentIsLong;
-				_context << Instruction::DUP3 << u256(31) << Instruction::LT;
+				_context << Instruction::DUP3 << u256(VMWordAlignmentMask) << Instruction::LT;
 				_context.appendConditionalJumpTo(regularPath);
 
 				// Here: long -> short
@@ -776,7 +774,7 @@ void ArrayUtils::resizeDynamicArray(ArrayType const& _typeIn) const
 			// stack: ref new_length data_pos new_size delete_end
 			_context << Instruction::SWAP2 << Instruction::ADD;
 			// stack: ref new_length delete_end delete_start
-			if (_type.storageStride() < 32)
+			if (_type.storageStride() < VMWordBytes)
 				ArrayUtils(_context).clearStorageLoop(TypeProvider::uint256());
 			else
 				ArrayUtils(_context).clearStorageLoop(_type.baseType());
@@ -793,7 +791,7 @@ void ArrayUtils::incrementDynamicArraySize(ArrayType const& _type) const
 {
 	hypAssert(_type.location() == DataLocation::Storage, "");
 	hypAssert(_type.isDynamicallySized(), "");
-	if (!_type.isByteArrayOrString() && _type.baseType()->storageBytes() < 32)
+	if (!_type.isByteArrayOrString() && _type.baseType()->storageBytes() < VMWordBytes)
 		hypAssert(_type.baseType()->isValueType(), "Invalid storage size for non-value type.");
 
 	if (_type.isByteArrayOrString())
@@ -808,16 +806,16 @@ void ArrayUtils::incrementDynamicArraySize(ArrayType const& _type) const
 		m_context << Instruction::DUP1 << Instruction::SLOAD << Instruction::DUP1;
 		m_context.callYulFunction(m_context.utilFunctions().extractByteArrayLengthFunction(), 1, 1);
 		m_context.appendInlineAssembly(R"({
-			// We have to copy if length is exactly 31, because that marks
+			// We have to copy if length is exactly 63, because that marks
 			// the transition between in-place and out-of-place storage.
 			switch length
-			case 31
+			case 63
 			{
 				mstore(0, ref)
-				let data_area := keccak256(0, 0x20)
+				let data_area := keccak256(0, 0x40)
 				sstore(data_area, and(data, not(0xff)))
-				// Set old length in new format (31 * 2 + 1)
-				data := 63
+				// Set old length in new format (63 * 2 + 1)
+				data := 127
 			}
 			sstore(ref, add(data, 2))
 			// return new length in ref
@@ -837,7 +835,7 @@ void ArrayUtils::popStorageArrayElement(ArrayType const& _type) const
 {
 	hypAssert(_type.location() == DataLocation::Storage, "");
 	hypAssert(_type.isDynamicallySized(), "");
-	if (!_type.isByteArrayOrString() && _type.baseType()->storageBytes() < 32)
+	if (!_type.isByteArrayOrString() && _type.baseType()->storageBytes() < VMWordBytes)
 		hypAssert(_type.baseType()->isValueType(), "Invalid storage size for non-value type.");
 
 	if (_type.isByteArrayOrString())
@@ -848,37 +846,37 @@ void ArrayUtils::popStorageArrayElement(ArrayType const& _type) const
 			if iszero(length) {
 				mstore(0, <panicSelector>)
 				mstore(4, <emptyArrayPop>)
-				revert(0, 0x24)
+				revert(0, 0x44)
 			}
-			switch gt(length, 31)
+			switch gt(length, 63)
 			case 0 {
 				// short byte array
 				// Zero-out the suffix including the least significant byte.
-				let mask := sub(exp(0x100, sub(33, length)), 1)
+				let mask := sub(exp(0x100, sub(65, length)), 1)
 				length := sub(length, 1)
 				slot_value := or(and(not(mask), slot_value), mul(length, 2))
 			}
 			case 1 {
 				// long byte array
 				mstore(0, ref)
-				let slot := keccak256(0, 0x20)
+				let slot := keccak256(0, 0x40)
 				switch length
-				case 32
+				case 64
 				{
 					let data := sload(slot)
 					sstore(slot, 0)
 					data := and(data, not(0xff))
-					slot_value := or(data, 62)
+					slot_value := or(data, 126)
 				}
 				default
 				{
-					let offset_inside_slot := and(sub(length, 1), 0x1f)
-					slot := add(slot, div(sub(length, 1), 32))
+					let offset_inside_slot := and(sub(length, 1), 0x3f)
+					slot := add(slot, div(sub(length, 1), 64))
 					let data := sload(slot)
 
 					// Zero-out the suffix of the byte array by masking it.
-					// ((1<<(8 * (32 - offset))) - 1)
-					let mask := sub(exp(0x100, sub(32, offset_inside_slot)), 1)
+					// ((1<<(8 * (64 - offset))) - 1)
+					let mask := sub(exp(0x100, sub(64, offset_inside_slot)), 1)
 					data := and(not(mask), data)
 					sstore(slot, data)
 
@@ -888,7 +886,7 @@ void ArrayUtils::popStorageArrayElement(ArrayType const& _type) const
 			}
 			sstore(ref, slot_value)
 		})");
-		code("panicSelector", util::selectorFromSignatureU256("Panic(uint256)").str());
+		code("panicSelector", (u512(util::selectorFromSignatureU256("Panic(uint256)")) << (VMWordBits - 256)).str());
 		code("emptyArrayPop", std::to_string(unsigned(util::PanicCode::EmptyArrayPop)));
 		m_context.appendInlineAssembly(code.render(), {"ref", "slot_value", "length"});
 		m_context << Instruction::POP << Instruction::POP << Instruction::POP;
@@ -923,7 +921,7 @@ void ArrayUtils::popStorageArrayElement(ArrayType const& _type) const
 
 void ArrayUtils::clearStorageLoop(Type const* _type) const
 {
-	hypAssert(_type->storageBytes() >= 32, "");
+	hypAssert(_type->storageSize() >= 1, "");
 	m_context.callLowLevelFunction(
 		"$clearStorageLoop_" + _type->identifier(),
 		2,
@@ -948,10 +946,18 @@ void ArrayUtils::clearStorageLoop(Type const* _type) const
 				Instruction::ISZERO;
 			qrvmasm::AssemblyItem zeroLoopEnd = _context.newTag();
 			_context.appendConditionalJumpTo(zeroLoopEnd);
-			// delete
-			_context << u256(0);
-			StorageItem(_context, *_type).setToZero(SourceLocation(), false);
-			_context << Instruction::POP;
+			// delete - always clear full slot (64 bytes) regardless of type size
+			if (_type->storageBytes() < VMWordBytes)
+			{
+				// For types smaller than a word, clear the entire slot with sstore(pos, 0)
+				_context << u256(0) << Instruction::DUP2 << Instruction::SSTORE;
+			}
+			else
+			{
+				_context << u256(0);
+				StorageItem(_context, *_type).setToZero(SourceLocation(), false);
+				_context << Instruction::POP;
+			}
 			// increment
 			_context << _type->storageSize() << Instruction::ADD;
 			_context.appendJumpTo(loopStart);
@@ -973,9 +979,9 @@ void ArrayUtils::convertLengthToSize(ArrayType const& _arrayType, bool _pad) con
 			unsigned baseBytes = _arrayType.baseType()->storageBytes();
 			if (baseBytes == 0)
 				m_context << Instruction::POP << u256(1);
-			else if (baseBytes <= 16)
+			else if (baseBytes <= (VMWordBytes / 2))
 			{
-				unsigned itemsPerSlot = 32 / baseBytes;
+				unsigned itemsPerSlot = VMWordBytes / baseBytes;
 				m_context
 					<< u256(itemsPerSlot - 1) << Instruction::ADD
 					<< u256(itemsPerSlot) << Instruction::SWAP1 << Instruction::DIV;
@@ -995,8 +1001,8 @@ void ArrayUtils::convertLengthToSize(ArrayType const& _arrayType, bool _pad) con
 			m_context << Instruction::MUL;
 		}
 		else if (_pad)
-			m_context << u256(31) << Instruction::ADD
-				<< u256(32) << Instruction::DUP1
+			m_context << u256(VMWordAlignmentMask) << Instruction::ADD
+				<< u256(VMWordBytes) << Instruction::DUP1
 				<< Instruction::SWAP2 << Instruction::DIV << Instruction::MUL;
 	}
 }
@@ -1050,9 +1056,9 @@ void ArrayUtils::accessIndex(ArrayType const& _arrayType, bool _doBoundsCheck, b
 	case DataLocation::Memory:
 		// stack: <base_ref> <index>
 		if (!_arrayType.isByteArrayOrString())
-			m_context << u256(_arrayType.memoryHeadSize()) << Instruction::MUL;
+			m_context << u256(_arrayType.memoryStride()) << Instruction::MUL;
 		if (_arrayType.isDynamicallySized())
-			m_context << u256(32) << Instruction::ADD;
+			m_context << u256(VMWordBytes) << Instruction::ADD;
 		if (_keepReference)
 			m_context << Instruction::DUP2;
 		m_context << Instruction::ADD;
@@ -1090,14 +1096,14 @@ void ArrayUtils::accessIndex(ArrayType const& _arrayType, bool _doBoundsCheck, b
 		if (_arrayType.isDynamicallySized())
 			CompilerUtils(m_context).computeHashStatic();
 		m_context << Instruction::SWAP1;
-		if (_arrayType.baseType()->storageBytes() <= 16)
+		if (_arrayType.baseType()->storageBytes() <= (VMWordBytes / 2))
 		{
 			// stack: <data_ref> <index>
 			// goal:
 			// <ref> <byte_number> = <base_ref + index / itemsPerSlot> <(index % itemsPerSlot) * byteSize>
 			unsigned byteSize = _arrayType.baseType()->storageBytes();
 			hypAssert(byteSize != 0, "");
-			unsigned itemsPerSlot = 32 / byteSize;
+			unsigned itemsPerSlot = VMWordBytes / byteSize;
 			m_context << u256(itemsPerSlot) << Instruction::SWAP2;
 			// stack: itemsPerSlot index data_ref
 			m_context
@@ -1138,14 +1144,14 @@ void ArrayUtils::accessCallDataArrayElement(ArrayType const& _arrayType, bool _d
 		ArrayUtils(m_context).accessIndex(_arrayType, _doBoundsCheck);
 		if (_arrayType.baseType()->isValueType())
 		{
-			hypAssert(_arrayType.baseType()->storageBytes() <= 32, "");
+			hypAssert(_arrayType.baseType()->storageBytes() <= VMWordBytes, "");
 			if (
 				!_arrayType.isByteArrayOrString() &&
-				_arrayType.baseType()->storageBytes() < 32 &&
+				_arrayType.baseType()->storageBytes() < VMWordBytes &&
 				m_context.useABICoderV2()
 			)
 			{
-				m_context << u256(32);
+				m_context << u256(VMWordBytes);
 				CompilerUtils(m_context).abiDecodeV2({_arrayType.baseType()}, false);
 			}
 			else
@@ -1167,11 +1173,11 @@ void ArrayUtils::accessCallDataArrayElement(ArrayType const& _arrayType, bool _d
 
 void ArrayUtils::incrementByteOffset(unsigned _byteSize, unsigned _byteOffsetPosition, unsigned _storageOffsetPosition) const
 {
-	hypAssert(_byteSize < 32, "");
+	hypAssert(_byteSize < VMWordBytes, "");
 	hypAssert(_byteSize != 0, "");
 	// We do the following, but avoiding jumps:
 	// byteOffset += byteSize
-	// if (byteOffset + byteSize > 32)
+	// if (byteOffset + byteSize > VMWordBytes)
 	// {
 	//     storageOffset++;
 	//     byteOffset = 0;
@@ -1181,9 +1187,9 @@ void ArrayUtils::incrementByteOffset(unsigned _byteSize, unsigned _byteOffsetPos
 	m_context << u256(_byteSize) << Instruction::ADD;
 	if (_byteOffsetPosition > 1)
 		m_context << swapInstruction(_byteOffsetPosition - 1);
-	// compute, X := (byteOffset + byteSize - 1) / 32, should be 1 iff byteOffset + bytesize > 32
+	// compute, X := (byteOffset + byteSize - 1) / VMWordBytes, should be 1 iff byteOffset + bytesize > VMWordBytes
 	m_context
-		<< u256(32) << dupInstruction(1 + _byteOffsetPosition) << u256(_byteSize - 1)
+		<< u256(VMWordBytes) << dupInstruction(1 + _byteOffsetPosition) << u256(_byteSize - 1)
 		<< Instruction::ADD << Instruction::DIV;
 	// increment storage offset if X == 1 (just add X to it)
 	// stack: X

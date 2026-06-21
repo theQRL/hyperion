@@ -69,7 +69,7 @@ public:
 	/// Append a QRVM instruction.
 	virtual void appendInstruction(qrvmasm::Instruction _instruction) = 0;
 	/// Append a constant.
-	virtual void appendConstant(u256 const& _constant) = 0;
+	virtual void appendConstant(u512 const& _constant) = 0;
 	/// Append a label.
 	virtual void appendLabel(LabelID _labelId) = 0;
 	/// Append a label reference.

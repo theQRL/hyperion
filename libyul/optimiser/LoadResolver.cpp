@@ -29,6 +29,7 @@
 #include <libyul/optimiser/OptimizerUtilities.h>
 #include <libyul/SideEffects.h>
 #include <libyul/AST.h>
+#include <libhyputil/VMConstants.h>
 #include <libyul/Utilities.h>
 
 #include <libqrvmasm/GasMeter.h>
@@ -112,7 +113,7 @@ void LoadResolver::tryEvaluateKeccak(
 	if (!memoryKey || !length)
 		return;
 
-	// The costs are only correct for hashes of 32 bytes or 1 word (when rounded up).
+	// The costs are only correct for hashes of one VM word or less.
 	GasMeter gasMeter{
 		dynamic_cast<QRVMDialect const&>(m_dialect),
 		!m_expectedExecutionsPerDeployment,
@@ -137,12 +138,15 @@ void LoadResolver::tryEvaluateKeccak(
 	if (costOfLiteral > costOfKeccak)
 		return;
 
-	std::optional<YulString> value = memoryValue(memoryKey->name);
-	if (value && inScope(*value))
+	std::optional<YulString> memoryContentName = memoryValue(memoryKey->name);
+	if (memoryContentName && inScope(*memoryContentName))
 	{
-		std::optional<u256> memoryContent = valueOfIdentifier(*value);
-		std::optional<u256> byteLength = valueOfIdentifier(length->name);
-		if (memoryContent && byteLength && *byteLength <= 32)
+		std::optional<u512> memoryContent;
+		if (AssignedValue const* value = variableValue(*memoryContentName))
+			if (Literal const* literal = std::get_if<Literal>(value->value))
+				memoryContent = valueOfLiteral(*literal);
+		std::optional<u512> byteLength = valueOfIdentifier(length->name);
+		if (memoryContent && byteLength && *byteLength <= VMWordBytes)
 		{
 			bytes contentAsBytes = toBigEndian(*memoryContent);
 			contentAsBytes.resize(static_cast<size_t>(*byteLength));

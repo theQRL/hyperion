@@ -37,7 +37,7 @@ contract C {
 }
 // ----
 // library: L
-// f(bool): true -> 8, 0x40, 0
-// f(bool): false -> 18, 0x40, 7, "failure"
-// g(bool): true -> 9, 0x40, 0
-// g(bool): false -> 19, 0x40, 7, "failure"
+// f(bool): true -> 8, 0x80, 0
+// f(bool): false -> 18, 0x80, 7, "failure"
+// g(bool): true -> 9, 0x80, 0
+// g(bool): false -> 19, 0x80, 7, "failure"

@@ -20,4 +20,4 @@ contract C {
     }
 }
 // ----
-// test() -> -2, 4, -112, 0
+// test() -> 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe, 4, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff90, 0

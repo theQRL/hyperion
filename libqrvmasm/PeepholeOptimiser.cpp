@@ -416,7 +416,7 @@ struct TagConjunctions: SimplePeepholeOptimizerMethod<TagConjunctions>
 		if (
 			_pushTag.type() == PushTag &&
 			_pushConstant.type() == Push &&
-			(_pushConstant.data() & u256(0xFFFFFFFF)) == u256(0xFFFFFFFF)
+			(_pushConstant.data() & u512(0xFFFFFFFF)) == u512(0xFFFFFFFF)
 		)
 		{
 			*_out = _pushTag;
@@ -426,7 +426,7 @@ struct TagConjunctions: SimplePeepholeOptimizerMethod<TagConjunctions>
 			// tag and constant are swapped
 			_pushConstant.type() == PushTag &&
 			_pushTag.type() == Push &&
-			(_pushTag.data() & u256(0xFFFFFFFF)) == u256(0xFFFFFFFF)
+			(_pushTag.data() & u512(0xFFFFFFFF)) == u512(0xFFFFFFFF)
 		)
 		{
 			*_out = _pushConstant;

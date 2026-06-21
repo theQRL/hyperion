@@ -49,9 +49,9 @@ contract C {
 		assert(y == 65535);
 		y = uint16(uint8(type(uint16).max));
 		assert(y == 255);
-		address a = address(uint160(uint8(0)));
+		address a = address(uint512(uint8(0)));
 		assert(a == address(0));
-		D d = D(address(uint160(uint8(0))));
+		D d = D(address(uint512(uint8(0))));
 		assert(a == address(d));
 		bytes2 b1 = 0xcafe;
 		bytes4 b2 = bytes4(b1);

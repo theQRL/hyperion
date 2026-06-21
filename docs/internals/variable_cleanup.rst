@@ -4,8 +4,8 @@
 Cleaning Up Variables
 *********************
 
-Ultimately, all values in the QRVM are stored in 256 bit words.
-Thus, in some cases, when the type of a value has less than 256 bits,
+Ultimately, all values in the QRVM are stored in 512 bit words.
+Thus, in some cases, when the type of a value has less than 512 bits,
 it is necessary to clean the remaining bits.
 The Hyperion compiler is designed to do such cleaning before any operations
 that might be adversely affected by the potential garbage in the remaining bits.
@@ -17,7 +17,7 @@ because otherwise the garbled value can be observed.
 
 Note that access via inline assembly is not considered such an operation:
 If you use inline assembly to access Hyperion variables
-shorter than 256 bits, the compiler does not guarantee that
+shorter than 512 bits, the compiler does not guarantee that
 the value is properly cleaned up.
 
 Moreover, we do not clean the bits if the immediately
@@ -30,7 +30,7 @@ In addition to the design principle above, the Hyperion compiler
 cleans input data when it is loaded onto the stack.
 
 The following table describes the cleaning rules applied to different types,
-where ``higher bits`` refers to the remaining bits in case the type has less than 256 bits.
+where ``higher bits`` refers to the remaining bits in case the type has less than 512 bits.
 
 +---------------+---------------+-------------------------+
 |Type           |Valid Values   |Cleanup of Invalid Values|

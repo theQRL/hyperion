@@ -4,7 +4,7 @@ IR:
 object "C_81" {
     code {
         /// @src 0:83:371  "contract C {..."
-        mstore(64, memoryguard(128))
+        mstore(128, memoryguard(256))
         if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
         constructor_C_81()
@@ -15,7 +15,7 @@ object "C_81" {
         return(_1, datasize("C_81_deployed"))
 
         function allocate_unbounded() -> memPtr {
-            memPtr := mload(64)
+            memPtr := mload(128)
         }
 
         function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -35,11 +35,11 @@ object "C_81" {
     object "C_81_deployed" {
         code {
             /// @src 0:83:371  "contract C {..."
-            mstore(64, memoryguard(128))
+            mstore(128, memoryguard(256))
 
             if iszero(lt(calldatasize(), 4))
             {
-                let selector := shift_right_224_unsigned(calldataload(0))
+                let selector := shift_right_480_unsigned(calldataload(0))
                 switch selector
 
                 case 0x70cb9605
@@ -54,13 +54,13 @@ object "C_81" {
 
             revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74()
 
-            function shift_right_224_unsigned(value) -> newValue {
+            function shift_right_480_unsigned(value) -> newValue {
                 newValue :=
-                shr(224, value)
+                shr(480, value)
             }
 
             function allocate_unbounded() -> memPtr {
-                memPtr := mload(64)
+                memPtr := mload(128)
             }
 
             function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -76,7 +76,7 @@ object "C_81" {
             }
 
             function cleanup_t_uint256(value) -> cleaned {
-                cleaned := value
+                cleaned := and(value, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
             }
 
             function validator_revert_t_uint256(value) {
@@ -89,7 +89,7 @@ object "C_81" {
             }
 
             function abi_decode_tuple_t_uint256t_uint256t_uint256t_uint256(headStart, dataEnd) -> value0, value1, value2, value3 {
-                if slt(sub(dataEnd, headStart), 128) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
+                if slt(sub(dataEnd, headStart), 256) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
 
                 {
 
@@ -100,21 +100,21 @@ object "C_81" {
 
                 {
 
-                    let offset := 32
+                    let offset := 64
 
                     value1 := abi_decode_t_uint256(add(headStart, offset), dataEnd)
                 }
 
                 {
 
-                    let offset := 64
+                    let offset := 128
 
                     value2 := abi_decode_t_uint256(add(headStart, offset), dataEnd)
                 }
 
                 {
 
-                    let offset := 96
+                    let offset := 192
 
                     value3 := abi_decode_t_uint256(add(headStart, offset), dataEnd)
                 }
@@ -126,7 +126,7 @@ object "C_81" {
             }
 
             function cleanup_t_int256(value) -> cleaned {
-                cleaned := value
+                cleaned := signextend(31, value)
             }
 
             function abi_encode_t_int256_to_t_int256_fromStack(value, pos) {
@@ -134,15 +134,15 @@ object "C_81" {
             }
 
             function abi_encode_tuple_t_uint256_t_int256_t_uint256_t_uint256__to_t_uint256_t_int256_t_uint256_t_uint256__fromStack(headStart , value0, value1, value2, value3) -> tail {
-                tail := add(headStart, 128)
+                tail := add(headStart, 256)
 
                 abi_encode_t_uint256_to_t_uint256_fromStack(value0,  add(headStart, 0))
 
-                abi_encode_t_int256_to_t_int256_fromStack(value1,  add(headStart, 32))
+                abi_encode_t_int256_to_t_int256_fromStack(value1,  add(headStart, 64))
 
-                abi_encode_t_uint256_to_t_uint256_fromStack(value2,  add(headStart, 64))
+                abi_encode_t_uint256_to_t_uint256_fromStack(value2,  add(headStart, 128))
 
-                abi_encode_t_uint256_to_t_uint256_fromStack(value3,  add(headStart, 96))
+                abi_encode_t_uint256_to_t_uint256_fromStack(value3,  add(headStart, 192))
 
             }
 
@@ -181,10 +181,15 @@ object "C_81" {
                 converted := cleanup_t_uint256(identity(cleanup_t_rational_2_by_1(value)))
             }
 
+            function shift_left_256(value) -> newValue {
+                newValue :=
+                shl(256, value)
+            }
+
             function panic_error_0x11() {
-                mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
+                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
                 mstore(4, 0x11)
-                revert(0, 0x24)
+                revert(0, 0x44)
             }
 
             function checked_exp_t_rational_2_by_1_t_uint256(exponent) -> power {
@@ -312,7 +317,7 @@ object "C_81" {
                 /// @src 0:188:201  "uint w = 2**a"
                 let var_w_22 := expr_25
                 /// @src 0:214:216  "-2"
-                let expr_30 := 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe
+                let expr_30 := 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe
                 /// @src 0:213:217  "(-2)"
                 let expr_31 := expr_30
                 /// @src 0:219:220  "b"
@@ -359,7 +364,7 @@ object "C_81" {
                 var_w_22 := expr_56
                 let expr_57 := expr_56
                 /// @src 0:323:325  "-1"
-                let expr_61 := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+                let expr_61 := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
                 /// @src 0:322:326  "(-1)"
                 let expr_62 := expr_61
                 /// @src 0:328:329  "b"

@@ -35,8 +35,8 @@ BOOST_AUTO_TEST_SUITE(TestFunctionCallTest)
 
 BOOST_AUTO_TEST_CASE(format_unsigned_singleline)
 {
-	bytes expectedBytes = toBigEndian(u256{1});
-	ABIType abiType{ABIType::UnsignedDec, ABIType::AlignRight, 32};
+	bytes expectedBytes = bytes(32, 0) + toBigEndian(u256{1});
+	ABIType abiType{ABIType::UnsignedDec, ABIType::AlignRight, 64};
 	Parameter param{expectedBytes, "1", abiType, FormatInfo{}};
 	FunctionCallExpectations expectations{std::vector<Parameter>{param}, false, std::string{}, {}};
 	FunctionCallArgs arguments{std::vector<Parameter>{param}, std::string{}};
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(format_unsigned_singleline)
 
 	BOOST_REQUIRE_EQUAL(test.format(), "// f(uint8): 1 -> 1");
 
-	test.setRawBytes(toBigEndian(u256{2}));
+	test.setRawBytes(bytes(32, 0) + toBigEndian(u256{2}));
 	test.setFailure(false);
 
 	BOOST_REQUIRE_EQUAL(test.format("", TestFunctionCall::RenderMode::ActualValuesExpectedGas), "// f(uint8): 1 -> 2");
@@ -55,8 +55,8 @@ BOOST_AUTO_TEST_CASE(format_unsigned_singleline)
 
 BOOST_AUTO_TEST_CASE(format_unsigned_singleline_signed_encoding)
 {
-	bytes expectedBytes = toBigEndian(u256{1});
-	ABIType abiType{ABIType::UnsignedDec, ABIType::AlignRight, 32};
+	bytes expectedBytes = bytes(32, 0) + toBigEndian(u256{1});
+	ABIType abiType{ABIType::UnsignedDec, ABIType::AlignRight, 64};
 	Parameter param{expectedBytes, "1", abiType, FormatInfo{}};
 	FunctionCallExpectations expectations{std::vector<Parameter>{param}, false, std::string{}, {}};
 	FunctionCallArgs arguments{std::vector<Parameter>{param}, std::string{}};
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(format_unsigned_singleline_signed_encoding)
 
 	BOOST_REQUIRE_EQUAL(test.format(), "// f(uint8): 1 -> 1");
 
-	test.setRawBytes(toBigEndian(u256{-1}));
+	test.setRawBytes(toBigEndian(u512(0) - u512(1)));
 	test.setFailure(false);
 
 	BOOST_REQUIRE_EQUAL(test.format("", TestFunctionCall::RenderMode::ActualValuesExpectedGas), "// f(uint8): 1 -> -1");
@@ -75,8 +75,8 @@ BOOST_AUTO_TEST_CASE(format_unsigned_singleline_signed_encoding)
 
 BOOST_AUTO_TEST_CASE(format_unsigned_multiline)
 {
-	bytes expectedBytes = toBigEndian(u256{1});
-	ABIType abiType{ABIType::UnsignedDec, ABIType::AlignRight, 32};
+	bytes expectedBytes = bytes(32, 0) + toBigEndian(u256{1});
+	ABIType abiType{ABIType::UnsignedDec, ABIType::AlignRight, 64};
 	Parameter result{expectedBytes, "1", abiType, FormatInfo{}};
 	FunctionCallExpectations expectations{std::vector<Parameter>{result}, false, std::string{}, {}};
 	FunctionCallArgs arguments{std::vector<Parameter>{}, std::string{}};
@@ -90,8 +90,8 @@ BOOST_AUTO_TEST_CASE(format_unsigned_multiline)
 
 BOOST_AUTO_TEST_CASE(format_multiple_unsigned_singleline)
 {
-	bytes expectedBytes = toBigEndian(u256{1});
-	ABIType abiType{ABIType::UnsignedDec, ABIType::AlignRight, 32};
+	bytes expectedBytes = bytes(32, 0) + toBigEndian(u256{1});
+	ABIType abiType{ABIType::UnsignedDec, ABIType::AlignRight, 64};
 	Parameter param{expectedBytes, "1", abiType, FormatInfo{}};
 	FunctionCallExpectations expectations{std::vector<Parameter>{param, param}, false, std::string{}, {}};
 	FunctionCallArgs arguments{std::vector<Parameter>{param, param}, std::string{}};
@@ -104,8 +104,8 @@ BOOST_AUTO_TEST_CASE(format_multiple_unsigned_singleline)
 
 BOOST_AUTO_TEST_CASE(format_signed_singleline)
 {
-	bytes expectedBytes = toBigEndian(u256{-1});
-	ABIType abiType{ABIType::UnsignedDec, ABIType::AlignRight, 32};
+	bytes expectedBytes = toBigEndian(u512(0) - u512(1));
+	ABIType abiType{ABIType::UnsignedDec, ABIType::AlignRight, 64};
 	Parameter param{expectedBytes, "-1", abiType, FormatInfo{}};
 	FunctionCallExpectations expectations{std::vector<Parameter>{param}, false, std::string{}, {}};
 	FunctionCallArgs arguments{std::vector<Parameter>{param}, std::string{}};
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(format_signed_singleline)
 
 	BOOST_REQUIRE_EQUAL(test.format(), "// f(int8): -1 -> -1");
 
-	test.setRawBytes(toBigEndian(u256{-2}));
+	test.setRawBytes(toBigEndian(u512(0) - u512(2)));
 	test.setFailure(false);
 
 	BOOST_REQUIRE_EQUAL(test.format("", TestFunctionCall::RenderMode::ActualValuesExpectedGas), "// f(int8): -1 -> -2");
@@ -124,8 +124,8 @@ BOOST_AUTO_TEST_CASE(format_signed_singleline)
 BOOST_AUTO_TEST_CASE(format_hex_singleline)
 {
 	bytes result = fromHex("0x31");
-	bytes expectedBytes = result + bytes(32 - result.size(), 0);
-	ABIType abiType{ABIType::Hex, ABIType::AlignRight, 32};
+	bytes expectedBytes = result + bytes(64 - result.size(), 0);
+	ABIType abiType{ABIType::Hex, ABIType::AlignRight, 64};
 	Parameter param{expectedBytes, "0x31", abiType, FormatInfo{}};
 	FunctionCallExpectations expectations{std::vector<Parameter>{param}, false, std::string{}, {}};
 	FunctionCallArgs arguments{std::vector<Parameter>{param}, std::string{}};
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(format_hex_singleline)
 	BOOST_REQUIRE_EQUAL(test.format(), "// f(bytes32): 0x31 -> 0x31");
 
 	bytes actualResult = fromHex("0x32");
-	bytes actualBytes = bytes(32 - actualResult.size(), 0) + actualResult;
+	bytes actualBytes = bytes(64 - actualResult.size(), 0) + actualResult;
 
 	test.setRawBytes(actualBytes);
 	test.setFailure(false);
@@ -160,8 +160,8 @@ BOOST_AUTO_TEST_CASE(format_hex_string_singleline)
 
 BOOST_AUTO_TEST_CASE(format_bool_true_singleline)
 {
-	bytes expectedBytes = toBigEndian(u256{true});
-	ABIType abiType{ABIType::Boolean, ABIType::AlignRight, 32};
+	bytes expectedBytes = bytes(32, 0) + toBigEndian(u256{true});
+	ABIType abiType{ABIType::Boolean, ABIType::AlignRight, 64};
 	Parameter param{expectedBytes, "true", abiType, FormatInfo{}};
 	FunctionCallExpectations expectations{std::vector<Parameter>{param}, false, std::string{}, {}};
 	FunctionCallArgs arguments{std::vector<Parameter>{param}, std::string{}};
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE(format_bool_true_singleline)
 	BOOST_REQUIRE_EQUAL(test.format(), "// f(bool): true -> true");
 
 	bytes actualResult = bytes{false};
-	bytes actualBytes = actualResult + bytes(32 - actualResult.size(), 0);
+	bytes actualBytes = actualResult + bytes(64 - actualResult.size(), 0);
 	test.setRawBytes(actualBytes);
 	test.setFailure(false);
 
@@ -181,8 +181,8 @@ BOOST_AUTO_TEST_CASE(format_bool_true_singleline)
 
 BOOST_AUTO_TEST_CASE(format_bool_false_singleline)
 {
-	bytes expectedBytes = toBigEndian(u256{false});
-	ABIType abiType{ABIType::Boolean, ABIType::AlignRight, 32};
+	bytes expectedBytes = bytes(32, 0) + toBigEndian(u256{false});
+	ABIType abiType{ABIType::Boolean, ABIType::AlignRight, 64};
 	Parameter param{expectedBytes, "false", abiType, FormatInfo{}};
 	FunctionCallExpectations expectations{std::vector<Parameter>{param}, false, std::string{}, {}};
 	FunctionCallArgs arguments{std::vector<Parameter>{param}, std::string{}};
@@ -195,8 +195,8 @@ BOOST_AUTO_TEST_CASE(format_bool_false_singleline)
 
 BOOST_AUTO_TEST_CASE(format_bool_left_singleline)
 {
-	bytes expectedBytes = toBigEndian(u256{false});
-	ABIType abiType{ABIType::Boolean, ABIType::AlignLeft, 32};
+	bytes expectedBytes = bytes(32, 0) + toBigEndian(u256{false});
+	ABIType abiType{ABIType::Boolean, ABIType::AlignLeft, 64};
 	Parameter param{expectedBytes, "left(false)", abiType, FormatInfo{}};
 	FunctionCallExpectations expectations{std::vector<Parameter>{param}, false, std::string{}, {}};
 	FunctionCallArgs arguments{std::vector<Parameter>{param}, std::string{}};
@@ -210,8 +210,8 @@ BOOST_AUTO_TEST_CASE(format_bool_left_singleline)
 BOOST_AUTO_TEST_CASE(format_hex_number_right_singleline)
 {
 	bytes result = fromHex("0x42");
-	bytes expectedBytes = result + bytes(32 - result.size(), 0);
-	ABIType abiType{ABIType::Hex, ABIType::AlignRight, 32};
+	bytes expectedBytes = result + bytes(64 - result.size(), 0);
+	ABIType abiType{ABIType::Hex, ABIType::AlignRight, 64};
 	Parameter param{expectedBytes, "right(0x42)", abiType, FormatInfo{}};
 	FunctionCallExpectations expectations{std::vector<Parameter>{param}, false, std::string{}, {}};
 	FunctionCallArgs arguments{std::vector<Parameter>{param}, std::string{}};
@@ -238,8 +238,8 @@ BOOST_AUTO_TEST_CASE(format_empty_byte_range)
 
 BOOST_AUTO_TEST_CASE(format_failure_singleline)
 {
-	bytes expectedBytes = toBigEndian(u256{1});
-	ABIType abiType{ABIType::UnsignedDec, ABIType::AlignRight, 32};
+	bytes expectedBytes = bytes(32, 0) + toBigEndian(u256{1});
+	ABIType abiType{ABIType::UnsignedDec, ABIType::AlignRight, 64};
 	Parameter param{expectedBytes, "1", abiType, FormatInfo{}};
 	FunctionCallExpectations expectations{std::vector<Parameter>{}, true, std::string{}, {}};
 	FunctionCallArgs arguments{std::vector<Parameter>{param}, std::string{}};

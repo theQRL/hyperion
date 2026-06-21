@@ -131,12 +131,15 @@ BOOST_AUTO_TEST_CASE(all_assembly_items)
 
 	BOOST_CHECK_EQUAL(
 		_assembly.assemble().toHex(),
-		"5b6001600220607f73__$bf005014d9d0f534b8fcb268bd84c491a2$__"
-		"60005660776024604c600760707300000000000000000000000000000000000000005050"
+		"5b60016002206100fd9f__$bf005014d9d0f534b8fcb268bd84c491a2380f4acd260d1ccfe9cd8201f7e9941b2d97741d22d9bc452e75ab998652be220fa5970804245eb64e5bc6e5$__"
+		"610000566100f56044"
+		"6100aa60076100ee"
+		"9f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+		"5050"
 		"600260010152"
-		"006000"
+		"00610000"
 		"56fe"
-		"7f0000000000000000000000000000000000000000000000000000000000000000"
+		"9f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
 		"6000feffff7465737452010203044266eeaa"
 	);
 	BOOST_CHECK_EQUAL(
@@ -213,6 +216,21 @@ BOOST_AUTO_TEST_CASE(all_assembly_items)
 	Json::Value jsonValue;
 	BOOST_CHECK(util::jsonParseStrict(json, jsonValue));
 	BOOST_CHECK_EQUAL(util::jsonCompactPrint(_assembly.assemblyJSON(indices)), util::jsonCompactPrint(jsonValue));
+}
+
+BOOST_AUTO_TEST_CASE(imported_push_preserves_512_bit_value)
+{
+	std::string const value = "80"s + std::string(126, '0');
+	Json::Value jsonValue;
+	BOOST_REQUIRE(util::jsonParseStrict(
+		"{\".code\":[{\"name\":\"PUSH\",\"value\":\"" + value + "\"}]}",
+		jsonValue
+	));
+
+	auto [assembly, sourceList] = Assembly::fromJSON(jsonValue);
+	BOOST_REQUIRE(assembly);
+	BOOST_CHECK(sourceList.empty());
+	BOOST_CHECK_EQUAL(assembly->assemble().toHex(), "9f" + value);
 }
 
 BOOST_AUTO_TEST_CASE(immutables_and_its_source_maps)
@@ -331,36 +349,36 @@ BOOST_AUTO_TEST_CASE(immutable)
 	checkCompilation(_assembly);
 
 	std::string genericPush0 = "5f";
-	// PUSH1 0x1b v/s PUSH1 0x19
-	std::string dataOffset = "6019";
+	// PUSH2 for dataOffset
+	std::string dataOffset = "61001a";
 
 	BOOST_CHECK_EQUAL(
 		_assembly.assemble().toHex(),
 		// root.asm
 		// assign "someImmutable"
 		"602a" + // PUSH1 42 - value for someImmutable
-		genericPush0 + // PUSH1 0 - offset of code into which to insert the immutable
-		"8181" // DUP2 DUP2
+		genericPush0 + // PUSH0 - offset of code into which to insert the immutable
+		"a1a1" // DUP2 DUP2
 		"6001" // PUSH1 1 - offset of first someImmutable in sub_0
 		"01" // ADD - add offset of immutable to offset of code
 		"52" // MSTORE
-		"6043" // PUSH1 67 - offset of second someImmutable in sub_0
+		"6083" // PUSH1 131 - offset of third someImmutable in sub_0
 		"01" // ADD - add offset of immutable to offset of code
 		"52" // MSTORE
 		// assign "someOtherImmutable"
 		"6017" + // PUSH1 23 - value for someOtherImmutable
-		genericPush0 + // PUSH1 0 - offset of code into which to insert the immutable
-		"6022" // PUSH1 34 - offset of someOtherImmutable in sub_0
+		genericPush0 + // PUSH0 - offset of code into which to insert the immutable
+		"6042" // PUSH1 66 - offset of someOtherImmutable in sub_0
 		"01" // ADD - add offset of immutable to offset of code
 		"52" // MSTORE
-		"6063" + // PUSH1 0x63 - dataSize(sub_0)
-		dataOffset +  // PUSH1 0x23 - dataOffset(sub_0)
+		"60c3" + // PUSH1 0xC3 - dataSize(sub_0) = 195 = 3*65
+		dataOffset +  // PUSH2 0x001A - dataOffset(sub_0)
 		"fe" // INVALID
 		// end of root.asm
 		// sub.asm
-		"7f0000000000000000000000000000000000000000000000000000000000000000" // PUSHIMMUTABLE someImmutable - data at offset 1
-		"7f0000000000000000000000000000000000000000000000000000000000000000" // PUSHIMMUTABLE someOtherImmutable - data at offset 34
-		"7f0000000000000000000000000000000000000000000000000000000000000000" // PUSHIMMUTABLE someImmutable - data at offset 67
+		"9f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" // PUSHIMMUTABLE someImmutable - data at offset 1
+		"9f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" // PUSHIMMUTABLE someOtherImmutable - data at offset 66
+		"9f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" // PUSHIMMUTABLE someImmutable - data at offset 131
 	);
 	BOOST_CHECK_EQUAL(
 		_assembly.assemblyString(),

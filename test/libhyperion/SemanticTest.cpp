@@ -124,7 +124,7 @@ std::map<std::string, Builtin> SemanticTest::makeBuiltins()
 			"ihyptest_builtin_test",
 			[](FunctionCall const&) -> std::optional<bytes>
 			{
-				return toBigEndian(u256(0x1234));
+				return toBigEndian(u512(0x1234));
 			}
 		},
 		{
@@ -132,7 +132,7 @@ std::map<std::string, Builtin> SemanticTest::makeBuiltins()
 			[](FunctionCall const& _call) -> std::optional<bytes>
 			{
 				if (_call.arguments.parameters.empty())
-					return toBigEndian(0);
+					return toBigEndian(u512(0));
 				else
 					return _call.arguments.rawBytes();
 			}
@@ -142,12 +142,12 @@ std::map<std::string, Builtin> SemanticTest::makeBuiltins()
 			[this](FunctionCall const& _call) -> std::optional<bytes>
 			{
 				hyptestAssert(_call.arguments.parameters.size() <= 1, "Account address expected.");
-				h160 address;
+				h512 address;
 				if (_call.arguments.parameters.size() == 1)
-					address = h160(_call.arguments.parameters.at(0).rawString);
+					address = h512(_call.arguments.parameters.at(0).rawString);
 				else
 					address = m_contractAddress;
-				return toBigEndian(balanceAt(address));
+				return toBigEndian(u512(balanceAt(address)));
 			}
 		},
 		{
@@ -155,7 +155,7 @@ std::map<std::string, Builtin> SemanticTest::makeBuiltins()
 			[this](FunctionCall const& _call) -> std::optional<bytes>
 			{
 				hyptestAssert(_call.arguments.parameters.empty(), "No arguments expected.");
-				return toBigEndian(u256(storageEmpty(m_contractAddress) ? 1 : 0));
+				return toBigEndian(u512(storageEmpty(m_contractAddress) ? 1 : 0));
 		 	}
 		},
 		{
@@ -258,11 +258,11 @@ std::vector<std::string> SemanticTest::eventSideEffectHook(FunctionCall const&) 
 			++index;
 		}
 
-		hyptestAssert(log.data.size() % 32 == 0, "");
-		for (size_t index = 0; index < log.data.size() / 32; ++index)
+		hyptestAssert(log.data.size() % 64 == 0, "");
+		for (size_t index = 0; index < log.data.size() / 64; ++index)
 		{
-			auto begin = log.data.begin() + static_cast<long>(index * 32);
-			bytes const& data = bytes{begin, begin + 32};
+			auto begin = log.data.begin() + static_cast<long>(index * 64);
+			bytes const& data = bytes{begin, begin + 64};
 			eventStrings.emplace_back(formatEventParameter(eventSignature, false, index, data));
 		}
 

@@ -532,12 +532,13 @@ void iterateReplacingWindow(std::vector<T>& _vector, F const& _f)
 	detail::iterateReplacingWindow(_vector, _f, std::make_index_sequence<N>{});
 }
 
-/// @returns true iff @a _str passess the hex address checksum test.
-/// @param _strict if false, hex strings with only uppercase or only lowercase letters
-/// are considered valid.
+/// @returns true iff @a _str is a valid Q-prefixed address matching the
+/// current AddressBytes width. If @a _strict is false, all-lowercase,
+/// all-uppercase and correctly checksummed mixed-case addresses are accepted.
+/// If @a _strict is true, only the canonical checksummed mixed-case form is accepted.
 bool passesAddressChecksum(std::string const& _str, bool _strict);
 
-/// @returns the checksummed version of an address
+/// @returns the canonical checksummed version of an address
 /// @param hex strings that look like an address
 std::string getChecksummedAddress(std::string const& _addr);
 
@@ -546,7 +547,7 @@ bool isValidDecimal(std::string const& _string);
 
 /// @returns a quoted string if all characters are printable ASCII chars,
 /// or its hex representation otherwise.
-/// _value cannot be longer than 32 bytes.
+/// _value cannot be longer than one VM word.
 std::string formatAsStringOrNumber(std::string const& _value);
 
 /// @returns a string with the usual backslash-escapes for non-printable and non-ASCII

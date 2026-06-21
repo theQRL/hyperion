@@ -10,6 +10,6 @@ contract B is A {
 // ----
 // constructor() ->
 // gas irOptimized: 119640
-// gas legacy: 133594
+// gas legacy: 143794
 // gas legacyOptimized: 115341
 // y() -> 42

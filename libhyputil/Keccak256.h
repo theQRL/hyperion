@@ -26,6 +26,7 @@
 
 #include <libhyputil/FixedHash.h>
 
+#include <cstddef>
 #include <string>
 
 namespace hyperion::util
@@ -42,5 +43,14 @@ inline h256 keccak256(std::string const& _input) { return keccak256(bytesConstRe
 
 /// Calculate Keccak-256 hash of the given input (presented as a FixedHash), returns a 256-bit hash.
 template<unsigned N> inline h256 keccak256(FixedHash<N> const& _input) { return keccak256(_input.ref()); }
+
+/// Calculate SHAKE-256 of the given input, returning @a _outlen bytes.
+bytes shake256(bytesConstRef _input, size_t _outlen);
+
+/// Calculate SHAKE-256 of the given input, returning @a _outlen bytes.
+inline bytes shake256(bytes const& _input, size_t _outlen) { return shake256(bytesConstRef(&_input), _outlen); }
+
+/// Calculate SHAKE-256 of the given input (presented as a binary-filled string), returning @a _outlen bytes.
+inline bytes shake256(std::string const& _input, size_t _outlen) { return shake256(bytesConstRef(_input), _outlen); }
 
 }

@@ -29,7 +29,7 @@ using OptionalStatements = std::optional<std::vector<Statement>>;
 namespace
 {
 
-OptionalStatements replaceConstArgSwitch(Switch& _switchStmt, u256 const& _constExprVal)
+OptionalStatements replaceConstArgSwitch(Switch& _switchStmt, u512 const& _constExprVal)
 {
 	Block* matchingCaseBlock = nullptr;
 	Case* defaultCase = nullptr;
@@ -54,17 +54,17 @@ OptionalStatements replaceConstArgSwitch(Switch& _switchStmt, u256 const& _const
 		return std::optional<std::vector<Statement>>{std::vector<Statement>{}};
 }
 
-std::optional<u256> hasLiteralValue(Expression const& _expression)
+std::optional<u512> hasLiteralValue(Expression const& _expression)
 {
 	if (std::holds_alternative<Literal>(_expression))
 		return valueOfLiteral(std::get<Literal>(_expression));
 	else
-		return std::optional<u256>();
+		return std::optional<u512>();
 }
 
 bool expressionAlwaysTrue(Expression const& _expression)
 {
-	if (std::optional<u256> value = hasLiteralValue(_expression))
+	if (std::optional<u512> value = hasLiteralValue(_expression))
 		return *value != 0;
 	else
 		return false;
@@ -72,7 +72,7 @@ bool expressionAlwaysTrue(Expression const& _expression)
 
 bool expressionAlwaysFalse(Expression const& _expression)
 {
-	if (std::optional<u256> value = hasLiteralValue(_expression))
+	if (std::optional<u512> value = hasLiteralValue(_expression))
 		return *value == 0;
 	else
 		return false;
@@ -102,7 +102,7 @@ void StructuralSimplifier::simplify(std::vector<yul::Statement>& _statements)
 			return {};
 		},
 		[&](Switch& _switchStmt) -> OptionalStatements {
-			if (std::optional<u256> const constExprVal = hasLiteralValue(*_switchStmt.expression))
+			if (std::optional<u512> const constExprVal = hasLiteralValue(*_switchStmt.expression))
 				return replaceConstArgSwitch(_switchStmt, constExprVal.value());
 			return {};
 		},

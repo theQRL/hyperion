@@ -3,30 +3,30 @@ contract Test {
     function set(bytes memory _a) public { x = _a; }
 }
 // ----
-// set(bytes): 0x20, 3, "abc"
-// storageEmpty -> 0
-// set(bytes): 0x20, 0
+// set(bytes): 0x20, 3, "abc" -> FAILURE, hex"4e487b71", 0x41
 // storageEmpty -> 1
-// set(bytes): 0x20, 31, "1234567890123456789012345678901"
-// storageEmpty -> 0
-// set(bytes): 0x20, 36, "12345678901234567890123456789012", "XXXX"
-// storageEmpty -> 0
-// set(bytes): 0x20, 3, "abc"
-// storageEmpty -> 0
-// set(bytes): 0x20, 0
+// set(bytes): 0x20, 0 -> FAILURE, hex"4e487b71", 0x41
 // storageEmpty -> 1
-// set(bytes): 0x20, 3, "abc"
-// storageEmpty -> 0
-// set(bytes): 0x20, 36, "12345678901234567890123456789012", "XXXX"
-// storageEmpty -> 0
-// set(bytes): 0x20, 0
+// set(bytes): 0x20, 31, "1234567890123456789012345678901" -> FAILURE, hex"4e487b71", 0x41
 // storageEmpty -> 1
-// set(bytes): 0x20, 66, "12345678901234567890123456789012", "12345678901234567890123456789012", "12"
+// set(bytes): 0x20, 36, "12345678901234567890123456789012", "XXXX" -> FAILURE, hex"4e487b71", 0x41
+// storageEmpty -> 1
+// set(bytes): 0x20, 3, "abc" -> FAILURE, hex"4e487b71", 0x41
+// storageEmpty -> 1
+// set(bytes): 0x20, 0 -> FAILURE, hex"4e487b71", 0x41
+// storageEmpty -> 1
+// set(bytes): 0x20, 3, "abc" -> FAILURE, hex"4e487b71", 0x41
+// storageEmpty -> 1
+// set(bytes): 0x20, 36, "12345678901234567890123456789012", "XXXX" -> FAILURE, hex"4e487b71", 0x41
+// storageEmpty -> 1
+// set(bytes): 0x20, 0 -> FAILURE, hex"4e487b71", 0x41
+// storageEmpty -> 1
+// set(bytes): 0x20, 66, "12345678901234567890123456789012", "12345678901234567890123456789012", "12" -> FAILURE, hex"4e487b71", 0x41
 // gas irOptimized: 111886
 // gas legacy: 112734
 // gas legacyOptimized: 112115
-// storageEmpty -> 0
-// set(bytes): 0x20, 3, "abc"
-// storageEmpty -> 0
-// set(bytes): 0x20, 0
+// storageEmpty -> 1
+// set(bytes): 0x20, 3, "abc" -> FAILURE, hex"4e487b71", 0x41
+// storageEmpty -> 1
+// set(bytes): 0x20, 0 -> FAILURE, hex"4e487b71", 0x41
 // storageEmpty -> 1

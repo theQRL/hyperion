@@ -10,7 +10,7 @@
 object \"C_6\" {
     code {
 
-        mstore(64, memoryguard(128))
+        mstore(128, memoryguard(256))
         if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
         constructor_C_6()
@@ -21,7 +21,7 @@ object \"C_6\" {
         return(_1, datasize(\"C_6_deployed\"))
 
         function allocate_unbounded() -> memPtr {
-            memPtr := mload(64)
+            memPtr := mload(128)
         }
 
         function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -37,11 +37,11 @@ object \"C_6\" {
     object \"C_6_deployed\" {
         code {
 
-            mstore(64, memoryguard(128))
+            mstore(128, memoryguard(256))
 
             if iszero(lt(calldatasize(), 4))
             {
-                let selector := shift_right_224_unsigned(calldataload(0))
+                let selector := shift_right_480_unsigned(calldataload(0))
                 switch selector
 
                 case 0x26121ff0
@@ -56,13 +56,13 @@ object \"C_6\" {
 
             revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74()
 
-            function shift_right_224_unsigned(value) -> newValue {
+            function shift_right_480_unsigned(value) -> newValue {
                 newValue :=
-                shr(224, value)
+                shr(480, value)
             }
 
             function allocate_unbounded() -> memPtr {
-                memPtr := mload(64)
+                memPtr := mload(128)
             }
 
             function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -114,8 +114,8 @@ object \"C_6\" {
 object \"C_6\" {
     code {
         {
-            let _1 := memoryguard(0x80)
-            mstore(64, _1)
+            let _1 := memoryguard(0x0100)
+            mstore(128, _1)
             if callvalue() { revert(0, 0) }
             let _2 := datasize(\"C_6_deployed\")
             codecopy(_1, dataoffset(\"C_6_deployed\"), _2)
@@ -128,7 +128,7 @@ object \"C_6\" {
             {
                 if iszero(lt(calldatasize(), 4))
                 {
-                    if eq(0x26121ff0, shr(224, calldataload(0)))
+                    if eq(0x26121ff0, shr(480, calldataload(0)))
                     {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
@@ -144,7 +144,7 @@ object \"C_6\" {
 ",
                 "qrvm":
                 {
-                    "assembly": "  mstore(0x40, 0x80)
+                    "assembly": "  mstore(0x80, 0x0100)
   callvalue
   dup1
   iszero
@@ -165,7 +165,7 @@ tag_1:
 stop
 
 sub_0: assembly {
-      mstore(0x40, 0x80)
+      mstore(0x80, 0x0100)
       callvalue
       dup1
       iszero
@@ -177,7 +177,7 @@ sub_0: assembly {
     tag_1:
       pop
       jumpi(tag_2, lt(calldatasize, 0x04))
-      shr(0xe0, calldataload(0x00))
+      shr(0x01e0, calldataload(0x00))
       dup1
       0x26121ff0
       eq

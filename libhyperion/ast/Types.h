@@ -30,6 +30,7 @@
 
 #include <libhyputil/Common.h>
 #include <libhyputil/Numeric.h>
+#include <libhyputil/VMConstants.h>
 #include <libhyputil/CommonIO.h>
 #include <libhyputil/LazyInit.h>
 #include <libhyputil/Result.h>
@@ -242,18 +243,18 @@ public:
 	/// dynamically encoded types.
 	/// Always returns a value greater than zero and throws if the type cannot be encoded in calldata
 	/// (or is dynamically encoded).
-	/// If @a _padded then it is assumed that each element is padded to a multiple of 32 bytes.
+	/// If @a _padded then it is assumed that each element is padded to a multiple of the VM word size.
 	virtual unsigned calldataEncodedSize([[maybe_unused]] bool _padded) const { hypAssert(false, ""); }
 	/// Convenience version of @see calldataEncodedSize(bool)
 	unsigned calldataEncodedSize() const { return calldataEncodedSize(true); }
 	/// @returns the distance between two elements of this type in a calldata array, tuple or struct.
 	/// For statically encoded types this is the same as calldataEncodedSize(true).
-	/// For dynamically encoded types this is the distance between two tail pointers, i.e. 32.
+	/// For dynamically encoded types this is the distance between two tail pointers, i.e. VMWordBytes.
 	/// Always returns a value greater than zero and throws if the type cannot be encoded in calldata.
-	unsigned calldataHeadSize() const { return isDynamicallyEncoded() ? 32 : calldataEncodedSize(true); }
+	unsigned calldataHeadSize() const { return isDynamicallyEncoded() ? VMWordBytes : calldataEncodedSize(true); }
 	/// @returns the (minimal) size of the calldata tail for this type. Can only be used for
-	/// dynamically encoded types. For dynamically-sized arrays this is 32 (the size of the length),
-	/// for statically-sized, but dynamically encoded arrays this is 32*length(), for structs
+	/// dynamically encoded types. For dynamically-sized arrays this is the VM word size (the size of the length),
+	/// for statically-sized, but dynamically encoded arrays this is VMWordBytes * length(), for structs
 	/// this is the sum of the calldataHeadSize's of its members.
 	/// Always returns a value greater than zero and throws if the type cannot be encoded in calldata
 	/// (or is not dynamically encoded).
@@ -276,11 +277,11 @@ public:
 	/// slot allocation algorithm does not overflow, it is not a protection against collisions.
 	virtual bigint storageSizeUpperBound() const { return 1; }
 	/// Multiple small types can be packed into a single storage slot. If such a packing is possible
-	/// this function @returns the size in bytes smaller than 32. Data is moved to the next slot if
+	/// this function @returns the size in bytes smaller than VMWordBytes. Data is moved to the next slot if
 	/// it does not fit.
 	/// In order to avoid computation at runtime of whether such moving is necessary, structs and
 	/// array data (not each element) always start a new slot.
-	virtual unsigned storageBytes() const { return 32; }
+	virtual unsigned storageBytes() const { return VMWordBytes; }
 	/// Returns true if the type is a value type that is left-aligned on the stack with a size of
 	/// storageBytes() bytes. Returns false if the type is a value type that is right-aligned on
 	/// the stack with a size of storageBytes() bytes. Asserts if it is not a value type or the
@@ -364,7 +365,7 @@ public:
 	{
 		return canonicalName();
 	}
-	virtual u256 literalValue(Literal const*) const
+	virtual u512 literalValue(Literal const*) const
 	{
 		hypAssert(false, "Literal value requested for type without literals: " + toString(false));
 	}
@@ -452,8 +453,8 @@ public:
 
 	bool operator==(Type const& _other) const override;
 
-	unsigned calldataEncodedSize(bool _padded = true) const override { return _padded ? 32 : 160 / 8; }
-	unsigned storageBytes() const override { return 160 / 8; }
+	unsigned calldataEncodedSize(bool _padded = true) const override { return _padded ? VMWordBytes : AddressBytes; }
+	unsigned storageBytes() const override { return AddressBytes; }
 	bool leftAligned() const override { return false; }
 	bool isValueType() const override { return true; }
 	bool nameable() const override { return true; }
@@ -463,7 +464,7 @@ public:
 	std::string toString(bool _withoutDataLocation) const override;
 	std::string canonicalName() const override;
 
-	u256 literalValue(Literal const* _literal) const override;
+	u512 literalValue(Literal const* _literal) const override;
 
 	Type const* encodingType() const override { return this; }
 	TypeResult interfaceType(bool) const override { return this; }
@@ -497,7 +498,7 @@ public:
 
 	bool operator==(Type const& _other) const override;
 
-	unsigned calldataEncodedSize(bool _padded = true) const override { return _padded ? 32 : m_bits / 8; }
+	unsigned calldataEncodedSize(bool _padded = true) const override { return _padded ? VMWordBytes : m_bits / 8; }
 	unsigned storageBytes() const override { return m_bits / 8; }
 	bool leftAligned() const override { return false; }
 	bool isValueType() const override { return true; }
@@ -511,8 +512,8 @@ public:
 	unsigned numBits() const { return m_bits; }
 	bool isSigned() const { return m_modifier == Modifier::Signed; }
 
-	u256 min() const;
-	u256 max() const;
+	u512 min() const;
+	u512 max() const;
 
 	bigint minValue() const;
 	bigint maxValue() const;
@@ -544,7 +545,7 @@ public:
 
 	bool operator==(Type const& _other) const override;
 
-	unsigned calldataEncodedSize(bool _padded = true) const override { return _padded ? 32 : m_totalBits / 8; }
+	unsigned calldataEncodedSize(bool _padded = true) const override { return _padded ? VMWordBytes : m_totalBits / 8; }
 	unsigned storageBytes() const override { return m_totalBits / 8; }
 	bool leftAligned() const override { return false; }
 	bool isValueType() const override { return true; }
@@ -601,7 +602,7 @@ public:
 	bool canBeStored() const override { return false; }
 
 	std::string toString(bool _withoutDataLocation) const override;
-	u256 literalValue(Literal const* _literal) const override;
+	u512 literalValue(Literal const* _literal) const override;
 	Type const* mobileType() const override;
 
 	/// @returns the underlying raw literal value.
@@ -677,7 +678,7 @@ private:
 };
 
 /**
- * Bytes type with fixed length of up to 32 bytes.
+ * Bytes type with fixed length of up to 64 bytes.
  */
 class FixedBytesType: public Type
 {
@@ -693,7 +694,7 @@ public:
 	TypeResult unaryOperatorResult(Token _operator) const override;
 	TypeResult binaryOperatorResult(Token _operator, Type const* _other) const override;
 
-	unsigned calldataEncodedSize(bool _padded) const override { return _padded && m_bytes > 0 ? 32 : m_bytes; }
+	unsigned calldataEncodedSize(bool _padded) const override { return _padded && m_bytes > 0 ? VMWordBytes : m_bytes; }
 	unsigned storageBytes() const override { return m_bytes; }
 	bool leftAligned() const override { return true; }
 	bool isValueType() const override { return true; }
@@ -721,14 +722,14 @@ public:
 	TypeResult unaryOperatorResult(Token _operator) const override;
 	TypeResult binaryOperatorResult(Token _operator, Type const* _other) const override;
 
-	unsigned calldataEncodedSize(bool _padded) const override{ return _padded ? 32 : 1; }
+	unsigned calldataEncodedSize(bool _padded) const override{ return _padded ? VMWordBytes : 1; }
 	unsigned storageBytes() const override { return 1; }
 	bool leftAligned() const override { return false; }
 	bool isValueType() const override { return true; }
 	bool nameable() const override { return true; }
 
 	std::string toString(bool) const override { return "bool"; }
-	u256 literalValue(Literal const* _literal) const override;
+	u512 literalValue(Literal const* _literal) const override;
 	Type const* encodingType() const override { return this; }
 	TypeResult interfaceType(bool) const override { return this; }
 };
@@ -776,7 +777,7 @@ public:
 	{
 		return nullptr;
 	}
-	unsigned memoryHeadSize() const override { return 32; }
+	unsigned memoryHeadSize() const override { return VMWordBytes; }
 	u256 memoryDataSize() const override = 0;
 
 	unsigned calldataEncodedSize(bool) const override = 0;
@@ -926,7 +927,7 @@ public:
 	std::string richIdentifier() const override;
 	bool operator==(Type const& _other) const override;
 	unsigned calldataEncodedSize(bool) const override { hypAssert(false, ""); }
-	unsigned calldataEncodedTailSize() const override { return 32; }
+	unsigned calldataEncodedTailSize() const override { return VMWordBytes; }
 	bool isDynamicallySized() const override { return true; }
 	bool isDynamicallyEncoded() const override { return true; }
 	std::string toString(bool _withoutDataLocation) const override;
@@ -970,7 +971,7 @@ public:
 		hypAssert(!isSuper(), "");
 		return encodingType()->calldataEncodedSize(_padded);
 	}
-	unsigned storageBytes() const override { hypAssert(!isSuper(), ""); return 20; }
+	unsigned storageBytes() const override { hypAssert(!isSuper(), ""); return AddressBytes; }
 	bool leftAligned() const override { hypAssert(!isSuper(), ""); return false; }
 	bool isValueType() const override { return !isSuper(); }
 	bool nameable() const override { return !isSuper(); }
@@ -1474,7 +1475,7 @@ public:
 	/// Can contain a nullptr in which case indicates absence of documentation.
 	ASTPointer<StructuredDocumentation> documentation() const;
 
-	/// true iff arguments are to be padded to multiples of 32 bytes for external calls
+	/// true iff arguments are to be padded to multiples of the VM word size for external calls
 	/// The only functions that do not pad are hash functions, the low-level call functions
 	/// and abi.encodePacked.
 	bool padArguments() const;
@@ -1713,7 +1714,7 @@ public:
 	BoolResult isImplicitlyConvertibleTo(Type const&) const override { return false; }
 	BoolResult isExplicitlyConvertibleTo(Type const&) const override { return false; }
 	TypeResult binaryOperatorResult(Token, Type const*) const override { return nullptr; }
-	unsigned calldataEncodedSize(bool) const override { return 32; }
+	unsigned calldataEncodedSize(bool) const override { return VMWordBytes; }
 	bool canBeStored() const override { return false; }
 	bool isValueType() const override { return true; }
 	bool hasSimpleZeroValueInMemory() const override { hypAssert(false, ""); }

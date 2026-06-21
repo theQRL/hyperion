@@ -17,7 +17,7 @@
 //
 // {
 //     {
-//         mstore(0x40, memoryguard(0xa0))
+//         mstore(0x40, memoryguard(0xc0))
 //         sstore(0, f())
 //     }
 //     function f() -> $b1

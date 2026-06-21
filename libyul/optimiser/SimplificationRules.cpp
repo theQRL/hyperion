@@ -160,7 +160,7 @@ bool Pattern::matches(
 		Literal const& literal = std::get<Literal>(*expr);
 		if (literal.kind != LiteralKind::Number)
 			return false;
-		if (m_data && *m_data != u256(literal.value.str()))
+		if (m_data && *m_data != Word(literal.value.str()))
 			return false;
 		assertThrow(m_arguments.empty(), OptimizerException, "");
 	}
@@ -259,9 +259,9 @@ Expression Pattern::toExpression(std::shared_ptr<DebugData const> const& _debugD
 	assertThrow(false, OptimizerException, "Pattern of kind 'any', but no match group.");
 }
 
-u256 Pattern::d() const
+Pattern::Word Pattern::d() const
 {
-	return valueOfNumberLiteral(std::get<Literal>(matchGroupValue()));
+	return Word(valueOfNumberLiteral(std::get<Literal>(matchGroupValue())));
 }
 
 Expression const& Pattern::matchGroupValue() const

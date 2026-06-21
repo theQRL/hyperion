@@ -26,6 +26,6 @@ contract C {
 
 }
 // ----
-// testHighLevel() -> true
-// testLowLevel() -> 0xc76596d400000000000000000000000000000000000000000000000000000000
+// testHighLevel() -> FAILURE
+// testLowLevel() -> FAILURE
 // testHighLevel2() -> FAILURE

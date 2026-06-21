@@ -78,10 +78,10 @@ identify which libraries the placeholders represent. Note that the fully qualifi
 is the path of its source file and the library name separated by ``:``.
 You can use ``hypc`` as a linker meaning that it will insert the library addresses for you at those points:
 
-Either add ``--libraries "file.hyp:Math=Q1234567890123456789012345678901234567890 file.hyp:Heap=QabCD567890123456789012345678901234567890"`` to your command to provide an address for each library (use commas or spaces as separators) or store the string in a file (one library per line) and run ``hypc`` using ``--libraries fileName``.
+Either add ``--libraries "file.hyp:Math=Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000001234567890123456789012345678901234567890 file.hyp:Heap=Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000abcd567890123456789012345678901234567890"`` to your command to provide an address for each library (use commas or spaces as separators) or store the string in a file (one library per line) and run ``hypc`` using ``--libraries fileName``.
 
 .. note::
-    Starting Hyperion 0.8.1 accepts ``=`` as separator between library and address, and ``:`` as a separator is deprecated. It will be removed in the future. Currently ``--libraries "file.hyp:Math:Q1234567890123456789012345678901234567890 file.hyp:Heap:QabCD567890123456789012345678901234567890"`` will work too.
+    Starting Hyperion 0.8.1 accepts ``=`` as separator between library and address, and ``:`` as a separator is deprecated. It will be removed in the future. Currently ``--libraries "file.hyp:Math:Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000001234567890123456789012345678901234567890 file.hyp:Heap:Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000abcd567890123456789012345678901234567890"`` will work too.
 
 .. index:: --standard-json, --base-path
 
@@ -563,10 +563,10 @@ Output Description
                 "linkReferences": {
                   "libraryFile.hyp": {
                     // Byte offsets into the bytecode.
-                    // Linking replaces the 20 bytes located there.
+                    // Linking replaces the 64 bytes located there.
                     "Library1": [
-                      { "start": 0, "length": 20 },
-                      { "start": 200, "length": 20 }
+                      { "start": 0, "length": 64 },
+                      { "start": 200, "length": 64 }
                     ]
                   }
                 }
@@ -574,7 +574,7 @@ Output Description
               "deployedBytecode": {
                 /* ..., */ // The same layout as above.
                 "immutableReferences": {
-                  // There are two references to the immutable with AST ID 3, both 32 bytes long. One is
+                  // There are two references to the immutable with AST ID 3, both 64 bytes long. One is
                   // at bytecode offset 42, the other at bytecode offset 80.
                   "3": [{ "start": 42, "length": 32 }, { "start": 80, "length": 32 }]
                 }

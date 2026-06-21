@@ -26,6 +26,7 @@
 #include <libyul/optimiser/DataFlowAnalyzer.h>
 
 #include <libhyputil/CommonData.h>
+#include <libhyputil/VMConstants.h>
 
 #include <variant>
 
@@ -39,12 +40,12 @@ KnowledgeBase::KnowledgeBase(std::map<YulString, AssignedValue> const& _ssaValue
 
 bool KnowledgeBase::knownToBeDifferent(YulString _a, YulString _b)
 {
-	if (std::optional<u256> difference = differenceIfKnownConstant(_a, _b))
+	if (std::optional<u512> difference = differenceIfKnownConstant(_a, _b))
 		return difference != 0;
 	return false;
 }
 
-std::optional<u256> KnowledgeBase::differenceIfKnownConstant(YulString _a, YulString _b)
+std::optional<u512> KnowledgeBase::differenceIfKnownConstant(YulString _a, YulString _b)
 {
 	VariableOffset offA = explore(_a);
 	VariableOffset offB = explore(_b);
@@ -55,10 +56,10 @@ std::optional<u256> KnowledgeBase::differenceIfKnownConstant(YulString _a, YulSt
 }
 
 
-bool KnowledgeBase::knownToBeDifferentByAtLeast32(YulString _a, YulString _b)
+bool KnowledgeBase::knownToBeDifferentByAtLeastWordSize(YulString _a, YulString _b)
 {
-	if (std::optional<u256> difference = differenceIfKnownConstant(_a, _b))
-		return difference >= 32 && difference <= u256(0) - 32;
+	if (std::optional<u512> difference = differenceIfKnownConstant(_a, _b))
+		return difference >= VMWordBytes && difference <= u512(0) - VMWordBytes;
 
 	return false;
 }
@@ -68,12 +69,12 @@ bool KnowledgeBase::knownToBeZero(YulString _a)
 	return valueIfKnownConstant(_a) == 0;
 }
 
-std::optional<u256> KnowledgeBase::valueIfKnownConstant(YulString _a)
+std::optional<u512> KnowledgeBase::valueIfKnownConstant(YulString _a)
 {
 	return explore(_a).absoluteValue();
 }
 
-std::optional<u256> KnowledgeBase::valueIfKnownConstant(Expression const& _expression)
+std::optional<u512> KnowledgeBase::valueIfKnownConstant(Expression const& _expression)
 {
 	if (Identifier const* ident = std::get_if<Identifier>(&_expression))
 		return valueIfKnownConstant(ident->name);
@@ -123,7 +124,7 @@ std::optional<KnowledgeBase::VariableOffset> KnowledgeBase::explore(Expression c
 			if (std::optional<VariableOffset> a = explore(f->arguments[0]))
 				if (std::optional<VariableOffset> b = explore(f->arguments[1]))
 				{
-					u256 offset = a->offset + b->offset;
+					u512 offset = a->offset + b->offset;
 					if (a->isAbsolute())
 						// a is constant
 						return VariableOffset{b->reference, offset};
@@ -136,7 +137,7 @@ std::optional<KnowledgeBase::VariableOffset> KnowledgeBase::explore(Expression c
 			if (std::optional<VariableOffset> a = explore(f->arguments[0]))
 				if (std::optional<VariableOffset> b = explore(f->arguments[1]))
 				{
-					u256 offset = a->offset - b->offset;
+					u512 offset = a->offset - b->offset;
 					if (a->reference == b->reference)
 						return VariableOffset{YulString{}, offset};
 					else if (b->isAbsolute())
@@ -181,7 +182,7 @@ void KnowledgeBase::reset(YulString _var)
 		{
 			YulString newRepresentative = *group->begin();
 			yulAssert(newRepresentative != _var);
-			u256 newOffset = m_offsets[newRepresentative].offset;
+			u512 newOffset = m_offsets[newRepresentative].offset;
 			// newOffset = newRepresentative - _var
 			for (YulString groupMember: *group)
 			{

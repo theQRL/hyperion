@@ -154,7 +154,7 @@ public:
 	static u256 dataGas(uint64_t _length, bool _inCreation);
 
 private:
-	/// @returns _multiplier * (_value + 31) / 32, if _value is a known constant and infinite otherwise.
+	/// @returns _multiplier times the number of VM words in _value bytes, if _value is a known constant and infinite otherwise.
 	GasConsumption wordGas(u256 const& _multiplier, ExpressionClasses::Id _value);
 	/// @returns the gas needed to access the given memory position.
 	/// @todo this assumes that memory was never accessed before and thus over-estimates gas usage.

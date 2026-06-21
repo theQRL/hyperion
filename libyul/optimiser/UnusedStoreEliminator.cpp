@@ -32,6 +32,7 @@
 #include <libyul/AST.h>
 
 #include <libyul/backends/qrvm/QRVMDialect.h>
+#include <libhyputil/VMConstants.h>
 
 #include <libhyputil/CommonData.h>
 
@@ -39,6 +40,7 @@
 #include <libqrvmasm/SemanticInformation.h>
 
 #include <range/v3/algorithm/all_of.hpp>
+#include <string>
 
 using namespace hyperion;
 using namespace hyperion::yul;
@@ -46,7 +48,7 @@ using namespace hyperion::yul;
 /// Variable names for special constants that can never appear in actual Yul code.
 static std::string const zero{"@ 0"};
 static std::string const one{"@ 1"};
-static std::string const thirtyTwo{"@ 32"};
+static std::string const vmWordBytes{"@ " + std::to_string(VMWordBytes)};
 
 
 void UnusedStoreEliminator::run(OptimiserStepContext& _context, Block& _ast)
@@ -63,10 +65,12 @@ void UnusedStoreEliminator::run(OptimiserStepContext& _context, Block& _ast)
 		values[name] = AssignedValue{expression, {}};
 	Expression const zeroLiteral{Literal{{}, LiteralKind::Number, YulString{"0"}, {}}};
 	Expression const oneLiteral{Literal{{}, LiteralKind::Number, YulString{"1"}, {}}};
-	Expression const thirtyTwoLiteral{Literal{{}, LiteralKind::Number, YulString{"32"}, {}}};
+	Expression const vmWordBytesLiteral{
+		Literal{{}, LiteralKind::Number, YulString{std::to_string(VMWordBytes)}, {}}
+	};
 	values[YulString{zero}] = AssignedValue{&zeroLiteral, {}};
 	values[YulString{one}] = AssignedValue{&oneLiteral, {}};
-	values[YulString{thirtyTwo}] = AssignedValue{&thirtyTwoLiteral, {}};
+	values[YulString{vmWordBytes}] = AssignedValue{&vmWordBytesLiteral, {}};
 
 	bool const ignoreMemory = MSizeFinder::containsMSize(_context.dialect, _ast);
 	UnusedStoreEliminator rse{
@@ -258,7 +262,7 @@ std::vector<UnusedStoreEliminator::Operation> UnusedStoreEliminator::operationsF
 				switch (*_op.lengthConstant)
 				{
 				case 1: ourOp.length = YulString(one); break;
-				case 32: ourOp.length = YulString(thirtyTwo); break;
+				case VMWordBytes: ourOp.length = YulString(vmWordBytes); break;
 				default: yulAssert(false);
 				}
 			return ourOp;
@@ -323,9 +327,9 @@ bool UnusedStoreEliminator::knownUnrelated(
 
 		if (_op1.start && _op1.length && _op2.start)
 		{
-			std::optional<u256> length1 = m_knowledgeBase.valueIfKnownConstant(*_op1.length);
-			std::optional<u256> start1 = m_knowledgeBase.valueIfKnownConstant(*_op1.start);
-			std::optional<u256> start2 = m_knowledgeBase.valueIfKnownConstant(*_op2.start);
+			std::optional<u512> length1 = m_knowledgeBase.valueIfKnownConstant(*_op1.length);
+			std::optional<u512> start1 = m_knowledgeBase.valueIfKnownConstant(*_op1.start);
+			std::optional<u512> start2 = m_knowledgeBase.valueIfKnownConstant(*_op2.start);
 			if (
 				(length1 && start1 && start2) &&
 				*start1 + *length1 >= *start1 && // no overflow
@@ -335,9 +339,9 @@ bool UnusedStoreEliminator::knownUnrelated(
 		}
 		if (_op2.start && _op2.length && _op1.start)
 		{
-			std::optional<u256> length2 = m_knowledgeBase.valueIfKnownConstant(*_op2.length);
-			std::optional<u256> start2 = m_knowledgeBase.valueIfKnownConstant(*_op2.start);
-			std::optional<u256> start1 = m_knowledgeBase.valueIfKnownConstant(*_op1.start);
+			std::optional<u512> length2 = m_knowledgeBase.valueIfKnownConstant(*_op2.length);
+			std::optional<u512> start2 = m_knowledgeBase.valueIfKnownConstant(*_op2.start);
+			std::optional<u512> start1 = m_knowledgeBase.valueIfKnownConstant(*_op1.start);
 			if (
 				(length2 && start2 && start1) &&
 				*start2 + *length2 >= *start2 && // no overflow
@@ -348,12 +352,12 @@ bool UnusedStoreEliminator::knownUnrelated(
 
 		if (_op1.start && _op1.length && _op2.start && _op2.length)
 		{
-			std::optional<u256> length1 = m_knowledgeBase.valueIfKnownConstant(*_op1.length);
-			std::optional<u256> length2 = m_knowledgeBase.valueIfKnownConstant(*_op2.length);
+			std::optional<u512> length1 = m_knowledgeBase.valueIfKnownConstant(*_op1.length);
+			std::optional<u512> length2 = m_knowledgeBase.valueIfKnownConstant(*_op2.length);
 			if (
-				(length1 && *length1 <= 32) &&
-				(length2 && *length2 <= 32) &&
-				m_knowledgeBase.knownToBeDifferentByAtLeast32(*_op1.start, *_op2.start)
+				(length1 && *length1 <= VMWordBytes) &&
+				(length2 && *length2 <= VMWordBytes) &&
+				m_knowledgeBase.knownToBeDifferentByAtLeastWordSize(*_op1.start, *_op2.start)
 			)
 				return true;
 		}
@@ -383,13 +387,13 @@ bool UnusedStoreEliminator::knownCovered(
 		// i.start <= e.start && e.start + e.length <= i.start + i.length
 		if (!_covered.start || !_covering.start || !_covered.length || !_covering.length)
 			return false;
-		std::optional<u256> coveredLength = m_knowledgeBase.valueIfKnownConstant(*_covered.length);
-		std::optional<u256> coveringLength = m_knowledgeBase.valueIfKnownConstant(*_covering.length);
+		std::optional<u512> coveredLength = m_knowledgeBase.valueIfKnownConstant(*_covered.length);
+		std::optional<u512> coveringLength = m_knowledgeBase.valueIfKnownConstant(*_covering.length);
 		if (*_covered.start == *_covering.start)
 			if (coveredLength && coveringLength && *coveredLength <= *coveringLength)
 				return true;
-		std::optional<u256> coveredStart = m_knowledgeBase.valueIfKnownConstant(*_covered.start);
-		std::optional<u256> coveringStart = m_knowledgeBase.valueIfKnownConstant(*_covering.start);
+		std::optional<u512> coveredStart = m_knowledgeBase.valueIfKnownConstant(*_covered.start);
+		std::optional<u512> coveringStart = m_knowledgeBase.valueIfKnownConstant(*_covering.start);
 		if (coveredStart && coveringStart && coveredLength && coveringLength)
 			if (
 				*coveringStart <= *coveredStart &&

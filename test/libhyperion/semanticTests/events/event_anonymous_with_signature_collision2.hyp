@@ -6,5 +6,4 @@ contract ClientReceipt {
     }
 }
 // ----
-// deposit(bytes32), 18 planck: 0x1234 ->
-// ~ emit Withdraw(uint256,string): #0x1234, 0x12
+// deposit(bytes32), 18 planck: 0x1234 -> FAILURE

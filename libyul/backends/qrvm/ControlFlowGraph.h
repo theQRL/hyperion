@@ -84,7 +84,7 @@ struct VariableSlot
 /// A slot containing a literal value.
 struct LiteralSlot
 {
-	u256 value;
+	u512 value;
 	std::shared_ptr<DebugData const> debugData{};
 	bool operator==(LiteralSlot const& _rhs) const { return value == _rhs.value; }
 	bool operator<(LiteralSlot const& _rhs) const { return value < _rhs.value; }

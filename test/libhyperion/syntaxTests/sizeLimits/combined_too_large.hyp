@@ -24,7 +24,7 @@ contract test {
     }
 }
 // ----
-// Warning 5574: (0-27130): Contract code size is 27187 bytes and exceeds 24576 bytes. This contract may not be deployable on Mainnet. Consider enabling the optimizer (with a low "runs" value!), turning off revert strings, or using libraries.
-// Warning 5574: (27132-27224): Contract code size is 27213 bytes and exceeds 24576 bytes. This contract may not be deployable on Mainnet. Consider enabling the optimizer (with a low "runs" value!), turning off revert strings, or using libraries.
-// Warning 5574: (27226-27319): Contract code size is 27212 bytes and exceeds 24576 bytes. This contract may not be deployable on Mainnet. Consider enabling the optimizer (with a low "runs" value!), turning off revert strings, or using libraries.
-// Warning 3860: (27321-27398): Contract initcode size is 54628 bytes and exceeds 49152 bytes. This contract may not be deployable on Mainnet. Consider enabling the optimizer (with a low "runs" value!), turning off revert strings, or using libraries.
+// Warning 5574: (0-27130): Contract code size is 27210 bytes and exceeds 24576 bytes. This contract may not be deployable on Mainnet. Consider enabling the optimizer (with a low "runs" value!), turning off revert strings, or using libraries.
+// Warning 5574: (27132-27224): Contract code size is 27236 bytes and exceeds 24576 bytes. This contract may not be deployable on Mainnet. Consider enabling the optimizer (with a low "runs" value!), turning off revert strings, or using libraries.
+// Warning 5574: (27226-27319): Contract code size is 27235 bytes and exceeds 24576 bytes. This contract may not be deployable on Mainnet. Consider enabling the optimizer (with a low "runs" value!), turning off revert strings, or using libraries.
+// Warning 3860: (27321-27398): Contract initcode size is 54678 bytes and exceeds 49152 bytes. This contract may not be deployable on Mainnet. Consider enabling the optimizer (with a low "runs" value!), turning off revert strings, or using libraries.

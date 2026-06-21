@@ -193,7 +193,7 @@ Pattern::Expression const& Pattern::matchGroupValue() const
 	return *(*m_matchGroups)[m_matchGroup];
 }
 
-u256 const& Pattern::data() const
+Pattern::Word const& Pattern::data() const
 {
 	assertThrow(m_data, OptimizerException, "");
 	return *m_data;

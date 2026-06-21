@@ -19,6 +19,6 @@ contract test {
 // ----
 // constructor(), 20 planck ->
 // gas irOptimized: 173271
-// gas legacy: 253820
+// gas legacy: 287999
 // gas legacyOptimized: 180784
 // sendAmount(uint256): 5 -> 8

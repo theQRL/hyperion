@@ -11,4 +11,4 @@ contract C {
 // ====
 // compileViaYul: false
 // ----
-// f(bool,bytes,bytes32[2]): true, 0x80, "a", "b", 4, "abcd" -> true, 0x80, "a", "b", 4, "abcd"
+// f(bool,bytes,bytes32[2]): true, 0x80, "a", "b", 4, "abcd" -> FAILURE

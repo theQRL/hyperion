@@ -70,7 +70,7 @@ size_t CodeWeights::costOf(Expression const& _expression) const
 		return identifierCost;
 	else if (Literal const* literal = std::get_if<Literal>(&_expression))
 	{
-		// Avoid strings because they could be longer than 32 bytes.
+		// Avoid strings because they could be longer than one VM word.
 		if (literal->kind != LiteralKind::String && valueOfLiteral(*literal) == 0)
 			return literalZeroCost;
 		else

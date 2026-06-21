@@ -1,15 +1,15 @@
 
 ======= linking_unqualified_library_name/contract1.hyp:C =======
 Binary:
-<BYTECODE REMOVED>__$e63096606d137dcf30e58fffe71ce66a83$__<BYTECODE REMOVED>
+61010060805234a015610010575fa0fd5b50610118a061001e5f395ff3fe61010060805234a015600f575fa0fd5b50600436106028575f356101e01ca063c298557814602c575b5fa0fd5b60326034565b005b9f__$e63096606d137dcf30e58fffe71ce66a83025c6b831b44ad3291ebccbbce7182dac97a8f0af83936e4d33f311bbb8f2785580776fb1bba09778926d59b$__<BYTECODE REMOVED>
 
-// $e63096606d137dcf30e58fffe71ce66a83$ -> linking_unqualified_library_name/error.hyp:Log
+// $e63096606d137dcf30e58fffe71ce66a83025c6b831b44ad3291ebccbbce7182dac97a8f0af83936e4d33f311bbb8f2785580776fb1bba09778926d59b$ -> linking_unqualified_library_name/error.hyp:Log
 
 ======= linking_unqualified_library_name/contract2.hyp:C =======
 Binary:
-<BYTECODE REMOVED>__$7ecfe524f6f11235043731781d2064511e$__<BYTECODE REMOVED>
+61010060805234a015610010575fa0fd5b50610118a061001e5f395ff3fe61010060805234a015600f575fa0fd5b50600436106028575f356101e01ca063c298557814602c575b5fa0fd5b60326034565b005b9f__$7ecfe524f6f11235043731781d2064511ee621c8123fb0c54d6f6087614a623f9f07c50a156f0fb87c8b8d22fa59a6ecba7242a4d0bed832f566515218$__<BYTECODE REMOVED>
 
-// $7ecfe524f6f11235043731781d2064511e$ -> linking_unqualified_library_name/math.hyp:Log
+// $7ecfe524f6f11235043731781d2064511ee621c8123fb0c54d6f6087614a623f9f07c50a156f0fb87c8b8d22fa59a6ecba7242a4d0bed832f566515218$ -> linking_unqualified_library_name/math.hyp:Log
 
 ======= linking_unqualified_library_name/error.hyp:Log =======
 Binary:

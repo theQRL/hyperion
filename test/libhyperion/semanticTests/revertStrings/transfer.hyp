@@ -22,5 +22,5 @@ contract C {
 // ----
 // (), 10 planck ->
 // g() -> 10
-// f() -> FAILURE, hex"08c379a0", 0x20, 10, "no_receive"
+// f() -> FAILURE, hex"08c379a0", 0x40, 10, "no_receive"
 // h() -> FAILURE

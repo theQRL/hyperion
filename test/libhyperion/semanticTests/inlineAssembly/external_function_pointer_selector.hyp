@@ -16,6 +16,8 @@ contract C {
 		return uint32(this.testFunction.selector);
 	}
 }
+// ====
+// QRVMVersion: >zond
 // ----
 // testYul() -> 0xe16b4a9b
 // testHyp() -> 0xe16b4a9b

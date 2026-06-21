@@ -4,7 +4,7 @@ IR:
 object "C_2" {
     code {
         /// @src 0:265:278  "contract C {}"
-        mstore(64, memoryguard(128))
+        mstore(128, memoryguard(256))
         if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
         constructor_C_2()
@@ -15,7 +15,7 @@ object "C_2" {
         return(_1, datasize("C_2_deployed"))
 
         function allocate_unbounded() -> memPtr {
-            memPtr := mload(64)
+            memPtr := mload(128)
         }
 
         function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -35,17 +35,17 @@ object "C_2" {
     object "C_2_deployed" {
         code {
             /// @src 0:265:278  "contract C {}"
-            mstore(64, memoryguard(128))
+            mstore(128, memoryguard(256))
 
             revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74()
 
-            function shift_right_224_unsigned(value) -> newValue {
+            function shift_right_480_unsigned(value) -> newValue {
                 newValue :=
-                shr(224, value)
+                shr(480, value)
             }
 
             function allocate_unbounded() -> memPtr {
-                memPtr := mload(64)
+                memPtr := mload(128)
             }
 
             function revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74() {
@@ -66,8 +66,8 @@ object "C_2" {
     code {
         {
             /// @src 0:265:278  "contract C {}"
-            let _1 := memoryguard(0x80)
-            mstore(64, _1)
+            let _1 := memoryguard(0x0100)
+            mstore(128, _1)
             if callvalue() { revert(0, 0) }
             let _2 := datasize("C_2_deployed")
             codecopy(_1, dataoffset("C_2_deployed"), _2)
@@ -92,7 +92,7 @@ IR:
 object "D_27" {
     code {
         /// @src 0:279:599  "contract D /** @src 0:96:165  \"contract D {...\" *\/ {..."
-        mstore(64, memoryguard(128))
+        mstore(128, memoryguard(256))
         if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
         constructor_D_27()
@@ -103,7 +103,7 @@ object "D_27" {
         return(_1, datasize("D_27_deployed"))
 
         function allocate_unbounded() -> memPtr {
-            memPtr := mload(64)
+            memPtr := mload(128)
         }
 
         function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -123,11 +123,11 @@ object "D_27" {
     object "D_27_deployed" {
         code {
             /// @src 0:279:599  "contract D /** @src 0:96:165  \"contract D {...\" *\/ {..."
-            mstore(64, memoryguard(128))
+            mstore(128, memoryguard(256))
 
             if iszero(lt(calldatasize(), 4))
             {
-                let selector := shift_right_224_unsigned(calldataload(0))
+                let selector := shift_right_480_unsigned(calldataload(0))
                 switch selector
 
                 case 0x26121ff0
@@ -142,13 +142,13 @@ object "D_27" {
 
             revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74()
 
-            function shift_right_224_unsigned(value) -> newValue {
+            function shift_right_480_unsigned(value) -> newValue {
                 newValue :=
-                shr(224, value)
+                shr(480, value)
             }
 
             function allocate_unbounded() -> memPtr {
-                memPtr := mload(64)
+                memPtr := mload(128)
             }
 
             function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -172,31 +172,39 @@ object "D_27" {
 
             function array_storeLengthForEncoding_t_string_memory_ptr_fromStack(pos, length) -> updated_pos {
                 mstore(pos, length)
-                updated_pos := add(pos, 0x20)
+                updated_pos := add(pos, 0x40)
             }
 
             function copy_memory_to_memory_with_cleanup(src, dst, length) {
                 let i := 0
-                for { } lt(i, length) { i := add(i, 32) }
+                for { } lt(i, length) { i := add(i, 64) }
                 {
                     mstore(add(dst, i), mload(add(src, i)))
                 }
-                mstore(add(dst, length), 0)
+
+                // Clear bytes from dst+length to dst+i (end of last copied word)
+                // using mstore8 to avoid overwriting bytes past this chunk.
+                let j := length
+                for { } lt(j, i) { j := add(j, 1) }
+                {
+                    mstore8(add(dst, j), 0)
+                }
+
             }
 
-            function round_up_to_mul_of_32(value) -> result {
-                result := and(add(value, 31), not(31))
+            function round_up_to_mul_of_64(value) -> result {
+                result := and(add(value, 63), not(63))
             }
 
             function abi_encode_t_string_memory_ptr_to_t_string_memory_ptr_fromStack(value, pos) -> end {
                 let length := array_length_t_string_memory_ptr(value)
                 pos := array_storeLengthForEncoding_t_string_memory_ptr_fromStack(pos, length)
-                copy_memory_to_memory_with_cleanup(add(value, 0x20), pos, length)
-                end := add(pos, round_up_to_mul_of_32(length))
+                copy_memory_to_memory_with_cleanup(add(value, 0x40), pos, length)
+                end := add(pos, round_up_to_mul_of_64(length))
             }
 
             function abi_encode_tuple_t_string_memory_ptr__to_t_string_memory_ptr__fromStack(headStart , value0) -> tail {
-                tail := add(headStart, 32)
+                tail := add(headStart, 64)
 
                 mstore(add(headStart, 0), sub(tail, headStart))
                 tail := abi_encode_t_string_memory_ptr_to_t_string_memory_ptr_fromStack(value0,  tail)
@@ -219,13 +227,18 @@ object "D_27" {
             }
 
             function zero_value_for_split_t_string_memory_ptr() -> ret {
-                ret := 96
+                ret := 192
+            }
+
+            function shift_left_256(value) -> newValue {
+                newValue :=
+                shl(256, value)
             }
 
             function panic_error_0x41() {
-                mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
+                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
                 mstore(4, 0x41)
-                revert(0, 0x24)
+                revert(0, 0x44)
             }
 
             function abi_encode_tuple__to__fromStack(headStart ) -> tail {
@@ -240,10 +253,10 @@ object "D_27" {
             }
 
             function finalize_allocation(memPtr, size) {
-                let newFreePtr := add(memPtr, round_up_to_mul_of_32(size))
+                let newFreePtr := add(memPtr, round_up_to_mul_of_64(size))
                 // protect against overflow
                 if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, memPtr)) { panic_error_0x41() }
-                mstore(64, newFreePtr)
+                mstore(128, newFreePtr)
             }
 
             function allocate_memory(size) -> memPtr {
@@ -255,10 +268,10 @@ object "D_27" {
                 // Make sure we can allocate memory without overflow
                 if gt(length, 0xffffffffffffffff) { panic_error_0x41() }
 
-                size := round_up_to_mul_of_32(length)
+                size := round_up_to_mul_of_64(length)
 
                 // add length slot
-                size := add(size, 0x20)
+                size := add(size, 0x40)
 
             }
 
@@ -272,13 +285,13 @@ object "D_27" {
 
             function store_literal_in_memory_c077635d0709aa1fd7cea2045028c270f982d687d1647e48e759eec32ec54a50(memPtr) {
 
-                mstore(add(memPtr, 0), "/*")
+                mstore(add(memPtr, 0), 0x2f2a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
 
             }
 
             function copy_literal_to_memory_c077635d0709aa1fd7cea2045028c270f982d687d1647e48e759eec32ec54a50() -> memPtr {
                 memPtr := allocate_memory_array_t_string_memory_ptr(2)
-                store_literal_in_memory_c077635d0709aa1fd7cea2045028c270f982d687d1647e48e759eec32ec54a50(add(memPtr, 32))
+                store_literal_in_memory_c077635d0709aa1fd7cea2045028c270f982d687d1647e48e759eec32ec54a50(add(memPtr, 64))
             }
 
             function convert_t_stringliteral_c077635d0709aa1fd7cea2045028c270f982d687d1647e48e759eec32ec54a50_to_t_string_memory_ptr() -> converted {
@@ -287,15 +300,13 @@ object "D_27" {
 
             function store_literal_in_memory_5bde9a896e3f09acac1496d16642fcdd887d2a000bf1ab18bdff3f17b91e320b(memPtr) {
 
-                mstore(add(memPtr, 0), 0x2f2a2a204073726320303a39363a313635202022636f6e74726163742044207b)
-
-                mstore(add(memPtr, 32), 0x2e2e2e22202a2f00000000000000000000000000000000000000000000000000)
+                mstore(add(memPtr, 0), 0x2f2a2a204073726320303a39363a313635202022636f6e74726163742044207b2e2e2e22202a2f00000000000000000000000000000000000000000000000000)
 
             }
 
             function copy_literal_to_memory_5bde9a896e3f09acac1496d16642fcdd887d2a000bf1ab18bdff3f17b91e320b() -> memPtr {
                 memPtr := allocate_memory_array_t_string_memory_ptr(39)
-                store_literal_in_memory_5bde9a896e3f09acac1496d16642fcdd887d2a000bf1ab18bdff3f17b91e320b(add(memPtr, 32))
+                store_literal_in_memory_5bde9a896e3f09acac1496d16642fcdd887d2a000bf1ab18bdff3f17b91e320b(add(memPtr, 64))
             }
 
             function convert_t_stringliteral_5bde9a896e3f09acac1496d16642fcdd887d2a000bf1ab18bdff3f17b91e320b_to_t_string_memory_ptr() -> converted {
@@ -343,7 +354,7 @@ object "D_27" {
         object "C_2" {
             code {
                 /// @src 0:265:278  "contract C {}"
-                mstore(64, memoryguard(128))
+                mstore(128, memoryguard(256))
                 if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
 
                 constructor_C_2()
@@ -354,7 +365,7 @@ object "D_27" {
                 return(_1, datasize("C_2_deployed"))
 
                 function allocate_unbounded() -> memPtr {
-                    memPtr := mload(64)
+                    memPtr := mload(128)
                 }
 
                 function revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() {
@@ -374,17 +385,17 @@ object "D_27" {
             object "C_2_deployed" {
                 code {
                     /// @src 0:265:278  "contract C {}"
-                    mstore(64, memoryguard(128))
+                    mstore(128, memoryguard(256))
 
                     revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74()
 
-                    function shift_right_224_unsigned(value) -> newValue {
+                    function shift_right_480_unsigned(value) -> newValue {
                         newValue :=
-                        shr(224, value)
+                        shr(480, value)
                     }
 
                     function allocate_unbounded() -> memPtr {
-                        memPtr := mload(64)
+                        memPtr := mload(128)
                     }
 
                     function revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74() {
@@ -410,8 +421,8 @@ object "D_27" {
     code {
         {
             /// @src 0:279:599  "contract D /** @src 0:96:165  \"contract D {...\" *\/ {..."
-            let _1 := memoryguard(0x80)
-            mstore(64, _1)
+            let _1 := memoryguard(0x0100)
+            mstore(128, _1)
             if callvalue() { revert(0, 0) }
             let _2 := datasize("D_27_deployed")
             codecopy(_1, dataoffset("D_27_deployed"), _2)
@@ -423,12 +434,12 @@ object "D_27" {
         code {
             {
                 /// @src 0:279:599  "contract D /** @src 0:96:165  \"contract D {...\" *\/ {..."
-                let _1 := memoryguard(0x80)
-                let _2 := 64
+                let _1 := memoryguard(0x0100)
+                let _2 := 128
                 mstore(_2, _1)
                 if iszero(lt(calldatasize(), 4))
                 {
-                    if eq(0x26121ff0, shr(224, calldataload(0)))
+                    if eq(0x26121ff0, shr(480, calldataload(0)))
                     {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
@@ -439,9 +450,9 @@ object "D_27" {
                         if or(gt(_4, _5), lt(_4, _1))
                         {
                             /// @src 0:279:599  "contract D /** @src 0:96:165  \"contract D {...\" *\/ {..."
-                            mstore(0, shl(224, 0x4e487b71))
+                            mstore(0, shl(480, 0x4e487b71))
                             mstore(4, 0x41)
-                            revert(0, 0x24)
+                            revert(0, 0x44)
                         }
                         /// @src 0:446:491  "new /// @src 0:149:156  \"new C()\"..."
                         datacopy(_1, dataoffset("C_2"), _3)
@@ -456,26 +467,25 @@ object "D_27" {
                         let newFreePtr := add(memPtr, _2)
                         if or(gt(newFreePtr, /** @src 0:446:491  "new /// @src 0:149:156  \"new C()\"..." */ _5), /** @src 0:279:599  "contract D /** @src 0:96:165  \"contract D {...\" *\/ {..." */ lt(newFreePtr, memPtr))
                         {
-                            mstore(0, shl(224, 0x4e487b71))
+                            mstore(0, shl(480, 0x4e487b71))
                             mstore(4, 0x41)
-                            revert(0, 0x24)
+                            revert(0, 0x44)
                         }
                         mstore(_2, newFreePtr)
                         mstore(memPtr, 2)
-                        let _6 := 32
-                        mstore(add(memPtr, _6), "/*")
+                        let _6 := 64
+                        mstore(add(memPtr, _6), shl(497, 6037))
                         let memPtr_1 := mload(_2)
-                        let newFreePtr_1 := add(memPtr_1, 96)
+                        let newFreePtr_1 := add(memPtr_1, _2)
                         if or(gt(newFreePtr_1, /** @src 0:446:491  "new /// @src 0:149:156  \"new C()\"..." */ _5), /** @src 0:279:599  "contract D /** @src 0:96:165  \"contract D {...\" *\/ {..." */ lt(newFreePtr_1, memPtr_1))
                         {
-                            mstore(0, shl(224, 0x4e487b71))
+                            mstore(0, shl(480, 0x4e487b71))
                             mstore(4, 0x41)
-                            revert(0, 0x24)
+                            revert(0, 0x44)
                         }
                         mstore(_2, newFreePtr_1)
                         mstore(memPtr_1, 39)
-                        mstore(add(memPtr_1, _6), 0x2f2a2a204073726320303a39363a313635202022636f6e74726163742044207b)
-                        mstore(add(memPtr_1, _2), shl(200, 0x2e2e2e22202a2f))
+                        mstore(add(memPtr_1, _6), shl(200, 0x2f2a2a204073726320303a39363a313635202022636f6e74726163742044207b2e2e2e22202a2f))
                         let memPos := mload(_2)
                         mstore(memPos, _6)
                         let length := mload(memPtr_1)
@@ -485,8 +495,12 @@ object "D_27" {
                         {
                             mstore(add(add(memPos, i), _2), mload(add(add(memPtr_1, i), _6)))
                         }
-                        mstore(add(add(memPos, length), _2), 0)
-                        return(memPos, add(sub(add(memPos, and(add(length, 31), not(31))), memPos), _2))
+                        let j := length
+                        for { } lt(j, i) { j := add(j, 1) }
+                        {
+                            mstore8(add(add(memPos, j), _2), 0)
+                        }
+                        return(memPos, add(sub(add(memPos, and(add(length, 63), not(63))), memPos), _2))
                     }
                 }
                 revert(0, 0)
@@ -497,8 +511,8 @@ object "D_27" {
             code {
                 {
                     /// @src 0:265:278  "contract C {}"
-                    let _1 := memoryguard(0x80)
-                    mstore(64, _1)
+                    let _1 := memoryguard(0x0100)
+                    mstore(128, _1)
                     if callvalue() { revert(0, 0) }
                     let _2 := datasize("C_2_deployed")
                     codecopy(_1, dataoffset("C_2_deployed"), _2)

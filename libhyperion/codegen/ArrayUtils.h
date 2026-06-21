@@ -81,7 +81,7 @@ public:
 	/// Stack post: end_ref
 	void clearStorageLoop(Type const* _type) const;
 	/// Converts length to size (number of storage slots or calldata/memory bytes).
-	/// if @a _pad then add padding to multiples of 32 bytes for calldata/memory.
+	/// if @a _pad then add padding to multiples of VM word bytes for calldata/memory.
 	/// Stack pre: length
 	/// Stack post: size
 	void convertLengthToSize(ArrayType const& _arrayType, bool _pad = false) const;
@@ -109,7 +109,7 @@ public:
 
 private:
 	/// Adds the given number of bytes to a storage byte offset counter and also increments
-	/// the storage offset if adding this number again would increase the counter over 32.
+	/// the storage offset if adding this number again would increase the counter over VMWordBytes.
 	/// @param byteOffsetPosition the stack offset of the storage byte offset
 	/// @param storageOffsetPosition the stack offset of the storage slot offset
 	void incrementByteOffset(unsigned _byteSize, unsigned _byteOffsetPosition, unsigned _storageOffsetPosition) const;

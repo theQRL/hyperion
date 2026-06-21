@@ -91,7 +91,7 @@ public:
 	/// @param _offset offset in memory (or calldata)
 	/// @param _type data type to load
 	/// @param _fromCalldata if true, load from calldata, not from memory
-	/// @param _padToWords if true, assume the data is padded to full words (32 bytes)
+	/// @param _padToWords if true, assume the data is padded to full VM words
 	/// @returns the number of bytes consumed in memory.
 	unsigned loadFromMemory(
 		unsigned _offset,
@@ -115,7 +115,7 @@ public:
 	/// Dynamic version of @see storeInMemory, expects the memory offset below the value on the stack
 	/// and also updates that. For reference types, only copies the data pointer. Fails for
 	/// non-memory-references. For string literals no value is available on the stack.
-	/// @param _padToWords if true, adds zeros to pad to multiple of 32 bytes. Array elements
+	/// @param _padToWords if true, adds zeros to pad to multiple of VM word bytes. Array elements
 	///                    are always padded (except for byte arrays), regardless of this parameter.
 	/// @param _cleanup if true, adds code to cleanup the value before storing it.
 	/// Stack pre: memory_offset value...
@@ -203,7 +203,7 @@ public:
 	/// Stack post: <updated_memptr>
 	void zeroInitialiseMemoryArray(ArrayType const& _type);
 
-	/// Copies full 32 byte words in memory (regions cannot overlap), i.e. may copy more than length.
+	/// Copies full VM words in memory (regions cannot overlap), i.e. may copy more than length.
 	/// Length can be zero, in this case, it copies nothing.
 	/// Stack pre: <size> <target> <source>
 	/// Stack post:
@@ -219,12 +219,6 @@ public:
 	/// Stack post:
 	void storeStringData(bytesConstRef _data);
 
-	/// Converts the combined and left-aligned (right-aligned if @a _rightAligned is true)
-	/// external function type <address><function identifier> into two stack slots:
-	/// address (right aligned), function identifier (right aligned)
-	void splitExternalFunctionType(bool _rightAligned);
-	/// Performs the opposite operation of splitExternalFunctionType(_rightAligned)
-	void combineExternalFunctionType(bool _rightAligned);
 	/// Appends code that combines the construction-time (if available) and runtime function
 	/// entry label of the given function into a single stack slot.
 	/// Note: This might cause the compilation queue of the runtime context to be extended.
@@ -293,7 +287,7 @@ public:
 	/// Stack post: <shifted_value>
 	void rightShiftNumberOnStack(unsigned _bits);
 
-	/// Appends code that computes the Keccak-256 hash of the topmost stack element of 32 byte type.
+	/// Appends code that computes the Keccak-256 hash of the topmost stack element of VM word type.
 	void computeHashStatic();
 
 	/// Appends code that copies the code of the given contract to memory.

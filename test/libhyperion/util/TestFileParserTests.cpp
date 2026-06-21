@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(non_existent_call_revert)
 BOOST_AUTO_TEST_CASE(call_revert_message)
 {
 	char const* source = R"(
-		// f() -> FAILURE, hex"08c379a0", 0x20, 6, "Revert"
+		// f() -> FAILURE, hex"08c379a0", 0x40, 6, "Revert"
 	)";
 	auto const calls = parse(source);
 	BOOST_REQUIRE_EQUAL(calls.size(), 1);
@@ -437,7 +437,7 @@ BOOST_AUTO_TEST_CASE(call_arguments_hex_string_lowercase)
 BOOST_AUTO_TEST_CASE(call_arguments_string)
 {
 	char const* source = R"(
-		// f(string): 0x20, 3, "any" ->
+		// f(string): 0x40, 3, "any" ->
 	)";
 	auto const calls = parse(source);
 	BOOST_REQUIRE_EQUAL(calls.size(), 1);
@@ -474,7 +474,7 @@ BOOST_AUTO_TEST_CASE(call_hex_number)
 BOOST_AUTO_TEST_CASE(call_return_string)
 {
 	char const* source = R"(
-		// f() -> 0x20, 3, "any"
+		// f() -> 0x40, 3, "any"
 	)";
 	auto const calls = parse(source);
 	BOOST_REQUIRE_EQUAL(calls.size(), 1);
@@ -715,11 +715,11 @@ BOOST_AUTO_TEST_CASE(call_builtin_left_decimal)
 		"f()",
 		false,
 		fmt::encodeArgs(
-			fmt::encode(toCompactBigEndian(u256{1}), false),
+			fmt::encode(toCompactBigEndian(u512{1}), false),
 			fmt::encode(fromHex("0x20"), false)
 		),
 		fmt::encodeArgs(
-			fmt::encode(toCompactBigEndian(u256{-2}), false),
+			fmt::encode(toCompactBigEndian(u512(0) - u512{2}), false),
 			fmt::encode(bytes{true}, false)
 		)
 	);

@@ -23,5 +23,7 @@ contract C {
 }
 // ====
 // compileViaYul: true
+// ====
+// QRVMVersion: >zond
 // ----
 // t() -> FAILURE, hex"4e487b71", 0x51

@@ -26,7 +26,7 @@ because the contract can only see the last 256 block hashes.
 You can add the attribute ``indexed`` to up to three parameters which adds them
 to a special data structure known as :ref:`"topics" <abi_events>` instead of
 the data part of the log.
-A topic can only hold a single word (32 bytes) so if you use a :ref:`reference type
+A topic can only hold a single VM word (64 bytes) so if you use a :ref:`reference type
 <reference-types>` for an indexed argument, the Keccak-256 hash of the value is stored
 as a topic instead.
 

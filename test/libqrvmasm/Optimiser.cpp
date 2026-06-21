@@ -30,6 +30,7 @@
 #include <libqrvmasm/ControlFlowGraph.h>
 #include <libqrvmasm/BlockDeduplicator.h>
 #include <libqrvmasm/Assembly.h>
+#include <libhyputil/VMConstants.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -354,7 +355,7 @@ BOOST_AUTO_TEST_CASE(cse_byte_ordering_fix)
 {
 	AssemblyItems input{
 		Instruction::CALLVALUE,
-		u256(31),
+		u256(63),
 		Instruction::BYTE
 	};
 	checkCSE(input, {u256(0xff), Instruction::CALLVALUE, Instruction::AND});
@@ -587,7 +588,7 @@ BOOST_AUTO_TEST_CASE(cse_empty_keccak256)
 BOOST_AUTO_TEST_CASE(cse_partial_keccak256)
 {
 	AssemblyItems input{
-		u256(0xabcd) << (256 - 16),
+		u512(0xabcd) << (VMWordBits - 16),
 		u256(0),
 		Instruction::MSTORE,
 		u256(2),
@@ -595,7 +596,7 @@ BOOST_AUTO_TEST_CASE(cse_partial_keccak256)
 		Instruction::KECCAK256
 	};
 	checkCSE(input, {
-		u256(0xabcd) << (256 - 16),
+		u512(0xabcd) << (VMWordBits - 16),
 		u256(0),
 		Instruction::MSTORE,
 		u256(util::keccak256(bytes{0xab, 0xcd}))
@@ -634,22 +635,22 @@ BOOST_AUTO_TEST_CASE(cse_keccak256_twice_same_content)
 		Instruction::DUP1,
 		u256(0x80),
 		Instruction::MSTORE, // m[128] = DUP1
-		u256(0x20),
+		u256(VMWordBytes),
 		u256(0x80),
-		Instruction::KECCAK256, // keccak256(m[128..(128+32)])
+		Instruction::KECCAK256, // keccak256(m[128..(128+VMWordBytes)])
 		Instruction::DUP2,
 		u256(12),
 		Instruction::MSTORE, // m[12] = DUP1
-		u256(0x20),
+		u256(VMWordBytes),
 		u256(12),
-		Instruction::KECCAK256 // keccak256(m[12..(12+32)])
+		Instruction::KECCAK256 // keccak256(m[12..(12+VMWordBytes)])
 	};
 	checkCSE(input, {
 		u256(0x80),
 		Instruction::DUP2,
 		Instruction::DUP2,
 		Instruction::MSTORE,
-		u256(0x20),
+		u256(VMWordBytes),
 		Instruction::SWAP1,
 		Instruction::KECCAK256,
 		u256(12),
@@ -669,10 +670,10 @@ BOOST_AUTO_TEST_CASE(cse_keccak256_twice_same_content_dynamic_store_in_between)
 		Instruction::DUP2,
 		Instruction::DUP2,
 		Instruction::MSTORE, // m[128] = DUP1
-		u256(0x20),
+		u256(VMWordBytes),
 		Instruction::DUP1,
 		Instruction::DUP3,
-		Instruction::KECCAK256, // keccak256(m[128..(128+32)])
+		Instruction::KECCAK256, // keccak256(m[128..(128+VMWordBytes)])
 		u256(12),
 		Instruction::DUP5,
 		Instruction::DUP2,
@@ -683,7 +684,7 @@ BOOST_AUTO_TEST_CASE(cse_keccak256_twice_same_content_dynamic_store_in_between)
 		Instruction::SWAP2,
 		Instruction::SWAP1,
 		Instruction::SWAP2,
-		Instruction::KECCAK256 // keccak256(m[12..(12+32)])
+		Instruction::KECCAK256 // keccak256(m[12..(12+VMWordBytes)])
 	};
 	checkCSE(input, input);
 }
@@ -693,27 +694,27 @@ BOOST_AUTO_TEST_CASE(cse_keccak256_twice_same_content_noninterfering_store_in_be
 	// Keccak-256 twice from different dynamic location but with same content,
 	// dynamic mstore in between, but does not force us to re-calculate the hash
 	AssemblyItems input{
-		u256(0x80),
+		u256(0x100),
 		Instruction::DUP2,
 		Instruction::DUP2,
-		Instruction::MSTORE, // m[128] = DUP1
-		u256(0x20),
+		Instruction::MSTORE, // m[256] = DUP1
+		u256(VMWordBytes),
 		Instruction::DUP1,
 		Instruction::DUP3,
-		Instruction::KECCAK256, // keccak256(m[128..(128+32)])
+		Instruction::KECCAK256, // keccak256(m[256..(256+VMWordBytes)])
 		u256(12),
 		Instruction::DUP5,
 		Instruction::DUP2,
 		Instruction::MSTORE, // m[12] = DUP1
 		Instruction::DUP12,
-		u256(12 + 32),
+		u256(12 + VMWordBytes),
 		Instruction::MSTORE, // does not destroy memory knowledge
 		Instruction::DUP13,
-		u256(128 - 32),
+		u256(256 - VMWordBytes),
 		Instruction::MSTORE, // does not destroy memory knowledge
-		u256(0x20),
+		u256(VMWordBytes),
 		u256(12),
-		Instruction::KECCAK256 // keccak256(m[12..(12+32)])
+		Instruction::KECCAK256 // keccak256(m[12..(12+VMWordBytes)])
 	};
 	// if this changes too often, only count the number of SHA3 and MSTORE instructions
 	AssemblyItems output = CSE(input);
@@ -870,7 +871,7 @@ BOOST_AUTO_TEST_CASE(block_deduplicator)
 	std::set<u256> pushTags;
 	for (AssemblyItem const& item: input)
 		if (item.type() == PushTag)
-			pushTags.insert(item.data());
+			pushTags.insert(u256(item.data()));
 	BOOST_CHECK_EQUAL(pushTags.size(), 2);
 }
 
@@ -964,7 +965,7 @@ BOOST_AUTO_TEST_CASE(block_deduplicator_loops)
 	std::set<u256> pushTags;
 	for (AssemblyItem const& item: input)
 		if (item.type() == PushTag)
-			pushTags.insert(item.data());
+			pushTags.insert(u256(item.data()));
 	BOOST_CHECK_EQUAL(pushTags.size(), 1);
 }
 
@@ -1347,6 +1348,24 @@ BOOST_AUTO_TEST_CASE(cse_mload_pop)
 	checkFullCSE(input, output);
 }
 
+BOOST_AUTO_TEST_CASE(cse_mstore_invalidates_overlapping_word_load)
+{
+	u256 const halfWordOffset = VMWordBytes / 2;
+	AssemblyItems input{
+		u256(0xaa),
+		halfWordOffset,
+		Instruction::MSTORE,
+		u256(0xbb),
+		u256(0),
+		Instruction::MSTORE,
+		halfWordOffset,
+		Instruction::MLOAD,
+	};
+
+	AssemblyItems output = CSE(input);
+	BOOST_CHECK_EQUAL(1, count(output.begin(), output.end(), AssemblyItem(Instruction::MLOAD)));
+}
+
 BOOST_AUTO_TEST_CASE(cse_verbatim_mload)
 {
 	auto verbatim = AssemblyItem{bytes{1, 2, 3, 4, 5}, 0, 0};
@@ -1455,81 +1474,83 @@ BOOST_AUTO_TEST_CASE(verbatim_knownstate)
 
 BOOST_AUTO_TEST_CASE(cse_remove_redundant_shift_masking)
 {
-	for (unsigned i = 1; i < 256; i++)
+	for (unsigned i = 1; i < 512; i++)
 	{
 		checkCSE({
-			u256(boost::multiprecision::pow(u256(2), i) - 1),
+			u512(boost::multiprecision::pow(bigint(2), i) - 1),
 			Instruction::CALLVALUE,
-			u256(256-i),
+			u512(512-i),
 			Instruction::SHR,
 			Instruction::AND
 		}, {
 			Instruction::CALLVALUE,
-			u256(256-i),
+			u512(512-i),
 			Instruction::SHR,
 		});
 
 		checkCSE({
 			Instruction::CALLVALUE,
-			u256(256-i),
+			u512(512-i),
 			Instruction::SHR,
-			u256(boost::multiprecision::pow(u256(2), i)-1),
+			u512(boost::multiprecision::pow(bigint(2), i)-1),
 			Instruction::AND
 		}, {
 			Instruction::CALLVALUE,
-			u256(256-i),
+			u512(512-i),
 			Instruction::SHR,
 		});
 	}
 
 	// Check that opt. does NOT trigger
-	for (unsigned i = 1; i < 255; i++)
+	for (unsigned i = 1; i < 511; i++)
 	{
 		checkCSE({
-			u256(boost::multiprecision::pow(u256(2), i) - 1),
+			u512(boost::multiprecision::pow(bigint(2), i) - 1),
 			Instruction::CALLVALUE,
-			u256(255-i),
+			u512(511-i),
 			Instruction::SHR,
 			Instruction::AND
 		}, { // Opt. did some reordering
 			Instruction::CALLVALUE,
-			u256(255-i),
+			u512(511-i),
 			Instruction::SHR,
-			u256(boost::multiprecision::pow(u256(2), i)-1),
+			u512(boost::multiprecision::pow(bigint(2), i)-1),
 			Instruction::AND
 		});
 
 		checkCSE({
 			Instruction::CALLVALUE,
-			u256(255-i),
+			u512(511-i),
 			Instruction::SHR,
-			u256(boost::multiprecision::pow(u256(2), i)-1),
+			u512(boost::multiprecision::pow(bigint(2), i)-1),
 			Instruction::AND
 		}, { // Opt. did some reordering
-			u256(boost::multiprecision::pow(u256(2), i)-1),
+			u512(boost::multiprecision::pow(bigint(2), i)-1),
 			Instruction::CALLVALUE,
-			u256(255-i),
+			u512(511-i),
 			Instruction::SHR,
 			Instruction::AND
 		});
 	}
 
-	//(x >> (31*8)) & 0xffffffff
+	//(x >> (63*8)) & 0xffffffff
 	checkCSE({
 		Instruction::CALLVALUE,
-		u256(31*8),
+		u512(63*8),
 		Instruction::SHR,
-		u256(0xffffffff),
+		u512(0xffffffff),
 		Instruction::AND
 	}, {
 		Instruction::CALLVALUE,
-		u256(31*8),
+		u512(63*8),
 		Instruction::SHR
 	});
 }
 
 BOOST_AUTO_TEST_CASE(cse_remove_unwanted_masking_of_address)
 {
+	u512 const addressMask = ~u512(0);
+	u512 const nonAddressMask("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
 	std::vector<Instruction> ops{
 		Instruction::ADDRESS,
 		Instruction::CALLER,
@@ -1539,7 +1560,7 @@ BOOST_AUTO_TEST_CASE(cse_remove_unwanted_masking_of_address)
 	for (auto const& op: ops)
 	{
 		checkCSE({
-			u256("0xffffffffffffffffffffffffffffffffffffffff"),
+			addressMask,
 			op,
 			Instruction::AND
 		}, {
@@ -1548,7 +1569,7 @@ BOOST_AUTO_TEST_CASE(cse_remove_unwanted_masking_of_address)
 
 		checkCSE({
 			op,
-			u256("0xffffffffffffffffffffffffffffffffffffffff"),
+			addressMask,
 			Instruction::AND
 		}, {
 			op
@@ -1578,21 +1599,21 @@ BOOST_AUTO_TEST_CASE(cse_remove_unwanted_masking_of_address)
 
 	// leave other opcodes untouched
 	checkCSE({
-		u256("0xffffffffffffffffffffffffffffffffffffffff"),
+		nonAddressMask,
 		Instruction::CALLVALUE,
 		Instruction::AND
 	}, {
 		Instruction::CALLVALUE,
-		u256("0xffffffffffffffffffffffffffffffffffffffff"),
+		nonAddressMask,
 		Instruction::AND
 	});
 
 	checkCSE({
 		Instruction::CALLVALUE,
-		u256("0xffffffffffffffffffffffffffffffffffffffff"),
+		nonAddressMask,
 		Instruction::AND
 	}, {
-		u256("0xffffffffffffffffffffffffffffffffffffffff"),
+		nonAddressMask,
 		Instruction::CALLVALUE,
 		Instruction::AND
 	});
@@ -1600,9 +1621,10 @@ BOOST_AUTO_TEST_CASE(cse_remove_unwanted_masking_of_address)
 
 BOOST_AUTO_TEST_CASE(cse_replace_too_large_shift)
 {
+	// Shift >= WordSize (512) should be optimized to 0
 	checkCSE({
 		Instruction::CALLVALUE,
-		u256(299),
+		u256(555),
 		Instruction::SHL
 	}, {
 		u256(0)
@@ -1610,29 +1632,30 @@ BOOST_AUTO_TEST_CASE(cse_replace_too_large_shift)
 
 	checkCSE({
 		Instruction::CALLVALUE,
-		u256(299),
+		u256(555),
 		Instruction::SHR
 	}, {
 		u256(0)
 	});
 
+	// Shift < WordSize should NOT be optimized away
 	checkCSE({
 		Instruction::CALLVALUE,
-		u256(255),
+		u256(511),
 		Instruction::SHL
 	}, {
 		Instruction::CALLVALUE,
-		u256(255),
+		u256(511),
 		Instruction::SHL
 	});
 
 	checkCSE({
 		Instruction::CALLVALUE,
-		u256(255),
+		u256(511),
 		Instruction::SHR
 	}, {
 		Instruction::CALLVALUE,
-		u256(255),
+		u256(511),
 		Instruction::SHR
 	});
 }

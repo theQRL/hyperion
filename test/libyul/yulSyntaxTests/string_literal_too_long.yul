@@ -4,4 +4,4 @@
 // ====
 // dialect: qrvm
 // ----
-// TypeError 3069: (18-97): String literal too long (77 > 32)
+// TypeError 3069: (18-97): String literal too long (77 > 64)

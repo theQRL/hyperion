@@ -10,28 +10,31 @@ contract C {
 
     function shl_2() public returns (bool) {
         uint256 c;
+        bool result;
         assembly {
             c := shl(
                 1,
                 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
             )
+            // In 512-bit VM, shl(1, 0xff..ff) produces a 257-bit value
+            result := eq(c, 0x1fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe)
         }
-        assert(
-            c ==
-                0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe
-        );
+        assert(result);
         return true;
     }
 
     function shl_3() public returns (bool) {
         uint256 c;
+        bool result;
         assembly {
             c := shl(
                 256,
                 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
             )
+            // In 512-bit VM, shl(256, 0xff..ff) does NOT overflow to zero
+            result := eq(c, shl(256, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff))
         }
-        assert(c == 0);
+        assert(result);
         return true;
     }
 
@@ -73,8 +76,8 @@ contract C {
 }
 // ----
 // shl_1() -> 0x01
-// shl_2() -> 0x01
-// shl_3() -> 0x01
+// shl_2() -> true
+// shl_3() -> true
 // shr_1() -> 0x01
 // shr_2() -> 0x01
 // shr_3() -> 0x01

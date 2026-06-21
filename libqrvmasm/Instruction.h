@@ -136,8 +136,40 @@ enum class Instruction: uint8_t
 	PUSH30,				///< place 30 byte item on stack
 	PUSH31,				///< place 31 byte item on stack
 	PUSH32,				///< place 32 byte item on stack
+	PUSH33,				///< place 33 byte item on stack
+	PUSH34,				///< place 34 byte item on stack
+	PUSH35,				///< place 35 byte item on stack
+	PUSH36,				///< place 36 byte item on stack
+	PUSH37,				///< place 37 byte item on stack
+	PUSH38,				///< place 38 byte item on stack
+	PUSH39,				///< place 39 byte item on stack
+	PUSH40,				///< place 40 byte item on stack
+	PUSH41,				///< place 41 byte item on stack
+	PUSH42,				///< place 42 byte item on stack
+	PUSH43,				///< place 43 byte item on stack
+	PUSH44,				///< place 44 byte item on stack
+	PUSH45,				///< place 45 byte item on stack
+	PUSH46,				///< place 46 byte item on stack
+	PUSH47,				///< place 47 byte item on stack
+	PUSH48,				///< place 48 byte item on stack
+	PUSH49,				///< place 49 byte item on stack
+	PUSH50,				///< place 50 byte item on stack
+	PUSH51,				///< place 51 byte item on stack
+	PUSH52,				///< place 52 byte item on stack
+	PUSH53,				///< place 53 byte item on stack
+	PUSH54,				///< place 54 byte item on stack
+	PUSH55,				///< place 55 byte item on stack
+	PUSH56,				///< place 56 byte item on stack
+	PUSH57,				///< place 57 byte item on stack
+	PUSH58,				///< place 58 byte item on stack
+	PUSH59,				///< place 59 byte item on stack
+	PUSH60,				///< place 60 byte item on stack
+	PUSH61,				///< place 61 byte item on stack
+	PUSH62,				///< place 62 byte item on stack
+	PUSH63,				///< place 63 byte item on stack
+	PUSH64,				///< place 64 byte item on stack
 
-	DUP1 = 0x80,		///< copies the highest item in the stack to the top of the stack
+	DUP1 = 0xa0,		///< copies the highest item in the stack to the top of the stack
 	DUP2,				///< copies the second highest item in the stack to the top of the stack
 	DUP3,				///< copies the third highest item in the stack to the top of the stack
 	DUP4,				///< copies the 4th highest item in the stack to the top of the stack
@@ -154,7 +186,7 @@ enum class Instruction: uint8_t
 	DUP15,				///< copies the 15th highest item in the stack to the top of the stack
 	DUP16,				///< copies the 16th highest item in the stack to the top of the stack
 
-	SWAP1 = 0x90,		///< swaps the highest and second highest value on the stack
+	SWAP1 = 0xb0,		///< swaps the highest and second highest value on the stack
 	SWAP2,				///< swaps the highest and third highest value on the stack
 	SWAP3,				///< swaps the highest and 4th highest value on the stack
 	SWAP4,				///< swaps the highest and 5th highest value on the stack
@@ -171,7 +203,7 @@ enum class Instruction: uint8_t
 	SWAP15,				///< swaps the highest and 16th highest value on the stack
 	SWAP16,				///< swaps the highest and 17th highest value on the stack
 
-	LOG0 = 0xa0,		///< Makes a log entry; no topics.
+	LOG0 = 0xc0,		///< Makes a log entry; no topics.
 	LOG1,				///< Makes a log entry; 1 topic.
 	LOG2,				///< Makes a log entry; 2 topics.
 	LOG3,				///< Makes a log entry; 3 topics.
@@ -205,7 +237,7 @@ constexpr bool isCallInstruction(Instruction _inst) noexcept
 /// @returns true if the instruction is a PUSH
 inline bool isPushInstruction(Instruction _inst)
 {
-	return Instruction::PUSH0 <= _inst && _inst <= Instruction::PUSH32;
+	return Instruction::PUSH0 <= _inst && _inst <= Instruction::PUSH64;
 }
 
 /// @returns true if the instruction is a DUP
@@ -253,7 +285,7 @@ inline unsigned getLogNumber(Instruction _inst)
 /// @returns the PUSH<_number> instruction
 inline Instruction pushInstruction(unsigned _number)
 {
-	assertThrow(_number <= 32, InvalidOpcode, std::string("Invalid PUSH instruction requested (") + std::to_string(_number) + ").");
+	assertThrow(_number <= 64, InvalidOpcode, std::string("Invalid PUSH instruction requested (") + std::to_string(_number) + ").");
 	return Instruction(unsigned(Instruction::PUSH0) + _number);
 }
 

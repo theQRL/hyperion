@@ -45,7 +45,7 @@ struct CompilerInput
 		StringMap const& _sourceCode,
 		std::string const& _contractName,
 		frontend::OptimiserSettings _optimiserSettings,
-		std::map<std::string, hyperion::util::h160> _libraryAddresses,
+		std::map<std::string, hyperion::util::h512> _libraryAddresses,
 		bool _debugFailure = false,
 		bool _viaIR = false
 	):
@@ -66,7 +66,7 @@ struct CompilerInput
 	/// Optimiser setting to be used during compilation
 	frontend::OptimiserSettings optimiserSettings;
 	/// Information on which library is deployed where
-	std::map<std::string, hyperion::util::h160> libraryAddresses;
+	std::map<std::string, hyperion::util::h512> libraryAddresses;
 	/// Flag used for debugging
 	bool debugFailure;
 	/// Flag to enable new code generator.
@@ -84,7 +84,7 @@ public:
 		m_compilerInput.contractName = _contractName;
 	}
 	/// Sets library addresses to @param _libraryAddresses.
-	void libraryAddresses(std::map<std::string, hyperion::util::h160> _libraryAddresses)
+	void libraryAddresses(std::map<std::string, hyperion::util::h512> _libraryAddresses)
 	{
 		m_compilerInput.libraryAddresses = std::move(_libraryAddresses);
 	}

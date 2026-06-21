@@ -1,4 +1,4 @@
-// QRVMC: Quantum Resistant Client-VM Connector API.
+// EVMC: Ethereum Client-VM Connector API.
 // Copyright 2018 The EVMC Authors.
 // Licensed under the Apache License, Version 2.0.
 #pragma once
@@ -23,7 +23,7 @@ namespace qrvmc
 /// String view of uint8_t chars.
 using bytes_view = std::basic_string_view<uint8_t>;
 
-/// The big-endian 160-bit hash suitable for keeping a QRL address.
+/// The big-endian 512-bit value suitable for keeping a QRL address.
 ///
 /// This type wraps C ::qrvmc_address to make sure objects of this type are always initialized.
 struct address : qrvmc_address
@@ -35,21 +35,18 @@ struct address : qrvmc_address
 
     /// Converting constructor from unsigned integer value.
     ///
-    /// This constructor assigns the @p v value to the last 8 bytes [12:19]
-    /// in big-endian order.
+    /// After the 64-byte-address migration this constructor assigns the
+    /// @p v value to the last 8 bytes [56:63] in big-endian order so the
+    /// integer ends up right-aligned in the 64-byte container (mirroring
+    /// the layout produced by parsing a short Q-prefixed hex literal).
     constexpr explicit address(uint64_t v) noexcept
-      : qrvmc_address{{0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
+      : qrvmc_address{{0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
                        static_cast<uint8_t>(v >> 56),
                        static_cast<uint8_t>(v >> 48),
                        static_cast<uint8_t>(v >> 40),
@@ -67,45 +64,28 @@ struct address : qrvmc_address
     inline constexpr operator bytes_view() const noexcept { return {bytes, sizeof(bytes)}; }
 };
 
-/// The fixed size array of 32 bytes for storing 256-bit QRVM values.
+/// The fixed size array of 64 bytes for storing 512-bit QRVM values.
 ///
-/// This type wraps C ::qrvmc_bytes32 to make sure objects of this type are always initialized.
-struct bytes32 : qrvmc_bytes32
+/// This type wraps C ::qrvmc_bytes64 to make sure objects of this type are always initialized.
+struct bytes64 : qrvmc_bytes64
 {
     /// Default and converting constructor.
     ///
     /// Initializes bytes to zeros if not other @p init value provided.
-    constexpr bytes32(qrvmc_bytes32 init = {}) noexcept : qrvmc_bytes32{init} {}
+    constexpr bytes64(qrvmc_bytes64 init = {}) noexcept : qrvmc_bytes64{init} {}
 
     /// Converting constructor from unsigned integer value.
     ///
-    /// This constructor assigns the @p v value to the last 8 bytes [24:31]
+    /// This constructor assigns the @p v value to the last 8 bytes [56:63]
     /// in big-endian order.
-    constexpr explicit bytes32(uint64_t v) noexcept
-      : qrvmc_bytes32{{0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
+    constexpr explicit bytes64(uint64_t v) noexcept
+      : qrvmc_bytes64{{0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0,
                        static_cast<uint8_t>(v >> 56),
                        static_cast<uint8_t>(v >> 48),
                        static_cast<uint8_t>(v >> 40),
@@ -123,8 +103,8 @@ struct bytes32 : qrvmc_bytes32
     inline constexpr operator bytes_view() const noexcept { return {bytes, sizeof(bytes)}; }
 };
 
-/// The alias for qrvmc::bytes32 to represent a big-endian 256-bit integer.
-using uint256be = bytes32;
+/// The alias for qrvmc::bytes64 to represent a big-endian 512-bit integer.
+using uint512be = bytes64;
 
 
 /// Loads 64 bits / 8 bytes of data from the given @p data array in big-endian order.
@@ -175,7 +155,12 @@ inline constexpr bool operator==(const address& a, const address& b) noexcept
 {
     return load64le(&a.bytes[0]) == load64le(&b.bytes[0]) &&
            load64le(&a.bytes[8]) == load64le(&b.bytes[8]) &&
-           load32le(&a.bytes[16]) == load32le(&b.bytes[16]);
+           load64le(&a.bytes[16]) == load64le(&b.bytes[16]) &&
+           load64le(&a.bytes[24]) == load64le(&b.bytes[24]) &&
+           load64le(&a.bytes[32]) == load64le(&b.bytes[32]) &&
+           load64le(&a.bytes[40]) == load64le(&b.bytes[40]) &&
+           load64le(&a.bytes[48]) == load64le(&b.bytes[48]) &&
+           load64le(&a.bytes[56]) == load64le(&b.bytes[56]);
 }
 
 /// The "not equal to" comparison operator for the qrvmc::address type.
@@ -187,11 +172,14 @@ inline constexpr bool operator!=(const address& a, const address& b) noexcept
 /// The "less than" comparison operator for the qrvmc::address type.
 inline constexpr bool operator<(const address& a, const address& b) noexcept
 {
-    return load64be(&a.bytes[0]) < load64be(&b.bytes[0]) ||
-           (load64be(&a.bytes[0]) == load64be(&b.bytes[0]) &&
-            (load64be(&a.bytes[8]) < load64be(&b.bytes[8]) ||
-             (load64be(&a.bytes[8]) == load64be(&b.bytes[8]) &&
-              load32be(&a.bytes[16]) < load32be(&b.bytes[16]))));
+    for (size_t i = 0; i < sizeof(a.bytes); i += 8)
+    {
+        auto va = load64be(&a.bytes[i]);
+        auto vb = load64be(&b.bytes[i]);
+        if (va != vb)
+            return va < vb;
+    }
+    return false;
 }
 
 /// The "greater than" comparison operator for the qrvmc::address type.
@@ -212,47 +200,52 @@ inline constexpr bool operator>=(const address& a, const address& b) noexcept
     return !(a < b);
 }
 
-/// The "equal to" comparison operator for the qrvmc::bytes32 type.
-inline constexpr bool operator==(const bytes32& a, const bytes32& b) noexcept
+/// The "equal to" comparison operator for the qrvmc::bytes64 type.
+inline constexpr bool operator==(const bytes64& a, const bytes64& b) noexcept
 {
     return load64le(&a.bytes[0]) == load64le(&b.bytes[0]) &&
            load64le(&a.bytes[8]) == load64le(&b.bytes[8]) &&
            load64le(&a.bytes[16]) == load64le(&b.bytes[16]) &&
-           load64le(&a.bytes[24]) == load64le(&b.bytes[24]);
+           load64le(&a.bytes[24]) == load64le(&b.bytes[24]) &&
+           load64le(&a.bytes[32]) == load64le(&b.bytes[32]) &&
+           load64le(&a.bytes[40]) == load64le(&b.bytes[40]) &&
+           load64le(&a.bytes[48]) == load64le(&b.bytes[48]) &&
+           load64le(&a.bytes[56]) == load64le(&b.bytes[56]);
 }
 
-/// The "not equal to" comparison operator for the qrvmc::bytes32 type.
-inline constexpr bool operator!=(const bytes32& a, const bytes32& b) noexcept
+/// The "not equal to" comparison operator for the qrvmc::bytes64 type.
+inline constexpr bool operator!=(const bytes64& a, const bytes64& b) noexcept
 {
     return !(a == b);
 }
 
-/// The "less than" comparison operator for the qrvmc::bytes32 type.
-inline constexpr bool operator<(const bytes32& a, const bytes32& b) noexcept
+/// The "less than" comparison operator for the qrvmc::bytes64 type.
+inline constexpr bool operator<(const bytes64& a, const bytes64& b) noexcept
 {
-    return load64be(&a.bytes[0]) < load64be(&b.bytes[0]) ||
-           (load64be(&a.bytes[0]) == load64be(&b.bytes[0]) &&
-            (load64be(&a.bytes[8]) < load64be(&b.bytes[8]) ||
-             (load64be(&a.bytes[8]) == load64be(&b.bytes[8]) &&
-              (load64be(&a.bytes[16]) < load64be(&b.bytes[16]) ||
-               (load64be(&a.bytes[16]) == load64be(&b.bytes[16]) &&
-                load64be(&a.bytes[24]) < load64be(&b.bytes[24]))))));
+    for (size_t i = 0; i < sizeof(a.bytes); i += 8)
+    {
+        auto va = load64be(&a.bytes[i]);
+        auto vb = load64be(&b.bytes[i]);
+        if (va != vb)
+            return va < vb;
+    }
+    return false;
 }
 
-/// The "greater than" comparison operator for the qrvmc::bytes32 type.
-inline constexpr bool operator>(const bytes32& a, const bytes32& b) noexcept
+/// The "greater than" comparison operator for the qrvmc::bytes64 type.
+inline constexpr bool operator>(const bytes64& a, const bytes64& b) noexcept
 {
     return b < a;
 }
 
-/// The "less than or equal to" comparison operator for the qrvmc::bytes32 type.
-inline constexpr bool operator<=(const bytes32& a, const bytes32& b) noexcept
+/// The "less than or equal to" comparison operator for the qrvmc::bytes64 type.
+inline constexpr bool operator<=(const bytes64& a, const bytes64& b) noexcept
 {
     return !(b < a);
 }
 
-/// The "greater than or equal to" comparison operator for the qrvmc::bytes32 type.
-inline constexpr bool operator>=(const bytes32& a, const bytes32& b) noexcept
+/// The "greater than or equal to" comparison operator for the qrvmc::bytes64 type.
+inline constexpr bool operator>=(const bytes64& a, const bytes64& b) noexcept
 {
     return !(a < b);
 }
@@ -268,13 +261,13 @@ inline constexpr address::operator bool() const noexcept
     return !is_zero(*this);
 }
 
-/// Checks if the given bytes32 object has all zero bytes.
-inline constexpr bool is_zero(const bytes32& a) noexcept
+/// Checks if the given bytes64 object has all zero bytes.
+inline constexpr bool is_zero(const bytes64& a) noexcept
 {
-    return a == bytes32{};
+    return a == bytes64{};
 }
 
-inline constexpr bytes32::operator bool() const noexcept
+inline constexpr bytes64::operator bool() const noexcept
 {
     return !is_zero(*this);
 }
@@ -309,10 +302,10 @@ constexpr address operator""_address(const char* s, size_t) noexcept
     return parse<address>(s, "Q");
 }
 
-/// Literal for qrvmc::bytes32.
-constexpr bytes32 operator""_bytes32(const char* s) noexcept
+/// Literal for qrvmc::bytes64.
+constexpr bytes64 operator""_bytes64(const char* s) noexcept
 {
-    return parse<bytes32>(s);
+    return parse<bytes64>(s);
 }
 }  // namespace literals
 
@@ -458,21 +451,21 @@ public:
     virtual bool account_exists(const address& addr) const noexcept = 0;
 
     /// @copydoc qrvmc_host_interface::get_storage
-    virtual bytes32 get_storage(const address& addr, const bytes32& key) const noexcept = 0;
+    virtual bytes64 get_storage(const address& addr, const bytes64& key) const noexcept = 0;
 
     /// @copydoc qrvmc_host_interface::set_storage
     virtual qrvmc_storage_status set_storage(const address& addr,
-                                             const bytes32& key,
-                                             const bytes32& value) noexcept = 0;
+                                             const bytes64& key,
+                                             const bytes64& value) noexcept = 0;
 
     /// @copydoc qrvmc_host_interface::get_balance
-    virtual uint256be get_balance(const address& addr) const noexcept = 0;
+    virtual uint512be get_balance(const address& addr) const noexcept = 0;
 
     /// @copydoc qrvmc_host_interface::get_code_size
     virtual size_t get_code_size(const address& addr) const noexcept = 0;
 
     /// @copydoc qrvmc_host_interface::get_code_hash
-    virtual bytes32 get_code_hash(const address& addr) const noexcept = 0;
+    virtual bytes64 get_code_hash(const address& addr) const noexcept = 0;
 
     /// @copydoc qrvmc_host_interface::copy_code
     virtual size_t copy_code(const address& addr,
@@ -487,13 +480,13 @@ public:
     virtual qrvmc_tx_context get_tx_context() const noexcept = 0;
 
     /// @copydoc qrvmc_host_interface::get_block_hash
-    virtual bytes32 get_block_hash(int64_t block_number) const noexcept = 0;
+    virtual bytes64 get_block_hash(int64_t block_number) const noexcept = 0;
 
     /// @copydoc qrvmc_host_interface::emit_log
     virtual void emit_log(const address& addr,
                           const uint8_t* data,
                           size_t data_size,
-                          const bytes32 topics[],
+                          const bytes64 topics[],
                           size_t num_topics) noexcept = 0;
 
     /// @copydoc qrvmc_host_interface::access_account
@@ -501,7 +494,7 @@ public:
 
     /// @copydoc qrvmc_host_interface::access_storage
     virtual qrvmc_access_status access_storage(const address& addr,
-                                               const bytes32& key) noexcept = 0;
+                                               const bytes64& key) noexcept = 0;
 };
 
 
@@ -529,19 +522,19 @@ public:
         return host->account_exists(context, &address);
     }
 
-    bytes32 get_storage(const address& address, const bytes32& key) const noexcept final
+    bytes64 get_storage(const address& address, const bytes64& key) const noexcept final
     {
         return host->get_storage(context, &address, &key);
     }
 
     qrvmc_storage_status set_storage(const address& address,
-                                     const bytes32& key,
-                                     const bytes32& value) noexcept final
+                                     const bytes64& key,
+                                     const bytes64& value) noexcept final
     {
         return host->set_storage(context, &address, &key, &value);
     }
 
-    uint256be get_balance(const address& address) const noexcept final
+    uint512be get_balance(const address& address) const noexcept final
     {
         return host->get_balance(context, &address);
     }
@@ -551,7 +544,7 @@ public:
         return host->get_code_size(context, &address);
     }
 
-    bytes32 get_code_hash(const address& address) const noexcept final
+    bytes64 get_code_hash(const address& address) const noexcept final
     {
         return host->get_code_hash(context, &address);
     }
@@ -572,7 +565,7 @@ public:
     /// @copydoc HostInterface::get_tx_context()
     qrvmc_tx_context get_tx_context() const noexcept final { return host->get_tx_context(context); }
 
-    bytes32 get_block_hash(int64_t number) const noexcept final
+    bytes64 get_block_hash(int64_t number) const noexcept final
     {
         return host->get_block_hash(context, number);
     }
@@ -580,7 +573,7 @@ public:
     void emit_log(const address& addr,
                   const uint8_t* data,
                   size_t data_size,
-                  const bytes32 topics[],
+                  const bytes64 topics[],
                   size_t topics_count) noexcept final
     {
         host->emit_log(context, &addr, data, data_size, topics, topics_count);
@@ -591,7 +584,7 @@ public:
         return host->access_account(context, &address);
     }
 
-    qrvmc_access_status access_storage(const address& address, const bytes32& key) noexcept final
+    qrvmc_access_status access_storage(const address& address, const bytes64& key) noexcept final
     {
         return host->access_storage(context, &address, &key);
     }
@@ -768,22 +761,22 @@ inline bool account_exists(qrvmc_host_context* h, const qrvmc_address* addr) noe
     return Host::from_context(h)->account_exists(*addr);
 }
 
-inline qrvmc_bytes32 get_storage(qrvmc_host_context* h,
+inline qrvmc_bytes64 get_storage(qrvmc_host_context* h,
                                  const qrvmc_address* addr,
-                                 const qrvmc_bytes32* key) noexcept
+                                 const qrvmc_bytes64* key) noexcept
 {
     return Host::from_context(h)->get_storage(*addr, *key);
 }
 
 inline qrvmc_storage_status set_storage(qrvmc_host_context* h,
                                         const qrvmc_address* addr,
-                                        const qrvmc_bytes32* key,
-                                        const qrvmc_bytes32* value) noexcept
+                                        const qrvmc_bytes64* key,
+                                        const qrvmc_bytes64* value) noexcept
 {
     return Host::from_context(h)->set_storage(*addr, *key, *value);
 }
 
-inline qrvmc_uint256be get_balance(qrvmc_host_context* h, const qrvmc_address* addr) noexcept
+inline qrvmc_uint512be get_balance(qrvmc_host_context* h, const qrvmc_address* addr) noexcept
 {
     return Host::from_context(h)->get_balance(*addr);
 }
@@ -793,7 +786,7 @@ inline size_t get_code_size(qrvmc_host_context* h, const qrvmc_address* addr) no
     return Host::from_context(h)->get_code_size(*addr);
 }
 
-inline qrvmc_bytes32 get_code_hash(qrvmc_host_context* h, const qrvmc_address* addr) noexcept
+inline qrvmc_bytes64 get_code_hash(qrvmc_host_context* h, const qrvmc_address* addr) noexcept
 {
     return Host::from_context(h)->get_code_hash(*addr);
 }
@@ -817,7 +810,7 @@ inline qrvmc_tx_context get_tx_context(qrvmc_host_context* h) noexcept
     return Host::from_context(h)->get_tx_context();
 }
 
-inline qrvmc_bytes32 get_block_hash(qrvmc_host_context* h, int64_t block_number) noexcept
+inline qrvmc_bytes64 get_block_hash(qrvmc_host_context* h, int64_t block_number) noexcept
 {
     return Host::from_context(h)->get_block_hash(block_number);
 }
@@ -826,10 +819,10 @@ inline void emit_log(qrvmc_host_context* h,
                      const qrvmc_address* addr,
                      const uint8_t* data,
                      size_t data_size,
-                     const qrvmc_bytes32 topics[],
+                     const qrvmc_bytes64 topics[],
                      size_t num_topics) noexcept
 {
-    Host::from_context(h)->emit_log(*addr, data, data_size, static_cast<const bytes32*>(topics),
+    Host::from_context(h)->emit_log(*addr, data, data_size, static_cast<const bytes64*>(topics),
                                     num_topics);
 }
 
@@ -840,7 +833,7 @@ inline qrvmc_access_status access_account(qrvmc_host_context* h, const qrvmc_add
 
 inline qrvmc_access_status access_storage(qrvmc_host_context* h,
                                           const qrvmc_address* addr,
-                                          const qrvmc_bytes32* key) noexcept
+                                          const qrvmc_bytes64* key) noexcept
 {
     return Host::from_context(h)->access_storage(*addr, *key);
 }
@@ -891,26 +884,38 @@ struct hash<qrvmc::address>
     {
         using namespace qrvmc;
         using namespace fnv;
-        return static_cast<size_t>(fnv1a_by64(
-            fnv1a_by64(fnv1a_by64(fnv::offset_basis, load64le(&s.bytes[0])), load64le(&s.bytes[8])),
-            load32le(&s.bytes[16])));
+        return static_cast<size_t>(
+            fnv1a_by64(fnv1a_by64(fnv1a_by64(fnv1a_by64(fnv1a_by64(fnv1a_by64(
+                fnv1a_by64(fnv1a_by64(fnv::offset_basis, load64le(&s.bytes[0])),
+                            load64le(&s.bytes[8])),
+                load64le(&s.bytes[16])),
+                load64le(&s.bytes[24])),
+                load64le(&s.bytes[32])),
+                load64le(&s.bytes[40])),
+                load64le(&s.bytes[48])),
+                load64le(&s.bytes[56])));
     }
 };
 
-/// Hash operator template specialization for qrvmc::bytes32. Needed for unordered containers.
+/// Hash operator template specialization for qrvmc::bytes64. Needed for unordered containers.
 template <>
-struct hash<qrvmc::bytes32>
+struct hash<qrvmc::bytes64>
 {
     /// Hash operator using FNV1a-based folding.
-    constexpr size_t operator()(const qrvmc::bytes32& s) const noexcept
+    constexpr size_t operator()(const qrvmc::bytes64& s) const noexcept
     {
         using namespace qrvmc;
         using namespace fnv;
         return static_cast<size_t>(
-            fnv1a_by64(fnv1a_by64(fnv1a_by64(fnv1a_by64(fnv::offset_basis, load64le(&s.bytes[0])),
-                                             load64le(&s.bytes[8])),
-                                  load64le(&s.bytes[16])),
-                       load64le(&s.bytes[24])));
+            fnv1a_by64(fnv1a_by64(fnv1a_by64(fnv1a_by64(fnv1a_by64(fnv1a_by64(
+                fnv1a_by64(fnv1a_by64(fnv::offset_basis, load64le(&s.bytes[0])),
+                            load64le(&s.bytes[8])),
+                load64le(&s.bytes[16])),
+                load64le(&s.bytes[24])),
+                load64le(&s.bytes[32])),
+                load64le(&s.bytes[40])),
+                load64le(&s.bytes[48])),
+                load64le(&s.bytes[56])));
     }
 };
 }  // namespace std

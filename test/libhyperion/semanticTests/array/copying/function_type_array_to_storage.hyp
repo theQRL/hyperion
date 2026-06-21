@@ -44,13 +44,15 @@ contract C {
 		return log;
 	}
 }
+// ====
+// QRVMVersion: >zond
 // ----
-// test() -> 0x20, 0x14, "[a called][b called]"
+// test() -> 0x40, 0x14, "[a called][b called]"
 // gas irOptimized: 116645
-// gas legacy: 118936
+// gas legacy: 121741
 // gas legacyOptimized: 116975
-// test2() -> 0x20, 0x14, "[b called][a called]"
-// test3() -> 0x20, 0x14, "[b called][a called]"
+// test2() -> 0x40, 0x14, "[b called][a called]"
+// test3() -> 0x40, 0x14, "[b called][a called]"
 // gas irOptimized: 103246
-// gas legacy: 102745
+// gas legacy: 105634
 // gas legacyOptimized: 101669

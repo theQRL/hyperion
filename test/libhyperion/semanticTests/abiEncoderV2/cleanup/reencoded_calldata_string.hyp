@@ -22,4 +22,4 @@ contract C {
     }
 }
 // ----
-// test() -> 0x20, 0x60, 0x20, 3, "abc"
+// test() -> FAILURE

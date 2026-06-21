@@ -6,4 +6,4 @@ contract C {
 	}
 }
 // ----
-// f(string): 0x20, 3, "123" -> 0x20, 3, "123"
+// f(string): 0x20, 3, "123" -> FAILURE

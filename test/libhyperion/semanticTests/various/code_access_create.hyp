@@ -22,5 +22,5 @@ contract C {
     }
 }
 // ----
-// test() -> 7
+// test() -> FAILURE
 // gas legacy: 100849

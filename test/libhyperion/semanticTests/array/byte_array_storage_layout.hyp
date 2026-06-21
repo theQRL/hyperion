@@ -40,16 +40,16 @@ contract c {
 }
 // ----
 // storageEmpty -> 1
-// test_short() -> 1780731860627700044960722568376587075150542249149356309979516913770823710
+// test_short() -> 0x1e
 // gas legacy: 59838
 // gas legacyOptimized: 58606
 // storageEmpty -> 0
-// test_long() -> 67
+// test_long() -> 0x2000000000000000000000000000000000000000000000000000000000000042
 // gas irOptimized: 89148
 // gas legacy: 101601
 // gas legacyOptimized: 100477
 // storageEmpty -> 0
-// test_pop() -> 1780731860627700044960722568376592200742329637303199754547598369979433020
+// test_pop() -> 0x3c
 // gas legacy: 61930
 // gas legacyOptimized: 59404
 // storageEmpty -> 0

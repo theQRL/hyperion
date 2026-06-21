@@ -4,8 +4,8 @@ object "Arraysum_34" {
     code {
         {
             /// @src 0:80:429  "contract Arraysum {..."
-            let _1 := memoryguard(0x80)
-            mstore(64, _1)
+            let _1 := memoryguard(0x0100)
+            mstore(128, _1)
             if callvalue() { revert(0, 0) }
             let _2 := datasize("Arraysum_34_deployed")
             codecopy(_1, dataoffset("Arraysum_34_deployed"), _2)
@@ -17,11 +17,11 @@ object "Arraysum_34" {
         code {
             {
                 /// @src 0:80:429  "contract Arraysum {..."
-                mstore(64, memoryguard(0x80))
+                mstore(128, memoryguard(0x0100))
                 let _1 := 4
                 if iszero(lt(calldatasize(), 4))
                 {
-                    if eq(0x81d73423, shr(224, calldataload(0)))
+                    if eq(0x81d73423, shr(480, calldataload(0)))
                     {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
@@ -29,32 +29,40 @@ object "Arraysum_34" {
                         /// @src 0:368:378  "uint i = 0"
                         let var_i := /** @src 0:80:429  "contract Arraysum {..." */ 0
                         let _2 := sload(0)
+                        let _3 := sub(shl(256, 1), 1)
+                        let cleaned := and(_2, _3)
                         /// @src 0:364:423  "for(uint i = 0; i < values.length; i++)..."
                         for { }
-                        /** @src 0:380:397  "i < values.length" */ lt(var_i, _2)
+                        /** @src 0:380:397  "i < values.length" */ lt(/** @src 0:80:429  "contract Arraysum {..." */ and(/** @src 0:380:397  "i < values.length" */ var_i, /** @src 0:80:429  "contract Arraysum {..." */ _3), /** @src 0:380:397  "i < values.length" */ cleaned)
                         /// @src 0:368:378  "uint i = 0"
                         {
                             /// @src 0:399:402  "i++"
-                            var_i := /** @src 0:80:429  "contract Arraysum {..." */ add(/** @src 0:399:402  "i++" */ var_i, /** @src 0:80:429  "contract Arraysum {..." */ 1)
+                            var_i := /** @src 0:80:429  "contract Arraysum {..." */ and(add(/** @src 0:399:402  "i++" */ var_i, /** @src 0:80:429  "contract Arraysum {..." */ 1), _3)
                         }
                         /// @src 0:399:402  "i++"
                         {
                             /// @src 0:80:429  "contract Arraysum {..."
-                            mstore(0, 0)
-                            let sum := add(var_sum, sload(add(18569430475105882587588266137607568536673111973893317399460219858819262702947, var_i)))
-                            if gt(var_sum, sum)
+                            if iszero(lt(var_i, _2))
                             {
-                                mstore(0, shl(224, 0x4e487b71))
+                                mstore(0, shl(480, 0x4e487b71))
+                                mstore(_1, 0x32)
+                                revert(0, 0x44)
+                            }
+                            mstore(0, 0)
+                            let sum := add(and(var_sum, _3), and(shr(and(shl(8, var_i), 256), sload(add(78338746147236970124700731725183845421594913511827187288591969170390706184117, shr(1, var_i)))), _3))
+                            if gt(sum, _3)
+                            {
+                                mstore(0, shl(480, 0x4e487b71))
                                 mstore(_1, 0x11)
-                                revert(0, 0x24)
+                                revert(0, 0x44)
                             }
                             /// @src 0:407:423  "sum += values[i]"
                             var_sum := sum
                         }
                         /// @src 0:80:429  "contract Arraysum {..."
-                        let memPos := mload(64)
-                        mstore(memPos, var_sum)
-                        return(memPos, 32)
+                        let memPos := mload(128)
+                        mstore(memPos, and(var_sum, _3))
+                        return(memPos, 64)
                     }
                 }
                 revert(0, 0)

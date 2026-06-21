@@ -23,6 +23,7 @@
 
 #include <test/libhyperion/ABITestsCommon.h>
 
+#include <libhyputil/VMConstants.h>
 #include <liblangutil/Exceptions.h>
 
 #include <boost/algorithm/string/replace.hpp>
@@ -66,7 +67,7 @@ BOOST_AUTO_TEST_CASE(value_types)
 		compileAndRun(sourceCode);
 		callContractFunction("f()");
 		REQUIRE_LOG_DATA(encodeArgs(
-			10, u256(65534), u256(0x121212), u256(-1), std::string("\x1b\xab\xab"), true, h160("fffffffffffffffffffffffffffffffffffffffb")
+			10, u256(65534), u256(0x121212), u256(-1), std::string("\x1b\xab\xab"), true, h512(std::string(127, 'f') + "b")
 		));
 	)
 }
@@ -85,7 +86,7 @@ BOOST_AUTO_TEST_CASE(string_literal)
 		compileAndRun(sourceCode);
 		callContractFunction("f()");
 		REQUIRE_LOG_DATA(encodeArgs(
-			0x60, std::string("abcde"), 0xa0,
+			0xc0, std::string("abcde"), 0x140,
 			6, std::string("abcdef"),
 			0x8b, std::string("abcdefabcdefgehabcabcasdfjklabcdefabcedefghabcabcasdfjklabcdefabcdefghabcabcasdfjklabcdeefabcdefghabcabcasdefjklabcdefabcdefghabcabcasdfjkl")
 		));
@@ -117,7 +118,7 @@ BOOST_AUTO_TEST_CASE(conversion)
 		contract C {
 			event E(bytes4, bytes4, uint16, uint8, int16, int8);
 			function f() public {
-				bytes2 x; assembly { x := 0xf1f2f3f400000000000000000000000000000000000000000000000000000000 }
+				bytes2 x; assembly { x := 0xf1f2f3f4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 }
 				uint8 a;
 				uint16 b = 0x1ff;
 				int8 c;
@@ -146,7 +147,7 @@ BOOST_AUTO_TEST_CASE(memory_array_one_dim)
 				int16[] memory x = new int16[](3);
 				assembly {
 					for { let i := 0 } lt(i, 3) { i := add(i, 1) } {
-						mstore(add(x, mul(add(i, 1), 0x20)), add(0xfffffffe, i))
+						mstore(add(x, mul(add(i, 1), 0x40)), add(0xfffffffe, i))
 					}
 				}
 				emit E(10, x, 11);
@@ -159,13 +160,13 @@ BOOST_AUTO_TEST_CASE(memory_array_one_dim)
 		compileAndRun(sourceCode);
 		callContractFunction("f()");
 		// The old encoder does not clean array elements.
-		REQUIRE_LOG_DATA(encodeArgs(10, 0x60, 11, 3, u256("0xfffffffe"), u256("0xffffffff"), u256("0x100000000")));
+		REQUIRE_LOG_DATA(encodeArgs(10, 0xc0, 11, 3, u256("0xfffffffe"), u256("0xffffffff"), u256("0x100000000")));
 	}
 
 	NEW_ENCODER(
 		compileAndRun(sourceCode);
 		callContractFunction("f()");
-		REQUIRE_LOG_DATA(encodeArgs(10, 0x60, 11, 3, u256(-2), u256(-1), u256(0)));
+		REQUIRE_LOG_DATA(encodeArgs(10, 0xc0, 11, 3, u256(-2), u256(-1), u256(0)));
 	)
 }
 
@@ -190,7 +191,7 @@ BOOST_AUTO_TEST_CASE(memory_array_two_dim)
 	NEW_ENCODER(
 		compileAndRun(sourceCode);
 		callContractFunction("f()");
-		REQUIRE_LOG_DATA(encodeArgs(10, 0x60, 11, 0x40, 0xc0, 3, 7, 0x0506, u256(-1), 2, 4, 5));
+		REQUIRE_LOG_DATA(encodeArgs(10, 0xc0, 11, 0x80, 0x180, 3, 7, 0x0506, u256(-1), 2, 4, 5));
 	)
 }
 
@@ -211,8 +212,8 @@ BOOST_AUTO_TEST_CASE(memory_byte_array)
 		compileAndRun(sourceCode);
 		callContractFunction("f()");
 		REQUIRE_LOG_DATA(encodeArgs(
-			10, 0x60, 11,
-			2, 0x40, 0xc0,
+			10, 0xc0, 11,
+			2, 0x80, 0x140,
 			66, std::string("abcabcdefghjklmnopqrsuvwabcdefgijklmnopqrstuwabcdefgijklmnoprstuvw"),
 			63, std::string("abcdefghijklmnopqrtuvwabcfghijklmnopqstuvwabcdeghijklmopqrstuvw")
 		));
@@ -237,7 +238,7 @@ BOOST_AUTO_TEST_CASE(storage_byte_array)
 		compileAndRun(sourceCode);
 		callContractFunction("f()");
 		REQUIRE_LOG_DATA(encodeArgs(
-			0x40, 0x80,
+			0x80, 0x100,
 			31, std::string("123456789012345678901234567890a"),
 			75, std::string("ffff123456789012345678901234567890afffffffff123456789012345678901234567890a")
 		));
@@ -264,9 +265,9 @@ BOOST_AUTO_TEST_CASE(storage_array)
 		compileAndRun(sourceCode);
 		callContractFunction("f()");
 		REQUIRE_LOG_DATA(encodeArgs(
-			h160("ffffffffffffffffffffffffffffffffffffffff"),
-			h160("fffffffffffffffffffffffffffffffffffffffe"),
-			h160("fffffffffffffffffffffffffffffffffffffffd")
+			h512(std::string(128, 'f')),
+			h512(std::string(127, 'f') + "e"),
+			h512(std::string(127, 'f') + "d")
 		));
 	)
 }
@@ -278,9 +279,9 @@ BOOST_AUTO_TEST_CASE(storage_array_dyn)
 			address[] addr;
 			event E(address[] a);
 			function f() public {
-				addr.push(Q0000000000000000000000000000000000000001);
-				addr.push(Q0000000000000000000000000000000000000002);
-				addr.push(Q0000000000000000000000000000000000000003);
+				addr.push(Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001);
+				addr.push(Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002);
+				addr.push(Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003);
 				emit E(addr);
 			}
 		}
@@ -289,11 +290,11 @@ BOOST_AUTO_TEST_CASE(storage_array_dyn)
 		compileAndRun(sourceCode);
 		callContractFunction("f()");
 		REQUIRE_LOG_DATA(encodeArgs(
-			0x20,
+			0x40,
 			3,
-			h160("0000000000000000000000000000000000000001"),
-			h160("0000000000000000000000000000000000000002"),
-			h160("0000000000000000000000000000000000000003")
+			h512(std::string(127, '0') + "1"),
+			h512(std::string(127, '0') + "2"),
+			h512(std::string(127, '0') + "3")
 		));
 	)
 }
@@ -321,7 +322,7 @@ BOOST_AUTO_TEST_CASE(storage_array_compact)
 		compileAndRun(sourceCode);
 		callContractFunction("f()");
 		REQUIRE_LOG_DATA(encodeArgs(
-			0x20, 8, u256(-1), 2, u256(-3), 4, u256(-5), 6, u256(-7), 8
+			0x40, 8, u256(-1), 2, u256(-3), 4, u256(-5), 6, u256(-7), 8
 		));
 	)
 }
@@ -341,8 +342,8 @@ BOOST_AUTO_TEST_CASE(external_function)
 	BOTH_ENCODERS(
 		compileAndRun(sourceCode);
 		callContractFunction("f(uint256)", u256(0));
-		std::string functionIdF = asString(m_contractAddress.ref()) + asString(util::selectorFromSignatureH32("f(uint256)").ref());
-		REQUIRE_LOG_DATA(encodeArgs(functionIdF, functionIdF));
+		u256 selectorF = util::selectorFromSignatureU32("f(uint256)");
+		REQUIRE_LOG_DATA(encodeArgs(m_contractAddress, selectorF, m_contractAddress, selectorF));
 	)
 }
 
@@ -355,7 +356,12 @@ BOOST_AUTO_TEST_CASE(external_function_cleanup)
 			function(uint) external returns (uint) g;
 			function f(uint) public returns (uint) {
 				function(uint) external returns (uint)[1] memory h;
-				assembly { sstore(0, sub(0, 1)) mstore(h, sub(0, 1)) }
+				assembly {
+					sstore(0, sub(0, 1))
+					sstore(1, sub(0, 1))
+					mstore(h, sub(0, 1))
+					mstore(add(h, 0x40), sub(0, 1))
+				}
 				emit E(h[0], g);
 			}
 		}
@@ -363,7 +369,10 @@ BOOST_AUTO_TEST_CASE(external_function_cleanup)
 	BOTH_ENCODERS(
 		compileAndRun(sourceCode);
 		callContractFunction("f(uint256)", u256(0));
-		REQUIRE_LOG_DATA(encodeArgs(std::string(24, char(-1)), std::string(24, char(-1))));
+		REQUIRE_LOG_DATA(encodeArgs(
+			std::string(64, char(-1)), u256(0xffffffff),
+			std::string(64, char(-1)), u256(0xffffffff)
+		));
 	)
 }
 
@@ -381,10 +390,10 @@ BOOST_AUTO_TEST_CASE(calldata)
 	std::string t("abcdefgggggggggggggggggggggggggggggggggggggggghhheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeggg");
 	BOTH_ENCODERS(
 		compileAndRun(sourceCode);
-		callContractFunction("f(bytes)", 0x20, s.size(), s);
-		REQUIRE_LOG_DATA(encodeArgs(0x20, s.size(), s));
-		callContractFunction("f(bytes)", 0x20, t.size(), t);
-		REQUIRE_LOG_DATA(encodeArgs(0x20, t.size(), t));
+		callContractFunction("f(bytes)", 0x40, s.size(), s);
+		REQUIRE_LOG_DATA(encodeArgs(0x40, s.size(), s));
+		callContractFunction("f(bytes)", 0x40, t.size(), t);
+		REQUIRE_LOG_DATA(encodeArgs(0x40, t.size(), t));
 	)
 }
 
@@ -398,7 +407,7 @@ BOOST_AUTO_TEST_CASE(function_name_collision)
 				assembly {
 					function abi_encode_t_uint256_to_t_uint256() {
 						mstore(0, 7)
-						return(0, 0x20)
+						return(0, 0x40)
 					}
 					switch x
 					case 0 { abi_encode_t_uint256_to_t_uint256() }
@@ -442,8 +451,8 @@ BOOST_AUTO_TEST_CASE(structs)
 	NEW_ENCODER(
 		compileAndRun(sourceCode, 0, "C");
 		bytes encoded = encodeArgs(
-			u256(7), 0x40,
-			8, 9, 0x80, 10,
+			u256(7), 0x80,
+			8, 9, 0x100, 10,
 			3,
 			11, 0,
 			12, 0,
@@ -483,28 +492,28 @@ BOOST_AUTO_TEST_CASE(structs2)
 	NEW_ENCODER(
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("f()"), encodeArgs(
-			7, 0x80, 0x1e0, 8,
+			7, 0x100, 0x3c0, 8,
 			// S[2] s1
-			0x40,
-			0x100,
+			0x80,
+			0x200,
 			// S s1[0]
 			m_contractAddress,
-			0x40,
+			0x80,
 			// T s1[0].t
 			1, // length
 			// s1[0].t[0]
 			0x11, 1, 0x12,
 			// S s1[1]
-			0, 0x40,
+			0, 0x80,
 			// T s1[1].t
 			0,
-			// S[] s2 (0x1e0)
+			// S[] s2 (0x3c0)
 			2, // length
-			0x40, 0xa0,
+			0x80, 0x140,
 			// S s2[0]
-			0, 0x40, 0,
+			0, 0x80, 0,
 			// S s2[1]
-			0x1234, 0x40,
+			0x1234, 0x80,
 			// s2[1].t
 			3, // length
 			0, 0, 0,
@@ -539,7 +548,7 @@ BOOST_AUTO_TEST_CASE(bool_arrays)
 	BOTH_ENCODERS(
 		compileAndRun(sourceCode, 0, "C");
 		bytes encoded = encodeArgs(
-			0xa0, 1, 0, 1, 0,
+			0x140, 1, 0, 1, 0,
 			4, 1, 0, 1, 0
 		);
 		ABI_CHECK(callContractFunction("f()"), encoded);
@@ -574,7 +583,7 @@ BOOST_AUTO_TEST_CASE(bool_arrays_split)
 	BOTH_ENCODERS(
 		compileAndRun(sourceCode, 0, "C");
 		bytes encoded = encodeArgs(
-			0xa0, 1, 0, 1, 0,
+			0x140, 1, 0, 1, 0,
 			4, 1, 0, 1, 0
 		);
 		ABI_CHECK(callContractFunction("store()"), bytes{});
@@ -614,11 +623,18 @@ BOOST_AUTO_TEST_CASE(bytesNN_arrays)
 				source = boost::algorithm::replace_all_copy(source, "WIDTH", std::to_string(width));
 				compileAndRun(source, 0, "C");
 				ABI_CHECK(callContractFunction("store()"), bytes{});
-				std::vector<u256> arr;
+				bytes arr;
 				for (size_t i = 0; i < size; i ++)
-					arr.emplace_back(u256(i + 1) << (8 * (32 - width)));
+				{
+					// bytesN: padded to 64-byte slot (new), left-aligned
+					bytes value(64, 0);
+					uint64_t val = static_cast<uint64_t>(i + 1);
+					for (size_t j = 0; j < width && j < 8; ++j)
+						value[width - 1 - j] = static_cast<uint8_t>(val >> (8 * j));
+					arr += value;
+				}
 				bytes encoded = encodeArgs(
-					0x20 * (1 + size), arr,
+					0x40 * (1 + size)) + arr + encodeArgs(
 					2, "abc", "def"
 				);
 				ABI_CHECK(callContractFunction("f()"), encoded);
@@ -659,12 +675,18 @@ BOOST_AUTO_TEST_CASE(bytesNN_arrays_dyn)
 				source = boost::algorithm::replace_all_copy(source, "WIDTH", std::to_string(width));
 				compileAndRun(source, 0, "C");
 				ABI_CHECK(callContractFunction("store()"), bytes{});
-				std::vector<u256> arr;
+				bytes arr;
 				for (size_t i = 0; i < size; i ++)
-					arr.emplace_back(u256(i + 1) << (8 * (32 - width)));
+				{
+					bytes value(64, 0);
+					uint64_t val = static_cast<uint64_t>(i + 1);
+					for (size_t j = 0; j < width && j < 8; ++j)
+						value[width - 1 - j] = static_cast<uint8_t>(val >> (8 * j));
+					arr += value;
+				}
 				bytes encoded = encodeArgs(
-					0x20 * 2, 0x20 * (3 + size),
-					size, arr,
+					0x40 * 2, 0x40 * (3 + size),
+					size) + arr + encodeArgs(
 					2, "abc", "def"
 				);
 				ABI_CHECK(callContractFunction("f()"), encoded);
@@ -699,9 +721,8 @@ BOOST_AUTO_TEST_CASE(packed_structs)
 	NEW_ENCODER(
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("store()"), bytes{});
-		bytes fun = m_contractAddress.asBytes() + fromHex("0xe2179b8e");
 		bytes encoded = encodeArgs(
-			0, u256(-5), asString(fun), "\x01\x02\x03", u256(-3)
+			0, u256(-5), m_contractAddress, u256(util::selectorFromSignatureU32("g()")), "\x01\x02\x03", u256(-3)
 		);
 		ABI_CHECK(callContractFunction("f()"), encoded);
 		REQUIRE_LOG_DATA(encoded);
@@ -724,8 +745,8 @@ BOOST_AUTO_TEST_CASE(struct_in_constructor)
 	)";
 
 	NEW_ENCODER(
-		compileAndRun(sourceCode, 0, "C", encodeArgs(0x20, 0x60, 0x03, 0x80, 0x00, 0x00));
-		ABI_CHECK(callContractFunction("x()"), encodeArgs(0x60, 0x03, 0x80, 0x00, 0x00));
+		compileAndRun(sourceCode, 0, "C", encodeArgs(0x40, 0xc0, 0x03, 0x100, 0x00, 0x00));
+		ABI_CHECK(callContractFunction("x()"), encodeArgs(0xc0, 0x03, 0x100, 0x00, 0x00));
 	)
 }
 
@@ -755,7 +776,7 @@ BOOST_AUTO_TEST_CASE(struct_in_constructor_indirect)
 	)";
 	NEW_ENCODER(
 		compileAndRun(sourceCode, 0, "D");
-		ABI_CHECK(callContractFunction("f()"), encodeArgs(0x60, 7, 0xa0, 3, "abc", 3, "def"));
+		ABI_CHECK(callContractFunction("f()"), encodeArgs(0xc0, 7, 0x140, 3, "abc", 3, "def"));
 	)
 }
 

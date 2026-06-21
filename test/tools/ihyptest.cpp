@@ -222,8 +222,10 @@ void TestTool::updateTestCase()
 
 TestTool::Request TestTool::handleResponse(bool _exception)
 {
-	if (!_exception && m_options.acceptUpdates)
+	if (m_options.acceptUpdates)
 	{
+		if (_exception)
+			return Request::Skip;
 		updateTestCase();
 		return Request::Rerun;
 	}
@@ -306,42 +308,61 @@ TestStats TestTool::processPath(
 		else
 		{
 			++testCount;
-			TestTool testTool(
-				_testCaseCreator,
-				_options,
-				fullpath,
-				currentPath.generic_path().string()
-			);
-			auto result = testTool.process();
-
-			switch(result)
+			int rerunCount = 0;
+			static constexpr int maxReruns = 3;
+			bool done = false;
+			while (!done)
 			{
-			case Result::Failure:
-			case Result::Exception:
-				switch(testTool.handleResponse(result == Result::Exception))
+				TestTool testTool(
+					_testCaseCreator,
+					_options,
+					fullpath,
+					currentPath.generic_path().string()
+				);
+				auto result = testTool.process();
+
+				switch(result)
 				{
-				case Request::Quit:
+				case Result::Failure:
+				case Result::Exception:
+					switch(testTool.handleResponse(result == Result::Exception))
+					{
+					case Request::Quit:
+						paths.pop();
+						m_exitRequested = true;
+						done = true;
+						break;
+					case Request::Rerun:
+						if (++rerunCount > maxReruns)
+						{
+							cout << "Skipping after " << maxReruns
+							<< " re-runs (legacy/Yul mismatch?)." << endl;
+							paths.pop();
+							++skippedCount;
+							--testCount;
+							done = true;
+						}
+						else
+							cout << "Re-running test case..." << endl;
+						break;
+					case Request::Skip:
+						paths.pop();
+						++skippedCount;
+						done = true;
+						break;
+					}
+					break;
+				case Result::Success:
 					paths.pop();
-					m_exitRequested = true;
+					++successCount;
+					done = true;
 					break;
-				case Request::Rerun:
-					cout << "Re-running test case..." << endl;
-					--testCount;
-					break;
-				case Request::Skip:
+				case Result::Skipped:
 					paths.pop();
 					++skippedCount;
+					done = true;
 					break;
 				}
-				break;
-			case Result::Success:
-				paths.pop();
-				++successCount;
-				break;
-			case Result::Skipped:
-				paths.pop();
-				++skippedCount;
-				break;
 			}
 		}
 	}

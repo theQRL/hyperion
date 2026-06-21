@@ -21,8 +21,8 @@
                             "astId": 5,
                             "contract": "fileA:A",
                             "label": "y",
-                            "offset": 0,
-                            "slot": "1",
+                            "offset": 32,
+                            "slot": "0",
                             "type": "t_uint256"
                         },
                         {
@@ -30,7 +30,7 @@
                             "contract": "fileA:A",
                             "label": "map",
                             "offset": 0,
-                            "slot": "2",
+                            "slot": "1",
                             "type": "t_mapping(t_uint256,t_mapping(t_address,t_bool))"
                         }
                     ],
@@ -40,7 +40,7 @@
                         {
                             "encoding": "inplace",
                             "label": "address",
-                            "numberOfBytes": "20"
+                            "numberOfBytes": "64"
                         },
                         "t_bool":
                         {
@@ -53,7 +53,7 @@
                             "encoding": "mapping",
                             "key": "t_address",
                             "label": "mapping(address => bool)",
-                            "numberOfBytes": "32",
+                            "numberOfBytes": "64",
                             "value": "t_bool"
                         },
                         "t_mapping(t_uint256,t_mapping(t_address,t_bool))":
@@ -61,7 +61,7 @@
                             "encoding": "mapping",
                             "key": "t_uint256",
                             "label": "mapping(uint256 => mapping(address => bool))",
-                            "numberOfBytes": "32",
+                            "numberOfBytes": "64",
                             "value": "t_mapping(t_address,t_bool)"
                         },
                         "t_uint256":

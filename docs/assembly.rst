@@ -51,13 +51,13 @@ Hyperion language without a compiler change.
                 let size := extcodesize(addr)
                 // allocate output byte array - this could also be done without assembly
                 // by using code = new bytes(size)
-                code := mload(0x40)
+                code := mload(0x80)
                 // new "memory end" including padding
-                mstore(0x40, add(code, and(add(add(size, 0x20), 0x1f), not(0x1f))))
+                mstore(0x80, add(code, and(add(add(size, 0x40), 0x3f), not(0x3f))))
                 // store length in memory
                 mstore(code, size)
                 // actually retrieve the code, this needs assembly
-                extcodecopy(addr, add(code, 0x20), 0, size)
+                extcodecopy(addr, add(code, 0x40), 0, size)
             }
         }
     }
@@ -79,12 +79,12 @@ efficient code, for example:
         }
 
         // We know that we only access the array in bounds, so we can avoid the check.
-        // 0x20 needs to be added to an array because the first slot contains the
+        // 0x40 needs to be added to an array because the first slot contains the
         // array length.
         function sumAsm(uint[] memory data) public pure returns (uint sum) {
             for (uint i = 0; i < data.length; ++i) {
                 assembly {
-                    sum := add(sum, mload(add(add(data, 0x20), mul(i, 0x20))))
+                    sum := add(sum, mload(add(add(data, 0x40), mul(i, 0x40))))
                 }
             }
         }
@@ -92,7 +92,7 @@ efficient code, for example:
         // Same as above, but accomplish the entire code within inline assembly.
         function sumPureAsm(uint[] memory data) public pure returns (uint sum) {
             assembly {
-                // Load the length (first 32 bytes)
+                // Load the length (first 64 bytes)
                 let len := mload(data)
 
                 // Skip over the length field.
@@ -101,13 +101,13 @@ efficient code, for example:
                 //
                 // NOTE: incrementing data would result in an unusable
                 //       data variable after this assembly block
-                let dataElementLocation := add(data, 0x20)
+                let dataElementLocation := add(data, 0x40)
 
                 // Iterate until the bound is not met.
                 for
-                    { let end := add(dataElementLocation, mul(len, 0x20)) }
+                    { let end := add(dataElementLocation, mul(len, 0x40)) }
                     lt(dataElementLocation, end)
-                    { dataElementLocation := add(dataElementLocation, 0x20) }
+                    { dataElementLocation := add(dataElementLocation, 0x40) }
                 {
                     sum := add(sum, mload(dataElementLocation))
                 }
@@ -135,10 +135,9 @@ evaluate to the address of the variable in calldata, not the value itself.
 The variable can also be assigned a new offset, but note that no validation is performed to ensure that
 the variable will not point beyond ``calldatasize()``.
 
-For external function pointers the address and the function selector can be
-accessed using ``x.address`` and ``x.selector``.
-The selector consists of four right-aligned bytes.
-Both values can be assigned to. For example:
+Public and external function identifiers expose the target address and function
+selector using ``x.address`` and ``x.selector``.
+The selector consists of four right-aligned bytes. For example:
 
 .. code-block:: hyperion
     :force:
@@ -147,14 +146,19 @@ Both values can be assigned to. For example:
     pragma hyperion >=0.1.0;
 
     contract C {
-        // Assigns a new selector and address to the return variable @fun
-        function combineToFunctionPointer(address newAddress, uint newSelector) public pure returns (function() external fun) {
-            assembly {
-                fun.selector := newSelector
-                fun.address  := newAddress
-            }
+        function target() public pure {}
+
+        function metadata() public view returns (address targetAddress, bytes4 targetSelector) {
+            targetAddress = this.target.address;
+            targetSelector = this.target.selector;
         }
     }
+
+External function pointer variables use two VM stack slots internally: one for
+the address and one for the selector. Inline assembly can access and assign
+``x.address`` and ``x.selector`` separately. Using the whole function pointer
+as a single Yul identifier is rejected because a Yul value occupies one stack
+slot.
 
 For dynamic calldata arrays, you can access
 their calldata offset (in bytes) and length (number of elements) using ``x.offset`` and ``x.length``.
@@ -193,7 +197,7 @@ Local Hyperion variables are available for assignments, for example:
     }
 
 .. warning::
-    If you access variables of a type that spans less than 256 bits
+    If you access variables of a type that spans less than 512 bits
     (for example ``uint64``, ``address``, or ``bytes16``),
     you cannot make any assumptions about bits not part of the
     encoding of the type. Especially, do not assume them to be zero.
@@ -232,9 +236,9 @@ Conventions in Hyperion
 Values of Typed Variables
 =========================
 
-In contrast to QRVM assembly, Hyperion has types which are narrower than 256 bits,
+In contrast to QRVM assembly, Hyperion has types which are narrower than 512 bits,
 e.g. ``uint24``. For efficiency, most arithmetic operations ignore the fact that
-types can be shorter than 256
+types can be shorter than 512
 bits, and the higher-order bits are cleaned when necessary,
 i.e., shortly before they are written to memory or before comparisons are performed.
 This means that if you access such a variable
@@ -247,7 +251,7 @@ Memory Management
 =================
 
 Hyperion manages memory in the following way. There is a "free memory pointer"
-at position ``0x40`` in memory. If you want to allocate memory, use the memory
+at position ``0x80`` in memory. If you want to allocate memory, use the memory
 starting from where this pointer points at and update it.
 There is no guarantee that the memory has not been used before and thus
 you cannot assume that its contents are zero bytes.
@@ -257,18 +261,18 @@ Here is an assembly snippet you can use for allocating memory that follows the p
 .. code-block:: yul
 
     function allocate(length) -> pos {
-      pos := mload(0x40)
-      mstore(0x40, add(pos, length))
+      pos := mload(0x80)
+      mstore(0x80, add(pos, length))
     }
 
-The first 64 bytes of memory can be used as "scratch space" for short-term
-allocation. The 32 bytes after the free memory pointer (i.e., starting at ``0x60``)
+The first 128 bytes of memory can be used as "scratch space" for short-term
+allocation. The 64 bytes after the free memory pointer (i.e., starting at ``0xc0``)
 are meant to be zero permanently and is used as the initial value for
 empty dynamic memory arrays.
-This means that the allocatable memory starts at ``0x80``, which is the initial value
+This means that the allocatable memory starts at ``0x100``, which is the initial value
 of the free memory pointer.
 
-Elements in memory arrays in Hyperion always occupy multiples of 32 bytes (this is
+Elements in memory arrays in Hyperion always occupy multiples of 64 bytes (this is
 even true for ``bytes1[]``, but not for ``bytes`` and ``string``). Multi-dimensional memory
 arrays are pointers to memory arrays. The length of a dynamic array is stored at the
 first slot of the array and followed by the array elements.
@@ -328,7 +332,7 @@ free memory pointer can safely be used as temporary scratch space:
 .. code-block:: hyperion
 
     assembly ("memory-safe") {
-      let p := mload(0x40)
+      let p := mload(0x80)
       returndatacopy(p, 0, returndatasize())
       revert(p, returndatasize())
     }
@@ -351,9 +355,9 @@ Hyperion variables of reference type in memory. For example the following is not
 
     bytes memory x;
     assembly {
-      x := 0x40
+      x := 0x80
     }
-    x[0x20] = 0x42;
+    x[0x40] = 0x42;
 
 Inline assembly that neither involves any operations that access memory nor assigns to any Hyperion variables
 in memory is automatically considered memory-safe and does not need to be annotated.

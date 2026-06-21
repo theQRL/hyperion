@@ -1251,7 +1251,7 @@ void SMTEncoder::endVisit(Literal const& _literal)
 	hypAssert(_literal.annotation().type, "Expected type for AST node");
 	Type const& type = *_literal.annotation().type;
 	if (smt::isNumber(type))
-		defineExpr(_literal, smtutil::Expression(type.literalValue(&_literal)));
+		defineExpr(_literal, smtutil::Expression(bigint(type.literalValue(&_literal))));
 	else if (smt::isBool(type))
 		defineExpr(_literal, smtutil::Expression(_literal.token() == Token::TrueLiteral ? true : false));
 	else if (smt::isStringLiteral(type))
@@ -1739,9 +1739,9 @@ bool SMTEncoder::shortcutRationalNumber(Expression const& _expr)
 		return false;
 
 	if (rationalType->isNegative())
-		defineExpr(_expr, smtutil::Expression(u2s(rationalType->literalValue(nullptr))));
+		defineExpr(_expr, smtutil::Expression(bigint(u2s(rationalType->literalValue(nullptr)))));
 	else
-		defineExpr(_expr, smtutil::Expression(rationalType->literalValue(nullptr)));
+		defineExpr(_expr, smtutil::Expression(bigint(rationalType->literalValue(nullptr))));
 	return true;
 }
 
@@ -3156,9 +3156,9 @@ smtutil::Expression SMTEncoder::constantExpr(Expression const& _expr, VariableDe
 	if (RationalNumberType const* rationalType = isConstant(_expr))
 	{
 		if (rationalType->isNegative())
-			return smtutil::Expression(u2s(rationalType->literalValue(nullptr)));
+			return smtutil::Expression(bigint(u2s(rationalType->literalValue(nullptr))));
 		else
-			return smtutil::Expression(rationalType->literalValue(nullptr));
+			return smtutil::Expression(bigint(rationalType->literalValue(nullptr)));
 	}
 	else
 	{

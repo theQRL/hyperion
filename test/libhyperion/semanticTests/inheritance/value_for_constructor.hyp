@@ -40,7 +40,7 @@ contract Main {
 // ----
 // constructor(), 22 planck ->
 // gas irOptimized: 261888
-// gas legacy: 392786
+// gas legacy: 431924
 // gas legacyOptimized: 261633
 // getFlag() -> true
 // getName() -> "abc"

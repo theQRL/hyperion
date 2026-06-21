@@ -55,7 +55,7 @@ contract C {
 // gg1(bytes1): left(0x0001) -> FAILURE
 // f1(bytes32): left(0x0101) -> left(0x01)
 // gg1(bytes1): left(0x0101) -> FAILURE
-// f1(bytes32): -1 -> left(0xFF)
+// f1(bytes32): -1 -> FAILURE
 // gg1(bytes1): -1 -> FAILURE
 // f2(bytes32): left(0) -> left(0)
 // gg2(bytes2): left(0) -> left(0)
@@ -69,7 +69,7 @@ contract C {
 // gg2(bytes2): left(0x000001) -> FAILURE
 // f2(bytes32): left(0x010001) -> left(0x01)
 // gg2(bytes2): left(0x010001) -> FAILURE
-// f2(bytes32): -1 -> left(0xFFFF)
+// f2(bytes32): -1 -> FAILURE
 // gg2(bytes2): -1 -> FAILURE
 // f4(bytes32): left(0) -> left(0)
 // gg4(bytes4): left(0) -> left(0)
@@ -83,7 +83,7 @@ contract C {
 // gg4(bytes4): left(0x0000000001) -> FAILURE
 // f4(bytes32): left(0x0100000001) -> left(0x01)
 // gg4(bytes4): left(0x0100000001) -> FAILURE
-// f4(bytes32): -1 -> left(0xFFFFFFFF)
+// f4(bytes32): -1 -> FAILURE
 // gg4(bytes4): -1 -> FAILURE
 // f8(bytes32): left(0) -> left(0)
 // gg8(bytes8): left(0) -> left(0)
@@ -97,7 +97,7 @@ contract C {
 // gg8(bytes8): left(0x000000000000000001) -> FAILURE
 // f8(bytes32): left(0x010000000000000001) -> left(0x01)
 // gg8(bytes8): left(0x010000000000000001) -> FAILURE
-// f8(bytes32): -1 -> left(0xFFFFFFFFFFFFFFFF)
+// f8(bytes32): -1 -> FAILURE
 // gg8(bytes8): -1 -> FAILURE
 // f16(bytes32): left(0) -> left(0)
 // g16(bytes16): left(0) -> left(0)
@@ -111,5 +111,5 @@ contract C {
 // g16(bytes16): left(0x0000000000000000000000000000000001) -> FAILURE
 // f16(bytes32): left(0x0100000000000000000000000000000001) -> left(0x01)
 // g16(bytes16): left(0x0100000000000000000000000000000001) -> FAILURE
-// f16(bytes32): -1 -> left(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+// f16(bytes32): -1 -> FAILURE
 // g16(bytes16): -1 -> FAILURE

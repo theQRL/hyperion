@@ -34,7 +34,7 @@ using namespace hyperion::frontend;
 using namespace hyperion::frontend::test;
 
 ABIJsonTest::ABIJsonTest(std::string const& _filename):
-	TestCase(_filename)
+	QRVMVersionRestrictedTestCase(_filename)
 {
 	m_source = m_reader.source();
 	m_expectation = m_reader.simpleExpectations();

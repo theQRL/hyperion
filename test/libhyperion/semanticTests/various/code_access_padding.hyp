@@ -10,9 +10,9 @@ contract C {
         bytes memory a = type(D).creationCode;
         bytes memory b = type(D).runtimeCode;
         assembly {
-            remainder := mod(sub(b, a), 0x20)
+            remainder := mod(sub(b, a), 0x40)
         }
     }
 }
 // ----
-// diff() -> 0 # This checks that the allocation function pads to multiples of 32 bytes #
+// diff() -> 0 # This checks that the allocation function pads to multiples of 64 bytes #

@@ -15,5 +15,7 @@ contract C {
     return s.a.x(1);
   }
 }
+// ====
+// QRVMVersion: >zond
 // ----
 // f() -> 2

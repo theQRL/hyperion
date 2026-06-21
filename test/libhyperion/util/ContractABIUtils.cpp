@@ -216,7 +216,9 @@ bool ContractABIUtils::appendTypesFromName(
 )
 {
 	std::string type = _functionOutput["type"].asString();
-	if (isBool(type))
+	if (type == "address")
+		_inplaceTypes.push_back(ABIType{ABIType::Hex});
+	else if (isBool(type))
 		_inplaceTypes.push_back(ABIType{ABIType::Boolean});
 	else if (isUint(type))
 		_inplaceTypes.push_back(ABIType{ABIType::UnsignedDec});
@@ -264,7 +266,15 @@ bool ContractABIUtils::appendTypesFromName(
 	else if (std::optional<ABIType> fixedPointType = isFixedPoint(type))
 		_inplaceTypes.push_back(*fixedPointType);
 	else if (isBytes(type))
-		return false;
+	{
+		_inplaceTypes.push_back(ABIType{ABIType::Hex});
+
+		if (_isCompoundType)
+			_dynamicTypes.push_back(ABIType{ABIType::Hex});
+
+		_dynamicTypes.push_back(ABIType{ABIType::UnsignedDec});
+		_dynamicTypes.push_back(ABIType{ABIType::HexString, ABIType::AlignLeft});
+	}
 	else if (isFixedTupleArray(type))
 		return false;
 	else
@@ -345,12 +355,12 @@ hyperion::frontend::test::ParameterList ContractABIUtils::failureParameters(byte
 			parameters.push_back(Parameter{bytes(), "", ABIType{ABIType::UnsignedDec}, FormatInfo{}});
 			/// If _bytes contains at least a 1 byte message (function selector + tail pointer + message length + message)
 			/// append an additional string parameter to represent that message.
-			if (_bytes.size() > 68)
+			if (_bytes.size() > 132)
 				parameters.push_back(Parameter{bytes(), "", ABIType{ABIType::String}, FormatInfo{}});
 		}
 		else
-			for (size_t i = 4; i < _bytes.size(); i += 32)
-				parameters.push_back(Parameter{bytes(), "", ABIType{ABIType::HexString, ABIType::AlignNone, 32}, FormatInfo{}});
+			for (size_t i = 4; i < _bytes.size(); i += 64)
+				parameters.push_back(Parameter{bytes(), "", ABIType{ABIType::HexString, ABIType::AlignNone, 64}, FormatInfo{}});
 		return parameters;
 	}
 }

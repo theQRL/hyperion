@@ -25,6 +25,7 @@
 #include <libqrvmasm/KnownState.h>
 #include <libqrvmasm/AssemblyItem.h>
 #include <libhyputil/Keccak256.h>
+#include <libhyputil/VMConstants.h>
 
 #include <functional>
 
@@ -362,9 +363,9 @@ KnownState::StoreOperation KnownState::storeInMemory(Id _slot, Id _value, Source
 		return StoreOperation();
 	m_sequenceNumber++;
 	decltype(m_memoryContent) memoryContents;
-	// copy over values at points where we know that they are different from _slot by at least 32
+	// copy over values at points where we know that they are at least one VM word away from _slot
 	for (auto const& memoryItem: m_memoryContent)
-		if (m_expressionClasses->knownToBeDifferentBy32(memoryItem.first, _slot))
+		if (m_expressionClasses->knownToBeDifferentByAtLeastVMWord(memoryItem.first, _slot))
 			memoryContents.insert(memoryItem);
 	m_memoryContent = std::move(memoryContents);
 
@@ -394,17 +395,17 @@ KnownState::Id KnownState::applyKeccak256(
 {
 	AssemblyItem keccak256Item(Instruction::KECCAK256, _location);
 	// Special logic if length is a short constant, otherwise we cannot tell.
-	u256 const* l = m_expressionClasses->knownConstant(_length);
+	u512 const* l = m_expressionClasses->knownConstant(_length);
 	// unknown or too large length
 	if (!l || *l > 128)
 		return m_expressionClasses->find(keccak256Item, {_start, _length}, true, m_sequenceNumber);
 	unsigned length = unsigned(*l);
 	std::vector<Id> arguments;
-	for (unsigned i = 0; i < length; i += 32)
+	for (unsigned i = 0; i < length; i += VMWordBytes)
 	{
 		Id slot = m_expressionClasses->find(
 			AssemblyItem(Instruction::ADD, _location),
-			{_start, m_expressionClasses->find(u256(i))}
+			{_start, m_expressionClasses->find(AssemblyItem(u512(i)))}
 		);
 		arguments.push_back(loadFromMemory(slot, _location));
 	}
@@ -418,7 +419,7 @@ KnownState::Id KnownState::applyKeccak256(
 		for (Id a: arguments)
 			data += toBigEndian(*m_expressionClasses->knownConstant(a));
 		data.resize(length);
-		v = m_expressionClasses->find(AssemblyItem(u256(util::keccak256(data)), _location));
+		v = m_expressionClasses->find(AssemblyItem(u512(u256(util::keccak256(data))), _location));
 	}
 	else
 		v = m_expressionClasses->find(keccak256Item, {_start, _length}, true, m_sequenceNumber);
@@ -432,7 +433,10 @@ std::set<u256> KnownState::tagsInExpression(KnownState::Id _expressionId)
 	// Might be a tag, then return the set of itself.
 	ExpressionClasses::Expression expr = m_expressionClasses->representative(_expressionId);
 	if (expr.item && expr.item->type() == PushTag)
-		return std::set<u256>({expr.item->data()});
+	{
+		u256 tagVal = u256(expr.item->data());
+		return std::set<u256>{tagVal};
+	}
 	else
 		return std::set<u256>();
 }

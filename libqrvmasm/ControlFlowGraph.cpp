@@ -34,7 +34,7 @@
 using namespace hyperion;
 using namespace hyperion::qrvmasm;
 
-BlockId::BlockId(u256 const& _id):
+BlockId::BlockId(u512 const& _id):
 	m_id(unsigned(_id))
 {
 	assertThrow( _id < initial().m_id, OptimizerException, "Tag number too large.");

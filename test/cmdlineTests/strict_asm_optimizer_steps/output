@@ -24,7 +24,7 @@ object "C_6" {
 
 
 Binary representation:
-608060405234601357600c60185f39600c5ff35b5f80fdfe608060405236155f555f80fd
+608060405234601357600c60185f39600c5ff35b5fa0fdfe608060405236155f555fa0fd
 
 Text representation:
     /* "strict_asm_optimizer_steps/input.yul":45:48   */

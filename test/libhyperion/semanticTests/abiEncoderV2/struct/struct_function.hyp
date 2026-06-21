@@ -10,5 +10,7 @@ contract C {
     }
     function g() public returns (uint) { return 7; }
 }
+// ====
+// QRVMVersion: >zond
 // ----
 // test() -> 7, 3

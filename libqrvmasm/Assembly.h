@@ -55,19 +55,27 @@ public:
 	AssemblyItem newPushTag() { assertThrow(m_usedTags < 0xffffffff, AssemblyException, ""); return AssemblyItem(PushTag, m_usedTags++); }
 	/// Returns a tag identified by the given name. Creates it if it does not yet exist.
 	AssemblyItem namedTag(std::string const& _name, size_t _params, size_t _returns, std::optional<uint64_t> _sourceID);
-	AssemblyItem newData(bytes const& _data) { util::h256 h(util::keccak256(util::asString(_data))); m_data[h] = _data; return AssemblyItem(PushData, h); }
+	AssemblyItem newData(bytes const& _data) { util::h256 h(util::keccak256(util::asString(_data))); m_data[h] = _data; return AssemblyItem(PushData, u512(u256(h))); }
 	bytes const& data(util::h256 const& _i) const { return m_data.at(_i); }
 	AssemblyItem newSub(AssemblyPointer const& _sub) { m_subs.push_back(_sub); return AssemblyItem(PushSub, m_subs.size() - 1); }
 	Assembly const& sub(size_t _sub) const { return *m_subs.at(_sub); }
 	Assembly& sub(size_t _sub) { return *m_subs.at(_sub); }
 	size_t numSubs() const { return m_subs.size(); }
-	AssemblyItem newPushSubSize(u256 const& _subId) { return AssemblyItem(PushSubSize, _subId); }
+	AssemblyItem newPushSubSize(u512 const& _subId) { return AssemblyItem(PushSubSize, _subId); }
 	AssemblyItem newPushLibraryAddress(std::string const& _identifier);
 	AssemblyItem newPushImmutable(std::string const& _identifier);
 	AssemblyItem newImmutableAssignment(std::string const& _identifier);
 
 	AssemblyItem const& append(AssemblyItem _i);
+	AssemblyItem const& append(Instruction _i) { return append(AssemblyItem(_i)); }
+	AssemblyItem const& append(AssemblyItemType _type) { return append(AssemblyItem(_type)); }
 	AssemblyItem const& append(bytes const& _data) { return append(newData(_data)); }
+	AssemblyItem const& append(int _value) { return append(AssemblyItem(u512(_value))); }
+	AssemblyItem const& append(unsigned _value) { return append(AssemblyItem(u512(_value))); }
+	AssemblyItem const& append(long _value) { return append(AssemblyItem(u512(_value))); }
+	AssemblyItem const& append(unsigned long _value) { return append(AssemblyItem(u512(_value))); }
+	AssemblyItem const& append(u256 const& _value) { return append(AssemblyItem(u512(_value))); }
+	AssemblyItem const& append(u512 const& _value) { return append(AssemblyItem(_value)); }
 
 	template <class T> Assembly& operator<<(T const& _d) { append(_d); return *this; }
 
@@ -180,7 +188,7 @@ protected:
 	/// Does the same operations as @a optimise, but should only be applied to a sub and
 	/// returns the replaced tags. Also takes an argument containing the tags of this assembly
 	/// that are referenced in a super-assembly.
-	std::map<u256, u256> const& optimiseInternal(OptimiserSettings const& _settings, std::set<size_t> _tagsReferencedFromOutside);
+	std::map<u512, u512> const& optimiseInternal(OptimiserSettings const& _settings, std::set<size_t> _tagsReferencedFromOutside);
 
 	unsigned codeSize(unsigned subTagSize) const;
 
@@ -233,7 +241,7 @@ protected:
 
 	/// Contains the tag replacements relevant for super-assemblies.
 	/// If set, it means the optimizer has run and we will not run it again.
-	std::optional<std::map<u256, u256>> m_tagReplacements;
+	std::optional<std::map<u512, u512>> m_tagReplacements;
 
 	mutable LinkerObject m_assembledObject;
 	mutable std::vector<size_t> m_tagPositionsInBytecode;

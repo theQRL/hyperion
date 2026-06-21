@@ -275,7 +275,7 @@ to the address used at construction time to determine the mode
 of calling.
 
 More specifically, the runtime code of a library always starts
-with a push instruction, which is a zero of 20 bytes at
+with a push instruction, which is a zero of 64 bytes at
 compilation time. When the deploy code runs, this constant
 is replaced in memory by the current address and this
 modified code is stored in the contract. At runtime,

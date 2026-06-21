@@ -29,7 +29,6 @@
 namespace hyperion::util::test
 {
 
-static_assert(std::is_same<h160, FixedHash<20>>());
 static_assert(std::is_same<h256, FixedHash<32>>());
 
 BOOST_AUTO_TEST_SUITE(FixedHashTest)

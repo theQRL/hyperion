@@ -40,7 +40,7 @@ TupleType const TypeProvider::m_emptyTuple{};
 AddressType const TypeProvider::m_payableAddress{StateMutability::Payable};
 AddressType const TypeProvider::m_address{StateMutability::NonPayable};
 
-std::array<std::unique_ptr<IntegerType>, 32> const TypeProvider::m_intM{{
+std::array<std::unique_ptr<IntegerType>, AddressBytes> const TypeProvider::m_intM{{
 	{std::make_unique<IntegerType>(8 * 1, IntegerType::Modifier::Signed)},
 	{std::make_unique<IntegerType>(8 * 2, IntegerType::Modifier::Signed)},
 	{std::make_unique<IntegerType>(8 * 3, IntegerType::Modifier::Signed)},
@@ -72,10 +72,42 @@ std::array<std::unique_ptr<IntegerType>, 32> const TypeProvider::m_intM{{
 	{std::make_unique<IntegerType>(8 * 29, IntegerType::Modifier::Signed)},
 	{std::make_unique<IntegerType>(8 * 30, IntegerType::Modifier::Signed)},
 	{std::make_unique<IntegerType>(8 * 31, IntegerType::Modifier::Signed)},
-	{std::make_unique<IntegerType>(8 * 32, IntegerType::Modifier::Signed)}
+	{std::make_unique<IntegerType>(8 * 32, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 33, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 34, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 35, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 36, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 37, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 38, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 39, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 40, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 41, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 42, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 43, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 44, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 45, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 46, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 47, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 48, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 49, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 50, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 51, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 52, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 53, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 54, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 55, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 56, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 57, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 58, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 59, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 60, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 61, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 62, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 63, IntegerType::Modifier::Signed)},
+	{std::make_unique<IntegerType>(8 * 64, IntegerType::Modifier::Signed)}
 }};
 
-std::array<std::unique_ptr<IntegerType>, 32> const TypeProvider::m_uintM{{
+std::array<std::unique_ptr<IntegerType>, AddressBytes> const TypeProvider::m_uintM{{
 	{std::make_unique<IntegerType>(8 * 1, IntegerType::Modifier::Unsigned)},
 	{std::make_unique<IntegerType>(8 * 2, IntegerType::Modifier::Unsigned)},
 	{std::make_unique<IntegerType>(8 * 3, IntegerType::Modifier::Unsigned)},
@@ -107,10 +139,42 @@ std::array<std::unique_ptr<IntegerType>, 32> const TypeProvider::m_uintM{{
 	{std::make_unique<IntegerType>(8 * 29, IntegerType::Modifier::Unsigned)},
 	{std::make_unique<IntegerType>(8 * 30, IntegerType::Modifier::Unsigned)},
 	{std::make_unique<IntegerType>(8 * 31, IntegerType::Modifier::Unsigned)},
-	{std::make_unique<IntegerType>(8 * 32, IntegerType::Modifier::Unsigned)}
+	{std::make_unique<IntegerType>(8 * 32, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 33, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 34, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 35, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 36, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 37, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 38, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 39, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 40, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 41, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 42, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 43, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 44, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 45, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 46, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 47, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 48, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 49, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 50, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 51, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 52, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 53, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 54, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 55, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 56, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 57, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 58, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 59, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 60, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 61, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 62, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 63, IntegerType::Modifier::Unsigned)},
+	{std::make_unique<IntegerType>(8 * 64, IntegerType::Modifier::Unsigned)}
 }};
 
-std::array<std::unique_ptr<FixedBytesType>, 32> const TypeProvider::m_bytesM{{
+std::array<std::unique_ptr<FixedBytesType>, AddressBytes> const TypeProvider::m_bytesM{{
 	{std::make_unique<FixedBytesType>(1)},
 	{std::make_unique<FixedBytesType>(2)},
 	{std::make_unique<FixedBytesType>(3)},
@@ -142,7 +206,39 @@ std::array<std::unique_ptr<FixedBytesType>, 32> const TypeProvider::m_bytesM{{
 	{std::make_unique<FixedBytesType>(29)},
 	{std::make_unique<FixedBytesType>(30)},
 	{std::make_unique<FixedBytesType>(31)},
-	{std::make_unique<FixedBytesType>(32)}
+	{std::make_unique<FixedBytesType>(32)},
+	{std::make_unique<FixedBytesType>(33)},
+	{std::make_unique<FixedBytesType>(34)},
+	{std::make_unique<FixedBytesType>(35)},
+	{std::make_unique<FixedBytesType>(36)},
+	{std::make_unique<FixedBytesType>(37)},
+	{std::make_unique<FixedBytesType>(38)},
+	{std::make_unique<FixedBytesType>(39)},
+	{std::make_unique<FixedBytesType>(40)},
+	{std::make_unique<FixedBytesType>(41)},
+	{std::make_unique<FixedBytesType>(42)},
+	{std::make_unique<FixedBytesType>(43)},
+	{std::make_unique<FixedBytesType>(44)},
+	{std::make_unique<FixedBytesType>(45)},
+	{std::make_unique<FixedBytesType>(46)},
+	{std::make_unique<FixedBytesType>(47)},
+	{std::make_unique<FixedBytesType>(48)},
+	{std::make_unique<FixedBytesType>(49)},
+	{std::make_unique<FixedBytesType>(50)},
+	{std::make_unique<FixedBytesType>(51)},
+	{std::make_unique<FixedBytesType>(52)},
+	{std::make_unique<FixedBytesType>(53)},
+	{std::make_unique<FixedBytesType>(54)},
+	{std::make_unique<FixedBytesType>(55)},
+	{std::make_unique<FixedBytesType>(56)},
+	{std::make_unique<FixedBytesType>(57)},
+	{std::make_unique<FixedBytesType>(58)},
+	{std::make_unique<FixedBytesType>(59)},
+	{std::make_unique<FixedBytesType>(60)},
+	{std::make_unique<FixedBytesType>(61)},
+	{std::make_unique<FixedBytesType>(62)},
+	{std::make_unique<FixedBytesType>(63)},
+	{std::make_unique<FixedBytesType>(64)}
 }};
 
 std::array<std::unique_ptr<MagicType>, 4> const TypeProvider::m_magics{{
@@ -367,10 +463,10 @@ RationalNumberType const* TypeProvider::rationalNumber(Literal const& _literal)
 		if (_literal.isHexNumber())
 		{
 			size_t const digitCount = _literal.valueWithoutUnderscores().length() - 2;
-			if (digitCount % 2 == 0 && (digitCount / 2) <= 32)
+			if (digitCount % 2 == 0 && (digitCount / 2) <= AddressBytes)
 				compatibleBytesType = fixedBytes(static_cast<unsigned>(digitCount / 2));
 		} else if (_literal.looksLikeAddress()) {
-			compatibleBytesType = fixedBytes(static_cast<unsigned>(20));
+			compatibleBytesType = fixedBytes(static_cast<unsigned>(AddressBytes));
 		}
 
 		return rationalNumber(std::get<1>(validLiteral), compatibleBytesType);

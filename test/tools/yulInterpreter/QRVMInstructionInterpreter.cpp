@@ -31,6 +31,7 @@
 
 #include <libhyputil/Keccak256.h>
 #include <libhyputil/Numeric.h>
+#include <libhyputil/VMConstants.h>
 
 #include <limits>
 
@@ -40,36 +41,49 @@ using namespace hyperion::qrvmasm;
 using namespace hyperion::yul;
 using namespace hyperion::yul::test;
 
-using hyperion::util::h160;
+using hyperion::util::h512;
 using hyperion::util::h256;
 using hyperion::util::keccak256;
 
 namespace
 {
 
-/// Reads 32 bytes from @a _data at position @a _offset bytes while
+/// Reads one VM word from @a _data at position @a _offset bytes while
 /// interpreting @a _data to be padded with an infinite number of zero
 /// bytes beyond its end.
-u256 readZeroExtended(bytes const& _data, u256 const& _offset)
+u512 readZeroExtended(bytes const& _data, u512 const& _offset)
 {
-	if (_offset >= _data.size())
+	if (_offset > std::numeric_limits<size_t>::max())
 		return 0;
-	else if (_offset + 32 <= _data.size())
-		return *reinterpret_cast<h256 const*>(_data.data() + static_cast<size_t>(_offset));
-	else
+	size_t off = _offset.convert_to<size_t>();
+	u512 val;
+	for (size_t i = 0; i < VMWordBytes; ++i)
 	{
-		size_t off = static_cast<size_t>(_offset);
-		u256 val;
-		for (size_t i = 0; i < 32; ++i)
-		{
-			val <<= 8;
-			if (off + i < _data.size())
-				val += _data[off + i];
-		}
-		return val;
+		val <<= 8;
+		if (_offset < _data.size() && off + i < _data.size())
+			val += _data[off + i];
 	}
+	return val;
 }
 
+u512 leftAlignedHash(h256 const& _hash)
+{
+	return u512(h256::Arith(_hash)) << (VMWordBits - 256);
+}
+
+u512 expWord(u512 _base, u512 _exponent)
+{
+	u512 result = 1;
+	while (_exponent != 0)
+	{
+		if ((_exponent & 1) != 0)
+			result *= _base;
+		_exponent >>= 1;
+		if (_exponent != 0)
+			_base *= _base;
+	}
+	return result;
+}
 }
 
 namespace hyperion::yul::test
@@ -78,7 +92,7 @@ namespace hyperion::yul::test
 /// @a _target at offset @a _targetOffset. Behaves as if @a _source would
 /// continue with an infinite sequence of zero bytes beyond its end.
 void copyZeroExtended(
-	map<u256, uint8_t>& _target, bytes const& _source,
+	map<u512, uint8_t>& _target, bytes const& _source,
 	size_t _targetOffset, size_t _sourceOffset, size_t _size
 )
 {
@@ -88,11 +102,9 @@ void copyZeroExtended(
 
 }
 
-using u512 = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<512, 256, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void>>;
-
-u256 QRVMInstructionInterpreter::eval(
+u512 QRVMInstructionInterpreter::eval(
 	qrvmasm::Instruction _instruction,
-	vector<u256> const& _arguments
+	vector<u512> const& _arguments
 )
 {
 	using namespace hyperion::qrvmasm;
@@ -123,7 +135,7 @@ u256 QRVMInstructionInterpreter::eval(
 	case Instruction::SMOD:
 		return arg[1] == 0 ? 0 : s2u(u2s(arg[0]) % u2s(arg[1]));
 	case Instruction::EXP:
-		return exp256(arg[0], arg[1]);
+		return expWord(arg[0], arg[1]);
 	case Instruction::NOT:
 		return ~arg[0];
 	case Instruction::LT:
@@ -145,37 +157,42 @@ u256 QRVMInstructionInterpreter::eval(
 	case Instruction::XOR:
 		return arg[0] ^ arg[1];
 	case Instruction::BYTE:
-		return arg[0] >= 32 ? 0 : (arg[1] >> unsigned(8 * (31 - arg[0]))) & 0xff;
+	{
+		if (arg[0] >= VMWordBytes)
+			return 0;
+		unsigned byteIndex = arg[0].convert_to<unsigned>();
+		return (arg[1] >> (8 * (VMWordBytes - 1 - byteIndex))) & 0xff;
+	}
 	case Instruction::SHL:
-		return arg[0] > 255 ? 0 : (arg[1] << unsigned(arg[0]));
+		return arg[0] >= VMWordBits ? 0 : (arg[1] << unsigned(arg[0]));
 	case Instruction::SHR:
-		return arg[0] > 255 ? 0 : (arg[1] >> unsigned(arg[0]));
+		return arg[0] >= VMWordBits ? 0 : (arg[1] >> unsigned(arg[0]));
 	case Instruction::SAR:
 	{
-		static u256 const hibit = u256(1) << 255;
-		if (arg[0] >= 256)
-			return arg[1] & hibit ? u256(-1) : 0;
+		static u512 const hibit = u512(1) << (VMWordBits - 1);
+		if (arg[0] >= VMWordBits)
+			return arg[1] & hibit ? u512(-1) : 0;
 		else
 		{
 			unsigned amount = unsigned(arg[0]);
-			u256 v = arg[1] >> amount;
+			u512 v = arg[1] >> amount;
 			if (arg[1] & hibit)
-				v |= u256(-1) << (256 - amount);
+				v |= u512(-1) << (VMWordBits - amount);
 			return v;
 		}
 	}
 	case Instruction::ADDMOD:
-		return arg[2] == 0 ? 0 : u256((u512(arg[0]) + u512(arg[1])) % arg[2]);
+		return arg[2] == 0 ? 0 : u512((bigint(arg[0]) + bigint(arg[1])) % bigint(arg[2]));
 	case Instruction::MULMOD:
-		return arg[2] == 0 ? 0 : u256((u512(arg[0]) * u512(arg[1])) % arg[2]);
+		return arg[2] == 0 ? 0 : u512((bigint(arg[0]) * bigint(arg[1])) % bigint(arg[2]));
 	case Instruction::SIGNEXTEND:
-		if (arg[0] >= 31)
+		if (arg[0] >= VMWordBytes - 1)
 			return arg[1];
 		else
 		{
 			unsigned testBit = unsigned(arg[0]) * 8 + 7;
-			u256 ret = arg[1];
-			u256 mask = ((u256(1) << testBit) - 1);
+			u512 ret = arg[1];
+			u512 mask = ((u512(1) << testBit) - 1);
 			if (boost::multiprecision::bit_test(ret, testBit))
 				ret |= ~mask;
 			else
@@ -186,24 +203,24 @@ u256 QRVMInstructionInterpreter::eval(
 	case Instruction::KECCAK256:
 	{
 		if (!accessMemory(arg[0], arg[1]))
-			return u256("0x1234cafe1234cafe1234cafe") + arg[0];
+			return u512("0x1234cafe1234cafe1234cafe") + arg[0];
 		uint64_t offset = uint64_t(arg[0] & uint64_t(-1));
 		uint64_t size = uint64_t(arg[1] & uint64_t(-1));
-		return u256(keccak256(m_state.readMemory(offset, size)));
+		return leftAlignedHash(keccak256(m_state.readMemory(offset, size)));
 	}
 	case Instruction::ADDRESS:
-		return h256(m_state.address, h256::AlignRight);
+		return h512::Arith(m_state.address);
 	case Instruction::BALANCE:
-		if (arg[0] == h256(m_state.address, h256::AlignRight))
+		if (arg[0] == h512::Arith(m_state.address))
 			return m_state.selfbalance;
 		else
 			return m_state.balance;
 	case Instruction::SELFBALANCE:
 		return m_state.selfbalance;
 	case Instruction::ORIGIN:
-		return h256(m_state.origin, h256::AlignRight);
+		return h512::Arith(m_state.origin);
 	case Instruction::CALLER:
-		return h256(m_state.caller, h256::AlignRight);
+		return h512::Arith(m_state.caller);
 	case Instruction::CALLVALUE:
 		return m_state.callvalue;
 	case Instruction::CALLDATALOAD:
@@ -235,9 +252,9 @@ u256 QRVMInstructionInterpreter::eval(
 	case Instruction::BASEFEE:
 		return m_state.basefee;
 	case Instruction::EXTCODESIZE:
-		return u256(keccak256(h256(arg[0]))) & 0xffffff;
+		return u512(h256::Arith(keccak256(h512(arg[0])))) & 0xffffff;
 	case Instruction::EXTCODEHASH:
-		return u256(keccak256(h256(arg[0] + 1)));
+		return leftAlignedHash(keccak256(h512(arg[0] + 1)));
 	case Instruction::EXTCODECOPY:
 		if (accessMemory(arg[1], arg[3]))
 			// TODO this way extcodecopy and codecopy do the same thing.
@@ -263,7 +280,7 @@ u256 QRVMInstructionInterpreter::eval(
 		else
 			return 0xaaaaaaaa + (arg[0] - m_state.blockNumber - 256);
 	case Instruction::COINBASE:
-		return h256(m_state.coinbase, h256::AlignRight);
+		return h512::Arith(m_state.coinbase);
 	case Instruction::TIMESTAMP:
 		return m_state.timestamp;
 	case Instruction::NUMBER:
@@ -274,10 +291,10 @@ u256 QRVMInstructionInterpreter::eval(
 		return m_state.gaslimit;
 	// --------------- memory / storage / logs ---------------
 	case Instruction::MLOAD:
-		accessMemory(arg[0], 0x20);
+		accessMemory(arg[0], VMWordBytes);
 		return readMemoryWord(arg[0]);
 	case Instruction::MSTORE:
-		accessMemory(arg[0], 0x20);
+		accessMemory(arg[0], VMWordBytes);
 		writeMemoryWord(arg[0], arg[1]);
 		return 0;
 	case Instruction::MSTORE8:
@@ -285,9 +302,9 @@ u256 QRVMInstructionInterpreter::eval(
 		m_state.memory[arg[0]] = uint8_t(arg[1] & 0xff);
 		return 0;
 	case Instruction::SLOAD:
-		return m_state.storage[h256(arg[0])];
+		return h512::Arith(m_state.storage[h512(arg[0])]);
 	case Instruction::SSTORE:
-		m_state.storage[h256(arg[0])] = h256(arg[1]);
+		m_state.storage[h512(arg[0])] = h512(arg[1]);
 		return 0;
 	case Instruction::PC:
 		return 0x77;
@@ -320,14 +337,14 @@ u256 QRVMInstructionInterpreter::eval(
 		accessMemory(arg[1], arg[2]);
 		logTrace(_instruction, arg);
 		if (arg[2] != 0)
-			return (0xcccccc + arg[1]) & u256("0xffffffffffffffffffffffffffffffffffffffff");
+			return 0xcccccc + arg[1];
 		else
 			return 0xcccccc;
 	case Instruction::CREATE2:
 		accessMemory(arg[1], arg[2]);
 		logTrace(_instruction, arg);
 		if (arg[2] != 0)
-			return (0xdddddd + arg[1]) & u256("0xffffffffffffffffffffffffffffffffffffffff");
+			return 0xdddddd + arg[1];
 		else
 			return 0xdddddd;
 	case Instruction::CALL:
@@ -338,7 +355,7 @@ u256 QRVMInstructionInterpreter::eval(
 		// Used for fuzzing.
 		return (
 			(arg[0] > 0) &&
-			(arg[1] == util::h160::Arith(m_state.address) || (arg[1] & 1))
+			(arg[1] == util::h512::Arith(m_state.address) || (arg[1] & 1))
 		) ? 1 : 0;
 	case Instruction::DELEGATECALL:
 	case Instruction::STATICCALL:
@@ -349,7 +366,7 @@ u256 QRVMInstructionInterpreter::eval(
 		// Used for fuzzing.
 		return (
 			(arg[0] > 0) &&
-			(arg[1] == util::h160::Arith(m_state.address) || (arg[1] & 1))
+			(arg[1] == util::h512::Arith(m_state.address) || (arg[1] & 1))
 		) ? 1 : 0;
 	case Instruction::RETURN:
 	{
@@ -408,6 +425,38 @@ u256 QRVMInstructionInterpreter::eval(
 	case Instruction::PUSH30:
 	case Instruction::PUSH31:
 	case Instruction::PUSH32:
+	case Instruction::PUSH33:
+	case Instruction::PUSH34:
+	case Instruction::PUSH35:
+	case Instruction::PUSH36:
+	case Instruction::PUSH37:
+	case Instruction::PUSH38:
+	case Instruction::PUSH39:
+	case Instruction::PUSH40:
+	case Instruction::PUSH41:
+	case Instruction::PUSH42:
+	case Instruction::PUSH43:
+	case Instruction::PUSH44:
+	case Instruction::PUSH45:
+	case Instruction::PUSH46:
+	case Instruction::PUSH47:
+	case Instruction::PUSH48:
+	case Instruction::PUSH49:
+	case Instruction::PUSH50:
+	case Instruction::PUSH51:
+	case Instruction::PUSH52:
+	case Instruction::PUSH53:
+	case Instruction::PUSH54:
+	case Instruction::PUSH55:
+	case Instruction::PUSH56:
+	case Instruction::PUSH57:
+	case Instruction::PUSH58:
+	case Instruction::PUSH59:
+	case Instruction::PUSH60:
+	case Instruction::PUSH61:
+	case Instruction::PUSH62:
+	case Instruction::PUSH63:
+	case Instruction::PUSH64:
 	case Instruction::DUP1:
 	case Instruction::DUP2:
 	case Instruction::DUP3:
@@ -449,30 +498,30 @@ u256 QRVMInstructionInterpreter::eval(
 	return 0;
 }
 
-u256 QRVMInstructionInterpreter::evalBuiltin(
+u512 QRVMInstructionInterpreter::evalBuiltin(
 	BuiltinFunctionForQRVM const& _fun,
 	vector<Expression> const& _arguments,
-	vector<u256> const& _evaluatedArguments
+	vector<u512> const& _evaluatedArguments
 )
 {
 	if (_fun.instruction)
 		return eval(*_fun.instruction, _evaluatedArguments);
 
 	string fun = _fun.name.str();
-	// Evaluate datasize/offset/copy instructions
-	if (fun == "datasize" || fun == "dataoffset")
-	{
-		string arg = std::get<Literal>(_arguments.at(0)).value.str();
-		if (arg.length() < 32)
-			arg.resize(32, 0);
+		// Evaluate datasize/offset/copy instructions
+		if (fun == "datasize" || fun == "dataoffset")
+		{
+			string arg = std::get<Literal>(_arguments.at(0)).value.str();
+			if (arg.length() < VMWordBytes)
+				arg.resize(VMWordBytes, 0);
 		if (fun == "datasize")
-			return u256(keccak256(arg)) & 0xfff;
+			return u512(h256::Arith(keccak256(arg))) & 0xfff;
 		else
 		{
 			// Force different value than for datasize
-			arg[31]++;
-			arg[31]++;
-			return u256(keccak256(arg)) & 0xfff;
+			arg[VMWordBytes - 1]++;
+			arg[VMWordBytes - 1]++;
+			return u512(h256::Arith(keccak256(arg))) & 0xfff;
 		}
 	}
 	else if (fun == "datacopy")
@@ -499,25 +548,25 @@ u256 QRVMInstructionInterpreter::evalBuiltin(
 }
 
 
-bool QRVMInstructionInterpreter::accessMemory(u256 const& _offset, u256 const& _size)
+bool QRVMInstructionInterpreter::accessMemory(u512 const& _offset, u512 const& _size)
 {
 	if (_size == 0)
 		return true;
-	else if (((_offset + _size) >= _offset) && ((_offset + _size + 0x1f) >= (_offset + _size)))
+	else if (((_offset + _size) >= _offset) && ((_offset + _size + VMWordAlignmentMask) >= (_offset + _size)))
 	{
-		u256 newSize = (_offset + _size + 0x1f) & ~u256(0x1f);
+		u512 newSize = (_offset + _size + VMWordAlignmentMask) & ~u512(VMWordAlignmentMask);
 		m_state.msize = max(m_state.msize, newSize);
 		// We only record accesses to contiguous memory chunks that are at most s_maxRangeSize bytes
 		// in size and at an offset of at most numeric_limits<size_t>::max() - s_maxRangeSize
-		return _size <= s_maxRangeSize && _offset <= u256(numeric_limits<size_t>::max() - s_maxRangeSize);
+		return _size <= s_maxRangeSize && _offset <= u512(numeric_limits<size_t>::max() - s_maxRangeSize);
 	}
 	else
-		m_state.msize = u256(-1);
+		m_state.msize = u512(-1);
 
 	return false;
 }
 
-bytes QRVMInstructionInterpreter::readMemory(u256 const& _offset, u256 const& _size)
+bytes QRVMInstructionInterpreter::readMemory(u512 const& _offset, u512 const& _size)
 {
 	yulAssert(_size <= s_maxRangeSize, "Too large read.");
 	bytes data(size_t(_size), uint8_t(0));
@@ -526,21 +575,21 @@ bytes QRVMInstructionInterpreter::readMemory(u256 const& _offset, u256 const& _s
 	return data;
 }
 
-u256 QRVMInstructionInterpreter::readMemoryWord(u256 const& _offset)
+u512 QRVMInstructionInterpreter::readMemoryWord(u512 const& _offset)
 {
-	return u256(h256(m_state.readMemory(_offset, 32)));
+	return h512::Arith(h512(m_state.readMemory(_offset, VMWordBytes)));
 }
 
-void QRVMInstructionInterpreter::writeMemoryWord(u256 const& _offset, u256 const& _value)
+void QRVMInstructionInterpreter::writeMemoryWord(u512 const& _offset, u512 const& _value)
 {
-	for (size_t i = 0; i < 32; i++)
-		m_state.memory[_offset + i] = uint8_t((_value >> (8 * (31 - i))) & 0xff);
+	for (size_t i = 0; i < VMWordBytes; i++)
+		m_state.memory[_offset + i] = uint8_t((_value >> (8 * (VMWordBytes - 1 - i))) & 0xff);
 }
 
 
 void QRVMInstructionInterpreter::logTrace(
 	qrvmasm::Instruction _instruction,
-	std::vector<u256> const& _arguments,
+	std::vector<u512> const& _arguments,
 	bytes const& _data
 )
 {
@@ -555,7 +604,7 @@ void QRVMInstructionInterpreter::logTrace(
 void QRVMInstructionInterpreter::logTrace(
 	std::string const& _pseudoInstruction,
 	bool _writesToMemory,
-	std::vector<u256> const& _arguments,
+	std::vector<u512> const& _arguments,
 	bytes const& _data
 )
 {
@@ -566,7 +615,7 @@ void QRVMInstructionInterpreter::logTrace(
 		for (size_t i = 0; i < _arguments.size(); ++i)
 		{
 			bool printZero = inputMemoryPtrModified.first && inputMemoryPtrModified.second == i;
-			u256 arg = printZero ? 0 : _arguments[i];
+			u512 arg = printZero ? 0 : _arguments[i];
 			message += (i > 0 ? ", " : "") + formatNumber(arg);
 		}
 		message += ")";
@@ -583,7 +632,7 @@ void QRVMInstructionInterpreter::logTrace(
 
 std::pair<bool, size_t> QRVMInstructionInterpreter::isInputMemoryPtrModified(
 	std::string const& _pseudoInstruction,
-	std::vector<u256> const& _arguments
+	std::vector<u512> const& _arguments
 )
 {
 	if (_pseudoInstruction == "RETURN" || _pseudoInstruction == "REVERT")

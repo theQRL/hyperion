@@ -16,16 +16,16 @@ contract C {
 // ----
 // constructor(), 20 planck
 // gas irOptimized: 166148
-// gas legacy: 285547
+// gas legacy: 342879
 // gas legacyOptimized: 168515
-// f(uint256): 20 -> 0x137aa4dfc0911524504fcd4d98501f179bc13b4a
+// f(uint256): 20 -> 0xa2c09b0901c4385dddc8a62d8dd8cb54995b78bbd757bfdee5a32af7ef8f0059
 // x() -> 1
 // f(uint256): 20 -> FAILURE
 // x() -> 1
 // stack(uint256): 1023 -> FAILURE
 // gas irOptimized: 252410
-// gas legacy: 477722
+// gas legacy: 487593
 // gas legacyOptimized: 299567
 // x() -> 1
-// stack(uint256): 10 -> Q87948bd7ebbe13a00bfd930c93e4828ab18e3908
+// stack(uint256): 10 -> 0xf0fd799a912e1629912707b5182316522f2ff12caf984a9e20a51ea57ccf6c4d
 // x() -> 2

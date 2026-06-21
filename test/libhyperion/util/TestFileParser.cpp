@@ -365,7 +365,7 @@ Parameter TestFileParser::parseParameter()
 		if (isSigned)
 			BOOST_THROW_EXCEPTION(TestParserError("Invalid boolean literal."));
 
-		parameter.abiType = ABIType{ABIType::Boolean, ABIType::AlignRight, 32};
+		parameter.abiType = ABIType{ABIType::Boolean, ABIType::AlignRight, 64};
 		std::string parsed = parseBoolean();
 		parameter.rawString += parsed;
 		parameter.rawBytes = BytesUtils::applyAlign(
@@ -379,18 +379,19 @@ Parameter TestFileParser::parseParameter()
 		if (isSigned)
 			BOOST_THROW_EXCEPTION(TestParserError("Invalid hex number literal."));
 
-		parameter.abiType = ABIType{ABIType::Hex, ABIType::AlignRight, 32};
+		parameter.abiType = ABIType{ABIType::Hex, ABIType::AlignRight, 64};
 		std::string parsed = parseHexNumber();
 		parameter.rawString += parsed;
+		bytes hexBytes = BytesUtils::convertHexNumber(parsed);
 		parameter.rawBytes = BytesUtils::applyAlign(
 			parameter.alignment,
 			parameter.abiType,
-			BytesUtils::convertHexNumber(parsed)
+			std::move(hexBytes)
 		);
 	}
 	else if (accept(Token::Address))
 	{
-		parameter.abiType = ABIType{ABIType::Address, ABIType::AlignRight, 32};
+		parameter.abiType = ABIType{ABIType::Address, ABIType::AlignRight, 64};
 		std::string parsed = parseAddress();
 		parameter.rawString += parsed;
 		parameter.rawBytes = BytesUtils::applyAlign(
@@ -433,18 +434,33 @@ Parameter TestFileParser::parseParameter()
 	{
 		auto type = isSigned ? ABIType::SignedDec : ABIType::UnsignedDec;
 
-		parameter.abiType = ABIType{type, ABIType::AlignRight, 32};
+		parameter.abiType = ABIType{type, ABIType::AlignRight, 64};
 		std::string parsed = parseDecimalNumber();
 		parameter.rawString += parsed;
 		if (isSigned)
 			parsed = "-" + parsed;
 
 		if (parsed.find('.') == std::string::npos)
-			parameter.rawBytes = BytesUtils::applyAlign(
-				parameter.alignment,
-				parameter.abiType,
-				BytesUtils::convertNumber(parsed)
-			);
+		{
+			bytes numberBytes = BytesUtils::convertNumber(parsed);
+			// For signed negative values: sign-extend to 64 bytes (fill with 0xff)
+			// instead of zero-padding, so the int decodes correctly through the ABI.
+			if (isSigned && !numberBytes.empty() && (numberBytes.front() & 0x80))
+			{
+				bytes signExtended(64 - numberBytes.size(), 0xff);
+				signExtended += numberBytes;
+				parameter.rawBytes = std::move(signExtended);
+				if (parameter.alignment != Parameter::Alignment::None)
+					parameter.abiType.alignDeclared = true;
+				parameter.abiType.align = ABIType::AlignRight;
+			}
+			else
+				parameter.rawBytes = BytesUtils::applyAlign(
+					parameter.alignment,
+					parameter.abiType,
+					std::move(numberBytes)
+				);
+		}
 		else
 		{
 			parameter.abiType.type = isSigned ? ABIType::SignedFixedPoint : ABIType::UnsignedFixedPoint;

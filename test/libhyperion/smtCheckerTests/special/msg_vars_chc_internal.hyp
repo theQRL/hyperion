@@ -14,7 +14,7 @@ contract C {
 	}
 	function g() internal view {
 		assert(data.length >= 0); // should hold
-		assert(uint160(sender) >= 0); // should hold
+		assert(uint512(sender) >= 0); // should hold
 		assert(uint32(sig) >= 0); // should hold
 		assert(value >= 0); // should hold
 
