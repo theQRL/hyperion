@@ -8,6 +8,9 @@
     struct FO { FP m; }
 // encode_inline_asm(bytes): 0x20, 2, "fo" -> 0x20, 4, "Zm8="
 // encode_no_asm(bytes): 0x20, 2, "fo" -> 0x20, 4, "Zm8="
+// encode_inline_asm(bytes): 0x20, 2, "fo" -> FAILURE, hex"4e487b71", 0x41
+// encode_no_asm(bytes): 0x20, 2, "fo" -> FAILURE, hex"4e487b71", 0x41
+        a = abd;
 	BOOST_TEST(mutation(chromosome) == Chromosome("fo"));
 docker run --rm -v "${OUTPUTDIR}":/tmp/output -v "${SCRIPTDIR}":/tmp/scripts:ro -it trzeci/emscripten:sdk-tag-1.39.3-64bit /tmp/scripts/docker-scripts/rebuild_tags.sh "${TAGS}" /tmp/output "$@"
 				<assignEnd>

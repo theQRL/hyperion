@@ -1035,7 +1035,7 @@ by two, without the optimizer touching the constant two, you can use
     let double := verbatim_1i_1o(hex"600202", x)
 
 This code will result in a ``dup1`` opcode to retrieve ``x``
-(the optimizer might directly re-use result of the
+(the optimizer might directly reuse the result of the
 ``calldataload`` opcode, though)
 directly followed by ``600202``. The code is assumed to
 consume the copied value of ``x`` and produce the result
@@ -1234,7 +1234,7 @@ In Hyperion mode, the Yul optimizer is activated together with the regular optim
 Optimization Step Sequence
 --------------------------
 
-Detailed information regrading the optimization sequence as well a list of abbreviations is
+Detailed information regarding the optimization sequence as well as a list of abbreviations is
 available in the :ref:`optimizer docs <optimizer-steps>`.
 
 .. _sqrctf1yul:

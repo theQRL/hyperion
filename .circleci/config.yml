@@ -798,7 +798,7 @@ jobs:
                   name: Check spelling
                   command: |
                       ~/.local/bin/codespell \
-                        --skip "*.enc,.git,Dockerfile*,LICENSE,codespell_whitelist.txt,codespell_ignored_lines.txt" \
+                        --skip "*.enc,.git,build,build/*,*/build/*,cmake-build-*,cmake-build-*/*,*/cmake-build-*/*,*/_deps/*,Dockerfile*,LICENSE,codespell_whitelist.txt,codespell_ignored_lines.txt" \
                         --ignore-words scripts/codespell_whitelist.txt \
                         --exclude-file scripts/codespell_ignored_lines.txt
             - matrix_notify_failure_unless_pr

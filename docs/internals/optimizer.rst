@@ -965,7 +965,7 @@ no other store in between and the values of ``k`` and ``v`` did not change.
 
 This simple step is effective if run after the SSA transform and the
 Common Subexpression Eliminator, because SSA will make sure that the variables
-will not change and the Common Subexpression Eliminator re-uses exactly the same
+will not change and the Common Subexpression Eliminator reuses exactly the same
 variable if the value is known to be the same.
 
 Prerequisites: Disambiguator, ForLoopInitRewriter
@@ -1271,7 +1271,7 @@ Unused Pruner.
 
 The SSA form we generate is detrimental to code generation
 because it produces many local variables. It would
-be better to just re-use existing variables with assignments instead of
+be better to just reuse existing variables with assignments instead of
 fresh variable declarations.
 
 The SSA transform rewrites
