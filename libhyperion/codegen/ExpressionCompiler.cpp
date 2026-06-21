@@ -962,7 +962,14 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 								""
 							);
 
-							utils().combineExternalFunctionType(true);
+							utils().fetchFreeMemoryPointer();
+							utils().packedEncode(
+								{arguments[arg - 1]->annotation().type},
+								{paramTypes[arg - 1]}
+							);
+							utils().toSizeAfterFreeMemoryPointer();
+							m_context << Instruction::KECCAK256;
+							utils().leftShiftNumberOnStack(VMWordBits - 256);
 						}
 						else
 							utils().convertType(

@@ -463,7 +463,7 @@ RationalNumberType const* TypeProvider::rationalNumber(Literal const& _literal)
 		if (_literal.isHexNumber())
 		{
 			size_t const digitCount = _literal.valueWithoutUnderscores().length() - 2;
-			if (digitCount % 2 == 0 && (digitCount / 2) <= 32)
+			if (digitCount % 2 == 0 && (digitCount / 2) <= AddressBytes)
 				compatibleBytesType = fixedBytes(static_cast<unsigned>(digitCount / 2));
 		} else if (_literal.looksLikeAddress()) {
 			compatibleBytesType = fixedBytes(static_cast<unsigned>(AddressBytes));

@@ -394,7 +394,7 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 				m_context.appendConditionalJumpTo(skip);
 			}
 			// round off, load from there.
-			// stack <target + size> <remainder = size % 32>
+			// stack <target + size> <remainder = size % VMWordBytes>
 			m_context << Instruction::DUP1 << Instruction::DUP3;
 			m_context << Instruction::SUB;
 			// stack: target+size remainder <target + size - remainder>
@@ -414,7 +414,7 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 
 			if (_sourceType.isDynamicallySized())
 				m_context << skip.tag();
-			// stack <target + "size"> <remainder = size % 32>
+			// stack <target + "size"> <remainder = size % VMWordBytes>
 			m_context << Instruction::POP;
 		}
 		else
@@ -552,9 +552,6 @@ void ArrayUtils::clearArray(ArrayType const& _typeIn) const
 				hypAssert(_type.baseType()->isValueType(), "Invalid storage size for non-value type.");
 				hypAssert(_type.baseType()->storageSize() <= 1, "Invalid storage size for type.");
 			}
-			if (_type.baseType()->isValueType())
-				hypAssert(_type.baseType()->storageSize() <= 1, "Invalid size for value type.");
-
 			_context << Instruction::POP; // remove byte offset
 			if (_type.isDynamicallySized())
 				ArrayUtils(_context).clearDynamicArray(_type);
@@ -1059,7 +1056,7 @@ void ArrayUtils::accessIndex(ArrayType const& _arrayType, bool _doBoundsCheck, b
 	case DataLocation::Memory:
 		// stack: <base_ref> <index>
 		if (!_arrayType.isByteArrayOrString())
-			m_context << u256(_arrayType.memoryHeadSize()) << Instruction::MUL;
+			m_context << u256(_arrayType.memoryStride()) << Instruction::MUL;
 		if (_arrayType.isDynamicallySized())
 			m_context << u256(VMWordBytes) << Instruction::ADD;
 		if (_keepReference)
@@ -1180,7 +1177,7 @@ void ArrayUtils::incrementByteOffset(unsigned _byteSize, unsigned _byteOffsetPos
 	hypAssert(_byteSize != 0, "");
 	// We do the following, but avoiding jumps:
 	// byteOffset += byteSize
-	// if (byteOffset + byteSize > 32)
+	// if (byteOffset + byteSize > VMWordBytes)
 	// {
 	//     storageOffset++;
 	//     byteOffset = 0;

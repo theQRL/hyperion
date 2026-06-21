@@ -1,61 +1,6 @@
 #include <test/tools/ossfuzz/protoToAbiV2.h>
 
-#include <boost/preprocessor.hpp>
 #include <regex>
-
-/// Convenience macros
-/// Returns a valid Hyperion integer width w such that 8 <= w <= 256.
-#define INTWIDTH(z, n, _ununsed) BOOST_PP_MUL(BOOST_PP_ADD(n, 1), 8)
-/// Using declaration that aliases long boost multiprecision types with
-/// s(u)<width> where <width> is a valid Hyperion integer width and "s"
-/// stands for "signed" and "u" for "unsigned".
-#define USINGDECL(z, n, sign) \
-	using BOOST_PP_CAT(BOOST_PP_IF(sign, s, u), INTWIDTH(z, n,)) =             \
-	boost::multiprecision::number<                                             \
-		boost::multiprecision::cpp_int_backend<                                \
-			INTWIDTH(z, n,),                                                   \
-			INTWIDTH(z, n,),                                                   \
-			BOOST_PP_IF(                                                       \
-				sign,                                                          \
-				boost::multiprecision::signed_magnitude,                       \
-				boost::multiprecision::unsigned_magnitude                      \
-			),                                                                 \
-			boost::multiprecision::unchecked,                                  \
-			void                                                               \
-		>                                                                      \
-	>;
-/// Instantiate the using declarations for signed and unsigned integer types.
-BOOST_PP_REPEAT(32, USINGDECL, 1)
-BOOST_PP_REPEAT(32, USINGDECL, 0)
-/// Case implementation that returns an integer value of the specified type.
-/// For signed integers, we divide by two because the range for boost multiprecision
-/// types is double that of Hyperion integer types. Example, 8-bit signed boost
-/// number range is [-255, 255] but Hyperion `int8` range is [-128, 127]
-#define CASEIMPL(z, n, sign)                                                   \
-	case INTWIDTH(z, n,):                                                      \
-		stream << BOOST_PP_IF(                                                 \
-			sign,                                                              \
-			integerValue<                                                      \
-				BOOST_PP_CAT(                                                  \
-					BOOST_PP_IF(sign, s, u),                                   \
-					INTWIDTH(z, n,)                                            \
-                )>(_counter) / 2,                                              \
-			integerValue<                                                      \
-				BOOST_PP_CAT(                                                  \
-					BOOST_PP_IF(sign, s, u),                                   \
-					INTWIDTH(z, n,)                                            \
-                )>(_counter)                                                   \
-        );                                                                     \
-		break;
-/// Switch implementation that instantiates case statements for (un)signed
-/// Hyperion integer types.
-#define SWITCHIMPL(sign)                                                       \
-	ostringstream stream;                                                      \
-	switch (_intWidth)                                                         \
-	{                                                                          \
-	BOOST_PP_REPEAT(32, CASEIMPL, sign)	                                       \
-	}	                                                                       \
-	return stream.str();
 
 using namespace std;
 using namespace hyperion::util;
@@ -63,26 +8,32 @@ using namespace hyperion::test::abiv2fuzzer;
 
 namespace
 {
-template <typename V>
-static V integerValue(unsigned _counter)
+static bool isValidIntegerWidth(unsigned _intWidth)
 {
-	V value = V(
-		u256(hyperion::util::keccak256(hyperion::util::h256(_counter))) % u256(boost::math::tools::max_value<V>())
-	);
-	if (boost::multiprecision::is_signed_number<V>::value && value % 2 == 0)
-		return value * (-1);
-	else
-		return value;
+	return _intWidth >= 8 && _intWidth <= hyperion::VMWordBits && _intWidth % 8 == 0;
+}
+
+static hyperion::u512 maskForWidth(unsigned _intWidth)
+{
+	if (_intWidth >= hyperion::VMWordBits)
+		return ~hyperion::u512(0);
+	return (hyperion::u512(1) << _intWidth) - 1;
 }
 
 static string signedIntegerValue(unsigned _counter, unsigned _intWidth)
 {
-	SWITCHIMPL(1)
+	hypAssert(isValidIntegerWidth(_intWidth), "Proto ABIv2 fuzzer: invalid signed integer width");
+
+	hyperion::u512 value = AbiV2ProtoVisitor<void>::hashUnsignedInt(_counter);
+	hyperion::u512 magnitude = value & maskForWidth(_intWidth - 1);
+	bool negative = ((value >> (_intWidth - 1)) & 1) != 0;
+	return negative && magnitude != 0 ? "-" + magnitude.str() : magnitude.str();
 }
 
 static string unsignedIntegerValue(unsigned _counter, unsigned _intWidth)
 {
-	SWITCHIMPL(0)
+	hypAssert(isValidIntegerWidth(_intWidth), "Proto ABIv2 fuzzer: invalid unsigned integer width");
+	return (AbiV2ProtoVisitor<void>::hashUnsignedInt(_counter) & maskForWidth(_intWidth)).str();
 }
 
 static string integerValue(unsigned _counter, unsigned _intWidth, bool _signed)
@@ -610,7 +561,7 @@ string ProtoConverter::testReturnDataFunction()
 string ProtoConverter::calldataHelperFunctions()
 {
 	stringstream calldataHelperFuncs;
-	calldataHelperFuncs << R"(
+	calldataHelperFuncs << Whiskers(R"(
 	/// Accepts function selector, correct argument encoding, and length of
 	/// invalid encoding and returns the correct and incorrect abi encoding
 	/// for calling the function specified by the function selector.
@@ -622,18 +573,18 @@ string ProtoConverter::calldataHelperFunctions()
 	) internal pure returns (bytes memory, bytes memory)
 	{
 		bytes memory validEncoding = new bytes(4 + argumentEncoding.length);
-		// Ensure that invalidEncoding crops at least 32 bytes (padding length
-		// is at most 31 bytes) if `isRightPadded` is true.
+		// Ensure that invalidEncoding crops at least <wordSize> bytes (padding length
+		// is at most <alignmentMask> bytes) if `isRightPadded` is true.
 		// This is because shorter bytes/string values (whose encoding is right
-		// padded) can lead to successful decoding when fewer than 32 bytes have
+		// padded) can lead to successful decoding when fewer than <wordSize> bytes have
 		// been cropped in the worst case. In other words, if `isRightPadded` is
 		// true, then
-		//  0 <= invalidLength <= argumentEncoding.length - 32
+		//  0 <= invalidLength <= argumentEncoding.length - <wordSize>
 		// otherwise
 		//  0 <= invalidLength <= argumentEncoding.length - 1
 		uint invalidLength;
 		if (isRightPadded)
-			invalidLength = invalidLengthFuzz % (argumentEncoding.length - 31);
+			invalidLength = invalidLengthFuzz % (argumentEncoding.length - <alignmentMask>);
 		else
 			invalidLength = invalidLengthFuzz % argumentEncoding.length;
 		bytes memory invalidEncoding = new bytes(4 + invalidLength);
@@ -673,7 +624,10 @@ string ProtoConverter::calldataHelperFunctions()
 		if (success == true)
 			return 400001;
 		return 0;
-	})";
+	})")
+	("wordSize", std::to_string(VMWordBytes))
+	("alignmentMask", std::to_string(VMWordAlignmentMask))
+	.render();
 
 	/// These are indirections to test memory-calldata codings more robustly.
 	stringstream indirections;
@@ -1230,7 +1184,7 @@ std::string ValueGetterVisitor::croppedString(
 )
 {
 	hypAssert(
-		_numBytes > 0 && _numBytes <= 32,
+		_numBytes > 0 && _numBytes <= VMWordBytes,
 		"Proto ABIv2 fuzzer: Too short or too long a cropped string"
 	);
 
@@ -1240,13 +1194,13 @@ std::string ValueGetterVisitor::croppedString(
 	unsigned numMaskNibbles = _isHexLiteral ? _numBytes * 2 : _numBytes;
 
 	// Start position of substring equals totalHexStringLength - numMaskNibbles
-	// totalHexStringLength = 64 + 2 = 66
-	// e.g., 0x12345678901234567890123456789012 is a total of 66 characters
+	// totalHexStringLength = VMWordBytes * 2 + 2
+	// e.g., a 64-byte word is a total of 130 characters including 0x.
 	//      |---------------------^-----------|
 	//      <--- start position---><--numMask->
 	//      <-----------total length --------->
 	// Note: This assumes that maskUnsignedIntToHex() invokes toHex(..., HexPrefix::Add)
-	unsigned startPos = 66 - numMaskNibbles;
+	unsigned startPos = 2 + 2 * VMWordBytes - numMaskNibbles;
 	// Extracts the least significant numMaskNibbles from the result
 	// of maskUnsignedIntToHex().
 	return maskUnsignedIntToHex(
@@ -1262,7 +1216,7 @@ std::string ValueGetterVisitor::hexValueAsString(
 	bool _decorate
 )
 {
-	hypAssert(_numBytes > 0 && _numBytes <= 32,
+	hypAssert(_numBytes > 0 && _numBytes <= VMWordBytes,
 	          "Proto ABIv2 fuzzer: Invalid hex length"
 	);
 
@@ -1286,29 +1240,25 @@ std::string ValueGetterVisitor::hexValueAsString(
 std::string ValueGetterVisitor::fixedByteValueAsString(unsigned _width, unsigned _counter)
 {
 	hypAssert(
-		(_width >= 1 && _width <= 32),
-		"Proto ABIv2 Fuzzer: Fixed byte width is not between 1--32"
+		(_width >= 1 && _width <= AddressBytes),
+		"Proto ABIv2 Fuzzer: Fixed byte width is not between 1 and AddressBytes"
 	);
 	return hexValueAsString(_width, _counter, /*isHexLiteral=*/true);
 }
 
 std::string ValueGetterVisitor::addressValueAsString(unsigned _counter)
 {
-	return "address(" + maskUnsignedIntToHex(_counter, 40) + ")";
+	return "address(" + maskUnsignedIntToHex(_counter, 2 * AddressBytes) + ")";
 }
 
 // TODO(now.youtrack.cloud/issue/TS-18)
 std::string ValueGetterVisitor::isabelleAddressValueAsString(std::string& _hypAddressString)
 {
-	// Isabelle encoder expects address literal to be exactly
-	// 20 bytes and a hex string.
-	// Example: 0x0102030405060708090a0102030405060708090a
+	// Isabelle encoder expects address literal to be exactly AddressBytes and a hex string.
 	std::regex const addressPattern("address\\((.*)\\)");
 	std::smatch match;
 	hypAssert(std::regex_match(_hypAddressString, match, addressPattern), "Abiv2 fuzzer: Invalid address string");
-	std::string addressHex = match[1].str();
-	addressHex.erase(2, 24);
-	return addressHex;
+	return match[1].str();
 }
 
 std::string ValueGetterVisitor::isabelleBytesValueAsString(std::string& _hypBytesString)
@@ -1334,40 +1284,40 @@ std::string ValueGetterVisitor::variableLengthValueAsString(
 	unsigned numBytesRemaining = _numBytes;
 	// Stores the literal
 	string output{};
-	// If requested value is shorter than or exactly 32 bytes,
+	// If requested value is shorter than or exactly one VM word,
 	// the literal is the return value of hexValueAsString.
-	if (numBytesRemaining <= 32)
+	if (numBytesRemaining <= VMWordBytes)
 		output = hexValueAsString(
 			numBytesRemaining,
 			_counter,
 			_isHexLiteral,
 			/*decorate=*/false
 		);
-		// If requested value is longer than 32 bytes, the literal
+		// If requested value is longer than one VM word, the literal
 		// is obtained by duplicating the return value of hexValueAsString
 		// until we reach a value of the requested size.
 	else
 	{
-		// Create a 32-byte value to be duplicated and
+		// Create a VM-word-sized value to be duplicated and
 		// update number of bytes to be appended.
 		// Stores the cached literal that saves us
 		// (expensive) calls to keccak256.
 		string cachedString = hexValueAsString(
-			/*numBytes=*/32,
+			/*numBytes=*/VMWordBytes,
 			             _counter,
 			             _isHexLiteral,
 			/*decorate=*/false
 		);
 		output = cachedString;
-		numBytesRemaining -= 32;
+		numBytesRemaining -= VMWordBytes;
 
 		// Append bytes from cachedString until
 		// we create a value of desired length.
 		unsigned numAppendedBytes;
 		while (numBytesRemaining > 0)
 		{
-			// We append at most 32 bytes at a time
-			numAppendedBytes = numBytesRemaining >= 32 ? 32 : numBytesRemaining;
+			// We append at most one VM word at a time.
+			numAppendedBytes = numBytesRemaining >= VMWordBytes ? VMWordBytes : numBytesRemaining;
 			output += cachedString.substr(
 				0,
 				// Double the substring length for hex literals since each

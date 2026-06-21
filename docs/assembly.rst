@@ -154,9 +154,11 @@ The selector consists of four right-aligned bytes. For example:
         }
     }
 
-External function pointer variables are not supported with 512-bit addresses
-because the address plus selector does not fit in one VM word, so their
-``.address`` and ``.selector`` members cannot be assigned in inline assembly.
+External function pointer variables use two VM stack slots internally: one for
+the address and one for the selector. Inline assembly can access and assign
+``x.address`` and ``x.selector`` separately. Using the whole function pointer
+as a single Yul identifier is rejected because a Yul value occupies one stack
+slot.
 
 For dynamic calldata arrays, you can access
 their calldata offset (in bytes) and length (number of elements) using ``x.offset`` and ``x.length``.

@@ -7,4 +7,4 @@ contract C {
     }
 }
 // ----
-// TypeError 4888: (110-140): External function types are not supported with this address size: address (512 bits) plus selector (32 bits) exceeds the VM word size (512 bits).
+// TypeError 9574: (110-149): Type function () view external is not implicitly convertible to expected type function () payable external.

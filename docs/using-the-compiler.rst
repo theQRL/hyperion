@@ -574,7 +574,7 @@ Output Description
               "deployedBytecode": {
                 /* ..., */ // The same layout as above.
                 "immutableReferences": {
-                  // There are two references to the immutable with AST ID 3, both 32 bytes long. One is
+                  // There are two references to the immutable with AST ID 3, both 64 bytes long. One is
                   // at bytecode offset 42, the other at bytecode offset 80.
                   "3": [{ "start": 42, "length": 32 }, { "start": 80, "length": 32 }]
                 }

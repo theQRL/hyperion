@@ -71,8 +71,8 @@ The following elementary types exist:
 
 - ``bytes<M>``: binary type of ``M`` bytes, ``0 < M <= 64``.
 
-- ``function``: not supported for the 64-byte QRL address ABI because address (64 bytes)
-  plus selector (4 bytes) does not fit in one 64-byte VM word.
+- ``function``: external function value consisting of an ``address`` and a
+  four-byte selector. For computing the function selector, ``function`` is used.
 
 The following (fixed-size) array type exists:
 
@@ -201,7 +201,7 @@ on the type of ``X`` being
 
   ``enc(X) = enc(k) pad_right(X)``, i.e. the number of bytes is encoded as a
   ``uint256`` followed by the actual value of ``X`` as a byte sequence, followed by
-  the minimum number of zero-bytes such that ``len(enc(X))`` is a multiple of 32.
+  the minimum number of zero-bytes such that ``len(enc(X))`` is a multiple of the VM word size.
 
 - ``string``:
 
@@ -219,6 +219,8 @@ on the type of ``X`` being
 - ``ufixed<M>x<N>``: ``enc(X)`` is ``enc(X * 10**N)`` where ``X * 10**N`` is interpreted as a ``uint256``.
 - ``ufixed``: as in the ``ufixed128x18`` case
 - ``bytes<M>``: ``enc(X)`` is the sequence of bytes in ``X`` padded with trailing zero-bytes to a length of 64 bytes.
+- ``function``: ``enc(X)`` is the address encoded as one 64-byte word followed
+  by the selector encoded as a right-aligned ``uint32`` in one 64-byte word.
 
 Note that for any ``X``, ``len(enc(X))`` is a multiple of 64.
 
@@ -751,6 +753,8 @@ Non-standard Packed Mode
 Through ``abi.encodePacked()``, Hyperion supports a non-standard packed mode where:
 
 - types shorter than 64 bytes are concatenated directly, without padding or sign extension
+- ``function`` values are encoded as the 64-byte address followed by the four
+  selector bytes
 - dynamic types are encoded in-place and without the length.
 - array elements are padded, but still encoded in-place
 

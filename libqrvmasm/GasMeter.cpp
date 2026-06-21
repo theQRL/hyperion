@@ -188,10 +188,10 @@ GasMeter::GasConsumption GasMeter::estimateMax(AssemblyItem const& _item, bool _
 					unsigned const significantByteCount  = (static_cast<unsigned>(boost::multiprecision::msb(*value)) + 1u + 7u) / 8u;
 					gas += GasCosts::expByteGas * significantByteCount;
 				}
-			}
-			else
-				gas += GasCosts::expByteGas * 32;
-			break;
+				}
+				else
+					gas += GasCosts::expByteGas * VMWordBytes;
+				break;
 		case Instruction::BALANCE:
 			gas = GasCosts::balanceGas;
 			break;

@@ -133,7 +133,7 @@ registering with a username and password, all you need is a QRL keypair.
 This contract introduces some new concepts, let us go through them one by one.
 
 The line ``address public minter;`` declares a state variable of type :ref:`address<address>`.
-The ``address`` type is a 384-bit value that does not allow any arithmetic operations.
+The ``address`` type is a 512-bit value that does not allow any arithmetic operations.
 It is suitable for storing addresses of contracts, or a hash of the public half
 of a keypair belonging to :ref:`external accounts<accounts>`.
 

@@ -219,12 +219,6 @@ public:
 	/// Stack post:
 	void storeStringData(bytesConstRef _data);
 
-	/// Converts the combined and left-aligned (right-aligned if @a _rightAligned is true)
-	/// external function type <address><function identifier> into two stack slots:
-	/// address (right aligned), function identifier (right aligned)
-	void splitExternalFunctionType(bool _rightAligned);
-	/// Performs the opposite operation of splitExternalFunctionType(_rightAligned)
-	void combineExternalFunctionType(bool _rightAligned);
 	/// Appends code that combines the construction-time (if available) and runtime function
 	/// entry label of the given function into a single stack slot.
 	/// Note: This might cause the compilation queue of the runtime context to be extended.

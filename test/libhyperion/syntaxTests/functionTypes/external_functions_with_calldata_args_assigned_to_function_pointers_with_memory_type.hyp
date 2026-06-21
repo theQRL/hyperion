@@ -7,4 +7,3 @@ contract C {
     }
 }
 // ----
-// TypeError 4888: (102-139): External function types are not supported with this address size: address (512 bits) plus selector (32 bits) exceeds the VM word size (512 bits).

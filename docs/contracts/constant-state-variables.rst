@@ -21,7 +21,7 @@ are much lower. For a constant variable, the expression assigned to it is copied
 all the places where it is accessed and also re-evaluated each time. This allows for local
 optimizations. Immutable variables are evaluated once at construction time and their value
 is copied to all the places in the code where they are accessed. For these values,
-32 bytes are reserved, even if they would fit in fewer bytes. Due to this, constant values
+64 bytes are reserved, even if they would fit in fewer bytes. Due to this, constant values
 can sometimes be cheaper than immutable values.
 
 Not all types for constants and immutables are implemented at this time. The only supported types are

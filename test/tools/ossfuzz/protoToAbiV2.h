@@ -7,6 +7,7 @@
 #include <libhyputil/StringUtils.h>
 #include <libhyputil/Whiskers.h>
 #include <libhyputil/Numeric.h>
+#include <libhyputil/VMConstants.h>
 
 #include <liblangutil/Exceptions.h>
 
@@ -496,7 +497,7 @@ public:
 
 	static unsigned getIntWidth(IntegerType const& _x)
 	{
-		return 8 * ((_x.width() % 32) + 1);
+		return 8 * ((_x.width() % AddressBytes) + 1);
 	}
 
 	static bool isIntSigned(IntegerType const& _x)
@@ -511,7 +512,7 @@ public:
 
 	static unsigned getFixedByteWidth(FixedByteType const& _x)
 	{
-		return (_x.width() % 32) + 1;
+		return (_x.width() % AddressBytes) + 1;
 	}
 
 	static std::string getFixedByteTypeAsString(FixedByteType const& _x)
@@ -519,22 +520,23 @@ public:
 		return "bytes" + std::to_string(getFixedByteWidth(_x));
 	}
 
-	// Convert _counter to string and return its keccak256 hash
-	static u256 hashUnsignedInt(unsigned _counter)
+	// Convert _counter to string and return a VM-word-sized pseudo-random value.
+	static u512 hashUnsignedInt(unsigned _counter)
 	{
-		return util::keccak256(util::h256(_counter));
+		return fromBigEndian<u512>(util::shake256(util::h256(_counter).ref(), VMWordBytes));
 	}
 
-	static u256 maskUnsignedInt(unsigned _counter, unsigned _numMaskNibbles)
+	static u512 maskUnsignedInt(unsigned _counter, unsigned _numMaskNibbles)
 	{
-		return hashUnsignedInt(_counter) & u256("0x" + std::string(_numMaskNibbles, 'f'));
+		hypAssert(_numMaskNibbles <= 2 * VMWordBytes, "Proto ABIv2 fuzzer: integer mask exceeds VM word size");
+		return hashUnsignedInt(_counter) & u512("0x" + std::string(_numMaskNibbles, 'f'));
 	}
 
 	// Requires caller to pass number of nibbles (twice the number of bytes) as second argument.
 	// Note: Don't change HexPrefix::Add. See comment in fixedByteValueAsString().
 	static std::string maskUnsignedIntToHex(unsigned _counter, unsigned _numMaskNibbles)
 	{
-		return "0x" + toHex(maskUnsignedInt(_counter, _numMaskNibbles));
+		return "0x" + util::toHex(toBigEndian(maskUnsignedInt(_counter, _numMaskNibbles)));
 	}
 
 	/// Dynamically sized arrays can have a length of at least zero

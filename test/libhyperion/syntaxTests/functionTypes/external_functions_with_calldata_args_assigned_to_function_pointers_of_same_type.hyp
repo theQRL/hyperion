@@ -9,4 +9,6 @@ contract C {
     }
 }
 // ----
-// TypeError 4889: (28-64): External function types are not supported with this address size: address (512 bits) plus selector (32 bits) exceeds the VM word size (512 bits).
+// TypeError 9574: (161-209): Type function (string memory) external is not implicitly convertible to expected type function (string calldata) external.
+// TypeError 5407: (242-250): Cannot implicitly convert component at position 0 from "function (string memory) external" to "function (string calldata) external".
+// TypeError 9553: (268-274): Invalid type for argument in function call. Invalid implicit conversion from function (string memory) external to function (string calldata) external requested.

@@ -1920,12 +1920,6 @@ BOOST_AUTO_TEST_CASE(calldata_struct_short)
 
 BOOST_AUTO_TEST_CASE(calldata_struct_function_type)
 {
-	if (AddressBits + 32 > VMWordBits)
-	{
-		BOOST_TEST_MESSAGE("External function pointers do not fit in a VM word with 64-byte addresses.");
-		return;
-	}
-
 	char const* sourceCode = R"(
 		pragma abicoder v2;
 		contract C {
@@ -1943,9 +1937,8 @@ BOOST_AUTO_TEST_CASE(calldata_struct_function_type)
 	)";
 	compileAndRun(sourceCode, 0, "C");
 
-	// Function type is left-aligned in 64-byte slot: addr(48) + selector(4) + zeros(12) = 64 bytes
-	bytes fn_C_g = m_contractAddress.asBytes() + util::selectorFromSignatureH32("g(uint256)").asBytes() + bytes(12, 0);
-	bytes fn_C_h = m_contractAddress.asBytes() + util::selectorFromSignatureH32("h(uint256)").asBytes() + bytes(12, 0);
+	bytes fn_C_g = encodeArgs(m_contractAddress, u256(util::selectorFromSignatureU32("g(uint256)")));
+	bytes fn_C_h = encodeArgs(m_contractAddress, u256(util::selectorFromSignatureU32("h(uint256)")));
 	ABI_CHECK(callContractFunctionNoEncoding("f((function))", fn_C_g), encodeArgs(42 * 3));
 	ABI_CHECK(callContractFunctionNoEncoding("f((function))", fn_C_h), encodeArgs(23));
 }
@@ -2491,8 +2484,8 @@ BOOST_AUTO_TEST_CASE(reject_quanta_sent_to_library)
 
 BOOST_AUTO_TEST_CASE(create_memory_array_allocation_size)
 {
-	// Check allocation size of byte array. Should be 32 plus length rounded up to next
-	// multiple of 32
+	// Check allocation size of byte array. Should be one VM word plus length rounded up to next
+	// multiple of VMWordBytes.
 	char const* sourceCode = R"(
 		contract C {
 			function f() public pure returns (uint d1, uint d2, uint d3, uint memsize) {
@@ -2726,12 +2719,6 @@ BOOST_AUTO_TEST_CASE(mem_resize_is_not_paid_at_call)
 
 BOOST_AUTO_TEST_CASE(receive_external_function_type)
 {
-	if (AddressBits + 32 > VMWordBits)
-	{
-		BOOST_TEST_MESSAGE("External function pointers do not fit in a VM word with 64-byte addresses.");
-		return;
-	}
-
 	char const* sourceCode = R"(
 		contract C {
 			function g() public returns (uint) { return 7; }
@@ -2743,22 +2730,16 @@ BOOST_AUTO_TEST_CASE(receive_external_function_type)
 
 	ALSO_VIA_YUL(
 		compileAndRun(sourceCode, 0, "C");
-		// Function type is left-aligned in 64-byte slot: addr(48) + selector(4) + zeros(12) = 64 bytes
 		ABI_CHECK(callContractFunction(
 			"f(function)",
-			m_contractAddress.asBytes() + util::selectorFromSignatureH32("g()").asBytes() + bytes(12, 0)
+			m_contractAddress,
+			u256(util::selectorFromSignatureU32("g()"))
 		), encodeArgs(u256(7)));
 	)
 }
 
 BOOST_AUTO_TEST_CASE(return_external_function_type)
 {
-	if (AddressBits + 32 > VMWordBits)
-	{
-		BOOST_TEST_MESSAGE("External function pointers do not fit in a VM word with 64-byte addresses.");
-		return;
-	}
-
 	char const* sourceCode = R"(
 		contract C {
 			function g() public {}
@@ -2769,10 +2750,9 @@ BOOST_AUTO_TEST_CASE(return_external_function_type)
 	)";
 
 	compileAndRun(sourceCode, 0, "C");
-	// Function type is left-aligned in 64-byte slot: addr(48) + selector(4) + zeros(12) = 64 bytes
 	ABI_CHECK(
 		callContractFunction("f()"),
-		m_contractAddress.asBytes() + util::selectorFromSignatureH32("g()").asBytes() + bytes(12, 0)
+		encodeArgs(m_contractAddress, u256(util::selectorFromSignatureU32("g()")))
 	);
 }
 
@@ -3485,12 +3465,6 @@ BOOST_AUTO_TEST_CASE(abi_encodePacked_from_memory)
 
 BOOST_AUTO_TEST_CASE(abi_encodePacked_functionPtr)
 {
-	if (AddressBits + 32 > VMWordBits)
-	{
-		BOOST_TEST_MESSAGE("External function pointers do not fit in a VM word with 64-byte addresses.");
-		return;
-	}
-
 	char const* sourceCode = R"(
 		contract C {
 			C other = C(Q00000000000000000000000000000000111213140000000000001112131400000000008700000000000000000000000000000000000000000000000000000000);
@@ -3515,9 +3489,17 @@ BOOST_AUTO_TEST_CASE(abi_encodePacked_functionPtr)
 		ALSO_VIA_YUL(
 			std::string prefix = "pragma abicoder " + std::string(v2 ? "v2" : "v1") + ";\n";
 			compileAndRun(prefix + sourceCode, 0, "C");
-			std::string directEncoding = asString(fromHex("08" "111213140000000000001112131400000000008700000000000000000000000000000000000000000000000000000000" "26121ff0" "02"));
+			bytes otherAddressSuffix = fromHex("111213140000000000001112131400000000008700000000000000000000000000000000000000000000000000000000");
+			bytes otherAddress = bytes(AddressBytes - otherAddressSuffix.size(), 0) + otherAddressSuffix;
+			bytes selector = util::selectorFromSignatureH32("f()").asBytes();
+			std::string directEncoding = asString(bytes{0x08} + otherAddress + selector + bytes{0x02});
 			ABI_CHECK(callContractFunction("testDirect()"), encodeArgs(0x40, directEncoding.size(), directEncoding));
-			std::string arrayEncoding = asString(fromHex("08" "111213140000000000001112131400000000008700000000000000000000000000000000000000000000000000000000" "26121ff0" "000000000000000000000000" "02"));
+			std::string arrayEncoding = asString(
+				bytes{0x08} +
+				otherAddress +
+				encode(u256(util::selectorFromSignatureU32("f()"))) +
+				bytes{0x02}
+			);
 			ABI_CHECK(callContractFunction("testFixedArray()"), encodeArgs(0x40, arrayEncoding.size(), arrayEncoding));
 			ABI_CHECK(callContractFunction("testDynamicArray()"), encodeArgs(0x40, arrayEncoding.size(), arrayEncoding));
 		)

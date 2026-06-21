@@ -46,59 +46,6 @@ std::string YulUtilFunctions::identityFunction()
 	});
 }
 
-std::string YulUtilFunctions::combineExternalFunctionIdFunction()
-{
-	// addr is AddressBytes (AddressBits), selector is 4 bytes (32 bits).
-	// Encoded external function = [addr | selector(4) | zero-padding] top-aligned
-	// in the 64-byte VM word. With AddressBits == VMWordBits (the 64-byte
-	// address layout) the address fills the whole word and FunctionType ABI
-	// can no longer be carried — splitExternalFunctionType/combineExternalFunctionType
-	// guard with a hypAssert that fires before any runtime code reaches this
-	// path; the helper below stays only for source backwards compatibility.
-	std::string functionName = "combine_external_function_id";
-	size_t constexpr externalFunctionIdBits = AddressBits + 32;
-	hypAssert(
-		externalFunctionIdBits <= VMWordBits,
-		"External function id address plus selector exceeds the VM word size."
-	);
-	size_t constexpr padBits = VMWordBits - externalFunctionIdBits;
-	return m_functionCollector.createFunction(functionName, [&]() {
-		return Whiskers(R"(
-			function <functionName>(addr, selector) -> combined {
-				combined := <shlPad>(or(<shl32>(addr), and(selector, 0xffffffff)))
-			}
-		)")
-		("functionName", functionName)
-		("shl32", shiftLeftFunction(32))
-		("shlPad", shiftLeftFunction(padBits))
-		.render();
-	});
-}
-
-std::string YulUtilFunctions::splitExternalFunctionIdFunction()
-{
-	std::string functionName = "split_external_function_id";
-	size_t constexpr externalFunctionIdBits = AddressBits + 32;
-	hypAssert(
-		externalFunctionIdBits <= VMWordBits,
-		"External function id address plus selector exceeds the VM word size."
-	);
-	size_t constexpr padBits = VMWordBits - externalFunctionIdBits;
-	return m_functionCollector.createFunction(functionName, [&]() {
-		return Whiskers(R"(
-			function <functionName>(combined) -> addr, selector {
-				combined := <shrPad>(combined)
-				selector := and(combined, 0xffffffff)
-				addr := <shr32>(combined)
-			}
-		)")
-		("functionName", functionName)
-		("shr32", shiftRightFunction(32))
-		("shrPad", shiftRightFunction(padBits))
-		.render();
-	});
-}
-
 std::string YulUtilFunctions::copyToMemoryFunction(bool _fromCalldata, bool _cleanup)
 {
 	std::string functionName =
@@ -1794,9 +1741,6 @@ std::string YulUtilFunctions::clearStorageArrayFunction(ArrayType const& _type)
 		hypAssert(_type.baseType()->storageSize() <= 1, "Invalid storage size for type.");
 	}
 
-	if (_type.baseType()->isValueType())
-		hypAssert(_type.baseType()->storageSize() <= 1, "Invalid size for value type.");
-
 	std::string functionName = "clear_storage_array_" + _type.identifier();
 
 	return m_functionCollector.createFunction(functionName, [&]() {
@@ -2068,6 +2012,55 @@ std::string YulUtilFunctions::copyValueArrayToStorageFunction(ArrayType const& _
 
 	std::string functionName = "copy_array_to_storage_from_" + _fromType.identifier() + "_to_" + _toType.identifier();
 	return m_functionCollector.createFunction(functionName, [&](){
+		if (
+			auto const* functionType = dynamic_cast<FunctionType const*>(_toType.baseType());
+			functionType && functionType->kind() == FunctionType::Kind::External
+		)
+		{
+			hypAssert(_toType.baseType()->storageSize() == 2, "");
+			bool const fromCalldata = _fromType.dataStoredIn(DataLocation::CallData);
+			bool const fromStorage = _fromType.dataStoredIn(DataLocation::Storage);
+			return Whiskers(R"(
+				function <functionName>(dst, src<?isFromDynamicCalldata>, len</isFromDynamicCalldata>) {
+					<?isFromStorage>
+					if eq(dst, src) { leave }
+					</isFromStorage>
+					let length := <arrayLength>(src<?isFromDynamicCalldata>, len</isFromDynamicCalldata>)
+					if gt(length, 0xffffffffffffffff) { <panic>() }
+					<resizeArray>(dst, length)
+
+					let srcPtr := <srcDataLocation>(src)
+					let dstPtr := <dstDataLocation>(dst)
+					for { let i := 0 } lt(i, length) { i := add(i, 1) } {
+						<?isFromStorage>
+							let addr := sload(srcPtr)
+							let selector := and(sload(add(srcPtr, 1)), <selectorMask>)
+						<!isFromStorage>
+							let addr, selector := <readFromMemoryOrCalldata>(srcPtr)
+						</isFromStorage>
+						addr, selector := <convert>(addr, selector)
+						sstore(dstPtr, addr)
+						sstore(add(dstPtr, 1), and(selector, <selectorMask>))
+						srcPtr := add(srcPtr, <srcStride>)
+						dstPtr := add(dstPtr, 2)
+					}
+				}
+			)")
+			("functionName", functionName)
+			("isFromDynamicCalldata", _fromType.isDynamicallySized() && fromCalldata)
+			("isFromStorage", fromStorage)
+			("arrayLength", arrayLengthFunction(_fromType))
+			("panic", panicFunction(PanicCode::ResourceError))
+			("resizeArray", resizeArrayFunction(_toType))
+			("srcDataLocation", arrayDataAreaFunction(_fromType))
+			("dstDataLocation", arrayDataAreaFunction(_toType))
+			("readFromMemoryOrCalldata", readFromMemoryOrCalldata(*_fromType.baseType(), fromCalldata))
+			("convert", conversionFunction(*_fromType.baseType(), *_toType.baseType()))
+			("srcStride", fromStorage ? _fromType.baseType()->storageSize().str() : std::to_string(fromCalldata ? _fromType.calldataStride() : _fromType.memoryStride()))
+			("selectorMask", formatNumber(u256(0xffffffffUL)))
+			.render();
+		}
+
 		Whiskers templ(R"(
 			function <functionName>(dst, src<?isFromDynamicCalldata>, len</isFromDynamicCalldata>) {
 				<?isFromStorage>
@@ -2287,7 +2280,7 @@ std::string YulUtilFunctions::arrayAllocationSizeFunction(ArrayType const& _type
 				<?byteArray>
 					size := <roundUp>(length)
 				<!byteArray>
-					size := mul(length, <wordSizeHex>)
+					size := mul(length, <stride>)
 				</byteArray>
 				<?dynamic>
 					// add length slot
@@ -2299,6 +2292,7 @@ std::string YulUtilFunctions::arrayAllocationSizeFunction(ArrayType const& _type
 		w("panic", panicFunction(PanicCode::ResourceError));
 		w("byteArray", _type.isByteArrayOrString());
 		w("roundUp", roundUpFunction());
+		w("stride", toCompactHexWithPrefix(u256(_type.memoryStride())));
 		w("dynamic", _type.isDynamicallySized());
 		w("wordSizeHex", toCompactHexWithPrefix(u256(VMWordBytes)));
 		return w.render();
@@ -2506,7 +2500,7 @@ std::string YulUtilFunctions::nextArrayElementFunction(ArrayType const& _type)
 		switch (_type.location())
 		{
 		case DataLocation::Memory:
-			templ("advance", toCompactHexWithPrefix(u256(VMWordBytes)));
+			templ("advance", toCompactHexWithPrefix(u256(_type.memoryStride())));
 			break;
 		case DataLocation::Storage:
 		{
@@ -2748,12 +2742,30 @@ std::string YulUtilFunctions::readFromStorageValueType(Type const& _type, std::o
 			_type.identifier();
 
 	return m_functionCollector.createFunction(functionName, [&] {
+		if (
+			auto const* funType = dynamic_cast<FunctionType const*>(&_type);
+			funType && funType->kind() == FunctionType::Kind::External
+		)
+		{
+			return Whiskers(R"(
+				function <functionName>(slot<?dynamic>, offset</dynamic>) -> addr, selector {
+					<?dynamic>
+						if gt(offset, 0) { <panic>() }
+					</dynamic>
+					addr := sload(slot)
+					selector := and(sload(add(slot, 1)), <selectorMask>)
+				}
+			)")
+			("functionName", functionName)
+			("dynamic", !_offset.has_value())
+			("panic", panicFunction(util::PanicCode::Generic))
+			("selectorMask", formatNumber(u256(0xffffffffUL)))
+			.render();
+		}
+
 		Whiskers templ(R"(
-			function <functionName>(slot<?dynamic>, offset</dynamic>) -> <?split>addr, selector<!split>value</split> {
-				<?split>let</split> value := <extract>(sload(slot)<?dynamic>, offset</dynamic>)
-				<?split>
-					addr, selector := <splitFunction>(value)
-				</split>
+			function <functionName>(slot<?dynamic>, offset</dynamic>) -> value {
+				value := <extract>(sload(slot)<?dynamic>, offset</dynamic>)
 			}
 		)");
 		templ("functionName", functionName);
@@ -2762,11 +2774,7 @@ std::string YulUtilFunctions::readFromStorageValueType(Type const& _type, std::o
 			templ("extract", extractFromStorageValue(_type, *_offset));
 		else
 			templ("extract", extractFromStorageValueDynamic(_type));
-		auto const* funType = dynamic_cast<FunctionType const*>(&_type);
-		bool split = _splitFunctionTypes && funType && funType->kind() == FunctionType::Kind::External;
-		templ("split", split);
-		if (split)
-			templ("splitFunction", splitExternalFunctionIdFunction());
+		(void)_splitFunctionTypes;
 		return templ.render();
 	});
 }
@@ -2851,6 +2859,32 @@ std::string YulUtilFunctions::updateStorageValueFunction(
 		if (_toType.isValueType())
 		{
 			hypAssert(_fromType.isImplicitlyConvertibleTo(_toType), "");
+			if (
+				auto const* funType = dynamic_cast<FunctionType const*>(&_toType);
+				funType && funType->kind() == FunctionType::Kind::External
+			)
+			{
+				if (_offset.has_value())
+					hypAssert(*_offset == 0, "Invalid storage offset for external function value.");
+				return Whiskers(R"(
+					function <functionName>(slot, <offset><fromValues>) {
+						<?dynamic>
+							if gt(offset, 0) { <panic>() }
+						</dynamic>
+						let addr, selector := <convert>(<fromValues>)
+						sstore(slot, addr)
+						sstore(add(slot, 1), and(selector, <selectorMask>))
+					}
+				)")
+				("functionName", functionName)
+				("dynamic", !_offset.has_value())
+				("panic", panicFunction(util::PanicCode::Generic))
+				("offset", _offset.has_value() ? "" : "offset, ")
+				("convert", conversionFunction(_fromType, _toType))
+				("fromValues", suffixedVariableNameList("value_", 0, _fromType.sizeOnStack()))
+				("selectorMask", formatNumber(u256(0xffffffffUL)))
+				.render();
+			}
 			hypAssert(_toType.storageBytes() <= VMWordBytes, "Invalid storage bytes size.");
 			hypAssert(_toType.storageBytes() > 0, "Invalid storage bytes size.");
 
@@ -3080,17 +3114,16 @@ std::string YulUtilFunctions::prepareStoreFunction(Type const& _type)
 		hypAssert(_type.isValueType(), "");
 		auto const* funType = dynamic_cast<FunctionType const*>(&_type);
 		if (funType && funType->kind() == FunctionType::Kind::External)
-		{
-			Whiskers templ(R"(
-				function <functionName>(addr, selector) -> ret {
-					ret := <shr>(<combine>(addr, selector))
-				}
-			)");
-			templ("functionName", functionName);
-			templ("shr", shiftRightFunction(VMWordBits - 8 * funType->storageBytes()));
-			templ("combine", combineExternalFunctionIdFunction());
-			return templ.render();
-		}
+			{
+				Whiskers templ(R"(
+					function <functionName>(addr, selector) -> ret {
+						<unreachable>
+					}
+				)");
+				templ("functionName", functionName);
+				templ("unreachable", panicFunction(util::PanicCode::Generic) + "()");
+				return templ.render();
+			}
 		else
 		{
 			hypAssert(_type.sizeOnStack() == 1, "");
@@ -3190,17 +3223,19 @@ std::string YulUtilFunctions::zeroComplexMemoryArrayFunction(ArrayType const& _t
 
 	std::string functionName = "zero_complex_memory_array_" + _type.identifier();
 	return m_functionCollector.createFunction(functionName, [&]() {
-		hypAssert(_type.memoryStride() == VMWordBytes, "");
 		return Whiskers(R"(
 			function <functionName>(dataStart, dataSizeInBytes) {
 				for {let i := 0} lt(i, dataSizeInBytes) { i := add(i, <stride>) } {
-					mstore(add(dataStart, i), <zeroValue>())
+					let <values> := <zeroValue>()
+					<write>(add(dataStart, i), <values>)
 				}
 			}
 		)")
 		("functionName", functionName)
 		("stride", std::to_string(_type.memoryStride()))
-		("zeroValue", zeroValueFunction(*_type.baseType(), false))
+		("values", suffixedVariableNameList("zero_", 0, _type.baseType()->sizeOnStack()))
+		("zeroValue", zeroValueFunction(*_type.baseType()))
+		("write", writeToMemoryFunction(*_type.baseType()))
 		.render();
 	});
 }
@@ -3886,27 +3921,11 @@ std::string YulUtilFunctions::cleanupFunction(Type const& _type)
 		case Type::Category::Function:
 			switch (dynamic_cast<FunctionType const&>(_type).kind())
 			{
-				case FunctionType::Kind::External:
-				{
-					// External function type: [addr, selector(4), zero-padding]
-					// top-aligned in the VM word. Combined via (addr << 32 | sel) << padBits
-					// so the lower padBits are zero. Cleanup keeps the upper
-					// (AddressBits + 32) bits and zeros the rest.
-					// When AddressBits == VMWordBits the FunctionType no longer
-					// fits — the splitExternalFunctionType / combineExternalFunctionType
-					// helpers guard with a hypAssert before any caller can reach
-					// this cleanup, so the path is unreachable in 64-byte-address
-					// builds.
-					hypAssert(
-						AddressBits + 32 <= VMWordBits,
-						"FunctionType cleanup is unreachable when AddressBits + 32 exceeds VMWordBits."
-					);
-					size_t const funcTypeBits = AddressBits + 32;
-					size_t const padBits = VMWordBits - funcTypeBits;
-					bigint mask = ((bigint(1) << funcTypeBits) - 1) << padBits;
-					templ("body", "cleaned := and(value, " + toCompactHexWithPrefix(u512(mask)) + ")");
-					break;
-				}
+					case FunctionType::Kind::External:
+					{
+						templ("body", "cleaned := value");
+						break;
+					}
 				case FunctionType::Kind::Internal:
 					templ("body", "cleaned := value");
 					break;
@@ -4430,52 +4449,34 @@ std::string YulUtilFunctions::readFromMemoryOrCalldata(Type const& _type, bool _
 		hypAssert(_type.isValueType(), "");
 		if (auto const* funType = dynamic_cast<FunctionType const*>(&_type); funType && funType->kind() == FunctionType::Kind::External)
 		{
-			hypAssert(!_fromCalldata, "External function values in calldata are not supported with 64-byte addresses.");
 			return Whiskers(R"(
 				function <functionName>(ptr) -> addr, selector {
-					addr := mload(ptr)
-					selector := and(mload(add(ptr, <wordSize>)), <selectorMask>)
+					addr := <load>(ptr)
+					selector := and(<load>(add(ptr, <wordSize>)), <selectorMask>)
 				}
 			)")
 			("functionName", functionName)
+			("load", _fromCalldata ? "calldataload" : "mload")
 			("wordSize", std::to_string(VMWordBytes))
 			("selectorMask", formatNumber(u256(0xffffffffUL)))
 			.render();
 		}
 
 		Whiskers templ(R"(
-			function <functionName>(ptr) -> <returnVariables> {
+			function <functionName>(ptr) -> returnValue {
 				<?fromCalldata>
 					let value := calldataload(ptr)
 					<validate>(value)
 				<!fromCalldata>
 					let value := <cleanup>(mload(ptr))
 				</fromCalldata>
-
-				<returnVariables> :=
-				<?externalFunction>
-					<splitFunction>(value)
-				<!externalFunction>
-					value
-				</externalFunction>
+				returnValue := value
 			}
 		)");
 		templ("functionName", functionName);
 		templ("fromCalldata", _fromCalldata);
 		if (_fromCalldata)
 			templ("validate", validatorFunction(_type, true));
-		auto const* funType = dynamic_cast<FunctionType const*>(&_type);
-		if (funType && funType->kind() == FunctionType::Kind::External)
-		{
-			templ("externalFunction", true);
-			templ("splitFunction", splitExternalFunctionIdFunction());
-			templ("returnVariables", "addr, selector");
-		}
-		else
-		{
-			templ("externalFunction", false);
-			templ("returnVariables", "returnValue");
-		}
 
 		// Byte array elements generally need cleanup.
 		// Other types are cleaned as well to account for dirty memory e.g. due to inline assembly.

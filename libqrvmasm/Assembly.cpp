@@ -968,13 +968,13 @@ LinkerObject const& Assembly::assemble() const
 			ret.bytecode.resize(ret.bytecode.size() + hyperion::AddressBytes);
 			break;
 		case PushImmutable:
-			ret.bytecode.push_back(static_cast<uint8_t>(Instruction::PUSH64));
+			ret.bytecode.push_back(static_cast<uint8_t>(pushInstruction(VMWordBytes)));
 			// Maps keccak back to the "identifier" std::string of that immutable.
 			ret.immutableReferences[u256(i.data())].first = m_immutables.at(h256(u256(i.data())));
-			// Record the bytecode offset of the PUSH64 argument.
+			// Record the bytecode offset of the PUSH argument.
 			ret.immutableReferences[u256(i.data())].second.emplace_back(ret.bytecode.size());
-			// Advance bytecode by 64 bytes (default initialized).
-			ret.bytecode.resize(ret.bytecode.size() + 64);
+			// Advance bytecode by one VM word (default initialized).
+			ret.bytecode.resize(ret.bytecode.size() + VMWordBytes);
 			break;
 		case VerbatimBytecode:
 			ret.bytecode += i.verbatimData();

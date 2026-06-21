@@ -5,4 +5,4 @@ contract C {
     }
 }
 // ----
-// TypeError 4888: (17-66): External function types are not supported with this address size: address (512 bits) plus selector (32 bits) exceeds the VM word size (512 bits).
+// TypeError 1621: (102-109): Using ".value(...)" is deprecated. Use "{value: ...}" instead.

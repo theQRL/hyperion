@@ -140,7 +140,7 @@ Therefore, modifications to storage and memory locations, of say location ``l``,
 knowledge about storage or memory locations which may be equal to ``l``. More specifically, for
 storage, the optimizer has to erase all knowledge of symbolic locations, that may be equal to ``l``
 and for memory, the optimizer has to erase all knowledge of symbolic locations that may not be at
-least 32 bytes away. If ``m`` denotes an arbitrary location, then this decision on erasure is done
+least one VM word away. If ``m`` denotes an arbitrary location, then this decision on erasure is done
 by computing the value ``sub(l, m)``. For storage, if this value evaluates to a literal that is
 non-zero, then the knowledge about ``m`` will be kept. For memory, if the value evaluates to a
 literal that is between ``32`` and ``2**256 - 32``, then the knowledge about ``m`` will be kept. In

@@ -24,7 +24,7 @@ contract C {
         assert(nonce <= 127);
         bytes memory data =
             bytes.concat(hex"d694", bytes64(uint512(from)), nonce == 0 ? bytes1(hex"80") : bytes1(uint8(nonce)));
-        return address(uint512(uint256(keccak256(data)))); // Expand the 256-bit hash into the 384-bit address type.
+        return address(uint512(uint256(keccak256(data)))); // Expand the 256-bit hash into the 512-bit address type.
     }
 
     function calculateCreate2(address creator, bytes32 codehash, bytes32 salt) private pure returns (address) {

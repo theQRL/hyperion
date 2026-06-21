@@ -22,6 +22,7 @@
 #include <libyul/Exceptions.h>
 
 #include <libhyputil/StringUtils.h>
+#include <libhyputil/VMConstants.h>
 
 #include <range/v3/algorithm/all_of.hpp>
 
@@ -51,7 +52,7 @@ string ProtoConverter::dictionaryToken(HexPrefix _p)
 	{
 		unsigned indexVar = m_inputSize * m_inputSize + counter();
 		token = hexDictionary[indexVar % hexDictionary.size()];
-		yulAssert(token.size() <= 64, "Proto Fuzzer: Dictionary token too large");
+		yulAssert(token.size() <= 2 * VMWordBytes, "Proto Fuzzer: Dictionary token too large");
 	}
 
 	return _p == HexPrefix::Add ? "0x" + token : token;
@@ -65,7 +66,7 @@ string ProtoConverter::createHex(string const& _hexBytes)
 		ranges::actions::remove_if(tmp, [=](char c) -> bool {
 			return !std::isxdigit(c);
 		});
-		tmp = tmp.substr(0, 64);
+		tmp = tmp.substr(0, 2 * VMWordBytes);
 	}
 	// We need this awkward if case because hex literals cannot be empty.
 	// Use a dictionary token.
@@ -75,7 +76,7 @@ string ProtoConverter::createHex(string const& _hexBytes)
 	if (tmp.size() % 2)
 		tmp.insert(0, "0");
 
-	yulAssert(tmp.size() <= 64, "Proto Fuzzer: Dictionary token too large");
+	yulAssert(tmp.size() <= 2 * VMWordBytes, "Proto Fuzzer: Dictionary token too large");
 	return tmp;
 }
 
@@ -87,7 +88,7 @@ string ProtoConverter::createAlphaNum(string const& _strBytes)
 		ranges::actions::remove_if(tmp, [=](char c) -> bool {
 			return !(std::isalpha(c) || std::isdigit(c));
 		});
-		tmp = tmp.substr(0, 32);
+		tmp = tmp.substr(0, VMWordBytes);
 	}
 	return tmp;
 }
@@ -604,7 +605,7 @@ void ProtoConverter::visit(UnaryOp const& _x)
 	{
 		m_output << "mod(";
 		visit(_x.operand());
-		m_output << ", " << to_string(s_maxMemory - 32) << ")";
+		m_output << ", " << to_string(s_maxMemory - VMWordBytes) << ")";
 	}
 	else
 		visit(_x.operand());
@@ -1052,11 +1053,11 @@ void ProtoConverter::visit(StoreFunc const& _x)
 	}
 	else if (storeType == StoreFunc::MSTORE)
 	{
-		// Since we write 32 bytes, ensure it does not exceed
+		// Since we write one VM word, ensure it does not exceed
 		// upper bound on memory.
 		m_output << "mod(";
 		visit(_x.loc());
-		m_output << ", " << to_string(s_maxMemory - 32) << ")";
+		m_output << ", " << to_string(s_maxMemory - VMWordBytes) << ")";
 
 	}
 	m_output << ", ";
@@ -1111,8 +1112,8 @@ void ProtoConverter::visit(BoundedForStmt const& _x)
 	// Boilerplate for loop that limits the number of iterations to a maximum of 4.
 	std::string loopVarName("i_" + std::to_string(m_numNestedForLoops++));
 	m_output << "for { let " << loopVarName << " := 0 } "
-	       << "lt(" << loopVarName << ", 0x60) "
-	       << "{ " << loopVarName << " := add(" << loopVarName << ", 0x20) } ";
+	       << "lt(" << loopVarName << ", " << to_string(3 * VMWordBytes) << ") "
+	       << "{ " << loopVarName << " := add(" << loopVarName << ", " << to_string(VMWordBytes) << ") } ";
 	// Store previous for body scope
 	bool wasInForBody = m_inForBodyScope;
 	bool wasInForInit = m_inForInitScope;
@@ -1612,9 +1613,9 @@ void ProtoConverter::fillFunctionCallInput(unsigned _numInParams)
 		// argument from a pseudo-randomly chosen slot in one of the following
 		// locations: calldata, memory, storage, or Yul optimizer dictionary.
 		unsigned diceValue = counter() % 4;
-		// Pseudo-randomly choose one of the first ten 32-byte
+		// Pseudo-randomly choose one of the first ten VM-word
 		// aligned slots.
-		string slot = to_string((counter() % 10) * 32);
+		string slot = to_string((counter() % 10) * VMWordBytes);
 		switch (diceValue)
 		{
 		case 0:
@@ -1623,7 +1624,7 @@ void ProtoConverter::fillFunctionCallInput(unsigned _numInParams)
 		case 1:
 		{
 			// Access memory within stipulated bounds
-			slot = "mod(" + dictionaryToken() + ", " + to_string(s_maxMemory - 32) + ")";
+			slot = "mod(" + dictionaryToken() + ", " + to_string(s_maxMemory - VMWordBytes) + ")";
 			m_output << "mload(" << slot << ")";
 			break;
 		}
@@ -1648,9 +1649,9 @@ void ProtoConverter::saveFunctionCallOutput(vector<string> const& _varsVec)
 		// Flip a dice to choose whether to save output values
 		// in storage or memory.
 		bool coinFlip = counter() % 2 == 0;
-		// Pseudo-randomly choose one of the first ten 32-byte
+		// Pseudo-randomly choose one of the first ten VM-word
 		// aligned slots.
-		string slot = to_string((counter() % 10) * 32);
+		string slot = to_string((counter() % 10) * VMWordBytes);
 		if (coinFlip)
 			m_output << "sstore(" << slot << ", " << var << ")\n";
 		else

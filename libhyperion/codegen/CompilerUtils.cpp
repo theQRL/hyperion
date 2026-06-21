@@ -226,11 +226,16 @@ void CompilerUtils::storeInMemoryDynamic(Type const& _type, bool _padToWordBound
 		dynamic_cast<FunctionType const&>(_type).kind() == FunctionType::Kind::External
 	)
 	{
-		hypAssert(_padToWordBoundaries, "External function values in memory must use word-padded representation.");
 		m_context << u256(0xffffffffUL) << Instruction::AND;
-		m_context << Instruction::DUP3 << u256(VMWordBytes) << Instruction::ADD << Instruction::MSTORE;
+		if (_padToWordBoundaries)
+			m_context << Instruction::DUP3 << u256(VMWordBytes) << Instruction::ADD << Instruction::MSTORE;
+		else
+		{
+			leftShiftNumberOnStack(VMWordBits - 32);
+			m_context << Instruction::DUP3 << u256(AddressBytes) << Instruction::ADD << Instruction::MSTORE;
+		}
 		m_context << Instruction::DUP2 << Instruction::MSTORE;
-		m_context << u256(2 * VMWordBytes) << Instruction::ADD;
+		m_context << u256(_padToWordBoundaries ? 2 * VMWordBytes : AddressBytes + 4) << Instruction::ADD;
 	}
 	else if (_type.isValueType())
 	{
@@ -711,53 +716,6 @@ void CompilerUtils::memoryCopy()
 		{ "len", "dst", "src" }
 	);
 	m_context << Instruction::POP << Instruction::POP << Instruction::POP;
-}
-
-void CompilerUtils::splitExternalFunctionType(bool _leftAligned)
-{
-	// FunctionType layout is <address><selector(4)><zeros(padding)> packed into
-	// one VM word. With AddressBits == VMWordBits (64-byte addresses) this no
-	// longer fits — FunctionType ABI is unsupported and slated for explicit
-	// deprecation in the hypc front-end. Guard here so codegen fails clearly.
-	hypAssert(
-		AddressBits + 32 <= VMWordBits,
-		"FunctionType does not fit in the VM word: address (" + std::to_string(AddressBits) +
-		" bits) + selector (32 bits) exceeds VM word (" + std::to_string(VMWordBits) + " bits)."
-	);
-	// We have to split the left-aligned <address><function_id(4)><zeros>
-	// into two stack slots: address (right aligned), function identifier (right aligned)
-	if (_leftAligned)
-	{
-		m_context << Instruction::DUP1;
-		rightShiftNumberOnStack(VMWordBits - AddressBits);
-		// <input> <address>
-		m_context << Instruction::SWAP1;
-		rightShiftNumberOnStack(VMWordBits - (AddressBits + 32));
-	}
-	else
-	{
-		m_context << Instruction::DUP1;
-		rightShiftNumberOnStack(32);
-		m_context << (~u512(0) >> (VMWordBits - AddressBits)) << Instruction::AND << Instruction::SWAP1;
-	}
-	m_context << u256(0xffffffffUL) << Instruction::AND;
-}
-
-void CompilerUtils::combineExternalFunctionType(bool _leftAligned)
-{
-	hypAssert(
-		AddressBits + 32 <= VMWordBits,
-		"FunctionType does not fit in the VM word: address (" + std::to_string(AddressBits) +
-		" bits) + selector (32 bits) exceeds VM word (" + std::to_string(VMWordBits) + " bits)."
-	);
-	// <address> <function_id>
-	m_context << u256(0xffffffffUL) << Instruction::AND << Instruction::SWAP1;
-	if (!_leftAligned)
-		m_context << (~u512(0) >> (VMWordBits - AddressBits)) << Instruction::AND;
-	leftShiftNumberOnStack(32);
-	m_context << Instruction::OR;
-	if (_leftAligned)
-		leftShiftNumberOnStack(VMWordBits - (AddressBits + 32));
 }
 
 void CompilerUtils::pushCombinedFunctionEntryLabel(Declaration const& _function, bool _runtimeOnly)
@@ -1602,10 +1560,10 @@ unsigned CompilerUtils::loadFromMemoryHelper(Type const& _type, bool _fromCallda
 	}
 	if (isExternalFunctionType)
 	{
-		hypAssert(!_fromCalldata, "External function values in calldata are not supported with 64-byte addresses.");
 		hypAssert(_padToWords, "External function values in memory must use word-padded representation.");
-		m_context << Instruction::DUP1 << Instruction::MLOAD;
-		m_context << Instruction::SWAP1 << Instruction::DUP1 << u256(VMWordBytes) << Instruction::ADD << Instruction::MLOAD;
+		Instruction load = _fromCalldata ? Instruction::CALLDATALOAD : Instruction::MLOAD;
+		m_context << Instruction::DUP1 << load;
+		m_context << Instruction::SWAP1 << Instruction::DUP1 << u256(VMWordBytes) << Instruction::ADD << load;
 		m_context << u256(0xffffffffUL) << Instruction::AND;
 		m_context << Instruction::SWAP1 << Instruction::POP;
 		return 2 * VMWordBytes;

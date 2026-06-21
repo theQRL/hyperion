@@ -23,6 +23,7 @@
 #include <libhyperion/ast/TypeProvider.h>
 #include <libhyperion/ast/Types.h>
 #include <libhyputil/CommonData.h>
+#include <libhyputil/VMConstants.h>
 #include <memory>
 #include <vector>
 
@@ -447,7 +448,7 @@ smtutil::Expression maxValue(frontend::Type const* _type)
 		dynamic_cast<AddressType const*>(_type) ||
 		dynamic_cast<ContractType const*>(_type)
 	)
-		return TypeProvider::uint(160)->maxValue();
+		return TypeProvider::uint(AddressBits)->maxValue();
 	if (auto const* enumType = dynamic_cast<EnumType const*>(_type))
 		return enumType->numberOfMembers() - 1;
 	if (auto const* bytesType = dynamic_cast<FixedBytesType const*>(_type))

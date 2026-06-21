@@ -25,6 +25,7 @@
 
 #include <libhyputil/CommonData.h>
 #include <libhyputil/Numeric.h>
+#include <libhyputil/VMConstants.h>
 
 #include <liblangutil/QRVMVersion.h>
 
@@ -48,7 +49,7 @@ namespace hyperion::yul::test
 /// @a _target at offset @a _targetOffset. Behaves as if @a _source would
 /// continue with an infinite sequence of zero bytes beyond its end.
 void copyZeroExtended(
-	std::map<u256, uint8_t>& _target, bytes const& _source,
+	std::map<u512, uint8_t>& _target, bytes const& _source,
 	size_t _targetOffset, size_t _sourceOffset, size_t _size
 );
 
@@ -82,38 +83,38 @@ public:
 		m_disableMemoryWriteInstructions(_disableMemWriteTrace)
 	{}
 	/// Evaluate instruction
-	u256 eval(qrvmasm::Instruction _instruction, std::vector<u256> const& _arguments);
+	u512 eval(qrvmasm::Instruction _instruction, std::vector<u512> const& _arguments);
 	/// Evaluate builtin function
-	u256 evalBuiltin(
+	u512 evalBuiltin(
 		BuiltinFunctionForQRVM const& _fun,
 		std::vector<Expression> const& _arguments,
-		std::vector<u256> const& _evaluatedArguments
+		std::vector<u512> const& _evaluatedArguments
 	);
 
 private:
 	/// Checks if the memory access is valid and adjusts msize accordingly.
 	/// @returns true if memory access is valid, false otherwise
 	/// A valid memory access must satisfy all of the following pre-requisites:
-	/// - Sum of @param _offset and @param _size do not overflow modulo u256
-	/// - Sum of @param _offset, @param _size, and 31 do not overflow modulo u256 (see note below)
+	/// - Sum of @param _offset and @param _size do not overflow modulo u512
+	/// - Sum of @param _offset, @param _size, and VMWordAlignmentMask do not overflow modulo u512 (see note below)
 	/// - @param _size is lesser than or equal to @a s_maxRangeSize
 	/// - @param _offset is lesser than or equal to the difference of numeric_limits<size_t>::max()
 	/// and @a s_maxRangeSize
-	/// Note: Memory expansion is carried out in multiples of 32 bytes.
-	bool accessMemory(u256 const& _offset, u256 const& _size = 32);
+	/// Note: Memory expansion is carried out in multiples of VMWordBytes.
+	bool accessMemory(u512 const& _offset, u512 const& _size = VMWordBytes);
 	/// @returns the memory contents at the provided address.
 	/// Does not adjust msize, use @a accessMemory for that
-	bytes readMemory(u256 const& _offset, u256 const& _size = 32);
+	bytes readMemory(u512 const& _offset, u512 const& _size = VMWordBytes);
 	/// @returns the memory contents at the provided address.
 	/// Does not adjust msize, use @a accessMemory for that
-	u256 readMemoryWord(u256 const& _offset);
+	u512 readMemoryWord(u512 const& _offset);
 	/// @returns writes a word to memory
 	/// Does not adjust msize, use @a accessMemory for that
-	void writeMemoryWord(u256 const& _offset, u256 const& _value);
+	void writeMemoryWord(u512 const& _offset, u512 const& _value);
 
 	void logTrace(
 		qrvmasm::Instruction _instruction,
-		std::vector<u256> const& _arguments = {},
+		std::vector<u512> const& _arguments = {},
 		bytes const& _data = {}
 	);
 	/// Appends a log to the trace representing an instruction or similar operation by string,
@@ -122,7 +123,7 @@ private:
 	void logTrace(
 		std::string const& _pseudoInstruction,
 		bool _writesToMemory,
-		std::vector<u256> const& _arguments = {},
+		std::vector<u512> const& _arguments = {},
 		bytes const& _data = {}
 	);
 
@@ -135,7 +136,7 @@ private:
 	/// value is false.
 	std::pair<bool, size_t> isInputMemoryPtrModified(
 		std::string const& _pseudoInstruction,
-		std::vector<u256> const& _arguments
+		std::vector<u512> const& _arguments
 	);
 
 	/// @returns disable trace flag.

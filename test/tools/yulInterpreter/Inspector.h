@@ -53,13 +53,13 @@ public:
 	 * @returns NodeAction::RunNode if the current AST node (and all children nodes!) should be
 	 *          processed without stopping, else NodeAction::StepThroughNode.
 	 */
-	NodeAction queryUser(DebugData const& _data, std::map<YulString, u256> const& _variables);
+	NodeAction queryUser(DebugData const& _data, std::map<YulString, u512> const& _variables);
 
 	void stepMode(NodeAction _action) { m_stepMode = _action; }
 
 	std::string const& source() const { return m_source; }
 
-	void interactiveVisit(DebugData const& _debugData, std::map<YulString, u256> const& _variables, std::function<void()> _visitNode)
+	void interactiveVisit(DebugData const& _debugData, std::map<YulString, u512> const& _variables, std::function<void()> _visitNode)
 	{
 		Inspector::NodeAction action = queryUser(_debugData, _variables);
 
@@ -116,7 +116,7 @@ public:
 		Scope& _scope,
 		bool _disableExternalCalls,
 		bool _disableMemoryTracing,
-		std::map<YulString, u256> _variables = {}
+		std::map<YulString, u512> _variables = {}
 	):
 		Interpreter(_state, _dialect, _scope, _disableExternalCalls, _disableMemoryTracing, _variables),
 		m_inspector(_inspector)
@@ -135,9 +135,9 @@ public:
 	void operator()(Block const& _node) override { helper(_node); }
 protected:
 	/// Asserts that the expression evaluates to exactly one value and returns it.
-	u256 evaluate(Expression const& _expression) override;
+	u512 evaluate(Expression const& _expression) override;
 	/// Evaluates the expression and returns its value.
-	std::vector<u256> evaluateMulti(Expression const& _expression) override;
+	std::vector<u512> evaluateMulti(Expression const& _expression) override;
 private:
 	std::shared_ptr<Inspector> m_inspector;
 
@@ -160,7 +160,7 @@ public:
 		InterpreterState& _state,
 		Dialect const& _dialect,
 		Scope& _scope,
-		std::map<YulString, u256> const& _variables,
+		std::map<YulString, u512> const& _variables,
 		bool _disableExternalCalls,
 		bool _disableMemoryTrace
 	):
@@ -180,7 +180,7 @@ public:
 	void operator()(Identifier const& _node) override { helper(_node); }
 	void operator()(FunctionCall const& _node) override { helper(_node); }
 protected:
-	std::unique_ptr<Interpreter> makeInterpreterCopy(std::map<YulString, u256> _variables = {}) const override
+	std::unique_ptr<Interpreter> makeInterpreterCopy(std::map<YulString, u512> _variables = {}) const override
 	{
 		return std::make_unique<InspectedInterpreter>(
 			m_inspector,

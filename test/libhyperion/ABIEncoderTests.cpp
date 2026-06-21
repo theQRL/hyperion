@@ -329,12 +329,6 @@ BOOST_AUTO_TEST_CASE(storage_array_compact)
 
 BOOST_AUTO_TEST_CASE(external_function)
 {
-	if (AddressBits + 32 > VMWordBits)
-	{
-		BOOST_TEST_MESSAGE("External function pointers do not fit in a VM word with 64-byte addresses.");
-		return;
-	}
-
 	std::string sourceCode = R"(
 		contract C {
 			event E(function(uint) external returns (uint), function(uint) external returns (uint));
@@ -348,19 +342,13 @@ BOOST_AUTO_TEST_CASE(external_function)
 	BOTH_ENCODERS(
 		compileAndRun(sourceCode);
 		callContractFunction("f(uint256)", u256(0));
-		std::string functionIdF = asString(m_contractAddress.ref()) + asString(util::selectorFromSignatureH32("f(uint256)").ref());
-		REQUIRE_LOG_DATA(encodeArgs(functionIdF, functionIdF));
+		u256 selectorF = util::selectorFromSignatureU32("f(uint256)");
+		REQUIRE_LOG_DATA(encodeArgs(m_contractAddress, selectorF, m_contractAddress, selectorF));
 	)
 }
 
 BOOST_AUTO_TEST_CASE(external_function_cleanup)
 {
-	if (AddressBits + 32 > VMWordBits)
-	{
-		BOOST_TEST_MESSAGE("External function pointers do not fit in a VM word with 64-byte addresses.");
-		return;
-	}
-
 	std::string sourceCode = R"(
 		contract C {
 			event E(function(uint) external returns (uint), function(uint) external returns (uint));
@@ -368,7 +356,12 @@ BOOST_AUTO_TEST_CASE(external_function_cleanup)
 			function(uint) external returns (uint) g;
 			function f(uint) public returns (uint) {
 				function(uint) external returns (uint)[1] memory h;
-				assembly { sstore(0, sub(0, 1)) mstore(h, sub(0, 1)) }
+				assembly {
+					sstore(0, sub(0, 1))
+					sstore(1, sub(0, 1))
+					mstore(h, sub(0, 1))
+					mstore(add(h, 0x40), sub(0, 1))
+				}
 				emit E(h[0], g);
 			}
 		}
@@ -376,7 +369,10 @@ BOOST_AUTO_TEST_CASE(external_function_cleanup)
 	BOTH_ENCODERS(
 		compileAndRun(sourceCode);
 		callContractFunction("f(uint256)", u256(0));
-		REQUIRE_LOG_DATA(encodeArgs(std::string(52, char(-1)), std::string(52, char(-1))));
+		REQUIRE_LOG_DATA(encodeArgs(
+			std::string(64, char(-1)), u256(0xffffffff),
+			std::string(64, char(-1)), u256(0xffffffff)
+		));
 	)
 }
 
@@ -702,12 +698,6 @@ BOOST_AUTO_TEST_CASE(bytesNN_arrays_dyn)
 
 BOOST_AUTO_TEST_CASE(packed_structs)
 {
-	if (AddressBits + 32 > VMWordBits)
-	{
-		BOOST_TEST_MESSAGE("External function pointers do not fit in a VM word with 64-byte addresses.");
-		return;
-	}
-
 	std::string sourceCode = R"(
 		contract C {
 			struct S { bool a; int8 b; function() external g; bytes3 d; int8 e; }
@@ -731,9 +721,8 @@ BOOST_AUTO_TEST_CASE(packed_structs)
 	NEW_ENCODER(
 		compileAndRun(sourceCode, 0, "C");
 		ABI_CHECK(callContractFunction("store()"), bytes{});
-		bytes fun = m_contractAddress.asBytes() + fromHex("0xe2179b8e");
 		bytes encoded = encodeArgs(
-			0, u256(-5), asString(fun), "\x01\x02\x03", u256(-3)
+			0, u256(-5), m_contractAddress, u256(util::selectorFromSignatureU32("g()")), "\x01\x02\x03", u256(-3)
 		);
 		ABI_CHECK(callContractFunction("f()"), encoded);
 		REQUIRE_LOG_DATA(encoded);

@@ -1068,20 +1068,20 @@ void IRGeneratorForStatements::endVisit(FunctionCall const& _functionCall)
 						"(" <<
 						IRVariable(arg).commaSeparatedList() <<
 						")\n";
-				else if (auto functionType = dynamic_cast<FunctionType const*>(paramTypes[i]))
-				{
-					hypAssert(
-						IRVariable(arg).type() == *functionType &&
-						functionType->kind() == FunctionType::Kind::External &&
+					else if (auto functionType = dynamic_cast<FunctionType const*>(paramTypes[i]))
+					{
+						hypAssert(
+							IRVariable(arg).type() == *functionType &&
+							functionType->kind() == FunctionType::Kind::External &&
 						!functionType->hasBoundFirstArgument(),
-						""
-					);
-					define(indexedArgs.emplace_back(m_context.newYulVariable(), *TypeProvider::fixedBytes(32))) <<
-						m_utils.combineExternalFunctionIdFunction() <<
-						"(" <<
-						IRVariable(arg).commaSeparatedList() <<
-						")\n";
-				}
+							""
+						);
+						define(indexedArgs.emplace_back(m_context.newYulVariable(), *TypeProvider::fixedBytes(32))) <<
+							m_utils.packedHashFunction({arg.annotation().type}, {functionType}) <<
+							"(" <<
+							IRVariable(arg).commaSeparatedList() <<
+							")\n";
+					}
 				else
 				{
 					hypAssert(parameterTypes[i]->sizeOnStack() == 1, "");

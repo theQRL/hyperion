@@ -90,12 +90,6 @@ BOOST_AUTO_TEST_CASE(decode_from_memory_simple)
 
 BOOST_AUTO_TEST_CASE(decode_function_type)
 {
-	if (AddressBits + 32 > VMWordBits)
-	{
-		BOOST_TEST_MESSAGE("External function pointers do not fit in a VM word with 64-byte addresses.");
-		return;
-	}
-
 	std::string sourceCode = R"(
 		contract D {
 			function () external returns (uint) public _a;
@@ -130,12 +124,6 @@ BOOST_AUTO_TEST_CASE(decode_function_type)
 
 BOOST_AUTO_TEST_CASE(decode_function_type_array)
 {
-	if (AddressBits + 32 > VMWordBits)
-	{
-		BOOST_TEST_MESSAGE("External function pointers do not fit in a VM word with 64-byte addresses.");
-		return;
-	}
-
 	std::string sourceCode = R"(
 		contract D {
 			function () external returns (uint)[] public _a;
@@ -327,12 +315,6 @@ BOOST_AUTO_TEST_CASE(validation_int_inside_arrays)
 
 BOOST_AUTO_TEST_CASE(validation_function_type)
 {
-	if (AddressBits + 32 > VMWordBits)
-	{
-		BOOST_TEST_MESSAGE("External function pointers do not fit in a VM word with 64-byte addresses.");
-		return;
-	}
-
 	std::string sourceCode = R"(
 		contract C {
 			function f(function () external) public pure returns (uint r) { r = 1; }
@@ -341,22 +323,20 @@ BOOST_AUTO_TEST_CASE(validation_function_type)
 			function i(function () external[] calldata a) external pure returns (uint r) { a[0]; r = 4; }
 		}
 	)";
-	bool newDecoder = false;
-	// External function pointer is 52 bytes (48 address + 4 selector), left-aligned.
-	std::string validFun{"012345678901234567890123456789012345678901234567abcd"};
-	std::string invalidFun{"012345678901234567890123456789012345678901234567abcdX"};
+	util::h512 validAddress(std::string(128, '1'));
+	u256 validSelector(0xabcd);
+	u256 dirtySelector = u256(-1);
 	BOTH_ENCODERS(
 		compileAndRun(sourceCode);
-		ABI_CHECK(callContractFunction("f(function)", validFun), encodeArgs(1));
-		ABI_CHECK(callContractFunction("f(function)", invalidFun), newDecoder ? bytes{} : encodeArgs(1));
-		ABI_CHECK(callContractFunction("g(function[])", 0x40, 1, validFun), encodeArgs(2));
-		ABI_CHECK(callContractFunction("g(function[])", 0x40, 1, invalidFun), newDecoder ? bytes{} : encodeArgs(2));
-		ABI_CHECK(callContractFunction("h(function[])", 0x40, 1, validFun), encodeArgs(3));
+		ABI_CHECK(callContractFunction("f(function)", validAddress, validSelector), encodeArgs(1));
+		ABI_CHECK(callContractFunction("f(function)", validAddress, dirtySelector), encodeArgs(1));
+		ABI_CHECK(callContractFunction("g(function[])", 0x40, 1, validAddress, validSelector), encodeArgs(2));
+		ABI_CHECK(callContractFunction("g(function[])", 0x40, 1, validAddress, dirtySelector), encodeArgs(2));
+		ABI_CHECK(callContractFunction("h(function[])", 0x40, 1, validAddress, validSelector), encodeArgs(3));
 		// No failure because the data is not accessed.
-		ABI_CHECK(callContractFunction("h(function[])", 0x40, 1, invalidFun), encodeArgs(3));
-		ABI_CHECK(callContractFunction("i(function[])", 0x40, 1, validFun), encodeArgs(4));
-		ABI_CHECK(callContractFunction("i(function[])", 0x40, 1, invalidFun), newDecoder ? bytes{} : encodeArgs(4));
-		newDecoder = true;
+		ABI_CHECK(callContractFunction("h(function[])", 0x40, 1, validAddress, dirtySelector), encodeArgs(3));
+		ABI_CHECK(callContractFunction("i(function[])", 0x40, 1, validAddress, validSelector), encodeArgs(4));
+		ABI_CHECK(callContractFunction("i(function[])", 0x40, 1, validAddress, dirtySelector), encodeArgs(4));
 	)
 }
 

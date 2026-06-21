@@ -50,63 +50,12 @@
 #include <range/v3/view/zip.hpp>
 
 #include <memory>
-#include <set>
 #include <vector>
 
 using namespace hyperion;
 using namespace hyperion::util;
 using namespace hyperion::langutil;
 using namespace hyperion::frontend;
-
-namespace
-{
-
-bool externalFunctionTypeFitsInVMWord(Type const& _type)
-{
-	auto const* functionType = dynamic_cast<FunctionType const*>(&_type);
-	return
-		!functionType ||
-		functionType->kind() != FunctionType::Kind::External ||
-		AddressBits + 32 <= VMWordBits;
-}
-
-std::string externalFunctionTypeTooWideMessage()
-{
-	return
-		"External function types are not supported with this address size: "
-		"address (" + std::to_string(AddressBits) + " bits) plus selector (32 bits) "
-		"exceeds the VM word size (" + std::to_string(VMWordBits) + " bits).";
-}
-
-bool containsUnsupportedExternalFunctionType(Type const& _type, std::set<Type const*> const& _seen = {})
-{
-	if (_seen.count(&_type))
-		return false;
-
-	auto seen = _seen;
-	seen.insert(&_type);
-
-	if (!externalFunctionTypeFitsInVMWord(_type))
-		return true;
-	if (auto const* arrayType = dynamic_cast<ArrayType const*>(&_type))
-		return !arrayType->isByteArrayOrString() && containsUnsupportedExternalFunctionType(*arrayType->baseType(), seen);
-	if (auto const* structType = dynamic_cast<StructType const*>(&_type))
-		for (auto const& member: structType->structDefinition().members())
-			if (containsUnsupportedExternalFunctionType(*member->type(), seen))
-				return true;
-	if (auto const* tupleType = dynamic_cast<TupleType const*>(&_type))
-		for (auto const* componentType: tupleType->components())
-			if (componentType && containsUnsupportedExternalFunctionType(*componentType, seen))
-				return true;
-	if (dynamic_cast<MappingType const*>(&_type))
-		return false;
-	if (auto const* userDefinedType = dynamic_cast<UserDefinedValueType const*>(&_type))
-		return containsUnsupportedExternalFunctionType(userDefinedType->underlyingType(), seen);
-
-	return false;
-}
-
-}
 
 bool TypeChecker::typeSupportedByOldABIEncoder(Type const& _type, bool _isLibraryCall)
 {
@@ -519,9 +468,6 @@ bool TypeChecker::visit(FunctionDefinition const& _function)
 			);
 		else if (functionIsExternallyVisible)
 		{
-			if (containsUnsupportedExternalFunctionType(*type(_var)))
-				m_errorReporter.fatalTypeError(4889_error, _var.location(), externalFunctionTypeTooWideMessage());
-
 			auto iType = type(_var)->interfaceType(_function.libraryFunction());
 
 			if (!iType)
@@ -640,8 +586,6 @@ bool TypeChecker::visit(VariableDeclaration const& _variable)
 	// TypeChecker at the VariableDeclarationStatement level.
 	Type const* varType = _variable.annotation().type;
 	hypAssert(!!varType, "Variable type not provided.");
-	if (containsUnsupportedExternalFunctionType(*varType))
-		m_errorReporter.fatalTypeError(4888_error, _variable.location(), externalFunctionTypeTooWideMessage());
 
 	if (_variable.value())
 	{
@@ -4060,8 +4004,6 @@ void TypeChecker::checkErrorAndEventParameters(CallableDeclaration const& _calla
 			);
 		if (!type(*var)->interfaceType(false))
 			m_errorReporter.typeError(3417_error, var->location(), "Internal or recursive type is not allowed as " + kind + " parameter type.");
-		if (containsUnsupportedExternalFunctionType(*type(*var)))
-			m_errorReporter.fatalTypeError(4890_error, var->location(), externalFunctionTypeTooWideMessage());
 		if (
 			!useABICoderV2() &&
 			!typeSupportedByOldABIEncoder(*type(*var), false /* isLibrary */)

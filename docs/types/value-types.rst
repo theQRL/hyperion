@@ -219,12 +219,10 @@ Operators:
 * ``<=``, ``<``, ``==``, ``!=``, ``>=`` and ``>``
 
 .. warning::
-    If you convert a type that uses a larger byte size to an ``address``, for example ``bytes32``, then the ``address`` is truncated.
-    To reduce conversion ambiguity, starting with version 0.4.24, the compiler will force you to make the truncation explicit in the conversion.
-    Take for example the 32-byte value ``0x111122223333444455556666777788889999AAAABBBBCCCCDDDDEEEEFFFFCCCC``.
-
-    You can use ``address(uint512(bytes64(b)))``, which results in ``Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111122223333444455556666777788889999AAaA``,
-    or you can use ``address(uint512(uint256(b)))``, which results in ``Q0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000777788889999AAAabBBBccCCdDDDeEeeFFFFCcCC``.
+    QRL addresses are 64-byte values. If you convert smaller fixed bytes or integer values to an ``address``,
+    first make the widening explicit, for example by converting through ``uint512`` or ``bytes64``.
+    This avoids ambiguity about whether the source value is interpreted as a numeric value or as
+    left-aligned fixed bytes.
 
 .. note::
     Mixed-case QRL addresses using the SHAKE-256 checksum are automatically treated as literals of the ``address`` type. See :ref:`Address Literals<address_literals>`.
@@ -732,10 +730,9 @@ context of the current contract. Calling an internal function is realized
 by jumping to its entry label, just like when calling a function of the current
 contract internally.
 
-External function values consist of an address and a function signature.
-With 512-bit QRL addresses, external function values are not supported because
-the address plus selector exceeds the 512-bit VM word size. Pass the address and
-selector separately when you need to describe an external call target.
+External function values consist of a 512-bit address and a four-byte selector.
+They are represented internally as two stack values and encoded in the ABI as
+two VM words: the address word followed by the selector word.
 
 Function types are notated as follows:
 
@@ -785,9 +782,6 @@ If a function type variable is not initialised, calling it results
 in a :ref:`Panic error<assert-and-require>`. The same happens if you call a function after using ``delete``
 on it.
 
-External function types are rejected on the 512-bit address target because the
-address and function identifier cannot be encoded together in one VM word.
-
 Note that public functions of the current contract can be used both as an
 internal and as an external function. To use ``f`` as an internal function,
 just use ``f``, if you want to use its external form, use ``this.f``.
@@ -796,8 +790,8 @@ A function of an internal type can be assigned to a variable of an internal func
 of where it is defined.
 This includes private, internal and public functions of both contracts and libraries as well as free
 functions.
-On targets where external function types are enabled, they are only compatible
-with public and external contract functions.
+External function types are only compatible with public and external contract
+functions.
 
 .. note::
     External functions with ``calldata`` parameters are incompatible with external function types with ``calldata`` parameters.

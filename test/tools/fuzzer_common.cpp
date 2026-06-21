@@ -22,7 +22,9 @@
 #include <libhyperion/interface/CompilerStack.h>
 #include <libhyperion/formal/ModelCheckerSettings.h>
 
+#include <libhyputil/FixedHash.h>
 #include <libhyputil/JSON.h>
+#include <libhyputil/VMConstants.h>
 
 #include <libqrvmasm/Assembly.h>
 #include <libqrvmasm/ConstantOptimiser.h>
@@ -173,14 +175,14 @@ void FuzzerUtil::testConstantOptimizer(string const& _input, bool _quiet)
 {
 	if (!_quiet)
 		cout << "Testing constant optimizer" << endl;
-	vector<u256> numbers;
+	vector<u512> numbers;
 	stringstream sin(_input);
 
 	while (!sin.eof())
 	{
-		h256 data;
-		sin.read(reinterpret_cast<char *>(data.data()), 32);
-		numbers.push_back(u256(data));
+		h512 data;
+		sin.read(reinterpret_cast<char *>(data.data()), VMWordBytes);
+		numbers.push_back(h512::Arith(data));
 	}
 	if (!_quiet)
 		cout << "Got " << numbers.size() << " inputs:" << endl;
@@ -188,7 +190,7 @@ void FuzzerUtil::testConstantOptimizer(string const& _input, bool _quiet)
 	for (bool isCreation: {false, true})
 	{
 		Assembly assembly{langutil::QRVMVersion{}, isCreation, {}};
-		for (u256 const& n: numbers)
+		for (u512 const& n: numbers)
 		{
 			if (!_quiet)
 				cout << n << endl;

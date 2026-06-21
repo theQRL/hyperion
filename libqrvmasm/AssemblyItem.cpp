@@ -137,7 +137,7 @@ size_t AssemblyItem::bytesRequired(size_t _addressLength, Precision _precision) 
 	case PushDeployTimeAddress:
 		return 1 + hyperion::AddressBytes;
 	case PushImmutable:
-		return 1 + 64;
+		return 1 + hyperion::VMWordBytes;
 	case AssignImmutable:
 	{
 		unsigned long immutableOccurrences = 0;
@@ -153,7 +153,7 @@ size_t AssemblyItem::bytesRequired(size_t _addressLength, Precision _precision) 
 
 		if (immutableOccurrences != 0)
 			// (DUP DUP PUSH <n> ADD MSTORE)* (PUSH <n> ADD MSTORE)
-			return (immutableOccurrences - 1) * (5 + 64) + (3 + 64);
+			return (immutableOccurrences - 1) * (5 + hyperion::VMWordBytes) + (3 + hyperion::VMWordBytes);
 		else
 			// POP POP
 			return 2;

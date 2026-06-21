@@ -25,6 +25,7 @@
 #include <libhyperion/ast/TypeProvider.h>
 #include <libhyperion/ast/AST.h>
 #include <libhyputil/Keccak256.h>
+#include <libhyputil/VMConstants.h>
 #include <boost/test/unit_test.hpp>
 
 using namespace hyperion::langutil;
@@ -37,20 +38,20 @@ BOOST_AUTO_TEST_SUITE(HyperionTypes)
 BOOST_AUTO_TEST_CASE(int_types)
 {
 	BOOST_CHECK(*TypeProvider::fromElementaryTypeName(ElementaryTypeNameToken(Token::Int, 0, 0)) == *TypeProvider::integer(256, IntegerType::Modifier::Signed));
-	for (unsigned i = 8; i <= 256; i += 8)
+	for (unsigned i = 8; i <= AddressBits; i += 8)
 		BOOST_CHECK(*TypeProvider::fromElementaryTypeName(ElementaryTypeNameToken(Token::IntM, i, 0)) == *TypeProvider::integer(i, IntegerType::Modifier::Signed));
 }
 
 BOOST_AUTO_TEST_CASE(uint_types)
 {
 	BOOST_CHECK(*TypeProvider::fromElementaryTypeName(ElementaryTypeNameToken(Token::UInt, 0, 0)) == *TypeProvider::integer(256, IntegerType::Modifier::Unsigned));
-	for (unsigned i = 8; i <= 256; i += 8)
+	for (unsigned i = 8; i <= AddressBits; i += 8)
 		BOOST_CHECK(*TypeProvider::fromElementaryTypeName(ElementaryTypeNameToken(Token::UIntM, i, 0)) == *TypeProvider::integer(i, IntegerType::Modifier::Unsigned));
 }
 
 BOOST_AUTO_TEST_CASE(byte_types)
 {
-	for (unsigned i = 1; i <= 32; i++)
+	for (unsigned i = 1; i <= AddressBytes; i++)
 		BOOST_CHECK(*TypeProvider::fromElementaryTypeName(ElementaryTypeNameToken(Token::BytesM, i, 0)) == *TypeProvider::fixedBytes(i));
 }
 

@@ -33,7 +33,7 @@ using namespace std;
 namespace
 {
 
-void printVariable(YulString const& _name, u256 const& _value)
+void printVariable(YulString const& _name, u512 const& _value)
 {
 	cout << "\t" << _name.str() << " = " << _value.str();
 
@@ -58,7 +58,7 @@ void InspectedInterpreter::run(
 	InspectedInterpreter{_inspector, _state, _dialect, scope, _disableExternalCalls, _disableMemoryTrace}(_ast);
 }
 
-Inspector::NodeAction Inspector::queryUser(DebugData const& _data, map<YulString, u256> const& _variables)
+Inspector::NodeAction Inspector::queryUser(DebugData const& _data, map<YulString, u512> const& _variables)
 {
 	if (m_stepMode == NodeAction::RunNode)
 	{
@@ -141,14 +141,14 @@ std::string Inspector::currentSource(DebugData const& _data) const
 	);
 }
 
-u256 InspectedInterpreter::evaluate(Expression const& _expression)
+u512 InspectedInterpreter::evaluate(Expression const& _expression)
 {
 	InspectedExpressionEvaluator ev(m_inspector, m_state, m_dialect, *m_scope, m_variables, m_disableExternalCalls, m_disableMemoryTrace);
 	ev.visit(_expression);
 	return ev.value();
 }
 
-std::vector<u256> InspectedInterpreter::evaluateMulti(Expression const& _expression)
+std::vector<u512> InspectedInterpreter::evaluateMulti(Expression const& _expression)
 {
 	InspectedExpressionEvaluator ev(m_inspector, m_state, m_dialect, *m_scope, m_variables, m_disableExternalCalls, m_disableMemoryTrace);
 	ev.visit(_expression);

@@ -24,6 +24,8 @@
 #include <libqrvmasm/Assembly.h>
 #include <libqrvmasm/GasMeter.h>
 
+#include <libhyputil/VMConstants.h>
+
 using namespace hyperion;
 using namespace hyperion::qrvmasm;
 
@@ -153,7 +155,7 @@ bigint CodeCopyMethod::gasNeeded() const
 AssemblyItems CodeCopyMethod::execute(Assembly& _assembly) const
 {
 	bytes data = toBigEndian(m_value);
-	assertThrow(data.size() == 64, OptimizerException, "Invalid number encoding.");
+	assertThrow(data.size() == VMWordBytes, OptimizerException, "Invalid number encoding.");
 	AssemblyItems actualCopyRoutine = copyRoutine();
 	actualCopyRoutine[4] = _assembly.newData(data);
 	return actualCopyRoutine;
@@ -170,8 +172,8 @@ AssemblyItems const& CodeCopyMethod::copyRoutine()
 		Instruction::DUP1,
 		Instruction::MLOAD,
 
-		// codecopy(0, <offset>, 64)
-		u512(64),
+		// codecopy(0, <offset>, VMWordBytes)
+		u512(VMWordBytes),
 		AssemblyItem(PushData, u512(1) << 16), // replaced above in actualCopyRoutine[4]
 		Instruction::DUP4,
 		Instruction::CODECOPY,
@@ -247,7 +249,7 @@ bool ComputeMethod::checkRepresentation(u512 const& _value, AssemblyItems const&
 {
 	// This is a tiny QRVM that can only evaluate some instructions.
 	std::vector<u512> stack;
-	u512 const mask = (u512(1) << 512) - 1;
+	u512 const mask = ~u512(0);
 	for (AssemblyItem const& item: _routine)
 	{
 		switch (item.type())

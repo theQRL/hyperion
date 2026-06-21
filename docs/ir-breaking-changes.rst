@@ -96,7 +96,7 @@ hiding new and different behavior in existing code.
           function f() public {
               // ...
               delete s;
-              // s occupies only first 16 bytes of the 32 bytes slot
+              // s occupies only first 16 bytes of the 64 bytes slot
               // delete will write zero to the full slot
           }
       }

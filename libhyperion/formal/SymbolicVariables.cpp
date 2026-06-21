@@ -22,6 +22,7 @@
 #include <libhyperion/formal/SymbolicTypes.h>
 
 #include <libhyputil/Algorithms.h>
+#include <libhyputil/VMConstants.h>
 
 using namespace hyperion;
 using namespace hyperion::util;
@@ -127,7 +128,7 @@ SymbolicAddressVariable::SymbolicAddressVariable(
 	std::string _uniqueName,
 	EncodingContext& _context
 ):
-	SymbolicIntVariable(TypeProvider::uint(160), TypeProvider::uint(160), std::move(_uniqueName), _context)
+	SymbolicIntVariable(TypeProvider::uint(AddressBits), TypeProvider::uint(AddressBits), std::move(_uniqueName), _context)
 {
 }
 

@@ -200,7 +200,7 @@ where
 
 - ``label`` is the canonical type name.
 - ``numberOfBytes`` is the number of used bytes (as a decimal string).
-  Note that if ``numberOfBytes > 32`` this means that more than one slot is used.
+  Note that if ``numberOfBytes > 64`` this means that more than one slot is used.
 
 Some types have extra information besides the four above. Mappings contain
 its ``key`` and ``value`` types (again referencing an entry in this mapping

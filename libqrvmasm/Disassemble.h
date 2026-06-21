@@ -30,7 +30,7 @@ namespace hyperion::qrvmasm
 {
 
 /// Iterate through QRVM code and call a function on each instruction.
-void eachInstruction(bytes const& _mem, std::function<void(Instruction, u256 const&)> const& _onInstruction);
+void eachInstruction(bytes const& _mem, std::function<void(Instruction, u512 const&)> const& _onInstruction);
 
 /// Convert from QRVM code to simple QRVM assembly language.
 std::string disassemble(bytes const& _mem, std::string const& _delimiter = " ");

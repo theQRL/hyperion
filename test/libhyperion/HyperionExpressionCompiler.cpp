@@ -336,10 +336,8 @@ BOOST_AUTO_TEST_CASE(short_circuiting)
 	BOOST_CHECK_EQUAL_COLLECTIONS(code.begin(), code.end(), expectation.begin(), expectation.end());
 }
 
-BOOST_AUTO_TEST_CASE(arithmetic, *boost::unit_test::disabled())
+BOOST_AUTO_TEST_CASE(arithmetic)
 {
-	// TODO: Re-enable after updating hardcoded offsets for 64-byte word size.
-	// Test has hardcoded jump offsets that depend on PUSH32/PUSH64 size.
 	char const* sourceCode = R"(
 		contract test {
 			function f(uint y) public { unchecked { ((((((((y ^ 8) & 7) | 6) - 5) + 4) % 3) / 2) * 1); } }
@@ -347,7 +345,6 @@ BOOST_AUTO_TEST_CASE(arithmetic, *boost::unit_test::disabled())
 	)";
 	bytes code = compileFirstExpression(sourceCode, {}, {{"test", "f", "y"}});
 	bytes push0Bytes = bytes{uint8_t(Instruction::PUSH0)};
-	uint8_t size = 0xbd;
 	bytes uint256Cleanup =
 		bytes{
 			uint8_t(Instruction::PUSH32)
@@ -356,51 +353,42 @@ BOOST_AUTO_TEST_CASE(arithmetic, *boost::unit_test::disabled())
 		bytes{
 			uint8_t(Instruction::AND)
 		};
-	bytes utilities =
-		bytes{
-			uint8_t(Instruction::JUMPDEST),
-		} +
-		push0Bytes +
-		bytes{
-			uint8_t(Instruction::DUP2),
-			uint8_t(Instruction::PUSH2), 0x01, 0x00,
-			uint8_t(Instruction::SHL),
-			uint8_t(Instruction::SWAP1),
-			uint8_t(Instruction::POP),
-			uint8_t(Instruction::JUMPDEST),
-			uint8_t(Instruction::SWAP2),
-			uint8_t(Instruction::SWAP1),
-			uint8_t(Instruction::POP),
-			uint8_t(Instruction::JUMP),
-			uint8_t(Instruction::JUMPDEST),
-			uint8_t(Instruction::PUSH1), 0xaf,
-			uint8_t(Instruction::PUSH32)
-		} +
-		util::fromHex("4E487B7100000000000000000000000000000000000000000000000000000000") +
-		bytes{
-			uint8_t(Instruction::PUSH1), 0x7a,
-			uint8_t(Instruction::JUMP),
-			uint8_t(Instruction::JUMPDEST),
-		} +
-		push0Bytes +
-		bytes{
-			uint8_t(Instruction::MSTORE),
-			uint8_t(Instruction::PUSH1), 0x12,
-			uint8_t(Instruction::PUSH1), 0x4,
-			uint8_t(Instruction::MSTORE),
-			uint8_t(Instruction::PUSH1), 0x44
-		} +
-		push0Bytes +
-		bytes{
-			uint8_t(Instruction::REVERT),
-			uint8_t(Instruction::JUMPDEST),
-			uint8_t(Instruction::JUMP),
-			uint8_t(Instruction::JUMPDEST)
-		};
 
 	bytes expectation;
+	auto append = [&](bytes const& _bytes) {
+		expectation.insert(expectation.end(), _bytes.begin(), _bytes.end());
+	};
+	auto appendPush1Placeholder = [&]() -> size_t {
+		append({uint8_t(Instruction::PUSH1), 0});
+		return expectation.size() - 1;
+	};
+	auto patchPush1 = [&](size_t _position, size_t _target) {
+		BOOST_REQUIRE(_target <= 0xff);
+		expectation[_position] = static_cast<uint8_t>(_target);
+	};
+	std::vector<size_t> panicEntryPatches;
+	auto appendDivisionByZeroCheck = [&]() {
+		append({
+			uint8_t(Instruction::DUP2),
+			uint8_t(Instruction::ISZERO),
+			uint8_t(Instruction::ISZERO)
+		});
+		size_t const continuePatch = appendPush1Placeholder();
+		append({uint8_t(Instruction::JUMPI)});
+		size_t const panicReturnPatch = appendPush1Placeholder();
+		panicEntryPatches.push_back(appendPush1Placeholder());
+		append({uint8_t(Instruction::JUMP)});
+		size_t const panicReturnLabel = expectation.size();
+		append({uint8_t(Instruction::JUMPDEST)});
+		size_t const continueLabel = expectation.size();
+		append({uint8_t(Instruction::JUMPDEST)});
+		patchPush1(panicReturnPatch, panicReturnLabel);
+		patchPush1(continuePatch, continueLabel);
+	};
+
 	if (hyperion::test::CommonOptions::get().optimize)
-		expectation = bytes{
+	{
+		append({
 			uint8_t(Instruction::PUSH1), 0x2,
 			uint8_t(Instruction::PUSH1), 0x3,
 			uint8_t(Instruction::PUSH1), 0x5,
@@ -414,41 +402,21 @@ BOOST_AUTO_TEST_CASE(arithmetic, *boost::unit_test::disabled())
 			uint8_t(Instruction::SUB),
 			uint8_t(Instruction::PUSH1), 0x4,
 			uint8_t(Instruction::ADD),
-		} +
-		uint256Cleanup +
-		bytes{
-			uint8_t(Instruction::DUP2),
-			uint8_t(Instruction::ISZERO),
-			uint8_t(Instruction::ISZERO),
-			uint8_t(Instruction::PUSH1), 0x42,
-			uint8_t(Instruction::JUMPI),
-			uint8_t(Instruction::PUSH1), 0x41,
-			uint8_t(Instruction::PUSH1), 0x88,
-			uint8_t(Instruction::JUMP),
-			uint8_t(Instruction::JUMPDEST),
-			uint8_t(Instruction::JUMPDEST),
-			uint8_t(Instruction::MOD),
-		} +
-		uint256Cleanup +
-		bytes{
-			uint8_t(Instruction::DUP2),
-			uint8_t(Instruction::ISZERO),
-			uint8_t(Instruction::ISZERO),
-			uint8_t(Instruction::PUSH1), 0x72,
-			uint8_t(Instruction::JUMPI),
-			uint8_t(Instruction::PUSH1), 0x71,
-			uint8_t(Instruction::PUSH1), 0x88,
-			uint8_t(Instruction::JUMP),
-			uint8_t(Instruction::JUMPDEST),
-			uint8_t(Instruction::JUMPDEST),
+		});
+		append(uint256Cleanup);
+		appendDivisionByZeroCheck();
+		append({uint8_t(Instruction::MOD)});
+		append(uint256Cleanup);
+		appendDivisionByZeroCheck();
+		append({
 			uint8_t(Instruction::DIV),
 			uint8_t(Instruction::PUSH1), 0x1,
 			uint8_t(Instruction::MUL),
-			uint8_t(Instruction::PUSH1), size,
-			uint8_t(Instruction::JUMP)
-		} + utilities;
+		});
+	}
 	else
-		expectation = bytes{
+	{
+		append({
 			uint8_t(Instruction::PUSH1), 0x1,
 			uint8_t(Instruction::PUSH1), 0x2,
 			uint8_t(Instruction::PUSH1), 0x3,
@@ -463,38 +431,72 @@ BOOST_AUTO_TEST_CASE(arithmetic, *boost::unit_test::disabled())
 			uint8_t(Instruction::OR),
 			uint8_t(Instruction::SUB),
 			uint8_t(Instruction::ADD),
-		} +
-		uint256Cleanup +
-		bytes{
-			uint8_t(Instruction::DUP2),
-			uint8_t(Instruction::ISZERO),
-			uint8_t(Instruction::ISZERO),
-			uint8_t(Instruction::PUSH1), 0x44,
-			uint8_t(Instruction::JUMPI),
-			uint8_t(Instruction::PUSH1), 0x43,
-			uint8_t(Instruction::PUSH1), 0x88,
-			uint8_t(Instruction::JUMP),
-			uint8_t(Instruction::JUMPDEST),
-			uint8_t(Instruction::JUMPDEST),
-			uint8_t(Instruction::MOD),
-		} +
-		uint256Cleanup +
-		bytes{
-			uint8_t(Instruction::DUP2),
-			uint8_t(Instruction::ISZERO),
-			uint8_t(Instruction::ISZERO),
-			uint8_t(Instruction::PUSH1), 0x74,
-			uint8_t(Instruction::JUMPI),
-			uint8_t(Instruction::PUSH1), 0x73,
-			uint8_t(Instruction::PUSH1), 0x88,
-			uint8_t(Instruction::JUMP),
-			uint8_t(Instruction::JUMPDEST),
-			uint8_t(Instruction::JUMPDEST),
+		});
+		append(uint256Cleanup);
+		appendDivisionByZeroCheck();
+		append({uint8_t(Instruction::MOD)});
+		append(uint256Cleanup);
+		appendDivisionByZeroCheck();
+		append({
 			uint8_t(Instruction::DIV),
 			uint8_t(Instruction::MUL),
-			uint8_t(Instruction::PUSH1), size,
-			uint8_t(Instruction::JUMP)
-		} + utilities;
+		});
+	}
+
+	size_t const endPatch = appendPush1Placeholder();
+	append({uint8_t(Instruction::JUMP)});
+
+	size_t const cleanupEntryLabel = expectation.size();
+	append({
+		uint8_t(Instruction::JUMPDEST),
+	});
+	append(push0Bytes);
+	append({
+		uint8_t(Instruction::DUP2),
+		uint8_t(Instruction::PUSH2), 0x01, 0x00,
+		uint8_t(Instruction::SHL),
+		uint8_t(Instruction::SWAP1),
+		uint8_t(Instruction::POP),
+		uint8_t(Instruction::JUMPDEST),
+		uint8_t(Instruction::SWAP2),
+		uint8_t(Instruction::SWAP1),
+		uint8_t(Instruction::POP),
+		uint8_t(Instruction::JUMP)
+	});
+
+	size_t const panicEntryLabel = expectation.size();
+	append({uint8_t(Instruction::JUMPDEST)});
+	size_t const panicDataReturnPatch = appendPush1Placeholder();
+	append({uint8_t(Instruction::PUSH32)});
+	append(util::fromHex("4E487B7100000000000000000000000000000000000000000000000000000000"));
+	size_t const cleanupEntryPatch = appendPush1Placeholder();
+	append({uint8_t(Instruction::JUMP)});
+
+	size_t const panicDataReturnLabel = expectation.size();
+	append({uint8_t(Instruction::JUMPDEST)});
+	append(push0Bytes);
+	append({
+		uint8_t(Instruction::MSTORE),
+		uint8_t(Instruction::PUSH1), 0x12,
+		uint8_t(Instruction::PUSH1), 0x4,
+		uint8_t(Instruction::MSTORE),
+		uint8_t(Instruction::PUSH1), 0x44
+	});
+	append(push0Bytes);
+	append({
+		uint8_t(Instruction::REVERT),
+		uint8_t(Instruction::JUMPDEST),
+		uint8_t(Instruction::JUMP)
+	});
+
+	size_t const endLabel = expectation.size();
+	append({uint8_t(Instruction::JUMPDEST)});
+
+	for (size_t panicEntryPatch: panicEntryPatches)
+		patchPush1(panicEntryPatch, panicEntryLabel);
+	patchPush1(endPatch, endLabel);
+	patchPush1(panicDataReturnPatch, panicDataReturnLabel);
+	patchPush1(cleanupEntryPatch, cleanupEntryLabel);
 
 	BOOST_CHECK_EQUAL_COLLECTIONS(code.begin(), code.end(), expectation.begin(), expectation.end());
 }

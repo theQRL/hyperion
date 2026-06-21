@@ -10,4 +10,5 @@ contract B {
     }
 }
 // ----
-// TypeError 4888: (128-149): External function types are not supported with this address size: address (512 bits) plus selector (32 bits) exceeds the VM word size (512 bits).
+// TypeError 9574: (128-155): Type function A.f() is not implicitly convertible to expected type function () external. Special functions cannot be converted to function types.
+// TypeError 9574: (165-197): Type function A.g() pure is not implicitly convertible to expected type function () pure external. Special functions cannot be converted to function types.

@@ -3224,6 +3224,9 @@ std::string FunctionType::toString(bool _withoutDataLocation) const
 
 unsigned FunctionType::calldataEncodedSize(bool _padded) const
 {
+	if (m_kind == Kind::External)
+		return _padded ? 2 * VMWordBytes : AddressBytes + 4;
+
 	unsigned size = storageBytes();
 	if (_padded)
 		size = ((size + VMWordAlignmentMask) / VMWordBytes) * VMWordBytes;
@@ -3232,7 +3235,9 @@ unsigned FunctionType::calldataEncodedSize(bool _padded) const
 
 u256 FunctionType::storageSize() const
 {
-	if (m_kind == Kind::External || m_kind == Kind::Internal)
+	if (m_kind == Kind::External)
+		return 2;
+	else if (m_kind == Kind::Internal)
 		return 1;
 	else
 		hypAssert(false, "Storage size of non-storable function type requested.");
@@ -3240,13 +3245,13 @@ u256 FunctionType::storageSize() const
 
 bool FunctionType::leftAligned() const
 {
-	return m_kind == Kind::External;
+	return false;
 }
 
 unsigned FunctionType::storageBytes() const
 {
 	if (m_kind == Kind::External)
-		return AddressBytes + 4;
+		return VMWordBytes;
 	else if (m_kind == Kind::Internal)
 		return 8; // it should really not be possible to create larger programs
 	else
