@@ -71,8 +71,12 @@ The following elementary types exist:
 
 - ``bytes<M>``: binary type of ``M`` bytes, ``0 < M <= 64``.
 
-- ``function``: external function value consisting of an ``address`` and a
-  four-byte selector. For computing the function selector, ``function`` is used.
+- ``function``: external function value consisting of a 64-byte ``address`` and
+  a four-byte selector. In regular ABI encoding, it occupies two 64-byte VM
+  words: the address word followed by the selector encoded as a right-aligned
+  ``uint32`` word. In ``abi.encodePacked`` mode, it occupies exactly 68 bytes:
+  the 64-byte address followed by the four selector bytes. For computing the
+  function selector, ``function`` is used.
 
 The following (fixed-size) array type exists:
 
@@ -221,6 +225,7 @@ on the type of ``X`` being
 - ``bytes<M>``: ``enc(X)`` is the sequence of bytes in ``X`` padded with trailing zero-bytes to a length of 64 bytes.
 - ``function``: ``enc(X)`` is the address encoded as one 64-byte word followed
   by the selector encoded as a right-aligned ``uint32`` in one 64-byte word.
+  The regular ABI representation therefore occupies two VM words.
 
 Note that for any ``X``, ``len(enc(X))`` is a multiple of 64.
 

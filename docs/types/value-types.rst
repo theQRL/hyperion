@@ -733,6 +733,8 @@ contract internally.
 External function values consist of a 512-bit address and a four-byte selector.
 They are represented internally as two stack values and encoded in the ABI as
 two VM words: the address word followed by the selector word.
+In ``abi.encodePacked``, they are encoded without word padding as the 64-byte
+address followed by the four selector bytes.
 
 Function types are notated as follows:
 
