@@ -9,6 +9,9 @@ on:
       sanitizer:
         type: string
         default: ''
+      run-smt:
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -27,8 +30,9 @@ jobs:
     env:
       CC: ${{ inputs.compiler == 'clang' && 'clang' || 'gcc' }}
       CXX: ${{ inputs.compiler == 'clang' && 'clang++' || 'g++' }}
-      BUILD_JOBS: '2'
+      BUILD_JOBS: '4'
       TEST_JOBS: '2'
+      HYPTEST_FLAGS: ${{ !inputs.run-smt && '--no-smt' || '' }}
       SANITIZER: ${{ inputs.sanitizer }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -70,7 +74,12 @@ jobs:
       - name: Compiler tests (default, optimized and ABI v1)
         run: bash scripts/ci/hyptest_all.sh
       - name: Command-line tests
-        run: bash test/cmdlineTests.sh
+        run: |
+          test_args=()
+          if [[ "$HYPTEST_FLAGS" == --no-smt ]]; then
+            test_args+=(--no-smt)
+          fi
+          bash test/cmdlineTests.sh "${test_args[@]}"
       - name: Language server tests
         run: python3 test/lsp.py build/hypc/hypc --non-interactive
       - name: Generate bytecode comparison

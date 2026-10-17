@@ -22,3 +22,5 @@ jobs:
     with:
       compiler: clang
       sanitizer: ${{ matrix.sanitizer }}
+      # Solver snapshots are checked by the regular GCC job.
+      run-smt: false

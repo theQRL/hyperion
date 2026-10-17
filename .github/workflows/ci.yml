@@ -19,7 +19,7 @@ defaults:
     shell: bash
 
 env:
-  BUILD_JOBS: '2'
+  BUILD_JOBS: '4'
   TEST_JOBS: '2'
 
 jobs:
@@ -78,6 +78,8 @@ jobs:
     uses: ./.github/workflows/linux.yml
     with:
       compiler: ${{ matrix.compiler }}
+      # Keep solver snapshots on one reference image; both compilers run semantic tests.
+      run-smt: ${{ matrix.compiler == 'gcc' }}
 
   portable:
     name: ${{ matrix.platform }} build and tests
