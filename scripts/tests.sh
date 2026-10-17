@@ -109,36 +109,26 @@ for optimize in "" "--optimize"
 do
     for vm in $QRVM_VERSIONS
     do
-        FORCE_ABIV1_RUNS="no yes"
-        for abiv1 in $FORCE_ABIV1_RUNS
-        do
-            force_abiv1_flag=()
-            if [[ "$abiv1" == "yes" ]]
+        printTask "--> Running tests using $optimize --qrvm-version $vm..."
+
+        log=()
+        if [ -n "$log_directory" ]
+        then
+            if [ -n "$optimize" ]
             then
-                force_abiv1_flag=(--abiencoderv1)
+                log+=("--logger=JUNIT,error,$log_directory/opt_$vm.xml")
+            else
+                log+=("--logger=JUNIT,error,$log_directory/noopt_$vm.xml")
             fi
-            printTask "--> Running tests using $optimize --qrvm-version $vm ${force_abiv1_flag[*]}..."
+        fi
 
-            log=()
-            if [ -n "$log_directory" ]
-            then
-                if [ -n "$optimize" ]
-                then
-                    log+=("--logger=JUNIT,error,$log_directory/opt_$vm.xml")
-                else
-                    log+=("--logger=JUNIT,error,$log_directory/noopt_$vm.xml")
-                fi
-            fi
+        set +e
+        "${HYPERION_BUILD_DIR}"/test/hyptest --show-progress "${log[@]}" -- --testpath "$REPO_ROOT"/test "$optimize" --qrvm-version "$vm" "${SMT_FLAGS[@]}"
 
-            set +e
-            "${HYPERION_BUILD_DIR}"/test/hyptest --show-progress "${log[@]}" -- --testpath "$REPO_ROOT"/test "$optimize" --qrvm-version "$vm" "${SMT_FLAGS[@]}" "${force_abiv1_flag[@]}"
-
-            if test "0" -ne "$?"; then
-                exit 1
-            fi
-            set -e
-
-        done
+        if test "0" -ne "$?"; then
+            exit 1
+        fi
+        set -e
     done
 done
 

@@ -136,12 +136,9 @@ string PragmaGenerator::visit()
 	static constexpr const char* preamble = R"(
 		pragma hyperion >= 0.0.0;
 		pragma experimental SMTChecker;
+		pragma abicoder v2;
 	)";
-	// Choose equally at random from coder v1 and v2
-	string abiPragma = "pragma abicoder v" +
-		to_string(uRandDist->distributionOneToN(2)) +
-		";\n";
-	return preamble + abiPragma;
+	return preamble;
 }
 
 string ImportGenerator::visit()

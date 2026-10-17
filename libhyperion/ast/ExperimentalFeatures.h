@@ -29,7 +29,7 @@ namespace hyperion::frontend
 
 enum class ExperimentalFeature
 {
-	ABIEncoderV2, // new ABI encoder that makes use of Yul
+	ABIEncoderV2, // Compatibility alias for the default Yul-based ABI encoder
 	SMTChecker,
 	Test,
 	TestOnlyAnalysis,

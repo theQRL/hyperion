@@ -196,7 +196,7 @@ The bytecode gate compares a shared fixture across all five builds, using the
 legacy and IR code generators with optimization both enabled and disabled.
 It checks bytecode, metadata and library link references. This is a focused
 portability check, not the old full-corpus bytecode-report matrix. Native compiler
-tests still run in default, optimized and ABI coder v1 configurations.
+tests run in default and optimized configurations, both using ABI coder v2.
 
 For local CI-style native builds, use ``bash scripts/ci/build.sh`` followed by
 ``bash scripts/ci/hyptest_all.sh`` after installing dependencies and a compatible

@@ -1,0 +1,52 @@
+==== Source: C ====
+import "X";
+import "DefaultA";
+import "V2A";
+import "DefaultB";
+
+contract C is DefaultA, V2A, DefaultB {
+    function foo()
+        public
+        modDefaultA
+        modV2A // Explicit v2 and default ABI sources share the same coder.
+        modDefaultB
+    {
+    }
+}
+==== Source: DefaultA ====
+import "X";
+
+contract DefaultA {
+    modifier modDefaultA() {
+        _;
+    }
+}
+==== Source: DefaultB ====
+import "X";
+
+contract DefaultB {
+    modifier modDefaultB() {
+        _;
+    }
+}
+==== Source: V2A ====
+pragma abicoder               v2;
+import "X";
+
+contract V2A {
+    modifier modV2A() {
+        X(address(0x00)).get();
+        _;
+    }
+}
+==== Source: X ====
+pragma abicoder               v2;
+
+struct Data {
+    bool flag;
+}
+
+contract X {
+    function get() public view returns (Data memory) {}
+}
+// ----

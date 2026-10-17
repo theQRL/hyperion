@@ -1,0 +1,4 @@
+pragma experimental ABIEncoderV2;
+pragma abicoder v1;
+// ----
+// SyntaxError 8273: (34-53): ABI coder v1 is no longer supported. Use "pragma abicoder v2;".

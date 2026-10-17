@@ -1,0 +1,6 @@
+contract C {
+	constructor(uint[][][] memory t) {}
+}
+// ====
+// compileViaYul: true
+// ----

@@ -1,4 +1,3 @@
-pragma abicoder v1;
 contract C {
 	function f0() public pure returns (bytes memory) {
 		return abi.encodeWithSelector(0x12345678);

@@ -1,0 +1,9 @@
+contract C {
+	function d(bytes memory _data) public pure returns (uint8) {
+		return abi.decode(_data, (uint8));
+	}
+}
+// ====
+// revertStrings: debug
+// ----
+// d(bytes): 0x40, 0x01, 0x0000000000000000000000000000000000000000000000000000000000000000 -> FAILURE, hex"08c379a0", 0x40, 0x22, "ABI decoding: tuple data too short"

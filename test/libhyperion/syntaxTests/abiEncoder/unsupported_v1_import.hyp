@@ -1,0 +1,9 @@
+==== Source: A.hyp ====
+pragma abicoder v1;
+contract A {}
+==== Source: B.hyp ====
+pragma abicoder v2;
+import "A.hyp";
+contract B is A {}
+// ----
+// SyntaxError 8273: (A.hyp:0-19): ABI coder v1 is no longer supported. Use "pragma abicoder v2;".

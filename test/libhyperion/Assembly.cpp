@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_SUITE(Assembly)
 BOOST_AUTO_TEST_CASE(location_test)
 {
 	std::string sourceCode = R"(
-	pragma abicoder v1;
+	pragma abicoder v2;
 	contract test {
 		function f() public returns (uint256 a) {
 			return 16;
@@ -171,25 +171,53 @@ BOOST_AUTO_TEST_CASE(location_test)
 	AssemblyItems items = compileContract(std::make_shared<CharStream>(sourceCode, ""));
 	std::shared_ptr<std::string> sourceName = std::make_shared<std::string>();
 
-	auto codegenCharStream = std::make_shared<CharStream>("", "--CODEGEN--");
+	auto utilitySourceName = std::make_shared<std::string>("#utility.yul");
 
 	std::vector<SourceLocation> locations;
 	if (hyperion::test::CommonOptions::get().optimize)
 		locations =
 			std::vector<SourceLocation>(31, SourceLocation{23, 103, sourceName}) +
-			std::vector<SourceLocation>(1, SourceLocation{41, 100, sourceName}) +
+			std::vector<SourceLocation>(4, SourceLocation{41, 100, sourceName}) +
 			std::vector<SourceLocation>(1, SourceLocation{93, 95, sourceName}) +
-			std::vector<SourceLocation>(3, SourceLocation{41, 100, sourceName}) +
-			std::vector<SourceLocation>(5, SourceLocation{-1, -1, nullptr}) +
-			std::vector<SourceLocation>(14, SourceLocation{41, 100, sourceName});
+			std::vector<SourceLocation>(2, SourceLocation{160, 211, utilitySourceName}) +
+			std::vector<SourceLocation>(6, SourceLocation{41, 100, sourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{148, 150, utilitySourceName}) +
+			std::vector<SourceLocation>(3, SourceLocation{41, 100, sourceName});
 	else
 		locations =
 			std::vector<SourceLocation>(31, SourceLocation{23, 103, sourceName}) +
-			std::vector<SourceLocation>(26, SourceLocation{41, 100, sourceName}) +
+			std::vector<SourceLocation>(21, SourceLocation{41, 100, sourceName}) +
 			std::vector<SourceLocation>(1, SourceLocation{70, 79, sourceName}) +
 			std::vector<SourceLocation>(1, SourceLocation{93, 95, sourceName}) +
 			std::vector<SourceLocation>(2, SourceLocation{86, 95, sourceName}) +
-			std::vector<SourceLocation>(2, SourceLocation{41, 100, sourceName});
+			std::vector<SourceLocation>(2, SourceLocation{41, 100, sourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{7, 157, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{44, 51, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{84, 150, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{77, 82, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{73, 151, utilitySourceName}) +
+			std::vector<SourceLocation>(2, SourceLocation{62, 151, utilitySourceName}) +
+			std::vector<SourceLocation>(4, SourceLocation{7, 157, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{163, 281, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{250, 274, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{268, 273, utilitySourceName}) +
+			std::vector<SourceLocation>(3, SourceLocation{250, 274, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{245, 248, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{238, 275, utilitySourceName}) +
+			std::vector<SourceLocation>(3, SourceLocation{163, 281, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{287, 509, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{380, 384, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{418, 420, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{407, 416, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{403, 421, utilitySourceName}) +
+			std::vector<SourceLocation>(2, SourceLocation{395, 421, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{431, 502, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{499, 500, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{488, 497, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{484, 501, utilitySourceName}) +
+			std::vector<SourceLocation>(1, SourceLocation{475, 481, utilitySourceName}) +
+			std::vector<SourceLocation>(3, SourceLocation{431, 502, utilitySourceName}) +
+			std::vector<SourceLocation>(5, SourceLocation{287, 509, utilitySourceName});
 	checkAssemblyLocations(items, locations);
 }
 
@@ -197,7 +225,7 @@ BOOST_AUTO_TEST_CASE(location_test)
 BOOST_AUTO_TEST_CASE(jump_type)
 {
 	auto sourceCode = std::make_shared<CharStream>(R"(
-	pragma abicoder v1;
+	pragma abicoder v2;
 	contract C {
 		function f(uint a) public pure returns (uint t) {
 			assembly {
@@ -215,9 +243,9 @@ BOOST_AUTO_TEST_CASE(jump_type)
 			jumpTypes += item.getJumpTypeAsString() + "\n";
 
 	if (hyperion::test::CommonOptions::get().optimize)
-		BOOST_CHECK_EQUAL(jumpTypes, "[in]\n[out]\n[out]\n[in]\n[out]\n");
+		BOOST_CHECK_EQUAL(jumpTypes, "[in]\n[in]\n[out]\n[out]\n[in]\n[out]\n[out]\n");
 	else
-		BOOST_CHECK_EQUAL(jumpTypes, "[in]\n[out]\n[in]\n[out]\n");
+		BOOST_CHECK_EQUAL(jumpTypes, "[in]\n[in]\n[in]\n[out]\n[in]\n[out]\n[out]\n[in]\n[out]\n[in]\n[out]\n[in]\n[in]\n[out]\n[in]\n[out]\n[in]\n[out]\n");
 }
 
 

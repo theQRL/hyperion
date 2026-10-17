@@ -66,7 +66,6 @@ set(libhyperion_sources
     libhyperion/ABIEncoderTests.cpp
     libhyperion/ABIJsonTest.cpp
     libhyperion/ABIJsonTest.h
-    libhyperion/ABITestsCommon.h
     libhyperion/AnalysisFramework.cpp
     libhyperion/AnalysisFramework.h
     libhyperion/Assembly.cpp

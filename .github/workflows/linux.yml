@@ -71,7 +71,7 @@ jobs:
           fi
           bash scripts/ci/build.sh
           build/hypc/hypc --version
-      - name: Compiler tests (default, optimized and ABI v1)
+      - name: Compiler tests (default and optimized)
         run: bash scripts/ci/hyptest_all.sh
       - name: Command-line tests
         run: |

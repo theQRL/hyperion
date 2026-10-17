@@ -21,8 +21,6 @@
 
 #include <test/libhyperion/HyperionExecutionFramework.h>
 
-#include <test/libhyperion/ABITestsCommon.h>
-
 #include <libhyputil/VMConstants.h>
 #include <liblangutil/Exceptions.h>
 
@@ -63,13 +61,11 @@ BOOST_AUTO_TEST_CASE(value_types)
 			}
 		}
 	)";
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode);
-		callContractFunction("f()");
-		REQUIRE_LOG_DATA(encodeArgs(
-			10, u256(65534), u256(0x121212), u256(-1), std::string("\x1b\xab\xab"), true, h512(std::string(127, 'f') + "b")
-		));
-	)
+	compileAndRun(sourceCode);
+	callContractFunction("f()");
+	REQUIRE_LOG_DATA(encodeArgs(
+		10, u256(65534), u256(0x121212), u256(-1), std::string("\x1b\xab\xab"), true, h512(std::string(127, 'f') + "b")
+	));
 }
 
 BOOST_AUTO_TEST_CASE(string_literal)
@@ -82,15 +78,13 @@ BOOST_AUTO_TEST_CASE(string_literal)
 			}
 		}
 	)";
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode);
-		callContractFunction("f()");
-		REQUIRE_LOG_DATA(encodeArgs(
-			0xc0, std::string("abcde"), 0x140,
-			6, std::string("abcdef"),
-			0x8b, std::string("abcdefabcdefgehabcabcasdfjklabcdefabcedefghabcabcasdfjklabcdefabcdefghabcabcasdfjklabcdeefabcdefghabcabcasdefjklabcdefabcdefghabcabcasdfjkl")
-		));
-	)
+	compileAndRun(sourceCode);
+	callContractFunction("f()");
+	REQUIRE_LOG_DATA(encodeArgs(
+		0xc0, std::string("abcde"), 0x140,
+		6, std::string("abcdef"),
+		0x8b, std::string("abcdefabcdefgehabcabcasdfjklabcdefabcedefghabcabcasdfjklabcdefabcdefghabcabcasdfjklabcdeefabcdefghabcabcasdefjklabcdefabcdefghabcabcasdfjkl")
+	));
 }
 
 
@@ -104,12 +98,10 @@ BOOST_AUTO_TEST_CASE(enum_type_cleanup)
 			}
 		}
 	)";
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode);
-		BOOST_CHECK(callContractFunction("f(uint256)", 0) == encodeArgs(0));
-		BOOST_CHECK(callContractFunction("f(uint256)", 1) == encodeArgs(1));
-		BOOST_CHECK(callContractFunction("f(uint256)", 2) == panicData(PanicCode::EnumConversionError));
-	)
+	compileAndRun(sourceCode);
+	BOOST_CHECK(callContractFunction("f(uint256)", 0) == encodeArgs(0));
+	BOOST_CHECK(callContractFunction("f(uint256)", 1) == encodeArgs(1));
+	BOOST_CHECK(callContractFunction("f(uint256)", 2) == panicData(PanicCode::EnumConversionError));
 }
 
 BOOST_AUTO_TEST_CASE(conversion)
@@ -128,14 +120,12 @@ BOOST_AUTO_TEST_CASE(conversion)
 			}
 		}
 	)";
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode);
-		callContractFunction("f()");
-		REQUIRE_LOG_DATA(encodeArgs(
-			std::string(3, 0) + std::string("\x0a"), std::string("\xf1\xf2"),
-			0xff, 0xff, u256(-1), u256(1)
-		));
-	)
+	compileAndRun(sourceCode);
+	callContractFunction("f()");
+	REQUIRE_LOG_DATA(encodeArgs(
+		std::string(3, 0) + std::string("\x0a"), std::string("\xf1\xf2"),
+		0xff, 0xff, u256(-1), u256(1)
+	));
 }
 
 BOOST_AUTO_TEST_CASE(memory_array_one_dim)
@@ -155,19 +145,9 @@ BOOST_AUTO_TEST_CASE(memory_array_one_dim)
 		}
 	)";
 
-	if (hyperion::test::CommonOptions::get().useABIEncoderV1)
-	{
-		compileAndRun(sourceCode);
-		callContractFunction("f()");
-		// The old encoder does not clean array elements.
-		REQUIRE_LOG_DATA(encodeArgs(10, 0xc0, 11, 3, u256("0xfffffffe"), u256("0xffffffff"), u256("0x100000000")));
-	}
-
-	NEW_ENCODER(
-		compileAndRun(sourceCode);
-		callContractFunction("f()");
-		REQUIRE_LOG_DATA(encodeArgs(10, 0xc0, 11, 3, u256(-2), u256(-1), u256(0)));
-	)
+	compileAndRun(sourceCode);
+	callContractFunction("f()");
+	REQUIRE_LOG_DATA(encodeArgs(10, 0xc0, 11, 3, u256(-2), u256(-1), u256(0)));
 }
 
 BOOST_AUTO_TEST_CASE(calldata_array_elements_reject_dirty_padding)
@@ -184,64 +164,28 @@ BOOST_AUTO_TEST_CASE(calldata_array_elements_reject_dirty_padding)
 		}
 	)";
 
-	NEW_ENCODER(
-		compileAndRun(sourceCode, 0, "C");
+	compileAndRun(sourceCode, 0, "C");
 
-		bytes canonicalUint = encodeArgs(u256(0x40), u256(1), u256(0x11));
-		ABI_CHECK(
-			callContractFunctionNoEncoding("encodeUint(uint256[])", canonicalUint),
-			encodeArgs(u256(0x40), u256(canonicalUint.size()), canonicalUint)
-		);
+	bytes canonicalUint = encodeArgs(u256(0x40), u256(1), u256(0x11));
+	ABI_CHECK(
+		callContractFunctionNoEncoding("encodeUint(uint256[])", canonicalUint),
+		encodeArgs(u256(0x40), u256(canonicalUint.size()), canonicalUint)
+	);
 
-		bytes dirtyUint = encodeArgs(u256(0x40), u256(1)) + bytes(32, 0x5a) + toBigEndian(u256(0x11));
-		callContractFunctionNoEncoding("encodeUint(uint256[])", dirtyUint);
-		BOOST_CHECK(!m_transactionSuccessful);
+	bytes dirtyUint = encodeArgs(u256(0x40), u256(1)) + bytes(32, 0x5a) + toBigEndian(u256(0x11));
+	callContractFunctionNoEncoding("encodeUint(uint256[])", dirtyUint);
+	BOOST_CHECK(!m_transactionSuccessful);
 
-		std::string bytes32Value(32, '\x12');
-		bytes canonicalBytes32 = encodeArgs(u256(0x40), u256(1), bytes32Value);
-		ABI_CHECK(
-			callContractFunctionNoEncoding("encodeBytes32(bytes32[])", canonicalBytes32),
-			encodeArgs(u256(0x40), u256(canonicalBytes32.size()), canonicalBytes32)
-		);
+	std::string bytes32Value(32, '\x12');
+	bytes canonicalBytes32 = encodeArgs(u256(0x40), u256(1), bytes32Value);
+	ABI_CHECK(
+		callContractFunctionNoEncoding("encodeBytes32(bytes32[])", canonicalBytes32),
+		encodeArgs(u256(0x40), u256(canonicalBytes32.size()), canonicalBytes32)
+	);
 
-		bytes dirtyBytes32 = encodeArgs(u256(0x40), u256(1)) + asBytes(bytes32Value) + bytes(32, 0x5a);
-		callContractFunctionNoEncoding("encodeBytes32(bytes32[])", dirtyBytes32);
-		BOOST_CHECK(!m_transactionSuccessful);
-	)
-}
-
-BOOST_AUTO_TEST_CASE(v1_calldata_array_elements_clean_dirty_padding)
-{
-	std::string sourceCode = R"(
-		contract C {
-			function encodeUint(uint256[] calldata a) external returns (bytes memory) {
-				return abi.encode(a);
-			}
-
-			function encodeBytes32(bytes32[] calldata a) external returns (bytes memory) {
-				return abi.encode(a);
-			}
-		}
-	)";
-
-	OLD_ENCODER(
-		compileAndRun(sourceCode, 0, "C");
-
-		bytes canonicalUint = encodeArgs(u256(0x40), u256(1), u256(0x11));
-		bytes dirtyUint = encodeArgs(u256(0x40), u256(1)) + bytes(32, 0x5a) + toBigEndian(u256(0x11));
-		ABI_CHECK(
-			callContractFunctionNoEncoding("encodeUint(uint256[])", dirtyUint),
-			encodeArgs(u256(0x40), u256(canonicalUint.size()), canonicalUint)
-		);
-
-		std::string bytes32Value(32, '\x12');
-		bytes canonicalBytes32 = encodeArgs(u256(0x40), u256(1), bytes32Value);
-		bytes dirtyBytes32 = encodeArgs(u256(0x40), u256(1)) + asBytes(bytes32Value) + bytes(32, 0x5a);
-		ABI_CHECK(
-			callContractFunctionNoEncoding("encodeBytes32(bytes32[])", dirtyBytes32),
-			encodeArgs(u256(0x40), u256(canonicalBytes32.size()), canonicalBytes32)
-		);
-	)
+	bytes dirtyBytes32 = encodeArgs(u256(0x40), u256(1)) + asBytes(bytes32Value) + bytes(32, 0x5a);
+	callContractFunctionNoEncoding("encodeBytes32(bytes32[])", dirtyBytes32);
+	BOOST_CHECK(!m_transactionSuccessful);
 }
 
 BOOST_AUTO_TEST_CASE(memory_array_two_dim)
@@ -262,11 +206,9 @@ BOOST_AUTO_TEST_CASE(memory_array_two_dim)
 			}
 		}
 	)";
-	NEW_ENCODER(
-		compileAndRun(sourceCode);
-		callContractFunction("f()");
-		REQUIRE_LOG_DATA(encodeArgs(10, 0xc0, 11, 0x80, 0x180, 3, 7, 0x0506, u256(-1), 2, 4, 5));
-	)
+	compileAndRun(sourceCode);
+	callContractFunction("f()");
+	REQUIRE_LOG_DATA(encodeArgs(10, 0xc0, 11, 0x80, 0x180, 3, 7, 0x0506, u256(-1), 2, 4, 5));
 }
 
 BOOST_AUTO_TEST_CASE(memory_byte_array)
@@ -282,16 +224,14 @@ BOOST_AUTO_TEST_CASE(memory_byte_array)
 			}
 		}
 	)";
-	NEW_ENCODER(
-		compileAndRun(sourceCode);
-		callContractFunction("f()");
-		REQUIRE_LOG_DATA(encodeArgs(
-			10, 0xc0, 11,
-			2, 0x80, 0x140,
-			66, std::string("abcabcdefghjklmnopqrsuvwabcdefgijklmnopqrstuwabcdefgijklmnoprstuvw"),
-			63, std::string("abcdefghijklmnopqrtuvwabcfghijklmnopqstuvwabcdeghijklmopqrstuvw")
-		));
-	)
+	compileAndRun(sourceCode);
+	callContractFunction("f()");
+	REQUIRE_LOG_DATA(encodeArgs(
+		10, 0xc0, 11,
+		2, 0x80, 0x140,
+		66, std::string("abcabcdefghjklmnopqrsuvwabcdefgijklmnopqrstuwabcdefgijklmnoprstuvw"),
+		63, std::string("abcdefghijklmnopqrtuvwabcfghijklmnopqstuvwabcdeghijklmopqrstuvw")
+	));
 }
 
 BOOST_AUTO_TEST_CASE(storage_byte_array)
@@ -308,15 +248,13 @@ BOOST_AUTO_TEST_CASE(storage_byte_array)
 			}
 		}
 	)";
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode);
-		callContractFunction("f()");
-		REQUIRE_LOG_DATA(encodeArgs(
-			0x80, 0x100,
-			31, std::string("123456789012345678901234567890a"),
-			75, std::string("ffff123456789012345678901234567890afffffffff123456789012345678901234567890a")
-		));
-	)
+	compileAndRun(sourceCode);
+	callContractFunction("f()");
+	REQUIRE_LOG_DATA(encodeArgs(
+		0x80, 0x100,
+		31, std::string("123456789012345678901234567890a"),
+		75, std::string("ffff123456789012345678901234567890afffffffff123456789012345678901234567890a")
+	));
 }
 
 BOOST_AUTO_TEST_CASE(storage_array)
@@ -335,15 +273,13 @@ BOOST_AUTO_TEST_CASE(storage_array)
 			}
 		}
 	)";
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode);
-		callContractFunction("f()");
-		REQUIRE_LOG_DATA(encodeArgs(
-			h512(std::string(128, 'f')),
-			h512(std::string(127, 'f') + "e"),
-			h512(std::string(127, 'f') + "d")
-		));
-	)
+	compileAndRun(sourceCode);
+	callContractFunction("f()");
+	REQUIRE_LOG_DATA(encodeArgs(
+		h512(std::string(128, 'f')),
+		h512(std::string(127, 'f') + "e"),
+		h512(std::string(127, 'f') + "d")
+	));
 }
 
 BOOST_AUTO_TEST_CASE(storage_array_dyn)
@@ -360,17 +296,15 @@ BOOST_AUTO_TEST_CASE(storage_array_dyn)
 			}
 		}
 	)";
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode);
-		callContractFunction("f()");
-		REQUIRE_LOG_DATA(encodeArgs(
-			0x40,
-			3,
-			h512(std::string(127, '0') + "1"),
-			h512(std::string(127, '0') + "2"),
-			h512(std::string(127, '0') + "3")
-		));
-	)
+	compileAndRun(sourceCode);
+	callContractFunction("f()");
+	REQUIRE_LOG_DATA(encodeArgs(
+		0x40,
+		3,
+		h512(std::string(127, '0') + "1"),
+		h512(std::string(127, '0') + "2"),
+		h512(std::string(127, '0') + "3")
+	));
 }
 
 BOOST_AUTO_TEST_CASE(storage_array_compact)
@@ -392,13 +326,11 @@ BOOST_AUTO_TEST_CASE(storage_array_compact)
 			}
 		}
 	)";
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode);
-		callContractFunction("f()");
-		REQUIRE_LOG_DATA(encodeArgs(
-			0x40, 8, u256(-1), 2, u256(-3), 4, u256(-5), 6, u256(-7), 8
-		));
-	)
+	compileAndRun(sourceCode);
+	callContractFunction("f()");
+	REQUIRE_LOG_DATA(encodeArgs(
+		0x40, 8, u256(-1), 2, u256(-3), 4, u256(-5), 6, u256(-7), 8
+	));
 }
 
 BOOST_AUTO_TEST_CASE(external_function)
@@ -413,12 +345,10 @@ BOOST_AUTO_TEST_CASE(external_function)
 			}
 		}
 	)";
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode);
-		callContractFunction("f(uint256)", u256(0));
-		u256 selectorF = util::selectorFromSignatureU32("f(uint256)");
-		REQUIRE_LOG_DATA(encodeArgs(m_contractAddress, selectorF, m_contractAddress, selectorF));
-	)
+	compileAndRun(sourceCode);
+	callContractFunction("f(uint256)", u256(0));
+	u256 selectorF = util::selectorFromSignatureU32("f(uint256)");
+	REQUIRE_LOG_DATA(encodeArgs(m_contractAddress, selectorF, m_contractAddress, selectorF));
 }
 
 BOOST_AUTO_TEST_CASE(external_function_cleanup)
@@ -440,14 +370,12 @@ BOOST_AUTO_TEST_CASE(external_function_cleanup)
 			}
 		}
 	)";
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode);
-		callContractFunction("f(uint256)", u256(0));
-		REQUIRE_LOG_DATA(encodeArgs(
-			std::string(64, char(-1)), u256(0xffffffff),
-			std::string(64, char(-1)), u256(0xffffffff)
-		));
-	)
+	compileAndRun(sourceCode);
+	callContractFunction("f(uint256)", u256(0));
+	REQUIRE_LOG_DATA(encodeArgs(
+		std::string(64, char(-1)), u256(0xffffffff),
+		std::string(64, char(-1)), u256(0xffffffff)
+	));
 }
 
 BOOST_AUTO_TEST_CASE(calldata)
@@ -462,13 +390,11 @@ BOOST_AUTO_TEST_CASE(calldata)
 	)";
 	std::string s("abcdef");
 	std::string t("abcdefgggggggggggggggggggggggggggggggggggggggghhheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeggg");
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode);
-		callContractFunction("f(bytes)", 0x40, s.size(), s);
-		REQUIRE_LOG_DATA(encodeArgs(0x40, s.size(), s));
-		callContractFunction("f(bytes)", 0x40, t.size(), t);
-		REQUIRE_LOG_DATA(encodeArgs(0x40, t.size(), t));
-	)
+	compileAndRun(sourceCode);
+	callContractFunction("f(bytes)", 0x40, s.size(), s);
+	REQUIRE_LOG_DATA(encodeArgs(0x40, s.size(), s));
+	callContractFunction("f(bytes)", 0x40, t.size(), t);
+	REQUIRE_LOG_DATA(encodeArgs(0x40, t.size(), t));
 }
 
 BOOST_AUTO_TEST_CASE(function_name_collision)
@@ -490,11 +416,9 @@ BOOST_AUTO_TEST_CASE(function_name_collision)
 			}
 		}
 	)";
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode);
-		BOOST_CHECK(callContractFunction("f(uint256)", encodeArgs(0)) == encodeArgs(7));
-		BOOST_CHECK(callContractFunction("f(uint256)", encodeArgs(1)) == encodeArgs(1));
-	)
+	compileAndRun(sourceCode);
+	BOOST_CHECK(callContractFunction("f(uint256)", encodeArgs(0)) == encodeArgs(7));
+	BOOST_CHECK(callContractFunction("f(uint256)", encodeArgs(1)) == encodeArgs(1));
 }
 
 BOOST_AUTO_TEST_CASE(structs)
@@ -522,20 +446,18 @@ BOOST_AUTO_TEST_CASE(structs)
 		}
 	)";
 
-	NEW_ENCODER(
-		compileAndRun(sourceCode, 0, "C");
-		bytes encoded = encodeArgs(
-			u256(7), 0x80,
-			8, 9, 0x100, 10,
-			3,
-			11, 0,
-			12, 0,
-			0, 13
-		);
-		BOOST_CHECK(callContractFunction("f()") == encoded);
-		REQUIRE_LOG_DATA(encoded);
-		BOOST_CHECK_EQUAL(logTopic(0, 0), keccak256(std::string("e(uint16,(uint16,uint16,(uint64[2])[],uint16))")));
-	)
+	compileAndRun(sourceCode, 0, "C");
+	bytes encoded = encodeArgs(
+		u256(7), 0x80,
+		8, 9, 0x100, 10,
+		3,
+		11, 0,
+		12, 0,
+		0, 13
+	);
+	BOOST_CHECK(callContractFunction("f()") == encoded);
+	REQUIRE_LOG_DATA(encoded);
+	BOOST_CHECK_EQUAL(logTopic(0, 0), keccak256(std::string("e(uint16,(uint16,uint16,(uint64[2])[],uint16))")));
 }
 
 BOOST_AUTO_TEST_CASE(structs2)
@@ -563,38 +485,36 @@ BOOST_AUTO_TEST_CASE(structs2)
 		}
 	)";
 
-	NEW_ENCODER(
-		compileAndRun(sourceCode, 0, "C");
-		ABI_CHECK(callContractFunction("f()"), encodeArgs(
-			7, 0x100, 0x3c0, 8,
-			// S[2] s1
-			0x80,
-			0x200,
-			// S s1[0]
-			m_contractAddress,
-			0x80,
-			// T s1[0].t
-			1, // length
-			// s1[0].t[0]
-			0x11, 1, 0x12,
-			// S s1[1]
-			0, 0x80,
-			// T s1[1].t
-			0,
-			// S[] s2 (0x3c0)
-			2, // length
-			0x80, 0x140,
-			// S s2[0]
-			0, 0x80, 0,
-			// S s2[1]
-			0x1234, 0x80,
-			// s2[1].t
-			3, // length
-			0, 0, 0,
-			0x21, 2, 0x22,
-			0, 0, 0
-		));
-	)
+	compileAndRun(sourceCode, 0, "C");
+	ABI_CHECK(callContractFunction("f()"), encodeArgs(
+		7, 0x100, 0x3c0, 8,
+		// S[2] s1
+		0x80,
+		0x200,
+		// S s1[0]
+		m_contractAddress,
+		0x80,
+		// T s1[0].t
+		1, // length
+		// s1[0].t[0]
+		0x11, 1, 0x12,
+		// S s1[1]
+		0, 0x80,
+		// T s1[1].t
+		0,
+		// S[] s2 (0x3c0)
+		2, // length
+		0x80, 0x140,
+		// S s2[0]
+		0, 0x80, 0,
+		// S s2[1]
+		0x1234, 0x80,
+		// s2[1].t
+		3, // length
+		0, 0, 0,
+		0x21, 2, 0x22,
+		0, 0, 0
+	));
 }
 
 BOOST_AUTO_TEST_CASE(bool_arrays)
@@ -619,15 +539,13 @@ BOOST_AUTO_TEST_CASE(bool_arrays)
 		}
 	)";
 
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode, 0, "C");
-		bytes encoded = encodeArgs(
-			0x140, 1, 0, 1, 0,
-			4, 1, 0, 1, 0
-		);
-		ABI_CHECK(callContractFunction("f()"), encoded);
-		REQUIRE_LOG_DATA(encoded);
-	)
+	compileAndRun(sourceCode, 0, "C");
+	bytes encoded = encodeArgs(
+		0x140, 1, 0, 1, 0,
+		4, 1, 0, 1, 0
+	);
+	ABI_CHECK(callContractFunction("f()"), encoded);
+	REQUIRE_LOG_DATA(encoded);
 }
 
 BOOST_AUTO_TEST_CASE(bool_arrays_split)
@@ -654,16 +572,14 @@ BOOST_AUTO_TEST_CASE(bool_arrays_split)
 		}
 	)";
 
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode, 0, "C");
-		bytes encoded = encodeArgs(
-			0x140, 1, 0, 1, 0,
-			4, 1, 0, 1, 0
-		);
-		ABI_CHECK(callContractFunction("store()"), bytes{});
-		ABI_CHECK(callContractFunction("f()"), encoded);
-		REQUIRE_LOG_DATA(encoded);
-	)
+	compileAndRun(sourceCode, 0, "C");
+	bytes encoded = encodeArgs(
+		0x140, 1, 0, 1, 0,
+		4, 1, 0, 1, 0
+	);
+	ABI_CHECK(callContractFunction("store()"), bytes{});
+	ABI_CHECK(callContractFunction("f()"), encoded);
+	REQUIRE_LOG_DATA(encoded);
 }
 
 BOOST_AUTO_TEST_CASE(bytesNN_arrays)
@@ -687,35 +603,33 @@ BOOST_AUTO_TEST_CASE(bytesNN_arrays)
 		}
 	)";
 
-	BOTH_ENCODERS(
-		for (size_t size = 1; size < 15; size++)
+	for (size_t size = 1; size < 15; size++)
+	{
+		for (size_t width: {1u, 2u, 4u, 5u, 7u, 15u, 16u, 17u, 31u, 32u})
 		{
-			for (size_t width: {1u, 2u, 4u, 5u, 7u, 15u, 16u, 17u, 31u, 32u})
+			std::string source = boost::algorithm::replace_all_copy(sourceCode, "SIZE", std::to_string(size));
+			source = boost::algorithm::replace_all_copy(source, "UINTWIDTH", std::to_string(width * 8));
+			source = boost::algorithm::replace_all_copy(source, "WIDTH", std::to_string(width));
+			compileAndRun(source, 0, "C");
+			ABI_CHECK(callContractFunction("store()"), bytes{});
+			bytes arr;
+			for (size_t i = 0; i < size; i ++)
 			{
-				std::string source = boost::algorithm::replace_all_copy(sourceCode, "SIZE", std::to_string(size));
-				source = boost::algorithm::replace_all_copy(source, "UINTWIDTH", std::to_string(width * 8));
-				source = boost::algorithm::replace_all_copy(source, "WIDTH", std::to_string(width));
-				compileAndRun(source, 0, "C");
-				ABI_CHECK(callContractFunction("store()"), bytes{});
-				bytes arr;
-				for (size_t i = 0; i < size; i ++)
-				{
-					// bytesN: padded to 64-byte slot (new), left-aligned
-					bytes value(64, 0);
-					uint64_t val = static_cast<uint64_t>(i + 1);
-					for (size_t j = 0; j < width && j < 8; ++j)
-						value[width - 1 - j] = static_cast<uint8_t>(val >> (8 * j));
-					arr += value;
-				}
-				bytes encoded = encodeArgs(
-					0x40 * (1 + size)) + arr + encodeArgs(
-					2, "abc", "def"
-				);
-				ABI_CHECK(callContractFunction("f()"), encoded);
-				REQUIRE_LOG_DATA(encoded);
+				// bytesN: padded to 64-byte slot (new), left-aligned
+				bytes value(64, 0);
+				uint64_t val = static_cast<uint64_t>(i + 1);
+				for (size_t j = 0; j < width && j < 8; ++j)
+					value[width - 1 - j] = static_cast<uint8_t>(val >> (8 * j));
+				arr += value;
 			}
+			bytes encoded = encodeArgs(
+				0x40 * (1 + size)) + arr + encodeArgs(
+				2, "abc", "def"
+			);
+			ABI_CHECK(callContractFunction("f()"), encoded);
+			REQUIRE_LOG_DATA(encoded);
 		}
-	)
+	}
 }
 
 BOOST_AUTO_TEST_CASE(bytesNN_arrays_dyn)
@@ -739,35 +653,33 @@ BOOST_AUTO_TEST_CASE(bytesNN_arrays_dyn)
 		}
 	)";
 
-	BOTH_ENCODERS(
-		for (size_t size = 0; size < 15; size++)
+	for (size_t size = 0; size < 15; size++)
+	{
+		for (size_t width: {1u, 2u, 4u, 5u, 7u, 15u, 16u, 17u, 31u, 32u})
 		{
-			for (size_t width: {1u, 2u, 4u, 5u, 7u, 15u, 16u, 17u, 31u, 32u})
+			std::string source = boost::algorithm::replace_all_copy(sourceCode, "SIZE", std::to_string(size));
+			source = boost::algorithm::replace_all_copy(source, "UINTWIDTH", std::to_string(width * 8));
+			source = boost::algorithm::replace_all_copy(source, "WIDTH", std::to_string(width));
+			compileAndRun(source, 0, "C");
+			ABI_CHECK(callContractFunction("store()"), bytes{});
+			bytes arr;
+			for (size_t i = 0; i < size; i ++)
 			{
-				std::string source = boost::algorithm::replace_all_copy(sourceCode, "SIZE", std::to_string(size));
-				source = boost::algorithm::replace_all_copy(source, "UINTWIDTH", std::to_string(width * 8));
-				source = boost::algorithm::replace_all_copy(source, "WIDTH", std::to_string(width));
-				compileAndRun(source, 0, "C");
-				ABI_CHECK(callContractFunction("store()"), bytes{});
-				bytes arr;
-				for (size_t i = 0; i < size; i ++)
-				{
-					bytes value(64, 0);
-					uint64_t val = static_cast<uint64_t>(i + 1);
-					for (size_t j = 0; j < width && j < 8; ++j)
-						value[width - 1 - j] = static_cast<uint8_t>(val >> (8 * j));
-					arr += value;
-				}
-				bytes encoded = encodeArgs(
-					0x40 * 2, 0x40 * (3 + size),
-					size) + arr + encodeArgs(
-					2, "abc", "def"
-				);
-				ABI_CHECK(callContractFunction("f()"), encoded);
-				REQUIRE_LOG_DATA(encoded);
+				bytes value(64, 0);
+				uint64_t val = static_cast<uint64_t>(i + 1);
+				for (size_t j = 0; j < width && j < 8; ++j)
+					value[width - 1 - j] = static_cast<uint8_t>(val >> (8 * j));
+				arr += value;
 			}
+			bytes encoded = encodeArgs(
+				0x40 * 2, 0x40 * (3 + size),
+				size) + arr + encodeArgs(
+				2, "abc", "def"
+			);
+			ABI_CHECK(callContractFunction("f()"), encoded);
+			REQUIRE_LOG_DATA(encoded);
 		}
-	)
+	}
 }
 
 BOOST_AUTO_TEST_CASE(packed_structs)
@@ -792,15 +704,13 @@ BOOST_AUTO_TEST_CASE(packed_structs)
 		}
 	)";
 
-	NEW_ENCODER(
-		compileAndRun(sourceCode, 0, "C");
-		ABI_CHECK(callContractFunction("store()"), bytes{});
-		bytes encoded = encodeArgs(
-			0, u256(-5), m_contractAddress, u256(util::selectorFromSignatureU32("g()")), "\x01\x02\x03", u256(-3)
-		);
-		ABI_CHECK(callContractFunction("f()"), encoded);
-		REQUIRE_LOG_DATA(encoded);
-	)
+	compileAndRun(sourceCode, 0, "C");
+	ABI_CHECK(callContractFunction("store()"), bytes{});
+	bytes encoded = encodeArgs(
+		0, u256(-5), m_contractAddress, u256(util::selectorFromSignatureU32("g()")), "\x01\x02\x03", u256(-3)
+	);
+	ABI_CHECK(callContractFunction("f()"), encoded);
+	REQUIRE_LOG_DATA(encoded);
 }
 
 
@@ -818,10 +728,8 @@ BOOST_AUTO_TEST_CASE(struct_in_constructor)
 		}
 	)";
 
-	NEW_ENCODER(
-		compileAndRun(sourceCode, 0, "C", encodeArgs(0x40, 0xc0, 0x03, 0x100, 0x00, 0x00));
-		ABI_CHECK(callContractFunction("x()"), encodeArgs(0xc0, 0x03, 0x100, 0x00, 0x00));
-	)
+	compileAndRun(sourceCode, 0, "C", encodeArgs(0x40, 0xc0, 0x03, 0x100, 0x00, 0x00));
+	ABI_CHECK(callContractFunction("x()"), encodeArgs(0xc0, 0x03, 0x100, 0x00, 0x00));
 }
 
 BOOST_AUTO_TEST_CASE(struct_in_constructor_indirect)
@@ -848,10 +756,8 @@ BOOST_AUTO_TEST_CASE(struct_in_constructor_indirect)
 			}
 		}
 	)";
-	NEW_ENCODER(
-		compileAndRun(sourceCode, 0, "D");
-		ABI_CHECK(callContractFunction("f()"), encodeArgs(0xc0, 7, 0x140, 3, "abc", 3, "def"));
-	)
+	compileAndRun(sourceCode, 0, "D");
+	ABI_CHECK(callContractFunction("f()"), encodeArgs(0xc0, 7, 0x140, 3, "abc", 3, "def"));
 }
 
 BOOST_AUTO_TEST_CASE(struct_in_constructor_data_short)
@@ -868,11 +774,9 @@ BOOST_AUTO_TEST_CASE(struct_in_constructor_data_short)
 		}
 	)";
 
-	NEW_ENCODER(
-		BOOST_CHECK(
-			compileAndRunWithoutCheck({{"", sourceCode}}, 0, "C", encodeArgs(0x20, 0x60, 0x03, 0x80, 0x00)).empty()
-		);
-	)
+	BOOST_CHECK(
+		compileAndRunWithoutCheck({{"", sourceCode}}, 0, "C", encodeArgs(0x20, 0x60, 0x03, 0x80, 0x00)).empty()
+	);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

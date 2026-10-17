@@ -46,6 +46,7 @@ bool SyntaxChecker::checkSyntax(ASTNode const& _astRoot)
 bool SyntaxChecker::visit(SourceUnit const& _sourceUnit)
 {
 	m_versionPragmaFound = false;
+	m_abiCoderPragmaFound = false;
 	m_sourceUnit = &_sourceUnit;
 	return true;
 }
@@ -69,8 +70,6 @@ void SyntaxChecker::endVisit(SourceUnit const& _sourceUnit)
 		// when reporting the warning, print the source name only
 		m_errorReporter.warning(3420_error, {-1, -1, _sourceUnit.location().sourceName}, errorString);
 	}
-	if (!m_sourceUnit->annotation().useABICoderV2.set())
-		m_sourceUnit->annotation().useABICoderV2 = true;
 	m_sourceUnit = nullptr;
 }
 
@@ -113,19 +112,7 @@ bool SyntaxChecker::visit(PragmaDirective const& _pragma)
 					m_errorReporter.warning(2264_error, _pragma.location(), "Experimental features are turned on. Do not use experimental features on live deployments.");
 
 				if (feature == ExperimentalFeature::ABIEncoderV2)
-				{
-					if (m_sourceUnit->annotation().useABICoderV2.set())
-					{
-						if (!*m_sourceUnit->annotation().useABICoderV2)
-							m_errorReporter.syntaxError(
-								8273_error,
-								_pragma.location(),
-								"ABI coder v1 has already been selected through \"pragma abicoder v1\"."
-							);
-					}
-					else
-						m_sourceUnit->annotation().useABICoderV2 = true;
-				}
+					m_abiCoderPragmaFound = true;
 			}
 		}
 	}
@@ -139,16 +126,22 @@ bool SyntaxChecker::visit(PragmaDirective const& _pragma)
 			m_errorReporter.syntaxError(
 				2745_error,
 				_pragma.location(),
-				"Expected either \"pragma abicoder v1\" or \"pragma abicoder v2\"."
+				"Expected \"pragma abicoder v2\"."
 			);
-		else if (m_sourceUnit->annotation().useABICoderV2.set())
+		else if (_pragma.literals()[1] == "v1")
+			m_errorReporter.syntaxError(
+				8273_error,
+				_pragma.location(),
+				"ABI coder v1 is no longer supported. Use \"pragma abicoder v2;\"."
+			);
+		else if (m_abiCoderPragmaFound)
 			m_errorReporter.syntaxError(
 				3845_error,
 				_pragma.location(),
 				"ABI coder has already been selected for this source unit."
 			);
 		else
-			m_sourceUnit->annotation().useABICoderV2 = (_pragma.literals()[1] == "v2");
+			m_abiCoderPragmaFound = true;
 	}
 	else if (_pragma.literals()[0] == "hyperion")
 	{

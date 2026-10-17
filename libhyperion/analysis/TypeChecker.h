@@ -62,9 +62,9 @@ public:
 	/// (this can happen for variables with non-explicit types before their types are resolved)
 	Type const* type(VariableDeclaration const& _variable) const;
 
-	static bool typeSupportedByOldABIEncoder(Type const& _type, bool _isLibraryCall);
-
 private:
+	/// Packed encoding excludes structs and nested dynamic arrays.
+	static bool typeSupportedByPackedEncoding(Type const& _type);
 
 	bool visit(ContractDefinition const& _contract) override;
 	/// Checks (and warns) if a tuple assignment might cause unexpected overwrites in storage.
@@ -77,10 +77,7 @@ private:
 	/// Performs type checks for ``abi.decode(bytes memory, (...))`` and returns the
 	/// vector of return types (which is basically the second argument) if successful. It returns
 	/// the empty vector on error.
-	TypePointers typeCheckABIDecodeAndRetrieveReturnType(
-		FunctionCall const& _functionCall,
-		bool _abiEncoderV2
-	);
+	TypePointers typeCheckABIDecodeAndRetrieveReturnType(FunctionCall const& _functionCall);
 
 	TypePointers typeCheckMetaTypeFunctionAndRetrieveReturnType(FunctionCall const& _functionCall);
 
@@ -184,8 +181,6 @@ private:
 	bool expectType(Expression const& _expression, Type const& _expectedType);
 	/// Runs type checks on @a _expression to infer its type and then checks that it is an LValue.
 	void requireLValue(Expression const& _expression, bool _ordinaryAssignment);
-
-	bool useABICoderV2() const;
 
 	/// @returns the current scope that can have function or type definitions.
 	/// This is either a contract or a source unit.

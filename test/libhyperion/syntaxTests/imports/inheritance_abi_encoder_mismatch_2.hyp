@@ -8,12 +8,9 @@ contract A
     function f(S memory _s) public returns (S memory,S memory) { }
 }
 ==== Source: B.hyp ====
-pragma abicoder v1;
 import "./A.hyp";
 contract B is A { }
 ==== Source: C.hyp ====
-pragma abicoder v1;
 import "./B.hyp";
 contract C is B { }
 // ----
-// TypeError 6594: (B.hyp:38-57): Contract "B" does not use ABI coder v2 but wants to inherit from a contract which uses types that require it. Use "pragma abicoder v2;" for the inheriting contract as well to enable the feature.

@@ -94,35 +94,16 @@ BOOST_AUTO_TEST_CASE(string_storage)
 	m_appendCBORMetadata = false;
 	compileAndRun(sourceCode);
 
-	if (!CommonOptions::get().useABIEncoderV1)
-	{
-		if (CommonOptions::get().optimize)
-		{
-			CHECK_DEPLOY_GAS(0, 96453, qrvmVersion);
-		}
-		else
-		{
-			CHECK_DEPLOY_GAS(133665, 110969, qrvmVersion);
-		}
-	}
-	// TODO(now.youtrack.cloud/issue/TS-14): Gas used: 102421 - expected: 114077
-	// else
-		// CHECK_DEPLOY_GAS(114077, 95835, qrvmVersion);
+	if (CommonOptions::get().optimize)
+		CHECK_DEPLOY_GAS(0, 96453, qrvmVersion);
+	else
+		CHECK_DEPLOY_GAS(133665, 110969, qrvmVersion);
 
 	callContractFunction("f()");
-	if (!CommonOptions::get().useABIEncoderV1)
-	{
-		if (CommonOptions::get().optimize)
-		{
-			CHECK_GAS(0, 21318, 20);
-		}
-		else
-		{
-			CHECK_GAS(21503, 21351, 20);
-		}
-	}
-	// TODO(now.youtrack.cloud/issue/TS-14)
-	// CHECK_GAS(21521, 21322, 20);
+	if (CommonOptions::get().optimize)
+		CHECK_GAS(0, 21318, 20);
+	else
+		CHECK_GAS(21503, 21351, 20);
 }
 
 BOOST_AUTO_TEST_CASE(single_callvaluecheck)

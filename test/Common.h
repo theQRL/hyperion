@@ -57,7 +57,6 @@ struct CommonOptions
 	u256 enforceGasTestMinValue = 100000;
 	bool disableSemanticTests = false;
 	bool disableSMT = false;
-	bool useABIEncoderV1 = false;
 	bool showMessages = false;
 	bool showMetadata = false;
 	size_t batches = 1;
@@ -74,7 +73,7 @@ struct CommonOptions
 	virtual void validate() const;
 
 	/// @returns string with a key=value list of the options separated by comma
-	/// Ex.: "qrvmVersion=zond, optimize=true, useABIEncoderV1=false"
+	/// Ex.: "qrvmVersion=zond, optimize=true"
 	virtual std::string toString(std::vector<std::string> const& _selectedOptions) const;
 	/// Helper to print the value of settings used
 	virtual void printSelectedOptions(std::ostream& _stream, std::string const& _linePrefix, std::vector<std::string> const& _selectedOptions) const;

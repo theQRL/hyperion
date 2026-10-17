@@ -38,7 +38,7 @@ namespace hyperion::frontend
  *  - whether a modifier contains at least one '_'
  *  - issues deprecation warnings for unary '+'
  *  - whether the msize instruction is used and the Yul optimizer is enabled at the same time.
- *  - selection of the ABI coder through pragmas.
+ *  - validation of ABI coder pragmas.
  */
 class SyntaxChecker: private ASTConstVisitor
 {
@@ -103,6 +103,9 @@ private:
 
 	/// Flag that indicates whether some version pragma was present.
 	bool m_versionPragmaFound = false;
+
+	/// Tracks explicit ABI coder pragmas to diagnose duplicate declarations.
+	bool m_abiCoderPragmaFound = false;
 
 	/// Flag that indicates whether we are inside an unchecked block.
 	bool m_uncheckedArithmetic = false;

@@ -86,16 +86,7 @@ SemanticTest::SemanticTest(
 		toString(RequiresYulOptimizer::False)
 	);
 
-	m_runWithABIEncoderV1Only = m_reader.boolSetting("ABIEncoderV1Only", false);
-	if (m_runWithABIEncoderV1Only && !hyperion::test::CommonOptions::get().useABIEncoderV1)
-		m_shouldRun = false;
-
 	std::string compileViaYul = m_reader.stringSetting("compileViaYul", "also");
-	if (m_runWithABIEncoderV1Only && compileViaYul != "false")
-		BOOST_THROW_EXCEPTION(std::runtime_error(
-			"ABIEncoderV1Only tests cannot be run via yul, "
-			"so they need to also specify ``compileViaYul: false``"
-		));
 	if (!util::contains(compileViaYulAllowedValues, compileViaYul))
 		BOOST_THROW_EXCEPTION(std::runtime_error("Invalid compileViaYul value: " + compileViaYul + "."));
 	m_testCaseWantsYulRun = util::contains(yulRunTriggers, compileViaYul);
@@ -337,7 +328,7 @@ TestCase::TestResult SemanticTest::run(std::ostream& _stream, std::string const&
 		hyperion::test::CommonOptions::get().printSelectedOptions(
 			_stream,
 			_linePrefix,
-			{"qrvmVersion", "optimize", "useABIEncoderV1", "batch"}
+			{"qrvmVersion", "optimize", "batch"}
 		);
 
 	return result;
@@ -572,7 +563,6 @@ bool SemanticTest::checkGasCostExpectation(TestFunctionCall& io_test, bool _comp
 		(m_optimiserSettings == OptimiserSettings::full() ? "Optimized" : "");
 
 	// We don't check gas if enforce gas cost is not active
-	// or test is run with abi encoder v1 only
 	// or gas used less than threshold for enforcing feature
 	// or the test has used up all available gas (test will fail anyway)
 	// or setting is "ir" and it's not included in expectations
@@ -585,8 +575,6 @@ bool SemanticTest::checkGasCostExpectation(TestFunctionCall& io_test, bool _comp
 		io_test.call().kind == FunctionCall::Kind::Builtin
 	)
 		return true;
-
-	hypAssert(!m_runWithABIEncoderV1Only, "");
 
 	io_test.setGasCost(setting, m_gasUsed);
 	return

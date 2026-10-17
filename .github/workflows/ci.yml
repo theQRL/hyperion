@@ -153,7 +153,7 @@ jobs:
           persist-credentials: false
       - name: Build QRVM test engine
         run: bash scripts/ci/build_qrvmone.sh
-      - name: Compiler tests (default, optimized and ABI v1)
+      - name: Compiler tests (default and optimized)
         run: bash scripts/ci/hyptest_all.sh
       - name: Python script tests
         run: |

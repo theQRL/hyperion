@@ -51,10 +51,7 @@ bytes HyperionExecutionFramework::multiSourceCompileContract(
 		hypAssert(_sourceCode.find(_mainSourceName.value()) != _sourceCode.end(), "");
 
 	m_compiler.reset();
-	m_compiler.setSources(withPreamble(
-		_sourceCode,
-		hyperion::test::CommonOptions::get().useABIEncoderV1 // _addAbicoderV1Pragma
-	));
+	m_compiler.setSources(withPreamble(_sourceCode));
 	m_compiler.setLibraries(_libraryAddresses);
 	m_compiler.setRevertStringBehaviour(m_revertStrings);
 	m_compiler.setQRVMVersion(m_qrvmVersion);

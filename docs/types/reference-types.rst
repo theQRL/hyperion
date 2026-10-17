@@ -367,8 +367,8 @@ Array Members
     elements similar to calling :ref:`delete<delete>` on them.
 
 .. note::
-    To use arrays of arrays in external (instead of public) functions, you need to
-    activate ABI coder v2.
+    Arrays of arrays are supported in external and public functions by
+    :ref:`ABI coder v2 <abi_coder>`, which Hyperion uses for all contracts.
 
 .. code-block:: hyperion
 

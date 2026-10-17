@@ -2074,7 +2074,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 				{
 					hypAssert(memberType->calldataEncodedSize() > 0, "");
 					hypAssert(memberType->storageBytes() <= VMWordBytes, "");
-					if (memberType->storageBytes() < VMWordBytes && m_context.useABICoderV2())
+					if (memberType->storageBytes() < VMWordBytes)
 					{
 						m_context << u256(VMWordBytes);
 						CompilerUtils(m_context).abiDecodeV2({memberType}, false);
@@ -2855,18 +2855,6 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		utils().fetchFreeMemoryPointer();
 		// Stack: return_data_start
 
-		// The old decoder did not allocate any memory (i.e. did not touch the free
-		// memory pointer), but kept references to the return data for
-		// (statically-sized) arrays
-		bool needToUpdateFreeMemoryPtr = false;
-		if (dynamicReturnSize || m_context.useABICoderV2())
-			needToUpdateFreeMemoryPtr = true;
-		else
-			for (auto const& retType: returnTypes)
-				if (dynamic_cast<ReferenceType const*>(retType))
-					needToUpdateFreeMemoryPtr = true;
-
-		// Stack: return_data_start
 		if (dynamicReturnSize)
 		{
 			m_context.appendInlineAssembly("{ returndatacopy(return_data_start, 0, returndatasize()) }", {"return_data_start"});
@@ -2894,17 +2882,16 @@ void ExpressionCompiler::appendExternalFunctionCall(
 				calldatacopy(add(start, copied), calldatasize(), sub(paddedSize, copied))
 			}
 		})", {"start", "paddedSize"});
-		if (needToUpdateFreeMemoryPtr)
-			m_context.appendInlineAssembly(
-				Whiskers(R"({
-				// size is already rounded to the next multiple of VM word size
-				let newMem := add(start, size)
-				mstore(<freeMemoryPointer>, newMem)
-			})")
-				("freeMemoryPointer", std::to_string(CompilerUtils::freeMemoryPointer))
-				.render(),
-				{"start", "size"}
-			);
+		m_context.appendInlineAssembly(
+			Whiskers(R"({
+			// size is already rounded to the next multiple of VM word size
+			let newMem := add(start, size)
+			mstore(<freeMemoryPointer>, newMem)
+		})")
+			("freeMemoryPointer", std::to_string(CompilerUtils::freeMemoryPointer))
+			.render(),
+			{"start", "size"}
+		);
 
 		utils().abiDecode(returnTypes, true);
 	}

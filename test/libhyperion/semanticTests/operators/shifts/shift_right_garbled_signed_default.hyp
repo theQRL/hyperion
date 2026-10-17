@@ -1,0 +1,28 @@
+contract C {
+    function f(int8 a, uint8 b) public returns (int256) {
+        assembly {
+            a := 0xfffffff0
+        }
+        // Higher bits should be signextended before the shift
+        return a >> b;
+    }
+
+    function g(int8 a, uint8 b) public returns (int256) {
+        assembly {
+            a := 0xf0
+        }
+        // Higher bits should be signextended before the shift
+        return a >> b;
+    }
+}
+// ----
+// f(int8,uint8): 0x00, 0x03 -> -2
+// f(int8,uint8): 0x00, 0x04 -> -1
+// f(int8,uint8): 0x00, 0xff -> -1
+// f(int8,uint8): 0x00, 0x1003 -> FAILURE
+// f(int8,uint8): 0x00, 0x1004 -> FAILURE
+// g(int8,uint8): 0x00, 0x03 -> -2
+// g(int8,uint8): 0x00, 0x04 -> -1
+// g(int8,uint8): 0x00, 0xff -> -1
+// g(int8,uint8): 0x00, 0x1003 -> FAILURE
+// g(int8,uint8): 0x00, 0x1004 -> FAILURE

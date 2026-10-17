@@ -1,4 +1,3 @@
-pragma abicoder v1;
 contract C {
 	function f0() public pure returns (bytes memory) {
 		return abi.encodeWithSignature("f(uint256)");

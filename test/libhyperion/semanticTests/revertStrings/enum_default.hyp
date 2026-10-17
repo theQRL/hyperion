@@ -1,0 +1,10 @@
+contract C {
+	enum E {X, Y}
+	function f(E[] calldata arr) external {
+		arr[1];
+	}
+}
+// ====
+// revertStrings: debug
+// ----
+// f(uint8[]): 0x40, 2, 3, 3 -> FAILURE

@@ -301,7 +301,7 @@ Input Description
           // "default", "strip", "debug" and "verboseDebug".
           // "default" does not inject compiler-generated revert strings and keeps user-supplied ones.
           // "strip" removes all revert strings (if possible, i.e. if literals are used) keeping side-effects
-          // "debug" injects strings for compiler-generated internal reverts, implemented for ABI encoders V1 and V2 for now.
+          // "debug" injects strings for compiler-generated internal reverts, including ABI encoding and decoding checks.
           // "verboseDebug" even appends further information to user-supplied revert strings (not yet implemented)
           "revertStrings": "default",
           // Optional: How much extra debug information to include in comments in the produced QRVM

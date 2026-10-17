@@ -1,0 +1,18 @@
+contract C {
+	function dyn(uint ptr, uint start, uint x) public returns (bytes memory a) {
+		assembly {
+			mstore(0, start)
+			mstore(start, add(start, 1))
+			return(ptr, x)
+		}
+	}
+	function f(uint ptr, uint start, uint x) public returns (bool) {
+		this.dyn(ptr, start, x);
+		return true;
+	}
+}
+// ====
+// revertStrings: debug
+// ----
+// f(uint256,uint256,uint256): 0, 0x400, 0xc0 -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array offset"
+// f(uint256,uint256,uint256): 0, 0x40, 0xc0 -> FAILURE, hex"08c379a0", 0x40, 0x27, "ABI decoding: invalid byte array length"

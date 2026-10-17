@@ -97,36 +97,20 @@ these follow the same syntax used by `npm <https://docs.npmjs.com/cli/v6/using-n
 ABI Coder Pragma
 ----------------
 
-By using ``pragma abicoder v1`` or ``pragma abicoder v2`` you can
-select between the two implementations of the ABI encoder and decoder.
+Hyperion uses ABI coder v2 for all contracts. It supports structs and arbitrarily
+nested arrays, and checks values during decoding.
 
-The new ABI coder (v2) is able to encode and decode arbitrarily nested
-arrays and structs. Apart from supporting more types, it involves more extensive
-validation and safety checks, which may result in higher gas costs, but also heightened
-security. It is considered
-non-experimental as of Hyperion 0.6.0 and it is enabled by default starting
-with Hyperion 0.8.0. The old ABI coder can still be selected using ``pragma abicoder v1;``.
+The pragma ``pragma abicoder v2;`` is optional and explicitly documents this
+behavior. The older spelling ``pragma experimental ABIEncoderV2;`` is still
+accepted for source compatibility.
 
-The set of types supported by the new encoder is a strict superset of
-the ones supported by the old one. Contracts that use it can interact with ones
-that do not without limitations. The reverse is possible only as long as the
-non-``abicoder v2`` contract does not try to make calls that would require
-decoding types only supported by the new encoder. The compiler can detect this
-and will issue an error. Simply enabling ``abicoder v2`` for your contract is
-enough to make the error go away.
+ABI coder v1 has been removed. Sources containing ``pragma abicoder v1;`` are
+rejected with a migration diagnostic. Remove that pragma or replace it with
+``pragma abicoder v2;`` and test the contract again. Recompilation can change
+bytecode, gas costs, and the handling of malformed encoded input.
 
-.. note::
-  This pragma applies to all the code defined in the file where it is activated,
-  regardless of where that code ends up eventually. This means that a contract
-  whose source file is selected to compile with ABI coder v1
-  can still contain code that uses the new encoder
-  by inheriting it from another contract. This is allowed if the new types are only
-  used internally and not in external function signatures.
-
-.. note::
-  Up to Hyperion 0.7.4, it was possible to select the ABI coder v2
-  by using ``pragma experimental ABIEncoderV2``, but it was not possible
-  to explicitly select coder v1 because it was the default.
+Removing compiler support for ABI coder v1 does not change existing deployed
+bytecode or the VM's ability to execute it.
 
 .. index:: ! pragma; experimental
 .. _experimental_pragma:
@@ -143,9 +127,9 @@ The following experimental pragmas are currently supported:
 ABIEncoderV2
 ~~~~~~~~~~~~
 
-Because the ABI coder v2 is not considered experimental anymore,
-it can be selected via ``pragma abicoder v2`` (please see above)
-since Hyperion 0.7.4.
+ABI coder v2 is always enabled. The spelling ``pragma experimental ABIEncoderV2;``
+is retained for source compatibility; ``pragma abicoder v2;`` is preferred when
+an explicit declaration is desired.
 
 .. index:: ! pragma; SMTChecker
 .. _smt_checker:

@@ -1190,8 +1190,7 @@ void ArrayUtils::accessCallDataArrayElement(ArrayType const& _arrayType, bool _d
 			hypAssert(_arrayType.baseType()->storageBytes() <= VMWordBytes, "");
 			if (
 				!_arrayType.isByteArrayOrString() &&
-				_arrayType.baseType()->storageBytes() < VMWordBytes &&
-				m_context.useABICoderV2()
+				_arrayType.baseType()->storageBytes() < VMWordBytes
 			)
 			{
 				m_context << u256(VMWordBytes);

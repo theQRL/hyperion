@@ -1,0 +1,11 @@
+contract C {
+	function d(bytes memory _data) public pure returns (uint8) {
+		return abi.decode(_data, (uint8));
+	}
+}
+// ====
+// revertStrings: debug
+// ----
+// d(bytes): 0x40, 0x40, 0x0000000000000000000000000000000000000000000000000000000000000000 -> 0
+// d(bytes): 0x100, 0x40, 0x0000000000000000000000000000000000000000000000000000000000000000 -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array offset"
+// d(bytes): 0x40, 0x100, 0x0000000000000000000000000000000000000000000000000000000000000000 -> FAILURE, hex"08c379a0", 0x40, 0x27, "ABI decoding: invalid byte array length"

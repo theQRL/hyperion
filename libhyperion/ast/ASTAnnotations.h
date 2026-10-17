@@ -95,8 +95,6 @@ struct SourceUnitAnnotation: ASTAnnotation
 	util::SetOnce<std::map<ASTString, std::vector<Declaration const*>>> exportedSymbols;
 	/// Experimental features.
 	std::set<ExperimentalFeature> experimentalFeatures;
-	/// Using the new ABI coder. Set to `false` if using ABI coder v1.
-	util::SetOnce<bool> useABICoderV2;
 };
 
 struct ScopableAnnotation

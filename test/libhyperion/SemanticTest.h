@@ -118,7 +118,6 @@ private:
 	std::vector<SideEffectHook> const m_sideEffectHooks;
 	bool m_testCaseWantsYulRun = true;
 	bool m_testCaseWantsLegacyRun = true;
-	bool m_runWithABIEncoderV1Only = false;
 	bool m_allowNonExistingFunctions = false;
 	bool m_gasCostFailure = false;
 	bool m_enforceGasCost = false;

@@ -51,7 +51,7 @@ std::string ABIFunctions::tupleEncoder(
 	for (Type const*& t: _targetTypes)
 	{
 		hypAssert(t, "");
-		t = t->fullEncodingType(options.encodeAsLibraryTypes, true, !options.padded);
+		t = t->fullEncodingType(options.encodeAsLibraryTypes);
 		hypAssert(t, "");
 	}
 
@@ -130,7 +130,7 @@ std::string ABIFunctions::tupleEncoderPacked(
 	for (Type const*& t: _targetTypes)
 	{
 		hypAssert(t, "");
-		t = t->fullEncodingType(options.encodeAsLibraryTypes, true, !options.padded);
+		t = t->fullEncodingType(options.encodeAsLibraryTypes);
 		hypAssert(t, "");
 	}
 
@@ -279,7 +279,7 @@ std::string ABIFunctions::abiEncodingFunction(
 	EncodingOptions const& _options
 )
 {
-	Type const* toInterface = _to.fullEncodingType(_options.encodeAsLibraryTypes, true, false);
+	Type const* toInterface = _to.fullEncodingType(_options.encodeAsLibraryTypes);
 	hypUnimplementedAssert(toInterface, "Encoding type \"" + _to.toString() + "\" not yet implemented.");
 	Type const& to = *toInterface;
 
@@ -407,7 +407,7 @@ std::string ABIFunctions::abiEncodeAndReturnUpdatedPosFunction(
 	return createFunction(functionName, [&]() {
 		std::string values = suffixedVariableNameList("value", 0, numVariablesForType(_givenType, _options));
 		std::string encoder = abiEncodingFunction(_givenType, _targetType, _options);
-		Type const* targetEncoding = _targetType.fullEncodingType(_options.encodeAsLibraryTypes, true, false);
+		Type const* targetEncoding = _targetType.fullEncodingType(_options.encodeAsLibraryTypes);
 		hypAssert(targetEncoding, "");
 		if (targetEncoding->isDynamicallyEncoded())
 			return Whiskers(R"(
@@ -883,7 +883,7 @@ std::string ABIFunctions::abiEncodingFunctionStruct(
 		{
 			hypAssert(member.type, "");
 			hypAssert(!member.type->containsNestedMapping(), "");
-			Type const* memberTypeTo = member.type->fullEncodingType(_options.encodeAsLibraryTypes, true, false);
+			Type const* memberTypeTo = member.type->fullEncodingType(_options.encodeAsLibraryTypes);
 			hypUnimplementedAssert(memberTypeTo, "Encoding type \"" + member.type->toString() + "\" not yet implemented.");
 			auto memberTypeFrom = _from.memberType(member.name);
 			hypAssert(memberTypeFrom, "");

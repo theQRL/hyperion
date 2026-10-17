@@ -1,0 +1,11 @@
+contract C {
+    function f(int8 a, uint8 b) public returns (int8) {
+        return a >> b;
+    }
+}
+// ----
+// f(int8,uint8): -103, 0x00 -> -103
+// f(int8,uint8): -103, 0x01 -> -52
+// f(int8,uint8): -103, 0x02 -> -26
+// f(int8,uint8): -103, 0x04 -> -7
+// f(int8,uint8): -103, 0x08 -> -1

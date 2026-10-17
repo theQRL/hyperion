@@ -178,9 +178,7 @@ public:
 		encodeToMemory(_givenTypes, _targetTypes, true, false, _encodeAsLibraryTypes);
 	}
 
-	/// Special case of @a encodeToMemory which assumes that everything is padded to words
-	/// and dynamic data is not copied in place (i.e. a proper ABI encoding).
-	/// Uses a new, less tested encoder implementation.
+	/// Encodes values using the Yul ABI functions, optionally with packed encoding.
 	/// Stack pre: <value0> <value1> ... <valueN-1> <head_start>
 	/// Stack post: <mem_ptr>
 	void abiEncodeV2(

@@ -1,0 +1,15 @@
+{
+    "language": "Hyperion",
+    "sources": {
+        "input.hyp": {
+            "content": "// SPDX-License-Identifier: GPL-3.0\npragma hyperion >=0.0;\npragma abicoder v1;\ncontract C {}"
+        }
+    },
+    "settings": {
+        "outputSelection": {
+            "*": {
+                "*": ["abi", "qrvm.bytecode.object"]
+            }
+        }
+    }
+}

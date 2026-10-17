@@ -1,4 +1,3 @@
-pragma abicoder v1;
 struct S {
     uint x;
 }
@@ -9,4 +8,4 @@ contract C {
     }
 }
 // ----
-// TypeError 9611: (118-119): Decoding type struct S memory not supported.
+// Warning 6133: (78-101): Statement has no effect.
