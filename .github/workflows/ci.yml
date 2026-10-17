@@ -117,7 +117,7 @@ jobs:
             deps/boost
             deps/cmake
             ~/.hunter
-          key: deps-${{ matrix.os }}-${{ hashFiles('scripts/install_deps.ps1', 'scripts/ci/install_macos_deps.sh', 'scripts/ci/build_qrvmone.sh') }}
+          key: deps-${{ matrix.os }}-${{ hashFiles('scripts/install_deps.ps1', 'scripts/ci/install_macos_deps.sh', 'scripts/ci/build_qrvmone.sh', 'scripts/ci/cmake/**') }}
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
         run: |
