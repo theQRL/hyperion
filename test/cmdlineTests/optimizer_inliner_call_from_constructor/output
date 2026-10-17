@@ -86,6 +86,7 @@ sub_0: assembly {
       add
       swap1
       return
+    stop
 
     auxdata: <AUXDATA REMOVED>
 }

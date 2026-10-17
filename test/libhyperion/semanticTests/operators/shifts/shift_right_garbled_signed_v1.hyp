@@ -20,13 +20,13 @@ contract C {
 // ABIEncoderV1Only: true
 // compileViaYul: false
 // ----
-// f(int8,uint8): 0x00, 0x03 -> 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe
-// f(int8,uint8): 0x00, 0x04 -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-// f(int8,uint8): 0x00, 0xff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-// f(int8,uint8): 0x00, 0x1003 -> 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe
-// f(int8,uint8): 0x00, 0x1004 -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-// g(int8,uint8): 0x00, 0x03 -> 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe
-// g(int8,uint8): 0x00, 0x04 -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-// g(int8,uint8): 0x00, 0xff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-// g(int8,uint8): 0x00, 0x1003 -> 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe
-// g(int8,uint8): 0x00, 0x1004 -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+// f(int8,uint8): 0x00, 0x03 -> -2
+// f(int8,uint8): 0x00, 0x04 -> -1
+// f(int8,uint8): 0x00, 0xff -> -1
+// f(int8,uint8): 0x00, 0x1003 -> -2
+// f(int8,uint8): 0x00, 0x1004 -> -1
+// g(int8,uint8): 0x00, 0x03 -> -2
+// g(int8,uint8): 0x00, 0x04 -> -1
+// g(int8,uint8): 0x00, 0xff -> -1
+// g(int8,uint8): 0x00, 0x1003 -> -2
+// g(int8,uint8): 0x00, 0x1004 -> -1

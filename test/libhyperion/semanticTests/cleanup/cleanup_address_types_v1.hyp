@@ -15,5 +15,7 @@ contract C {
 // ABIEncoderV1Only: true
 // compileViaYul: false
 // ----
-// f(address): Qffff1234567890123456789012345678901234567890 -> 0x0 # We input longer data on purpose.#
-// g(address): Qffff1234567890123456789012345678901234567890 -> 0x0
+// f(address): Q1234567890123456789012345678901234567890 -> 0
+// f(address): Qffff1234567890123456789012345678901234567890 -> 1 # High address bits must be preserved. #
+// g(address): Q1234567890123456789012345678901234567890 -> 0
+// g(address): Qffff1234567890123456789012345678901234567890 -> 1

@@ -231,6 +231,7 @@ sub_0: assembly {
       0x00
         /* "#utility.yul":612:627   */
       revert
+    stop
 
     auxdata: <AUXDATA REMOVED>
 }

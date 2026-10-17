@@ -1,1 +1,1 @@
-Error: Assembly Import Error: Unknown member '_name'. Valid members are: begin, end, jumpType, modifierDepth, name, source, value.
+Error: Assembly Import Error: Unknown member '_name'. Valid members are: arguments, begin, end, functionName, id, jumpType, modifierDepth, name, parameterSlots, returnSlots, returnValues, source, value.

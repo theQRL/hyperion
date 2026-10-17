@@ -229,7 +229,7 @@ EOF
         # shellcheck disable=SC2016
         sed -i.bak -E -e 's/(\"object\":[[:space:]]*\"[^"]+\$__)[0-9a-f]+(\")/\1<BYTECODE REMOVED>\2/g' "$stdout_path"
         # shellcheck disable=SC2016
-        sed -i.bak -E -e 's/([0-9a-f]{34}\$__)[0-9a-f]+(__\$[0-9a-f]{17})/\1<BYTECODE REMOVED>\2/g' "$stdout_path"
+        sed -i.bak -E -e 's/([0-9a-f]{122}\$__)[0-9a-f]+(__\$[0-9a-f]{122})/\1<BYTECODE REMOVED>\2/g' "$stdout_path"
         # Remove metadata in assembly output (see below about the magic numbers)
         sed -i.bak -E -e 's/"[0-9a-f]+64697066735822[0-9a-f]+6468797063[0-9a-f]+/"<BYTECODE REMOVED>/g' "$stdout_path"
 
@@ -259,10 +259,11 @@ EOF
         # 64697066735822 = hex encoding of 0x64 'i' 'p' 'f' 's' 0x58 0x22
         # 6468797063     = hex encoding of 0x64 'h' 'y' 'p' 'c'
         sed -i.bak -E -e 's/[0-9a-f]*64697066735822[0-9a-f]+6468797063[0-9a-f]+/<BYTECODE REMOVED>/g' "$stdout_path"
+        # A 64-byte address placeholder contains 122 hash digits plus __$ and $__.
         # shellcheck disable=SC2016
-        sed -i.bak -E -e 's/([0-9a-f]{17}\$__)[0-9a-f]+(__\$[0-9a-f]{17})/\1<BYTECODE REMOVED>\2/g' "$stdout_path"
+        sed -i.bak -E -e 's/([0-9a-f]{122}\$__)[0-9a-f]+(__\$[0-9a-f]{122})/\1<BYTECODE REMOVED>\2/g' "$stdout_path"
         # shellcheck disable=SC2016
-        sed -i.bak -E -e 's/[0-9a-f]+((__\$[0-9a-f]{34}\$__)*<BYTECODE REMOVED>)/<BYTECODE REMOVED>\1/g' "$stdout_path"
+        sed -i.bak -E -e 's/[0-9a-f]+((__\$[0-9a-f]{122}\$__)*<BYTECODE REMOVED>)/<BYTECODE REMOVED>\1/g' "$stdout_path"
 
         # Remove trailing empty lines. Needs a line break to make OSX sed happy.
         sed -i.bak -e '1{/^$/d

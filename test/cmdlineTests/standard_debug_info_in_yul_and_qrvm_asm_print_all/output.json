@@ -201,6 +201,7 @@ sub_0: assembly {
         /* \"C\":77:99  function f() public {} */
     tag_3:
       stop
+    stop
 
     auxdata: <AUXDATA REMOVED>
 }

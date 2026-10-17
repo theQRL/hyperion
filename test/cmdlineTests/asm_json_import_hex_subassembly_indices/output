@@ -1,7 +1,6 @@
 Opcodes:
 PUSH0 INVALID
 QRVM assembly:
-    /*   */
   0x00
 stop
 

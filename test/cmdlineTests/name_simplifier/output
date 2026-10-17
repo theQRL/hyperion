@@ -69,8 +69,9 @@ object "C_59" {
                             }
                             mstore(_9, newFreePtr_1)
                             let value := calldataload(src)
-                            if iszero(eq(value, and(value, sub(shl(256, 1), 1)))) { revert(0, 0) }
-                            mstore(memPtr, value)
+                            let _10 := and(value, sub(shl(256, 1), 1))
+                            if iszero(eq(value, _10)) { revert(0, 0) }
+                            mstore(memPtr, _10)
                             mstore(dst, memPtr)
                             dst := add(dst, _3)
                         }
@@ -80,20 +81,22 @@ object "C_59" {
                             mstore(_2, 0x32)
                             revert(0, _6)
                         }
-                        let _10 := sub(shl(256, 1), 1)
-                        sstore(0, or(and(sload(0), not(sub(shl(256, 1), 1))), and(mload(/** @src 0:469:474  "_s[0]" */ mload(dst_1)), /** @src 0:346:625  "contract C {..." */ _10)))
-                        let _11 := mload(_1)
-                        let _12 := 1
-                        if iszero(lt(1, _11))
+                        let _11 := sub(shl(256, 1), 1)
+                        let _12 := and(mload(/** @src 0:469:474  "_s[0]" */ mload(dst_1)), /** @src 0:346:625  "contract C {..." */ _11)
+                        let _13 := not(sub(shl(256, 1), 1))
+                        sstore(0, or(and(sload(0), _13), _12))
+                        let _14 := mload(_1)
+                        let _15 := 1
+                        if iszero(lt(1, _14))
                         {
                             mstore(0, shl(480, 0x4e487b71))
                             mstore(_2, 0x32)
                             revert(0, _6)
                         }
-                        let cleaned := and(mload(/** @src 0:489:494  "_s[1]" */ mload(/** @src 0:346:625  "contract C {..." */ add(_1, _9))), _10)
-                        sstore(0x02, or(and(sload(0x02), not(sub(shl(256, 1), 1))), cleaned))
+                        let cleaned := and(mload(/** @src 0:489:494  "_s[1]" */ mload(/** @src 0:346:625  "contract C {..." */ add(_1, _9))), _11)
+                        sstore(0x02, or(and(sload(0x02), _13), cleaned))
                         let memPtr_1 := mload(_9)
-                        let _13 := 192
+                        let _16 := 192
                         let newFreePtr_2 := add(memPtr_1, 192)
                         if or(gt(newFreePtr_2, _4), lt(newFreePtr_2, memPtr_1))
                         {
@@ -113,12 +116,12 @@ object "C_59" {
                         let i := 0
                         for { } lt(i, length) { i := add(i, _3) }
                         {
-                            mstore(add(add(memPos, i), _13), mload(add(add(memPtr_1, i), _3)))
+                            mstore(add(add(memPos, i), _16), mload(add(add(memPtr_1, i), _3)))
                         }
                         let j := length
-                        for { } lt(j, i) { j := add(j, _12) }
+                        for { } lt(j, i) { j := add(j, _15) }
                         {
-                            mstore8(add(add(memPos, j), _13), 0)
+                            mstore8(add(add(memPos, j), _16), 0)
                         }
                         return(memPos, add(sub(add(memPos, and(add(length, 63), _8)), memPos), 192))
                     }

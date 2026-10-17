@@ -267,7 +267,6 @@ object \"C_54\" {
 
             function read_from_storage_split_dynamic_t_int256(slot, offset) -> value {
                 value := extract_from_storage_value_dynamict_int256(sload(slot), offset)
-
             }
 
             /// @ast-id 10
@@ -407,7 +406,6 @@ object \"C_54\" {
 
             function read_from_storage_split_offset_0_t_int256(slot) -> value {
                 value := extract_from_storage_value_offset_0t_int256(sload(slot))
-
             }
 
             function increment_t_int256(value) -> ret {
@@ -896,7 +894,6 @@ object \"D_72\" {
 
         function read_from_storage_split_offset_0_t_int256(slot) -> value {
             value := extract_from_storage_value_offset_0t_int256(sload(slot))
-
         }
 
         function panic_error_0x11() {
@@ -1101,7 +1098,6 @@ object \"D_72\" {
 
             function read_from_storage_split_dynamic_t_int256(slot, offset) -> value {
                 value := extract_from_storage_value_dynamict_int256(sload(slot), offset)
-
             }
 
             /// @ast-id 10
@@ -1241,7 +1237,6 @@ object \"D_72\" {
 
             function read_from_storage_split_offset_0_t_int256(slot) -> value {
                 value := extract_from_storage_value_offset_0t_int256(sload(slot))
-
             }
 
             function increment_t_int256(value) -> ret {

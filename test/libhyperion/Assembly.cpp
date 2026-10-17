@@ -108,9 +108,12 @@ void printAssemblyLocations(AssemblyItems const& _items)
 			_loc.start <<
 			", " <<
 			_loc.end <<
-			", make_shared<string>(\"" <<
-			*_loc.sourceName <<
-			"\")}) +" << std::endl;
+			", ";
+		if (_loc.sourceName)
+			std::cout << "make_shared<string>(\"" << *_loc.sourceName << "\")";
+		else
+			std::cout << "nullptr";
+		std::cout << "}) +" << std::endl;
 	};
 
 	std::vector<SourceLocation> locations;
@@ -176,7 +179,9 @@ BOOST_AUTO_TEST_CASE(location_test)
 			std::vector<SourceLocation>(31, SourceLocation{23, 103, sourceName}) +
 			std::vector<SourceLocation>(1, SourceLocation{41, 100, sourceName}) +
 			std::vector<SourceLocation>(1, SourceLocation{93, 95, sourceName}) +
-			std::vector<SourceLocation>(15, SourceLocation{41, 100, sourceName});
+			std::vector<SourceLocation>(3, SourceLocation{41, 100, sourceName}) +
+			std::vector<SourceLocation>(5, SourceLocation{-1, -1, nullptr}) +
+			std::vector<SourceLocation>(14, SourceLocation{41, 100, sourceName});
 	else
 		locations =
 			std::vector<SourceLocation>(31, SourceLocation{23, 103, sourceName}) +

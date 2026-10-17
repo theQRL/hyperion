@@ -182,6 +182,10 @@ object "C_15" {
 
             }
 
+            function write_to_memory_t_array$_t_uint256_$dyn_memory_ptr(memPtr, value) {
+                mstore(memPtr, value)
+            }
+
             function revert_error_81385d8c0b31fffe14be1da910c8bd3a80be4cfa248e04f42ec0faea3132a8ef() {
 
                 let start := allocate_unbounded()
@@ -214,6 +218,10 @@ object "C_15" {
                 cleaned := and(value, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
             }
 
+            function write_to_memory_t_uint256(memPtr, value) {
+                mstore(memPtr, cleanup_t_uint256(value))
+            }
+
             function validator_revert_t_uint256(value) {
                 if iszero(eq(value, cleanup_t_uint256(value))) { revert(0, 0) }
             }
@@ -240,7 +248,8 @@ object "C_15" {
 
                     let elementPos := src
 
-                    mstore(dst, abi_decode_t_uint256(elementPos, end))
+                    let elementValue_0 := abi_decode_t_uint256(elementPos, end)
+                    write_to_memory_t_uint256(dst, elementValue_0)
                     dst := add(dst, 0x40)
                 }
             }
@@ -271,7 +280,8 @@ object "C_15" {
                     if gt(innerOffset, 0xffffffffffffffff) { revert_error_1b9f4a0a5773e33b91aa01db23bf8c55fce1411167c872835e7fa00a4f17d46d() }
                     let elementPos := add(offset, innerOffset)
 
-                    mstore(dst, abi_decode_t_array$_t_uint256_$dyn_memory_ptr(elementPos, end))
+                    let elementValue_0 := abi_decode_t_array$_t_uint256_$dyn_memory_ptr(elementPos, end)
+                    write_to_memory_t_array$_t_uint256_$dyn_memory_ptr(dst, elementValue_0)
                     dst := add(dst, 0x40)
                 }
             }

@@ -200,6 +200,7 @@ sub_0: assembly {
         /* \"C\":77:99 */
     tag_3:
       stop
+    stop
 
     auxdata: <AUXDATA REMOVED>
 }

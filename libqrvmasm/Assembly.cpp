@@ -230,7 +230,7 @@ bytes parseAssemblyHexBytes(std::string const& _value, std::string const& _field
 	return fromHex(_value, WhenError::Throw);
 }
 
-[[maybe_unused]] h256 parseAssemblyDataHash(std::string const& _value, std::string const& _field)
+h256 parseAssemblyDataHash(std::string const& _value, std::string const& _field)
 {
 	solRequire(
 		_value.size() == h256::size * 2 && isHexDigits(_value),
@@ -8008,12 +8008,12 @@ std::pair<std::shared_ptr<Assembly>, std::vector<std::string>> Assembly::fromJSO
 			Json::Value const& dataItem = data[dataItemID];
 			if (dataItem.isString())
 			{
-				h256 const dataHash(fromHex(dataItemID));
 				bytes dataBytes = parseAssemblyHexBytes(
 					dataItem.asString(),
 					"The value for " + dataItemDescription,
 					true
 				);
+				h256 const dataHash = parseAssemblyDataHash(dataItemID, dataItemDescription);
 				result->m_data[dataHash] = std::move(dataBytes);
 			}
 			else if (dataItem.isObject())
@@ -8038,7 +8038,11 @@ std::pair<std::shared_ptr<Assembly>, std::vector<std::string>> Assembly::fromJSO
 				);
 				hypAssert(subAssembly);
 				hypAssert(emptySourceList.empty());
-				subAssemblies[index] = subAssembly;
+				solRequire(
+					subAssemblies.emplace(index, std::move(subAssembly)).second,
+					AssemblyImportException,
+					"The " + dataItemDescription + " duplicates an existing subassembly index."
+				);
 			}
 			else
 				hypThrow(AssemblyImportException, "The value of " + dataItemDescription + " is neither a hex string nor an object.");

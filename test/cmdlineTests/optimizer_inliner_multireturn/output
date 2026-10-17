@@ -64,7 +64,9 @@ sub_0: assembly {
       0x0a
         /* "optimizer_inliner_multireturn/input.hyp":245:246  x */
       dup3
+      sub(shl(0x0100, 0x01), 0x01)
         /* "optimizer_inliner_multireturn/input.hyp":245:251  x < 10 */
+      and
       lt
         /* "optimizer_inliner_multireturn/input.hyp":214:290  for((uint x, uint y) = (0, 1); x < 10; (x, y) = test(x))... */
       iszero
@@ -84,6 +86,7 @@ sub_0: assembly {
       pop
         /* "optimizer_inliner_multireturn/input.hyp":179:296  function f() public pure {... */
       jump	// out
+    stop
 
     auxdata: <AUXDATA REMOVED>
 }

@@ -2,7 +2,7 @@
     ".code": [
         {
             "name": "tag",
-            "value": "0x00"
+            "value": "1"
         },
         {"name": "JUMPDEST"},
         {"name": "JUMPDEST"}

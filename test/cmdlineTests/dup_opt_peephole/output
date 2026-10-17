@@ -47,6 +47,7 @@ sub_0: assembly {
       sstore
         /* "dup_opt_peephole/input.hyp":107:166  {... */
       stop
+    stop
 
     auxdata: <AUXDATA REMOVED>
 }

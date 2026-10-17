@@ -178,7 +178,7 @@ void ImmutableItem::storeValue(Type const& _sourceType, SourceLocation const&, b
 	hypAssert(_sourceType.isValueType(), "");
 
 	utils.convertType(_sourceType, *m_dataType, true);
-	m_context << m_context.immutableMemoryOffset(m_variable);
+	m_context << u512(m_context.immutableMemoryOffset(m_variable));
 	if (_move)
 		utils.moveIntoStack(m_dataType->sizeOnStack());
 	else
@@ -193,7 +193,7 @@ void ImmutableItem::setToZero(SourceLocation const&, bool _removeReference) cons
 	hypUnimplementedAssert(m_dataType->isValueType());
 	hypAssert(_removeReference);
 
-	m_context << m_context.immutableMemoryOffset(m_variable);
+	m_context << u512(m_context.immutableMemoryOffset(m_variable));
 	utils.pushZeroValue(*m_dataType);
 	utils.storeInMemoryDynamic(*m_dataType);
 	m_context << Instruction::POP;

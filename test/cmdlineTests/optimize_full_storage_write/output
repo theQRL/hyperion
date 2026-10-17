@@ -62,6 +62,7 @@ sub_0: assembly {
       sstore
         /* "optimize_full_storage_write/input.hyp":111:211  function f() public {... */
       stop
+    stop
 
     auxdata: <AUXDATA REMOVED>
 }

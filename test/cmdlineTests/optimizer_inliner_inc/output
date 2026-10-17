@@ -62,7 +62,9 @@ sub_0: assembly {
       0x0a
         /* "optimizer_inliner_inc/input.hyp":225:226  x */
       dup2
+      sub(shl(0x0100, 0x01), 0x01)
         /* "optimizer_inliner_inc/input.hyp":225:231  x < 10 */
+      and
       lt
         /* "optimizer_inliner_inc/input.hyp":209:271  for(uint x = 0; x < 10; x = unsafe_inc(x))... */
       iszero
@@ -78,6 +80,7 @@ sub_0: assembly {
       pop
         /* "optimizer_inliner_inc/input.hyp":174:277  function f() public pure {... */
       jump	// out
+    stop
 
     auxdata: <AUXDATA REMOVED>
 }

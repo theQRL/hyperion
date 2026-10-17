@@ -177,6 +177,7 @@ sub_0: assembly {
       pop
       jump	// out
     tag_16:
+    stop
 
     auxdata: <AUXDATA REMOVED>
 }

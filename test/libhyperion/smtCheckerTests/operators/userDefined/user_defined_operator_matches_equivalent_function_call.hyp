@@ -64,7 +64,7 @@ contract C {
 // Warning 4984: (1051-1080): CHC: Overflow (resulting value larger than 32767) might happen here.
 // Warning 4281: (1051-1080): CHC: Division by zero might happen here.
 // Warning 4281: (1149-1178): CHC: Division by zero might happen here.
-// Warning 6328: (2069-2095): CHC: Assertion violation might happen here.
+// Warning 6328: (2141-2163): CHC: Assertion violation might happen here.
 // Warning 6328: (2173-2199): CHC: Assertion violation might happen here.
 // Warning 6328: (2209-2235): CHC: Assertion violation might happen here.
 // Warning 6328: (2245-2271): CHC: Assertion violation might happen here.

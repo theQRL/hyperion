@@ -81,6 +81,7 @@ sub_0: assembly {
       0x00
       dup1
       revert
+    stop
 
     auxdata: <AUXDATA REMOVED>
 }

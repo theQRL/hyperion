@@ -85,6 +85,12 @@ std::string runLanguageServer(std::vector<std::string> const& _payloads)
 	return output.str();
 }
 
+std::string canonicalFileUri(boost::filesystem::path const& _path)
+{
+	std::string path = boost::filesystem::canonical(_path).generic_string();
+	return (path.front() == '/' ? "file://" : "file:///") + path;
+}
+
 Json::Value initializeParams(boost::filesystem::path const& _rootPath)
 {
 	Json::Value params;
@@ -254,7 +260,7 @@ BOOST_AUTO_TEST_CASE(language_server_uses_legacy_root_path_for_imports)
 	});
 
 	BOOST_CHECK_EQUAL(output.find("File not found"), std::string::npos);
-	BOOST_CHECK(output.find(importedFile.generic_string()) != std::string::npos);
+	BOOST_CHECK(output.find(canonicalFileUri(importedFile)) != std::string::npos);
 }
 
 BOOST_AUTO_TEST_CASE(language_server_without_root_uses_opened_files_only)
@@ -337,7 +343,7 @@ BOOST_AUTO_TEST_CASE(language_server_rejects_absolute_imports_outside_workspace)
 	});
 
 	BOOST_CHECK(output.find("File outside of allowed directories") != std::string::npos);
-	BOOST_CHECK_EQUAL(output.find("\"uri\":\"file://" + outsideFile.generic_string() + "\""), std::string::npos);
+	BOOST_CHECK_EQUAL(output.find("\"uri\":\"" + canonicalFileUri(outsideFile) + "\""), std::string::npos);
 }
 
 BOOST_AUTO_TEST_CASE(language_server_project_directory_does_not_follow_directory_symlinks_outside_workspace)
@@ -371,8 +377,9 @@ BOOST_AUTO_TEST_CASE(language_server_project_directory_does_not_follow_directory
 		payload("exit", Json::nullValue)
 	});
 
-	BOOST_CHECK(output.find("\"uri\":\"file://" + insideFile.generic_string() + "\"") != std::string::npos);
-	BOOST_CHECK_EQUAL(output.find("\"uri\":\"file://" + outsideFile.generic_string() + "\""), std::string::npos);
+	// Project discovery resolves symlinks, including macOS temporary directory parents.
+	BOOST_CHECK(output.find("\"uri\":\"" + canonicalFileUri(insideFile) + "\"") != std::string::npos);
+	BOOST_CHECK_EQUAL(output.find("\"uri\":\"" + canonicalFileUri(outsideFile) + "\""), std::string::npos);
 	BOOST_CHECK_EQUAL(output.find("Unhandled exception"), std::string::npos);
 }
 

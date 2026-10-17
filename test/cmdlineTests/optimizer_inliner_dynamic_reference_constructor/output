@@ -22,7 +22,7 @@ tag_1:
   not(sub(shl(0x40, 0x01), 0x01))
   and
     /* "optimizer_inliner_dynamic_reference_constructor/input.hyp":97:98  f */
-  or(tag_0_12, shl(0x20, tag_4))
+  or(sub(tag_0_12, dataOffset(sub_0)), shl(0x20, tag_4))
   sub(shl(0x40, 0x01), 0x01)
     /* "optimizer_inliner_dynamic_reference_constructor/input.hyp":93:98  x = f */
   and
@@ -236,6 +236,7 @@ sub_0: assembly {
       0x00
         /* "#utility.yul":612:627   */
       revert
+    stop
 
     auxdata: <AUXDATA REMOVED>
 }

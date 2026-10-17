@@ -395,6 +395,7 @@ sub_0: assembly {
       tag_14
       jumpi
       jump\t// out
+    stop
 
     auxdata: <AUXDATA REMOVED>
 }
@@ -816,6 +817,7 @@ sub_0: assembly {
       tag_14
       jumpi
       jump\t// out
+    stop
 
     auxdata: <AUXDATA REMOVED>
 }

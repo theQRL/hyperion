@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(string_storage)
 	{
 		if (CommonOptions::get().optimize)
 		{
-			CHECK_DEPLOY_GAS(0, 97071, qrvmVersion);
+			CHECK_DEPLOY_GAS(0, 96453, qrvmVersion);
 		}
 		else
 		{

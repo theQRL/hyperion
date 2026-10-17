@@ -1,1 +1,1 @@
-Error: Assembly Import Error: The key '0x0' inside '.data' is not an integer.
+Error: Assembly Import Error: The key '0x0' inside '.data' is not a valid hexadecimal integer.
