@@ -111,18 +111,18 @@ function test_file
 
   if OUTPUT=$("${HYPC}" --ir "${HYP_FILE}" 2>&1); then
     SUCCESS+=("${HYP_FILE}")
-    show_output_if ${SHOW_SUCCESSFUL}
+    show_output_if "${SHOW_SUCCESSFUL}"
   else
     FAILED+=("${HYP_FILE}")
     if [[ ${OUTPUT} == *"UnimplementedFeatureError"* ]]; then
       UNIMPLEMENTED_FEATURE_ERRORS+=("${HYP_FILE}")
-      show_output_if ${SHOW_UNIMPLEMENTED_FEATURE_ERRORS}
+      show_output_if "${SHOW_UNIMPLEMENTED_FEATURE_ERRORS}"
     elif [[ ${OUTPUT} == *"InternalCompilerError"* ]]; then
       INTERNAL_COMPILER_ERRORS+=("${HYP_FILE}")
-      show_output_if ${SHOW_INTERNAL_COMPILER_ERRORS}
+      show_output_if "${SHOW_INTERNAL_COMPILER_ERRORS}"
     else
       OTHER_ERRORS+=("${HYP_FILE}")
-      show_output_if ${SHOW_OTHER_ERRORS}
+      show_output_if "${SHOW_OTHER_ERRORS}"
     fi
   fi
 }

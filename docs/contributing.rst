@@ -175,8 +175,63 @@ For example, you could run the following command in your ``build`` folder:
 This creates symbols so that when you debug a test using the ``--debug`` flag,
 you have access to functions and variables in which you can break or print with.
 
-The CI runs additional tests (including ``hypc-js`` and testing third party Hyperion
-frameworks) that require compiling the Emscripten target.
+The CI builds the Emscripten target and tests it with pinned ``hypc-js`` bindings.
+
+Continuous Integration and Releases
+-----------------------------------
+
+GitHub Actions workflows live in ``.github/workflows/``:
+
+* ``ci.yml`` runs on pull requests, pushes to ``main``, ``develop`` and ``release``,
+  version tags, and manual dispatches. It checks source and scripts, builds and
+  tests GCC, Clang, macOS Intel, Windows x64 and WebAssembly targets, and retains
+  compiler artifacts and JUnit reports.
+* ``linux.yml`` is the reusable Linux build/test workflow. The pinned dependency
+  images provide Boost and Z3 4.12.1. QRVM execution tests use a separately built,
+  pinned ``theQRL/qrvmone`` revision on each native platform.
+* ``sanitizers.yml`` runs Clang address and undefined-behavior sanitizers weekly
+  and on manual dispatch. macOS and Windows runs omit SMT tests; Linux runs them.
+
+The bytecode gate compares a shared fixture across all five builds, using the
+legacy and IR code generators with optimization both enabled and disabled.
+It checks bytecode, metadata and library link references. This is a focused
+portability check, not the old full-corpus bytecode-report matrix. Native compiler
+tests still run in default, optimized and ABI coder v1 configurations.
+
+For local CI-style native builds, use ``bash scripts/ci/build.sh`` followed by
+``bash scripts/ci/hyptest_all.sh`` after installing dependencies and a compatible
+QRVM engine. ``BUILD_JOBS`` and ``TEST_JOBS`` default to two workers. Test sharding
+uses ``CI_NODE_TOTAL`` and the zero-based ``CI_NODE_INDEX``. Emscripten can also be
+built with ``scripts/build_emscripten.sh`` using the same pinned image as Actions.
+
+To release, update ``PROJECT_VERSION`` in ``CMakeLists.txt`` and push a matching
+tag such as ``v0.2.0`` or ``v0.2.0-rc.1``. A mismatched tag fails metadata validation.
+Every build derives its commit hash and development date from the checked-out
+commit, so native and WebAssembly metadata agree. After all regular checks and
+the bytecode comparison succeed, Actions publishes a GitHub Release containing:
+
+* ``hypc-static-linux`` (statically linked C++ and solver dependencies; requires
+  a glibc compatible with Ubuntu 22.04 or newer)
+* ``hypc-macos`` (Intel)
+* ``hypc-windows.exe``
+* ``hypjson.js`` (packed WebAssembly compiler)
+* ``SHA256SUMS``
+
+Tags with a suffix create prereleases. The release job alone receives
+``contents: write`` through ``GITHUB_TOKEN``; PR builds need no publishing secrets.
+An existing release is not overwritten by rerunning the workflow. Publishing
+``@theqrl/hypc`` to npm and updating ``hypc-bin`` remain separate release steps.
+
+When enabling Actions, replace any required CircleCI status checks in repository
+branch protection with the new Actions checks and disconnect the old CircleCI
+project. These are repository/service settings, not workflow-file changes.
+The existing source-style and diagnostic-coverage checks remain blocking; the
+migration does not waive failures already present in the source tree.
+
+Disabled external framework integrations and obsolete Arch Linux, coverage-upload,
+historical-binary and OSS-Fuzz jobs are not scheduled by the new workflows.
+Their standalone tools remain available where applicable. The benchmark downloader
+still reads historical CircleCI artifacts; it is not used by the Actions pipeline.
 
 Writing and Running Syntax Tests
 --------------------------------

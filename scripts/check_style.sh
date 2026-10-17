@@ -60,7 +60,6 @@ if [[ "$WHITESPACE" != "" ]]
 then
     echo "Error: Trailing whitespace found:" | tee -a "$ERROR_LOG"
     echo "$WHITESPACE" | tee -a "$ERROR_LOG"
-    scripts/ci/post_style_errors_on_github.sh "$ERROR_LOG"
     exit 1
 fi
 
@@ -107,7 +106,6 @@ if [[ "$FORMATEDERRORS" != "" ]]
 then
     echo "Coding style error:" | tee -a "$ERROR_LOG"
     echo "$FORMATEDERRORS" | tee -a "$ERROR_LOG"
-    scripts/ci/post_style_errors_on_github.sh "$ERROR_LOG"
     exit 1
 fi
 )

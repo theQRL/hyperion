@@ -13,5 +13,10 @@ if [ ! -f "${SHELLCHECK}" ]; then
     exit 1
 fi
 
-mapfile -t FILES < <(find . -type f -name "*.sh")
-"${SHELLCHECK}" "${FILES[@]}"
+mapfile -d '' -t FILES < <(git ls-files --cached --others --exclude-standard -z -- '*.sh')
+# Tracked files may have been deleted in the current working tree.
+EXISTING_FILES=()
+for file in "${FILES[@]}"; do
+    [[ ! -f "$file" ]] || EXISTING_FILES+=("$file")
+done
+"${SHELLCHECK}" "${EXISTING_FILES[@]}"

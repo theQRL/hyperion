@@ -54,7 +54,7 @@ function gp2_test
         legacy-optimize-qrvm+yul
     )
 
-    [[ $SELECTED_PRESETS != "" ]] || SELECTED_PRESETS=$(circleci_select_steps_multiarg "${settings_presets[@]}")
+    [[ $SELECTED_PRESETS != "" ]] || SELECTED_PRESETS=$(ci_select_steps_multiarg "${settings_presets[@]}")
     print_presets_or_exit "$SELECTED_PRESETS"
 
     setup_hypc "$DIR" "$BINARY_TYPE" "$BINARY_PATH"

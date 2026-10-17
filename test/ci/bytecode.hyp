@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: GPL-3.0
+pragma hyperion >=0.0.1;
+
+library Arithmetic {
+    function twice(uint512 value) external pure returns (uint512) {
+        return value * 2;
+    }
+}
+
+contract BytecodeCompatibility {
+    uint512 public value;
+    address public owner;
+    mapping(address => uint512) public balances;
+
+    constructor(uint512 initial) {
+        value = initial;
+        owner = msg.sender;
+    }
+
+    function update(uint512 amount, bytes memory data) external returns (bytes32) {
+        value = Arithmetic.twice(amount);
+        balances[msg.sender] = value;
+        return keccak256(abi.encode(owner, value, data));
+    }
+
+    function sum(uint512[] memory values) external pure returns (uint512 result) {
+        for (uint i = 0; i < values.length; ++i)
+            result += values[i];
+    }
+}

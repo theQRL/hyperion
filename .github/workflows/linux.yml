@@ -1,0 +1,107 @@
+name: Linux build and tests
+
+on:
+  workflow_call:
+    inputs:
+      compiler:
+        type: string
+        default: gcc
+      sanitizer:
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Linux ${{ inputs.compiler }} ${{ inputs.sanitizer }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    container:
+      # These images contain the compiler's pinned Z3 4.12.1 and Boost dependencies.
+      image: ${{ inputs.compiler == 'clang' && 'solbuildpackpusher/solidity-buildpack-deps@sha256:538596bf55961197f8b5670d8a6742d9bcd502b6a1045ae9d372cdf35ce69d93' || 'solbuildpackpusher/solidity-buildpack-deps@sha256:4df420b7ccd96f540a4300a4fae0fcac2f4d3f23ffff9e3777c1f2d7c37ef901' }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      CC: ${{ inputs.compiler == 'clang' && 'clang' || 'gcc' }}
+      CXX: ${{ inputs.compiler == 'clang' && 'clang++' || 'g++' }}
+      BUILD_JOBS: '2'
+      TEST_JOBS: '2'
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      SANITIZER: ${{ inputs.sanitizer }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Install test tools
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends ccache python3-pip
+          python3 -m pip install requests parsec tabulate 'deepdiff==6.7.1' colorama
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            .ccache
+            ~/.hunter
+          key: linux-${{ inputs.compiler }}-${{ inputs.sanitizer }}-${{ hashFiles('cmake/**', '.github/workflows/linux.yml') }}-${{ github.sha }}
+          restore-keys: linux-${{ inputs.compiler }}-${{ inputs.sanitizer }}-${{ hashFiles('cmake/**', '.github/workflows/linux.yml') }}-
+      - name: Check out QRVM test engine
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: theQRL/qrvmone
+          ref: 46b74c67bba54266d12e7c341bb7f8413e9bce56
+          path: deps/qrvmone
+          submodules: recursive
+          persist-credentials: false
+      - name: Build QRVM test engine
+        run: bash scripts/ci/build_qrvmone.sh
+      - name: Build compiler
+        run: |
+          export CMAKE_OPTIONS='-DUSE_CVC4=OFF -DHYPC_STATIC_STDLIBS=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache'
+          if [[ -n "$SANITIZER" ]]; then
+            export CMAKE_OPTIONS="$CMAKE_OPTIONS -DSANITIZE=$SANITIZER"
+          fi
+          bash scripts/ci/build.sh
+          build/hypc/hypc --version
+      - name: Compiler tests (default, optimized and ABI v1)
+        run: bash scripts/ci/hyptest_all.sh
+      - name: Command-line tests
+        run: bash test/cmdlineTests.sh
+      - name: Language server tests
+        run: python3 test/lsp.py build/hypc/hypc --non-interactive
+      - name: Generate bytecode comparison
+        if: inputs.sanitizer == ''
+        run: python3 scripts/ci/bytecode_report.py build/hypc/hypc "reports/linux-${CC}.json"
+      - name: Upload bytecode comparison
+        if: inputs.sanitizer == ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: bytecode-linux-${{ inputs.compiler }}
+          path: reports/*.json
+          if-no-files-found: error
+      - name: Prepare Linux release binary
+        if: inputs.compiler == 'gcc' && inputs.sanitizer == ''
+        run: |
+          mkdir -p release
+          cp build/hypc/hypc release/hypc-static-linux
+          strip release/hypc-static-linux
+          if ldd release/hypc-static-linux | grep -E 'libboost|libstdc\+\+|libgcc_s|libz3|libcvc4'; then
+            echo 'Release binary unexpectedly depends on an unbundled runtime library.' >&2
+            exit 1
+          fi
+      - name: Upload Linux release binary
+        if: inputs.compiler == 'gcc' && inputs.sanitizer == ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-linux
+          path: release/hypc-static-linux
+          if-no-files-found: error
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: tests-linux-${{ inputs.compiler }}-${{ inputs.sanitizer || 'regular' }}
+          path: test_results/
+          if-no-files-found: ignore

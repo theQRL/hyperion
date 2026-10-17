@@ -42,22 +42,8 @@ function build() {
     local build_dir="$1"
     local prerelease_source="${2:-ci}"
 
-    cd /root/project
-
-    # shellcheck disable=SC2166
-    if [[ "$CIRCLE_BRANCH" = release || -n "$CIRCLE_TAG" || -n "$FORCE_RELEASE" || "$(git tag --points-at HEAD 2>/dev/null)" == v* ]]
-    then
-        echo -n >prerelease.txt
-    else
-        # Use last commit date rather than build date to avoid ending up with builds for
-        # different platforms having different version strings (and therefore producing different bytecode)
-        # if the CI is triggered just before midnight.
-        TZ=UTC git show --quiet --date="format-local:%Y.%-m.%-d" --format="${prerelease_source}.%cd" >prerelease.txt
-    fi
-    if [ -n "$CIRCLE_SHA1" ]
-    then
-        echo -n "$CIRCLE_SHA1" >commit_hash.txt
-    fi
+    cd "${SCRIPT_DIR}/.."
+    bash scripts/ci/prepare_metadata.sh "$prerelease_source"
 
     # Disable warnings for unqualified `move()` calls, introduced and enabled by
     # default in clang-16 which is what the emscripten docker image uses.
@@ -75,7 +61,7 @@ function build() {
         -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
         -DTESTS=0 \
     ..
-    make hypjson
+    cmake --build . --target hypjson --parallel "${BUILD_JOBS:-2}"
 
     cd ..
     mkdir -p upload

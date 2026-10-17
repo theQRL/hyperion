@@ -32,7 +32,7 @@ these projects *can* be upgraded at all.
     - Very specific workarounds that may easily break with every upstream change are better done as
         commits in the newly added branch in the fork instead.
 5. List the script in `test/externalTests.sh`.
-6. Add the script to CircleCI configuration. Make sure to add both a compilation-only run and one that
+6. Add the script to a GitHub Actions workflow in `.github/workflows/`. Make sure to add both a compilation-only run and one that
     also executes the test suite. If the latter takes a significant amount of time (say, more than
     15 minutes) make it run nightly rather than on every PR.
 7. Make sure that tests pass both on `develop` and on `breaking`. If the compiler from `breaking`

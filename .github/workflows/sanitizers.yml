@@ -1,0 +1,24 @@
+name: Sanitizers
+
+on:
+  schedule:
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sanitizers-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sanitizer:
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitizer: [address, undefined]
+    uses: ./.github/workflows/linux.yml
+    with:
+      compiler: clang
+      sanitizer: ${{ matrix.sanitizer }}

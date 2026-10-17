@@ -1,0 +1,285 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, release]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  BUILD_JOBS: '2'
+  TEST_JOBS: '2'
+
+jobs:
+  checks:
+    name: Source and script checks
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.11'
+      - name: Install check dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends shellcheck openjdk-17-jdk
+          python -m pip install requests parsec tabulate 'codespell==2.4.1' 'z3-solver==4.12.1.0'
+      - name: C++ style
+        run: bash scripts/check_style.sh
+      - name: Shell scripts and symlinks
+        if: ${{ !cancelled() }}
+        run: |
+          bash scripts/chk_shellscripts/chk_shellscripts.sh
+          bash scripts/check_symlinks.sh
+      - name: Spelling
+        if: ${{ !cancelled() }}
+        run: |
+          codespell \
+            --skip '*.enc,.git,build,build/*,*/build/*,cmake-build-*,cmake-build-*/*,*/_deps/*,Dockerfile*,LICENSE,codespell_whitelist.txt,codespell_ignored_lines.txt' \
+            --ignore-words scripts/codespell_whitelist.txt \
+            --exclude-file scripts/codespell_ignored_lines.txt
+      - name: Error codes
+        if: ${{ !cancelled() }}
+        run: python scripts/error_codes.py --check
+      - name: Python script tests
+        if: ${{ !cancelled() }}
+        run: python test/pyscriptTests.py
+      - name: Changed optimizer proofs
+        if: ${{ !cancelled() }}
+        env:
+          PROOF_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || 'HEAD^' }}
+        run: bash scripts/run_proofs.sh
+      - name: ANTLR grammar
+        if: ${{ !cancelled() }}
+        run: bash scripts/test_antlr_grammar.sh
+
+  linux:
+    name: Linux (${{ matrix.compiler }})
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    uses: ./.github/workflows/linux.yml
+    with:
+      compiler: ${{ matrix.compiler }}
+
+  portable:
+    name: ${{ matrix.platform }} build and tests
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15-intel
+            platform: macos
+            compiler: build/hypc/hypc
+            tests: build/test/hyptest
+            asset: hypc-macos
+          - os: windows-2022
+            platform: windows
+            compiler: build/hypc/Release/hypc.exe
+            tests: build/test/Release/hyptest.exe
+            asset: hypc-windows.exe
+    env:
+      HYPTEST_BINARY: ${{ matrix.tests }}
+      HYPTEST_FLAGS: --no-smt
+    steps:
+      - name: Preserve fixture line endings
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.11'
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            deps/boost
+            deps/cmake
+            ~/.hunter
+          key: deps-${{ matrix.os }}-${{ hashFiles('scripts/install_deps.ps1', 'scripts/ci/install_macos_deps.sh', 'scripts/ci/build_qrvmone.sh') }}
+      - name: Install macOS dependencies
+        if: runner.os == 'macOS'
+        run: |
+          python -m pip install 'cmake==3.27.9'
+          bash scripts/ci/install_macos_deps.sh
+      - name: Install Windows dependencies
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/install_deps.ps1
+      - name: Use pinned CMake on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: '"$env:GITHUB_WORKSPACE/deps/cmake/bin" >> $env:GITHUB_PATH'
+      - name: Prepare compiler version
+        run: bash scripts/ci/prepare_metadata.sh
+      - name: Build macOS compiler
+        if: runner.os == 'macOS'
+        run: |
+          # Match the warning compatibility flag used by the Emscripten Clang build.
+          export CMAKE_OPTIONS="-DBoost_ROOT=$PWD/deps/boost -DBoost_NO_SYSTEM_PATHS=ON -DUSE_Z3=OFF -DUSE_CVC4=OFF -DCMAKE_CXX_FLAGS=-Wno-unqualified-std-cast-call"
+          bash scripts/ci/build.sh
+      - name: Build Windows compiler
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/ci/build_win.ps1
+      - name: Check out QRVM test engine
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: theQRL/qrvmone
+          ref: 46b74c67bba54266d12e7c341bb7f8413e9bce56
+          path: deps/qrvmone
+          submodules: recursive
+          persist-credentials: false
+      - name: Build QRVM test engine
+        run: bash scripts/ci/build_qrvmone.sh
+      - name: Compiler tests (default, optimized and ABI v1)
+        run: bash scripts/ci/hyptest_all.sh
+      - name: Python script tests
+        run: |
+          python -m pip install requests parsec tabulate
+          python test/pyscriptTests.py
+      - name: macOS command-line tests
+        if: runner.os == 'macOS'
+        run: bash test/cmdlineTests.sh --no-smt
+      - name: Generate bytecode comparison
+        env:
+          COMPILER: ${{ matrix.compiler }}
+          PLATFORM: ${{ matrix.platform }}
+        run: python scripts/ci/bytecode_report.py "$COMPILER" "reports/$PLATFORM.json"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: bytecode-${{ matrix.platform }}
+          path: reports/*.json
+          if-no-files-found: error
+      - name: Prepare release binary
+        env:
+          COMPILER: ${{ matrix.compiler }}
+          ASSET: ${{ matrix.asset }}
+        run: |
+          mkdir -p release
+          cp "$COMPILER" "release/$ASSET"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: release/*
+          if-no-files-found: error
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: tests-${{ matrix.platform }}
+          path: test_results/
+          if-no-files-found: ignore
+
+  emscripten:
+    name: WebAssembly build and hypc-js tests
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    container:
+      # Keep this digest in sync with scripts/build_emscripten.sh.
+      image: solbuildpackpusher/solidity-buildpack-deps@sha256:19fcb5ac029bbc27ec36e10f7d14ea224d8010145f9690562ef084fd16146b0c
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Build packed WebAssembly compiler
+        run: bash scripts/ci/build_emscripten.sh
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Check out JavaScript bindings
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: theQRL/hypc-js
+          ref: fdef38670119db396c558bd3bda87f64c4246fef
+          path: deps/hypc-js
+          persist-credentials: false
+      - name: Test this build with hypc-js
+        run: |
+          cp upload/hypjson.js deps/hypc-js/hypjson.js
+          cd deps/hypc-js
+          npm ci
+          npm version --no-git-tag-version --allow-same-version "$(../../scripts/get_version.sh)"
+          npm test
+      - name: Generate bytecode comparison
+        run: python3 scripts/ci/bytecode_report.py deps/hypc-js/dist reports/emscripten.json --hypcjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: bytecode-emscripten
+          path: reports/*.json
+          if-no-files-found: error
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-emscripten
+          path: upload/hypjson.js
+          if-no-files-found: error
+
+  bytecode:
+    name: Compare native and WebAssembly bytecode
+    needs: [linux, portable, emscripten]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: bytecode-*
+          path: reports
+          merge-multiple: true
+      - name: Require matching reports from every build
+        run: |
+          for platform in linux-gcc linux-clang macos windows emscripten; do
+            test -s "reports/$platform.json"
+            diff -u reports/linux-gcc.json "reports/$platform.json"
+          done
+
+  release:
+    name: Publish GitHub Release
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    needs: [checks, bytecode]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: release-*
+          path: release
+          merge-multiple: true
+      - name: Verify assets and calculate checksums
+        run: |
+          cd release
+          for asset in hypc-static-linux hypc-macos hypc-windows.exe hypjson.js; do
+            test -s "$asset"
+          done
+          chmod +x hypc-static-linux hypc-macos
+          sha256sum hypc-static-linux hypc-macos hypc-windows.exe hypjson.js > SHA256SUMS
+      - name: Publish tagged release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          options=()
+          [[ "$RELEASE_TAG" != *-* ]] || options+=(--prerelease)
+          gh release create "$RELEASE_TAG" release/* \
+            --verify-tag --generate-notes --title "$RELEASE_TAG" "${options[@]}"
