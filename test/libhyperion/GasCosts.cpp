@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(single_callvaluecheck)
 	size_t bytecodeSizePayable = m_compiler.object("Payable").bytecode.size();
 
 	BOOST_CHECK_EQUAL(bytecodeSizePayable - bytecodeSizeNonpayable, 24);
-		
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

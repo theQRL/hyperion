@@ -28,7 +28,9 @@ if [[ -n $tag ]]; then
 elif [[ -n ${FORCE_RELEASE:-} ]]; then
     : > prerelease.txt
 else
-    TZ=UTC git show --quiet --date="format-local:%Y.%-m.%-d" \
-        --format="${prerelease_source}.%cd" HEAD > prerelease.txt
+    # Windows strftime does not support %-m/%-d. Remove padding in Bash instead.
+    commit_date=$(TZ=UTC git show --quiet --date='format-local:%Y.%m.%d' --format=%cd HEAD)
+    IFS=. read -r year month day <<< "$commit_date"
+    printf '%s.%s.%d.%d\n' "$prerelease_source" "$year" "$((10#$month))" "$((10#$day))" > prerelease.txt
 fi
 git rev-parse HEAD > commit_hash.txt

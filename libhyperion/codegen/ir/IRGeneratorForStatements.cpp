@@ -2706,8 +2706,8 @@ void IRGeneratorForStatements::appendExternalFunctionCall(
 	else
 	{
 		templ("gas", "gas()");
-	}	
-	
+	}
+
 	// Order is important here, STATICCALL might overlap with DELEGATECALL.
 	if (isDelegateCall)
 		templ("call", "delegatecall");

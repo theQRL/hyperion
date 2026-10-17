@@ -1,0 +1,8 @@
+contract C {
+    function f() public pure {
+        ufixed272x80 x = 1.0 / 3.0;
+        x;
+    }
+}
+// ----
+// TypeError 5107: (52-78): Type rational_const 1 / 3 is not implicitly convertible to expected type ufixed272x80, but it can be explicitly converted.

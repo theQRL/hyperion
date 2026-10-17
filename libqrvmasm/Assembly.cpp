@@ -5265,7 +5265,8 @@ void refineIsZeroTestedValueToZero(AbstractStackState& _state, AbstractStackValu
 	{
 		if (pendingError)
 			return pendingError;
-		auto const [itemIndex, stateIndex] = worklist[worklistIndex];
+		size_t const itemIndex = worklist[worklistIndex].first;
+		size_t const stateIndex = worklist[worklistIndex].second;
 		if (stateIndex >= states[itemIndex].size())
 			continue;
 		AbstractStackState state = states[itemIndex][stateIndex];
@@ -6796,7 +6797,7 @@ AssemblyItem const& Assembly::append(bytes const& _data)
 	AssemblyItem item(PushData, u512(u256(h)));
 	auto [data, inserted] = m_data.emplace(h, _data);
 	bool appended = false;
-	ScopeGuard rollbackOnFailure([&]() {
+	ScopeGuard rollbackOnFailure([&, inserted = inserted]() {
 		if (!appended && inserted)
 			m_data.erase(h);
 	});
@@ -6813,7 +6814,7 @@ void Assembly::appendLibraryAddress(std::string const& _identifier)
 	AssemblyItem item{PushLibraryAddress, u512(u256(h))};
 	auto [library, inserted] = m_libraries.emplace(h, _identifier);
 	bool appended = false;
-	ScopeGuard rollbackOnFailure([&]() {
+	ScopeGuard rollbackOnFailure([&, inserted = inserted]() {
 		if (!appended && inserted)
 			m_libraries.erase(h);
 	});
@@ -6829,7 +6830,7 @@ void Assembly::appendImmutable(std::string const& _identifier)
 	AssemblyItem item{PushImmutable, u512(u256(h))};
 	auto [immutable, inserted] = m_immutables.emplace(h, _identifier);
 	bool appended = false;
-	ScopeGuard rollbackOnFailure([&]() {
+	ScopeGuard rollbackOnFailure([&, inserted = inserted]() {
 		if (!appended && inserted)
 			m_immutables.erase(h);
 	});
@@ -6845,7 +6846,7 @@ void Assembly::appendImmutableAssignment(std::string const& _identifier)
 	AssemblyItem item{AssignImmutable, u512(u256(h))};
 	auto [immutable, inserted] = m_immutables.emplace(h, _identifier);
 	bool appended = false;
-	ScopeGuard rollbackOnFailure([&]() {
+	ScopeGuard rollbackOnFailure([&, inserted = inserted]() {
 		if (!appended && inserted)
 			m_immutables.erase(h);
 	});

@@ -465,7 +465,9 @@ RationalNumberType const* TypeProvider::rationalNumber(Literal const& _literal)
 			size_t const digitCount = _literal.valueWithoutUnderscores().length() - 2;
 			if (digitCount % 2 == 0 && (digitCount / 2) <= VMWordBytes)
 				compatibleBytesType = fixedBytes(static_cast<unsigned>(digitCount / 2));
-		} else if (_literal.looksLikeAddress()) {
+		}
+		else if (_literal.looksLikeAddress())
+		{
 			compatibleBytesType = fixedBytes(static_cast<unsigned>(AddressBytes));
 		}
 

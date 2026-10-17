@@ -3,5 +3,5 @@
 	{}
 }
 // ====
-// dialect: qrvmTyped 
+// dialect: qrvmTyped
 // ----

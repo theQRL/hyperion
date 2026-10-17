@@ -4,6 +4,6 @@
 	123:u256, x := f()
 }
 // ====
-// dialect: qrvmTyped 
+// dialect: qrvmTyped
 // ----
 // ParserError 2856: (58-59): Variable name must precede "," in multiple assignment.

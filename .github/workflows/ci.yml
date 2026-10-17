@@ -201,6 +201,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+      - name: Trust checkout in container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Build packed WebAssembly compiler
         run: bash scripts/ci/build_emscripten.sh
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4

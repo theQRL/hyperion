@@ -2,5 +2,5 @@
 	if true:bool {}
 }
 // ====
-// dialect: qrvmTyped 
+// dialect: qrvmTyped
 // ----

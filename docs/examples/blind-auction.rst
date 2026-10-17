@@ -199,7 +199,7 @@ invalid bids.
 
     // SPDX-License-Identifier: GPL-3.0
     pragma hyperion >=0.1.0;
-    
+
     contract BlindAuction {
         struct Bid {
             bytes32 blindedBid;

@@ -10,7 +10,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 
 
-@unittest.skipUnless(os.name == 'posix', 'Requires POSIX shell process semantics')
+@unittest.skipUnless(shutil.which('bash') and shutil.which('git'), 'Requires Bash and Git')
 class CITests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -53,6 +53,19 @@ class CITests(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual((self.root / 'prerelease.txt').read_text(), prerelease)
 
+    def test_commit_date_is_utc_without_zero_padding(self):
+        for date, prerelease in [
+            ('2026-09-08T03:04:05+00:00', 'ci.2026.9.8'),
+            ('2026-12-31T23:30:00-01:00', 'ci.2027.1.1'),
+        ]:
+            with self.subTest(date=date):
+                self.env['GIT_COMMITTER_DATE'] = date
+                self.git('-c', 'user.name=CI test', '-c', 'user.email=ci@example.invalid',
+                         'commit', '--amend', '--no-edit', '--quiet')
+                result = self.metadata(GITHUB_ACTIONS='true', TZ='Pacific/Honolulu')
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual((self.root / 'prerelease.txt').read_text().strip(), prerelease)
+
     def test_local_checkout_of_release_tag(self):
         self.git('tag', 'v0.2.0')
         result = self.metadata(GITHUB_ACTIONS='false')
@@ -66,6 +79,7 @@ class CITests(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0)
                 self.assertFalse((self.root / 'commit_hash.txt').exists())
 
+    @unittest.skipUnless(os.name == 'posix', 'Requires POSIX shell process semantics')
     def test_shards_partition_presets(self):
         shards = []
         for index in range(3):
@@ -78,6 +92,7 @@ class CITests(unittest.TestCase):
             shards.append(result.stdout.split())
         self.assertEqual(shards, [['a', 'd'], ['b', 'e'], ['c']])
 
+    @unittest.skipUnless(os.name == 'posix', 'Requires POSIX shell process semantics')
     def test_failing_worker_is_reported_and_all_workers_finish(self):
         compiler = self.root / 'compiler.sh'
         compiler.write_text('''#!/usr/bin/env bash
@@ -97,6 +112,7 @@ printf '%s\\n' "$batch" >> finished
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual((self.root / 'finished').read_text().strip(), '3')
 
+    @unittest.skipUnless(os.name == 'posix', 'Requires POSIX shell process semantics')
     def test_invalid_shard_fails_before_running_compiler(self):
         result = subprocess.run(
             ['bash', 'scripts/ci/hyptest.sh'], cwd=self.root,

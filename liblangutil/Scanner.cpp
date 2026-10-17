@@ -713,7 +713,8 @@ void Scanner::scanToken()
 		case 'Q':
 			// Address literal exception: if not exactly AddressBytes * 2
 			// hex chars it will fallthrough and go through the identifier flow
-			if (scanAddress()) {
+			if (scanAddress())
+			{
 				token = Token::AddressLiteral;
 				break;
 			}
@@ -1032,7 +1033,8 @@ bool Scanner::scanAddress()
 	// not be an identifier start or a decimal digit; see ECMA-262
 	// section 7.8.3, page 17 (note that we read only one decimal digit
 	// if the value is 0).
-	if (i != hyperion::AddressBytes * 2 || isDecimalDigit(m_char) || isIdentifierStart(m_char)) {
+	if (i != hyperion::AddressBytes * 2 || isDecimalDigit(m_char) || isIdentifierStart(m_char))
+	{
 		rollback(i+1);
 		return false;
 	}

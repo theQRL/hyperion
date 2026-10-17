@@ -11,7 +11,7 @@ contract C {
 
     //#8277
     function f4 ( bytes memory pubkey , bytes memory withdrawal_recipient , bytes memory amount , bytes memory randao_commitment , bytes memory signature, uint block_expired , bytes32 salt ) public returns ( address ) {
-        require ( ( ( ) ) |= keccak256 ( abi . encodePacked ( block_expired , salt ) ) ) ;        
+        require ( ( ( ) ) |= keccak256 ( abi . encodePacked ( block_expired , salt ) ) ) ;
         return depositroot ( pubkey , withdrawal_recipient , amount , randao_commitment , signature ) ;
     }
 }

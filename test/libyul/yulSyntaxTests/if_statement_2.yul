@@ -5,5 +5,5 @@
 	}
 }
 // ====
-// dialect: qrvmTyped 
+// dialect: qrvmTyped
 // ----

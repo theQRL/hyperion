@@ -7,7 +7,7 @@
   let d: bool := c
 }
 // ====
-// dialect: qrvmTyped 
+// dialect: qrvmTyped
 // ----
 // step: ssaTransform
 //

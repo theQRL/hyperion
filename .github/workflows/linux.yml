@@ -29,12 +29,13 @@ jobs:
       CXX: ${{ inputs.compiler == 'clang' && 'clang++' || 'g++' }}
       BUILD_JOBS: '2'
       TEST_JOBS: '2'
-      CCACHE_DIR: ${{ github.workspace }}/.ccache
       SANITIZER: ${{ inputs.sanitizer }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+      - name: Trust checkout in container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Install test tools
         run: |
           apt-get update
@@ -59,6 +60,7 @@ jobs:
         run: bash scripts/ci/build_qrvmone.sh
       - name: Build compiler
         run: |
+          export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
           export CMAKE_OPTIONS='-DUSE_CVC4=OFF -DHYPC_STATIC_STDLIBS=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache'
           if [[ -n "$SANITIZER" ]]; then
             export CMAKE_OPTIONS="$CMAKE_OPTIONS -DSANITIZE=$SANITIZER"

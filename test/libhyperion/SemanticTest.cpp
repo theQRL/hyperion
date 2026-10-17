@@ -225,7 +225,7 @@ std::string SemanticTest::formatEventParameter(std::optional<AnnotatedEventSigna
 		if (_index < types.size()) {
 			if (types.at(_index) == "address")
 				abiType = ABIType(ABIType::Type::Address);
-		}	
+		}
 	}
 	return BytesUtils::formatBytes(_data, abiType);
 }

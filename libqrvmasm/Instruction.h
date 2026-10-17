@@ -211,7 +211,7 @@ enum class Instruction: uint8_t
 
 	CREATE = 0xf0,		///< create a new account with associated code
 	CALL,				///< message-call into an account
-	RETURN = 0xf3,	    ///< halt execution returning output data
+	RETURN = 0xf3,       ///< halt execution returning output data
 	DELEGATECALL,		///< like CALLCODE but keeps caller's value and sender
 	CREATE2 = 0xf5,		///< create new account with associated code at an AddressBytes-wide address derived from `sha3(0xff + sender + salt + init code)`
 	STATICCALL = 0xfa,	///< like CALL but disallow state modifications
