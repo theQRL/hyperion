@@ -18,9 +18,10 @@ test_args+=(--testpath "$REPO_ROOT/test" --qrvm-version="${QRVM:-zond}")
 [[ ${OPTIMIZE:-0} != 1 ]] || test_args+=(--optimize)
 mkdir -p test_results
 # Windows stack size is set by the MSVC linker in QRLCompilerSettings.cmake.
-if [[ $OSTYPE != msys* ]]; then
-    ulimit -s 16384
-fi
+case "${RUNNER_OS:-$OSTYPE}" in
+    Windows|msys*|cygwin*|mingw*) ;;
+    *) ulimit -s 16384 ;;
+esac
 
 pids=()
 for ((worker=0; worker<workers; worker++)); do

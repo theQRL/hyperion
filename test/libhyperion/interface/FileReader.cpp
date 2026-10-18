@@ -123,6 +123,24 @@ BOOST_AUTO_TEST_CASE(normalizeCLIPathForVFS_relative_path)
 	}
 }
 
+BOOST_AUTO_TEST_CASE(normalizeCLIPathForVFS_existing_directory_trailing_slash)
+{
+	TemporaryDirectory tempDir({"existing"}, TEST_CASE_NAME);
+	TemporaryWorkingDirectory tempWorkDir(tempDir);
+	// The temporary directory itself can contain symlinks, particularly on macOS.
+	boost::filesystem::path canonicalDir = boost::filesystem::weakly_canonical(tempDir.path());
+	boost::filesystem::path expectedPrefix = "/" / canonicalDir.relative_path();
+
+	for (SymlinkResolution resolveSymlinks: {SymlinkResolution::Enabled, SymlinkResolution::Disabled})
+		for (auto const* path: {
+			"existing/", "existing//", "existing/.", "existing/./.", "existing/./", "existing/../existing/."
+		})
+		{
+			BOOST_CHECK_EQUAL(FileReader::normalizeCLIPathForVFS(path, resolveSymlinks), expectedPrefix / "existing/");
+			BOOST_CHECK_EQUAL(FileReader::normalizeCLIPathForVFS(canonicalDir / path, resolveSymlinks), expectedPrefix / "existing/");
+		}
+}
+
 BOOST_AUTO_TEST_CASE(normalizeCLIPathForVFS_redundant_slashes)
 {
 	for (SymlinkResolution resolveSymlinks: {SymlinkResolution::Enabled, SymlinkResolution::Disabled})
