@@ -8,6 +8,7 @@ IFS=' ' read -r -a cmake_options <<< "${CMAKE_OPTIONS:-}"
 if [[ -n ${COVERAGE:-} && ${GITHUB_REF_TYPE:-} != tag ]]; then
     cmake_options+=(-DCOVERAGE=ON)
 fi
+# Bash 3.2 treats an empty array as unset under nounset.
 cmake -S . -B "${HYPERION_BUILD_DIR:-build}" \
-    -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE:-Release}" "${cmake_options[@]}"
+    -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE:-Release}" ${cmake_options[@]+"${cmake_options[@]}"}
 cmake --build "${HYPERION_BUILD_DIR:-build}" --parallel "${BUILD_JOBS:-2}"

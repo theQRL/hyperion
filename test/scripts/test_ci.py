@@ -23,12 +23,13 @@ class CITests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         (self.root / 'scripts/ci').mkdir(parents=True)
-        for name in ('prepare_metadata.sh', 'hyptest.sh', 'hyptest_all.sh', 'build_qrvmone.sh'):
+        for name in ('prepare_metadata.sh', 'hyptest.sh', 'hyptest_all.sh', 'build_qrvmone.sh', 'build.sh'):
             shutil.copyfile(ROOT / 'scripts/ci' / name, self.root / 'scripts/ci' / name)
         shutil.copyfile(ROOT / 'scripts/get_version.sh', self.root / 'scripts/get_version.sh')
         (self.root / 'CMakeLists.txt').write_text('set(PROJECT_VERSION "0.2.0")\n')
         self.env = dict(os.environ)
-        for name in ('GITHUB_REF_TYPE', 'GITHUB_REF_NAME', 'FORCE_RELEASE', 'GITHUB_SHA'):
+        for name in ('GITHUB_REF_TYPE', 'GITHUB_REF_NAME', 'FORCE_RELEASE', 'GITHUB_SHA',
+                     'BOOST_TEST_ARGS', 'CMAKE_OPTIONS', 'COVERAGE'):
             self.env.pop(name, None)
         self.env.update(GIT_AUTHOR_DATE='2026-01-02T03:04:05+00:00',
                         GIT_COMMITTER_DATE='2026-01-02T03:04:05+00:00')
@@ -128,6 +129,24 @@ source "$0"
                 else:
                     self.assertFalse(any(arg.startswith('-DCMAKE_MODULE_PATH=') for arg in arguments))
                     self.assertTrue(exported.endswith('/' + library), exported)
+
+    def test_compiler_build_with_and_without_optional_arguments(self):
+        for options in ('', '-DUSE_Z3=OFF -DUSE_CVC4=OFF'):
+            with self.subTest(options=options):
+                (self.root / 'cmake_arguments').write_text('')
+                result = subprocess.run(
+                    [BASH, '-c', '''
+cmake() { printf '%s\\n' "$@" >> cmake_arguments; }
+source "$0"
+''', 'scripts/ci/build.sh'],
+                    cwd=self.root, env={**self.env, 'CMAKE_OPTIONS': options, 'BUILD_JOBS': '4',
+                                        'HYPERION_BUILD_DIR': 'build directory'},
+                    capture_output=True, text=True,
+                )
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                arguments = (self.root / 'cmake_arguments').read_text().splitlines()
+                self.assertEqual(arguments, ['-S', '.', '-B', 'build directory', '-DCMAKE_BUILD_TYPE=Release',
+                                            *options.split(), '--build', 'build directory', '--parallel', '4'])
 
     def test_windows_test_workers_do_not_set_posix_stack_limits(self):
         for ostype, runner_os, windows in [

@@ -14,9 +14,10 @@ case "${RUNNER_OS:-$OSTYPE}" in
         ;;
     *) library=libqrvmone.so ;;
 esac
+# Bash 3.2 treats an empty array as unset under nounset.
 cmake -S deps/qrvmone -B deps/qrvmone/build \
     -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
-    -DQRVMONE_TESTING=OFF -DQRVMONE_X86_64_ARCH_LEVEL=1 "${cmake_args[@]}"
+    -DQRVMONE_TESTING=OFF -DQRVMONE_X86_64_ARCH_LEVEL=1 ${cmake_args[@]+"${cmake_args[@]}"}
 cmake --build deps/qrvmone/build --config Release --parallel "${BUILD_JOBS:-2}"
 library_path=$(find "$REPO_ROOT/deps/qrvmone/build" -name "$library" -print -quit)
 [[ -n $library_path ]] || { echo "Missing $library" >&2; exit 1; }

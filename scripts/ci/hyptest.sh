@@ -27,8 +27,9 @@ pids=()
 for ((worker=0; worker<workers; worker++)); do
     batch=$((workers * shard + worker))
     report="test_results/${QRVM:-zond}-opt${OPTIMIZE:-0}-abi2-${batch}.xml"
+    # Bash 3.2 treats an empty array as unset under nounset.
     "$binary" --color_output=no --report_level=short \
-        "--logger=JUNIT,error,$report" --logger=HRF,error,stdout "${boost_args[@]}" \
+        "--logger=JUNIT,error,$report" --logger=HRF,error,stdout ${boost_args[@]+"${boost_args[@]}"} \
         -- "${test_args[@]}" --batches "$((workers * shards))" --selected-batch "$batch" &
     pids+=("$!")
 done
