@@ -223,6 +223,24 @@ difference is that we do not generally update old releases on the Github release
 that we do not rename them if the naming convention changes and we do not add builds for platforms
 that were not supported at the time of release. This only happens in ``hypc-bin``.
 
+Verifying Release Binaries
+--------------------------
+
+Every release on the `Hyperion release page on Github`_ ships a ``SHA256SUMS`` file. Releases
+published after version 0.2.0 also carry a signed build-provenance attestation for each asset,
+which binds the file to the GitHub Actions run and the tagged commit that produced it. To check a
+downloaded binary with the `GitHub CLI <https://cli.github.com>`_:
+
+.. code-block:: bash
+
+    gh attestation verify hypc-static-linux --repo theQRL/hyperion \
+        --signer-workflow theQRL/hyperion/.github/workflows/ci.yml
+    sha256sum --check --ignore-missing SHA256SUMS
+
+The first command fails unless the file was built by the ``theQRL/hyperion`` release workflow,
+``.github/workflows/ci.yml``. An attestation signed by any other workflow in the repository is rejected.
+Releases up to and including 0.2.0 can only be checked against ``SHA256SUMS``.
+
 The ``hypc-bin`` repository contains several top-level directories, each representing a single platform.
 Each one includes a ``list.json`` file listing the available binaries. For example in
 ``emscripten-wasm32/list.json`` you will find the following information about version 0.7.4:

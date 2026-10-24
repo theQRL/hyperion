@@ -1,0 +1,4 @@
+# Default owners for every path in this repository (CIPH-HYPERION-29).
+# The `main` branch ruleset requires code-owner review, so every pull request into `main` needs an
+# approving review from one of them, and not from the last pusher.
+* @jplomas @cyyber

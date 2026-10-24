@@ -1,0 +1,6 @@
+# Build backend for the sdist-only `parsec` package. Installed with --require-hashes before the
+# other requirement files, which are then installed with --no-build-isolation, so nothing is
+# fetched unpinned (CIPH-HYPERION-31).
+# z3-solver 4.12.1.0 imports pkg_resources, which setuptools removed in 82.0.0.
+setuptools<82
+wheel

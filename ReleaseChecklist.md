@@ -7,7 +7,9 @@
  - [ ] Launchpad (Ubuntu One) account with a membership in the ["QRL" team](https://launchpad.net/~theqrl) and
        a gnupg key for your email in the ``theqrl.org`` domain (has to be version 1, gpg2 won't work).
  - [ ] Ubuntu/Debian dependencies of the PPA scripts: ``devscripts``, ``debhelper``, ``dput``, ``git``, ``wget``, ``ca-certificates``.
- - [ ] [npm Registry](https://www.npmjs.com) account added as a collaborator for the [``hypc`` package](https://www.npmjs.com/package/hypc).
+ - [ ] [npm Registry](https://www.npmjs.com) account with two-factor authentication, added as a maintainer of [``@theqrl/hypc``](https://www.npmjs.com/package/@theqrl/hypc).
+       Publishing itself runs only from CI through npm trusted publishing.
+ - [ ] A GPG or SSH signing key added to your GitHub account as a signing key, for signing release tags.
  - [ ] Access to the [hyperion_lang Twitter account](https://twitter.com/hyperion_lang).
  - [ ] [Reddit](https://www.reddit.com) account that is at least 10 days old with a minimum of 20 comment karma (``/r/QRL`` requirements).
 
@@ -29,7 +31,8 @@ At least a day before the release:
 At least a day before the release:
  - [ ] Create a draft PR to sort the changelog.
  - [ ] Create draft PRs to bump version in ``hyperion`` and ``hypc-js``.
- - [ ] Create a draft of the release on github.
+ - [ ] Prepare the release notes. Do not create a draft release on GitHub: publishing a draft whose tag
+       does not exist yet creates an unsigned lightweight tag, which CI rejects and which burns the version number.
  - [ ] Create a draft PR to update ``hyperion-website``.
  - [ ] Create drafts of blog posts.
  - [ ] Prepare drafts of Twitter, Reddit and Hyperion Forum announcements.
@@ -47,29 +50,37 @@ At least a day before the release:
  - [ ] Copy the changelog into the release blog post.
 
 ### Create the Release
- - [ ] Create a [release on GitHub](https://github.com/theQRL/hyperion/releases/new).
-       Set the target to the ``develop`` branch and the tag to the new version, e.g. ``v0.8.5``.
+Release tags are immutable. Tag rulesets block moving or deleting ``v*`` tags, and only admins can create them.
+CI publishes only from a signed, annotated tag on a commit of ``main`` (``scripts/ci/verify_release_tag.sh``).
+
+**A bad tag burns the number.** Never delete, move or re-create a release tag or a published release.
+If a tag or release is wrong, fix it on ``main`` and release the next patch version.
+
+ - [ ] Check that all PRs for the release, including changelog cleanup and date, are merged,
+       and that all tests on the latest commit in ``main`` are green.
+ - [ ] Create a signed, annotated tag on that commit from the command line and push only that tag:
+       ``git fetch origin && git tag -s v$VERSION -m "Hyperion v$VERSION" origin/main && git push origin v$VERSION``.
+       Do not create the tag from the GitHub release page: it creates an unsigned lightweight tag, which CI rejects.
+ - [ ] Wait for the CI run on the tag. Its ``Verify release tag`` job must pass.
+       After every build has passed, the ``Publish GitHub Release`` job waits for approval of the ``release`` environment.
+       Ask another maintainer to review the run and approve it; you cannot approve your own release.
+ - [ ] Once CI has published the release, edit its notes on GitHub.
        Include the following warning: ``**The release is still in progress and the binaries may not yet be available from all sources.**``.
-       Do not publish it yet - click the ``Save draft`` button instead.
  - [ ] Thank voluntary contributors in the GitHub release notes.
        Use ``scripts/list_contributors.sh v<previous version>`` to get initial list of names.
        Remove different variants of the same name manually before using the output.
- - [ ] Check that all tests on the latest commit in ``develop`` are green.
- - [ ] Click the ``Publish release`` button on the release page, creating the tag.
-       **Important: Must not be done before all the PRs, including changelog cleanup and date, are merged.**
- - [ ] Wait for the CI runs on the tag itself.
 
 ### Upload Release Artifacts and Publish Binaries
- - [ ] Switch to the tag that archives have to be created for.
- - [ ] Create the ``prerelease.txt`` file: (``echo -n > prerelease.txt``).
- - [ ] Run ``scripts/create_source_tarball.sh`` while being on the tag to create the source tarball. This will create the tarball in a directory called ``upload``.
- - [ ] Take the tarball from the upload directory (its name should be ``hyperion_x.x.x.tar.gz``, otherwise ``prerelease.txt`` was missing in the step before) and upload the source tarball to the release page.
- - [ ] Wait for GitHub Actions to publish the tagged build's release assets after all checks pass.
+ - [ ] Do not upload files to the release by hand: a file built on a workstation has no build provenance and is not
+       covered by ``SHA256SUMS``. GitHub attaches source archives generated from the signed tag. If a separate source
+       tarball is needed again, build it from the tag and attest it in the release job, like the binaries.
+ - [ ] Wait for GitHub Actions to publish the tagged build's release assets after all checks pass and the ``release`` environment is approved.
        Verify that the release contains ``hypc-windows.exe``, ``hypc-macos``, ``hypc-static-linux`` (AMD64),
        ``hypc-static-linux-arm`` (ARM64), ``hypjson.js`` and ``SHA256SUMS``.
- - [ ] Update hypc-bin separately using the binaries from the same tagged GitHub Release.
- - [ ] Run ``npm run update -- --reuse-hashes`` in ``hypc-bin`` and verify that the script has updated ``list.js``, ``list.txt`` and ``list.json`` files correctly and that symlinks to the new release have been added in ``hypc-bin/wasm/`` and ``hypc-bin/emscripten-wasm32/``.
- - [ ] Create a pull request in hypc-bin and merge.
+ - [ ] Update hypc-bin separately using the binaries from the same tagged GitHub Release:
+       run ``node scripts/add-release.mjs $VERSION`` in ``hypc-bin``. It downloads the assets, checks them against the
+       release ``SHA256SUMS`` and the build provenance attestation, and regenerates ``bin/list.json``.
+ - [ ] Create a pull request in hypc-bin, wait for its checks and a review, and merge.
 
 ### Homebrew and MacOS
  - [ ] Update the version and the hash (``sha256sum hyperion_$VERSION.tar.gz``) in the [``hyperion`` formula in Homebrew core repository](https://github.com/Homebrew/homebrew-core/blob/master/Formula/hyperion.rb).
@@ -93,11 +104,14 @@ At least a day before the release:
        for the destination series ``Trusty``, ``Xenial`` and ``Bionic`` while selecting ``Copy existing binaries``.
 
 ### Release hypc-js
+Follow [``RELEASE.md`` in hypc-js](https://github.com/theQRL/hypc-js/blob/main/RELEASE.md). In short:
  - [ ] Wait until hypc-bin was properly deployed. You can test this via remix - a test run through remix is advisable anyway.
- - [ ] Increment the version number, create a pull request for that, merge it after tests succeeded.
- - [ ] Run ``npm run build:tarball`` in the updated ``hypc-js`` repository to create ``hypc-<version>.tgz``. Inspect the tarball to ensure that it contains an up to date compiler binary.
- - [ ] Run ``npm run publish:tarball`` to publish the newly created tarball.
- - [ ] Create a tag using ``git tag --annotate v$VERSION`` and push it with ``git push --tags``.
+ - [ ] Open a pull request that sets ``"version"`` in ``package.json`` and runs ``npm run updateBinary``.
+       Merge it after its checks pass and it has been reviewed.
+ - [ ] Tag the merge commit with a signed tag and push only that tag: ``git tag -s v$VERSION -m v$VERSION && git push origin v$VERSION``.
+ - [ ] Ask another maintainer to approve the ``npm-publish`` environment.
+       The ``Release`` workflow then publishes the tarball to npm with provenance and creates the GitHub release.
+ - [ ] Never run ``npm publish`` or ``npm run publish:tarball`` by hand.
 
 ### Post-release
  - [ ] Make sure the documentation for the new release has been published successfully.

@@ -1,0 +1,2 @@
+# CMake used by the macOS release build.
+cmake==3.27.9

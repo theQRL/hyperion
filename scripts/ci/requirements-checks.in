@@ -1,0 +1,8 @@
+# Python tooling for the checks job.
+requests
+parsec
+tabulate
+codespell==2.4.1
+z3-solver==4.12.1.0
+# z3-solver 4.12.1.0 imports pkg_resources, which setuptools removed in 82.0.0.
+setuptools<82

@@ -39,7 +39,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends shellcheck openjdk-17-jdk
-          python -m pip install requests parsec tabulate 'codespell==2.4.1' 'z3-solver==4.12.1.0'
+          # Hash-pinned: the build backend first, then the rest without build isolation so the
+          # sdist-only parsec cannot fetch unpinned build tools (scripts/ci/requirements-*.in).
+          python -m pip install --require-hashes -r scripts/ci/requirements-build.txt
+          python -m pip install --require-hashes --no-build-isolation -r scripts/ci/requirements-checks.txt
       - name: C++ style
         run: bash scripts/check_style.sh
       - name: Shell scripts and symlinks
@@ -118,9 +121,13 @@ jobs:
           python-version: '3.11'
       - name: Python script tests
         run: |
-          python -m pip install requests parsec tabulate
+          python -m pip install --require-hashes -r scripts/ci/requirements-build.txt
+          python -m pip install --require-hashes --no-build-isolation -r scripts/ci/requirements-tests.txt
           python test/pyscriptTests.py
+      # Release binaries are built from pristine inputs: a tag run would otherwise restore these
+      # trees from the main-branch cache scope, which any push to main can write.
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        if: github.ref_type != 'tag'
         with:
           path: |
             deps/boost
@@ -130,7 +137,7 @@ jobs:
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
         run: |
-          python -m pip install 'cmake==3.27.9'
+          python -m pip install --require-hashes -r scripts/ci/requirements-cmake.txt
           bash scripts/ci/install_macos_deps.sh
       - name: Install Windows dependencies
         if: runner.os == 'Windows'
@@ -260,14 +267,37 @@ jobs:
             diff -u reports/linux-gcc.json "reports/$platform.json"
           done
 
+  # Runs first on a tag push, so a bad tag is visible before anyone approves the release.
+  tag:
+    name: Verify release tag
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/ci
+      - name: Require a signed, annotated tag on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: bash scripts/ci/verify_release_tag.sh
+
   release:
     name: Publish GitHub Release
     if: github.event_name == 'push' && github.ref_type == 'tag'
-    needs: [checks, bytecode]
+    needs: [checks, bytecode, tag]
     runs-on: ubuntu-22.04
     timeout-minutes: 10
+    # Waits for a second maintainer: the environment has required reviewers, blocks self-review and
+    # admin bypass, and only accepts v* tags (CIPH-HYPERION-28, CIPH-HYPERION-29).
+    environment: release
     permissions:
-      contents: write
+      contents: write # create the GitHub release and upload its assets (scripts/ci/publish_release.sh)
+      id-token: write # mint the OIDC token that signs the build provenance attestation
+      attestations: write # store the build provenance attestation for each release asset
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -285,6 +315,19 @@ jobs:
           done
           chmod +x hypc-static-linux hypc-static-linux-arm hypc-macos
           sha256sum hypc-static-linux hypc-static-linux-arm hypc-macos hypc-windows.exe hypjson.js > SHA256SUMS
+      # Signed SLSA build provenance binding each asset to this workflow run and commit;
+      # consumers verify with `gh attestation verify <file> --repo theQRL/hyperion
+      # --signer-workflow theQRL/hyperion/.github/workflows/ci.yml`.
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            release/hypc-static-linux
+            release/hypc-static-linux-arm
+            release/hypc-macos
+            release/hypc-windows.exe
+            release/hypjson.js
+            release/SHA256SUMS
       - name: Publish tagged release
         env:
           GH_TOKEN: ${{ github.token }}

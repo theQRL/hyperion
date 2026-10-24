@@ -50,14 +50,19 @@ jobs:
         run: |
           apt-get update
           apt-get install -y --no-install-recommends ccache python3-pip
-          python3 -m pip install requests parsec tabulate 'deepdiff==6.7.1' colorama
+          # Hash-pinned: the build backend first, then the rest without build isolation so the
+          # sdist-only parsec cannot fetch unpinned build tools (scripts/ci/requirements-*.in).
+          python3 -m pip install --require-hashes -r scripts/ci/requirements-build.txt
+          python3 -m pip install --require-hashes --no-build-isolation -r scripts/ci/requirements-tests.txt
       - name: Install ARM64 build dependencies
         if: inputs.architecture == 'arm64'
         run: |
           apt-get install -y --no-install-recommends cmake ninja-build jq locales-all \
             libboost-filesystem-dev libboost-test-dev libboost-system-dev libboost-program-options-dev
+      # Release binaries are built from pristine inputs: tag runs restore no caches, because a tag
+      # run would otherwise read the main-branch cache scope, which any push to main can write.
       - name: Cache ARM64 solver
-        if: inputs.architecture == 'arm64'
+        if: inputs.architecture == 'arm64' && github.ref_type != 'tag'
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: deps/z3
@@ -66,6 +71,7 @@ jobs:
         if: inputs.architecture == 'arm64'
         run: bash scripts/ci/build_z3.sh
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        if: github.ref_type != 'tag'
         with:
           path: |
             .ccache
