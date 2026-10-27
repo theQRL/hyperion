@@ -2,7 +2,7 @@
 requests
 parsec
 tabulate
-codespell==2.4.1
+codespell==2.4.3
 # z3-solver 4.12.6 is the first release that no longer imports pkg_resources (removed in setuptools
 # 82), so setuptools is no longer capped. All test/formal proofs pass with 4.12.1 and 4.12.6 alike.
 z3-solver==4.12.6.0
