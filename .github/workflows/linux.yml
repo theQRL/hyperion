@@ -51,7 +51,7 @@ jobs:
       PLATFORM: linux-${{ inputs.compiler }}${{ inputs.architecture == 'arm64' && '-arm64' || '' }}
       RELEASE_ASSET: hypc-static-linux${{ inputs.architecture == 'arm64' && '-arm' || '' }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Trust checkout in container
@@ -87,7 +87,7 @@ jobs:
           key: linux-${{ inputs.architecture }}-${{ inputs.compiler }}-${{ inputs.sanitizer }}-${{ hashFiles('cmake/**', '.github/workflows/linux.yml') }}-${{ github.sha }}
           restore-keys: linux-${{ inputs.architecture }}-${{ inputs.compiler }}-${{ inputs.sanitizer }}-${{ hashFiles('cmake/**', '.github/workflows/linux.yml') }}-
       - name: Check out QRVM test engine
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: theQRL/qrvmone
           ref: bf6e26e7e205605be9e17e44fe2b83f0e193f571 # v0.12.1
