@@ -5,4 +5,4 @@ tabulate
 deepdiff==8.6.2  # GHSA-mw26-5g2v-hqw3, GHSA-54jj-px8x-5w5q: fixed in 8.6.1 and 8.6.2
 colorama
 # Security floors for transitive dependencies; keep them when regenerating.
-certifi>=2026.10.19  # GHSA-6q48-6c7w-9gw2: earlier releases trust emSign roots with compromised intermediates
+certifi>=2026.10.23  # GHSA-6q48-6c7w-9gw2: earlier releases trust emSign roots with compromised intermediates
