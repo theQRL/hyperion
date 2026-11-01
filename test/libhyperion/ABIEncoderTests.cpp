@@ -457,7 +457,7 @@ BOOST_AUTO_TEST_CASE(structs)
 	);
 	BOOST_CHECK(callContractFunction("f()") == encoded);
 	REQUIRE_LOG_DATA(encoded);
-	BOOST_CHECK_EQUAL(logTopic(0, 0), keccak256(std::string("e(uint16,(uint16,uint16,(uint64[2])[],uint16))")));
+	BOOST_CHECK_EQUAL(logTopic(0, 0), h512(keccak256(std::string("e(uint16,(uint16,uint16,(uint64[2])[],uint16))")), h512::AlignLeft));
 }
 
 BOOST_AUTO_TEST_CASE(structs2)

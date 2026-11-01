@@ -94,8 +94,9 @@ public:
 
 	static Address convertFromQRVMC(qrvmc::address const& _addr);
 	static qrvmc::address convertToQRVMC(Address const& _addr);
-	/// Convert a QRVMC bytes64 container treating h256 as left-aligned (for hashes, storage keys, bytes32 values)
-	static util::h256 convertFromQRVMC(qrvmc::bytes64 const& _data);
+	/// Preserve all 64 bytes of a QRVMC word, including log topics and storage values.
+	static util::h512 convertFromQRVMC(qrvmc::bytes64 const& _data);
+	/// Left-align a 32-byte hash or bytes32 value in a QRVMC word.
 	static qrvmc::bytes64 convertToQRVMC(util::h256 const& _data);
 	/// Convert a QRVMC bytes64 container treating u256 as right-aligned (for uint, balance, value)
 	static u256 convertUintFromQRVMC(qrvmc::bytes64 const& _data);

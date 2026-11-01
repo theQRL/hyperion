@@ -354,11 +354,9 @@ qrvmc::address QRVMHost::convertToQRVMC(h512 const& _addr)
 	return a;
 }
 
-h256 QRVMHost::convertFromQRVMC(qrvmc::bytes64 const& _data)
+h512 QRVMHost::convertFromQRVMC(qrvmc::bytes64 const& _data)
 {
-	// bytes32/hash is left-aligned: data in upper 32 bytes (big-endian MSB = bytes 0-31).
-	// This matches how VM stores bytes32 on stack (upper 256 bits of uint512).
-	return h256(bytes(_data.bytes, _data.bytes + 32));
+	return h512(bytes(begin(_data.bytes), end(_data.bytes)));
 }
 
 qrvmc::bytes64 QRVMHost::convertToQRVMC(h256 const& _data)
@@ -372,7 +370,7 @@ qrvmc::bytes64 QRVMHost::convertToQRVMC(h256 const& _data)
 
 u256 QRVMHost::convertUintFromQRVMC(qrvmc::bytes64 const& _data)
 {
-	// Same as convertFromQRVMC but returns u256
+	// uint256 is right-aligned in the lower 32 bytes of the QRVMC word.
 	u256 result = 0;
 	for (unsigned i = 32; i < 64; ++i)
 		result = (result << 8) | _data.bytes[i];

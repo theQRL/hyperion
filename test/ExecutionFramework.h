@@ -282,7 +282,7 @@ public:
 
 	size_t numLogs() const;
 	size_t numLogTopics(size_t _logIdx) const;
-	util::h256 logTopic(size_t _logIdx, size_t _topicIdx) const;
+	util::h512 logTopic(size_t _logIdx, size_t _topicIdx) const;
 	util::h512 logAddress(size_t _logIdx) const;
 	bytes logData(size_t _logIdx) const;
 

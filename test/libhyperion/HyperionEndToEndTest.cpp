@@ -26,6 +26,7 @@
 
 #include <test/Common.h>
 #include <test/QRVMHost.h>
+#include <test/libhyperion/util/HyptestTypes.h>
 
 #include <liblangutil/Exceptions.h>
 #include <liblangutil/QRVMVersion.h>
@@ -3542,12 +3543,12 @@ BOOST_AUTO_TEST_CASE(abi_encodePackedV2_structs)
 		bytes structEnc = encodeArgs(int(0x12), -7, int(2), int(3), -7, -8);
 		ABI_CHECK(callContractFunction("testStorage()"), encodeArgs());
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 2);
-		BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(std::string("E((uint8,int16,uint8[2],int16[]))")));
-		BOOST_CHECK_EQUAL(logTopic(0, 1), util::keccak256(asString(structEnc)));
+		BOOST_CHECK_EQUAL(logTopic(0, 0), h512(util::keccak256(std::string("E((uint8,int16,uint8[2],int16[]))")), h512::AlignLeft));
+		BOOST_CHECK_EQUAL(logTopic(0, 1), h512(util::keccak256(asString(structEnc)), h512::AlignLeft));
 		ABI_CHECK(callContractFunction("testMemory()"), encodeArgs());
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 2);
-		BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(std::string("E((uint8,int16,uint8[2],int16[]))")));
-		BOOST_CHECK_EQUAL(logTopic(0, 1), util::keccak256(asString(structEnc)));
+		BOOST_CHECK_EQUAL(logTopic(0, 0), h512(util::keccak256(std::string("E((uint8,int16,uint8[2],int16[]))")), h512::AlignLeft));
+		BOOST_CHECK_EQUAL(logTopic(0, 1), h512(util::keccak256(asString(structEnc)), h512::AlignLeft));
 	)
 }
 
@@ -3577,8 +3578,8 @@ BOOST_AUTO_TEST_CASE(abi_encodePackedV2_nestedArray)
 		bytes structEnc = encodeArgs(1, 2, 3, 0, 0, 0, 0, 4);
 		ABI_CHECK(callContractFunction("testNestedArrays()"), encodeArgs());
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 2);
-		BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(std::string("E((uint8,int16)[2][][3])")));
-		BOOST_CHECK_EQUAL(logTopic(0, 1), util::keccak256(asString(structEnc)));
+		BOOST_CHECK_EQUAL(logTopic(0, 0), h512(util::keccak256(std::string("E((uint8,int16)[2][][3])")), h512::AlignLeft));
+		BOOST_CHECK_EQUAL(logTopic(0, 1), h512(util::keccak256(asString(structEnc)), h512::AlignLeft));
 	)
 }
 
@@ -3607,12 +3608,12 @@ BOOST_AUTO_TEST_CASE(abi_encodePackedV2_arrayOfStrings)
 		bytes arrayEncoding = encodeArgs("abc", "0123456789012345678901234567890123456789");
 		ABI_CHECK(callContractFunction("testStorage()"), encodeArgs());
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 2);
-		BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(std::string("E(string[])")));
-		BOOST_CHECK_EQUAL(logTopic(0, 1), util::keccak256(asString(arrayEncoding)));
+		BOOST_CHECK_EQUAL(logTopic(0, 0), h512(util::keccak256(std::string("E(string[])")), h512::AlignLeft));
+		BOOST_CHECK_EQUAL(logTopic(0, 1), h512(util::keccak256(asString(arrayEncoding)), h512::AlignLeft));
 		ABI_CHECK(callContractFunction("testMemory()"), encodeArgs());
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 2);
-		BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(std::string("E(string[])")));
-		BOOST_CHECK_EQUAL(logTopic(0, 1), util::keccak256(asString(arrayEncoding)));
+		BOOST_CHECK_EQUAL(logTopic(0, 0), h512(util::keccak256(std::string("E(string[])")), h512::AlignLeft));
+		BOOST_CHECK_EQUAL(logTopic(0, 1), h512(util::keccak256(asString(arrayEncoding)), h512::AlignLeft));
 	)
 }
 
@@ -3705,6 +3706,36 @@ BOOST_AUTO_TEST_CASE(contract_name)
 	ABI_CHECK(callContractFunction("constantNameAccessor()"), argsLong);
 }
 
+BOOST_AUTO_TEST_CASE(event_topics_full_width)
+{
+	char const* sourceCode = R"(
+		contract C {
+			event E(uint256 indexed scalar, bytes32 indexed fixedValue, int256 indexed signedValue);
+			function f() public {
+				emit E(0x123456, hex"0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20", -7);
+			}
+		}
+	)";
+	std::vector<h512> const expectedTopics{
+		h512(util::keccak256(std::string("E(uint256,bytes32,int256)")), h512::AlignLeft),
+		h512(bytes(61, 0) + bytes{0x12, 0x34, 0x56}),
+		h512(fromHex("0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20") + bytes(32, 0)),
+		h512(bytes(63, 0xff) + bytes{0xf9})
+	};
+	ALSO_VIA_YUL(
+		compileAndRun(sourceCode);
+		ABI_CHECK(callContractFunction("f()"), bytes());
+		BOOST_REQUIRE_EQUAL(numLogs(), 1);
+		BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
+		BOOST_REQUIRE_EQUAL(numLogTopics(0), expectedTopics.size());
+		for (size_t i = 0; i < expectedTopics.size(); ++i)
+			BOOST_CHECK_EQUAL(logTopic(0, i), expectedTopics[i]);
+		auto const logs = recordedLogs();
+		BOOST_REQUIRE_EQUAL(logs.size(), 1);
+		BOOST_CHECK(logs[0].topics == expectedTopics);
+	)
+}
+
 BOOST_AUTO_TEST_CASE(event_wrong_abi_name)
 {
 	char const* sourceCode = R"(
@@ -3729,7 +3760,7 @@ BOOST_AUTO_TEST_CASE(event_wrong_abi_name)
 		BOOST_REQUIRE_EQUAL(numLogs(), 1);
 		BOOST_CHECK_EQUAL(logAddress(0), m_contractAddress);
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 3);
-		BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(std::string("Deposit(address,bytes32,uint256)")));
+		BOOST_CHECK_EQUAL(logTopic(0, 0), h512(util::keccak256(std::string("Deposit(address,bytes32,uint256)")), h512::AlignLeft));
 	)
 }
 
