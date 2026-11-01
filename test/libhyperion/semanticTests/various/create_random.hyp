@@ -14,24 +14,10 @@ contract C {
             a2 := create2(0, 0, 5, address())
         }
     }
-
-    function testCalc() external returns (address a1, address a2) {
-        a1 = calculateCreate(address(this), 1);
-        a2 = calculateCreate2(address(this), keccak256(hex"60016000f3"), bytes64(uint512(address(this))));
-    }
-
-    function calculateCreate(address from, uint256 nonce) private pure returns (address) {
-        assert(nonce <= 127);
-        bytes memory data =
-            bytes.concat(hex"d694", bytes64(uint512(from)), nonce == 0 ? bytes1(hex"80") : bytes1(uint8(nonce)));
-        return address(uint512(uint256(keccak256(data)))); // Expand the 256-bit hash into the 512-bit address type.
-    }
-
-    function calculateCreate2(address creator, bytes32 codehash, bytes64 salt) private pure returns (address) {
-        return address(uint512(uint256(keccak256(abi.encodePacked(bytes1(0xff), creator, salt, codehash)))));
-    }
 }
+// Addresses independently generated with go-qrl crypto.CreateAddress/CreateAddress2.
+// ====
+// compileViaYul: also
 // ----
-// addr() -> 0x254f38cb8201943b6e48e06b3847a41d40c0c5f7cf5c0c3f4b4006528454c7ff
-// testRunner() -> 0xa2c09b0901c4385dddc8a62d8dd8cb54995b78bbd757bfdee5a32af7ef8f0059, 0x1a8132551454206ef3d9e0d16d5d25489b39712978d7caa24b55a9ac5d27565a
-// testCalc() -> 0x83a4d7a1adb4b1ea71603d155a5caa15a273344b40fae902b35e534157fa2775, 0x1a8132551454206ef3d9e0d16d5d25489b39712978d7caa24b55a9ac5d27565a
+// addr() -> 0x719edbf47d4c270f39cfc6b3e97e7312b5fc1a4a769bfdc4544ce960f9df9199a578cc81f56f49da5d91e3a6a4a1c67f7043cd900897ae0f8a446150858fbcff
+// testRunner() -> 0xbf516a9ed73415827a9b7ebe565b2a2f54d9480860af6e230d858ca8c9a65c60b27398ae67a2813a4c4c789a2c5e99b1b92c1fad6565e9f96c96f525e528b488, 0x334041e27b96028f98ab3da594c8de13f97127e1c3976908138a37d190e55ac48d254d4baf28ecae675e0fdb451c97c83de4785286f626be8ef10a20b228f865

@@ -34,6 +34,7 @@
 #include <libqrvmasm/Assembly.h>
 
 #include <libhyputil/Keccak256.h>
+#include <libhyputil/Keccak512.h>
 #include <libhyputil/ErrorCodes.h>
 #include <libhyputil/VMConstants.h>
 
@@ -3614,6 +3615,40 @@ BOOST_AUTO_TEST_CASE(abi_encodePackedV2_arrayOfStrings)
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 2);
 		BOOST_CHECK_EQUAL(logTopic(0, 0), h512(util::keccak256(std::string("E(string[])")), h512::AlignLeft));
 		BOOST_CHECK_EQUAL(logTopic(0, 1), h512(util::keccak256(asString(arrayEncoding)), h512::AlignLeft));
+	)
+}
+
+BOOST_AUTO_TEST_CASE(create2_address_prediction)
+{
+	char const* sourceCode = R"(
+		contract D {
+			uint public x;
+			constructor(uint a) { x = a; }
+		}
+		contract C {
+			function createDSalted(bytes64 salt, uint arg, address predictedAddress) public returns (address) {
+				D d = new D{salt: salt}(arg);
+				require(address(d) == predictedAddress, "Address mismatch.");
+				return address(d);
+			}
+		}
+	)";
+	h512 const salt(bytes{0x80} + bytes(62, 0) + bytes{42});
+	ALSO_VIA_YUL(
+		bytes const initcode = compileContract(sourceCode, "D") + encodeArgs(64);
+		compileAndRun(sourceCode, 0, "C");
+		h512 const predicted = keccak512(
+			asBytes("QRL-ADDR-v1") + bytes{0xff} + m_contractAddress.asBytes() + salt.asBytes() + keccak256(initcode).asBytes()
+		);
+		callContractFunction("createDSalted(bytes64,uint256,address)", salt, 64, h512());
+		BOOST_CHECK(!m_transactionSuccessful);
+		ABI_CHECK(
+			callContractFunction("createDSalted(bytes64,uint256,address)", salt, 64, predicted),
+			encodeArgs(predicted)
+		);
+		BOOST_CHECK(addressHasCode(predicted));
+		m_contractAddress = predicted;
+		ABI_CHECK(callContractFunction("x()"), encodeArgs(64));
 	)
 }
 

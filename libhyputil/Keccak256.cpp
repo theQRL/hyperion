@@ -21,6 +21,7 @@
  */
 
 #include <libhyputil/Keccak256.h>
+#include <libhyputil/Keccak512.h>
 
 #include <cstdint>
 #include <cstring>
@@ -177,6 +178,13 @@ h256 keccak256(bytesConstRef _input)
 	// the way the round size (or window or whatever it was) is calculated.
 	// 200 - (256 / 4) is the "rate"
 	hash(output.data(), output.size, _input.data(), _input.size(), 200 - (256 / 4), 0x01);
+	return output;
+}
+
+h512 keccak512(bytesConstRef _input)
+{
+	h512 output;
+	hash(output.data(), output.size, _input.data(), _input.size(), 200 - (512 / 4), 0x01);
 	return output;
 }
 

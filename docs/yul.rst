@@ -871,7 +871,8 @@ the ``dup`` and ``swap`` instructions as well as ``jump`` instructions, labels a
 |                         |     |   | and return the new address; returns 0 on error                  |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | create2(v, p, n, s)     |     | C | create new contract with code mem[p...(p+n)) at address         |
-|                         |     |   | keccak256(0xff . this . s . keccak256(mem[p...(p+n)))           |
+|                         |     |   | keccak512("QRL-ADDR-v1" . 0xff . this . s . h), where           |
+|                         |     |   | h = keccak256(mem[p...(p+n)))                                   |
 |                         |     |   | and send v planck and return the new address, where ``0xff`` is |
 |                         |     |   | a 1 byte value, ``this`` is the current contract's address      |
 |                         |     |   | as a 64 byte value and ``s`` is a big-endian 512-bit value;     |

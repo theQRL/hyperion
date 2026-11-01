@@ -19,6 +19,7 @@ set(sources
 	JSON.h
 	Keccak256.cpp
 	Keccak256.h
+	Keccak512.h
 	LazyInit.h
 	LEB128.h
 	Numeric.cpp

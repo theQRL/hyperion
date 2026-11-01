@@ -248,14 +248,27 @@ It will compute the address from the address of the creating contract,
 the given salt value, the (creation) bytecode of the created contract and the constructor
 arguments.
 
-In particular, the counter ("nonce") is not used. This allows for more flexibility
+QRL derives the full 64-byte address as
+``Keccak-512("QRL-ADDR-v1" || 0xff || creator64 || salt64 || Keccak-256(initcode))``,
+where ``initcode`` includes the ABI-encoded constructor arguments. These are legacy
+Keccak hashes, and the domain prefix is the ASCII string without a terminating zero byte.
+The salt occupies all 64 bytes. For ordinary CREATE, the address is
+``Keccak-512("QRL-ADDR-v1" || RLP([creator64, nonce]))`` using the creator's nonce
+before it is incremented.
+
+For CREATE2, the counter ("nonce") is not part of the address derivation. This allows for more flexibility
 in creating contracts: You are able to derive the address of the
 new contract before it is created. Furthermore, you can rely on this address
 also in case the creating
-contracts creates other contracts in the meantime.
+contract creates other contracts in the meantime.
 
 The main use-case here is contracts that act as judges for off-chain interactions,
 which only need to be created if there is a dispute.
+
+Compute the predicted address off-chain, for example with go-qrl's
+``crypto.CreateAddress2``, and pass it to the contract if you want to check it.
+Hyperion's ``keccak256`` builtin returns a 32-byte digest and cannot perform the
+Keccak-512 address derivation.
 
 .. code-block:: hyperion
 
@@ -269,20 +282,7 @@ which only need to be created if there is a dispute.
     }
 
     contract C {
-        function createDSalted(bytes64 salt, uint arg) public {
-            // This complicated expression just tells you how the address
-            // can be pre-computed. It is just there for illustration.
-            // You actually only need ``new D{salt: salt}(arg)``.
-            address predictedAddress = address(uint512(uint(keccak256(abi.encodePacked(
-                bytes1(0xff),
-                address(this),
-                salt,
-                keccak256(abi.encodePacked(
-                    type(D).creationCode,
-                    abi.encode(arg)
-                ))
-            )))));
-
+        function createDSalted(bytes64 salt, uint arg, address predictedAddress) public {
             D d = new D{salt: salt}(arg);
             require(address(d) == predictedAddress);
         }

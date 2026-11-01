@@ -29,12 +29,14 @@
 #include <libhyputil/Exceptions.h>
 #include <libhyputil/Assertions.h>
 #include <libhyputil/Keccak256.h>
+#include <libhyputil/Keccak512.h>
 #include <libhyputil/picosha2.h>
 #include <libhyputil/XmssVerify.h>
 
 #include <mldsa_native.h>
 
 #include <algorithm>
+#include <limits>
 #include <vector>
 
 using namespace std;
@@ -195,7 +197,7 @@ qrvmc::Result QRVMHost::call(qrvmc_message const& _message) noexcept
 	else if (_message.recipient == "Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006"_address)
 		return precompileShake256(_message);
 
-	auto const stateBackup = accounts;
+	auto stateBackup = accounts;
 
 	u256 value{convertUintFromQRVMC(_message.value)};
 	auto& sender = accounts[_message.sender];
@@ -220,49 +222,47 @@ qrvmc::Result QRVMHost::call(qrvmc_message const& _message) noexcept
 
 	if (message.kind == QRVMC_CREATE)
 	{
-		// TODO is the nonce incremented on failure, too?
-		// NOTE: nonce for creation from contracts starts at 1
-		// TODO: check if sender is an EOA and do not pre-increment
-		sender.nonce++;
+		bytes encodedNonce = toCompactBigEndian(sender.nonce);
+		if (sender.nonce == 0 || sender.nonce >= 0x80)
+			encodedNonce = bytes{static_cast<uint8_t>(0x80 + encodedNonce.size())} + encodedNonce;
 
-		auto encodeRlpInteger = [](int value) -> bytes {
-			if (value == 0) {
-				return bytes{128};
-			} else if (value <= 127) {
-				return bytes{static_cast<uint8_t>(value)};
-			} else if (value <= 0xff) {
-				return bytes{128 + 1, static_cast<uint8_t>(value)};
-			} else if (value <= 0xffff) {
-				return bytes{128 + 55 + 2, static_cast<uint8_t>(value >> 8), static_cast<uint8_t>(value)};
-			} else {
-				assertThrow(false, Exception, "Can only encode RLP numbers <= 0xffff");
-			}
-		};
-
-		bytes encodedNonce = encodeRlpInteger(sender.nonce);
-
-		h512 createAddress(keccak256(
-			bytes{static_cast<uint8_t>(0xc0 + 49 + encodedNonce.size())} +
-			bytes{0xb0} +
+		// RLP([sender64, nonce]): both the list and the 64-byte sender use long-form lengths.
+		h512 createAddress = keccak512(
+			asBytes("QRL-ADDR-v1") +
+			bytes{0xf8, static_cast<uint8_t>(2 + AddressBytes + encodedNonce.size()), 0xb8, AddressBytes} +
 			bytes(begin(message.sender.bytes), end(message.sender.bytes)) +
 			encodedNonce
-		), h512::AlignRight);
+		);
 
 		message.recipient = convertToQRVMC(createAddress);
-		assertThrow(accounts.count(message.recipient) == 0, Exception, "Account cannot exist");
-
-		code = qrvmc::bytes(message.input_data, message.input_data + message.input_size);
 	}
 	else if (message.kind == QRVMC_CREATE2)
 	{
-		h512 createAddress(keccak256(
+		h512 createAddress = keccak512(
+			asBytes("QRL-ADDR-v1") +
 			bytes{0xff} +
 			bytes(begin(message.sender.bytes), end(message.sender.bytes)) +
 			bytes(begin(message.create2_salt.bytes), end(message.create2_salt.bytes)) +
 			keccak256(bytes(message.input_data, message.input_data + message.input_size)).asBytes()
-		), h512::AlignRight);
+		);
 
 		message.recipient = convertToQRVMC(createAddress);
+	}
+
+	if (message.kind == QRVMC_CREATE || message.kind == QRVMC_CREATE2)
+	{
+		if (value > convertUintFromQRVMC(sender.balance) || sender.nonce == numeric_limits<uint64_t>::max())
+		{
+			qrvmc::Result result;
+			result.status_code = value > convertUintFromQRVMC(sender.balance) ? QRVMC_INSUFFICIENT_BALANCE : QRVMC_FAILURE;
+			result.gas_left = message.gas;
+			accounts = stateBackup;
+			return result;
+		}
+		// Both creation opcodes consume the current nonce, even if initialization or collision checks fail.
+		++sender.nonce;
+		stateBackup[message.sender].nonce = sender.nonce;
+
 		if (accounts.count(message.recipient) && (
 			accounts[message.recipient].nonce > 0 ||
 			!accounts[message.recipient].code.empty()
@@ -280,6 +280,8 @@ qrvmc::Result QRVMHost::call(qrvmc_message const& _message) noexcept
 		code = accounts[message.code_address].code;
 
 	auto& destination = accounts[message.recipient];
+	if (message.kind == QRVMC_CREATE || message.kind == QRVMC_CREATE2)
+		destination.nonce = 1;
 
 	if (value != 0 && message.kind != QRVMC_DELEGATECALL)
 	{
