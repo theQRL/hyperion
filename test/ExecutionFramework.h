@@ -174,30 +174,18 @@ public:
 	}
 
 	static bytes encode(bool _value) { return encode(uint8_t(_value)); }
-	static bytes encode(int _value)
-	{
-		// Sign-extend to 64-byte ABI slot for signed integers
-		if (_value < 0)
-		{
-			bytes result(64, 0xff);
-			// Store the signed int value in the last sizeof(int) bytes
-			for (size_t i = 0; i < sizeof(int); ++i)
-				result[63 - i] = static_cast<uint8_t>(_value >> (8 * i));
-			return result;
-		}
-		return encode(u256(_value));
-	}
+	static bytes encode(int _value) { return encode(s256(_value)); }
 	static bytes encode(size_t _value) { return encode(u256(_value)); }
 	static bytes encode(char const* _value) { return encode(std::string(_value)); }
 	static bytes encode(uint8_t _value) { return bytes(63, 0) + bytes{_value}; }
 	static bytes encode(u256 const& _value)
 	{
-		// Pad u256 (32 bytes) to 64-byte ABI slot.
-		// If the high bit is set, treat as negative and sign-extend with 0xff.
-		bool negative = (_value >> 255) != 0;
-		bytes result(32, negative ? 0xff : 0x00);
-		result += toBigEndian(_value);
-		return result;
+		// Unsigned integers are zero-extended even when bit 255 is set.
+		return bytes(32, 0) + toBigEndian(_value);
+	}
+	static bytes encode(s256 const& _value)
+	{
+		return bytes(32, _value < 0 ? 0xff : 0) + toBigEndian(s2u(_value));
 	}
 	/// @returns the fixed-point encoding of a rational number with a given
 	/// number of fractional bits.
@@ -205,7 +193,8 @@ public:
 	{
 		rational const& value = _valueAndPrecision.first;
 		int fractionalBits = _valueAndPrecision.second;
-		return encode(u256((value.numerator() << fractionalBits) / value.denominator()));
+		bigint const scaledValue = (value.numerator() << fractionalBits) / value.denominator();
+		return scaledValue < 0 ? encode(s256(scaledValue)) : encode(u256(scaledValue));
 	}
 	static bytes encode(util::h256 const& _value)
 	{

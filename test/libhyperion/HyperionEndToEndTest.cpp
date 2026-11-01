@@ -88,6 +88,32 @@ struct HyperionEndToEndTestExecutionFramework: public HyperionExecutionFramework
 
 BOOST_FIXTURE_TEST_SUITE(HyperionEndToEndTest, HyperionEndToEndTestExecutionFramework)
 
+BOOST_AUTO_TEST_CASE(abi_integer_signedness)
+{
+	char const* sourceCode = R"(
+		contract C {
+			function unsignedValue(uint256 x) public pure returns (uint256) { return x; }
+			function signedValue(int256 x) public pure returns (int256) { return x; }
+		}
+	)";
+	u256 const highBit = u256(1) << 255;
+	std::vector<u256> const unsignedValues{highBit - 1, highBit, highBit + 1, u256(-1)};
+	s256 const minSigned = -(s256(1) << 255);
+	ALSO_VIA_YUL(
+		compileAndRun(sourceCode);
+		for (u256 const& value: unsignedValues)
+			ABI_CHECK(
+				callContractFunction("unsignedValue(uint256)", value),
+				toBigEndian(u512(value))
+			);
+		ABI_CHECK(callContractFunction("signedValue(int256)", -1), bytes(64, 0xff));
+		ABI_CHECK(
+			callContractFunction("signedValue(int256)", minSigned),
+			bytes(32, 0xff) + bytes{0x80} + bytes(31, 0)
+		);
+	)
+}
+
 BOOST_AUTO_TEST_CASE(creation_code_optimizer)
 {
 	std::string codeC = R"(
@@ -3359,7 +3385,7 @@ BOOST_AUTO_TEST_CASE(abi_encodePacked_from_storage)
 		ABI_CHECK(callContractFunction("sf()"), encoded);
 		ABI_CHECK(callContractFunction("sd()"), encoded);
 		ABI_CHECK(callContractFunction("sfs()"), encodeArgs(0x40, 0x242, "\x01" + asString(encodeArgs(
-			u256(-2), 0, 0xffff2, 0, 0, u256(-200), 0, 0, 0xffff4
+			-2, 0, 0xffff2, 0, 0, -200, 0, 0, 0xffff4
 		)) + "\x02"));
 		payload = encodeArgs(
 			u256("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
@@ -3428,7 +3454,7 @@ BOOST_AUTO_TEST_CASE(abi_encodePacked_from_memory)
 		ABI_CHECK(callContractFunction("sf()"), encoded);
 		ABI_CHECK(callContractFunction("sd()"), encoded);
 		ABI_CHECK(callContractFunction("sfs()"), encodeArgs(0x40, 0x242, "\x01" + asString(encodeArgs(
-			u256(-2), 0, 0xffff2, 0, 0, u256(-200), 0, 0, 0xffff4
+			-2, 0, 0xffff2, 0, 0, -200, 0, 0, 0xffff4
 		)) + "\x02"));
 		payload = encodeArgs(
 			u256("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
@@ -3513,7 +3539,7 @@ BOOST_AUTO_TEST_CASE(abi_encodePackedV2_structs)
 	)";
 	ALSO_VIA_YUL(
 		compileAndRun(sourceCode, 0, "C");
-		bytes structEnc = encodeArgs(int(0x12), u256(-7), int(2), int(3), u256(-7), u256(-8));
+		bytes structEnc = encodeArgs(int(0x12), -7, int(2), int(3), -7, -8);
 		ABI_CHECK(callContractFunction("testStorage()"), encodeArgs());
 		BOOST_REQUIRE_EQUAL(numLogTopics(0), 2);
 		BOOST_CHECK_EQUAL(logTopic(0, 0), util::keccak256(std::string("E((uint8,int16,uint8[2],int16[]))")));

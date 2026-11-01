@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(value_types)
 	compileAndRun(sourceCode);
 	callContractFunction("f()");
 	REQUIRE_LOG_DATA(encodeArgs(
-		10, u256(65534), u256(0x121212), u256(-1), std::string("\x1b\xab\xab"), true, h512(std::string(127, 'f') + "b")
+		10, u256(65534), u256(0x121212), -1, std::string("\x1b\xab\xab"), true, h512(std::string(127, 'f') + "b")
 	));
 }
 
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(conversion)
 	callContractFunction("f()");
 	REQUIRE_LOG_DATA(encodeArgs(
 		std::string(3, 0) + std::string("\x0a"), std::string("\xf1\xf2"),
-		0xff, 0xff, u256(-1), u256(1)
+		0xff, 0xff, -1, u256(1)
 	));
 }
 
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(memory_array_one_dim)
 
 	compileAndRun(sourceCode);
 	callContractFunction("f()");
-	REQUIRE_LOG_DATA(encodeArgs(10, 0xc0, 11, 3, u256(-2), u256(-1), u256(0)));
+	REQUIRE_LOG_DATA(encodeArgs(10, 0xc0, 11, 3, -2, -1, u256(0)));
 }
 
 BOOST_AUTO_TEST_CASE(calldata_array_elements_reject_dirty_padding)
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(memory_array_two_dim)
 	)";
 	compileAndRun(sourceCode);
 	callContractFunction("f()");
-	REQUIRE_LOG_DATA(encodeArgs(10, 0xc0, 11, 0x80, 0x180, 3, 7, 0x0506, u256(-1), 2, 4, 5));
+	REQUIRE_LOG_DATA(encodeArgs(10, 0xc0, 11, 0x80, 0x180, 3, 7, 0x0506, -1, 2, 4, 5));
 }
 
 BOOST_AUTO_TEST_CASE(memory_byte_array)
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE(storage_array_compact)
 	compileAndRun(sourceCode);
 	callContractFunction("f()");
 	REQUIRE_LOG_DATA(encodeArgs(
-		0x40, 8, u256(-1), 2, u256(-3), 4, u256(-5), 6, u256(-7), 8
+		0x40, 8, -1, 2, -3, 4, -5, 6, -7, 8
 	));
 }
 
@@ -707,7 +707,7 @@ BOOST_AUTO_TEST_CASE(packed_structs)
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("store()"), bytes{});
 	bytes encoded = encodeArgs(
-		0, u256(-5), m_contractAddress, u256(util::selectorFromSignatureU32("g()")), "\x01\x02\x03", u256(-3)
+		0, -5, m_contractAddress, u256(util::selectorFromSignatureU32("g()")), "\x01\x02\x03", -3
 	);
 	ABI_CHECK(callContractFunction("f()"), encoded);
 	REQUIRE_LOG_DATA(encoded);

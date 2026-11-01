@@ -10,6 +10,7 @@ set(sources
     QRVMHost.h
     ExecutionFramework.cpp
     ExecutionFramework.h
+    ExecutionFrameworkTests.cpp
     FilesystemUtils.cpp
     FilesystemUtils.h
     InteractiveTests.h
