@@ -82,5 +82,5 @@ contract C {
 // b() -> 0x00
 // b2() -> 0x00
 // b3() -> 0x40, 0
-// c() -> FAILURE, hex"4e487b71", 0x01
-// d() -> FAILURE, hex"4e487b71", 0x01
+// c() -> FAILURE, hex"df75fb3b", 0x01
+// d() -> FAILURE, hex"df75fb3b", 0x01

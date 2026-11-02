@@ -192,9 +192,9 @@ public:
 	qrvmasm::AssemblyItem appendJumpToNew() { return m_asm->appendJump().tag(); }
 	/// Appends a JUMP to a tag already on the stack
 	CompilerContext& appendJump(qrvmasm::AssemblyItem::JumpType _jumpType = qrvmasm::AssemblyItem::JumpType::Ordinary);
-	/// Appends code to revert with a Panic(uint256) error.
+	/// Appends code to revert with a Panic(uint512) error.
 	CompilerContext& appendPanic(util::PanicCode _code);
-	/// Appends code to revert with a Panic(uint256) error if the topmost stack element is nonzero.
+	/// Appends code to revert with a Panic(uint512) error if the topmost stack element is nonzero.
 	CompilerContext& appendConditionalPanic(util::PanicCode _code);
 	/// Appends a REVERT(0, 0) call
 	/// @param _message is an optional revert message used in debug mode

@@ -4,4 +4,4 @@ contract C {
     }
 }
 // ----
-// f(bytes,bytes,bytes): 0x60, 0x60, 0x60, 2, "ab" -> FAILURE, hex"4e487b71", 0x41
+// f(bytes,bytes,bytes): 0x60, 0x60, 0x60, 2, "ab" -> FAILURE, hex"df75fb3b", 0x41

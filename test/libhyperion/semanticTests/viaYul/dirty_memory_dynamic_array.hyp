@@ -15,4 +15,4 @@ contract C {
 // ====
 // compileViaYul: true
 // ----
-// f() -> FAILURE, hex"4e487b71", 0x32
+// f() -> FAILURE, hex"df75fb3b", 0x32

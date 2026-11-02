@@ -25,7 +25,7 @@ caller.
     error InsufficientBalance(uint256 available, uint256 required);
 
     contract TestToken {
-        mapping(address => uint) balance;
+        mapping(address => uint256) balance;
         function transfer(address to, uint256 amount) public {
             if (amount > balance[msg.sender])
                 revert InsufficientBalance({
@@ -70,7 +70,7 @@ The statement ``require(condition, "description");`` would be equivalent to
 Note, however, that ``Error`` is a built-in type and cannot be defined in user-supplied code.
 
 Similarly, a failing ``assert`` or similar conditions will revert with an error
-of the built-in type ``Panic(uint256)``.
+of the built-in type ``Panic(uint512)``.
 
 .. note::
     Error data should only be used to give an indication of failure, but

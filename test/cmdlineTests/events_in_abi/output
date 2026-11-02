@@ -8,9 +8,9 @@ Contract JSON ABI
         [
             {
                 "indexed": false,
-                "internalType": "uint256",
+                "internalType": "uint512",
                 "name": "b",
-                "type": "uint256"
+                "type": "uint512"
             }
         ],
         "name": "e1",
@@ -22,9 +22,9 @@ Contract JSON ABI
         [
             {
                 "indexed": true,
-                "internalType": "uint256",
+                "internalType": "uint512",
                 "name": "a",
-                "type": "uint256"
+                "type": "uint512"
             }
         ],
         "name": "e1",
@@ -48,9 +48,9 @@ Contract JSON ABI
         [
             {
                 "indexed": false,
-                "internalType": "uint256",
+                "internalType": "uint512",
                 "name": "b",
-                "type": "uint256"
+                "type": "uint512"
             }
         ],
         "name": "e1",

@@ -614,7 +614,7 @@ std::string IRGenerator::generateGetter(VariableDeclaration const& _varDecl)
 			hypAssert(mappingType || arrayType, "");
 
 			std::vector<std::string> keys = IRVariable("key_" + std::to_string(i),
-				mappingType ? *mappingType->keyType() : *TypeProvider::uint256()
+				mappingType ? *mappingType->keyType() : *TypeProvider::uint(VMWordBits)
 			).stackSlots();
 			parameters += keys;
 

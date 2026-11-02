@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE(branches)
 		}
 	)";
 	testCreationTimeGas(sourceCode, 1);
-	testRunTimeGas("f(uint256)", std::vector<bytes>{encodeArgs(2), encodeArgs(8)}, 1);
+	testRunTimeGas("f(uint512)", std::vector<bytes>{encodeArgs(2), encodeArgs(8)}, 1);
 }
 */
 
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(function_calls)
 	// In f, data2 is accessed twice, so there is a reduction of 2200 to 100 in actual costs.
 	// However, GasMeter always assumes cold costs.
 	testRunTimeGas(
-		"f(uint256)",
+		"f(uint512)",
 		std::vector<bytes>{encodeArgs(2), encodeArgs(8)},
 		u256(2100)
 	);
@@ -230,12 +230,12 @@ BOOST_AUTO_TEST_CASE(multiple_external_functions)
 	// In f, data2 is accessed twice, so there is a reduction of 2200 to 100 in actual costs.
 	// However, GasMeter always assumes cold costs.
 	testRunTimeGas(
-		"f(uint256)",
+		"f(uint512)",
 		std::vector<bytes>{encodeArgs(2), encodeArgs(8)},
 		u256(2100)
 	);
 
-	testRunTimeGas("g(uint256)", std::vector<bytes>{encodeArgs(2)});
+	testRunTimeGas("g(uint512)", std::vector<bytes>{encodeArgs(2)});
 }
 */
 
@@ -255,9 +255,9 @@ BOOST_AUTO_TEST_CASE(exponent_size)
 		}
 	)";
 	testCreationTimeGas(sourceCode);
-	testRunTimeGas("f(uint256)", std::vector<bytes>{encodeArgs(2)});
-	testRunTimeGas("g(uint256)", std::vector<bytes>{encodeArgs(2)});
-	testRunTimeGas("h(uint256)", std::vector<bytes>{encodeArgs(2)});
+	testRunTimeGas("f(uint512)", std::vector<bytes>{encodeArgs(2)});
+	testRunTimeGas("g(uint512)", std::vector<bytes>{encodeArgs(2)});
+	testRunTimeGas("h(uint512)", std::vector<bytes>{encodeArgs(2)});
 }
 
 BOOST_AUTO_TEST_CASE(balance_gas)

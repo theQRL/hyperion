@@ -14,9 +14,9 @@ contract test {
 //     [
 //       {
 //         "indexed": false,
-//         "internalType": "uint256",
+//         "internalType": "uint512",
 //         "name": "b",
-//         "type": "uint256"
+//         "type": "uint512"
 //       },
 //       {
 //         "indexed": true,
@@ -40,9 +40,9 @@ contract test {
 //     [
 //       {
 //         "indexed": false,
-//         "internalType": "uint256",
+//         "internalType": "uint512",
 //         "name": "a",
-//         "type": "uint256"
+//         "type": "uint512"
 //       }
 //     ],
 //     "name": "e2",
@@ -58,18 +58,18 @@ contract test {
 //     "inputs":
 //     [
 //       {
-//         "internalType": "uint256",
+//         "internalType": "uint512",
 //         "name": "a",
-//         "type": "uint256"
+//         "type": "uint512"
 //       }
 //     ],
 //     "name": "f",
 //     "outputs":
 //     [
 //       {
-//         "internalType": "uint256",
+//         "internalType": "uint512",
 //         "name": "d",
-//         "type": "uint256"
+//         "type": "uint512"
 //       }
 //     ],
 //     "stateMutability": "nonpayable",

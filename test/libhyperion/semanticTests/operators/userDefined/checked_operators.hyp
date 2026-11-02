@@ -18,5 +18,5 @@ contract C {
     }
 }
 // ----
-// testCheckedOperator() -> FAILURE, hex"4e487b71", 0x11
-// testCheckedOperatorInUncheckedBlock() -> FAILURE, hex"4e487b71", 0x11
+// testCheckedOperator() -> FAILURE, hex"df75fb3b", 0x11
+// testCheckedOperatorInUncheckedBlock() -> FAILURE, hex"df75fb3b", 0x11

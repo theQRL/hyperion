@@ -23,7 +23,7 @@ contract test {
 //         {
 //             "notice": "this is a really nice constructor"
 //         },
-//         "mul(uint256,uint256)":
+//         "mul(uint512,uint512)":
 //         {
 //             "notice": "another multiplier"
 //         }

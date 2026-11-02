@@ -80,7 +80,7 @@ contract C {
 //       {
 //         "internalType": "MyInt",
 //         "name": "",
-//         "type": "int256"
+//         "type": "int512"
 //       }
 //     ],
 //     "stateMutability": "view",
@@ -148,7 +148,7 @@ contract C {
 //       {
 //         "internalType": "MyInt",
 //         "name": "a",
-//         "type": "int256"
+//         "type": "int512"
 //       }
 //     ],
 //     "name": "setMyInt",

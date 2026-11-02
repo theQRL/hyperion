@@ -9,8 +9,8 @@ contract C {
     }
 }
 // ----
-// set(int256,int256): 1, 1 ->
-// m(int256): 1 -> 1
-// set_unwrapped(int256,int256): 1, 2 ->
-// m(int256): 1 -> 2
-// m(int256): 2 -> 0
+// set(int512,int512): 1, 1 ->
+// m(int512): 1 -> 1
+// set_unwrapped(int512,int512): 1, 2 ->
+// m(int512): 1 -> 2
+// m(int512): 2 -> 0

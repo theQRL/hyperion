@@ -270,7 +270,7 @@ size_t ContractCompiler::deployLibrary(ContractDefinition const& _contract)
 		("pushOpcode", toCompactHexWithPrefix(pushOpcode))
 		("AddressBytes", std::to_string(AddressBytes))
 		("addressMstoreOffset", std::to_string(addressMstoreOffset))
-		("panicSelector", (u512(util::selectorFromSignatureU256("Panic(uint256)")) << (VMWordBits - 256)).str())
+		("panicSelector", (u512(util::selectorFromSignatureU256("Panic(uint512)")) << (VMWordBits - 256)).str())
 		("panicCode", "0")
 		("panicReturndataSize", toCompactHexWithPrefix(u256(4 + VMWordBytes)))
 		.render(),
@@ -1089,12 +1089,12 @@ void ContractCompiler::handleCatch(std::vector<ASTPointer<TryCatchClause>> const
 			panic->parameters() &&
 			panic->parameters()->parameters().size() == 1 &&
 			panic->parameters()->parameters().front() &&
-			*panic->parameters()->parameters().front()->annotation().type == *TypeProvider::uint256(),
+			*panic->parameters()->parameters().front()->annotation().type == *TypeProvider::uint(VMWordBits),
 			""
 		);
 
 		// stack: <selector>
-		m_context << util::selectorFromSignatureU32("Panic(uint256)") << Instruction::EQ;
+		m_context << util::selectorFromSignatureU32("Panic(uint512)") << Instruction::EQ;
 		m_context << Instruction::ISZERO;
 		m_context.appendConditionalJumpTo(fallbackTag);
 

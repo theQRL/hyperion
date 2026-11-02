@@ -1,7 +1,7 @@
 contract C {
     function f(uint size) public pure {
         assembly {
-            mstore(0, 0x4e487b7100000000000000000000000000000000000000000000000000000000)
+            mstore(0, 0xdf75fb3b00000000000000000000000000000000000000000000000000000000)
             mstore(4, 0x43)
             revert(0, size)
         }

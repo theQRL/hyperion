@@ -4,10 +4,10 @@ contract C {
     }
 }
 // ----
-// f(uint256,uint256,uint256,uint256,uint256): 1, 1, 1, 1, 1
+// f(uint512,uint512,uint512,uint512,uint512): 1, 1, 1, 1, 1
 // # A comment on the function parameters. #
 // -> 5
-// f(uint256,uint256,uint256,uint256,uint256):
+// f(uint512,uint512,uint512,uint512,uint512):
 // 1,
 // 1,
 // 1,

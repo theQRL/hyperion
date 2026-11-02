@@ -10,4 +10,4 @@ contract C {
     }
 }
 // ----
-// f((uint256,uint8,uint8,bytes2)): 1, 2, 3, "ab" -> 1, 2, 3, 0x6162
+// f((uint512,uint8,uint8,bytes2)): 1, 2, 3, "ab" -> 1, 2, 3, 0x6162

@@ -1,8 +1,8 @@
 contract C {
     function f() pure public {
-        uint x;
+        uint256 x;
         (x, ) = (1E111, 1);
     }
 }
 // ----
-// TypeError 7407: (76-86): Type tuple(int_const 1000...(104 digits omitted)...0000,int_const 1) is not implicitly convertible to expected type tuple(uint256,).
+// TypeError 7407: (79-89): Type tuple(int_const 1000...(104 digits omitted)...0000,int_const 1) is not implicitly convertible to expected type tuple(uint256,).

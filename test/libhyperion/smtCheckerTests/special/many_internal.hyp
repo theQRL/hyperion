@@ -9,7 +9,7 @@ contract C
 		assert(block.number == block.timestamp);
 		assert(tx.gasprice == msg.value);
 		assert(tx.origin == msg.sender);
-		uint x = block.number;
+		uint256 x = block.number;
 		unchecked { x += 2; }
 		assert(x > block.number);
 		assert(block.timestamp > 10);
@@ -25,6 +25,6 @@ contract C
 // Warning 6328: (167-206): CHC: Assertion violation happens here.
 // Warning 6328: (210-242): CHC: Assertion violation happens here.
 // Warning 6328: (246-277): CHC: Assertion violation happens here.
-// Warning 6328: (330-354): CHC: Assertion violation happens here.
-// Warning 6328: (358-386): CHC: Assertion violation happens here.
-// Warning 6328: (390-413): CHC: Assertion violation happens here.
+// Warning 6328: (333-357): CHC: Assertion violation happens here.
+// Warning 6328: (361-389): CHC: Assertion violation happens here.
+// Warning 6328: (393-416): CHC: Assertion violation happens here.

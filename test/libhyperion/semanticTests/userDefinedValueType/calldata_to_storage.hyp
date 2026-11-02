@@ -31,11 +31,11 @@ contract C {
 // gas irOptimized: 69097
 // gas legacy: 75466
 // gas legacyOptimized: 74255
-// small(uint256): 0 -> FAILURE
-// small(uint256): 1 -> FAILURE
+// small(uint512): 0 -> FAILURE
+// small(uint512): 1 -> FAILURE
 // h(bytes2[]): 0x20, 3, "ab", "cd", "ef" -> FAILURE
 // gas irOptimized: 69174
 // gas legacy: 75156
 // gas legacyOptimized: 74342
-// l(uint256): 0 -> FAILURE
-// l(uint256): 1 -> FAILURE
+// l(uint512): 0 -> FAILURE
+// l(uint512): 1 -> FAILURE

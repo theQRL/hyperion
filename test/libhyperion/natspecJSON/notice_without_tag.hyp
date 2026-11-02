@@ -17,7 +17,7 @@ contract test {
 //     "kind": "user",
 //     "methods":
 //     {
-//         "mul(uint256)":
+//         "mul(uint512)":
 //         {
 //             "notice": "I do something awesome"
 //         }

@@ -1,0 +1,16 @@
+contract C {
+    function f() public pure {
+        uint a = type(uint512).max;
+        int b = type(int512).min;
+        uint512 c = a;
+        int512 d = b;
+        // Bare `uint`/`int` are the full-word types, so the explicitly sized
+        // 256 bit types are strictly narrower and need an explicit conversion.
+        uint256 e = a;
+        int256 g = b;
+        c; d; e; g;
+    }
+}
+// ----
+// TypeError 9574: (325-338): Type uint512 is not implicitly convertible to expected type uint256.
+// TypeError 9574: (348-360): Type int512 is not implicitly convertible to expected type int256.

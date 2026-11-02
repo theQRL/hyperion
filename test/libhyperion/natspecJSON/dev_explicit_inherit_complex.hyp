@@ -28,43 +28,12 @@ contract Token is myInterfaces.SQRCTF1, myInterfaces.ERC21 {
 
 // ----
 // ----
-// Interfaces.hyp:SQRCTF1 devdoc
-// {
-//     "kind": "dev",
-//     "methods":
-//     {
-//         "transfer(address,uint256)":
-//         {
-//             "details": "test",
-//             "params":
-//             {
-//                 "amount": "amount to transfer",
-//                 "to": "address to transfer to"
-//             }
-//         }
-//     },
-//     "version": 1
-// }
-//
-// Interfaces.hyp:SQRCTF1 userdoc
-// {
-//     "kind": "user",
-//     "methods":
-//     {
-//         "transfer(address,uint256)":
-//         {
-//             "notice": "Transfer ``amount`` from ``msg.sender`` to ``to``."
-//         }
-//     },
-//     "version": 1
-// }
-//
 // Interfaces.hyp:ERC21 devdoc
 // {
 //     "kind": "dev",
 //     "methods":
 //     {
-//         "transfer(address,uint256)":
+//         "transfer(address,uint512)":
 //         {
 //             "details": "test2",
 //             "params":
@@ -82,7 +51,38 @@ contract Token is myInterfaces.SQRCTF1, myInterfaces.ERC21 {
 //     "kind": "user",
 //     "methods":
 //     {
-//         "transfer(address,uint256)":
+//         "transfer(address,uint512)":
+//         {
+//             "notice": "Transfer ``amount`` from ``msg.sender`` to ``to``."
+//         }
+//     },
+//     "version": 1
+// }
+//
+// Interfaces.hyp:SQRCTF1 devdoc
+// {
+//     "kind": "dev",
+//     "methods":
+//     {
+//         "transfer(address,uint512)":
+//         {
+//             "details": "test",
+//             "params":
+//             {
+//                 "amount": "amount to transfer",
+//                 "to": "address to transfer to"
+//             }
+//         }
+//     },
+//     "version": 1
+// }
+//
+// Interfaces.hyp:SQRCTF1 userdoc
+// {
+//     "kind": "user",
+//     "methods":
+//     {
+//         "transfer(address,uint512)":
 //         {
 //             "notice": "Transfer ``amount`` from ``msg.sender`` to ``to``."
 //         }
@@ -95,7 +95,7 @@ contract Token is myInterfaces.SQRCTF1, myInterfaces.ERC21 {
 //     "kind": "dev",
 //     "methods":
 //     {
-//         "transfer(address,uint256)":
+//         "transfer(address,uint512)":
 //         {
 //             "details": "test",
 //             "params":
@@ -113,7 +113,7 @@ contract Token is myInterfaces.SQRCTF1, myInterfaces.ERC21 {
 //     "kind": "user",
 //     "methods":
 //     {
-//         "transfer(address,uint256)":
+//         "transfer(address,uint512)":
 //         {
 //             "notice": "Transfer ``amount`` from ``msg.sender`` to ``to``."
 //         }

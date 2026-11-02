@@ -15,22 +15,22 @@
                             "label": "x",
                             "offset": 0,
                             "slot": "0",
-                            "type": "t_uint256"
+                            "type": "t_uint512"
                         },
                         {
                             "astId": 17,
                             "contract": "fileA:A",
                             "label": "y",
-                            "offset": 32,
-                            "slot": "0",
-                            "type": "t_uint256"
+                            "offset": 0,
+                            "slot": "1",
+                            "type": "t_uint512"
                         },
                         {
                             "astId": 20,
                             "contract": "fileA:A",
                             "label": "s",
                             "offset": 0,
-                            "slot": "1",
+                            "slot": "2",
                             "type": "t_struct(S)13_storage"
                         },
                         {
@@ -38,7 +38,7 @@
                             "contract": "fileA:A",
                             "label": "addr",
                             "offset": 0,
-                            "slot": "4",
+                            "slot": "6",
                             "type": "t_address"
                         },
                         {
@@ -46,23 +46,23 @@
                             "contract": "fileA:A",
                             "label": "map",
                             "offset": 0,
-                            "slot": "5",
-                            "type": "t_mapping(t_uint256,t_mapping(t_address,t_bool))"
+                            "slot": "7",
+                            "type": "t_mapping(t_uint512,t_mapping(t_address,t_bool))"
                         },
                         {
                             "astId": 31,
                             "contract": "fileA:A",
                             "label": "array",
                             "offset": 0,
-                            "slot": "6",
-                            "type": "t_array(t_uint256)dyn_storage"
+                            "slot": "8",
+                            "type": "t_array(t_uint512)dyn_storage"
                         },
                         {
                             "astId": 33,
                             "contract": "fileA:A",
                             "label": "s1",
                             "offset": 0,
-                            "slot": "7",
+                            "slot": "9",
                             "type": "t_string_storage"
                         },
                         {
@@ -70,7 +70,7 @@
                             "contract": "fileA:A",
                             "label": "b1",
                             "offset": 0,
-                            "slot": "8",
+                            "slot": "10",
                             "type": "t_bytes_storage"
                         }
                     ],
@@ -82,18 +82,18 @@
                             "label": "address",
                             "numberOfBytes": "64"
                         },
-                        "t_array(t_uint256)2_storage":
+                        "t_array(t_uint512)2_storage":
                         {
-                            "base": "t_uint256",
+                            "base": "t_uint512",
                             "encoding": "inplace",
-                            "label": "uint256[2]",
-                            "numberOfBytes": "64"
+                            "label": "uint512[2]",
+                            "numberOfBytes": "128"
                         },
-                        "t_array(t_uint256)dyn_storage":
+                        "t_array(t_uint512)dyn_storage":
                         {
-                            "base": "t_uint256",
+                            "base": "t_uint512",
                             "encoding": "dynamic_array",
-                            "label": "uint256[]",
+                            "label": "uint512[]",
                             "numberOfBytes": "64"
                         },
                         "t_bool":
@@ -116,11 +116,11 @@
                             "numberOfBytes": "64",
                             "value": "t_bool"
                         },
-                        "t_mapping(t_uint256,t_mapping(t_address,t_bool))":
+                        "t_mapping(t_uint512,t_mapping(t_address,t_bool))":
                         {
                             "encoding": "mapping",
-                            "key": "t_uint256",
-                            "label": "mapping(uint256 => mapping(address => bool))",
+                            "key": "t_uint512",
+                            "label": "mapping(uint512 => mapping(address => bool))",
                             "numberOfBytes": "64",
                             "value": "t_mapping(t_address,t_bool)"
                         },
@@ -158,18 +158,18 @@
                                     "label": "staticArray",
                                     "offset": 0,
                                     "slot": "1",
-                                    "type": "t_array(t_uint256)2_storage"
+                                    "type": "t_array(t_uint512)2_storage"
                                 },
                                 {
                                     "astId": 12,
                                     "contract": "fileA:A",
                                     "label": "dynArray",
                                     "offset": 0,
-                                    "slot": "2",
-                                    "type": "t_array(t_uint256)dyn_storage"
+                                    "slot": "3",
+                                    "type": "t_array(t_uint512)dyn_storage"
                                 }
                             ],
-                            "numberOfBytes": "192"
+                            "numberOfBytes": "256"
                         },
                         "t_uint128":
                         {
@@ -177,11 +177,11 @@
                             "label": "uint128",
                             "numberOfBytes": "16"
                         },
-                        "t_uint256":
+                        "t_uint512":
                         {
                             "encoding": "inplace",
-                            "label": "uint256",
-                            "numberOfBytes": "32"
+                            "label": "uint512",
+                            "numberOfBytes": "64"
                         }
                     }
                 }

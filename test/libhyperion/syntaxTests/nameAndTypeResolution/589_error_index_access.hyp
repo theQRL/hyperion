@@ -6,4 +6,4 @@ contract Test {
     }
 }
 // ----
-// TypeError 7407: (110-123): Type error MyCustomError(uint256,bool) is not implicitly convertible to expected type uint256.
+// TypeError 7407: (110-123): Type error MyCustomError(uint512,bool) is not implicitly convertible to expected type uint512.

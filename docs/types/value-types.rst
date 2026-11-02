@@ -30,7 +30,14 @@ The operators ``||`` and ``&&`` apply the common short-circuiting rules. This me
 Integers
 --------
 
-``int`` / ``uint``: Signed and unsigned integers of various sizes. Keywords ``uint8`` to ``uint256`` in steps of ``8`` (unsigned of 8 up to 256 bits) and ``int8`` to ``int256``. ``uint`` and ``int`` are aliases for ``uint256`` and ``int256``, respectively.
+``int`` / ``uint``: Signed and unsigned integers of various sizes. Keywords ``uint8`` to ``uint512`` in steps of ``8`` (unsigned of 8 up to 512 bits) and ``int8`` to ``int512``. ``uint`` and ``int`` are aliases for ``uint512`` and ``int512``, respectively, i.e. they denote the full QRVM word.
+
+Explicitly sized integers retain their declared width. When migrating a contract that used
+bare integers as 256-bit types, use ``uint256`` and ``int256`` explicitly to preserve its ABI
+signatures and storage layout. Conversions from ``bytes32`` hashes to integers still require
+``uint256(hash)``; use ``uint(uint256(hash))`` to widen the result to a full word.
+Economic quantities such as ``msg.value``, account balances and call value or gas options
+remain ``uint256``.
 
 Operators:
 
@@ -682,7 +689,7 @@ type with 18 decimals and a minimal library to do arithmetic operations on the t
 
     /// A minimal library to do fixed point operations on UFixed256x18.
     library FixedMath {
-        uint constant multiplier = 10**18;
+        uint256 constant multiplier = 10**18;
 
         /// Adds two UFixed256x18 numbers. Reverts on overflow, relying on checked
         /// arithmetic on uint256.

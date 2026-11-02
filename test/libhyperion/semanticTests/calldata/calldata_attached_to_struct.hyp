@@ -19,4 +19,4 @@ contract C {
     }
 }
 // ----
-// test(uint256,(uint256,uint256),uint256): 7, 66, 77, 4 -> 77, 66
+// test(uint512,(uint512,uint512),uint512): 7, 66, 77, 4 -> 77, 66

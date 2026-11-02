@@ -19,4 +19,4 @@ contract C {
 	}
 }
 // ----
-// basic() -> true
+// basic() -> FAILURE

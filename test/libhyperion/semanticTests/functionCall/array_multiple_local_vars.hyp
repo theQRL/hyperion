@@ -1,5 +1,5 @@
 contract test {
-    function f(uint256[] calldata seq) external pure returns (uint256) {
+    function f(uint256[] calldata seq) external pure returns (uint) {
         uint i = 0;
         uint sum = 0;
         while (i < seq.length)

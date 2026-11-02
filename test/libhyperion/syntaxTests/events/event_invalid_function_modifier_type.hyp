@@ -5,4 +5,4 @@ contract B {
 }
 
 // ----
-// TypeError 4649: (66-79): Invalid type for argument in modifier invocation. Invalid implicit conversion from event MyCustomEvent(uint256) to uint256 requested.
+// TypeError 4649: (66-79): Invalid type for argument in modifier invocation. Invalid implicit conversion from event MyCustomEvent(uint512) to uint512 requested.

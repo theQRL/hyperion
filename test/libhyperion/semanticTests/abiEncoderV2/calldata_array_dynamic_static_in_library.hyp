@@ -12,4 +12,4 @@ contract C {
 }
 // ----
 // library: L
-// f(uint256[],uint256[1]): 0x40, 0xff, 1, 0xffff -> FAILURE
+// f(uint512[],uint512[1]): 0x40, 0xff, 1, 0xffff -> FAILURE

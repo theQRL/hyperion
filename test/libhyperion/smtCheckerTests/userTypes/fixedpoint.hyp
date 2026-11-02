@@ -3,7 +3,7 @@ type UFixed256x18 is uint256;
 
 /// A minimal library to do fixed point operations on UFixed256x18.
 library FixedMath {
-	uint constant multiplier = 10**18;
+	uint256 constant multiplier = 10**18;
 	/// Adds two UFixed256x18 numbers. Reverts on overflow, relying on checked arithmetic on
 	/// uint256.
 	function add(UFixed256x18 a, UFixed256x18 b) internal pure returns (UFixed256x18) {
@@ -69,8 +69,8 @@ contract TestFixedMath {
 // SMTEngine: all
 // SMTIgnoreCex: yes
 // ----
-// Warning 6328: (1886-1970): CHC: Assertion violation happens here.
-// Warning 6328: (2165-2266): CHC: Assertion violation happens here.
-// Warning 6328: (2675-2791): CHC: Assertion violation happens here.
-// Warning 6328: (3161-3212): CHC: Assertion violation happens here.
+// Warning 6328: (1889-1973): CHC: Assertion violation happens here.
+// Warning 6328: (2168-2269): CHC: Assertion violation happens here.
+// Warning 6328: (2678-2794): CHC: Assertion violation happens here.
+// Warning 6328: (3164-3215): CHC: Assertion violation happens here.
 // Info 1391: CHC: 12 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.

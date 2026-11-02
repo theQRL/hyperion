@@ -6,4 +6,4 @@ contract test {
 // ----
 // f() ->
 // g() -> FAILURE
-// h() -> FAILURE, hex"4e487b71", 0x01
+// h() -> FAILURE, hex"df75fb3b", 0x01

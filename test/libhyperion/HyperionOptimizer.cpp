@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(smoke_test)
 		}
 	)";
 	compileBothVersions(sourceCode);
-	compareVersions("f(uint256)", u256(7));
+	compareVersions("f(uint512)", u256(7));
 }
 
 BOOST_AUTO_TEST_CASE(identities)
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE(identities)
 		}
 	)";
 	compileBothVersions(sourceCode);
-	compareVersions("f(int256)", u256(0x12334664));
+	compareVersions("f(int512)", u256(0x12334664));
 }
 
 BOOST_AUTO_TEST_CASE(unused_expressions)
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE(constant_folding_both_sides)
 		}
 	)";
 	compileBothVersions(sourceCode);
-	compareVersions("f(uint256)", 7);
+	compareVersions("f(uint512)", 7);
 }
 
 BOOST_AUTO_TEST_CASE(storage_access)
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE(storage_access)
 		}
 	)";
 	compileBothVersions(sourceCode);
-	compareVersions("f(uint256)", 7);
+	compareVersions("f(uint512)", 7);
 }
 
 BOOST_AUTO_TEST_CASE(array_copy)
@@ -216,9 +216,9 @@ BOOST_AUTO_TEST_CASE(array_copy)
 		}
 	)";
 	compileBothVersions(sourceCode);
-	compareVersions("f(uint256)", 0);
-	compareVersions("f(uint256)", 10);
-	compareVersions("f(uint256)", 35);
+	compareVersions("f(uint512)", 0);
+	compareVersions("f(uint512)", 10);
+	compareVersions("f(uint512)", 35);
 }
 
 BOOST_AUTO_TEST_CASE(function_calls)
@@ -230,9 +230,9 @@ BOOST_AUTO_TEST_CASE(function_calls)
 		}
 	)";
 	compileBothVersions(sourceCode);
-	compareVersions("f(uint256)", 0);
-	compareVersions("f(uint256)", 10);
-	compareVersions("f(uint256)", 36);
+	compareVersions("f(uint512)", 0);
+	compareVersions("f(uint512)", 10);
+	compareVersions("f(uint512)", 36);
 }
 
 BOOST_AUTO_TEST_CASE(storage_write_in_loops)
@@ -251,9 +251,9 @@ BOOST_AUTO_TEST_CASE(storage_write_in_loops)
 		}
 	)";
 	compileBothVersions(sourceCode);
-	compareVersions("f(uint256)", 0);
-	compareVersions("f(uint256)", 10);
-	compareVersions("f(uint256)", 36);
+	compareVersions("f(uint512)", 0);
+	compareVersions("f(uint512)", 10);
+	compareVersions("f(uint512)", 36);
 }
 
 // Test disabled with https://github.com/ethereum/solidity/pull/762
@@ -280,9 +280,9 @@ BOOST_AUTO_TEST_CASE(retain_information_in_branches)
 		}
 	)";
 	compileBothVersions(sourceCode);
-	compareVersions("f(uint256,bytes32)", 0, "abc");
-	compareVersions("f(uint256,bytes32)", 8, "def");
-	compareVersions("f(uint256,bytes32)", 10, "ghi");
+	compareVersions("f(uint512,bytes32)", 0, "abc");
+	compareVersions("f(uint512,bytes32)", 8, "def");
+	compareVersions("f(uint512,bytes32)", 10, "ghi");
 
 	bytes optimizedBytecode = compileAndRunWithOptimizer(sourceCode, 0, "c", true);
 	size_t numSHA3s = 0;
@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE(store_tags_as_unions)
 			function g(uint x, bytes32 y) external returns (uint r_a, bytes32 r_d) {
 				r_d = keccak256(abi.encodePacked(y));
 				shared(y);
-				r_d = bytes32(uint(keccak256(abi.encodePacked(y))) + 2);
+				r_d = bytes32(uint256(keccak256(abi.encodePacked(y))) + 2);
 				r_a = 7;
 			}
 			function shared(bytes32 y) internal {
@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE(store_tags_as_unions)
 		}
 	)";
 	compileBothVersions(sourceCode);
-	compareVersions("f(uint256,bytes32)", 7, "abc");
+	compareVersions("f(uint512,bytes32)", 7, "abc");
 
 	bytes optimizedBytecode = compileAndRunWithOptimizer(sourceCode, 0, "test", true);
 	size_t numSHA3s = 0;
@@ -376,14 +376,14 @@ BOOST_AUTO_TEST_CASE(computing_constants)
 {
 	char const* sourceCode = R"(
 		contract C {
-			uint m_a;
-			uint m_b;
-			uint m_c;
-			uint m_d;
+			uint256 m_a;
+			uint256 m_b;
+			uint256 m_c;
+			uint256 m_d;
 			constructor() {
 				set();
 			}
-			function set() public returns (uint) {
+			function set() public returns (uint256) {
 				m_a = 0x77abc0000000000000000000000000000000000000000000000000000000001;
 				m_b = 0x817416927846239487123469187231298734162934871263941234127518276;
 				g();
@@ -397,7 +397,7 @@ BOOST_AUTO_TEST_CASE(computing_constants)
 			function h() public {
 				m_d = 0xff05694900000000000000000000000000000000000000000000000000000000;
 			}
-			function get() public returns (uint ra, uint rb, uint rc, uint rd) {
+			function get() public returns (uint256 ra, uint256 rb, uint256 rc, uint256 rd) {
 				ra = m_a;
 				rb = m_b;
 				rc = m_c;
@@ -636,7 +636,7 @@ BOOST_AUTO_TEST_CASE(optimise_multi_stores)
 	compileBothVersions(sourceCode);
 	compareVersions("f()");
 	BOOST_CHECK_EQUAL(numInstructions(m_nonOptimizedBytecode, Instruction::SSTORE), 9);
-	BOOST_CHECK_EQUAL(numInstructions(m_optimizedBytecode, Instruction::SSTORE), 8);
+	BOOST_CHECK_EQUAL(numInstructions(m_optimizedBytecode, Instruction::SSTORE), 7);
 }
 
 BOOST_AUTO_TEST_CASE(optimise_constant_to_codecopy)
@@ -708,9 +708,9 @@ BOOST_AUTO_TEST_CASE(shift_optimizer_bug)
 		}
 	)";
 	compileBothVersions(sourceCode);
-	compareVersions("f(uint256)", 7);
+	compareVersions("f(uint512)", 7);
 	// Use a value that doesn't trigger sign-extension in the 64-byte encoding
-	compareVersions("g(uint256)", u256(42));
+	compareVersions("g(uint512)", u256(42));
 }
 
 BOOST_AUTO_TEST_CASE(avoid_double_cleanup)

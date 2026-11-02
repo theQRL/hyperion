@@ -20,5 +20,5 @@ contract C {
         return x[2];
     }}
 // ----
-// f() -> FAILURE, hex"4e487b71", 0x41
-// g() -> FAILURE, hex"4e487b71", 0x41
+// f() -> FAILURE, hex"df75fb3b", 0x41
+// g() -> FAILURE, hex"df75fb3b", 0x41

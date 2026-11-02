@@ -8,8 +8,10 @@ set(sources
     CommonSyntaxTest.h
     QRVMHost.cpp
     QRVMHost.h
+    QRVMHostTests.cpp
     ExecutionFramework.cpp
     ExecutionFramework.h
+    ExecutionFrameworkTests.cpp
     FilesystemUtils.cpp
     FilesystemUtils.h
     InteractiveTests.h

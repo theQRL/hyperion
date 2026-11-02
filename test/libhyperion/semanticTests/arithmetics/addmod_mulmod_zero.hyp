@@ -18,6 +18,6 @@ contract C {
     }
 }
 // ----
-// f(uint256): 0 -> FAILURE, hex"4e487b71", 0x12
-// g(uint256): 0 -> FAILURE, hex"4e487b71", 0x12
+// f(uint256): 0 -> FAILURE, hex"df75fb3b", 0x12
+// g(uint256): 0 -> FAILURE, hex"df75fb3b", 0x12
 // h() -> 2

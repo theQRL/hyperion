@@ -19,6 +19,7 @@
  * Unit tests for keccak256.
  */
 #include <libhyputil/Keccak256.h>
+#include <libhyputil/Keccak512.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -96,6 +97,40 @@ BOOST_AUTO_TEST_CASE(shake128_vectors)
 		"483366601360a8771c6863080cc4114d8db44530f8f1e1ee4f94ea37e78b5739"
 	);
 	BOOST_CHECK(shake128("", 0).empty());
+}
+
+BOOST_AUTO_TEST_CASE(keccak512_vectors)
+{
+	// Legacy Keccak-512 vectors from go-qrl, including both sides of its 72-byte rate boundary.
+	std::vector<std::pair<size_t, h512>> const cases{
+		{0, h512(
+			"0eab42de4c3ceb9235fc91acffe746b29c29a8c366b7c60e4e67c466f36a4304"
+			"c00fa9caf9d87976ba469bcbe06713b435f091ef2769fb160cdab33d3670680e"
+		)},
+		{3, h512(
+			"ac45c5e002ec6a0f9240cd2a936efa52825aaeb38bd1ef8499637d038770273f"
+			"ed7b43521bc3ec96155048ba069fc58af4b07b4cc51fd748807c6ec4567abae3"
+		)},
+		{71, h512(
+			"a57dce7da8ec781665705f3d69310beaaa5b0cae0c9c34c9b1c5b7238bbd2ce3"
+			"85bbe2f37694d2b8e9a55eb889eecb80d74ff4f9086067b47fd3f43c16c0b506"
+		)},
+		{72, h512(
+			"4cb1cecbc96415025c7a9d6fb89f82a8482773fd9664c378691a05323ff4700f"
+			"a3e60414e6064814f98b36a61a87f62dffa7c56a2371355868dd37b8a654cf50"
+		)},
+		{73, h512(
+			"2bc203eacdc544533b7e9da9c12f502e2e585716b1fa9cf8063df348f4bf20ee"
+			"b3deca3383db498dd3055fbe02dda8176087f2deb439774680822dabb26a127f"
+		)},
+		{145, h512(
+			"6bd628854b42ecc4fe84e937ae706ca311158d69e3fb00345c41d8ba266e61ac"
+			"6e026004f01064e2eb0f30a38c4d90c5bd85a6f580c2bbf10dcd61715d38fda6"
+		)},
+	};
+	for (auto const& [length, expected]: cases)
+		BOOST_TEST_CONTEXT("input length " << length)
+			BOOST_CHECK_EQUAL(keccak512(bytes(length, 'a')), expected);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

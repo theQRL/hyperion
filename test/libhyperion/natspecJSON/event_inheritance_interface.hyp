@@ -17,7 +17,7 @@ contract B is A {
 // {
 //     "events":
 //     {
-//         "Transfer(address,address,uint256)":
+//         "Transfer(address,address,uint512)":
 //         {
 //             "details": "A test case!",
 //             "params":
@@ -37,7 +37,7 @@ contract B is A {
 // {
 //     "events":
 //     {
-//         "Transfer(address,address,uint256)":
+//         "Transfer(address,address,uint512)":
 //         {
 //             "notice": "This event is emitted when a transfer occurs."
 //         }
@@ -51,7 +51,7 @@ contract B is A {
 // {
 //     "events":
 //     {
-//         "Transfer(address,address,uint256)":
+//         "Transfer(address,address,uint512)":
 //         {
 //             "details": "A test case!",
 //             "params":
@@ -71,7 +71,7 @@ contract B is A {
 // {
 //     "events":
 //     {
-//         "Transfer(address,address,uint256)":
+//         "Transfer(address,address,uint512)":
 //         {
 //             "notice": "This event is emitted when a transfer occurs."
 //         }
@@ -85,7 +85,7 @@ contract B is A {
 // {
 //     "events":
 //     {
-//         "Transfer(address,address,uint256)":
+//         "Transfer(address,address,uint512)":
 //         {
 //             "details": "A test case!",
 //             "params":
@@ -105,7 +105,7 @@ contract B is A {
 // {
 //     "events":
 //     {
-//         "Transfer(address,address,uint256)":
+//         "Transfer(address,address,uint512)":
 //         {
 //             "notice": "This event is emitted when a transfer occurs."
 //         }

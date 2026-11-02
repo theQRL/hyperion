@@ -3,14 +3,14 @@ contract D {
     constructor() { x = 42; }
 }
 library L {
-    function f(D d) public view returns (uint256) {
+    function f(D d) public view returns (uint) {
         return d.x();
     }
 }
 contract C {
     D d;
     constructor() { d = new D(); }
-    function f() public view returns (uint256) {
+    function f() public view returns (uint) {
         return L.f(d);
     }
     function g() public returns (bool, uint256) {

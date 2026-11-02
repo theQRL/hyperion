@@ -3,7 +3,7 @@
 QRVM assembly:
     /* "viair_subobject_optimization/input.hyp":61:668  contract C {... */
   0x0100
-  jumpi(tag_9, callvalue)
+  jumpi(tag_7, callvalue)
   0x3f
   bytecodeSize
   codesize
@@ -40,23 +40,14 @@ QRVM assembly:
   add
   sub
   slt
-  tag_9
+  tag_7
   jumpi
   mload
-  sub(shl(0x0100, 0x01), 0x01)
-  dup2
-  and
-  swap1
-  dup2
-  swap1
-  sub
-  tag_9
-  jumpi
   sub(shl(0x48, 0x01), 0xbe)
     /* "viair_subobject_optimization/input.hyp":620:645  x == 0xFFFFFFFFFFFFFFFF42 */
   eq
     /* "viair_subobject_optimization/input.hyp":616:661  if (x == 0xFFFFFFFFFFFFFFFF42)... */
-  tag_9
+  tag_7
   jumpi
     /* "viair_subobject_optimization/input.hyp":61:668  contract C {... */
   mload(0x80)
@@ -68,14 +59,14 @@ QRVM assembly:
   codecopy
   return
     /* "viair_subobject_optimization/input.hyp":616:661  if (x == 0xFFFFFFFFFFFFFFFF42)... */
-tag_9:
+tag_7:
   0x00
     /* "viair_subobject_optimization/input.hyp":653:661  revert() */
   dup1
   revert
     /* "viair_subobject_optimization/input.hyp":61:668  contract C {... */
 tag_3:
-  mstore(0x00, shl(0x01e0, 0x4e487b71))
+  mstore(0x00, shl(0x01e0, 0xdf75fb3b))
   mstore(0x04, 0x41)
   revert(0x00, 0x44)
 stop
@@ -260,7 +251,7 @@ sub_0: assembly {
       swap3
       jump(tag_11)
     tag_9:
-      mstore(0x00, shl(0x01e0, 0x4e487b71))
+      mstore(0x00, shl(0x01e0, 0xdf75fb3b))
       mstore(0x04, 0x41)
       revert(0x00, 0x44)
     tag_7:
@@ -272,7 +263,7 @@ sub_0: assembly {
     sub_0: assembly {
             /* "viair_subobject_optimization/input.hyp":61:668  contract C {... */
           0x0100
-          jumpi(tag_9, callvalue)
+          jumpi(tag_7, callvalue)
           0x3f
           bytecodeSize
           codesize
@@ -309,23 +300,14 @@ sub_0: assembly {
           add
           sub
           slt
-          tag_9
+          tag_7
           jumpi
           mload
-          sub(shl(0x0100, 0x01), 0x01)
-          dup2
-          and
-          swap1
-          dup2
-          swap1
-          sub
-          tag_9
-          jumpi
           sub(shl(0x48, 0x01), 0xbe)
             /* "viair_subobject_optimization/input.hyp":620:645  x == 0xFFFFFFFFFFFFFFFF42 */
           eq
             /* "viair_subobject_optimization/input.hyp":616:661  if (x == 0xFFFFFFFFFFFFFFFF42)... */
-          tag_9
+          tag_7
           jumpi
             /* "viair_subobject_optimization/input.hyp":61:668  contract C {... */
           mload(0x80)
@@ -337,14 +319,14 @@ sub_0: assembly {
           codecopy
           return
             /* "viair_subobject_optimization/input.hyp":616:661  if (x == 0xFFFFFFFFFFFFFFFF42)... */
-        tag_9:
+        tag_7:
           0x00
             /* "viair_subobject_optimization/input.hyp":653:661  revert() */
           dup1
           revert
             /* "viair_subobject_optimization/input.hyp":61:668  contract C {... */
         tag_3:
-          mstore(0x00, shl(0x01e0, 0x4e487b71))
+          mstore(0x00, shl(0x01e0, 0xdf75fb3b))
           mstore(0x04, 0x41)
           revert(0x00, 0x44)
         stop

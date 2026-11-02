@@ -79,7 +79,7 @@ Returns: 'returns';
 Revert: 'revert'; // not a real keyword
 /**
  * Sized signed integer types.
- * int is an alias of int256.
+ * int is an alias of int512.
  */
 SignedIntegerType:
 	'int' | 'int8' | 'int16' | 'int24' | 'int32' | 'int40' | 'int48' | 'int56' | 'int64' |
@@ -101,7 +101,7 @@ Unchecked: 'unchecked';
 Unicode: 'unicode';
 /**
  * Sized unsigned integer types.
- * uint is an alias of uint256.
+ * uint is an alias of uint512.
  */
 UnsignedIntegerType:
 	'uint' | 'uint8' | 'uint16' | 'uint24' | 'uint32' | 'uint40' | 'uint48' | 'uint56' | 'uint64' |

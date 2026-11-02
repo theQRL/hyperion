@@ -16,7 +16,7 @@ contract C {
 		assert(type(I2).interfaceId != 0);
 		assert(type(I2).interfaceId == 0x26121ff0);
 		assert(type(I2).interfaceId != 0);
-		assert(type(I3).interfaceId == 0x822b51c6);
+		assert(type(I3).interfaceId == 0x587ad519);
 	}
 	function g() public pure {
 		assert(type(I1).interfaceId == type(I2).interfaceId);

@@ -11,15 +11,15 @@
                     "parameterSlots": 2,
                     "returnSlots": 0
                 },
-                "abi_encode_uint256":
+                "abi_encode_tuple_uint512":
                 {
-                    "entryPoint": 122,
+                    "entryPoint": 113,
                     "parameterSlots": 2,
                     "returnSlots": 1
                 },
-                "abi_encode_uint256_to_uint256":
+                "abi_encode_uint512":
                 {
-                    "entryPoint": 109,
+                    "entryPoint": 100,
                     "parameterSlots": 2,
                     "returnSlots": 0
                 },
@@ -29,99 +29,99 @@
                     "parameterSlots": 0,
                     "returnSlots": 1
                 },
-                "cleanup_uint256":
+                "cleanup_uint512":
                 {
                     "entryPoint": 97,
                     "parameterSlots": 1,
                     "returnSlots": 1
                 },
-                "convert_uint256_to_uint256":
+                "convert_uint512_to_uint512":
                 {
-                    "entryPoint": 293,
+                    "entryPoint": 278,
                     "parameterSlots": 1,
                     "returnSlots": 1
                 },
                 "external_fun_f":
                 {
-                    "entryPoint": 143,
+                    "entryPoint": 134,
                     "parameterSlots": 0,
                     "returnSlots": 0
                 },
                 "external_fun_g":
                 {
-                    "entryPoint": 196,
+                    "entryPoint": 187,
                     "parameterSlots": 0,
                     "returnSlots": 0
                 },
                 "fun_f":
                 {
-                    "entryPoint": 459,
+                    "entryPoint": 444,
                     "id": 25,
                     "parameterSlots": 0,
                     "returnSlots": 1
                 },
                 "fun_f_inner":
                 {
-                    "entryPoint": 447,
+                    "entryPoint": 432,
                     "parameterSlots": 1,
                     "returnSlots": 1
                 },
                 "fun_g":
                 {
-                    "entryPoint": 581,
+                    "entryPoint": 566,
                     "id": 36,
                     "parameterSlots": 0,
                     "returnSlots": 1
                 },
                 "fun_g_inner":
                 {
-                    "entryPoint": 569,
+                    "entryPoint": 554,
                     "parameterSlots": 1,
                     "returnSlots": 1
                 },
                 "identity":
                 {
-                    "entryPoint": 290,
+                    "entryPoint": 275,
                     "parameterSlots": 1,
                     "returnSlots": 1
                 },
                 "modifier_m":
                 {
-                    "entryPoint": 526,
+                    "entryPoint": 511,
                     "id": 14,
                     "parameterSlots": 1,
                     "returnSlots": 1
                 },
                 "modifier_m_17":
                 {
-                    "entryPoint": 361,
+                    "entryPoint": 346,
                     "id": 14,
                     "parameterSlots": 1,
                     "returnSlots": 1
                 },
                 "modifier_m_19":
                 {
-                    "entryPoint": 404,
+                    "entryPoint": 389,
                     "id": 14,
                     "parameterSlots": 1,
                     "returnSlots": 1
                 },
                 "modifier_m_28":
                 {
-                    "entryPoint": 483,
+                    "entryPoint": 468,
                     "id": 14,
                     "parameterSlots": 1,
                     "returnSlots": 1
                 },
-                "prepare_store_uint256":
+                "prepare_store_uint512":
                 {
-                    "entryPoint": 321,
+                    "entryPoint": 306,
                     "parameterSlots": 1,
                     "returnSlots": 1
                 },
                 "revert_error_42b3090547df1d2001c96683413b8cf91c1b902ef5e3cb8d9f6f304cf7446f74":
                 {
-                    "entryPoint": 249,
+                    "entryPoint": 240,
                     "parameterSlots": 0,
                     "returnSlots": 0
                 },
@@ -139,7 +139,7 @@
                 },
                 "shift_left":
                 {
-                    "entryPoint": 257,
+                    "entryPoint": 248,
                     "parameterSlots": 1,
                     "returnSlots": 1
                 },
@@ -151,55 +151,55 @@
                 },
                 "update_byte_slice_shift":
                 {
-                    "entryPoint": 262,
+                    "entryPoint": 253,
                     "parameterSlots": 2,
                     "returnSlots": 1
                 },
-                "update_storage_value_offsett_uint256_to_uint256":
+                "update_storage_value_offsett_uint512_to_uint512":
                 {
-                    "entryPoint": 324,
+                    "entryPoint": 309,
                     "parameterSlots": 2,
                     "returnSlots": 0
                 },
                 "usr$f":
                 {
-                    "entryPoint": 356,
+                    "entryPoint": 341,
                     "parameterSlots": 0,
                     "returnSlots": 1
                 },
                 "usr$f_17":
                 {
-                    "entryPoint": 399,
+                    "entryPoint": 384,
                     "parameterSlots": 0,
                     "returnSlots": 1
                 },
                 "usr$f_22":
                 {
-                    "entryPoint": 442,
+                    "entryPoint": 427,
                     "parameterSlots": 0,
                     "returnSlots": 1
                 },
                 "usr$f_26":
                 {
-                    "entryPoint": 478,
+                    "entryPoint": 463,
                     "parameterSlots": 0,
                     "returnSlots": 1
                 },
                 "usr$f_32":
                 {
-                    "entryPoint": 521,
+                    "entryPoint": 506,
                     "parameterSlots": 0,
                     "returnSlots": 1
                 },
                 "usr$f_37":
                 {
-                    "entryPoint": 564,
+                    "entryPoint": 549,
                     "parameterSlots": 0,
                     "returnSlots": 1
                 },
-                "zero_value_for_split_uint256":
+                "zero_value_for_split_uint512":
                 {
-                    "entryPoint": 253,
+                    "entryPoint": 244,
                     "parameterSlots": 0,
                     "returnSlots": 1
                 }

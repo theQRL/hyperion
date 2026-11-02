@@ -1,18 +1,18 @@
 abstract contract A {
-    function f(uint256[] calldata a) external virtual returns (uint256[] calldata);
+    function f(uint[] calldata a) external virtual returns (uint[] calldata);
 }
 
 contract B is A {
-    function f(uint256[] memory a) public override returns (uint256[] memory) {
+    function f(uint[] memory a) public override returns (uint[] memory) {
         return a;
     }
 
-    function g(uint[] calldata x) public returns (uint256[] memory) {
+    function g(uint[] calldata x) public returns (uint[] memory) {
         return f(x);
     }
 }
 // ====
 // compileViaYul: also
 // ----
-// f(uint256[]): 0x20, 2, 9, 8 -> FAILURE, hex"4e487b71", 0x41
-// g(uint256[]): 0x20, 2, 9, 8 -> FAILURE
+// f(uint512[]): 0x20, 2, 9, 8 -> FAILURE, hex"df75fb3b", 0x41
+// g(uint512[]): 0x20, 2, 9, 8 -> FAILURE

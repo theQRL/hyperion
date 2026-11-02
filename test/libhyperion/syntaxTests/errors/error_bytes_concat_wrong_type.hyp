@@ -6,5 +6,5 @@ contract C {
     }
 }
 // ----
-// TypeError 8015: (99-112): Invalid type for argument in the bytes.concat function call. bytes or fixed bytes type is required, but error MyCustomError(uint256,bool) provided.
-// TypeError 8015: (114-127): Invalid type for argument in the bytes.concat function call. bytes or fixed bytes type is required, but error MyCustomError(uint256,bool) provided.
+// TypeError 8015: (99-112): Invalid type for argument in the bytes.concat function call. bytes or fixed bytes type is required, but error MyCustomError(uint512,bool) provided.
+// TypeError 8015: (114-127): Invalid type for argument in the bytes.concat function call. bytes or fixed bytes type is required, but error MyCustomError(uint512,bool) provided.

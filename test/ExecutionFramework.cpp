@@ -115,7 +115,7 @@ std::pair<bool, string> ExecutionFramework::compareAndCreateMessage(
 
 bytes ExecutionFramework::panicData(util::PanicCode _code)
 {
-	return toCompactBigEndian(selectorFromSignatureU32("Panic(uint256)"), 4) + encode(u256(static_cast<unsigned>(_code)));
+	return toCompactBigEndian(selectorFromSignatureU32("Panic(uint512)"), 4) + encode(u256(static_cast<unsigned>(_code)));
 }
 
 u256 ExecutionFramework::gasLimit() const
@@ -254,7 +254,7 @@ size_t ExecutionFramework::numLogTopics(size_t _logIdx) const
 	return m_qrvmcHost->recorded_logs.at(_logIdx).topics.size();
 }
 
-h256 ExecutionFramework::logTopic(size_t _logIdx, size_t _topicIdx) const
+h512 ExecutionFramework::logTopic(size_t _logIdx, size_t _topicIdx) const
 {
 	return QRVMHost::convertFromQRVMC(m_qrvmcHost->recorded_logs.at(_logIdx).topics.at(_topicIdx));
 }
@@ -293,7 +293,7 @@ vector<hyperion::frontend::test::LogRecord> ExecutionFramework::recordedLogs() c
 {
 	vector<LogRecord> logs;
 	auto const convertTopic
-		= [](qrvmc::bytes64 const& _bytes) { return h512(bytes(_bytes.bytes, _bytes.bytes + h512::size)); };
+		= [](qrvmc::bytes64 const& _bytes) { return QRVMHost::convertFromQRVMC(_bytes); };
 	for (qrvmc::MockedHost::log_record const& logRecord: m_qrvmcHost->recorded_logs)
 		logs.emplace_back(
 			QRVMHost::convertFromQRVMC(logRecord.creator),

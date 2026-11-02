@@ -56,8 +56,8 @@
                     "storageLocation": "default",
                     "typeDescriptions":
                     {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
+                      "typeIdentifier": "t_uint512",
+                      "typeString": "uint512"
                     },
                     "typeName":
                     {
@@ -67,8 +67,8 @@
                       "src": "109:4:1",
                       "typeDescriptions":
                       {
-                        "typeIdentifier": "t_uint256",
-                        "typeString": "uint256"
+                        "typeIdentifier": "t_uint512",
+                        "typeString": "uint512"
                       }
                     },
                     "visibility": "internal"
@@ -125,8 +125,8 @@
                           "storageLocation": "default",
                           "typeDescriptions":
                           {
-                            "typeIdentifier": "t_uint256",
-                            "typeString": "uint256"
+                            "typeIdentifier": "t_uint512",
+                            "typeString": "uint512"
                           },
                           "typeName":
                           {
@@ -136,8 +136,8 @@
                             "src": "345:4:1",
                             "typeDescriptions":
                             {
-                              "typeIdentifier": "t_uint256",
-                              "typeString": "uint256"
+                              "typeIdentifier": "t_uint512",
+                              "typeString": "uint512"
                             }
                           },
                           "visibility": "internal"
@@ -172,8 +172,8 @@
                 {
                   "commonType":
                   {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
+                    "typeIdentifier": "t_uint512",
+                    "typeString": "uint512"
                   },
                   "id": 15,
                   "isConstant": false,
@@ -190,8 +190,8 @@
                     "src": "236:1:1",
                     "typeDescriptions":
                     {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
+                      "typeIdentifier": "t_uint512",
+                      "typeString": "uint512"
                     }
                   },
                   "nodeType": "BinaryOperation",
@@ -243,8 +243,8 @@
                       "storageLocation": "default",
                       "typeDescriptions":
                       {
-                        "typeIdentifier": "t_uint256",
-                        "typeString": "uint256"
+                        "typeIdentifier": "t_uint512",
+                        "typeString": "uint512"
                       },
                       "typeName":
                       {
@@ -254,8 +254,8 @@
                         "src": "212:4:1",
                         "typeDescriptions":
                         {
-                          "typeIdentifier": "t_uint256",
-                          "typeString": "uint256"
+                          "typeIdentifier": "t_uint512",
+                          "typeString": "uint512"
                         }
                       },
                       "visibility": "internal"
@@ -307,14 +307,14 @@
                       "src": "258:1:1",
                       "typeDescriptions":
                       {
-                        "typeIdentifier": "t_uint256",
-                        "typeString": "uint256"
+                        "typeIdentifier": "t_uint512",
+                        "typeString": "uint512"
                       }
                     },
                     "typeDescriptions":
                     {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
+                      "typeIdentifier": "t_uint512",
+                      "typeString": "uint512"
                     }
                   },
                   "id": 18,
@@ -362,7 +362,7 @@
             "src": "662:2:1",
             "statements": []
           },
-          "functionSelector": "191157d1",
+          "functionSelector": "328acb33",
           "id": 40,
           "implemented": true,
           "kind": "function",
@@ -389,8 +389,8 @@
                 "storageLocation": "default",
                 "typeDescriptions":
                 {
-                  "typeIdentifier": "t_uint256",
-                  "typeString": "uint256"
+                  "typeIdentifier": "t_uint512",
+                  "typeString": "uint512"
                 },
                 "typeName":
                 {
@@ -400,8 +400,8 @@
                   "src": "463:4:1",
                   "typeDescriptions":
                   {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
+                    "typeIdentifier": "t_uint512",
+                    "typeString": "uint512"
                   }
                 },
                 "visibility": "internal"
@@ -419,8 +419,8 @@
                 "storageLocation": "default",
                 "typeDescriptions":
                 {
-                  "typeIdentifier": "t_uint256",
-                  "typeString": "uint256"
+                  "typeIdentifier": "t_uint512",
+                  "typeString": "uint512"
                 },
                 "typeName":
                 {
@@ -430,8 +430,8 @@
                   "src": "550:4:1",
                   "typeDescriptions":
                   {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
+                    "typeIdentifier": "t_uint512",
+                    "typeString": "uint512"
                   }
                 },
                 "visibility": "internal"
@@ -449,8 +449,8 @@
                 "storageLocation": "default",
                 "typeDescriptions":
                 {
-                  "typeIdentifier": "t_uint256",
-                  "typeString": "uint256"
+                  "typeIdentifier": "t_uint512",
+                  "typeString": "uint512"
                 },
                 "typeName":
                 {
@@ -460,8 +460,8 @@
                   "src": "637:4:1",
                   "typeDescriptions":
                   {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
+                    "typeIdentifier": "t_uint512",
+                    "typeString": "uint512"
                   }
                 },
                 "visibility": "internal"

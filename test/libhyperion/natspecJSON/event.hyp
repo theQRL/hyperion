@@ -13,7 +13,7 @@ contract SQRCTF1 {
 // {
 //     "events":
 //     {
-//         "Transfer(address,address,uint256)":
+//         "Transfer(address,address,uint512)":
 //         {
 //             "details": "A test case!",
 //             "params":
@@ -33,7 +33,7 @@ contract SQRCTF1 {
 // {
 //     "events":
 //     {
-//         "Transfer(address,address,uint256)":
+//         "Transfer(address,address,uint512)":
 //         {
 //             "notice": "This event is emitted when a transfer occurs."
 //         }

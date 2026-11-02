@@ -13,10 +13,10 @@ contract C {
 // ----
 // constructor(), 2 planck: 3 ->
 // gas irOptimized: 104412
-// gas legacy: 177833
+// gas legacy: 166764
 // gas legacyOptimized: 106727
 // state() -> 3
 // balance() -> 2
 // balance -> 2
-// update(uint256): 4
+// update(uint512): 4
 // state() -> 4

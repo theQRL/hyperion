@@ -7,4 +7,4 @@ contract C {
 }
 
 // ----
-// TypeError 9574: (81-105): Type error MyCustomError(uint256,bool) is not implicitly convertible to expected type bytes4.
+// TypeError 9574: (81-105): Type error MyCustomError(uint512,bool) is not implicitly convertible to expected type bytes4.

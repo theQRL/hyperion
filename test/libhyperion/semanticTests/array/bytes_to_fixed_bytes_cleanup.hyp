@@ -18,7 +18,7 @@ contract C {
 // ====
 // compileViaYul: true
 // ----
-// fromMemory(bytes): 0x20, 16, "abcdefghabcdefgh" -> FAILURE, hex"4e487b71", 0x41
+// fromMemory(bytes): 0x20, 16, "abcdefghabcdefgh" -> FAILURE, hex"df75fb3b", 0x41
 // fromCalldata(bytes): 0x20, 15, "abcdefghabcdefgh" -> FAILURE
 // fromStorage() -> "abcdefghabcdefghabcdefghabcdefg\x00"
 // fromSlice(bytes): 0x20, 15, "abcdefghabcdefgh" -> FAILURE

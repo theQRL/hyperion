@@ -20,43 +20,12 @@ contract Token is Middle {
 
 // ----
 // ----
-// :SQRCTF1 devdoc
-// {
-//     "kind": "dev",
-//     "methods":
-//     {
-//         "transfer(address,uint256)":
-//         {
-//             "details": "test",
-//             "params":
-//             {
-//                 "amount": "amount to transfer",
-//                 "to": "address to transfer to"
-//             }
-//         }
-//     },
-//     "version": 1
-// }
-//
-// :SQRCTF1 userdoc
-// {
-//     "kind": "user",
-//     "methods":
-//     {
-//         "transfer(address,uint256)":
-//         {
-//             "notice": "Transfer ``amount`` from ``msg.sender`` to ``to``."
-//         }
-//     },
-//     "version": 1
-// }
-//
 // :Middle devdoc
 // {
 //     "kind": "dev",
 //     "methods":
 //     {
-//         "transfer(address,uint256)":
+//         "transfer(address,uint512)":
 //         {
 //             "details": "test",
 //             "params":
@@ -74,7 +43,38 @@ contract Token is Middle {
 //     "kind": "user",
 //     "methods":
 //     {
-//         "transfer(address,uint256)":
+//         "transfer(address,uint512)":
+//         {
+//             "notice": "Transfer ``amount`` from ``msg.sender`` to ``to``."
+//         }
+//     },
+//     "version": 1
+// }
+//
+// :SQRCTF1 devdoc
+// {
+//     "kind": "dev",
+//     "methods":
+//     {
+//         "transfer(address,uint512)":
+//         {
+//             "details": "test",
+//             "params":
+//             {
+//                 "amount": "amount to transfer",
+//                 "to": "address to transfer to"
+//             }
+//         }
+//     },
+//     "version": 1
+// }
+//
+// :SQRCTF1 userdoc
+// {
+//     "kind": "user",
+//     "methods":
+//     {
+//         "transfer(address,uint512)":
 //         {
 //             "notice": "Transfer ``amount`` from ``msg.sender`` to ``to``."
 //         }

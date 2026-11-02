@@ -4,4 +4,4 @@ contract C {
     }
 }
 // ----
-// TypeError 2614: (68-79): Indexed expression has to be a type, mapping or array (is tuple(type(uint256),type(int256)))
+// TypeError 2614: (68-79): Indexed expression has to be a type, mapping or array (is tuple(type(uint512),type(int512)))

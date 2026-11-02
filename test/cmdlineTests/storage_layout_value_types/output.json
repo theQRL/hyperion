@@ -15,22 +15,22 @@
                             "label": "x",
                             "offset": 0,
                             "slot": "0",
-                            "type": "t_uint256"
+                            "type": "t_uint512"
                         },
                         {
                             "astId": 5,
                             "contract": "fileA:A",
                             "label": "y",
-                            "offset": 32,
-                            "slot": "0",
-                            "type": "t_uint256"
+                            "offset": 0,
+                            "slot": "1",
+                            "type": "t_uint512"
                         },
                         {
                             "astId": 7,
                             "contract": "fileA:A",
                             "label": "addr",
                             "offset": 0,
-                            "slot": "1",
+                            "slot": "2",
                             "type": "t_address"
                         },
                         {
@@ -38,8 +38,8 @@
                             "contract": "fileA:A",
                             "label": "array",
                             "offset": 0,
-                            "slot": "2",
-                            "type": "t_array(t_uint256)2_storage"
+                            "slot": "3",
+                            "type": "t_array(t_uint512)2_storage"
                         }
                     ],
                     "types":
@@ -50,18 +50,18 @@
                             "label": "address",
                             "numberOfBytes": "64"
                         },
-                        "t_array(t_uint256)2_storage":
+                        "t_array(t_uint512)2_storage":
                         {
-                            "base": "t_uint256",
+                            "base": "t_uint512",
                             "encoding": "inplace",
-                            "label": "uint256[2]",
-                            "numberOfBytes": "64"
+                            "label": "uint512[2]",
+                            "numberOfBytes": "128"
                         },
-                        "t_uint256":
+                        "t_uint512":
                         {
                             "encoding": "inplace",
-                            "label": "uint256",
-                            "numberOfBytes": "32"
+                            "label": "uint512",
+                            "numberOfBytes": "64"
                         }
                     }
                 }

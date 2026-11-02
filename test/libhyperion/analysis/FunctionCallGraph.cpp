@@ -868,10 +868,10 @@ BOOST_AUTO_TEST_CASE(overloaded_functions)
 			{"Entry", "function D.ext3()"},
 			{"Entry", "function D.ext4()"},
 			{"function D.ext1()", "function free()"},
-			{"function D.ext1()", "function free(uint256)"},
+			{"function D.ext1()", "function free(uint512)"},
 			{"function D.ext1()", "function free(bytes)"},
 			{"function D.ext2()", "function D.f()"},
-			{"function D.ext2()", "function D.f(uint256)"},
+			{"function D.ext2()", "function D.f(uint512)"},
 			{"function D.ext2()", "function D.f(bytes)"},
 			{"function D.ext3()", "function free(enum E)"},
 			{"function D.ext3()", "function C.f(enum E)"},
@@ -1024,8 +1024,8 @@ BOOST_AUTO_TEST_CASE(events)
 	std::map<std::string, std::set<std::string>> expectedCreationEvents = {};
 	std::map<std::string, std::set<std::string>> expectedDeployedEvents = {
 		{"D", {
-			"event D.EvD1(uint256)",
-			"event C.EvC(uint256)",
+			"event D.EvD1(uint512)",
+			"event C.EvC(uint512)",
 			"event L.Ev(bytes4,string)",
 			"event L.Ev()",
 		}},
@@ -1187,7 +1187,7 @@ BOOST_AUTO_TEST_CASE(interfaces_and_abstract_contracts)
 	std::map<std::string, std::set<std::string>> expectedCreationEvents = {};
 	std::map<std::string, std::set<std::string>> expectedDeployedEvents = {
 		{"D", {
-			"event I.Ev(uint256)",
+			"event I.Ev(uint512)",
 		}},
 	};
 

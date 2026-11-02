@@ -52,10 +52,10 @@ contract Test {
 }
 // ----
 // hello() -> left(0x19ff1d21)
-// world() -> left(0xdf419679)
+// world() -> left(0x8f5c83ab)
 // ERC165_interfaceId() -> left(0x01ffc9a7)
 // hello_world() -> left(0xc6be8b58)
-// hello_world_interfaceId() -> left(0xc6be8b58)
-// ghello_world_interfaceId() -> left(0xc6be8b58)
+// hello_world_interfaceId() -> left(0x96a39e8a)
+// ghello_world_interfaceId() -> left(0x96a39e8a)
 // other() -> left(0x85295877)
 // hello_world_derived_interfaceId() -> left(0x85295877)

@@ -18,7 +18,7 @@ contract Thing is IThing {
 //     "kind": "dev",
 //     "methods":
 //     {
-//         "value(uint256)":
+//         "value(uint512)":
 //         {
 //             "returns":
 //             {

@@ -276,6 +276,7 @@ test_suite* init_unit_test_suite(int /*argc*/, char* /*argv*/[])
 		{
 			for (auto suite: {
 				"ABIDecoderTest",
+				"QRVMHostTest",
 				"ABIEncoderTest",
 				"HyperionAuctionRegistrar",
 				"HyperionWallet",

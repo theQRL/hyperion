@@ -31,11 +31,11 @@ contract C {
     }
 }
 // ----
-// testUnary(uint256): 0 -> 0
-// testUnary(uint256): 1 -> 0
-// testUnary(uint256): 99999999999 -> FAILURE
-// testBinary(uint256,uint256): 0, 0 -> 0
-// testBinary(uint256,uint256): 1, 0 -> 0
-// testBinary(uint256,uint256): 0, 1 -> 0
-// testBinary(uint256,uint256): 1, 1 -> 0
-// testBinary(uint256,uint256): 99999999999, 99999999999 -> FAILURE
+// testUnary(uint512): 0 -> 0
+// testUnary(uint512): 1 -> 0
+// testUnary(uint512): 99999999999 -> FAILURE
+// testBinary(uint512,uint512): 0, 0 -> 0
+// testBinary(uint512,uint512): 1, 0 -> 0
+// testBinary(uint512,uint512): 0, 1 -> 0
+// testBinary(uint512,uint512): 1, 1 -> 0
+// testBinary(uint512,uint512): 99999999999, 99999999999 -> FAILURE

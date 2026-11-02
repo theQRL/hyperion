@@ -33,7 +33,7 @@ contract C {
 // ----
 // TypeError 5407: (560-563): Cannot implicitly convert component at position 0 from "struct S memory" to "uint8".
 // TypeError 5407: (598-601): Cannot implicitly convert component at position 0 from "struct S memory" to "uint32".
-// TypeError 5407: (636-639): Cannot implicitly convert component at position 0 from "struct S memory" to "uint256".
+// TypeError 5407: (636-639): Cannot implicitly convert component at position 0 from "struct S memory" to "uint512".
 // TypeError 5407: (674-677): Cannot implicitly convert component at position 0 from "struct S memory" to "bytes memory".
 // TypeError 5407: (712-715): Cannot implicitly convert component at position 0 from "struct S memory" to "bytes32".
 // TypeError 5407: (749-752): Cannot implicitly convert component at position 0 from "struct S memory" to "string memory".

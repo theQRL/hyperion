@@ -85,12 +85,8 @@ sub_0: assembly {
         /* "optimizer_inliner_dynamic_reference_constructor/input.hyp":154:209  function a() public pure returns (uint) { return f(); } */
     tag_5:
       mload(0x80)
-      sub(shl(0x0100, 0x01), 0x01)
-        /* "#utility.yul":178:210   */
+        /* "#utility.yul":160:185   */
       swap1
-      swap2
-      and
-        /* "#utility.yul":160:211   */
       dup2
       mstore
         /* "#utility.yul":148:150   */
@@ -159,82 +155,73 @@ sub_0: assembly {
       jump	// in
     tag_21:
       jump	// out
-        /* "#utility.yul":222:501   */
+        /* "#utility.yul":196:418   */
     tag_19:
-      sub(shl(0x0100, 0x01), 0x01)
-        /* "#utility.yul":329:339   */
-      dup2
-      dup2
-      and
-        /* "#utility.yul":341:351   */
-      dup4
+        /* "#utility.yul":261:270   */
+      dup1
       dup3
-      and
-        /* "#utility.yul":325:352   */
       add
-      swap1
-        /* "#utility.yul":364:375   */
+        /* "#utility.yul":282:292   */
       dup1
       dup3
       gt
-        /* "#utility.yul":361:495   */
+        /* "#utility.yul":279:412   */
       iszero
       tag_26
       jumpi
-        /* "#utility.yul":417:427   */
-      0x4e487b71
-        /* "#utility.yul":412:415   */
+        /* "#utility.yul":334:344   */
+      0xdf75fb3b
+        /* "#utility.yul":329:332   */
       0x01e0
-        /* "#utility.yul":408:428   */
+        /* "#utility.yul":325:345   */
       shl
-        /* "#utility.yul":405:406   */
+        /* "#utility.yul":322:323   */
       0x00
-        /* "#utility.yul":398:429   */
+        /* "#utility.yul":315:346   */
       mstore
-        /* "#utility.yul":452:456   */
+        /* "#utility.yul":369:373   */
       0x11
-        /* "#utility.yul":449:450   */
+        /* "#utility.yul":366:367   */
       0x04
-        /* "#utility.yul":442:457   */
+        /* "#utility.yul":359:374   */
       mstore
-        /* "#utility.yul":480:484   */
+        /* "#utility.yul":397:401   */
       0x44
-        /* "#utility.yul":477:478   */
+        /* "#utility.yul":394:395   */
       0x00
-        /* "#utility.yul":470:485   */
+        /* "#utility.yul":387:402   */
       revert
-        /* "#utility.yul":361:495   */
+        /* "#utility.yul":279:412   */
     tag_26:
-      pop
-        /* "#utility.yul":222:501   */
+        /* "#utility.yul":196:418   */
       swap3
       swap2
       pop
       pop
       jump	// out
-        /* "#utility.yul":506:633   */
+        /* "#utility.yul":423:550   */
     tag_22:
-        /* "#utility.yul":567:577   */
-      0x4e487b71
-        /* "#utility.yul":562:565   */
+        /* "#utility.yul":484:494   */
+      0xdf75fb3b
+        /* "#utility.yul":479:482   */
       0x01e0
-        /* "#utility.yul":558:578   */
+        /* "#utility.yul":475:495   */
       shl
-        /* "#utility.yul":555:556   */
+        /* "#utility.yul":472:473   */
       0x00
-        /* "#utility.yul":548:579   */
+        /* "#utility.yul":465:496   */
       mstore
-        /* "#utility.yul":598:602   */
+        /* "#utility.yul":515:519   */
       0x51
-        /* "#utility.yul":595:596   */
+        /* "#utility.yul":512:513   */
       0x04
-        /* "#utility.yul":588:603   */
+        /* "#utility.yul":505:520   */
       mstore
-        /* "#utility.yul":622:626   */
+        /* "#utility.yul":539:543   */
       0x44
-        /* "#utility.yul":619:620   */
+        /* "#utility.yul":536:537   */
       0x00
-        /* "#utility.yul":612:627   */
+        /* "#utility.yul":529:544   */
       revert
     stop
 

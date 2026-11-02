@@ -26,7 +26,7 @@ contract C{
     }
 }
 // ----
-// f(string): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE, hex"4e487b71", 0x41
+// f(string): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE, hex"df75fb3b", 0x41
 // g(string): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE
 // h(string): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE
 // j(string): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE

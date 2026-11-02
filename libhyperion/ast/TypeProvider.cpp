@@ -324,9 +324,9 @@ Type const* TypeProvider::fromElementaryTypeName(ElementaryTypeNameToken const& 
 	case Token::UFixedMxN:
 		return fixedPoint(m, n, FixedPointType::Modifier::Unsigned);
 	case Token::Int:
-		return integer(256, IntegerType::Modifier::Signed);
+		return integer(VMWordBits, IntegerType::Modifier::Signed);
 	case Token::UInt:
-		return integer(256, IntegerType::Modifier::Unsigned);
+		return integer(VMWordBits, IntegerType::Modifier::Unsigned);
 	case Token::Fixed:
 		return fixedPoint(128, 18, FixedPointType::Modifier::Signed);
 	case Token::UFixed:

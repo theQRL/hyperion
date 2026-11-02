@@ -30,29 +30,29 @@ object "Arraysum_34" {
                         let var_i := /** @src 0:80:429  "contract Arraysum {..." */ 0
                         let _2 := sload(0)
                         let _3 := sub(shl(256, 1), 1)
-                        let cleaned := and(_2, _3)
+                        let converted := and(_2, _3)
                         /// @src 0:364:423  "for(uint i = 0; i < values.length; i++)..."
                         for { }
-                        /** @src 0:380:397  "i < values.length" */ lt(/** @src 0:80:429  "contract Arraysum {..." */ and(/** @src 0:380:397  "i < values.length" */ var_i, /** @src 0:80:429  "contract Arraysum {..." */ _3), /** @src 0:380:397  "i < values.length" */ cleaned)
+                        /** @src 0:380:397  "i < values.length" */ lt(var_i, converted)
                         /// @src 0:368:378  "uint i = 0"
                         {
                             /// @src 0:399:402  "i++"
-                            var_i := /** @src 0:80:429  "contract Arraysum {..." */ and(add(/** @src 0:399:402  "i++" */ var_i, /** @src 0:80:429  "contract Arraysum {..." */ 1), _3)
+                            var_i := /** @src 0:80:429  "contract Arraysum {..." */ add(/** @src 0:399:402  "i++" */ var_i, /** @src 0:80:429  "contract Arraysum {..." */ 1)
                         }
                         /// @src 0:399:402  "i++"
                         {
                             /// @src 0:80:429  "contract Arraysum {..."
                             if iszero(lt(var_i, _2))
                             {
-                                mstore(0, shl(480, 0x4e487b71))
+                                mstore(0, shl(480, 0xdf75fb3b))
                                 mstore(_1, 0x32)
                                 revert(0, 0x44)
                             }
                             mstore(0, 0)
-                            let sum := add(and(var_sum, _3), and(shr(and(shl(8, var_i), 256), sload(add(78338746147236970124700731725183845421594913511827187288591969170390706184117, shr(1, var_i)))), _3))
-                            if gt(sum, _3)
+                            let sum := add(var_sum, and(shr(and(shl(8, var_i), 256), sload(add(78338746147236970124700731725183845421594913511827187288591969170390706184117, shr(1, var_i)))), _3))
+                            if gt(var_sum, sum)
                             {
-                                mstore(0, shl(480, 0x4e487b71))
+                                mstore(0, shl(480, 0xdf75fb3b))
                                 mstore(_1, 0x11)
                                 revert(0, 0x44)
                             }
@@ -61,7 +61,7 @@ object "Arraysum_34" {
                         }
                         /// @src 0:80:429  "contract Arraysum {..."
                         let memPos := mload(128)
-                        mstore(memPos, and(var_sum, _3))
+                        mstore(memPos, var_sum)
                         return(memPos, 64)
                     }
                 }

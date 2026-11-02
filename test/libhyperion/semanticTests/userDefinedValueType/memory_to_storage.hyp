@@ -27,15 +27,15 @@ contract C {
 // gas legacy: 46213
 // gas legacyOptimized: 44671
 // s() -> 1, 0xff, 0x61620000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, 15
-// g(uint16[]): 0x20, 3, 1, 2, 3 -> FAILURE, hex"4e487b71", 0x41
+// g(uint16[]): 0x20, 3, 1, 2, 3 -> FAILURE, hex"df75fb3b", 0x41
 // gas irOptimized: 69555
 // gas legacy: 76557
 // gas legacyOptimized: 74834
-// small(uint256): 0 -> FAILURE
-// small(uint256): 1 -> FAILURE
-// h(bytes2[]): 0x20, 3, "ab", "cd", "ef" -> FAILURE, hex"4e487b71", 0x41
+// small(uint512): 0 -> FAILURE
+// small(uint512): 1 -> FAILURE
+// h(bytes2[]): 0x20, 3, "ab", "cd", "ef" -> FAILURE, hex"df75fb3b", 0x41
 // gas irOptimized: 69617
 // gas legacy: 76238
 // gas legacyOptimized: 74921
-// l(uint256): 0 -> FAILURE
-// l(uint256): 1 -> FAILURE
+// l(uint512): 0 -> FAILURE
+// l(uint512): 1 -> FAILURE

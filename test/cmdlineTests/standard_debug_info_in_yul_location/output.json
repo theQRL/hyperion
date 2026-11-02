@@ -41,7 +41,7 @@ object \"C_54\" {
         }
 
         function panic_error_0x41() {
-            mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+            mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
             mstore(4, 0x41)
             revert(0, 0x44)
         }
@@ -66,27 +66,27 @@ object \"C_54\" {
             revert(0, 0)
         }
 
-        function cleanup_t_int256(value) -> cleaned {
-            cleaned := signextend(31, value)
+        function cleanup_t_int512(value) -> cleaned {
+            cleaned := value
         }
 
-        function validator_revert_t_int256(value) {
-            if iszero(eq(value, cleanup_t_int256(value))) { revert(0, 0) }
+        function validator_revert_t_int512(value) {
+            if iszero(eq(value, cleanup_t_int512(value))) { revert(0, 0) }
         }
 
-        function abi_decode_t_int256_fromMemory(offset, end) -> value {
+        function abi_decode_t_int512_fromMemory(offset, end) -> value {
             value := mload(offset)
-            validator_revert_t_int256(value)
+            validator_revert_t_int512(value)
         }
 
-        function abi_decode_tuple_t_int256_fromMemory(headStart, dataEnd) -> value0 {
+        function abi_decode_tuple_t_int512_fromMemory(headStart, dataEnd) -> value0 {
             if slt(sub(dataEnd, headStart), 64) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
 
             {
 
                 let offset := 0
 
-                value0 := abi_decode_t_int256_fromMemory(add(headStart, offset), dataEnd)
+                value0 := abi_decode_t_int512_fromMemory(add(headStart, offset), dataEnd)
             }
 
         }
@@ -98,7 +98,7 @@ object \"C_54\" {
             let memoryDataOffset := allocate_memory(argSize)
             codecopy(memoryDataOffset, programSize, argSize)
 
-            ret_param_0 := abi_decode_tuple_t_int256_fromMemory(memoryDataOffset, add(memoryDataOffset, argSize))
+            ret_param_0 := abi_decode_tuple_t_int512_fromMemory(memoryDataOffset, add(memoryDataOffset, argSize))
         }
 
         function cleanup_t_rational_42_by_1(value) -> cleaned {
@@ -109,8 +109,8 @@ object \"C_54\" {
             ret := value
         }
 
-        function convert_t_rational_42_by_1_to_t_int256(value) -> converted {
-            converted := cleanup_t_int256(identity(cleanup_t_rational_42_by_1(value)))
+        function convert_t_rational_42_by_1_to_t_int512(value) -> converted {
+            converted := cleanup_t_int512(identity(cleanup_t_rational_42_by_1(value)))
         }
 
         function shift_left_0(value) -> newValue {
@@ -118,24 +118,24 @@ object \"C_54\" {
             shl(0, value)
         }
 
-        function update_byte_slice_32_shift_0(value, toInsert) -> result {
-            let mask := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        function update_byte_slice_64_shift_0(value, toInsert) -> result {
+            let mask := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
             toInsert := shift_left_0(toInsert)
             value := and(value, not(mask))
             result := or(value, and(toInsert, mask))
         }
 
-        function convert_t_int256_to_t_int256(value) -> converted {
-            converted := cleanup_t_int256(identity(cleanup_t_int256(value)))
+        function convert_t_int512_to_t_int512(value) -> converted {
+            converted := cleanup_t_int512(identity(cleanup_t_int512(value)))
         }
 
-        function prepare_store_t_int256(value) -> ret {
+        function prepare_store_t_int512(value) -> ret {
             ret := value
         }
 
-        function update_storage_value_offset_0t_int256_to_t_int256(slot, value_0) {
-            let convertedValue_0 := convert_t_int256_to_t_int256(value_0)
-            sstore(slot, update_byte_slice_32_shift_0(sload(slot), prepare_store_t_int256(convertedValue_0)))
+        function update_storage_value_offset_0t_int512_to_t_int512(slot, value_0) {
+            let convertedValue_0 := convert_t_int512_to_t_int512(value_0)
+            sstore(slot, update_byte_slice_64_shift_0(sload(slot), prepare_store_t_int512(convertedValue_0)))
         }
 
         /// @ast-id 20
@@ -146,14 +146,14 @@ object \"C_54\" {
 
             /// @src 0:154:156  \"42\"
             let expr_7 := 0x2a
-            let _3 := convert_t_rational_42_by_1_to_t_int256(expr_7)
+            let _3 := convert_t_rational_42_by_1_to_t_int512(expr_7)
             mstore(256, _3)
 
             /// @src 0:221:226  \"_init\"
             let _4 := var__init_12
             let expr_16 := _4
             /// @src 0:210:226  \"stateVar = _init\"
-            update_storage_value_offset_0t_int256_to_t_int256(0x00, expr_16)
+            update_storage_value_offset_0t_int512_to_t_int512(0x00, expr_16)
             let expr_17 := expr_16
 
         }
@@ -226,18 +226,18 @@ object \"C_54\" {
 
             }
 
-            function cleanup_t_int256(value) -> cleaned {
-                cleaned := signextend(31, value)
+            function cleanup_t_int512(value) -> cleaned {
+                cleaned := value
             }
 
-            function abi_encode_t_int256_to_t_int256_fromStack(value, pos) {
-                mstore(pos, cleanup_t_int256(value))
+            function abi_encode_t_int512_to_t_int512_fromStack(value, pos) {
+                mstore(pos, cleanup_t_int512(value))
             }
 
-            function abi_encode_tuple_t_int256__to_t_int256__fromStack(headStart , value0) -> tail {
+            function abi_encode_tuple_t_int512__to_t_int512__fromStack(headStart , value0) -> tail {
                 tail := add(headStart, 64)
 
-                abi_encode_t_int256_to_t_int256_fromStack(value0,  add(headStart, 0))
+                abi_encode_t_int512_to_t_int512_fromStack(value0,  add(headStart, 0))
 
             }
 
@@ -247,7 +247,7 @@ object \"C_54\" {
                 abi_decode_tuple_(4, calldatasize())
                 let ret_0 :=  fun_f_30()
                 let memPos := allocate_unbounded()
-                let memEnd := abi_encode_tuple_t_int256__to_t_int256__fromStack(memPos , ret_0)
+                let memEnd := abi_encode_tuple_t_int512__to_t_int512__fromStack(memPos , ret_0)
                 return(memPos, sub(memEnd, memPos))
 
             }
@@ -257,16 +257,16 @@ object \"C_54\" {
                 shr(bits, value)
             }
 
-            function cleanup_from_storage_t_int256(value) -> cleaned {
-                cleaned := signextend(31, value)
+            function cleanup_from_storage_t_int512(value) -> cleaned {
+                cleaned := value
             }
 
-            function extract_from_storage_value_dynamict_int256(slot_value, offset) -> value {
-                value := cleanup_from_storage_t_int256(shift_right_unsigned_dynamic(mul(offset, 8), slot_value))
+            function extract_from_storage_value_dynamict_int512(slot_value, offset) -> value {
+                value := cleanup_from_storage_t_int512(shift_right_unsigned_dynamic(mul(offset, 8), slot_value))
             }
 
-            function read_from_storage_split_dynamic_t_int256(slot, offset) -> value {
-                value := extract_from_storage_value_dynamict_int256(sload(slot), offset)
+            function read_from_storage_split_dynamic_t_int512(slot, offset) -> value {
+                value := extract_from_storage_value_dynamict_int512(sload(slot), offset)
             }
 
             /// @ast-id 10
@@ -276,7 +276,7 @@ object \"C_54\" {
                 let slot := 0
                 let offset := 0
 
-                ret := read_from_storage_split_dynamic_t_int256(slot, offset)
+                ret := read_from_storage_split_dynamic_t_int512(slot, offset)
 
             }
             /// @src 0:79:435  \"contract C...\"
@@ -287,7 +287,7 @@ object \"C_54\" {
                 abi_decode_tuple_(4, calldatasize())
                 let ret_0 :=  getter_fun_stateVar_10()
                 let memPos := allocate_unbounded()
-                let memEnd := abi_encode_tuple_t_int256__to_t_int256__fromStack(memPos , ret_0)
+                let memEnd := abi_encode_tuple_t_int512__to_t_int512__fromStack(memPos , ret_0)
                 return(memPos, sub(memEnd, memPos))
 
             }
@@ -298,7 +298,7 @@ object \"C_54\" {
                 abi_decode_tuple_(4, calldatasize())
                 let ret_0 :=  fun_f2_53()
                 let memPos := allocate_unbounded()
-                let memEnd := abi_encode_tuple_t_int256__to_t_int256__fromStack(memPos , ret_0)
+                let memEnd := abi_encode_tuple_t_int512__to_t_int512__fromStack(memPos , ret_0)
                 return(memPos, sub(memEnd, memPos))
 
             }
@@ -311,15 +311,15 @@ object \"C_54\" {
                 ret := value
             }
 
-            function convert_t_rational_41_by_1_to_t_int256(value) -> converted {
-                converted := cleanup_t_int256(identity(cleanup_t_rational_41_by_1(value)))
+            function convert_t_rational_41_by_1_to_t_int512(value) -> converted {
+                converted := cleanup_t_int512(identity(cleanup_t_rational_41_by_1(value)))
             }
 
             /// @src 0:93:126  \"int public constant constVar = 41\"
             function constant_constVar_5() -> ret {
                 /// @src 0:124:126  \"41\"
                 let expr_4 := 0x29
-                let _1 := convert_t_rational_41_by_1_to_t_int256(expr_4)
+                let _1 := convert_t_rational_41_by_1_to_t_int512(expr_4)
 
                 ret := _1
             }
@@ -337,7 +337,7 @@ object \"C_54\" {
                 abi_decode_tuple_(4, calldatasize())
                 let ret_0 :=  getter_fun_constVar_5()
                 let memPos := allocate_unbounded()
-                let memEnd := abi_encode_tuple_t_int256__to_t_int256__fromStack(memPos , ret_0)
+                let memEnd := abi_encode_tuple_t_int512__to_t_int512__fromStack(memPos , ret_0)
                 return(memPos, sub(memEnd, memPos))
 
             }
@@ -346,7 +346,7 @@ object \"C_54\" {
                 revert(0, 0)
             }
 
-            function zero_value_for_split_t_int256() -> ret {
+            function zero_value_for_split_t_int512() -> ret {
                 ret := 0
             }
 
@@ -356,19 +356,21 @@ object \"C_54\" {
             }
 
             function panic_error_0x11() {
-                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+                mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
                 mstore(4, 0x11)
                 revert(0, 0x44)
             }
 
-            function checked_add_t_int256(x, y) -> sum {
-                x := cleanup_t_int256(x)
-                y := cleanup_t_int256(y)
+            function checked_add_t_int512(x, y) -> sum {
+                x := cleanup_t_int512(x)
+                y := cleanup_t_int512(y)
                 sum := add(x, y)
 
+                // overflow, if x >= 0 and sum < y
+                // underflow, if x < 0 and sum >= y
                 if or(
-                    sgt(sum, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff),
-                    slt(sum, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000000000000000000000000000000000000000000000000000)
+                    and(iszero(slt(x, 0)), slt(sum, y)),
+                    and(slt(x, 0), iszero(slt(sum, y)))
                 ) { panic_error_0x11() }
 
             }
@@ -377,8 +379,8 @@ object \"C_54\" {
             /// @src 0:233:309  \"function f() external pure returns (int)...\"
             function fun_f_30() -> var__23 {
                 /// @src 0:269:272  \"int\"
-                let zero_t_int256_2 := zero_value_for_split_t_int256()
-                var__23 := zero_t_int256_2
+                let zero_t_int512_2 := zero_value_for_split_t_int512()
+                var__23 := zero_t_int512_2
 
                 /// @src 0:286:294  \"constVar\"
                 let expr_25 := constant_constVar_5()
@@ -386,7 +388,7 @@ object \"C_54\" {
                 let _3 := loadimmutable(\"8\")
                 let expr_26 := _3
                 /// @src 0:286:305  \"constVar + immutVar\"
-                let expr_27 := checked_add_t_int256(expr_25, expr_26)
+                let expr_27 := checked_add_t_int512(expr_25, expr_26)
 
                 /// @src 0:279:305  \"return constVar + immutVar\"
                 var__23 := expr_27
@@ -400,17 +402,17 @@ object \"C_54\" {
                 shr(0, value)
             }
 
-            function extract_from_storage_value_offset_0t_int256(slot_value) -> value {
-                value := cleanup_from_storage_t_int256(shift_right_0_unsigned(slot_value))
+            function extract_from_storage_value_offset_0t_int512(slot_value) -> value {
+                value := cleanup_from_storage_t_int512(shift_right_0_unsigned(slot_value))
             }
 
-            function read_from_storage_split_offset_0_t_int256(slot) -> value {
-                value := extract_from_storage_value_offset_0t_int256(sload(slot))
+            function read_from_storage_split_offset_0_t_int512(slot) -> value {
+                value := extract_from_storage_value_offset_0t_int512(sload(slot))
             }
 
-            function increment_t_int256(value) -> ret {
-                value := cleanup_t_int256(value)
-                if eq(value, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) { panic_error_0x11() }
+            function increment_t_int512(value) -> ret {
+                value := cleanup_t_int512(value)
+                if eq(value, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) { panic_error_0x11() }
                 ret := add(value, 1)
             }
 
@@ -419,24 +421,24 @@ object \"C_54\" {
                 shl(0, value)
             }
 
-            function update_byte_slice_32_shift_0(value, toInsert) -> result {
-                let mask := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+            function update_byte_slice_64_shift_0(value, toInsert) -> result {
+                let mask := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
                 toInsert := shift_left_0(toInsert)
                 value := and(value, not(mask))
                 result := or(value, and(toInsert, mask))
             }
 
-            function convert_t_int256_to_t_int256(value) -> converted {
-                converted := cleanup_t_int256(identity(cleanup_t_int256(value)))
+            function convert_t_int512_to_t_int512(value) -> converted {
+                converted := cleanup_t_int512(identity(cleanup_t_int512(value)))
             }
 
-            function prepare_store_t_int256(value) -> ret {
+            function prepare_store_t_int512(value) -> ret {
                 ret := value
             }
 
-            function update_storage_value_offset_0t_int256_to_t_int256(slot, value_0) {
-                let convertedValue_0 := convert_t_int256_to_t_int256(value_0)
-                sstore(slot, update_byte_slice_32_shift_0(sload(slot), prepare_store_t_int256(convertedValue_0)))
+            function update_storage_value_offset_0t_int512_to_t_int512(slot, value_0) {
+                let convertedValue_0 := convert_t_int512_to_t_int512(value_0)
+                sstore(slot, update_byte_slice_64_shift_0(sload(slot), prepare_store_t_int512(convertedValue_0)))
             }
 
             /// @ast-id 37
@@ -445,9 +447,9 @@ object \"C_54\" {
                 _5 := var__42
 
                 /// @src 0:329:339  \"stateVar++\"
-                let _7 := read_from_storage_split_offset_0_t_int256(0x00)
-                let _6 := increment_t_int256(_7)
-                update_storage_value_offset_0t_int256_to_t_int256(0x00, _6)
+                let _7 := read_from_storage_split_offset_0_t_int512(0x00)
+                let _6 := increment_t_int512(_7)
+                update_storage_value_offset_0t_int512_to_t_int512(0x00, _6)
                 let expr_33 := _7
                 /// @src 0:343:344  \"_\"
                 _5 := fun_f2_53_inner(var__42)
@@ -480,7 +482,7 @@ object \"C_54\" {
             }
 
             function panic_error_0x41() {
-                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+                mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
                 mstore(4, 0x41)
                 revert(0, 0x44)
             }
@@ -501,23 +503,23 @@ object \"C_54\" {
                 revert(0, 0)
             }
 
-            function validator_revert_t_int256(value) {
-                if iszero(eq(value, cleanup_t_int256(value))) { revert(0, 0) }
+            function validator_revert_t_int512(value) {
+                if iszero(eq(value, cleanup_t_int512(value))) { revert(0, 0) }
             }
 
-            function abi_decode_t_int256_fromMemory(offset, end) -> value {
+            function abi_decode_t_int512_fromMemory(offset, end) -> value {
                 value := mload(offset)
-                validator_revert_t_int256(value)
+                validator_revert_t_int512(value)
             }
 
-            function abi_decode_tuple_t_int256_fromMemory(headStart, dataEnd) -> value0 {
+            function abi_decode_tuple_t_int512_fromMemory(headStart, dataEnd) -> value0 {
                 if slt(sub(dataEnd, headStart), 64) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
 
                 {
 
                     let offset := 0
 
-                    value0 := abi_decode_t_int256_fromMemory(add(headStart, offset), dataEnd)
+                    value0 := abi_decode_t_int512_fromMemory(add(headStart, offset), dataEnd)
                 }
 
             }
@@ -538,7 +540,7 @@ object \"C_54\" {
                 var__42 := _8
 
                 /// @src 0:399:407  \"stateVar\"
-                let _9 := read_from_storage_split_offset_0_t_int256(0x00)
+                let _9 := read_from_storage_split_offset_0_t_int512(0x00)
                 let expr_44 := _9
                 /// @src 0:410:414  \"this\"
                 let expr_45_address := address()
@@ -568,16 +570,16 @@ object \"C_54\" {
                     finalize_allocation(_10, _13)
 
                     // decode return parameters from external try-call into retVars
-                    expr_47 :=  abi_decode_tuple_t_int256_fromMemory(_10, add(_10, _13))
+                    expr_47 :=  abi_decode_tuple_t_int512_fromMemory(_10, add(_10, _13))
                 }
                 /// @src 0:399:418  \"stateVar + this.f()\"
-                let expr_48 := checked_add_t_int256(expr_44, expr_47)
+                let expr_48 := checked_add_t_int512(expr_44, expr_47)
 
                 /// @src 0:421:429  \"immutVar\"
                 let _14 := loadimmutable(\"8\")
                 let expr_49 := _14
                 /// @src 0:399:429  \"stateVar + this.f() + immutVar\"
-                let expr_50 := checked_add_t_int256(expr_48, expr_49)
+                let expr_50 := checked_add_t_int512(expr_48, expr_49)
 
                 /// @src 0:392:429  \"return stateVar + this.f() + immutVar\"
                 var__42 := expr_50
@@ -590,8 +592,8 @@ object \"C_54\" {
             /// @src 0:350:433  \"function f2() m public returns (int)...\"
             function fun_f2_53() -> var__42 {
                 /// @src 0:382:385  \"int\"
-                let zero_t_int256_4 := zero_value_for_split_t_int256()
-                var__42 := zero_t_int256_4
+                let zero_t_int512_4 := zero_value_for_split_t_int512()
+                var__42 := zero_t_int512_4
 
                 var__42 := modifier_m_40(var__42)
             }
@@ -617,7 +619,7 @@ object \"C_54\" {
             let newFreePtr := add(_1, and(add(argSize, 63), not(63)))
             if or(gt(newFreePtr, sub(shl(64, 1), 1)), lt(newFreePtr, _1))
             {
-                mstore(/** @src -1:-1:-1 */ 0, /** @src 0:79:435  \"contract C...\" */ shl(480, 0x4e487b71))
+                mstore(/** @src -1:-1:-1 */ 0, /** @src 0:79:435  \"contract C...\" */ shl(480, 0xdf75fb3b))
                 mstore(4, 0x41)
                 revert(/** @src -1:-1:-1 */ 0, /** @src 0:79:435  \"contract C...\" */ 0x44)
             }
@@ -629,16 +631,11 @@ object \"C_54\" {
             }
             /// @src 0:79:435  \"contract C...\"
             let value := mload(_1)
-            if iszero(eq(value, signextend(31, value)))
-            {
-                revert(/** @src -1:-1:-1 */ 0, 0)
-            }
             /// @src 0:154:156  \"42\"
             let _2 := 256
             mstore(_2, 0x2a)
             /// @src 0:79:435  \"contract C...\"
-            let value_1 := and(sload(/** @src -1:-1:-1 */ 0), /** @src 0:79:435  \"contract C...\" */ not(sub(shl(256, 1), 1)))
-            sstore(/** @src -1:-1:-1 */ 0, /** @src 0:79:435  \"contract C...\" */ or(value_1, and(sub(shl(256, 1), 1), value)))
+            sstore(/** @src -1:-1:-1 */ 0, /** @src 0:79:435  \"contract C...\" */ value)
             let _3 := mload(128)
             let _4 := datasize(\"C_54_deployed\")
             codecopy(_3, dataoffset(\"C_54_deployed\"), _4)
@@ -661,45 +658,46 @@ object \"C_54\" {
                     case 0x26121ff0 {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
-                        let sum := add(41, signextend(31, /** @src 0:297:305  \"immutVar\" */ loadimmutable(\"8\")))
+                        /// @src 0:297:305  \"immutVar\"
+                        let _3 := loadimmutable(\"8\")
                         /// @src 0:79:435  \"contract C...\"
-                        if or(sgt(sum, sub(shl(255, 1), 1)), slt(sum, not(sub(shl(255, 1), 1))))
+                        let sum := add(/** @src 0:124:126  \"41\" */ 0x29, /** @src 0:79:435  \"contract C...\" */ _3)
+                        if and(1, slt(sum, _3))
                         {
-                            mstore(0, shl(480, 0x4e487b71))
+                            mstore(0, shl(480, 0xdf75fb3b))
                             mstore(4, 0x11)
                             revert(0, 0x44)
                         }
-                        mstore(_1, signextend(31, sum))
+                        mstore(_1, sum)
                         return(_1, 64)
                     }
                     case 0x793816ec {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
-                        let value := signextend(31, sload(0))
+                        let _4 := sload(0)
                         let memPos := mload(_2)
-                        mstore(memPos, value)
+                        mstore(memPos, _4)
                         return(memPos, 64)
                     }
                     case 0x9942ec6f {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
-                        let _3 := sload(0)
-                        let value_1 := signextend(31, _3)
-                        if eq(value_1, sub(shl(255, 1), 1))
+                        let _5 := sload(0)
+                        if eq(_5, sub(shl(511, 1), 1))
                         {
-                            mstore(0, shl(480, 0x4e487b71))
+                            mstore(0, shl(480, 0xdf75fb3b))
                             mstore(4, 0x11)
                             revert(0, 0x44)
                         }
-                        let result := or(and(_3, not(sub(shl(256, 1), 1))), and(sub(shl(256, 1), 1), add(value_1, 1)))
-                        sstore(0, result)
+                        let ret := add(_5, 1)
+                        sstore(0, ret)
                         /// @src 0:410:418  \"this.f()\"
-                        let _4 := /** @src 0:79:435  \"contract C...\" */ mload(_2)
+                        let _6 := /** @src 0:79:435  \"contract C...\" */ mload(_2)
                         /// @src 0:410:418  \"this.f()\"
-                        mstore(_4, /** @src 0:79:435  \"contract C...\" */ shl(484, 0x026121ff))
+                        mstore(_6, /** @src 0:79:435  \"contract C...\" */ shl(484, 0x026121ff))
                         /// @src 0:410:418  \"this.f()\"
-                        let _5 := staticcall(gas(), /** @src 0:410:414  \"this\" */ address(), /** @src 0:410:418  \"this.f()\" */ _4, /** @src 0:79:435  \"contract C...\" */ 4, /** @src 0:410:418  \"this.f()\" */ _4, 64)
-                        if iszero(_5)
+                        let _7 := staticcall(gas(), /** @src 0:410:414  \"this\" */ address(), /** @src 0:410:418  \"this.f()\" */ _6, /** @src 0:79:435  \"contract C...\" */ 4, /** @src 0:410:418  \"this.f()\" */ _6, 64)
+                        if iszero(_7)
                         {
                             /// @src 0:79:435  \"contract C...\"
                             let pos := mload(_2)
@@ -709,34 +707,32 @@ object \"C_54\" {
                         /// @src 0:410:418  \"this.f()\"
                         let expr := /** @src 0:79:435  \"contract C...\" */ 0
                         /// @src 0:410:418  \"this.f()\"
-                        if _5
+                        if _7
                         {
-                            let _6 := 64
-                            if gt(64, returndatasize()) { _6 := returndatasize() }
+                            let _8 := 64
+                            if gt(64, returndatasize()) { _8 := returndatasize() }
                             /// @src 0:79:435  \"contract C...\"
-                            let newFreePtr := add(_4, and(add(_6, 63), not(63)))
-                            if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, _4))
+                            let newFreePtr := add(_6, and(add(_8, 63), not(63)))
+                            if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, _6))
                             {
-                                mstore(0, shl(480, 0x4e487b71))
+                                mstore(0, shl(480, 0xdf75fb3b))
                                 mstore(4, 0x41)
                                 revert(0, 0x44)
                             }
                             mstore(_2, newFreePtr)
-                            if slt(sub(/** @src 0:410:418  \"this.f()\" */ add(_4, _6), /** @src 0:79:435  \"contract C...\" */ _4), /** @src 0:410:418  \"this.f()\" */ 64)
+                            if slt(sub(/** @src 0:410:418  \"this.f()\" */ add(_6, _8), /** @src 0:79:435  \"contract C...\" */ _6), /** @src 0:410:418  \"this.f()\" */ 64)
                             /// @src 0:79:435  \"contract C...\"
                             { revert(0, 0) }
-                            let value_2 := mload(_4)
-                            if iszero(eq(value_2, signextend(31, value_2))) { revert(0, 0) }
                             /// @src 0:410:418  \"this.f()\"
-                            expr := value_2
+                            expr := /** @src 0:79:435  \"contract C...\" */ mload(_6)
                         }
                         /// @src 0:399:418  \"stateVar + this.f()\"
-                        let expr_1 := checked_add_int256(/** @src 0:79:435  \"contract C...\" */ signextend(31, result), /** @src 0:399:418  \"stateVar + this.f()\" */ expr)
+                        let expr_1 := checked_add_int512(ret, expr)
                         /// @src 0:392:429  \"return stateVar + this.f() + immutVar\"
-                        let var := /** @src 0:399:429  \"stateVar + this.f() + immutVar\" */ checked_add_int256(expr_1, /** @src 0:421:429  \"immutVar\" */ loadimmutable(\"8\"))
+                        let var := /** @src 0:399:429  \"stateVar + this.f() + immutVar\" */ checked_add_int512(expr_1, /** @src 0:421:429  \"immutVar\" */ loadimmutable(\"8\"))
                         /// @src 0:79:435  \"contract C...\"
                         let memPos_1 := mload(_2)
-                        mstore(memPos_1, signextend(31, var))
+                        mstore(memPos_1, var)
                         return(memPos_1, /** @src 0:410:418  \"this.f()\" */ 64)
                     }
                     case /** @src 0:79:435  \"contract C...\" */ 0xa00b982b {
@@ -750,12 +746,14 @@ object \"C_54\" {
                 }
                 revert(0, 0)
             }
-            function checked_add_int256(x, y) -> sum
+            function checked_add_int512(x, y) -> sum
             {
-                sum := add(signextend(31, x), signextend(31, y))
-                if or(sgt(sum, sub(shl(255, 1), 1)), slt(sum, not(sub(shl(255, 1), 1))))
+                sum := add(x, y)
+                let _1 := slt(sum, y)
+                let _2 := slt(x, 0)
+                if or(and(iszero(_2), _1), and(_2, iszero(_1)))
                 {
-                    mstore(0, shl(480, 0x4e487b71))
+                    mstore(0, shl(480, 0xdf75fb3b))
                     mstore(4, 0x11)
                     revert(0, 0x44)
                 }
@@ -807,7 +805,7 @@ object \"D_72\" {
         }
 
         function panic_error_0x41() {
-            mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+            mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
             mstore(4, 0x41)
             revert(0, 0x44)
         }
@@ -832,27 +830,27 @@ object \"D_72\" {
             revert(0, 0)
         }
 
-        function cleanup_t_int256(value) -> cleaned {
-            cleaned := signextend(31, value)
+        function cleanup_t_int512(value) -> cleaned {
+            cleaned := value
         }
 
-        function validator_revert_t_int256(value) {
-            if iszero(eq(value, cleanup_t_int256(value))) { revert(0, 0) }
+        function validator_revert_t_int512(value) {
+            if iszero(eq(value, cleanup_t_int512(value))) { revert(0, 0) }
         }
 
-        function abi_decode_t_int256_fromMemory(offset, end) -> value {
+        function abi_decode_t_int512_fromMemory(offset, end) -> value {
             value := mload(offset)
-            validator_revert_t_int256(value)
+            validator_revert_t_int512(value)
         }
 
-        function abi_decode_tuple_t_int256_fromMemory(headStart, dataEnd) -> value0 {
+        function abi_decode_tuple_t_int512_fromMemory(headStart, dataEnd) -> value0 {
             if slt(sub(dataEnd, headStart), 64) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
 
             {
 
                 let offset := 0
 
-                value0 := abi_decode_t_int256_fromMemory(add(headStart, offset), dataEnd)
+                value0 := abi_decode_t_int512_fromMemory(add(headStart, offset), dataEnd)
             }
 
         }
@@ -864,7 +862,7 @@ object \"D_72\" {
             let memoryDataOffset := allocate_memory(argSize)
             codecopy(memoryDataOffset, programSize, argSize)
 
-            ret_param_0 := abi_decode_tuple_t_int256_fromMemory(memoryDataOffset, add(memoryDataOffset, argSize))
+            ret_param_0 := abi_decode_tuple_t_int512_fromMemory(memoryDataOffset, add(memoryDataOffset, argSize))
         }
 
         function cleanup_t_rational_3_by_1(value) -> cleaned {
@@ -875,8 +873,8 @@ object \"D_72\" {
             ret := value
         }
 
-        function convert_t_rational_3_by_1_to_t_int256(value) -> converted {
-            converted := cleanup_t_int256(identity(cleanup_t_rational_3_by_1(value)))
+        function convert_t_rational_3_by_1_to_t_int512(value) -> converted {
+            converted := cleanup_t_int512(identity(cleanup_t_rational_3_by_1(value)))
         }
 
         function shift_right_0_unsigned(value) -> newValue {
@@ -884,32 +882,34 @@ object \"D_72\" {
             shr(0, value)
         }
 
-        function cleanup_from_storage_t_int256(value) -> cleaned {
-            cleaned := signextend(31, value)
+        function cleanup_from_storage_t_int512(value) -> cleaned {
+            cleaned := value
         }
 
-        function extract_from_storage_value_offset_0t_int256(slot_value) -> value {
-            value := cleanup_from_storage_t_int256(shift_right_0_unsigned(slot_value))
+        function extract_from_storage_value_offset_0t_int512(slot_value) -> value {
+            value := cleanup_from_storage_t_int512(shift_right_0_unsigned(slot_value))
         }
 
-        function read_from_storage_split_offset_0_t_int256(slot) -> value {
-            value := extract_from_storage_value_offset_0t_int256(sload(slot))
+        function read_from_storage_split_offset_0_t_int512(slot) -> value {
+            value := extract_from_storage_value_offset_0t_int512(sload(slot))
         }
 
         function panic_error_0x11() {
-            mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+            mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
             mstore(4, 0x11)
             revert(0, 0x44)
         }
 
-        function checked_add_t_int256(x, y) -> sum {
-            x := cleanup_t_int256(x)
-            y := cleanup_t_int256(y)
+        function checked_add_t_int512(x, y) -> sum {
+            x := cleanup_t_int512(x)
+            y := cleanup_t_int512(y)
             sum := add(x, y)
 
+            // overflow, if x >= 0 and sum < y
+            // underflow, if x < 0 and sum >= y
             if or(
-                sgt(sum, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff),
-                slt(sum, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000000000000000000000000000000000000000000000000000)
+                and(iszero(slt(x, 0)), slt(sum, y)),
+                and(slt(x, 0), iszero(slt(sum, y)))
             ) { panic_error_0x11() }
 
         }
@@ -919,24 +919,24 @@ object \"D_72\" {
             shl(0, value)
         }
 
-        function update_byte_slice_32_shift_0(value, toInsert) -> result {
-            let mask := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        function update_byte_slice_64_shift_0(value, toInsert) -> result {
+            let mask := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
             toInsert := shift_left_0(toInsert)
             value := and(value, not(mask))
             result := or(value, and(toInsert, mask))
         }
 
-        function convert_t_int256_to_t_int256(value) -> converted {
-            converted := cleanup_t_int256(identity(cleanup_t_int256(value)))
+        function convert_t_int512_to_t_int512(value) -> converted {
+            converted := cleanup_t_int512(identity(cleanup_t_int512(value)))
         }
 
-        function prepare_store_t_int256(value) -> ret {
+        function prepare_store_t_int512(value) -> ret {
             ret := value
         }
 
-        function update_storage_value_offset_0t_int256_to_t_int256(slot, value_0) {
-            let convertedValue_0 := convert_t_int256_to_t_int256(value_0)
-            sstore(slot, update_byte_slice_32_shift_0(sload(slot), prepare_store_t_int256(convertedValue_0)))
+        function update_storage_value_offset_0t_int512_to_t_int512(slot, value_0) {
+            let convertedValue_0 := convert_t_int512_to_t_int512(value_0)
+            sstore(slot, update_byte_slice_64_shift_0(sload(slot), prepare_store_t_int512(convertedValue_0)))
         }
 
         /// @ast-id 71
@@ -944,7 +944,7 @@ object \"D_72\" {
         function constructor_D_72(var__init2_63) {
             /// @src 1:107:108  \"3\"
             let expr_60 := 0x03
-            let _3 := convert_t_rational_3_by_1_to_t_int256(expr_60)
+            let _3 := convert_t_rational_3_by_1_to_t_int512(expr_60)
 
             /// @src 1:113:164  \"constructor(int _init2)...\"
             constructor_C_54(_3)
@@ -953,10 +953,10 @@ object \"D_72\" {
             let _4 := var__init2_63
             let expr_67 := _4
             /// @src 1:142:160  \"stateVar += _init2\"
-            let _5 := read_from_storage_split_offset_0_t_int256(0x00)
-            let expr_68 := checked_add_t_int256(_5, expr_67)
+            let _5 := read_from_storage_split_offset_0_t_int512(0x00)
+            let expr_68 := checked_add_t_int512(_5, expr_67)
 
-            update_storage_value_offset_0t_int256_to_t_int256(0x00, expr_68)
+            update_storage_value_offset_0t_int512_to_t_int512(0x00, expr_68)
 
         }
         /// @src 1:91:166  \"contract D is C(3)...\"
@@ -965,8 +965,8 @@ object \"D_72\" {
             cleaned := value
         }
 
-        function convert_t_rational_42_by_1_to_t_int256(value) -> converted {
-            converted := cleanup_t_int256(identity(cleanup_t_rational_42_by_1(value)))
+        function convert_t_rational_42_by_1_to_t_int512(value) -> converted {
+            converted := cleanup_t_int512(identity(cleanup_t_rational_42_by_1(value)))
         }
 
         /// @ast-id 20
@@ -977,14 +977,14 @@ object \"D_72\" {
 
             /// @src 0:154:156  \"42\"
             let expr_7 := 0x2a
-            let _6 := convert_t_rational_42_by_1_to_t_int256(expr_7)
+            let _6 := convert_t_rational_42_by_1_to_t_int512(expr_7)
             mstore(256, _6)
 
             /// @src 0:221:226  \"_init\"
             let _7 := var__init_12
             let expr_16 := _7
             /// @src 0:210:226  \"stateVar = _init\"
-            update_storage_value_offset_0t_int256_to_t_int256(0x00, expr_16)
+            update_storage_value_offset_0t_int512_to_t_int512(0x00, expr_16)
             let expr_17 := expr_16
 
         }
@@ -1057,18 +1057,18 @@ object \"D_72\" {
 
             }
 
-            function cleanup_t_int256(value) -> cleaned {
-                cleaned := signextend(31, value)
+            function cleanup_t_int512(value) -> cleaned {
+                cleaned := value
             }
 
-            function abi_encode_t_int256_to_t_int256_fromStack(value, pos) {
-                mstore(pos, cleanup_t_int256(value))
+            function abi_encode_t_int512_to_t_int512_fromStack(value, pos) {
+                mstore(pos, cleanup_t_int512(value))
             }
 
-            function abi_encode_tuple_t_int256__to_t_int256__fromStack(headStart , value0) -> tail {
+            function abi_encode_tuple_t_int512__to_t_int512__fromStack(headStart , value0) -> tail {
                 tail := add(headStart, 64)
 
-                abi_encode_t_int256_to_t_int256_fromStack(value0,  add(headStart, 0))
+                abi_encode_t_int512_to_t_int512_fromStack(value0,  add(headStart, 0))
 
             }
 
@@ -1078,7 +1078,7 @@ object \"D_72\" {
                 abi_decode_tuple_(4, calldatasize())
                 let ret_0 :=  fun_f_30()
                 let memPos := allocate_unbounded()
-                let memEnd := abi_encode_tuple_t_int256__to_t_int256__fromStack(memPos , ret_0)
+                let memEnd := abi_encode_tuple_t_int512__to_t_int512__fromStack(memPos , ret_0)
                 return(memPos, sub(memEnd, memPos))
 
             }
@@ -1088,16 +1088,16 @@ object \"D_72\" {
                 shr(bits, value)
             }
 
-            function cleanup_from_storage_t_int256(value) -> cleaned {
-                cleaned := signextend(31, value)
+            function cleanup_from_storage_t_int512(value) -> cleaned {
+                cleaned := value
             }
 
-            function extract_from_storage_value_dynamict_int256(slot_value, offset) -> value {
-                value := cleanup_from_storage_t_int256(shift_right_unsigned_dynamic(mul(offset, 8), slot_value))
+            function extract_from_storage_value_dynamict_int512(slot_value, offset) -> value {
+                value := cleanup_from_storage_t_int512(shift_right_unsigned_dynamic(mul(offset, 8), slot_value))
             }
 
-            function read_from_storage_split_dynamic_t_int256(slot, offset) -> value {
-                value := extract_from_storage_value_dynamict_int256(sload(slot), offset)
+            function read_from_storage_split_dynamic_t_int512(slot, offset) -> value {
+                value := extract_from_storage_value_dynamict_int512(sload(slot), offset)
             }
 
             /// @ast-id 10
@@ -1107,7 +1107,7 @@ object \"D_72\" {
                 let slot := 0
                 let offset := 0
 
-                ret := read_from_storage_split_dynamic_t_int256(slot, offset)
+                ret := read_from_storage_split_dynamic_t_int512(slot, offset)
 
             }
             /// @src 1:91:166  \"contract D is C(3)...\"
@@ -1118,7 +1118,7 @@ object \"D_72\" {
                 abi_decode_tuple_(4, calldatasize())
                 let ret_0 :=  getter_fun_stateVar_10()
                 let memPos := allocate_unbounded()
-                let memEnd := abi_encode_tuple_t_int256__to_t_int256__fromStack(memPos , ret_0)
+                let memEnd := abi_encode_tuple_t_int512__to_t_int512__fromStack(memPos , ret_0)
                 return(memPos, sub(memEnd, memPos))
 
             }
@@ -1129,7 +1129,7 @@ object \"D_72\" {
                 abi_decode_tuple_(4, calldatasize())
                 let ret_0 :=  fun_f2_53()
                 let memPos := allocate_unbounded()
-                let memEnd := abi_encode_tuple_t_int256__to_t_int256__fromStack(memPos , ret_0)
+                let memEnd := abi_encode_tuple_t_int512__to_t_int512__fromStack(memPos , ret_0)
                 return(memPos, sub(memEnd, memPos))
 
             }
@@ -1142,15 +1142,15 @@ object \"D_72\" {
                 ret := value
             }
 
-            function convert_t_rational_41_by_1_to_t_int256(value) -> converted {
-                converted := cleanup_t_int256(identity(cleanup_t_rational_41_by_1(value)))
+            function convert_t_rational_41_by_1_to_t_int512(value) -> converted {
+                converted := cleanup_t_int512(identity(cleanup_t_rational_41_by_1(value)))
             }
 
             /// @src 0:93:126  \"int public constant constVar = 41\"
             function constant_constVar_5() -> ret {
                 /// @src 0:124:126  \"41\"
                 let expr_4 := 0x29
-                let _1 := convert_t_rational_41_by_1_to_t_int256(expr_4)
+                let _1 := convert_t_rational_41_by_1_to_t_int512(expr_4)
 
                 ret := _1
             }
@@ -1168,7 +1168,7 @@ object \"D_72\" {
                 abi_decode_tuple_(4, calldatasize())
                 let ret_0 :=  getter_fun_constVar_5()
                 let memPos := allocate_unbounded()
-                let memEnd := abi_encode_tuple_t_int256__to_t_int256__fromStack(memPos , ret_0)
+                let memEnd := abi_encode_tuple_t_int512__to_t_int512__fromStack(memPos , ret_0)
                 return(memPos, sub(memEnd, memPos))
 
             }
@@ -1177,7 +1177,7 @@ object \"D_72\" {
                 revert(0, 0)
             }
 
-            function zero_value_for_split_t_int256() -> ret {
+            function zero_value_for_split_t_int512() -> ret {
                 ret := 0
             }
 
@@ -1187,19 +1187,21 @@ object \"D_72\" {
             }
 
             function panic_error_0x11() {
-                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+                mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
                 mstore(4, 0x11)
                 revert(0, 0x44)
             }
 
-            function checked_add_t_int256(x, y) -> sum {
-                x := cleanup_t_int256(x)
-                y := cleanup_t_int256(y)
+            function checked_add_t_int512(x, y) -> sum {
+                x := cleanup_t_int512(x)
+                y := cleanup_t_int512(y)
                 sum := add(x, y)
 
+                // overflow, if x >= 0 and sum < y
+                // underflow, if x < 0 and sum >= y
                 if or(
-                    sgt(sum, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff),
-                    slt(sum, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000000000000000000000000000000000000000000000000000)
+                    and(iszero(slt(x, 0)), slt(sum, y)),
+                    and(slt(x, 0), iszero(slt(sum, y)))
                 ) { panic_error_0x11() }
 
             }
@@ -1208,8 +1210,8 @@ object \"D_72\" {
             /// @src 0:233:309  \"function f() external pure returns (int)...\"
             function fun_f_30() -> var__23 {
                 /// @src 0:269:272  \"int\"
-                let zero_t_int256_2 := zero_value_for_split_t_int256()
-                var__23 := zero_t_int256_2
+                let zero_t_int512_2 := zero_value_for_split_t_int512()
+                var__23 := zero_t_int512_2
 
                 /// @src 0:286:294  \"constVar\"
                 let expr_25 := constant_constVar_5()
@@ -1217,7 +1219,7 @@ object \"D_72\" {
                 let _3 := loadimmutable(\"8\")
                 let expr_26 := _3
                 /// @src 0:286:305  \"constVar + immutVar\"
-                let expr_27 := checked_add_t_int256(expr_25, expr_26)
+                let expr_27 := checked_add_t_int512(expr_25, expr_26)
 
                 /// @src 0:279:305  \"return constVar + immutVar\"
                 var__23 := expr_27
@@ -1231,17 +1233,17 @@ object \"D_72\" {
                 shr(0, value)
             }
 
-            function extract_from_storage_value_offset_0t_int256(slot_value) -> value {
-                value := cleanup_from_storage_t_int256(shift_right_0_unsigned(slot_value))
+            function extract_from_storage_value_offset_0t_int512(slot_value) -> value {
+                value := cleanup_from_storage_t_int512(shift_right_0_unsigned(slot_value))
             }
 
-            function read_from_storage_split_offset_0_t_int256(slot) -> value {
-                value := extract_from_storage_value_offset_0t_int256(sload(slot))
+            function read_from_storage_split_offset_0_t_int512(slot) -> value {
+                value := extract_from_storage_value_offset_0t_int512(sload(slot))
             }
 
-            function increment_t_int256(value) -> ret {
-                value := cleanup_t_int256(value)
-                if eq(value, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) { panic_error_0x11() }
+            function increment_t_int512(value) -> ret {
+                value := cleanup_t_int512(value)
+                if eq(value, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) { panic_error_0x11() }
                 ret := add(value, 1)
             }
 
@@ -1250,24 +1252,24 @@ object \"D_72\" {
                 shl(0, value)
             }
 
-            function update_byte_slice_32_shift_0(value, toInsert) -> result {
-                let mask := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+            function update_byte_slice_64_shift_0(value, toInsert) -> result {
+                let mask := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
                 toInsert := shift_left_0(toInsert)
                 value := and(value, not(mask))
                 result := or(value, and(toInsert, mask))
             }
 
-            function convert_t_int256_to_t_int256(value) -> converted {
-                converted := cleanup_t_int256(identity(cleanup_t_int256(value)))
+            function convert_t_int512_to_t_int512(value) -> converted {
+                converted := cleanup_t_int512(identity(cleanup_t_int512(value)))
             }
 
-            function prepare_store_t_int256(value) -> ret {
+            function prepare_store_t_int512(value) -> ret {
                 ret := value
             }
 
-            function update_storage_value_offset_0t_int256_to_t_int256(slot, value_0) {
-                let convertedValue_0 := convert_t_int256_to_t_int256(value_0)
-                sstore(slot, update_byte_slice_32_shift_0(sload(slot), prepare_store_t_int256(convertedValue_0)))
+            function update_storage_value_offset_0t_int512_to_t_int512(slot, value_0) {
+                let convertedValue_0 := convert_t_int512_to_t_int512(value_0)
+                sstore(slot, update_byte_slice_64_shift_0(sload(slot), prepare_store_t_int512(convertedValue_0)))
             }
 
             /// @ast-id 37
@@ -1276,9 +1278,9 @@ object \"D_72\" {
                 _5 := var__42
 
                 /// @src 0:329:339  \"stateVar++\"
-                let _7 := read_from_storage_split_offset_0_t_int256(0x00)
-                let _6 := increment_t_int256(_7)
-                update_storage_value_offset_0t_int256_to_t_int256(0x00, _6)
+                let _7 := read_from_storage_split_offset_0_t_int512(0x00)
+                let _6 := increment_t_int512(_7)
+                update_storage_value_offset_0t_int512_to_t_int512(0x00, _6)
                 let expr_33 := _7
                 /// @src 0:343:344  \"_\"
                 _5 := fun_f2_53_inner(var__42)
@@ -1311,7 +1313,7 @@ object \"D_72\" {
             }
 
             function panic_error_0x41() {
-                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+                mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
                 mstore(4, 0x41)
                 revert(0, 0x44)
             }
@@ -1332,23 +1334,23 @@ object \"D_72\" {
                 revert(0, 0)
             }
 
-            function validator_revert_t_int256(value) {
-                if iszero(eq(value, cleanup_t_int256(value))) { revert(0, 0) }
+            function validator_revert_t_int512(value) {
+                if iszero(eq(value, cleanup_t_int512(value))) { revert(0, 0) }
             }
 
-            function abi_decode_t_int256_fromMemory(offset, end) -> value {
+            function abi_decode_t_int512_fromMemory(offset, end) -> value {
                 value := mload(offset)
-                validator_revert_t_int256(value)
+                validator_revert_t_int512(value)
             }
 
-            function abi_decode_tuple_t_int256_fromMemory(headStart, dataEnd) -> value0 {
+            function abi_decode_tuple_t_int512_fromMemory(headStart, dataEnd) -> value0 {
                 if slt(sub(dataEnd, headStart), 64) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
 
                 {
 
                     let offset := 0
 
-                    value0 := abi_decode_t_int256_fromMemory(add(headStart, offset), dataEnd)
+                    value0 := abi_decode_t_int512_fromMemory(add(headStart, offset), dataEnd)
                 }
 
             }
@@ -1369,7 +1371,7 @@ object \"D_72\" {
                 var__42 := _8
 
                 /// @src 0:399:407  \"stateVar\"
-                let _9 := read_from_storage_split_offset_0_t_int256(0x00)
+                let _9 := read_from_storage_split_offset_0_t_int512(0x00)
                 let expr_44 := _9
                 /// @src 0:410:414  \"this\"
                 let expr_45_address := address()
@@ -1399,16 +1401,16 @@ object \"D_72\" {
                     finalize_allocation(_10, _13)
 
                     // decode return parameters from external try-call into retVars
-                    expr_47 :=  abi_decode_tuple_t_int256_fromMemory(_10, add(_10, _13))
+                    expr_47 :=  abi_decode_tuple_t_int512_fromMemory(_10, add(_10, _13))
                 }
                 /// @src 0:399:418  \"stateVar + this.f()\"
-                let expr_48 := checked_add_t_int256(expr_44, expr_47)
+                let expr_48 := checked_add_t_int512(expr_44, expr_47)
 
                 /// @src 0:421:429  \"immutVar\"
                 let _14 := loadimmutable(\"8\")
                 let expr_49 := _14
                 /// @src 0:399:429  \"stateVar + this.f() + immutVar\"
-                let expr_50 := checked_add_t_int256(expr_48, expr_49)
+                let expr_50 := checked_add_t_int512(expr_48, expr_49)
 
                 /// @src 0:392:429  \"return stateVar + this.f() + immutVar\"
                 var__42 := expr_50
@@ -1421,8 +1423,8 @@ object \"D_72\" {
             /// @src 0:350:433  \"function f2() m public returns (int)...\"
             function fun_f2_53() -> var__42 {
                 /// @src 0:382:385  \"int\"
-                let zero_t_int256_4 := zero_value_for_split_t_int256()
-                var__42 := zero_t_int256_4
+                let zero_t_int512_4 := zero_value_for_split_t_int512()
+                var__42 := zero_t_int512_4
 
                 var__42 := modifier_m_40(var__42)
             }
@@ -1448,7 +1450,7 @@ object \"D_72\" {
             let newFreePtr := add(_1, and(add(argSize, 63), not(63)))
             if or(gt(newFreePtr, sub(shl(64, 1), 1)), lt(newFreePtr, _1))
             {
-                mstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(480, 0x4e487b71))
+                mstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(480, 0xdf75fb3b))
                 mstore(4, 0x41)
                 revert(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ 0x44)
             }
@@ -1460,30 +1462,24 @@ object \"D_72\" {
             }
             /// @src 1:91:166  \"contract D is C(3)...\"
             let value := mload(_1)
-            let _2 := signextend(31, value)
-            if iszero(eq(value, _2))
-            {
-                revert(/** @src -1:-1:-1 */ 0, 0)
-            }
             /// @src 0:154:156  \"42\"
-            let _3 := 256
-            mstore(_3, 0x2a)
+            let _2 := 256
+            mstore(_2, 0x2a)
             /// @src 1:91:166  \"contract D is C(3)...\"
-            let value_1 := and(sload(/** @src -1:-1:-1 */ 0), /** @src 1:91:166  \"contract D is C(3)...\" */ not(sub(shl(256, 1), 1)))
-            let sum := add(signextend(31, or(value_1, /** @src 1:107:108  \"3\" */ 0x03)), /** @src 1:91:166  \"contract D is C(3)...\" */ _2)
-            if or(sgt(sum, sub(shl(255, 1), 1)), slt(sum, not(sub(shl(255, 1), 1))))
+            let sum := add(/** @src 1:107:108  \"3\" */ 0x03, /** @src 1:91:166  \"contract D is C(3)...\" */ value)
+            if and(1, slt(sum, value))
             {
-                mstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(480, 0x4e487b71))
+                mstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(480, 0xdf75fb3b))
                 mstore(4, 0x11)
                 revert(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ 0x44)
             }
-            sstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ or(value_1, and(sub(shl(256, 1), 1), sum)))
-            let _4 := mload(128)
-            let _5 := datasize(\"D_72_deployed\")
-            codecopy(_4, dataoffset(\"D_72_deployed\"), _5)
-            setimmutable(_4, \"8\", mload(/** @src 0:154:156  \"42\" */ _3))
+            sstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ sum)
+            let _3 := mload(128)
+            let _4 := datasize(\"D_72_deployed\")
+            codecopy(_3, dataoffset(\"D_72_deployed\"), _4)
+            setimmutable(_3, \"8\", mload(/** @src 0:154:156  \"42\" */ _2))
             /// @src 1:91:166  \"contract D is C(3)...\"
-            return(_4, _5)
+            return(_3, _4)
         }
     }
     /// @use-src 0:\"C\", 1:\"D\"
@@ -1500,45 +1496,46 @@ object \"D_72\" {
                     case 0x26121ff0 {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
-                        let sum := add(41, signextend(31, /** @src 0:297:305  \"immutVar\" */ loadimmutable(\"8\")))
+                        /// @src 0:297:305  \"immutVar\"
+                        let _3 := loadimmutable(\"8\")
                         /// @src 1:91:166  \"contract D is C(3)...\"
-                        if or(sgt(sum, sub(shl(255, 1), 1)), slt(sum, not(sub(shl(255, 1), 1))))
+                        let sum := add(/** @src 0:124:126  \"41\" */ 0x29, /** @src 1:91:166  \"contract D is C(3)...\" */ _3)
+                        if and(1, slt(sum, _3))
                         {
-                            mstore(0, shl(480, 0x4e487b71))
+                            mstore(0, shl(480, 0xdf75fb3b))
                             mstore(4, 0x11)
                             revert(0, 0x44)
                         }
-                        mstore(_1, signextend(31, sum))
+                        mstore(_1, sum)
                         return(_1, 64)
                     }
                     case 0x793816ec {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
-                        let value := signextend(31, sload(0))
+                        let _4 := sload(0)
                         let memPos := mload(_2)
-                        mstore(memPos, value)
+                        mstore(memPos, _4)
                         return(memPos, 64)
                     }
                     case 0x9942ec6f {
                         if callvalue() { revert(0, 0) }
                         if slt(add(calldatasize(), not(3)), 0) { revert(0, 0) }
-                        let _3 := sload(0)
-                        let value_1 := signextend(31, _3)
-                        if eq(value_1, sub(shl(255, 1), 1))
+                        let _5 := sload(0)
+                        if eq(_5, sub(shl(511, 1), 1))
                         {
-                            mstore(0, shl(480, 0x4e487b71))
+                            mstore(0, shl(480, 0xdf75fb3b))
                             mstore(4, 0x11)
                             revert(0, 0x44)
                         }
-                        let result := or(and(_3, not(sub(shl(256, 1), 1))), and(sub(shl(256, 1), 1), add(value_1, 1)))
-                        sstore(0, result)
+                        let ret := add(_5, 1)
+                        sstore(0, ret)
                         /// @src 0:410:418  \"this.f()\"
-                        let _4 := /** @src 1:91:166  \"contract D is C(3)...\" */ mload(_2)
+                        let _6 := /** @src 1:91:166  \"contract D is C(3)...\" */ mload(_2)
                         /// @src 0:410:418  \"this.f()\"
-                        mstore(_4, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(484, 0x026121ff))
+                        mstore(_6, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(484, 0x026121ff))
                         /// @src 0:410:418  \"this.f()\"
-                        let _5 := staticcall(gas(), /** @src 0:410:414  \"this\" */ address(), /** @src 0:410:418  \"this.f()\" */ _4, /** @src 1:91:166  \"contract D is C(3)...\" */ 4, /** @src 0:410:418  \"this.f()\" */ _4, 64)
-                        if iszero(_5)
+                        let _7 := staticcall(gas(), /** @src 0:410:414  \"this\" */ address(), /** @src 0:410:418  \"this.f()\" */ _6, /** @src 1:91:166  \"contract D is C(3)...\" */ 4, /** @src 0:410:418  \"this.f()\" */ _6, 64)
+                        if iszero(_7)
                         {
                             /// @src 1:91:166  \"contract D is C(3)...\"
                             let pos := mload(_2)
@@ -1548,34 +1545,32 @@ object \"D_72\" {
                         /// @src 0:410:418  \"this.f()\"
                         let expr := /** @src 1:91:166  \"contract D is C(3)...\" */ 0
                         /// @src 0:410:418  \"this.f()\"
-                        if _5
+                        if _7
                         {
-                            let _6 := 64
-                            if gt(64, returndatasize()) { _6 := returndatasize() }
+                            let _8 := 64
+                            if gt(64, returndatasize()) { _8 := returndatasize() }
                             /// @src 1:91:166  \"contract D is C(3)...\"
-                            let newFreePtr := add(_4, and(add(_6, 63), not(63)))
-                            if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, _4))
+                            let newFreePtr := add(_6, and(add(_8, 63), not(63)))
+                            if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, _6))
                             {
-                                mstore(0, shl(480, 0x4e487b71))
+                                mstore(0, shl(480, 0xdf75fb3b))
                                 mstore(4, 0x41)
                                 revert(0, 0x44)
                             }
                             mstore(_2, newFreePtr)
-                            if slt(sub(/** @src 0:410:418  \"this.f()\" */ add(_4, _6), /** @src 1:91:166  \"contract D is C(3)...\" */ _4), /** @src 0:410:418  \"this.f()\" */ 64)
+                            if slt(sub(/** @src 0:410:418  \"this.f()\" */ add(_6, _8), /** @src 1:91:166  \"contract D is C(3)...\" */ _6), /** @src 0:410:418  \"this.f()\" */ 64)
                             /// @src 1:91:166  \"contract D is C(3)...\"
                             { revert(0, 0) }
-                            let value_2 := mload(_4)
-                            if iszero(eq(value_2, signextend(31, value_2))) { revert(0, 0) }
                             /// @src 0:410:418  \"this.f()\"
-                            expr := value_2
+                            expr := /** @src 1:91:166  \"contract D is C(3)...\" */ mload(_6)
                         }
                         /// @src 0:399:418  \"stateVar + this.f()\"
-                        let expr_1 := checked_add_int256(/** @src 1:91:166  \"contract D is C(3)...\" */ signextend(31, result), /** @src 0:399:418  \"stateVar + this.f()\" */ expr)
+                        let expr_1 := checked_add_int512(ret, expr)
                         /// @src 0:392:429  \"return stateVar + this.f() + immutVar\"
-                        let var := /** @src 0:399:429  \"stateVar + this.f() + immutVar\" */ checked_add_int256(expr_1, /** @src 0:421:429  \"immutVar\" */ loadimmutable(\"8\"))
+                        let var := /** @src 0:399:429  \"stateVar + this.f() + immutVar\" */ checked_add_int512(expr_1, /** @src 0:421:429  \"immutVar\" */ loadimmutable(\"8\"))
                         /// @src 1:91:166  \"contract D is C(3)...\"
                         let memPos_1 := mload(_2)
-                        mstore(memPos_1, signextend(31, var))
+                        mstore(memPos_1, var)
                         return(memPos_1, /** @src 0:410:418  \"this.f()\" */ 64)
                     }
                     case /** @src 1:91:166  \"contract D is C(3)...\" */ 0xa00b982b {
@@ -1589,12 +1584,14 @@ object \"D_72\" {
                 }
                 revert(0, 0)
             }
-            function checked_add_int256(x, y) -> sum
+            function checked_add_int512(x, y) -> sum
             {
-                sum := add(signextend(31, x), signextend(31, y))
-                if or(sgt(sum, sub(shl(255, 1), 1)), slt(sum, not(sub(shl(255, 1), 1))))
+                sum := add(x, y)
+                let _1 := slt(sum, y)
+                let _2 := slt(x, 0)
+                if or(and(iszero(_2), _1), and(_2, iszero(_1)))
                 {
-                    mstore(0, shl(480, 0x4e487b71))
+                    mstore(0, shl(480, 0xdf75fb3b))
                     mstore(4, 0x11)
                     revert(0, 0x44)
                 }

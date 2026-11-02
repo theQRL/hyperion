@@ -9,4 +9,4 @@ contract C {
     }
 }
 // ----
-// f(uint256,(address)[2],uint256): 7, 0, 0, 8 -> 7, 0, 8
+// f(uint512,(address)[2],uint512): 7, 0, 0, 8 -> 7, 0, 8

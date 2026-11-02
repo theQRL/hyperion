@@ -15,6 +15,6 @@ contract C {
 }
 // ----
 // f(bool): true -> true
-// f(bool): false -> FAILURE, hex"4e487b71", 0x01
-// fail() -> FAILURE, hex"4e487b71", 0x01
+// f(bool): false -> FAILURE, hex"df75fb3b", 0x01
+// fail() -> FAILURE, hex"df75fb3b", 0x01
 // succeed() -> true

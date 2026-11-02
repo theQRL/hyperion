@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE(arithmetic)
 {
 	char const* sourceCode = R"(
 		contract test {
-			function f(uint y) public { unchecked { ((((((((y ^ 8) & 7) | 6) - 5) + 4) % 3) / 2) * 1); } }
+			function f(uint256 y) public { unchecked { ((((((((y ^ 8) & 7) | 6) - 5) + 4) % 3) / 2) * 1); } }
 		}
 	)";
 	bytes code = compileFirstExpression(sourceCode, {}, {{"test", "f", "y"}});
@@ -469,7 +469,7 @@ BOOST_AUTO_TEST_CASE(arithmetic)
 	append({uint8_t(Instruction::JUMPDEST)});
 	size_t const panicDataReturnPatch = appendPush1Placeholder();
 	append({uint8_t(Instruction::PUSH32)});
-	append(util::fromHex("4E487B7100000000000000000000000000000000000000000000000000000000"));
+	append(util::fromHex("DF75FB3B00000000000000000000000000000000000000000000000000000000"));
 	size_t const cleanupEntryPatch = appendPush1Placeholder();
 	append({uint8_t(Instruction::JUMP)});
 
@@ -506,7 +506,7 @@ BOOST_AUTO_TEST_CASE(unary_operators)
 {
 	char const* sourceCode = R"(
 		contract test {
-			function f(int y) public { unchecked { !(~- y == 2); } }
+			function f(int256 y) public { unchecked { !(~- y == 2); } }
 		}
 	)";
 	bytes code = compileFirstExpression(sourceCode, {}, {{"test", "f", "y"}});

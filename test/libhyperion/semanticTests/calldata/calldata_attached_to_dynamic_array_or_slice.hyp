@@ -18,5 +18,5 @@ contract C {
     }
 }
 // ----
-// testArray(uint256,uint256[],uint256): 7, 0x60, 4, 2, 66, 77 -> FAILURE
-// testSlice(uint256,uint256[],uint256): 7, 0x60, 4, 2, 66, 77 -> FAILURE
+// testArray(uint512,uint512[],uint512): 7, 0x60, 4, 2, 66, 77 -> FAILURE
+// testSlice(uint512,uint512[],uint512): 7, 0x60, 4, 2, 66, 77 -> FAILURE

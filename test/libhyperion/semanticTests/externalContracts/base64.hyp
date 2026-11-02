@@ -32,27 +32,27 @@ contract test {
 // ----
 // constructor()
 // gas irOptimized: 405832
-// gas legacy: 844599
+// gas legacy: 1035619
 // gas legacyOptimized: 522722
-// encode_inline_asm(bytes): 0x20, 0 -> FAILURE, hex"4e487b71", 0x41
-// encode_inline_asm(bytes): 0x20, 1, "f" -> FAILURE, hex"4e487b71", 0x41
-// encode_inline_asm(bytes): 0x20, 2, "fo" -> FAILURE, hex"4e487b71", 0x41
-// encode_inline_asm(bytes): 0x20, 3, "foo" -> FAILURE, hex"4e487b71", 0x41
-// encode_inline_asm(bytes): 0x20, 4, "foob" -> FAILURE, hex"4e487b71", 0x41
-// encode_inline_asm(bytes): 0x20, 5, "fooba" -> FAILURE, hex"4e487b71", 0x41
-// encode_inline_asm(bytes): 0x20, 6, "foobar" -> FAILURE, hex"4e487b71", 0x41
-// encode_no_asm(bytes): 0x20, 0 -> FAILURE, hex"4e487b71", 0x41
-// encode_no_asm(bytes): 0x20, 1, "f" -> FAILURE, hex"4e487b71", 0x41
-// encode_no_asm(bytes): 0x20, 2, "fo" -> FAILURE, hex"4e487b71", 0x41
-// encode_no_asm(bytes): 0x20, 3, "foo" -> FAILURE, hex"4e487b71", 0x41
-// encode_no_asm(bytes): 0x20, 4, "foob" -> FAILURE, hex"4e487b71", 0x41
-// encode_no_asm(bytes): 0x20, 5, "fooba" -> FAILURE, hex"4e487b71", 0x41
-// encode_no_asm(bytes): 0x20, 6, "foobar" -> FAILURE, hex"4e487b71", 0x41
+// encode_inline_asm(bytes): 0x20, 0 -> FAILURE, hex"df75fb3b", 0x41
+// encode_inline_asm(bytes): 0x20, 1, "f" -> FAILURE, hex"df75fb3b", 0x41
+// encode_inline_asm(bytes): 0x20, 2, "fo" -> FAILURE, hex"df75fb3b", 0x41
+// encode_inline_asm(bytes): 0x20, 3, "foo" -> FAILURE, hex"df75fb3b", 0x41
+// encode_inline_asm(bytes): 0x20, 4, "foob" -> FAILURE, hex"df75fb3b", 0x41
+// encode_inline_asm(bytes): 0x20, 5, "fooba" -> FAILURE, hex"df75fb3b", 0x41
+// encode_inline_asm(bytes): 0x20, 6, "foobar" -> FAILURE, hex"df75fb3b", 0x41
+// encode_no_asm(bytes): 0x20, 0 -> FAILURE, hex"df75fb3b", 0x41
+// encode_no_asm(bytes): 0x20, 1, "f" -> FAILURE, hex"df75fb3b", 0x41
+// encode_no_asm(bytes): 0x20, 2, "fo" -> FAILURE, hex"df75fb3b", 0x41
+// encode_no_asm(bytes): 0x20, 3, "foo" -> FAILURE, hex"df75fb3b", 0x41
+// encode_no_asm(bytes): 0x20, 4, "foob" -> FAILURE, hex"df75fb3b", 0x41
+// encode_no_asm(bytes): 0x20, 5, "fooba" -> FAILURE, hex"df75fb3b", 0x41
+// encode_no_asm(bytes): 0x20, 6, "foobar" -> FAILURE, hex"df75fb3b", 0x41
 // encode_inline_asm_large()
 // gas irOptimized: 1322025
-// gas legacy: 1560625
+// gas legacy: 1578625
 // gas legacyOptimized: 1132031
 // encode_no_asm_large()
 // gas irOptimized: 3206081
-// gas legacy: 4713669
+// gas legacy: 4833669
 // gas legacyOptimized: 2823075

@@ -32,7 +32,7 @@ contract FixedFeeRegistrar is Registrar {
 		}
 	}
 	function disown(string memory _name, address payable _refund) onlyrecordowner(_name) public {
-		delete m_recordData[uint(keccak256(bytes(_name))) / 8];
+		delete m_recordData[uint256(keccak256(bytes(_name))) / 8];
 		if (!_refund.send(c_fee))
 			revert();
 		emit Changed(_name);
@@ -68,42 +68,42 @@ contract FixedFeeRegistrar is Registrar {
 
 	Record[2**253] m_recordData;
 	function m_record(string memory _name) view internal returns (Record storage o_record) {
-		return m_recordData[uint(keccak256(bytes(_name))) / 8];
+		return m_recordData[uint256(keccak256(bytes(_name))) / 8];
 	}
 	uint constant c_fee = 69 quanta;
 }
 // ----
 // constructor()
 // gas irOptimized: 384610
-// gas legacy: 1046677
+// gas legacy: 826281
 // gas legacyOptimized: 476928
-// reserve(string), 69 quanta: 0x20, 3, "abc" -> FAILURE, hex"4e487b71", 0x41
+// reserve(string), 69 quanta: 0x20, 3, "abc" -> FAILURE, hex"df75fb3b", 0x41
 // gas irOptimized: 45967
 // gas legacy: 46842
 // gas legacyOptimized: 46091
-// owner(string): 0x20, 3, "abc" -> FAILURE, hex"4e487b71", 0x41
-// reserve(string), 70 quanta: 0x20, 3, "def" -> FAILURE, hex"4e487b71", 0x41
-// owner(string): 0x20, 3, "def" -> FAILURE, hex"4e487b71", 0x41
-// reserve(string), 68 quanta: 0x20, 3, "ghi" -> FAILURE, hex"4e487b71", 0x41
-// owner(string): 0x20, 3, "ghi" -> FAILURE, hex"4e487b71", 0x41
+// owner(string): 0x20, 3, "abc" -> FAILURE, hex"df75fb3b", 0x41
+// reserve(string), 70 quanta: 0x20, 3, "def" -> FAILURE, hex"df75fb3b", 0x41
+// owner(string): 0x20, 3, "def" -> FAILURE, hex"df75fb3b", 0x41
+// reserve(string), 68 quanta: 0x20, 3, "ghi" -> FAILURE, hex"df75fb3b", 0x41
+// owner(string): 0x20, 3, "ghi" -> FAILURE, hex"df75fb3b", 0x41
 // account: 1 -> hex"0000000000000000000000001212121212121212121212121212120000001012"
-// reserve(string), 69 quanta: 0x20, 3, "abc" -> FAILURE, hex"4e487b71", 0x41
-// owner(string): 0x20, 3, "abc" -> FAILURE, hex"4e487b71", 0x41
+// reserve(string), 69 quanta: 0x20, 3, "abc" -> FAILURE, hex"df75fb3b", 0x41
+// owner(string): 0x20, 3, "abc" -> FAILURE, hex"df75fb3b", 0x41
 // account: 0 -> hex"0000000000000000000000001212121212121212121212121212120000000012"
 // setContent(string,bytes32): 0x40, 0, 3, "abc" ->
 // transfer(string,address): 0x40, 555, 3, "abc" -> FAILURE
-// owner(string): 0x20, 3, "abc" -> FAILURE, hex"4e487b71", 0x41
-// content(string): 0x20, 3, "abc" -> FAILURE, hex"4e487b71", 0x41
+// owner(string): 0x20, 3, "abc" -> FAILURE, hex"df75fb3b", 0x41
+// content(string): 0x20, 3, "abc" -> FAILURE, hex"df75fb3b", 0x41
 // setContent(string,bytes32): 0x40, 333, 3, "def" -> FAILURE
 // setAddr(string,address): 0x40, 124, 3, "def" ->
 // setSubRegistrar(string,address): 0x40, 125, 3, "def" ->
-// content(string): 0x20, 3, "def" -> FAILURE, hex"4e487b71", 0x41
-// addr(string): 0x20, 3, "def" -> FAILURE, hex"4e487b71", 0x41
-// subRegistrar(string): 0x20, 3, "def" -> FAILURE, hex"4e487b71", 0x41
+// content(string): 0x20, 3, "def" -> FAILURE, hex"df75fb3b", 0x41
+// addr(string): 0x20, 3, "def" -> FAILURE, hex"df75fb3b", 0x41
+// subRegistrar(string): 0x20, 3, "def" -> FAILURE, hex"df75fb3b", 0x41
 // balance: 0x124 -> 0
 // disown(string,address): 0x40, 0x124, 3, "def" -> FAILURE
 // balance: 0x124 -> 0
-// owner(string): 0x20, 3, "def" -> FAILURE, hex"4e487b71", 0x41
-// content(string): 0x20, 3, "def" -> FAILURE, hex"4e487b71", 0x41
-// addr(string): 0x20, 3, "def" -> FAILURE, hex"4e487b71", 0x41
-// subRegistrar(string): 0x20, 3, "def" -> FAILURE, hex"4e487b71", 0x41
+// owner(string): 0x20, 3, "def" -> FAILURE, hex"df75fb3b", 0x41
+// content(string): 0x20, 3, "def" -> FAILURE, hex"df75fb3b", 0x41
+// addr(string): 0x20, 3, "def" -> FAILURE, hex"df75fb3b", 0x41
+// subRegistrar(string): 0x20, 3, "def" -> FAILURE, hex"df75fb3b", 0x41

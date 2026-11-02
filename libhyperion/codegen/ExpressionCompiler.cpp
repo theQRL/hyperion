@@ -1285,7 +1285,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			hypAssert(arguments.size() == 1, "");
 
 			// Fetch requested length.
-			acceptAndConvert(*arguments[0], *TypeProvider::uint256());
+			acceptAndConvert(*arguments[0], *TypeProvider::uint(VMWordBits));
 
 			// Make sure we can allocate memory without overflow
 			m_context << u256(0xffffffffffffffff);
@@ -2260,7 +2260,7 @@ bool ExpressionCompiler::visit(IndexAccess const& _indexAccess)
 			);
 			hypAssert(_indexAccess.indexExpression(), "Index expression expected.");
 
-			acceptAndConvert(*_indexAccess.indexExpression(), *TypeProvider::uint256(), true);
+			acceptAndConvert(*_indexAccess.indexExpression(), *TypeProvider::uint(VMWordBits), true);
 			ArrayUtils(m_context).accessCallDataArrayElement(arrayType);
 			break;
 
@@ -2270,7 +2270,7 @@ bool ExpressionCompiler::visit(IndexAccess const& _indexAccess)
 			ArrayType const& arrayType = dynamic_cast<ArrayType const&>(baseType);
 			hypAssert(_indexAccess.indexExpression(), "Index expression expected.");
 
-			acceptAndConvert(*_indexAccess.indexExpression(), *TypeProvider::uint256(), true);
+			acceptAndConvert(*_indexAccess.indexExpression(), *TypeProvider::uint(VMWordBits), true);
 			// stack layout: <base_ref> [<length>] <index>
 			switch (arrayType.location())
 			{
@@ -2299,7 +2299,7 @@ bool ExpressionCompiler::visit(IndexAccess const& _indexAccess)
 			FixedBytesType const& fixedBytesType = dynamic_cast<FixedBytesType const&>(baseType);
 			hypAssert(_indexAccess.indexExpression(), "Index expression expected.");
 
-			acceptAndConvert(*_indexAccess.indexExpression(), *TypeProvider::uint256(), true);
+			acceptAndConvert(*_indexAccess.indexExpression(), *TypeProvider::uint(VMWordBits), true);
 			// stack layout: <value> <index>
 			// check out-of-bounds access
 			m_context << u256(fixedBytesType.numBytes());
@@ -2347,7 +2347,7 @@ bool ExpressionCompiler::visit(IndexRangeAccess const& _indexAccess)
 	);
 
 	if (_indexAccess.startExpression())
-		acceptAndConvert(*_indexAccess.startExpression(), *TypeProvider::uint256());
+		acceptAndConvert(*_indexAccess.startExpression(), *TypeProvider::uint(VMWordBits));
 	else
 		m_context << u256(0);
 	// stack: offset length sliceStart
@@ -2356,7 +2356,7 @@ bool ExpressionCompiler::visit(IndexRangeAccess const& _indexAccess)
 	// stack: offset sliceStart length
 
 	if (_indexAccess.endExpression())
-		acceptAndConvert(*_indexAccess.endExpression(), *TypeProvider::uint256());
+		acceptAndConvert(*_indexAccess.endExpression(), *TypeProvider::uint(VMWordBits));
 	else
 		m_context << Instruction::DUP1;
 	// stack: offset sliceStart length sliceEnd

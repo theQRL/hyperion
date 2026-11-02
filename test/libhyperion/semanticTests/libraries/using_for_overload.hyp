@@ -13,5 +13,5 @@ contract C {
 }
 // ----
 // library: D
-// f(uint256): 7 -> 0x2a
+// f(uint512): 7 -> 0x2a
 // x() -> 0x2a

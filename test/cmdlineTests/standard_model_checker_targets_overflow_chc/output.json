@@ -4,7 +4,7 @@
         {
             "component": "general",
             "errorCode": "4984",
-            "formattedMessage": "Warning: CHC: Overflow (resulting value larger than 2**256 - 1) happens here.
+            "formattedMessage": "Warning: CHC: Overflow (resulting value larger than 2**512 - 1) happens here.
 Counterexample:
 arr = []
 a = 0x0
@@ -20,7 +20,7 @@ test.f(0x0, 2)
   | \t\t\t\t\t\t^^^^^^^^^^^^^^^^^^
 
 ",
-            "message": "CHC: Overflow (resulting value larger than 2**256 - 1) happens here.
+            "message": "CHC: Overflow (resulting value larger than 2**512 - 1) happens here.
 Counterexample:
 arr = []
 a = 0x0

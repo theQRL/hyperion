@@ -4,13 +4,13 @@
         {
             "component": "general",
             "errorCode": "2661",
-            "formattedMessage": "Warning: BMC: Overflow (resulting value larger than 2**256 - 1) happens here.
+            "formattedMessage": "Warning: BMC: Overflow (resulting value larger than 2**512 - 1) happens here.
  --> A:9:7:
   |
 9 | \t\t\t\t\t\tx + type(uint).max;
   | \t\t\t\t\t\t^^^^^^^^^^^^^^^^^^
 Note: Counterexample:
-  <result> = 2**256
+  <result> = 2**512
   a = 0
   x = 1
 
@@ -18,12 +18,12 @@ Note: Callstack:
 Note:
 
 ",
-            "message": "BMC: Overflow (resulting value larger than 2**256 - 1) happens here.",
+            "message": "BMC: Overflow (resulting value larger than 2**512 - 1) happens here.",
             "secondarySourceLocations":
             [
                 {
                     "message": "Counterexample:
-  <result> = 2**256
+  <result> = 2**512
   a = 0
   x = 1
 "

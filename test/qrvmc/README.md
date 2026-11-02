@@ -9,4 +9,5 @@ a test engine built against a different QRVMC ABI version.
 Local changes:
 
 - `MockedAccount.storage` is a `map` instead of an `unordered_map`, as ordering is important for fuzzing.
+- `MockedAccount.nonce` is `uint64_t` to match go-qrl's account nonce range.
 - A spelling mistake in a `qrvmc.h` comment is fixed for the codespell check.

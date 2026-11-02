@@ -1152,7 +1152,7 @@ void TypeChecker::endVisit(TryStatement const& _tryStatement)
 				if (
 					!clause.parameters() ||
 					clause.parameters()->parameters().size() != 1 ||
-					*clause.parameters()->parameters().front()->type() != *TypeProvider::uint256()
+					*clause.parameters()->parameters().front()->type() != *TypeProvider::uint(VMWordBits)
 				)
 					m_errorReporter.typeError(1271_error, clause.location(), "Expected `catch Panic(uint ...) { ... }`.");
 			}
@@ -2992,7 +2992,7 @@ void TypeChecker::endVisit(NewExpression const& _newExpression)
 			);
 		type = TypeProvider::withLocationIfReference(DataLocation::Memory, type);
 		_newExpression.annotation().type = TypeProvider::function(
-			TypePointers{TypeProvider::uint256()},
+			TypePointers{TypeProvider::uint(VMWordBits)},
 			TypePointers{type},
 			strings(1, ""),
 			strings(1, ""),
@@ -3304,7 +3304,7 @@ bool TypeChecker::visit(IndexAccess const& _access)
 		}
 		else
 		{
-			expectType(*index, *TypeProvider::uint256());
+			expectType(*index, *TypeProvider::uint(VMWordBits));
 			if (!m_errorReporter.hasErrors())
 				if (auto numberType = dynamic_cast<RationalNumberType const*>(type(*index)))
 				{
@@ -3339,6 +3339,9 @@ bool TypeChecker::visit(IndexAccess const& _access)
 		else
 		{
 			u256 length = 1;
+			// The length of an array *type* is stored as a u256, and
+			// DeclarationTypeChecker caps it at 2**256 - 1, so the index
+			// expression has to fit into uint256 rather than a full VM word.
 			if (expectType(*index, *TypeProvider::uint256()))
 			{
 				if (auto indexValue = dynamic_cast<RationalNumberType const*>(type(*index)))
@@ -3364,7 +3367,7 @@ bool TypeChecker::visit(IndexAccess const& _access)
 			m_errorReporter.typeError(8830_error, _access.location(), "Index expression cannot be omitted.");
 		else
 		{
-			if (!expectType(*index, *TypeProvider::uint256()))
+			if (!expectType(*index, *TypeProvider::uint(VMWordBits)))
 				m_errorReporter.fatalTypeError(6318_error, _access.location(), "Index expression cannot be represented as an unsigned integer.");
 			if (auto integerType = dynamic_cast<RationalNumberType const*>(type(*index)))
 				if (bytesType.numBytes() <= integerType->literalValue(nullptr))
@@ -3400,13 +3403,13 @@ bool TypeChecker::visit(IndexRangeAccess const& _access)
 
 	if (Expression const* start = _access.startExpression())
 	{
-		expectType(*start, *TypeProvider::uint256());
+		expectType(*start, *TypeProvider::uint(VMWordBits));
 		if (!*start->annotation().isPure)
 			isPure = false;
 	}
 	if (Expression const* end = _access.endExpression())
 	{
-		expectType(*end, *TypeProvider::uint256());
+		expectType(*end, *TypeProvider::uint(VMWordBits));
 		if (!*end->annotation().isPure)
 			isPure = false;
 	}

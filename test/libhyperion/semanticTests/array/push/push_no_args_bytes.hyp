@@ -20,12 +20,12 @@ contract C {
 }
 // ----
 // l() -> 0
-// g(uint256): 70 ->
+// g(uint512): 70 ->
 // gas irOptimized: 180849
-// gas legacy: 151261
+// gas legacy: 151275
 // gas legacyOptimized: 175005
 // l() -> 70
-// a(uint256): 69 -> left(69)
+// a(uint512): 69 -> left(69)
 // f() ->
 // l() -> 71
-// a(uint256): 70 -> 0
+// a(uint512): 70 -> 0

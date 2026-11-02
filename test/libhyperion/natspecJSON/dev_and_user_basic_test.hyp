@@ -11,7 +11,7 @@ contract test {
 //     "kind": "dev",
 //     "methods":
 //     {
-//         "mul(uint256)":
+//         "mul(uint512)":
 //         {
 //             "details": "Multiplies a number by 7"
 //         }
@@ -24,7 +24,7 @@ contract test {
 //     "kind": "user",
 //     "methods":
 //     {
-//         "mul(uint256)":
+//         "mul(uint512)":
 //         {
 //             "notice": "Multiplies `a` by 7"
 //         }

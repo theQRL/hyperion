@@ -13,7 +13,7 @@ test.f(0x0, 0)
 7 | 		--x;
   | 		^^^
 
-Warning: CHC: Overflow (resulting value larger than 2**256 - 1) happens here.
+Warning: CHC: Overflow (resulting value larger than 2**512 - 1) happens here.
 Counterexample:
 arr = []
 a = 0x0

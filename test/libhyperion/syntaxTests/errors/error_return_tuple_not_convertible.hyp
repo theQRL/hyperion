@@ -7,4 +7,4 @@ contract C {
 }
 
 // ----
-// TypeError 5992: (116-151): Return argument type tuple(error MyCustomError(uint256,bool),int_const 8,error MyCustomError(uint256,bool)) is not implicitly convertible to expected type tuple(uint8,uint8,int256).
+// TypeError 5992: (116-151): Return argument type tuple(error MyCustomError(uint512,bool),int_const 8,error MyCustomError(uint512,bool)) is not implicitly convertible to expected type tuple(uint8,uint8,int512).

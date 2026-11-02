@@ -27,15 +27,15 @@ abstract contract ManagedAccountInterface {
     // If true, only the owner of the account can receive quanta from it
     bool public payOwnerOnly;
     // The sum of quanta (in planck) which has been sent to this contract
-    uint public accumulatedInput;
+    uint256 public accumulatedInput;
 
     /// @notice Sends `_amount` of planck to _recipient
     /// @param _amount The amount of planck to send to `_recipient`
     /// @param _recipient The address to receive `_amount` of planck
     /// @return True if the send completed
-    function payOut(address payable _recipient, uint _amount) public virtual returns (bool);
+    function payOut(address payable _recipient, uint256 _amount) public virtual returns (bool);
 
-    event PayOut(address indexed _recipient, uint _amount);
+    event PayOut(address indexed _recipient, uint256 _amount);
 }
 
 
@@ -54,7 +54,7 @@ contract ManagedAccount is ManagedAccountInterface{
         accumulatedInput += msg.value;
     }
 
-    function payOut(address payable _recipient, uint _amount) public override returns (bool) {
+    function payOut(address payable _recipient, uint256 _amount) public override returns (bool) {
         if (msg.sender != owner || (payOwnerOnly && _recipient != owner))
             revert();
         (bool success,) = _recipient.call{value: _amount}("");

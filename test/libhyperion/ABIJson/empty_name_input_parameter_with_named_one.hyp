@@ -12,28 +12,28 @@ contract test {
 //     "inputs":
 //     [
 //       {
-//         "internalType": "uint256",
+//         "internalType": "uint512",
 //         "name": "",
-//         "type": "uint256"
+//         "type": "uint512"
 //       },
 //       {
-//         "internalType": "uint256",
+//         "internalType": "uint512",
 //         "name": "k",
-//         "type": "uint256"
+//         "type": "uint512"
 //       }
 //     ],
 //     "name": "f",
 //     "outputs":
 //     [
 //       {
-//         "internalType": "uint256",
+//         "internalType": "uint512",
 //         "name": "ret_k",
-//         "type": "uint256"
+//         "type": "uint512"
 //       },
 //       {
-//         "internalType": "uint256",
+//         "internalType": "uint512",
 //         "name": "ret_g",
-//         "type": "uint256"
+//         "type": "uint512"
 //       }
 //     ],
 //     "stateMutability": "nonpayable",

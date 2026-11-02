@@ -5,4 +5,4 @@ contract C {
 // ====
 // revertStrings: debug
 // ----
-// e(bytes): 0x20, 7 -> FAILURE, hex"4e487b71", 0x41
+// e(bytes): 0x20, 7 -> FAILURE, hex"df75fb3b", 0x41

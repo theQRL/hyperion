@@ -24,29 +24,29 @@ contract Large {
 }
 // ----
 // creation:
-//   codeDepositCost: 1169200
-//   executionCost: 617
-//   totalCost: 1169817
+//   codeDepositCost: 762800
+//   executionCost: 416
+//   totalCost: 763216
 // external:
-//   a(): 2509
-//   b(uint256): infinite
-//   f0(uint256): infinite
-//   f1(uint256): infinite
-//   f2(uint256): infinite
-//   f3(uint256): infinite
-//   f4(uint256): infinite
-//   f5(uint256): infinite
-//   f6(uint256): infinite
-//   f7(uint256): infinite
-//   f8(uint256): infinite
-//   f9(uint256): infinite
-//   g0(uint256): infinite
-//   g1(uint256): infinite
-//   g2(uint256): infinite
-//   g3(uint256): infinite
-//   g4(uint256): infinite
-//   g5(uint256): infinite
-//   g6(uint256): infinite
-//   g7(uint256): infinite
-//   g8(uint256): infinite
-//   g9(uint256): infinite
+//   a(): 2470
+//   b(uint512): infinite
+//   f0(uint512): infinite
+//   f1(uint512): infinite
+//   f2(uint512): infinite
+//   f3(uint512): infinite
+//   f4(uint512): infinite
+//   f5(uint512): infinite
+//   f6(uint512): infinite
+//   f7(uint512): infinite
+//   f8(uint512): infinite
+//   f9(uint512): infinite
+//   g0(uint512): infinite
+//   g1(uint512): infinite
+//   g2(uint512): infinite
+//   g3(uint512): infinite
+//   g4(uint512): infinite
+//   g5(uint512): infinite
+//   g6(uint512): infinite
+//   g7(uint512): infinite
+//   g8(uint512): infinite
+//   g9(uint512): infinite

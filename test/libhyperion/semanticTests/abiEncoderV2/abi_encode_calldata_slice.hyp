@@ -1,30 +1,30 @@
 pragma abicoder               v2;
 contract C {
-	function enc_packed_bytes(bytes calldata data, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_packed_bytes(bytes calldata data, uint start, uint end) external returns (bytes memory) {
 		return abi.encodePacked(data[start:end]);
 	}
-	function enc_packed_bytes_reference(bytes calldata data, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_packed_bytes_reference(bytes calldata data, uint start, uint end) external returns (bytes memory) {
 		return abi.encodePacked(bytes(data[start:end]));
 	}
 
-	function enc_bytes(bytes calldata data, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_bytes(bytes calldata data, uint start, uint end) external returns (bytes memory) {
 		return abi.encode(data[start:end]);
 	}
-	function enc_bytes_reference(bytes calldata data, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_bytes_reference(bytes calldata data, uint start, uint end) external returns (bytes memory) {
 		return abi.encode(bytes(data[start:end]));
 	}
 
-	function enc_uint256(uint256[] calldata x, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_uint256(uint256[] calldata x, uint start, uint end) external returns (bytes memory) {
 		return abi.encode(x[start:end]);
 	}
-	function enc_uint256_reference(uint256[] calldata x, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_uint256_reference(uint256[] calldata x, uint start, uint end) external returns (bytes memory) {
 		return abi.encode(x[start:end]);
 	}
 
-	function enc_packed_uint256(uint256[] calldata x, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_packed_uint256(uint256[] calldata x, uint start, uint end) external returns (bytes memory) {
 		return abi.encodePacked(x[start:end]);
 	}
-	function enc_packed_uint256_reference(uint256[] calldata x, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_packed_uint256_reference(uint256[] calldata x, uint start, uint end) external returns (bytes memory) {
 		return abi.encodePacked(x[start:end]);
 	}
 
@@ -59,9 +59,9 @@ contract C {
 // ----
 // test_bytes() ->
 // gas irOptimized: 321332
-// gas legacy: 717329
+// gas legacy: 726058
 // gas legacyOptimized: 269317
 // test_uint256() ->
 // gas irOptimized: 447646
-// gas legacy: 681877
+// gas legacy: 713802
 // gas legacyOptimized: 365410

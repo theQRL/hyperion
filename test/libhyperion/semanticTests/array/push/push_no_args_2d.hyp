@@ -26,20 +26,20 @@ contract C {
 }
 // ----
 // l() -> 0
-// f(uint256,uint256): 42, 64 ->
+// f(uint512,uint512): 42, 64 ->
 // gas irOptimized: 112266
-// gas legacy: 158631
+// gas legacy: 108512
 // gas legacyOptimized: 101897
 // l() -> 1
-// ll(uint256): 0 -> 43
-// a(uint256,uint256): 0, 42 -> 64
-// f(uint256,uint256): 84, 128 ->
+// ll(uint512): 0 -> 43
+// a(uint512,uint512): 0, 42 -> 64
+// f(uint512,uint512): 84, 128 ->
 // gas irOptimized: 118686
-// gas legacy: 210873
+// gas legacy: 110816
 // gas legacyOptimized: 96331
 // l() -> 2
-// ll(uint256): 1 -> 85
-// a(uint256,uint256): 0, 42 -> 64
-// a(uint256,uint256): 1, 84 -> 128
-// lv(uint256): 512 ->
-// a(uint256,uint256): 2, 0 -> 512
+// ll(uint512): 1 -> 85
+// a(uint512,uint512): 0, 42 -> 64
+// a(uint512,uint512): 1, 84 -> 128
+// lv(uint512): 512 ->
+// a(uint512,uint512): 2, 0 -> 512

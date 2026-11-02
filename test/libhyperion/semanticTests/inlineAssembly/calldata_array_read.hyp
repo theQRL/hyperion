@@ -7,4 +7,4 @@ contract C {
     }
 }
 // ----
-// f(uint256[2][]): 0x20, 2, 1, 2, 3, 4 -> FAILURE
+// f(uint512[2][]): 0x20, 2, 1, 2, 3, 4 -> FAILURE

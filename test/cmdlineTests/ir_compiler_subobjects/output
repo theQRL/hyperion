@@ -57,7 +57,7 @@ object "D_16" {
                         if or(gt(_3, 0xffffffffffffffff), lt(_3, _1))
                         {
                             /// @src 0:96:165  "contract D {..."
-                            mstore(0, shl(480, 0x4e487b71))
+                            mstore(0, shl(480, 0xdf75fb3b))
                             mstore(4, 0x41)
                             revert(0, 0x44)
                         }

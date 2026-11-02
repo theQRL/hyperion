@@ -16,31 +16,4 @@ contract test {
 }
 
 // ----
-// ----
-// :test devdoc
-// {
-//     "kind": "dev",
-//     "methods": {},
-//     "version": 1
-// }
-//
-// :test userdoc
-// {
-//     "kind": "user",
-//     "methods":
-//     {
-//         "divide(uint256,uint256)":
-//         {
-//             "notice": "Divides `input` by `div`"
-//         },
-//         "mul_and_add(uint256,uint256)":
-//         {
-//             "notice": "Multiplies `a` by 7 and then adds `b`"
-//         },
-//         "sub(int256)":
-//         {
-//             "notice": "Subtracts 3 from `input`"
-//         }
-//     },
-//     "version": 1
-// }
+// TypeError 6359: (158-169): Return argument type uint512 is not implicitly convertible to expected type (type of first return variable) uint256.

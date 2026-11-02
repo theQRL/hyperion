@@ -15,7 +15,7 @@
                             "label": "array1",
                             "offset": 0,
                             "slot": "0",
-                            "type": "t_array(t_uint256)dyn_storage"
+                            "type": "t_array(t_uint512)dyn_storage"
                         },
                         {
                             "astId": 7,
@@ -35,11 +35,11 @@
                             "label": "bool[]",
                             "numberOfBytes": "64"
                         },
-                        "t_array(t_uint256)dyn_storage":
+                        "t_array(t_uint512)dyn_storage":
                         {
-                            "base": "t_uint256",
+                            "base": "t_uint512",
                             "encoding": "dynamic_array",
-                            "label": "uint256[]",
+                            "label": "uint512[]",
                             "numberOfBytes": "64"
                         },
                         "t_bool":
@@ -48,11 +48,11 @@
                             "label": "bool",
                             "numberOfBytes": "1"
                         },
-                        "t_uint256":
+                        "t_uint512":
                         {
                             "encoding": "inplace",
-                            "label": "uint256",
-                            "numberOfBytes": "32"
+                            "label": "uint512",
+                            "numberOfBytes": "64"
                         }
                     }
                 }

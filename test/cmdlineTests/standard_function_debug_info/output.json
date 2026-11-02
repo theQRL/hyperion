@@ -18,44 +18,44 @@
                                 "parameterSlots": 1,
                                 "returnSlots": 1
                             },
-                            "abi_decode_available_length_t_array$_t_uint256_$dyn_memory_ptr":
+                            "abi_decode_available_length_t_array$_t_uint512_$dyn_memory_ptr":
                             {
-                                "entryPoint": 523,
+                                "entryPoint": 489,
                                 "id": null,
                                 "parameterSlots": 3,
                                 "returnSlots": 1
                             },
-                            "abi_decode_t_array$_t_uint256_$dyn_memory_ptr":
+                            "abi_decode_t_array$_t_uint512_$dyn_memory_ptr":
                             {
-                                "entryPoint": 636,
+                                "entryPoint": 602,
                                 "id": null,
                                 "parameterSlots": 2,
                                 "returnSlots": 1
                             },
-                            "abi_decode_t_uint256":
+                            "abi_decode_t_uint512":
                             {
-                                "entryPoint": 503,
+                                "entryPoint": 469,
                                 "id": null,
                                 "parameterSlots": 2,
                                 "returnSlots": 1
                             },
-                            "abi_decode_tuple_t_array$_t_uint256_$dyn_memory_ptr":
+                            "abi_decode_tuple_t_array$_t_uint512_$dyn_memory_ptr":
                             {
-                                "entryPoint": 681,
+                                "entryPoint": 647,
                                 "id": null,
                                 "parameterSlots": 2,
                                 "returnSlots": 1
                             },
-                            "abi_encode_t_uint256_to_t_uint256_fromStack":
+                            "abi_encode_t_uint512_to_t_uint512_fromStack":
                             {
-                                "entryPoint": 752,
+                                "entryPoint": 718,
                                 "id": null,
                                 "parameterSlots": 2,
                                 "returnSlots": 0
                             },
-                            "abi_encode_tuple_t_uint256__to_t_uint256__fromStack_reversed":
+                            "abi_encode_tuple_t_uint512__to_t_uint512__fromStack_reversed":
                             {
-                                "entryPoint": 767,
+                                "entryPoint": 733,
                                 "id": null,
                                 "parameterSlots": 2,
                                 "returnSlots": 1
@@ -74,21 +74,21 @@
                                 "parameterSlots": 0,
                                 "returnSlots": 1
                             },
-                            "array_allocation_size_t_array$_t_uint256_$dyn_memory_ptr":
+                            "array_allocation_size_t_array$_t_uint512_$dyn_memory_ptr":
                             {
                                 "entryPoint": 376,
                                 "id": null,
                                 "parameterSlots": 1,
                                 "returnSlots": 1
                             },
-                            "checked_add_t_uint256":
+                            "checked_add_t_uint512":
                             {
-                                "entryPoint": 898,
+                                "entryPoint": 864,
                                 "id": null,
                                 "parameterSlots": 2,
                                 "returnSlots": 1
                             },
-                            "cleanup_t_uint256":
+                            "cleanup_t_uint512":
                             {
                                 "entryPoint": 419,
                                 "id": null,
@@ -104,14 +104,14 @@
                             },
                             "panic_error_0x11":
                             {
-                                "entryPoint": 845,
+                                "entryPoint": 811,
                                 "id": null,
                                 "parameterSlots": 0,
                                 "returnSlots": 0
                             },
                             "panic_error_0x32":
                             {
-                                "entryPoint": 792,
+                                "entryPoint": 758,
                                 "id": null,
                                 "parameterSlots": 0,
                                 "returnSlots": 0
@@ -132,7 +132,7 @@
                             },
                             "revert_error_81385d8c0b31fffe14be1da910c8bd3a80be4cfa248e04f42ec0faea3132a8ef":
                             {
-                                "entryPoint": 477,
+                                "entryPoint": 443,
                                 "id": null,
                                 "parameterSlots": 0,
                                 "returnSlots": 0
@@ -165,16 +165,16 @@
                                 "parameterSlots": 1,
                                 "returnSlots": 1
                             },
-                            "validator_revert_t_uint256":
+                            "validator_revert_t_uint512":
                             {
-                                "entryPoint": 481,
+                                "entryPoint": 447,
                                 "id": null,
                                 "parameterSlots": 1,
                                 "returnSlots": 0
                             },
-                            "write_to_memory_t_uint256":
+                            "write_to_memory_t_uint512":
                             {
-                                "entryPoint": 462,
+                                "entryPoint": 428,
                                 "id": null,
                                 "parameterSlots": 2,
                                 "returnSlots": 0
@@ -192,44 +192,44 @@
                                 "parameterSlots": 1,
                                 "returnSlots": 1
                             },
-                            "abi_decode_available_length_t_array$_t_uint256_$dyn_memory_ptr":
+                            "abi_decode_available_length_t_array$_t_uint512_$dyn_memory_ptr":
                             {
-                                "entryPoint": 493,
+                                "entryPoint": 459,
                                 "id": null,
                                 "parameterSlots": 3,
                                 "returnSlots": 1
                             },
-                            "abi_decode_t_array$_t_uint256_$dyn_memory_ptr":
+                            "abi_decode_t_array$_t_uint512_$dyn_memory_ptr":
                             {
-                                "entryPoint": 606,
+                                "entryPoint": 572,
                                 "id": null,
                                 "parameterSlots": 2,
                                 "returnSlots": 1
                             },
-                            "abi_decode_t_uint256":
+                            "abi_decode_t_uint512":
                             {
-                                "entryPoint": 473,
+                                "entryPoint": 439,
                                 "id": null,
                                 "parameterSlots": 2,
                                 "returnSlots": 1
                             },
-                            "abi_decode_tuple_t_array$_t_uint256_$dyn_memory_ptr":
+                            "abi_decode_tuple_t_array$_t_uint512_$dyn_memory_ptr":
                             {
-                                "entryPoint": 651,
+                                "entryPoint": 617,
                                 "id": null,
                                 "parameterSlots": 2,
                                 "returnSlots": 1
                             },
-                            "abi_encode_t_uint256_to_t_uint256_fromStack":
+                            "abi_encode_t_uint512_to_t_uint512_fromStack":
                             {
-                                "entryPoint": 722,
+                                "entryPoint": 688,
                                 "id": null,
                                 "parameterSlots": 2,
                                 "returnSlots": 0
                             },
-                            "abi_encode_tuple_t_uint256__to_t_uint256__fromStack_reversed":
+                            "abi_encode_tuple_t_uint512__to_t_uint512__fromStack_reversed":
                             {
-                                "entryPoint": 737,
+                                "entryPoint": 703,
                                 "id": null,
                                 "parameterSlots": 2,
                                 "returnSlots": 1
@@ -248,21 +248,21 @@
                                 "parameterSlots": 0,
                                 "returnSlots": 1
                             },
-                            "array_allocation_size_t_array$_t_uint256_$dyn_memory_ptr":
+                            "array_allocation_size_t_array$_t_uint512_$dyn_memory_ptr":
                             {
                                 "entryPoint": 346,
                                 "id": null,
                                 "parameterSlots": 1,
                                 "returnSlots": 1
                             },
-                            "checked_add_t_uint256":
+                            "checked_add_t_uint512":
                             {
-                                "entryPoint": 868,
+                                "entryPoint": 834,
                                 "id": null,
                                 "parameterSlots": 2,
                                 "returnSlots": 1
                             },
-                            "cleanup_t_uint256":
+                            "cleanup_t_uint512":
                             {
                                 "entryPoint": 389,
                                 "id": null,
@@ -278,14 +278,14 @@
                             },
                             "panic_error_0x11":
                             {
-                                "entryPoint": 815,
+                                "entryPoint": 781,
                                 "id": null,
                                 "parameterSlots": 0,
                                 "returnSlots": 0
                             },
                             "panic_error_0x32":
                             {
-                                "entryPoint": 762,
+                                "entryPoint": 728,
                                 "id": null,
                                 "parameterSlots": 0,
                                 "returnSlots": 0
@@ -306,7 +306,7 @@
                             },
                             "revert_error_81385d8c0b31fffe14be1da910c8bd3a80be4cfa248e04f42ec0faea3132a8ef":
                             {
-                                "entryPoint": 447,
+                                "entryPoint": 413,
                                 "id": null,
                                 "parameterSlots": 0,
                                 "returnSlots": 0
@@ -339,16 +339,16 @@
                                 "parameterSlots": 1,
                                 "returnSlots": 1
                             },
-                            "validator_revert_t_uint256":
+                            "validator_revert_t_uint512":
                             {
-                                "entryPoint": 451,
+                                "entryPoint": 417,
                                 "id": null,
                                 "parameterSlots": 1,
                                 "returnSlots": 0
                             },
-                            "write_to_memory_t_uint256":
+                            "write_to_memory_t_uint512":
                             {
-                                "entryPoint": 432,
+                                "entryPoint": 398,
                                 "id": null,
                                 "parameterSlots": 2,
                                 "returnSlots": 0

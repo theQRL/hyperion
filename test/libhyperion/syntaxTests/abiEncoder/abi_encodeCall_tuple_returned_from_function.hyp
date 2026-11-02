@@ -19,4 +19,4 @@ contract C {
 // TypeError 6473: (331-335): Tuple component cannot be empty.
 // TypeError 7788: (306-337): Expected 0 instead of 1 components for the tuple parameter.
 // TypeError 7788: (347-378): Expected 2 instead of 1 components for the tuple parameter.
-// TypeError 5407: (372-376): Cannot implicitly convert component at position 0 from "tuple(uint256,uint256)" to "uint256".
+// TypeError 5407: (372-376): Cannot implicitly convert component at position 0 from "tuple(uint512,uint512)" to "uint512".

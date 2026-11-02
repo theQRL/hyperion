@@ -47,7 +47,7 @@ contract C {
 // ====
 // revertStrings: debug
 // ----
-// f(bytes): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE, hex"4e487b71", 0x41
+// f(bytes): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE, hex"df75fb3b", 0x41
 // g(bytes): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array length"
 // h(bytes): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array length"
 // j(bytes): 0x20, 32, "abcdabcdabcdabcdabcdabcdabcdabcd" -> FAILURE, hex"08c379a0", 0x40, 0x2b, "ABI decoding: invalid calldata array length"

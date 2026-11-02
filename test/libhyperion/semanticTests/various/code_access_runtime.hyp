@@ -21,4 +21,4 @@ contract C {
 }
 // ----
 // test() -> 42
-// gas legacy: 116112
+// gas legacy: 116118

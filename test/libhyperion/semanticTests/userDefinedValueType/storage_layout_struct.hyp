@@ -153,26 +153,26 @@ contract C {
 // ----
 // storage_a() -> 0, 0
 // set_a(int64,int64): 100, 200 ->
-// read_slot(uint256): 0 -> 0xc80000000000000064
+// read_slot(uint512): 0 -> 0xc80000000000000064
 // storage_ra() -> 1, 0
 // set_ra(int64,int64): 100, 200 ->
-// read_slot(uint256): 1 -> 0xc80000000000000064
+// read_slot(uint512): 1 -> 0xc80000000000000064
 // storage_b() -> 2, 0
 // set_b(int64,int64): 0, 200 ->
-// read_slot(uint256): 2 -> 3689348814741910323200
+// read_slot(uint512): 2 -> 3689348814741910323200
 // storage_rb() -> 3, 0
 // set_rb(int64,int64): 0, 200 ->
-// read_slot(uint256): 3 -> 3689348814741910323200
+// read_slot(uint512): 3 -> 3689348814741910323200
 // storage_c() -> 4, 0
 // set_c(int64,int64): 100, 0 ->
-// read_slot(uint256): 4 -> 0x64
+// read_slot(uint512): 4 -> 0x64
 // storage_rc() -> 5, 0
 // set_rc(int64,int64): 100, 0 ->
-// read_slot(uint256): 5 -> 0x64
+// read_slot(uint512): 5 -> 0x64
 // storage_d() -> 6, 0
 // set_d(int96,address): 39614081257132168796771975167, 1461501637330902918203684832716283019655932542975 ->
-// read_slot(uint256): 6 -> 0x7fffffffffffffffffffffff
+// read_slot(uint512): 6 -> 0x7fffffffffffffffffffffff
 // storage_rd() -> 8, 0
 // set_rd(int96,address): 39614081257132168796771975167, 1461501637330902918203684832716283019655932542975 ->
-// read_slot(uint256): 7 -> 0xffffffffffffffffffffffffffffffffffffffff
+// read_slot(uint512): 7 -> 0xffffffffffffffffffffffffffffffffffffffff
 // read_contents_asm() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000, 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0000000000000000000000000000000000000000000000000000000000000000, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000

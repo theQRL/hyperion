@@ -6,7 +6,7 @@ contract C {
     }
 }
 // ----
-// a(uint256,uint256): 0, 0 -> FAILURE
-// a(uint256,uint256): 1, 0 -> 3
-// a(uint256,uint256): 1, 1 -> 4
-// a(uint256,uint256): 2, 0 -> FAILURE
+// a(uint512,uint512): 0, 0 -> FAILURE
+// a(uint512,uint512): 1, 0 -> 3
+// a(uint512,uint512): 1, 1 -> 4
+// a(uint512,uint512): 2, 0 -> FAILURE

@@ -4,4 +4,4 @@ contract test {
     }
 }
 // ----
-// run(bool,uint256): true, 0xcd -> 0xcd, true, 0
+// run(bool,uint512): true, 0xcd -> 0xcd, true, 0

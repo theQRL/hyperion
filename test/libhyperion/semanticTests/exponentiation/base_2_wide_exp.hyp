@@ -21,8 +21,8 @@ contract test {
 // pow2(uint16): 0 -> 1
 // pow2(uint16): 1 -> 2
 // pow2(uint16): 511 -> 0x80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-// pow2(uint16): 512 -> FAILURE, hex"4e487b71", 0x11 # 2**512 does not fit in uint512 #
-// pow2(uint16): 513 -> FAILURE, hex"4e487b71", 0x11
+// pow2(uint16): 512 -> FAILURE, hex"df75fb3b", 0x11 # 2**512 does not fit in uint512 #
+// pow2(uint16): 513 -> FAILURE, hex"df75fb3b", 0x11
 // matchesShift(uint16): 0 -> true
 // matchesShift(uint16): 255 -> true
 // matchesShift(uint16): 256 -> true # regression: stale 255 guard panicked here #

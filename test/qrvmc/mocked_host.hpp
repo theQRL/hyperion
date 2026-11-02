@@ -46,7 +46,7 @@ struct StorageValue
 struct MockedAccount
 {
     /// The account nonce.
-    int nonce = 0;
+    uint64_t nonce = 0;
 
     /// The account code.
     bytes code;

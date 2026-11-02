@@ -56,8 +56,8 @@
                     "storageLocation": "default",
                     "typeDescriptions":
                     {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
+                      "typeIdentifier": "t_uint512",
+                      "typeString": "uint512"
                     },
                     "typeName":
                     {
@@ -67,8 +67,8 @@
                       "src": "35:4:1",
                       "typeDescriptions":
                       {
-                        "typeIdentifier": "t_uint256",
-                        "typeString": "uint256"
+                        "typeIdentifier": "t_uint512",
+                        "typeString": "uint512"
                       }
                     },
                     "visibility": "internal"

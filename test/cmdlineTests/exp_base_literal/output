@@ -42,9 +42,9 @@ object "C_81" {
                 let selector := shift_right_480_unsigned(calldataload(0))
                 switch selector
 
-                case 0x70cb9605
+                case 0x30f4b154
                 {
-                    // f(uint256,uint256,uint256,uint256)
+                    // f(uint512,uint512,uint512,uint512)
 
                     external_fun_f_80()
                 }
@@ -75,84 +75,84 @@ object "C_81" {
                 revert(0, 0)
             }
 
-            function cleanup_t_uint256(value) -> cleaned {
-                cleaned := and(value, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+            function cleanup_t_uint512(value) -> cleaned {
+                cleaned := value
             }
 
-            function validator_revert_t_uint256(value) {
-                if iszero(eq(value, cleanup_t_uint256(value))) { revert(0, 0) }
+            function validator_revert_t_uint512(value) {
+                if iszero(eq(value, cleanup_t_uint512(value))) { revert(0, 0) }
             }
 
-            function abi_decode_t_uint256(offset, end) -> value {
+            function abi_decode_t_uint512(offset, end) -> value {
                 value := calldataload(offset)
-                validator_revert_t_uint256(value)
+                validator_revert_t_uint512(value)
             }
 
-            function abi_decode_tuple_t_uint256t_uint256t_uint256t_uint256(headStart, dataEnd) -> value0, value1, value2, value3 {
+            function abi_decode_tuple_t_uint512t_uint512t_uint512t_uint512(headStart, dataEnd) -> value0, value1, value2, value3 {
                 if slt(sub(dataEnd, headStart), 256) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
 
                 {
 
                     let offset := 0
 
-                    value0 := abi_decode_t_uint256(add(headStart, offset), dataEnd)
+                    value0 := abi_decode_t_uint512(add(headStart, offset), dataEnd)
                 }
 
                 {
 
                     let offset := 64
 
-                    value1 := abi_decode_t_uint256(add(headStart, offset), dataEnd)
+                    value1 := abi_decode_t_uint512(add(headStart, offset), dataEnd)
                 }
 
                 {
 
                     let offset := 128
 
-                    value2 := abi_decode_t_uint256(add(headStart, offset), dataEnd)
+                    value2 := abi_decode_t_uint512(add(headStart, offset), dataEnd)
                 }
 
                 {
 
                     let offset := 192
 
-                    value3 := abi_decode_t_uint256(add(headStart, offset), dataEnd)
+                    value3 := abi_decode_t_uint512(add(headStart, offset), dataEnd)
                 }
 
             }
 
-            function abi_encode_t_uint256_to_t_uint256_fromStack(value, pos) {
-                mstore(pos, cleanup_t_uint256(value))
+            function abi_encode_t_uint512_to_t_uint512_fromStack(value, pos) {
+                mstore(pos, cleanup_t_uint512(value))
             }
 
-            function cleanup_t_int256(value) -> cleaned {
-                cleaned := signextend(31, value)
+            function cleanup_t_int512(value) -> cleaned {
+                cleaned := value
             }
 
-            function abi_encode_t_int256_to_t_int256_fromStack(value, pos) {
-                mstore(pos, cleanup_t_int256(value))
+            function abi_encode_t_int512_to_t_int512_fromStack(value, pos) {
+                mstore(pos, cleanup_t_int512(value))
             }
 
-            function abi_encode_tuple_t_uint256_t_int256_t_uint256_t_uint256__to_t_uint256_t_int256_t_uint256_t_uint256__fromStack(headStart , value0, value1, value2, value3) -> tail {
+            function abi_encode_tuple_t_uint512_t_int512_t_uint512_t_uint512__to_t_uint512_t_int512_t_uint512_t_uint512__fromStack(headStart , value0, value1, value2, value3) -> tail {
                 tail := add(headStart, 256)
 
-                abi_encode_t_uint256_to_t_uint256_fromStack(value0,  add(headStart, 0))
+                abi_encode_t_uint512_to_t_uint512_fromStack(value0,  add(headStart, 0))
 
-                abi_encode_t_int256_to_t_int256_fromStack(value1,  add(headStart, 64))
+                abi_encode_t_int512_to_t_int512_fromStack(value1,  add(headStart, 64))
 
-                abi_encode_t_uint256_to_t_uint256_fromStack(value2,  add(headStart, 128))
+                abi_encode_t_uint512_to_t_uint512_fromStack(value2,  add(headStart, 128))
 
-                abi_encode_t_uint256_to_t_uint256_fromStack(value3,  add(headStart, 192))
+                abi_encode_t_uint512_to_t_uint512_fromStack(value3,  add(headStart, 192))
 
             }
 
             function external_fun_f_80() {
 
                 if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
-                let param_0, param_1, param_2, param_3 :=  abi_decode_tuple_t_uint256t_uint256t_uint256t_uint256(4, calldatasize())
+                let param_0, param_1, param_2, param_3 :=  abi_decode_tuple_t_uint512t_uint512t_uint512t_uint512(4, calldatasize())
                 let ret_0, ret_1, ret_2, ret_3 :=  fun_f_80(param_0, param_1, param_2, param_3)
                 let memPos := allocate_unbounded()
-                let memEnd := abi_encode_tuple_t_uint256_t_int256_t_uint256_t_uint256__to_t_uint256_t_int256_t_uint256_t_uint256__fromStack(memPos , ret_0, ret_1, ret_2, ret_3)
+                let memEnd := abi_encode_tuple_t_uint512_t_int512_t_uint512_t_uint512__to_t_uint512_t_int512_t_uint512_t_uint512__fromStack(memPos , ret_0, ret_1, ret_2, ret_3)
                 return(memPos, sub(memEnd, memPos))
 
             }
@@ -161,16 +161,20 @@ object "C_81" {
                 revert(0, 0)
             }
 
-            function zero_value_for_split_t_uint256() -> ret {
+            function zero_value_for_split_t_uint512() -> ret {
                 ret := 0
             }
 
-            function zero_value_for_split_t_int256() -> ret {
+            function zero_value_for_split_t_int512() -> ret {
                 ret := 0
             }
 
             function cleanup_t_rational_2_by_1(value) -> cleaned {
                 cleaned := value
+            }
+
+            function cleanup_t_uint256(value) -> cleaned {
+                cleaned := and(value, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
             }
 
             function identity(value) -> ret {
@@ -187,33 +191,45 @@ object "C_81" {
             }
 
             function panic_error_0x11() {
-                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+                mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
                 mstore(4, 0x11)
                 revert(0, 0x44)
             }
 
-            function checked_exp_t_rational_2_by_1_t_uint256(exponent) -> power {
-                exponent := cleanup_t_uint256(exponent)
+            function checked_exp_t_rational_2_by_1_t_uint512(exponent) -> power {
+                exponent := cleanup_t_uint512(exponent)
 
                 if gt(exponent, 255) { panic_error_0x11() }
 
                 power := exp(2, exponent)
             }
 
+            function convert_t_uint256_to_t_uint512(value) -> converted {
+                converted := cleanup_t_uint512(identity(cleanup_t_uint256(value)))
+            }
+
             function cleanup_t_rational_minus_2_by_1(value) -> cleaned {
                 cleaned := value
+            }
+
+            function cleanup_t_int256(value) -> cleaned {
+                cleaned := signextend(31, value)
             }
 
             function convert_t_rational_minus_2_by_1_to_t_int256(value) -> converted {
                 converted := cleanup_t_int256(identity(cleanup_t_rational_minus_2_by_1(value)))
             }
 
-            function checked_exp_t_rational_minus_2_by_1_t_uint256(exponent) -> power {
-                exponent := cleanup_t_uint256(exponent)
+            function checked_exp_t_rational_minus_2_by_1_t_uint512(exponent) -> power {
+                exponent := cleanup_t_uint512(exponent)
 
                 if gt(exponent, 255) { panic_error_0x11() }
 
                 power := exp(13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084094, exponent)
+            }
+
+            function convert_t_int256_to_t_int512(value) -> converted {
+                converted := cleanup_t_int512(identity(cleanup_t_int256(value)))
             }
 
             function cleanup_t_rational_10_by_1(value) -> cleaned {
@@ -224,8 +240,8 @@ object "C_81" {
                 converted := cleanup_t_uint256(identity(cleanup_t_rational_10_by_1(value)))
             }
 
-            function checked_exp_t_rational_10_by_1_t_uint256(exponent) -> power {
-                exponent := cleanup_t_uint256(exponent)
+            function checked_exp_t_rational_10_by_1_t_uint512(exponent) -> power {
+                exponent := cleanup_t_uint512(exponent)
 
                 if gt(exponent, 77) { panic_error_0x11() }
 
@@ -240,8 +256,8 @@ object "C_81" {
                 converted := cleanup_t_uint256(identity(cleanup_t_rational_115792089237316195423570985008687907853269984665640564039457584007913129639935_by_1(value)))
             }
 
-            function checked_exp_t_rational_115792089237316195423570985008687907853269984665640564039457584007913129639935_by_1_t_uint256(exponent) -> power {
-                exponent := cleanup_t_uint256(exponent)
+            function checked_exp_t_rational_115792089237316195423570985008687907853269984665640564039457584007913129639935_by_1_t_uint512(exponent) -> power {
+                exponent := cleanup_t_uint512(exponent)
 
                 if gt(exponent, 1) { panic_error_0x11() }
 
@@ -256,8 +272,8 @@ object "C_81" {
                 converted := cleanup_t_uint256(identity(cleanup_t_rational_0_by_1(value)))
             }
 
-            function checked_exp_t_rational_0_by_1_t_uint256(exponent) -> power {
-                exponent := cleanup_t_uint256(exponent)
+            function checked_exp_t_rational_0_by_1_t_uint512(exponent) -> power {
+                exponent := cleanup_t_uint512(exponent)
 
                 power := exp(0, exponent)
             }
@@ -270,8 +286,8 @@ object "C_81" {
                 converted := cleanup_t_int256(identity(cleanup_t_rational_minus_1_by_1(value)))
             }
 
-            function checked_exp_t_rational_minus_1_by_1_t_uint256(exponent) -> power {
-                exponent := cleanup_t_uint256(exponent)
+            function checked_exp_t_rational_minus_1_by_1_t_uint512(exponent) -> power {
+                exponent := cleanup_t_uint512(exponent)
 
                 power := exp(13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095, exponent)
             }
@@ -284,8 +300,8 @@ object "C_81" {
                 converted := cleanup_t_uint256(identity(cleanup_t_rational_1_by_1(value)))
             }
 
-            function checked_exp_t_rational_1_by_1_t_uint256(exponent) -> power {
-                exponent := cleanup_t_uint256(exponent)
+            function checked_exp_t_rational_1_by_1_t_uint512(exponent) -> power {
+                exponent := cleanup_t_uint512(exponent)
 
                 power := exp(1, exponent)
             }
@@ -294,17 +310,17 @@ object "C_81" {
             /// @src 0:97:369  "function f(uint a, uint b, uint c, uint d) public pure returns (uint, int, uint, uint) {..."
             function fun_f_80(var_a_4, var_b_6, var_c_8, var_d_10) -> var__13, var__15, var__17, var__19 {
                 /// @src 0:161:165  "uint"
-                let zero_t_uint256_1 := zero_value_for_split_t_uint256()
-                var__13 := zero_t_uint256_1
+                let zero_t_uint512_1 := zero_value_for_split_t_uint512()
+                var__13 := zero_t_uint512_1
                 /// @src 0:167:170  "int"
-                let zero_t_int256_2 := zero_value_for_split_t_int256()
-                var__15 := zero_t_int256_2
+                let zero_t_int512_2 := zero_value_for_split_t_int512()
+                var__15 := zero_t_int512_2
                 /// @src 0:172:176  "uint"
-                let zero_t_uint256_3 := zero_value_for_split_t_uint256()
-                var__17 := zero_t_uint256_3
+                let zero_t_uint512_3 := zero_value_for_split_t_uint512()
+                var__17 := zero_t_uint512_3
                 /// @src 0:178:182  "uint"
-                let zero_t_uint256_4 := zero_value_for_split_t_uint256()
-                var__19 := zero_t_uint256_4
+                let zero_t_uint512_4 := zero_value_for_split_t_uint512()
+                var__19 := zero_t_uint512_4
 
                 /// @src 0:197:198  "2"
                 let expr_23 := 0x02
@@ -313,9 +329,9 @@ object "C_81" {
                 let expr_24 := _5
                 /// @src 0:197:201  "2**a"
                 let _6 := convert_t_rational_2_by_1_to_t_uint256(expr_23)
-                let expr_25 := checked_exp_t_rational_2_by_1_t_uint256(expr_24)
+                let expr_25 := checked_exp_t_rational_2_by_1_t_uint512(expr_24)
                 /// @src 0:188:201  "uint w = 2**a"
-                let var_w_22 := expr_25
+                let var_w_22 := convert_t_uint256_to_t_uint512(expr_25)
                 /// @src 0:214:216  "-2"
                 let expr_30 := 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe
                 /// @src 0:213:217  "(-2)"
@@ -325,9 +341,9 @@ object "C_81" {
                 let expr_32 := _7
                 /// @src 0:213:220  "(-2)**b"
                 let _8 := convert_t_rational_minus_2_by_1_to_t_int256(expr_31)
-                let expr_33 := checked_exp_t_rational_minus_2_by_1_t_uint256(expr_32)
+                let expr_33 := checked_exp_t_rational_minus_2_by_1_t_uint512(expr_32)
                 /// @src 0:205:220  "int x = (-2)**b"
-                let var_x_28 := expr_33
+                let var_x_28 := convert_t_int256_to_t_int512(expr_33)
                 /// @src 0:233:235  "10"
                 let expr_37 := 0x0a
                 /// @src 0:237:238  "c"
@@ -335,9 +351,9 @@ object "C_81" {
                 let expr_38 := _9
                 /// @src 0:233:238  "10**c"
                 let _10 := convert_t_rational_10_by_1_to_t_uint256(expr_37)
-                let expr_39 := checked_exp_t_rational_10_by_1_t_uint256(expr_38)
+                let expr_39 := checked_exp_t_rational_10_by_1_t_uint512(expr_38)
                 /// @src 0:224:238  "uint y = 10**c"
-                let var_y_36 := expr_39
+                let var_y_36 := convert_t_uint256_to_t_uint512(expr_39)
                 /// @src 0:252:261  "2**256 -1"
                 let expr_47 := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
                 /// @src 0:251:263  "(2**256 -1 )"
@@ -347,9 +363,9 @@ object "C_81" {
                 let expr_49 := _11
                 /// @src 0:251:266  "(2**256 -1 )**d"
                 let _12 := convert_t_rational_115792089237316195423570985008687907853269984665640564039457584007913129639935_by_1_to_t_uint256(expr_48)
-                let expr_50 := checked_exp_t_rational_115792089237316195423570985008687907853269984665640564039457584007913129639935_by_1_t_uint256(expr_49)
+                let expr_50 := checked_exp_t_rational_115792089237316195423570985008687907853269984665640564039457584007913129639935_by_1_t_uint512(expr_49)
                 /// @src 0:242:266  "uint z = (2**256 -1 )**d"
-                let var_z_42 := expr_50
+                let var_z_42 := convert_t_uint256_to_t_uint512(expr_50)
                 /// @src 0:309:310  "0"
                 let expr_53 := 0x00
                 /// @src 0:308:311  "(0)"
@@ -359,52 +375,55 @@ object "C_81" {
                 let expr_55 := _13
                 /// @src 0:308:314  "(0)**a"
                 let _14 := convert_t_rational_0_by_1_to_t_uint256(expr_54)
-                let expr_56 := checked_exp_t_rational_0_by_1_t_uint256(expr_55)
+                let expr_56 := checked_exp_t_rational_0_by_1_t_uint512(expr_55)
                 /// @src 0:304:314  "w = (0)**a"
-                var_w_22 := expr_56
-                let expr_57 := expr_56
+                let _15 := convert_t_uint256_to_t_uint512(expr_56)
+                var_w_22 := _15
+                let expr_57 := _15
                 /// @src 0:323:325  "-1"
                 let expr_61 := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
                 /// @src 0:322:326  "(-1)"
                 let expr_62 := expr_61
                 /// @src 0:328:329  "b"
-                let _15 := var_b_6
-                let expr_63 := _15
+                let _16 := var_b_6
+                let expr_63 := _16
                 /// @src 0:322:329  "(-1)**b"
-                let _16 := convert_t_rational_minus_1_by_1_to_t_int256(expr_62)
-                let expr_64 := checked_exp_t_rational_minus_1_by_1_t_uint256(expr_63)
+                let _17 := convert_t_rational_minus_1_by_1_to_t_int256(expr_62)
+                let expr_64 := checked_exp_t_rational_minus_1_by_1_t_uint512(expr_63)
                 /// @src 0:318:329  "x = (-1)**b"
-                var_x_28 := expr_64
-                let expr_65 := expr_64
+                let _18 := convert_t_int256_to_t_int512(expr_64)
+                var_x_28 := _18
+                let expr_65 := _18
                 /// @src 0:337:338  "1"
                 let expr_68 := 0x01
                 /// @src 0:340:341  "c"
-                let _17 := var_c_8
-                let expr_69 := _17
+                let _19 := var_c_8
+                let expr_69 := _19
                 /// @src 0:337:341  "1**c"
-                let _18 := convert_t_rational_1_by_1_to_t_uint256(expr_68)
-                let expr_70 := checked_exp_t_rational_1_by_1_t_uint256(expr_69)
+                let _20 := convert_t_rational_1_by_1_to_t_uint256(expr_68)
+                let expr_70 := checked_exp_t_rational_1_by_1_t_uint512(expr_69)
                 /// @src 0:333:341  "y = 1**c"
-                var_y_36 := expr_70
-                let expr_71 := expr_70
+                let _21 := convert_t_uint256_to_t_uint512(expr_70)
+                var_y_36 := _21
+                let expr_71 := _21
                 /// @src 0:354:355  "w"
-                let _19 := var_w_22
-                let expr_73 := _19
+                let _22 := var_w_22
+                let expr_73 := _22
                 /// @src 0:353:365  "(w, x, y, z)"
                 let expr_77_component_1 := expr_73
                 /// @src 0:357:358  "x"
-                let _20 := var_x_28
-                let expr_74 := _20
+                let _23 := var_x_28
+                let expr_74 := _23
                 /// @src 0:353:365  "(w, x, y, z)"
                 let expr_77_component_2 := expr_74
                 /// @src 0:360:361  "y"
-                let _21 := var_y_36
-                let expr_75 := _21
+                let _24 := var_y_36
+                let expr_75 := _24
                 /// @src 0:353:365  "(w, x, y, z)"
                 let expr_77_component_3 := expr_75
                 /// @src 0:363:364  "z"
-                let _22 := var_z_42
-                let expr_76 := _22
+                let _25 := var_z_42
+                let expr_76 := _25
                 /// @src 0:353:365  "(w, x, y, z)"
                 let expr_77_component_4 := expr_76
                 /// @src 0:346:365  "return (w, x, y, z)"
