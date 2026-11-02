@@ -585,7 +585,7 @@ of an exception instead of "bubbling up".
 
 Exceptions can contain error data that is passed back to the caller
 in the form of :ref:`error instances <errors>`.
-The built-in errors ``Error(string)`` and ``Panic(uint256)`` are
+The built-in errors ``Error(string)`` and ``Panic(uint512)`` are
 used by special functions, as explained below. ``Error`` is used for "regular" error conditions
 while ``Panic`` is used for errors that should not be present in bug-free code.
 
@@ -595,8 +595,14 @@ Panic via ``assert`` and Error via ``require``
 The convenience functions ``assert`` and ``require`` can be used to check for conditions and throw an exception
 if the condition is not met.
 
-The ``assert`` function creates an error of type ``Panic(uint256)``.
+The ``assert`` function creates an error of type ``Panic(uint512)``.
 The same error is created by the compiler in certain situations as listed below.
+
+Its ABI payload is the four-byte selector ``0xdf75fb3b`` followed by a 64-byte
+unsigned error code. Contracts compiled by Hyperion 0.2.0 use the older
+``Panic(uint256)`` selector ``0x4e487b71`` with the same payload length.
+``catch Panic(uint code)`` recognizes the new selector; errors with the older
+selector can be handled by a low-level ``catch (bytes memory reason)`` clause.
 
 Assert should only be used to test for internal
 errors, and to check invariants. Properly functioning code should

@@ -52,15 +52,15 @@ contract test {
 // gas irOptimized: 630224
 // gas legacy: 1292244
 // gas legacyOptimized: 718937
-// toSlice(string): 0x20, 11, "hello world" -> FAILURE, hex"4e487b71", 0x41
+// toSlice(string): 0x20, 11, "hello world" -> FAILURE, hex"df75fb3b", 0x41
 // gas irOptimized: 22660
 // gas legacy: 23190
 // gas legacyOptimized: 22508
-// roundtrip(string): 0x20, 11, "hello world" -> FAILURE, hex"4e487b71", 0x41
+// roundtrip(string): 0x20, 11, "hello world" -> FAILURE, hex"df75fb3b", 0x41
 // gas irOptimized: 23408
 // gas legacy: 23820
 // gas legacyOptimized: 23123
-// utf8len(string): 0x20, 16, "\xf0\x9f\x98\x83\xf0\x9f\x98\x83\xf0\x9f\x98\x83\xf0\x9f\x98\x83" -> FAILURE, hex"4e487b71", 0x41 # Input: "😃😃😃😃" #
+// utf8len(string): 0x20, 16, "\xf0\x9f\x98\x83\xf0\x9f\x98\x83\xf0\x9f\x98\x83\xf0\x9f\x98\x83" -> FAILURE, hex"df75fb3b", 0x41 # Input: "😃😃😃😃" #
 // gas irOptimized: 24026
 // gas legacy: 25716
 // gas legacyOptimized: 24115

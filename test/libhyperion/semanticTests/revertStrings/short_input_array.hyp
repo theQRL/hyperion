@@ -5,4 +5,4 @@ contract C {
 // ====
 // revertStrings: debug
 // ----
-// f(uint512[]): 0x20, 1 -> FAILURE, hex"4e487b71", 0x41
+// f(uint512[]): 0x20, 1 -> FAILURE, hex"df75fb3b", 0x41

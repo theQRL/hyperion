@@ -6,4 +6,4 @@ contract test {
 // ----
 // powWide(uint16): 0 -> 1
 // powWide(uint16): 1 -> 0x010000000000000000000000000000000000000000000000000000000000000000
-// powWide(uint16): 2 -> FAILURE, hex"4e487b71", 0x11
+// powWide(uint16): 2 -> FAILURE, hex"df75fb3b", 0x11

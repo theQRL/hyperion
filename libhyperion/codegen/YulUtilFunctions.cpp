@@ -4648,7 +4648,7 @@ std::string YulUtilFunctions::panicFunction(util::PanicCode _code)
 {
 	std::string functionName = "panic_error_" + toCompactHexWithPrefix(uint64_t(_code));
 	return m_functionCollector.createFunction(functionName, [&]() {
-		// Panic(uint256) ABI: selector (4 bytes) + one VM word for the code.
+		// Panic(uint512) ABI: selector (4 bytes) + one VM word for the code.
 		// selectorFromSignatureU256 returns sel << 224 (top of u256). Shift further to top of VM word.
 		return Whiskers(R"(
 			function <functionName>() {
@@ -4659,7 +4659,7 @@ std::string YulUtilFunctions::panicFunction(util::PanicCode _code)
 		)")
 		("functionName", functionName)
 		("shlExtra", shiftLeftFunction(VMWordBits - 256))
-		("selector", util::selectorFromSignatureU256("Panic(uint256)").str())
+		("selector", util::selectorFromSignatureU256("Panic(uint512)").str())
 		("code", toCompactHexWithPrefix(static_cast<unsigned>(_code)))
 		("panicReturndataSize", toCompactHexWithPrefix(u256(4 + VMWordBytes)))
 		.render();

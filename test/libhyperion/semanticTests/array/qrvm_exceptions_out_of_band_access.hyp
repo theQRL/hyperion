@@ -14,5 +14,5 @@ contract A {
 }
 // ----
 // test() -> false
-// testIt() -> FAILURE, hex"4e487b71", 0x32
+// testIt() -> FAILURE, hex"df75fb3b", 0x32
 // test() -> false

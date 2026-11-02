@@ -44,27 +44,27 @@ contract C {
 // g(int8,int8): -1, 1 -> -1
 // g(int8,int8): -1, 2 -> -2 # positive, positive #
 // g(int8,int8): 63, 2 -> 126
-// g(int8,int8): 64, 2 -> FAILURE, hex"4e487b71", 0x11
+// g(int8,int8): 64, 2 -> FAILURE, hex"df75fb3b", 0x11
 // g(int8,int8): 2, 63 -> 126
-// g(int8,int8): 2, 64 -> FAILURE, hex"4e487b71", 0x11 # positive, negative #
-// g(int8,int8): 2, 64 -> FAILURE, hex"4e487b71", 0x11 # positive, negative #
-// g(int8,int8): 2, 64 -> FAILURE, hex"4e487b71", 0x11 # positive, negative #
+// g(int8,int8): 2, 64 -> FAILURE, hex"df75fb3b", 0x11 # positive, negative #
+// g(int8,int8): 2, 64 -> FAILURE, hex"df75fb3b", 0x11 # positive, negative #
+// g(int8,int8): 2, 64 -> FAILURE, hex"df75fb3b", 0x11 # positive, negative #
 // g(int8,int8): 64, -2 -> -128
-// g(int8,int8): 65, -2 -> FAILURE, hex"4e487b71", 0x11
+// g(int8,int8): 65, -2 -> FAILURE, hex"df75fb3b", 0x11
 // g(int8,int8): 2, -64 -> -128
-// g(int8,int8): 2, -65 -> FAILURE, hex"4e487b71", 0x11 # negative, positive #
-// g(int8,int8): 2, -65 -> FAILURE, hex"4e487b71", 0x11 # negative, positive #
-// g(int8,int8): 2, -65 -> FAILURE, hex"4e487b71", 0x11 # negative, positive #
+// g(int8,int8): 2, -65 -> FAILURE, hex"df75fb3b", 0x11 # negative, positive #
+// g(int8,int8): 2, -65 -> FAILURE, hex"df75fb3b", 0x11 # negative, positive #
+// g(int8,int8): 2, -65 -> FAILURE, hex"df75fb3b", 0x11 # negative, positive #
 // g(int8,int8): -2, 64 -> -128
-// g(int8,int8): -2, 65 -> FAILURE, hex"4e487b71", 0x11
+// g(int8,int8): -2, 65 -> FAILURE, hex"df75fb3b", 0x11
 // g(int8,int8): -64, 2 -> -128
-// g(int8,int8): -65, 2 -> FAILURE, hex"4e487b71", 0x11 # negative, negative #
-// g(int8,int8): -65, 2 -> FAILURE, hex"4e487b71", 0x11 # negative, negative #
-// g(int8,int8): -65, 2 -> FAILURE, hex"4e487b71", 0x11 # negative, negative #
+// g(int8,int8): -65, 2 -> FAILURE, hex"df75fb3b", 0x11 # negative, negative #
+// g(int8,int8): -65, 2 -> FAILURE, hex"df75fb3b", 0x11 # negative, negative #
+// g(int8,int8): -65, 2 -> FAILURE, hex"df75fb3b", 0x11 # negative, negative #
 // g(int8,int8): -63, -2 -> 126
-// g(int8,int8): -64, -2 -> FAILURE, hex"4e487b71", 0x11
+// g(int8,int8): -64, -2 -> FAILURE, hex"df75fb3b", 0x11
 // g(int8,int8): -2, -63 -> 126
-// g(int8,int8): -2, -64 -> FAILURE, hex"4e487b71", 0x11
+// g(int8,int8): -2, -64 -> FAILURE, hex"df75fb3b", 0x11
 // h(int160,int160): -1, 1 -> -1
 // h(int160,int160): 1, -1 -> -1
 // h(int160,int160): -1, 2 -> -2
@@ -74,9 +74,9 @@ contract C {
 // h(int160,int160): 0xFFFFFFFFFFFFFFFFFFFFFFFF8000000000000000000000000000000000000000, -1 -> FAILURE
 // h(int160,int160): 0x0000000000000000000000004000000000000000000000000000000000000000, -2 -> -730750818665451459101842416358141509827966271488
 // h(int160,int160): -2, 0x0000000000000000000000004000000000000000000000000000000000000000 -> -730750818665451459101842416358141509827966271488
-// h(int160,int160): -2, 0x0000000000000000000000004000000000000000000000000000000000000001 -> FAILURE, hex"4e487b71", 0x11
-// h(int160,int160): 0x0000000000000000000000004000000000000000000000000000000000000001, -2 -> FAILURE, hex"4e487b71", 0x11
-// h(int160,int160): 0x0000000000000000000000004000000000000000000000000000000000000001, 2 -> FAILURE, hex"4e487b71", 0x11
-// h(int160,int160): 2, 0x0000000000000000000000004000000000000000000000000000000000000001 -> FAILURE, hex"4e487b71", 0x11
+// h(int160,int160): -2, 0x0000000000000000000000004000000000000000000000000000000000000001 -> FAILURE, hex"df75fb3b", 0x11
+// h(int160,int160): 0x0000000000000000000000004000000000000000000000000000000000000001, -2 -> FAILURE, hex"df75fb3b", 0x11
+// h(int160,int160): 0x0000000000000000000000004000000000000000000000000000000000000001, 2 -> FAILURE, hex"df75fb3b", 0x11
+// h(int160,int160): 2, 0x0000000000000000000000004000000000000000000000000000000000000001 -> FAILURE, hex"df75fb3b", 0x11
 // h(int160,int160): 0x0000000000000000000000003FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF, 2 -> 730750818665451459101842416358141509827966271486
-// h(int160,int160): 2, 0x0000000000000000000000004000000000000000000000000000000000000001 -> FAILURE, hex"4e487b71", 0x11
+// h(int160,int160): 2, 0x0000000000000000000000004000000000000000000000000000000000000001 -> FAILURE, hex"df75fb3b", 0x11

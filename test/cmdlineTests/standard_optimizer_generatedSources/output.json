@@ -68,7 +68,7 @@
                                                                             "nodeType": "YulLiteral",
                                                                             "src": "75:10:1",
                                                                             "type": "",
-                                                                            "value": "0x4e487b71"
+                                                                            "value": "0xdf75fb3b"
                                                                         }
                                                                     ],
                                                                     "functionName":
@@ -1757,7 +1757,7 @@
     { }
     function panic_error_0x41()
     {
-        mstore(0, shl(480, 0x4e487b71))
+        mstore(0, shl(480, 0xdf75fb3b))
         mstore(4, 0x41)
         revert(0, 0x44)
     }

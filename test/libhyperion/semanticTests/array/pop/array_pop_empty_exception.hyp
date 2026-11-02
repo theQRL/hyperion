@@ -7,4 +7,4 @@ contract c {
     }
 }
 // ----
-// test() -> FAILURE, hex"4e487b71", 0x31
+// test() -> FAILURE, hex"df75fb3b", 0x31

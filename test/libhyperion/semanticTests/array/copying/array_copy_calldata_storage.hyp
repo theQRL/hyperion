@@ -23,4 +23,4 @@ contract c {
 // gas irOptimized: 648315
 // gas legacy: 694356
 // gas legacyOptimized: 693864
-// retrieve() -> FAILURE, hex"4e487b71", 0x32
+// retrieve() -> FAILURE, hex"df75fb3b", 0x32

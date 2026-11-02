@@ -469,7 +469,7 @@ BOOST_AUTO_TEST_CASE(arithmetic)
 	append({uint8_t(Instruction::JUMPDEST)});
 	size_t const panicDataReturnPatch = appendPush1Placeholder();
 	append({uint8_t(Instruction::PUSH32)});
-	append(util::fromHex("4E487B7100000000000000000000000000000000000000000000000000000000"));
+	append(util::fromHex("DF75FB3B00000000000000000000000000000000000000000000000000000000"));
 	size_t const cleanupEntryPatch = appendPush1Placeholder();
 	append({uint8_t(Instruction::JUMP)});
 

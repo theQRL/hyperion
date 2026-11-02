@@ -236,7 +236,7 @@ object "D_27" {
             }
 
             function panic_error_0x41() {
-                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+                mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
                 mstore(4, 0x41)
                 revert(0, 0x44)
             }
@@ -450,7 +450,7 @@ object "D_27" {
                         if or(gt(_4, _5), lt(_4, _1))
                         {
                             /// @src 0:279:599  "contract D /** @src 0:96:165  \"contract D {...\" *\/ {..."
-                            mstore(0, shl(480, 0x4e487b71))
+                            mstore(0, shl(480, 0xdf75fb3b))
                             mstore(4, 0x41)
                             revert(0, 0x44)
                         }
@@ -467,7 +467,7 @@ object "D_27" {
                         let newFreePtr := add(memPtr, _2)
                         if or(gt(newFreePtr, /** @src 0:446:491  "new /// @src 0:149:156  \"new C()\"..." */ _5), /** @src 0:279:599  "contract D /** @src 0:96:165  \"contract D {...\" *\/ {..." */ lt(newFreePtr, memPtr))
                         {
-                            mstore(0, shl(480, 0x4e487b71))
+                            mstore(0, shl(480, 0xdf75fb3b))
                             mstore(4, 0x41)
                             revert(0, 0x44)
                         }
@@ -479,7 +479,7 @@ object "D_27" {
                         let newFreePtr_1 := add(memPtr_1, _2)
                         if or(gt(newFreePtr_1, /** @src 0:446:491  "new /// @src 0:149:156  \"new C()\"..." */ _5), /** @src 0:279:599  "contract D /** @src 0:96:165  \"contract D {...\" *\/ {..." */ lt(newFreePtr_1, memPtr_1))
                         {
-                            mstore(0, shl(480, 0x4e487b71))
+                            mstore(0, shl(480, 0xdf75fb3b))
                             mstore(4, 0x41)
                             revert(0, 0x44)
                         }

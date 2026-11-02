@@ -41,7 +41,7 @@ object \"C_54\" {
         }
 
         function panic_error_0x41() {
-            mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+            mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
             mstore(4, 0x41)
             revert(0, 0x44)
         }
@@ -356,7 +356,7 @@ object \"C_54\" {
             }
 
             function panic_error_0x11() {
-                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+                mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
                 mstore(4, 0x11)
                 revert(0, 0x44)
             }
@@ -482,7 +482,7 @@ object \"C_54\" {
             }
 
             function panic_error_0x41() {
-                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+                mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
                 mstore(4, 0x41)
                 revert(0, 0x44)
             }
@@ -619,7 +619,7 @@ object \"C_54\" {
             let newFreePtr := add(_1, and(add(argSize, 63), not(63)))
             if or(gt(newFreePtr, sub(shl(64, 1), 1)), lt(newFreePtr, _1))
             {
-                mstore(/** @src -1:-1:-1 */ 0, /** @src 0:79:435  \"contract C...\" */ shl(480, 0x4e487b71))
+                mstore(/** @src -1:-1:-1 */ 0, /** @src 0:79:435  \"contract C...\" */ shl(480, 0xdf75fb3b))
                 mstore(4, 0x41)
                 revert(/** @src -1:-1:-1 */ 0, /** @src 0:79:435  \"contract C...\" */ 0x44)
             }
@@ -664,7 +664,7 @@ object \"C_54\" {
                         let sum := add(/** @src 0:124:126  \"41\" */ 0x29, /** @src 0:79:435  \"contract C...\" */ _3)
                         if and(1, slt(sum, _3))
                         {
-                            mstore(0, shl(480, 0x4e487b71))
+                            mstore(0, shl(480, 0xdf75fb3b))
                             mstore(4, 0x11)
                             revert(0, 0x44)
                         }
@@ -685,7 +685,7 @@ object \"C_54\" {
                         let _5 := sload(0)
                         if eq(_5, sub(shl(511, 1), 1))
                         {
-                            mstore(0, shl(480, 0x4e487b71))
+                            mstore(0, shl(480, 0xdf75fb3b))
                             mstore(4, 0x11)
                             revert(0, 0x44)
                         }
@@ -715,7 +715,7 @@ object \"C_54\" {
                             let newFreePtr := add(_6, and(add(_8, 63), not(63)))
                             if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, _6))
                             {
-                                mstore(0, shl(480, 0x4e487b71))
+                                mstore(0, shl(480, 0xdf75fb3b))
                                 mstore(4, 0x41)
                                 revert(0, 0x44)
                             }
@@ -753,7 +753,7 @@ object \"C_54\" {
                 let _2 := slt(x, 0)
                 if or(and(iszero(_2), _1), and(_2, iszero(_1)))
                 {
-                    mstore(0, shl(480, 0x4e487b71))
+                    mstore(0, shl(480, 0xdf75fb3b))
                     mstore(4, 0x11)
                     revert(0, 0x44)
                 }
@@ -805,7 +805,7 @@ object \"D_72\" {
         }
 
         function panic_error_0x41() {
-            mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+            mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
             mstore(4, 0x41)
             revert(0, 0x44)
         }
@@ -895,7 +895,7 @@ object \"D_72\" {
         }
 
         function panic_error_0x11() {
-            mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+            mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
             mstore(4, 0x11)
             revert(0, 0x44)
         }
@@ -1187,7 +1187,7 @@ object \"D_72\" {
             }
 
             function panic_error_0x11() {
-                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+                mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
                 mstore(4, 0x11)
                 revert(0, 0x44)
             }
@@ -1313,7 +1313,7 @@ object \"D_72\" {
             }
 
             function panic_error_0x41() {
-                mstore(0, shift_left_256(35408467139433450592217433187231851964531694900788300625387963629091585785856))
+                mstore(0, shift_left_256(101074220269617373367210927539073975365457991293713318196265604923637492613120))
                 mstore(4, 0x41)
                 revert(0, 0x44)
             }
@@ -1450,7 +1450,7 @@ object \"D_72\" {
             let newFreePtr := add(_1, and(add(argSize, 63), not(63)))
             if or(gt(newFreePtr, sub(shl(64, 1), 1)), lt(newFreePtr, _1))
             {
-                mstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(480, 0x4e487b71))
+                mstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(480, 0xdf75fb3b))
                 mstore(4, 0x41)
                 revert(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ 0x44)
             }
@@ -1469,7 +1469,7 @@ object \"D_72\" {
             let sum := add(/** @src 1:107:108  \"3\" */ 0x03, /** @src 1:91:166  \"contract D is C(3)...\" */ value)
             if and(1, slt(sum, value))
             {
-                mstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(480, 0x4e487b71))
+                mstore(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ shl(480, 0xdf75fb3b))
                 mstore(4, 0x11)
                 revert(/** @src -1:-1:-1 */ 0, /** @src 1:91:166  \"contract D is C(3)...\" */ 0x44)
             }
@@ -1502,7 +1502,7 @@ object \"D_72\" {
                         let sum := add(/** @src 0:124:126  \"41\" */ 0x29, /** @src 1:91:166  \"contract D is C(3)...\" */ _3)
                         if and(1, slt(sum, _3))
                         {
-                            mstore(0, shl(480, 0x4e487b71))
+                            mstore(0, shl(480, 0xdf75fb3b))
                             mstore(4, 0x11)
                             revert(0, 0x44)
                         }
@@ -1523,7 +1523,7 @@ object \"D_72\" {
                         let _5 := sload(0)
                         if eq(_5, sub(shl(511, 1), 1))
                         {
-                            mstore(0, shl(480, 0x4e487b71))
+                            mstore(0, shl(480, 0xdf75fb3b))
                             mstore(4, 0x11)
                             revert(0, 0x44)
                         }
@@ -1553,7 +1553,7 @@ object \"D_72\" {
                             let newFreePtr := add(_6, and(add(_8, 63), not(63)))
                             if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, _6))
                             {
-                                mstore(0, shl(480, 0x4e487b71))
+                                mstore(0, shl(480, 0xdf75fb3b))
                                 mstore(4, 0x41)
                                 revert(0, 0x44)
                             }
@@ -1591,7 +1591,7 @@ object \"D_72\" {
                 let _2 := slt(x, 0)
                 if or(and(iszero(_2), _1), and(_2, iszero(_1)))
                 {
-                    mstore(0, shl(480, 0x4e487b71))
+                    mstore(0, shl(480, 0xdf75fb3b))
                     mstore(4, 0x11)
                     revert(0, 0x44)
                 }

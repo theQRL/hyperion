@@ -3366,7 +3366,7 @@ void IRGeneratorForStatements::handleCatch(TryStatement const& _tryStatement)
 	}
 	if (TryCatchClause const* panicClause = _tryStatement.panicClause())
 	{
-		appendCode() << "case " << selectorFromSignatureU32("Panic(uint256)") << " {\n";
+		appendCode() << "case " << selectorFromSignatureU32("Panic(uint512)") << " {\n";
 		setLocation(*panicClause);
 		std::string const success = m_context.newYulVariable();
 		std::string const code = m_context.newYulVariable();

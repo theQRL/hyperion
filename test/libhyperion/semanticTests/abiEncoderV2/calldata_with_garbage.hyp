@@ -61,6 +61,6 @@ contract C {
 // g_storage(uint512[],uint512[2]): 0xc0, 1, 2, 9, 9, 9, 0 -> FAILURE
 // g_storage(uint512[],uint512[2]): 0xc0, 1, 2, 9, 9, 9, 1, 7 -> FAILURE
 // g_storage(uint512[],uint512[2]): 0xc0, 1, 2, 9, 9, 9, 2, 7 -> FAILURE
-// g_index(uint512[],uint512[2],uint512): 0xe0, 1, 2, 0, 9, 9, 9, 2, 7, 8 -> FAILURE, hex"4e487b71", 0x32
+// g_index(uint512[],uint512[2],uint512): 0xe0, 1, 2, 0, 9, 9, 9, 2, 7, 8 -> FAILURE, hex"df75fb3b", 0x32
 // g_index(uint512[],uint512[2],uint512): 0xe0, 1, 2, 1, 9, 9, 9, 2, 7, 8 -> FAILURE
 // g_index(uint512[],uint512[2],uint512): 0xe0, 1, 2, 1, 9, 9, 9, 2, 7 -> FAILURE

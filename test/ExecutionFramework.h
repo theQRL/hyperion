@@ -233,7 +233,7 @@ public:
 	{
 		return bytes();
 	}
-	/// @returns error returndata corresponding to the Panic(uint256) error code,
+	/// @returns error returndata corresponding to the Panic(uint512) error code,
 	/// if REVERT is supported by the current QRVM version and the empty string otherwise.
 	bytes panicData(util::PanicCode _code);
 

@@ -347,7 +347,7 @@ hyperion::frontend::test::ParameterList ContractABIUtils::failureParameters(byte
 		parameters.push_back(Parameter{bytes(), "", ABIType{ABIType::HexString, ABIType::AlignNone, 4}, FormatInfo{}});
 
 		uint64_t selector = fromBigEndian<uint64_t>(bytes{_bytes.begin(), _bytes.begin() + 4});
-		if (selector == selectorFromSignatureU32("Panic(uint256)"))
+		if (selector == selectorFromSignatureU32("Panic(uint512)"))
 			parameters.push_back(Parameter{bytes(), "", ABIType{ABIType::Hex}, FormatInfo{}});
 		else if (selector == selectorFromSignatureU32("Error(string)"))
 		{

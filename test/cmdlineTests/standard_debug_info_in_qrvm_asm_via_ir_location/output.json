@@ -74,7 +74,7 @@ tag_5:
   dup1
   revert
 tag_3:
-  mstore(0x00, shl(0x01e0, 0x4e487b71))
+  mstore(0x00, shl(0x01e0, 0xdf75fb3b))
   mstore(0x04, 0x41)
   revert(0x00, 0x44)
 stop
@@ -242,7 +242,7 @@ sub_0: assembly {
       revert
     tag_24:
         /* \"C\":117:119  41 */
-      shl(0x01e0, 0x4e487b71)
+      shl(0x01e0, 0xdf75fb3b)
         /* \"C\":79:428  contract C... */
       0x00
       mstore
@@ -266,7 +266,7 @@ sub_0: assembly {
       revert
     tag_14:
         /* \"C\":117:119  41 */
-      shl(0x01e0, 0x4e487b71)
+      shl(0x01e0, 0xdf75fb3b)
         /* \"C\":79:428  contract C... */
       0x00
         /* \"C\":117:119  41 */
@@ -433,7 +433,7 @@ sub_0: assembly {
   assignImmutable(\"0xe4b1702d9298fee62dfeccc57d322a463ad55ca201256d01f62b45b2e1c21c10\")
   return
 tag_7:
-  mstore(0x00, shl(0x01e0, 0x4e487b71))
+  mstore(0x00, shl(0x01e0, 0xdf75fb3b))
   mstore(0x04, 0x11)
   revert(0x00, 0x44)
 tag_5:
@@ -441,7 +441,7 @@ tag_5:
   dup1
   revert
 tag_3:
-  mstore(0x00, shl(0x01e0, 0x4e487b71))
+  mstore(0x00, shl(0x01e0, 0xdf75fb3b))
   mstore(0x04, 0x41)
   revert(0x00, 0x44)
 stop
@@ -609,7 +609,7 @@ sub_0: assembly {
       revert
     tag_24:
         /* \"C\":117:119  41 */
-      shl(0x01e0, 0x4e487b71)
+      shl(0x01e0, 0xdf75fb3b)
         /* \"D\":91:166  contract D is C(3)... */
       0x00
       mstore
@@ -633,7 +633,7 @@ sub_0: assembly {
       revert
     tag_14:
         /* \"C\":117:119  41 */
-      shl(0x01e0, 0x4e487b71)
+      shl(0x01e0, 0xdf75fb3b)
         /* \"D\":91:166  contract D is C(3)... */
       0x00
         /* \"C\":117:119  41 */

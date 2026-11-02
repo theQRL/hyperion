@@ -14,9 +14,9 @@ contract C {
 // f(int512,int512): 10, -3 -> 1
 // f(int512,int512): -10, -3 -> -1
 // f(int512,int512): 2, 2 -> 0
-// f(int512,int512): 1, 0 -> FAILURE, hex"4e487b71", 0x12
-// f(int512,int512): -1, 0 -> FAILURE, hex"4e487b71", 0x12
-// f(int512,int512): 0, 0 -> FAILURE, hex"4e487b71", 0x12
+// f(int512,int512): 1, 0 -> FAILURE, hex"df75fb3b", 0x12
+// f(int512,int512): -1, 0 -> FAILURE, hex"df75fb3b", 0x12
+// f(int512,int512): 0, 0 -> FAILURE, hex"df75fb3b", 0x12
 // f(int512,int512): 0, 1 -> 0
 // f(int512,int512): 0, -1 -> 0
 // g(int8,int8): 10, 3 -> 1
@@ -26,9 +26,9 @@ contract C {
 // g(int8,int8): 10, -3 -> 1
 // g(int8,int8): -10, -3 -> -1
 // g(int8,int8): 2, 2 -> 0
-// g(int8,int8): 1, 0 -> FAILURE, hex"4e487b71", 0x12
-// g(int8,int8): -1, 0 -> FAILURE, hex"4e487b71", 0x12
-// g(int8,int8): 0, 0 -> FAILURE, hex"4e487b71", 0x12
+// g(int8,int8): 1, 0 -> FAILURE, hex"df75fb3b", 0x12
+// g(int8,int8): -1, 0 -> FAILURE, hex"df75fb3b", 0x12
+// g(int8,int8): 0, 0 -> FAILURE, hex"df75fb3b", 0x12
 // g(int8,int8): 0, 1 -> 0
 // g(int8,int8): 0, -1 -> 0
 // g(int8,int8): -128, -128 -> 0

@@ -26,7 +26,7 @@ contract c {
 // gas irOptimized: 133592
 // gas legacy: 134628
 // gas legacyOptimized: 133871
-// test(uint256): 32 -> FAILURE, hex"4e487b71", 0x32
+// test(uint256): 32 -> FAILURE, hex"df75fb3b", 0x32
 // storageEmpty -> 1
 // copy() -> true
 // storageEmpty -> 1

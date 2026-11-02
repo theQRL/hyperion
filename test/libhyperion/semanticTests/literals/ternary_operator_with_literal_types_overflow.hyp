@@ -13,5 +13,5 @@ contract TestTernary
     }
 }
 // ----
-// g() -> FAILURE, hex"4e487b71", 0x11
-// h() -> FAILURE, hex"4e487b71", 0x11
+// g() -> FAILURE, hex"df75fb3b", 0x11
+// h() -> FAILURE, hex"df75fb3b", 0x11

@@ -70,7 +70,7 @@ The statement ``require(condition, "description");`` would be equivalent to
 Note, however, that ``Error`` is a built-in type and cannot be defined in user-supplied code.
 
 Similarly, a failing ``assert`` or similar conditions will revert with an error
-of the built-in type ``Panic(uint256)``.
+of the built-in type ``Panic(uint512)``.
 
 .. note::
     Error data should only be used to give an indication of failure, but

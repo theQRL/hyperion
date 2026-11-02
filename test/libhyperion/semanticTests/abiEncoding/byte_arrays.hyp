@@ -10,5 +10,5 @@ contract C {
     }
 }
 // ----
-// f(uint512,bytes,uint512): 6, 0x60, 9, 7, "abcdefg" -> FAILURE, hex"4e487b71", 0x41
+// f(uint512,bytes,uint512): 6, 0x60, 9, 7, "abcdefg" -> FAILURE, hex"df75fb3b", 0x41
 // f_external(uint512,bytes,uint512): 6, 0x60, 9, 7, "abcdefg" -> FAILURE

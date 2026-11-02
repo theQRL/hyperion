@@ -130,7 +130,7 @@ contract SQRCTF1 {
 // gas irOptimized: 26275
 // gas legacy: 27204
 // gas legacyOptimized: 26317
-// decreaseAllowance(address,uint256): 2, 1 -> FAILURE, hex"4e487b71", 0x11
+// decreaseAllowance(address,uint256): 2, 1 -> FAILURE, hex"df75fb3b", 0x11
 // gas irOptimized: 24042
 // gas legacy: 24506
 // gas legacyOptimized: 24077
@@ -139,7 +139,7 @@ contract SQRCTF1 {
 // gas irOptimized: 28571
 // gas legacy: 29672
 // gas legacyOptimized: 28675
-// transfer(address,uint256): 2, 2 -> FAILURE, hex"4e487b71", 0x11
+// transfer(address,uint256): 2, 2 -> FAILURE, hex"df75fb3b", 0x11
 // gas irOptimized: 24071
 // gas legacy: 24492
 // gas legacyOptimized: 24074

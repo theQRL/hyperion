@@ -492,7 +492,7 @@ public:
 		std::string const& _message
 	);
 
-	/// Reverts with ``Panic(uint256)`` and the given code.
+	/// Reverts with ``Panic(uint512)`` and the given code.
 	std::string panicFunction(util::PanicCode _code);
 
 	/// @returns the name of a function that returns the return data selector.

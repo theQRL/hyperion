@@ -1,0 +1,78 @@
+contract C {
+    bytes data;
+
+    function fail(uint mode) external returns (uint) {
+        if (mode == 0)
+            assert(false);
+        if (mode == 1)
+            return type(uint).max + mode;
+        if (mode == 2)
+            data.pop();
+        require(false, "failure");
+        return 0;
+    }
+
+    function catchPanic(uint mode) external returns (uint) {
+        try this.fail(mode) returns (uint) {
+            return 0;
+        } catch Panic(uint code) {
+            return code;
+        } catch Error(string memory reason) {
+            assert(keccak256(bytes(reason)) == keccak256("failure"));
+            return 0xff;
+        }
+    }
+
+    function rawPanic(uint code, uint size) external pure {
+        assembly {
+            mstore(0, shl(480, 0xdf75fb3b))
+            mstore(4, code)
+            revert(0, size)
+        }
+    }
+
+    function catchRawPanic(uint code, uint size) external returns (bool, uint) {
+        try this.rawPanic(code, size) {
+            assert(false);
+        } catch Panic(uint caught) {
+            return (true, caught);
+        } catch (bytes memory reason) {
+            return (false, reason.length);
+        }
+    }
+
+    function legacyPanic() external pure {
+        assembly {
+            mstore(0, shl(480, 0x4e487b71))
+            mstore(4, 0x11)
+            revert(0, 0x44)
+        }
+    }
+
+    function catchLegacyPanic() external returns (uint) {
+        try this.legacyPanic() {
+            assert(false);
+        } catch Panic(uint) {
+            assert(false);
+        } catch (bytes memory reason) {
+            return reason.length;
+        }
+    }
+}
+// ====
+// compileViaYul: also
+// ----
+// fail(uint512): 0 -> FAILURE, hex"df75fb3b", 0x01
+// fail(uint512): 1 -> FAILURE, hex"df75fb3b", 0x11
+// fail(uint512): 2 -> FAILURE, hex"df75fb3b", 0x31
+// fail(uint512): 3 -> FAILURE, hex"08c379a0", 0x40, 7, "failure"
+// catchPanic(uint512): 0 -> 0x01
+// catchPanic(uint512): 1 -> 0x11
+// catchPanic(uint512): 2 -> 0x31
+// catchPanic(uint512): 3 -> 0xff
+// catchRawPanic(uint512,uint512): 0x11, 0x44 -> true, 0x11
+// catchRawPanic(uint512,uint512): 0x10000000000000000000000000000000000000000000000000000000000000011, 0x44 -> true, 0x10000000000000000000000000000000000000000000000000000000000000011
+// catchRawPanic(uint512,uint512): 0x11, 0x24 -> false, 0x24
+// catchRawPanic(uint512,uint512): 0x11, 0x43 -> false, 0x43
+// catchRawPanic(uint512,uint512): 0x11, 0x45 -> true, 0x11
+// catchLegacyPanic() -> 0x44

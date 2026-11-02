@@ -9,7 +9,7 @@ contract Test {
     }
 }
 // ----
-// set(uint24[]): 0x20, 18, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 -> FAILURE, hex"4e487b71", 0x41
+// set(uint24[]): 0x20, 18, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 -> FAILURE, hex"df75fb3b", 0x41
 // gas irOptimized: 99616
 // gas legacy: 103509
 // gas legacyOptimized: 101390

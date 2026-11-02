@@ -1325,7 +1325,7 @@ QRVM assembly:
         },
         {
           "begin": 1126,
-          "end": 1322,
+          "end": 1323,
           "functionName": "panic_error_0x11",
           "name": "tag",
           "parameterSlots": 0,
@@ -1335,48 +1335,48 @@ QRVM assembly:
         },
         {
           "begin": 1126,
-          "end": 1322,
+          "end": 1323,
           "name": "JUMPDEST",
           "source": 1
         },
         {
           "begin": 1174,
-          "end": 1267,
+          "end": 1268,
           "name": "PUSH [tag]",
           "source": 1,
           "value": "36"
         },
         {
           "begin": 1189,
-          "end": 1266,
+          "end": 1267,
           "name": "PUSH",
           "source": 1,
-          "value": "4E487B7100000000000000000000000000000000000000000000000000000000"
+          "value": "DF75FB3B00000000000000000000000000000000000000000000000000000000"
         },
         {
           "begin": 1174,
-          "end": 1267,
+          "end": 1268,
           "name": "PUSH [tag]",
           "source": 1,
           "value": "18"
         },
         {
           "begin": 1174,
-          "end": 1267,
+          "end": 1268,
           "jumpType": "[in]",
           "name": "JUMP",
           "source": 1
         },
         {
           "begin": 1174,
-          "end": 1267,
+          "end": 1268,
           "name": "tag",
           "source": 1,
           "value": "36"
         },
         {
           "begin": 1174,
-          "end": 1267,
+          "end": 1268,
           "name": "JUMPDEST",
           "source": 1
         },
@@ -1389,53 +1389,53 @@ QRVM assembly:
         },
         {
           "begin": 1164,
-          "end": 1268,
+          "end": 1269,
           "name": "MSTORE",
           "source": 1
         },
         {
-          "begin": 1287,
-          "end": 1291,
+          "begin": 1288,
+          "end": 1292,
           "name": "PUSH",
           "source": 1,
           "value": "11"
         },
         {
-          "begin": 1284,
-          "end": 1285,
+          "begin": 1285,
+          "end": 1286,
           "name": "PUSH",
           "source": 1,
           "value": "4"
         },
         {
-          "begin": 1277,
-          "end": 1292,
+          "begin": 1278,
+          "end": 1293,
           "name": "MSTORE",
           "source": 1
         },
         {
-          "begin": 1311,
-          "end": 1315,
+          "begin": 1312,
+          "end": 1316,
           "name": "PUSH",
           "source": 1,
           "value": "44"
         },
         {
-          "begin": 1308,
-          "end": 1309,
+          "begin": 1309,
+          "end": 1310,
           "name": "PUSH",
           "source": 1,
           "value": "0"
         },
         {
-          "begin": 1301,
-          "end": 1316,
+          "begin": 1302,
+          "end": 1317,
           "name": "REVERT",
           "source": 1
         },
         {
-          "begin": 1328,
-          "end": 1519,
+          "begin": 1329,
+          "end": 1520,
           "functionName": "checked_add_t_uint512",
           "name": "tag",
           "parameterSlots": 2,
@@ -1444,263 +1444,263 @@ QRVM assembly:
           "value": "10"
         },
         {
-          "begin": 1328,
-          "end": 1519,
+          "begin": 1329,
+          "end": 1520,
           "name": "JUMPDEST",
           "source": 1
         },
         {
-          "begin": 1368,
-          "end": 1371,
+          "begin": 1369,
+          "end": 1372,
           "name": "PUSH",
           "source": 1,
           "value": "0"
         },
         {
-          "begin": 1387,
-          "end": 1407,
+          "begin": 1388,
+          "end": 1408,
           "name": "PUSH [tag]",
           "source": 1,
           "value": "38"
         },
         {
-          "begin": 1405,
-          "end": 1406,
+          "begin": 1406,
+          "end": 1407,
           "name": "DUP3",
           "source": 1
         },
         {
-          "begin": 1387,
-          "end": 1407,
+          "begin": 1388,
+          "end": 1408,
           "name": "PUSH [tag]",
           "source": 1,
           "value": "15"
         },
         {
-          "begin": 1387,
-          "end": 1407,
+          "begin": 1388,
+          "end": 1408,
           "jumpType": "[in]",
           "name": "JUMP",
           "source": 1
         },
         {
-          "begin": 1387,
-          "end": 1407,
+          "begin": 1388,
+          "end": 1408,
           "name": "tag",
           "source": 1,
           "value": "38"
         },
         {
-          "begin": 1387,
-          "end": 1407,
+          "begin": 1388,
+          "end": 1408,
           "name": "JUMPDEST",
           "source": 1
         },
         {
-          "begin": 1382,
-          "end": 1407,
+          "begin": 1383,
+          "end": 1408,
           "name": "SWAP2",
           "source": 1
         },
         {
-          "begin": 1382,
-          "end": 1407,
+          "begin": 1383,
+          "end": 1408,
           "name": "POP",
           "source": 1
         },
         {
-          "begin": 1421,
-          "end": 1441,
+          "begin": 1422,
+          "end": 1442,
           "name": "PUSH [tag]",
           "source": 1,
           "value": "39"
         },
         {
-          "begin": 1439,
-          "end": 1440,
+          "begin": 1440,
+          "end": 1441,
           "name": "DUP4",
           "source": 1
         },
         {
-          "begin": 1421,
-          "end": 1441,
+          "begin": 1422,
+          "end": 1442,
           "name": "PUSH [tag]",
           "source": 1,
           "value": "15"
         },
         {
-          "begin": 1421,
-          "end": 1441,
+          "begin": 1422,
+          "end": 1442,
           "jumpType": "[in]",
           "name": "JUMP",
           "source": 1
         },
         {
-          "begin": 1421,
-          "end": 1441,
+          "begin": 1422,
+          "end": 1442,
           "name": "tag",
           "source": 1,
           "value": "39"
         },
         {
-          "begin": 1421,
-          "end": 1441,
+          "begin": 1422,
+          "end": 1442,
           "name": "JUMPDEST",
           "source": 1
         },
         {
-          "begin": 1416,
-          "end": 1441,
+          "begin": 1417,
+          "end": 1442,
           "name": "SWAP3",
           "source": 1
         },
         {
-          "begin": 1416,
-          "end": 1441,
+          "begin": 1417,
+          "end": 1442,
           "name": "POP",
           "source": 1
         },
         {
-          "begin": 1464,
-          "end": 1465,
-          "name": "DUP3",
-          "source": 1
-        },
-        {
-          "begin": 1461,
-          "end": 1462,
-          "name": "DUP3",
-          "source": 1
-        },
-        {
-          "begin": 1457,
+          "begin": 1465,
           "end": 1466,
+          "name": "DUP3",
+          "source": 1
+        },
+        {
+          "begin": 1462,
+          "end": 1463,
+          "name": "DUP3",
+          "source": 1
+        },
+        {
+          "begin": 1458,
+          "end": 1467,
           "name": "ADD",
           "source": 1
         },
         {
-          "begin": 1450,
-          "end": 1466,
+          "begin": 1451,
+          "end": 1467,
           "name": "SWAP1",
           "source": 1
         },
         {
-          "begin": 1450,
-          "end": 1466,
+          "begin": 1451,
+          "end": 1467,
           "name": "POP",
           "source": 1
         },
         {
-          "begin": 1485,
-          "end": 1488,
+          "begin": 1486,
+          "end": 1489,
           "name": "DUP1",
           "source": 1
         },
         {
-          "begin": 1482,
-          "end": 1483,
+          "begin": 1483,
+          "end": 1484,
           "name": "DUP3",
           "source": 1
         },
         {
-          "begin": 1479,
-          "end": 1489,
+          "begin": 1480,
+          "end": 1490,
           "name": "GT",
           "source": 1
         },
         {
-          "begin": 1476,
-          "end": 1512,
+          "begin": 1477,
+          "end": 1513,
           "name": "ISZERO",
           "source": 1
         },
         {
-          "begin": 1476,
-          "end": 1512,
+          "begin": 1477,
+          "end": 1513,
           "name": "PUSH [tag]",
           "source": 1,
           "value": "40"
         },
         {
-          "begin": 1476,
-          "end": 1512,
+          "begin": 1477,
+          "end": 1513,
           "name": "JUMPI",
           "source": 1
         },
         {
-          "begin": 1492,
-          "end": 1510,
+          "begin": 1493,
+          "end": 1511,
           "name": "PUSH [tag]",
           "source": 1,
           "value": "41"
         },
         {
-          "begin": 1492,
-          "end": 1510,
+          "begin": 1493,
+          "end": 1511,
           "name": "PUSH [tag]",
           "source": 1,
           "value": "19"
         },
         {
-          "begin": 1492,
-          "end": 1510,
+          "begin": 1493,
+          "end": 1511,
           "jumpType": "[in]",
           "name": "JUMP",
           "source": 1
         },
         {
-          "begin": 1492,
-          "end": 1510,
+          "begin": 1493,
+          "end": 1511,
           "name": "tag",
           "source": 1,
           "value": "41"
         },
         {
-          "begin": 1492,
-          "end": 1510,
+          "begin": 1493,
+          "end": 1511,
           "name": "JUMPDEST",
           "source": 1
         },
         {
-          "begin": 1476,
-          "end": 1512,
+          "begin": 1477,
+          "end": 1513,
           "name": "tag",
           "source": 1,
           "value": "40"
         },
         {
-          "begin": 1476,
-          "end": 1512,
+          "begin": 1477,
+          "end": 1513,
           "name": "JUMPDEST",
           "source": 1
         },
         {
-          "begin": 1328,
-          "end": 1519,
+          "begin": 1329,
+          "end": 1520,
           "name": "SWAP3",
           "source": 1
         },
         {
-          "begin": 1328,
-          "end": 1519,
+          "begin": 1329,
+          "end": 1520,
           "name": "SWAP2",
           "source": 1
         },
         {
-          "begin": 1328,
-          "end": 1519,
+          "begin": 1329,
+          "end": 1520,
           "name": "POP",
           "source": 1
         },
         {
-          "begin": 1328,
-          "end": 1519,
+          "begin": 1329,
+          "end": 1520,
           "name": "POP",
           "source": 1
         },
         {
-          "begin": 1328,
-          "end": 1519,
+          "begin": 1329,
+          "end": 1520,
           "jumpType": "[out]",
           "name": "JUMP",
           "source": 1

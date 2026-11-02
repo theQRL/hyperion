@@ -44,7 +44,7 @@ object "Arraysum_34" {
                             /// @src 0:80:429  "contract Arraysum {..."
                             if iszero(lt(var_i, _2))
                             {
-                                mstore(0, shl(480, 0x4e487b71))
+                                mstore(0, shl(480, 0xdf75fb3b))
                                 mstore(_1, 0x32)
                                 revert(0, 0x44)
                             }
@@ -52,7 +52,7 @@ object "Arraysum_34" {
                             let sum := add(var_sum, and(shr(and(shl(8, var_i), 256), sload(add(78338746147236970124700731725183845421594913511827187288591969170390706184117, shr(1, var_i)))), _3))
                             if gt(var_sum, sum)
                             {
-                                mstore(0, shl(480, 0x4e487b71))
+                                mstore(0, shl(480, 0xdf75fb3b))
                                 mstore(_1, 0x11)
                                 revert(0, 0x44)
                             }

@@ -31,6 +31,6 @@ contract C {
 // gas legacyOptimized: 117443
 // accessIndex(uint256,int256): 10, 1 -> 2
 // accessIndex(uint256,int256): 10, 0 -> 1
-// accessIndex(uint256,int256): 10, 11 -> FAILURE, hex"4e487b71", 0x32
-// accessIndex(uint256,int256): 10, 10 -> FAILURE, hex"4e487b71", 0x32
-// accessIndex(uint256,int256): 10, -1 -> FAILURE, hex"4e487b71", 0x32
+// accessIndex(uint256,int256): 10, 11 -> FAILURE, hex"df75fb3b", 0x32
+// accessIndex(uint256,int256): 10, 10 -> FAILURE, hex"df75fb3b", 0x32
+// accessIndex(uint256,int256): 10, -1 -> FAILURE, hex"df75fb3b", 0x32

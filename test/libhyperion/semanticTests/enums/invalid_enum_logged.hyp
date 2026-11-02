@@ -19,4 +19,4 @@ contract C {
 // ----
 // test_log_ok() -> 1
 // ~ emit Log(uint8): 0x00
-// test_log() -> FAILURE, hex"4e487b71", 0x21
+// test_log() -> FAILURE, hex"df75fb3b", 0x21

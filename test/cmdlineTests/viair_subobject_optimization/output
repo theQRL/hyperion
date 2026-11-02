@@ -66,7 +66,7 @@ tag_7:
   revert
     /* "viair_subobject_optimization/input.hyp":61:668  contract C {... */
 tag_3:
-  mstore(0x00, shl(0x01e0, 0x4e487b71))
+  mstore(0x00, shl(0x01e0, 0xdf75fb3b))
   mstore(0x04, 0x41)
   revert(0x00, 0x44)
 stop
@@ -251,7 +251,7 @@ sub_0: assembly {
       swap3
       jump(tag_11)
     tag_9:
-      mstore(0x00, shl(0x01e0, 0x4e487b71))
+      mstore(0x00, shl(0x01e0, 0xdf75fb3b))
       mstore(0x04, 0x41)
       revert(0x00, 0x44)
     tag_7:
@@ -326,7 +326,7 @@ sub_0: assembly {
           revert
             /* "viair_subobject_optimization/input.hyp":61:668  contract C {... */
         tag_3:
-          mstore(0x00, shl(0x01e0, 0x4e487b71))
+          mstore(0x00, shl(0x01e0, 0xdf75fb3b))
           mstore(0x04, 0x41)
           revert(0x00, 0x44)
         stop
