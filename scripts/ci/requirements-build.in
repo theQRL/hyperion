@@ -1,5 +1,5 @@
 # Build backend for the sdist-only `parsec` package. Installed with --require-hashes before the
 # other requirement files, which are then installed with --no-build-isolation, so nothing is
 # fetched unpinned (CIPH-HYPERION-31).
-setuptools>=83.0.0  # GHSA-h35f-9h28-mq5c; 84.1.0 also fixes GHSA-xmj3-9gf7-h52w (Windows legacy wheel installs)
+setuptools>=84.2.1  # GHSA-h35f-9h28-mq5c; 84.1.0 also fixes GHSA-xmj3-9gf7-h52w (Windows legacy wheel installs)
 wheel
