@@ -11,13 +11,13 @@ Note: Counterexample:
 Note: Callstack:
 Note:
 
-Warning: BMC: Overflow (resulting value larger than 2**256 - 1) happens here.
+Warning: BMC: Overflow (resulting value larger than 2**512 - 1) happens here.
  --> model_checker_targets_underflow_overflow_bmc/input.hyp:8:3:
   |
 8 | 		x + type(uint).max;
   | 		^^^^^^^^^^^^^^^^^^
 Note: Counterexample:
-  <result> = 2**256
+  <result> = 2**512
   a = 0
   x = 1
 
