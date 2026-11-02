@@ -6,9 +6,11 @@
 #
 # docs/upstream_bugs_reviewed.json records each review: the date Solidity announced the bug and,
 # once decided, the review date and either the Hyperion bug in docs/bugs.json ("hyperion") or why
-# Hyperion is not affected ("notAffected"). The check fails when an entry is missing from the
-# record, when a review is still open 30 days after the announcement, or when the record is
-# inconsistent. The weekly "Upstream bugs" workflow runs it.
+# Hyperion is not affected ("notAffected"). A decision made more than 30 days after the
+# announcement also says why ("late"). The announcement date must match the date in the bug's
+# Solidity blog link when it has one. The check fails when an entry is missing from the record,
+# when a review is still open 30 days after the announcement, or when the record is inconsistent.
+# The weekly "Upstream bugs" workflow runs it.
 
 import argparse
 import datetime
@@ -34,13 +36,17 @@ def needs_review(bug):
     return 'fixed' not in bug or version(bug['fixed']) > FORK_BASE
 
 
-def announcement_date(bug, today):
+def link_date(bug):
     # Solidity's blog posts carry the date in the path: https://blog.soliditylang.org/2026/10/22/...
-    m = re.search(r'/(\d{4})/(\d{2})/(\d{2})/', bug.get('link', ''))
+    m = re.search(r'/(\d{4})/(\d{2})/(\d{2})/', str(bug.get('link', '')))
     try:
         return datetime.date(*map(int, m.groups()))
     except (AttributeError, ValueError):
-        return today
+        return None
+
+
+def is_text(value):
+    return isinstance(value, str) and bool(value.strip())
 
 
 def date_field(review, key, problems):
@@ -71,34 +77,44 @@ def check(upstream, record, hyperion_bugs, today):
         if review.get('name') != bug['name']:
             problems.append(f'{uid}: {RECORD} names it {review.get("name")}, Solidity names it {bug["name"]}')
         announced = date_field(review, 'announced', problems)
-        verdicts = [key for key in ('hyperion', 'notAffected') if key in review]
+        published = link_date(bug)
+        if announced is not None and published is not None and announced != published:
+            problems.append(f'{uid}: "announced" is {announced}, but Solidity announced it on {published}')
+            announced = published
+        due = announced + datetime.timedelta(days=REVIEW_DAYS) if announced is not None else None
+        decided = [key for key in ('hyperion', 'notAffected', 'late') if key in review]
         if 'reviewed' not in review:
-            if verdicts:
-                problems.append(f'{uid}: has "{verdicts[0]}" but no "reviewed" date')
-            elif announced is not None:
-                due = announced + datetime.timedelta(days=REVIEW_DAYS)
+            if decided:
+                problems.append(f'{uid}: has "{decided[0]}" but no "reviewed" date')
+            elif due is not None:
                 if today > due:
                     problems.append(f'{uid}: the review was due on {due}')
                 else:
                     open_reviews.append(f'{uid}: review due by {due}')
             continue
         reviewed = date_field(review, 'reviewed', problems)
-        if announced is not None and reviewed is not None and reviewed < announced:
-            problems.append(f'{uid}: "reviewed" is earlier than "announced"')
+        if due is not None and reviewed is not None:
+            if reviewed < announced:
+                problems.append(f'{uid}: "reviewed" is earlier than "announced"')
+            elif reviewed > due and not is_text(review.get('late')):
+                problems.append(f'{uid}: reviewed on {reviewed}, after the {due} deadline, so "late" must say why')
+            elif reviewed <= due and 'late' in review:
+                problems.append(f'{uid}: has "late" but was reviewed by the {due} deadline')
+        verdicts = [key for key in ('hyperion', 'notAffected') if key in review]
         if len(verdicts) != 1:
             problems.append(f'{uid}: a reviewed entry needs exactly one of "hyperion" and "notAffected"')
         elif 'hyperion' in review:
-            hyperion_bug = hyperion_by_uid.get(review['hyperion'])
+            hyperion_bug = hyperion_by_uid.get(review['hyperion']) if is_text(review['hyperion']) else None
             if hyperion_bug is None:
-                problems.append(f'{uid}: {review["hyperion"]} is not in docs/bugs.json')
+                problems.append(f'{uid}: {review["hyperion"]!r} is not an entry in docs/bugs.json')
             elif uid not in json.dumps(hyperion_bug):
                 problems.append(f'{uid}: the docs/bugs.json entry {review["hyperion"]} does not mention {uid}')
-        elif not str(review['notAffected']).strip():
+        elif not is_text(review['notAffected']):
             problems.append(f'{uid}: "notAffected" must say why Hyperion is not affected')
 
     for bug in upstream:
         if needs_review(bug) and bug['uid'] not in reviewed_uids:
-            announced = announcement_date(bug, today)
+            announced = link_date(bug) or today
             problems.append(
                 f'{bug["uid"]} ({bug["name"]}): not in {RECORD}. Add it with "announced": "{announced}" '
                 f'and decide by {announced + datetime.timedelta(days=REVIEW_DAYS)}.'

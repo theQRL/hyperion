@@ -73,14 +73,45 @@ class TestCheckUpstreamBugs(unittest.TestCase):
             )
 
     def test_verdict_without_review_date_fails(self):
+        for key in ('notAffected', 'late'):
+            record = reviewed_record()
+            record[2][key] = 'Decided but not dated.'
+            self.assertEqual(self.problems(record), [f'SOL-2026-10: has "{key}" but no "reviewed" date'])
+
+    def test_verdicts_must_be_text(self):
+        for value in (None, False, '  '):
+            record = reviewed_record()
+            record[1]['notAffected'] = value
+            self.assertEqual(self.problems(record), ['SOL-2026-8: "notAffected" must say why Hyperion is not affected'])
         record = reviewed_record()
-        record[2]['notAffected'] = 'Decided but not dated.'
-        self.assertEqual(self.problems(record), ['SOL-2026-10: has "notAffected" but no "reviewed" date'])
+        record[0]['hyperion'] = 1
+        self.assertEqual(self.problems(record), ['SOL-2026-9: 1 is not an entry in docs/bugs.json'])
+
+    def test_announced_must_match_the_date_of_the_solidity_announcement(self):
+        upstream = [dict(bug) for bug in UPSTREAM]
+        upstream[2]['link'] = 'https://blog.soliditylang.org/2026/10/10/not-fixed-yet-bug/'
+        problems, open_reviews = check(upstream, reviewed_record(), HYPERION_BUGS, TODAY)
+        self.assertEqual(problems, ['SOL-2026-10: "announced" is 2026-10-20, but Solidity announced it on 2026-10-10'])
+        # The deadline counts from the real announcement, not the recorded date.
+        self.assertEqual(open_reviews, ['SOL-2026-10: review due by 2026-11-09'])
+
+    def test_late_decision_must_say_why(self):
+        record = reviewed_record()
+        record[0]['reviewed'] = '2026-11-01'
+        self.assertEqual(self.problems(record), [
+            'SOL-2026-9: reviewed on 2026-11-01, after the 2026-10-31 deadline, so "late" must say why'
+        ])
+        record[0]['late'] = ''
+        self.assertEqual(len(self.problems(record)), 1)
+        record[0]['late'] = 'Announced before the 30-day review was adopted.'
+        self.assertEqual(self.problems(record), [])
+        record[0]['reviewed'] = '2026-10-31'
+        self.assertEqual(self.problems(record), ['SOL-2026-9: has "late" but was reviewed by the 2026-10-31 deadline'])
 
     def test_hyperion_entry_must_exist_and_mention_the_solidity_bug(self):
         self.assertEqual(
             self.problems(reviewed_record(), hyperion_bugs=[]),
-            ['SOL-2026-9: HYP-2026-1 is not in docs/bugs.json'],
+            ["SOL-2026-9: 'HYP-2026-1' is not an entry in docs/bugs.json"],
         )
         self.assertEqual(
             self.problems(reviewed_record(), hyperion_bugs=[{'uid': 'HYP-2026-1', 'name': 'AffectsHyperion'}]),
