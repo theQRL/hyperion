@@ -19,6 +19,10 @@ At least a day before the release:
        Ignore false positives caused by ``href`` anchors and dummy links not meant to work.
  - [ ] Double-check that the most recent Hyperion documentation builds succeeded.
  - [ ] Make sure that all merged PRs that should have changelog entries do have them.
+ - [ ] Make sure that every entry added to [Solidity's list of known bugs](https://github.com/argotorg/solidity/blob/develop/docs/bugs.json)
+       since the previous release has been reviewed for Hyperion, as ``SECURITY.md`` requires within 30 days, and that each one
+       that affects Hyperion has an entry in ``docs/bugs.json``. Changelog entries for fixes ported from Solidity name the Solidity
+       identifier, for example ``(upstream SOL-2026-5)``.
  - [ ] Rerun CI on the top commits of main branches in all repositories that do not have daily activity by creating a test branch or PR:
       - [ ] ``hypc-js``
       - [ ] ``hypc-bin`` (make sure the bytecode comparison check did run)

@@ -45,6 +45,11 @@ The Hyperion team maintains the following JSON-formatted lists of known security
 - [Summary of known security vulnerabilities][3]
 - [List of security vulnerabilities affecting a specific version of the compiler][4].
 
+Hyperion is a fork of Solidity 0.8.23, so security bugs found in Solidity can affect it too.
+Within 30 days of a new entry appearing in [Solidity's list of known bugs][5], the Hyperion team decides whether the bug affects Hyperion.
+If it does, the bug gets an entry in `docs/bugs.json` within those 30 days, whether or not a fix is ready, and the changelog entry of the release that fixes it names the Solidity identifier, for example `(upstream SOL-2026-5)`.
+
 
 [3]: docs/bugs.rst
 [4]: https://github.com/theQRL/hyperion/blob/main/docs/bugs_by_version.json
+[5]: https://github.com/argotorg/solidity/blob/develop/docs/bugs.json
