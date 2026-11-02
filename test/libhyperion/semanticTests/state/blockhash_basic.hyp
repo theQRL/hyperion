@@ -6,14 +6,14 @@ contract C {
         genesisHash = blockhash(0);
         currentHash = blockhash(1);
     }
-    function f(uint blockNumber) public returns (bytes32) {
+    function f(uint256 blockNumber) public returns (bytes32) {
         return blockhash(blockNumber);
     }
 }
 // ----
 // constructor()
 // gas irOptimized: 108150
-// gas legacy: 178988
+// gas legacy: 187862
 // gas legacyOptimized: 106750
 // genesisHash() -> 0x37373737373737373737373737373737373737373737373737373737373737370000000000000000000000000000000000000000000000000000000000000000
 // currentHash() -> 0

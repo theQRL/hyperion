@@ -3,7 +3,7 @@ contract C {
 
 	function testYul() public returns (uint32) {
 		function() internal fp = testFunction;
-		uint selectorValue = 0;
+		uint256 selectorValue = 0;
 
 		assembly {
 			selectorValue := fp.selector
@@ -16,5 +16,5 @@ contract C {
 	}
 }
 // ----
-// TypeError 8533: (198-209): Only Variables of type external function pointer support ".selector" and ".address".
-// TypeError 9582: (329-350): Member "selector" not found or not visible after argument-dependent lookup in function ().
+// TypeError 8533: (201-212): Only Variables of type external function pointer support ".selector" and ".address".
+// TypeError 9582: (332-353): Member "selector" not found or not visible after argument-dependent lookup in function ().

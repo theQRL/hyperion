@@ -15,4 +15,4 @@ contract C {
 // ====
 // compileViaYul: true
 // ----
-// f() -> true
+// f() -> false

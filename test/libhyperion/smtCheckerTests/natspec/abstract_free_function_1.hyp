@@ -2,7 +2,7 @@
 pragma hyperion >=0.1.0;
 
 contract C {
-    function f(uint x) external pure {
+    function f(uint256 x) external pure {
         uint t = msb(x);
         assert(t == 0); // should fail
     }
@@ -14,4 +14,4 @@ function msb(uint256 x) pure returns (uint256 result) {}
 // ====
 // SMTEngine: chc
 // ----
-// Warning 6328: (143-157): CHC: Assertion violation happens here.
+// Warning 6328: (146-160): CHC: Assertion violation happens here.

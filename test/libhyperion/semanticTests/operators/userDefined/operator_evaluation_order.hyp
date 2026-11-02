@@ -53,31 +53,31 @@ contract C {
 }
 // ----
 // testSingleOperator() ->
-// ~ emit Wrapped(uint256): 0x00
-// ~ emit Wrapped(uint256): 0x01
-// ~ emit Wrapped(uint256): 0x02
-// ~ emit Wrapped(uint256): 0x03
+// ~ emit Wrapped(uint512): 0x00
+// ~ emit Wrapped(uint512): 0x01
+// ~ emit Wrapped(uint512): 0x02
+// ~ emit Wrapped(uint512): 0x03
 // testTwoBinaryOperators() ->
-// ~ emit Wrapped(uint256): 0x00
-// ~ emit Wrapped(uint256): 0x01
-// ~ emit Wrapped(uint256): 0x02
-// ~ emit Wrapped(uint256): 0x03
-// ~ emit Wrapped(uint256): 0x04
-// ~ emit Wrapped(uint256): 0x05
+// ~ emit Wrapped(uint512): 0x00
+// ~ emit Wrapped(uint512): 0x01
+// ~ emit Wrapped(uint512): 0x02
+// ~ emit Wrapped(uint512): 0x03
+// ~ emit Wrapped(uint512): 0x04
+// ~ emit Wrapped(uint512): 0x05
 // testBinaryAndUnaryOperators() ->
-// ~ emit Wrapped(uint256): 0x00
-// ~ emit Wrapped(uint256): 0x01
-// ~ emit Wrapped(uint256): 0x02
-// ~ emit Wrapped(uint256): 0x03
-// ~ emit Wrapped(uint256): 0x04
-// ~ emit Wrapped(uint256): 0x05
+// ~ emit Wrapped(uint512): 0x00
+// ~ emit Wrapped(uint512): 0x01
+// ~ emit Wrapped(uint512): 0x02
+// ~ emit Wrapped(uint512): 0x03
+// ~ emit Wrapped(uint512): 0x04
+// ~ emit Wrapped(uint512): 0x05
 // testOperatorsNestedInCalls() ->
-// ~ emit Wrapped(uint256): 0x00
-// ~ emit Wrapped(uint256): 0x01
+// ~ emit Wrapped(uint512): 0x00
+// ~ emit Wrapped(uint512): 0x01
 // ~ emit Probe(bool): 0x00
-// ~ emit Wrapped(uint256): 0x02
-// ~ emit Wrapped(uint256): 0x03
+// ~ emit Wrapped(uint512): 0x02
+// ~ emit Wrapped(uint512): 0x03
 // ~ emit Probe(bool): 0x00
-// ~ emit Wrapped(uint256): 0x04
-// ~ emit Wrapped(uint256): 0x05
+// ~ emit Wrapped(uint512): 0x04
+// ~ emit Wrapped(uint512): 0x05
 // ~ emit Probe(bool): 0x00

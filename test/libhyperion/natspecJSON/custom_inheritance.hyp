@@ -13,7 +13,7 @@ contract B is A {
 //     "kind": "dev",
 //     "methods":
 //     {
-//         "g(uint256)":
+//         "g(uint512)":
 //         {
 //             "custom:since": "2014"
 //         }

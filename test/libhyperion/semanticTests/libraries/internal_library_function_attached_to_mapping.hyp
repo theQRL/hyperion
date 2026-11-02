@@ -17,4 +17,4 @@ contract C {
     }
 }
 // ----
-// mapValue(uint256): 42 -> 0x24
+// mapValue(uint512): 42 -> 0x24

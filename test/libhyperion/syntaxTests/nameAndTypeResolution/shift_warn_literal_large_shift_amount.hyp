@@ -5,3 +5,4 @@ contract test {
     }
 }
 // ----
+// Warning 3149: (98-105): The result type of the shift operation is equal to the type of the first operand (uint256) ignoring the (larger) type of the second operand (uint512) which might be unexpected. Silence this warning by either converting the first or the second operand to the type of the other.

@@ -11,7 +11,7 @@ contract C {
 
 		return array.length == len;
 	}
-	function accessIndex(uint256 len, int256 idx) public returns (uint256)
+	function accessIndex(uint256 len, int256 idx) public returns (uint)
 	{
 		uint[] memory array = new uint[](len);
 
@@ -27,7 +27,7 @@ contract C {
 // index(uint256): 20 -> true
 // index(uint256): 0xFF -> true
 // gas irOptimized: 108291
-// gas legacy: 187777
+// gas legacy: 200053
 // gas legacyOptimized: 117443
 // accessIndex(uint256,int256): 10, 1 -> 2
 // accessIndex(uint256,int256): 10, 0 -> 1

@@ -14,6 +14,6 @@ contract A {
 // a() -> 4660
 // b() -> 0x0f0f
 // c() -> 0xffff
-// x(uint256): 0 -> 4660
-// x(uint256): 1 -> 0x0f0f
-// x(uint256): 2 -> 0xffff
+// x(uint512): 0 -> 4660
+// x(uint512): 1 -> 0x0f0f
+// x(uint512): 2 -> 0xffff

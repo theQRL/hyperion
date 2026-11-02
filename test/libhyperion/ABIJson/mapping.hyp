@@ -24,9 +24,9 @@ contract test {
 //     "outputs":
 //     [
 //       {
-//         "internalType": "uint256",
+//         "internalType": "uint512",
 //         "name": "value",
-//         "type": "uint256"
+//         "type": "uint512"
 //       }
 //     ],
 //     "stateMutability": "view",

@@ -61,7 +61,7 @@ To give an example, the following code contains a bug (it is just a snippet and 
     // THIS CONTRACT CONTAINS A BUG - DO NOT USE
     contract Fund {
         /// @dev Mapping of quanta shares of the contract.
-        mapping(address => uint) shares;
+        mapping(address => uint256) shares;
         /// Withdraw your share.
         function withdraw() public {
             if (payable(msg.sender).send(shares[msg.sender]))
@@ -85,7 +85,7 @@ as it uses ``call`` which forwards all remaining gas by default:
     // THIS CONTRACT CONTAINS A BUG - DO NOT USE
     contract Fund {
         /// @dev Mapping of quanta shares of the contract.
-        mapping(address => uint) shares;
+        mapping(address => uint256) shares;
         /// Withdraw your share.
         function withdraw() public {
             (bool success,) = msg.sender.call{value: shares[msg.sender]}("");
@@ -103,10 +103,10 @@ To avoid reentrancy, you can use the Checks-Effects-Interactions pattern as demo
 
     contract Fund {
         /// @dev Mapping of quanta shares of the contract.
-        mapping(address => uint) shares;
+        mapping(address => uint256) shares;
         /// Withdraw your share.
         function withdraw() public {
-            uint share = shares[msg.sender];
+            uint256 share = shares[msg.sender];
             shares[msg.sender] = 0;
             payable(msg.sender).transfer(share);
         }
@@ -251,7 +251,7 @@ Let's say you have a wallet contract like this:
             owner = msg.sender;
         }
 
-        function transferTo(address payable dest, uint amount) public {
+        function transferTo(address payable dest, uint256 amount) public {
             // THE BUG IS RIGHT HERE, you must use msg.sender instead of tx.origin
             require(tx.origin == owner);
             dest.transfer(amount);
@@ -265,7 +265,7 @@ Now someone tricks you into sending Quanta to the address of this attack wallet:
     // SPDX-License-Identifier: GPL-3.0
     pragma hyperion >=0.1.0;
     interface TxUserWallet {
-        function transferTo(address payable dest, uint amount) external;
+        function transferTo(address payable dest, uint256 amount) external;
     }
 
     contract TxAttackWallet {

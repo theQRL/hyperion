@@ -9,7 +9,7 @@ contract C {
     }
 }
 // ----
-// or(uint256): 0 -> true, 0
-// and(uint256): 0 -> true, 8
-// or(uint256): 1 -> true, 8
-// and(uint256): 1 -> false, 1
+// or(uint512): 0 -> true, 0
+// and(uint512): 0 -> true, 8
+// or(uint512): 1 -> true, 8
+// and(uint512): 1 -> false, 1

@@ -21,14 +21,14 @@ contract C {
 		x = (new A()).f();
 		y = (new B()).f();
 	}
-	function f() public returns (uint256, uint, uint) {
+	function f() public returns (uint, uint, uint) {
 		return (a, (new A()).f(), (new B()).f());
 	}
 }
 // ----
 // f() -> 3, 7, 5
 // gas irOptimized: 124021
-// gas legacy: 175798
+// gas legacy: 162125
 // gas legacyOptimized: 123971
 // x() -> 7
 // y() -> 5

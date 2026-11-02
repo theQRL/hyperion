@@ -1,7 +1,7 @@
 struct Struct { uint x; }
 
 library L {
-    function f(Struct storage _x) internal view returns (uint256) {
+    function f(Struct storage _x) internal view returns (uint) {
       return _x.x;
     }
 }

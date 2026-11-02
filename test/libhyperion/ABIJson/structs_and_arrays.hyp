@@ -19,9 +19,9 @@ contract test {
 //         "type": "bytes"
 //       },
 //       {
-//         "internalType": "uint256[]",
+//         "internalType": "uint512[]",
 //         "name": "c",
-//         "type": "uint256[]"
+//         "type": "uint512[]"
 //       }
 //     ],
 //     "name": "f",

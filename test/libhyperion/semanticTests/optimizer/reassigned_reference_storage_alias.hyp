@@ -28,4 +28,4 @@ contract C {
 // g(uint256,uint256,uint256,uint256): 0, 2, 0xaaaa, 0xbbbb -> 0xbbbb
 // g(uint256,uint256,uint256,uint256): 0, 3, 0xaaaa, 0xbbbb -> 0xaaaa
 // rmw(uint256,uint256): 0, 1 ->
-// a(uint256): 1 -> 501
+// a(uint512): 1 -> 501

@@ -99,9 +99,9 @@ BOOST_AUTO_TEST_CASE(enum_type_cleanup)
 		}
 	)";
 	compileAndRun(sourceCode);
-	BOOST_CHECK(callContractFunction("f(uint256)", 0) == encodeArgs(0));
-	BOOST_CHECK(callContractFunction("f(uint256)", 1) == encodeArgs(1));
-	BOOST_CHECK(callContractFunction("f(uint256)", 2) == panicData(PanicCode::EnumConversionError));
+	BOOST_CHECK(callContractFunction("f(uint512)", 0) == encodeArgs(0));
+	BOOST_CHECK(callContractFunction("f(uint512)", 1) == encodeArgs(1));
+	BOOST_CHECK(callContractFunction("f(uint512)", 2) == panicData(PanicCode::EnumConversionError));
 }
 
 BOOST_AUTO_TEST_CASE(conversion)
@@ -346,8 +346,8 @@ BOOST_AUTO_TEST_CASE(external_function)
 		}
 	)";
 	compileAndRun(sourceCode);
-	callContractFunction("f(uint256)", u256(0));
-	u256 selectorF = util::selectorFromSignatureU32("f(uint256)");
+	callContractFunction("f(uint512)", u256(0));
+	u256 selectorF = util::selectorFromSignatureU32("f(uint512)");
 	REQUIRE_LOG_DATA(encodeArgs(m_contractAddress, selectorF, m_contractAddress, selectorF));
 }
 
@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE(external_function_cleanup)
 		}
 	)";
 	compileAndRun(sourceCode);
-	callContractFunction("f(uint256)", u256(0));
+	callContractFunction("f(uint512)", u256(0));
 	REQUIRE_LOG_DATA(encodeArgs(
 		std::string(64, char(-1)), u256(0xffffffff),
 		std::string(64, char(-1)), u256(0xffffffff)
@@ -417,8 +417,8 @@ BOOST_AUTO_TEST_CASE(function_name_collision)
 		}
 	)";
 	compileAndRun(sourceCode);
-	BOOST_CHECK(callContractFunction("f(uint256)", encodeArgs(0)) == encodeArgs(7));
-	BOOST_CHECK(callContractFunction("f(uint256)", encodeArgs(1)) == encodeArgs(1));
+	BOOST_CHECK(callContractFunction("f(uint512)", encodeArgs(0)) == encodeArgs(7));
+	BOOST_CHECK(callContractFunction("f(uint512)", encodeArgs(1)) == encodeArgs(1));
 }
 
 BOOST_AUTO_TEST_CASE(structs)

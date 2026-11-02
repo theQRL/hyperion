@@ -20,7 +20,7 @@ contract A {
 //     "kind": "dev",
 //     "methods":
 //     {
-//         "g(int256)":
+//         "g(int512)":
 //         {
 //             "custom:since": "2014"
 //         }

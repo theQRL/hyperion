@@ -16,4 +16,4 @@ contract C {
     }
 }
 // ----
-// test(uint256): 5 -> 10
+// test(uint512): 5 -> 10

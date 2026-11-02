@@ -23,43 +23,12 @@ contract Token is ERC21 {
 
 // ----
 // ----
-// :SQRCTF1 devdoc
-// {
-//     "kind": "dev",
-//     "methods":
-//     {
-//         "transfer(address,uint256)":
-//         {
-//             "details": "test",
-//             "params":
-//             {
-//                 "amount": "amount to transfer",
-//                 "to": "address to transfer to"
-//             }
-//         }
-//     },
-//     "version": 1
-// }
-//
-// :SQRCTF1 userdoc
-// {
-//     "kind": "user",
-//     "methods":
-//     {
-//         "transfer(address,uint256)":
-//         {
-//             "notice": "Transfer ``amount`` from ``msg.sender`` to ``to``."
-//         }
-//     },
-//     "version": 1
-// }
-//
 // :ERC21 devdoc
 // {
 //     "kind": "dev",
 //     "methods":
 //     {
-//         "transfer(address,uint256)":
+//         "transfer(address,uint512)":
 //         {
 //             "details": "override dev comment",
 //             "params":
@@ -77,9 +46,40 @@ contract Token is ERC21 {
 //     "kind": "user",
 //     "methods":
 //     {
-//         "transfer(address,uint256)":
+//         "transfer(address,uint512)":
 //         {
 //             "notice": "override notice"
+//         }
+//     },
+//     "version": 1
+// }
+//
+// :SQRCTF1 devdoc
+// {
+//     "kind": "dev",
+//     "methods":
+//     {
+//         "transfer(address,uint512)":
+//         {
+//             "details": "test",
+//             "params":
+//             {
+//                 "amount": "amount to transfer",
+//                 "to": "address to transfer to"
+//             }
+//         }
+//     },
+//     "version": 1
+// }
+//
+// :SQRCTF1 userdoc
+// {
+//     "kind": "user",
+//     "methods":
+//     {
+//         "transfer(address,uint512)":
+//         {
+//             "notice": "Transfer ``amount`` from ``msg.sender`` to ``to``."
 //         }
 //     },
 //     "version": 1
@@ -90,7 +90,7 @@ contract Token is ERC21 {
 //     "kind": "dev",
 //     "methods":
 //     {
-//         "transfer(address,uint256)":
+//         "transfer(address,uint512)":
 //         {
 //             "details": "override dev comment",
 //             "params":
@@ -108,7 +108,7 @@ contract Token is ERC21 {
 //     "kind": "user",
 //     "methods":
 //     {
-//         "transfer(address,uint256)":
+//         "transfer(address,uint512)":
 //         {
 //             "notice": "override notice"
 //         }

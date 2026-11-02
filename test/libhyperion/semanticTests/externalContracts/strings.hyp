@@ -50,7 +50,7 @@ contract test {
 // ----
 // constructor()
 // gas irOptimized: 630224
-// gas legacy: 1165911
+// gas legacy: 1292244
 // gas legacyOptimized: 718937
 // toSlice(string): 0x20, 11, "hello world" -> FAILURE, hex"4e487b71", 0x41
 // gas irOptimized: 22660
@@ -64,7 +64,7 @@ contract test {
 // gas irOptimized: 24026
 // gas legacy: 25716
 // gas legacyOptimized: 24115
-// multiconcat(string,uint256): 0x40, 3, 11, "hello world" -> 0x40, 0 # concatenating 3 times #
+// multiconcat(string,uint512): 0x40, 3, 11, "hello world" -> 0x40, 0 # concatenating 3 times #
 // gas irOptimized: 28440
 // gas legacy: 31621
 // gas legacyOptimized: 27914

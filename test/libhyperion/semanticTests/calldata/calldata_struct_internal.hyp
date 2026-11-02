@@ -14,4 +14,4 @@ contract C {
     }
 }
 // ----
-// f(uint256,(uint256,uint256),uint256): 7, 1, 2, 4 -> 1, 2
+// f(uint512,(uint512,uint512),uint512): 7, 1, 2, 4 -> 1, 2

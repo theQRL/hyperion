@@ -32,7 +32,7 @@ contract FixedFeeRegistrar is Registrar {
 		}
 	}
 	function disown(string memory _name, address payable _refund) onlyrecordowner(_name) public {
-		delete m_recordData[uint(keccak256(bytes(_name))) / 8];
+		delete m_recordData[uint256(keccak256(bytes(_name))) / 8];
 		if (!_refund.send(c_fee))
 			revert();
 		emit Changed(_name);
@@ -68,14 +68,14 @@ contract FixedFeeRegistrar is Registrar {
 
 	Record[2**253] m_recordData;
 	function m_record(string memory _name) view internal returns (Record storage o_record) {
-		return m_recordData[uint(keccak256(bytes(_name))) / 8];
+		return m_recordData[uint256(keccak256(bytes(_name))) / 8];
 	}
 	uint constant c_fee = 69 quanta;
 }
 // ----
 // constructor()
 // gas irOptimized: 384610
-// gas legacy: 1046677
+// gas legacy: 826281
 // gas legacyOptimized: 476928
 // reserve(string), 69 quanta: 0x20, 3, "abc" -> FAILURE, hex"4e487b71", 0x41
 // gas irOptimized: 45967

@@ -1,29 +1,29 @@
 contract C {
-	function enc_packed_bytes(bytes calldata data, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_packed_bytes(bytes calldata data, uint start, uint end) external returns (bytes memory) {
 		return abi.encodePacked(data[start:end]);
 	}
-	function enc_packed_bytes_reference(bytes calldata data, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_packed_bytes_reference(bytes calldata data, uint start, uint end) external returns (bytes memory) {
 		return abi.encodePacked(bytes(data[start:end]));
 	}
 
-	function enc_bytes(bytes calldata data, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_bytes(bytes calldata data, uint start, uint end) external returns (bytes memory) {
 		return abi.encode(data[start:end]);
 	}
-	function enc_bytes_reference(bytes calldata data, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_bytes_reference(bytes calldata data, uint start, uint end) external returns (bytes memory) {
 		return abi.encode(bytes(data[start:end]));
 	}
 
-	function enc_uint256(uint256[] calldata x, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_uint256(uint256[] calldata x, uint start, uint end) external returns (bytes memory) {
 		return abi.encode(x[start:end]);
 	}
-	function enc_uint256_reference(uint256[] calldata x, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_uint256_reference(uint256[] calldata x, uint start, uint end) external returns (bytes memory) {
 		return abi.encode(x[start:end]);
 	}
 
-	function enc_packed_uint256(uint256[] calldata x, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_packed_uint256(uint256[] calldata x, uint start, uint end) external returns (bytes memory) {
 		return abi.encodePacked(x[start:end]);
 	}
-	function enc_packed_uint256_reference(uint256[] calldata x, uint256 start, uint256 end) external returns (bytes memory) {
+	function enc_packed_uint256_reference(uint256[] calldata x, uint start, uint end) external returns (bytes memory) {
 		return abi.encodePacked(x[start:end]);
 	}
 

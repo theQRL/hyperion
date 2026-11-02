@@ -347,7 +347,7 @@ abstract contract multisig {
 
 	// TODO: document
 	function changeOwner(address _from, address _to) public virtual;
-	function execute(address _to, uint _value, bytes calldata _data) external virtual returns (bytes32);
+	function execute(address _to, uint256 _value, bytes calldata _data) external virtual returns (bytes32);
 	function confirm(bytes32 _h) public virtual returns (bool);
 }
 
@@ -361,7 +361,7 @@ contract Wallet is multisig, multiowned, daylimit {
 	// Transaction structure to remember details of transaction lest it need be saved for a later call.
 	struct Transaction {
 		address to;
-		uint value;
+		uint256 value;
 		bytes data;
 	}
 
@@ -391,7 +391,7 @@ contract Wallet is multisig, multiowned, daylimit {
 	// If not, goes into multisig process. We provide a hash on return to allow the sender to provide
 	// shortcuts for the other confirmations (allowing them to avoid replicating the _to, _value
 	// and _data arguments). They still get the option of using them if they want, anyways.
-	function execute(address _to, uint _value, bytes calldata _data) external override onlyowner returns (bytes32 _r) {
+	function execute(address _to, uint256 _value, bytes calldata _data) external override onlyowner returns (bytes32 _r) {
 		// first, take the opportunity to check that we're under the daily limit.
 		if (underLimit(_value)) {
 			emit SingleTransact(msg.sender, _value, _to, _data);
@@ -557,7 +557,7 @@ BOOST_AUTO_TEST_CASE(multisig_value_transfer)
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", account(2)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", account(3)) == encodeArgs());
 	// 4 owners, set required to 3
-	BOOST_REQUIRE(callContractFunction("changeRequirement(uint256)", u256(3)) == encodeArgs());
+	BOOST_REQUIRE(callContractFunction("changeRequirement(uint512)", u256(3)) == encodeArgs());
 	h512 destination = h512(h256(u256{"0x5c6d6026d3fb35cd7175fd0054ae8df50d8f8b41"}), h512::AlignRight);
 	BOOST_CHECK_EQUAL(balanceAt(destination), 0);
 	m_sender = account(0);
@@ -585,7 +585,7 @@ BOOST_AUTO_TEST_CASE(revoke_addOwner)
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", account(2)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", account(3)) == encodeArgs());
 	// 4 owners, set required to 3
-	BOOST_REQUIRE(callContractFunction("changeRequirement(uint256)", u256(3)) == encodeArgs());
+	BOOST_REQUIRE(callContractFunction("changeRequirement(uint512)", u256(3)) == encodeArgs());
 	// add a new owner
 	h512 deployer = m_sender;
 	h256 opHash = util::keccak256(util::selectorFromSignatureH32("addOwner(address)").asBytes() + encode(h512(0x33)));
@@ -618,7 +618,7 @@ BOOST_AUTO_TEST_CASE(revoke_transaction)
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", account(2)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", account(3)) == encodeArgs());
 	// 4 owners, set required to 3
-	BOOST_REQUIRE(callContractFunction("changeRequirement(uint256)", u256(3)) == encodeArgs());
+	BOOST_REQUIRE(callContractFunction("changeRequirement(uint512)", u256(3)) == encodeArgs());
 	// create a transaction
 	h512 deployer = m_sender;
 	h512 destination = h512(h256(u256{"0x5c6d6026d3fb35cd7175fd0054ae8df50d8f8b41"}), h512::AlignRight);
@@ -652,13 +652,13 @@ BOOST_AUTO_TEST_CASE(daylimit)
 {
 	deployWallet(200);
 	BOOST_REQUIRE(callContractFunction("m_dailyLimit()") == encodeArgs(u256(0)));
-	BOOST_REQUIRE(callContractFunction("setDailyLimit(uint256)", u256(100)) == encodeArgs());
+	BOOST_REQUIRE(callContractFunction("setDailyLimit(uint512)", u256(100)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("m_dailyLimit()") == encodeArgs(u256(100)));
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", account(1)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", account(2)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("addOwner(address)", account(3)) == encodeArgs());
 	// 4 owners, set required to 3
-	BOOST_REQUIRE(callContractFunction("changeRequirement(uint256)", u256(3)) == encodeArgs());
+	BOOST_REQUIRE(callContractFunction("changeRequirement(uint512)", u256(3)) == encodeArgs());
 
 	// try to send tx over daylimit
 	h512 destination = h512(h256(u256{"0x5c6d6026d3fb35cd7175fd0054ae8df50d8f8b41"}), h512::AlignRight);
@@ -693,7 +693,7 @@ BOOST_AUTO_TEST_CASE(daylimit_constructor)
 {
 	deployWallet(200, {}, 1, 20);
 	BOOST_REQUIRE(callContractFunction("m_dailyLimit()") == encodeArgs(u256(20)));
-	BOOST_REQUIRE(callContractFunction("setDailyLimit(uint256)", u256(30)) == encodeArgs());
+	BOOST_REQUIRE(callContractFunction("setDailyLimit(uint512)", u256(30)) == encodeArgs());
 	BOOST_REQUIRE(callContractFunction("m_dailyLimit()") == encodeArgs(u256(30)));
 }
 

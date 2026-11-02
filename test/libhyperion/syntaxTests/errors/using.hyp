@@ -9,4 +9,4 @@ contract C {
     }
 }
 // ----
-// TypeError 9582: (133-136): Member "f" not found or not visible after argument-dependent lookup in error E(uint256).
+// TypeError 9582: (133-136): Member "f" not found or not visible after argument-dependent lookup in error E(uint512).

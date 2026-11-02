@@ -20,7 +20,7 @@ function zero(uint) pure returns (uint) {
     return 0;
 }
 // ----
-// f(uint256): 10 -> 10
-// g(uint256): 10 -> 0
-// f(uint256): 256 -> 0x0100
-// g(uint256): 256 -> 0
+// f(uint512): 10 -> 10
+// g(uint512): 10 -> 0
+// f(uint512): 256 -> 0x0100
+// g(uint512): 256 -> 0

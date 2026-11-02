@@ -14,7 +14,7 @@ contract B is A {
 //     "kind": "dev",
 //     "methods":
 //     {
-//         "g(int256)":
+//         "g(int512)":
 //         {
 //             "returns":
 //             {
@@ -37,7 +37,7 @@ contract B is A {
 //     "kind": "dev",
 //     "methods":
 //     {
-//         "g(int256)":
+//         "g(int512)":
 //         {
 //             "returns":
 //             {

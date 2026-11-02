@@ -13,7 +13,7 @@ contract Test {
 // gas irOptimized: 99616
 // gas legacy: 103509
 // gas legacyOptimized: 101390
-// data(uint256): 7 -> FAILURE
-// data(uint256): 15 -> FAILURE
-// data(uint256): 18 -> FAILURE
+// data(uint512): 7 -> FAILURE
+// data(uint512): 15 -> FAILURE
+// data(uint512): 18 -> FAILURE
 // get() -> 0x40, 0

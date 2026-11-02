@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE(function_canonical_signature_type_aliases)
 			auto functions = contract->definedFunctions();
 			if (functions.empty())
 				continue;
-			BOOST_CHECK_EQUAL("boo(uint256,bytes32,address)", functions[0]->externalSignature());
+			BOOST_CHECK_EQUAL("boo(uint512,bytes32,address)", functions[0]->externalSignature());
 		}
 }
 
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE(function_external_types)
 			auto functions = contract->definedFunctions();
 			if (functions.empty())
 				continue;
-			BOOST_CHECK_EQUAL("boo(uint256,bool,bytes8,bool[2],uint256[],address,address[])", functions[0]->externalSignature());
+			BOOST_CHECK_EQUAL("boo(uint512,bool,bytes8,bool[2],uint512[],address,address[])", functions[0]->externalSignature());
 		}
 }
 
@@ -255,10 +255,10 @@ BOOST_AUTO_TEST_CASE(external_struct_signatures)
 		{
 			auto functions = contract->definedFunctions();
 			BOOST_REQUIRE(!functions.empty());
-			BOOST_CHECK_EQUAL("f(uint8,uint256,(uint256))", functions[0]->externalSignature());
-			BOOST_CHECK_EQUAL("g(address,((bytes32,address,(uint256)[])[2][],uint256))", functions[1]->externalSignature());
+			BOOST_CHECK_EQUAL("f(uint8,uint512,(uint512))", functions[0]->externalSignature());
+			BOOST_CHECK_EQUAL("g(address,((bytes32,address,(uint512)[])[2][],uint512))", functions[1]->externalSignature());
 			BOOST_CHECK_EQUAL("h(function[])", functions[2]->externalSignature());
-			BOOST_CHECK_EQUAL("i(((bytes32,address,(uint256)[])[2][],uint256)[])", functions[3]->externalSignature());
+			BOOST_CHECK_EQUAL("i(((bytes32,address,(uint512)[])[2][],uint512)[])", functions[3]->externalSignature());
 		}
 }
 
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE(external_struct_signatures_in_libraries)
 		{
 			auto functions = contract->definedFunctions();
 			BOOST_REQUIRE(!functions.empty());
-			BOOST_CHECK_EQUAL("f(Test.ActionChoices,uint256,Test.Simple)", functions[0]->externalSignature());
+			BOOST_CHECK_EQUAL("f(Test.ActionChoices,uint512,Test.Simple)", functions[0]->externalSignature());
 			BOOST_CHECK_EQUAL("g(Test,Test.Nested)", functions[1]->externalSignature());
 			BOOST_CHECK_EQUAL("h(function[])", functions[2]->externalSignature());
 			BOOST_CHECK_EQUAL("i(Test.Nested[])", functions[3]->externalSignature());
@@ -340,19 +340,19 @@ BOOST_AUTO_TEST_CASE(state_variable_accessors)
 	BOOST_CHECK_EQUAL(returnParams.at(0)->canonicalName(), "uint256");
 	BOOST_CHECK(function->stateMutability() == StateMutability::View);
 
-	function = retrieveFunctionBySignature(*contract, "map(uint256)");
+	function = retrieveFunctionBySignature(*contract, "map(uint512)");
 	BOOST_REQUIRE(function && function->hasDeclaration());
 	auto params = function->parameterTypes();
-	BOOST_CHECK_EQUAL(params.at(0)->canonicalName(), "uint256");
+	BOOST_CHECK_EQUAL(params.at(0)->canonicalName(), "uint512");
 	returnParams = function->returnParameterTypes();
 	BOOST_CHECK_EQUAL(returnParams.at(0)->canonicalName(), "bytes4");
 	BOOST_CHECK(function->stateMutability() == StateMutability::View);
 
-	function = retrieveFunctionBySignature(*contract, "multiple_map(uint256,uint256)");
+	function = retrieveFunctionBySignature(*contract, "multiple_map(uint512,uint512)");
 	BOOST_REQUIRE(function && function->hasDeclaration());
 	params = function->parameterTypes();
-	BOOST_CHECK_EQUAL(params.at(0)->canonicalName(), "uint256");
-	BOOST_CHECK_EQUAL(params.at(1)->canonicalName(), "uint256");
+	BOOST_CHECK_EQUAL(params.at(0)->canonicalName(), "uint512");
+	BOOST_CHECK_EQUAL(params.at(1)->canonicalName(), "uint512");
 	returnParams = function->returnParameterTypes();
 	BOOST_CHECK_EQUAL(returnParams.at(0)->canonicalName(), "bytes4");
 	BOOST_CHECK(function->stateMutability() == StateMutability::View);

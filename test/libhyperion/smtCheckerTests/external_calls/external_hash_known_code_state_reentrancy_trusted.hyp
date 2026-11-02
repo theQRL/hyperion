@@ -3,14 +3,14 @@ contract State {
 	constructor(C _c) {
 		c = _c;
 	}
-	function f() public view returns (uint) {
+	function f() public view returns (uint256) {
 		return c.g();
 	}
 }
 
 contract C {
 	address owner;
-	uint y;
+	uint256 y;
 	State s;
 
 	constructor() {
@@ -20,12 +20,12 @@ contract C {
 
 	function f() public view {
 		address prevOwner = owner;
-		uint z = s.f();
+		uint256 z = s.f();
 		assert(z == y);
 		assert(prevOwner == owner);
 	}
 
-	function g() public view returns (uint) {
+	function g() public view returns (uint256) {
 		return y;
 	}
 }

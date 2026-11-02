@@ -18,6 +18,6 @@ contract C {
 // ====
 // QRVMVersion: >zond
 // ----
-// f(uint256): 2 -> 4
-// h(uint256): 2 -> 5
+// f(uint512): 2 -> 4
+// h(uint512): 2 -> 5
 // t() -> 0xee3da6d6aa102f25f3c5068dd336d879697b4b247f1cbefb4b191862f0adbae8b3de648b000000000000000000000000, 0xee3da6d6aa102f25f3c5068dd336d879697b4b247f1cbefb4b191862f0adbae8b3de648b000000000000000000000000

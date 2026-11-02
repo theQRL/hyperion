@@ -9,8 +9,8 @@ contract C {
 		assert(x == -56);
 		int256 y = int256(uint256(2**255 + 10));
 		assert(y == -(2**255) + 10);
-		int256 z = int256(uint(2**255 + 10));
-		assert(z == -(2**255) + 10);
+		int z = int(uint(2**511 + 10));
+		assert(z == -(2**511) + 10);
 		int256 t = int256(uint256(bytes32(uint256(200))));
 		assert(t == 200);
 		int256 v = int256(uint256(bytes32(uint256(2**255 + 10))));

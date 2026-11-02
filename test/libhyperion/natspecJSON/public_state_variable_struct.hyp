@@ -35,7 +35,7 @@ contract Bank {
 //     "kind": "user",
 //     "methods":
 //     {
-//         "coinStack(uint256)":
+//         "coinStack(uint512)":
 //         {
 //             "notice": "Get the n-th coin I own"
 //         }

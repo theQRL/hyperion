@@ -16,7 +16,7 @@ contract test {
 
     function prb_scale(uint n) internal pure returns (int256 ret) {
         // Scale to SD59x18
-        ret = int256(n * 10e17);
+        ret = int256(uint256(n * 10e17));
     }
 
     // This dumb implementation of Ramanujan series calculates 1/pi
@@ -24,7 +24,7 @@ contract test {
         uint n = 6; // More than 6 iterations results in failure
         for (uint k = 0; k < n; k++) {
             int256 a = prb_scale(factorial(4 * k)).div(prb_scale(factorial(k)).pow(4));
-            int256 b = (prb_scale(25390).mul(prb_scale(k)) + prb_scale(1103)).div(prb_scale(396).pow(4 * k));
+            int256 b = (prb_scale(25390).mul(prb_scale(k)) + prb_scale(1103)).div(prb_scale(396).pow(uint256(4 * k)));
             ret += a.mul(b);
         }
         ret = ret.mul(prb_scale(2).sqrt().mul(prb_scale(2)).div(prb_scale(99).pow(2)));
@@ -34,9 +34,9 @@ contract test {
 // ----
 // constructor()
 // gas irOptimized: 407507
-// gas legacy: 693115
+// gas legacy: 1212197
 // gas legacyOptimized: 451871
 // prb_pi() -> 3141592656369545286
 // gas irOptimized: 57478
-// gas legacy: 103087
+// gas legacy: 105559
 // gas legacyOptimized: 75735

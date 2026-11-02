@@ -8,9 +8,9 @@ contract test {
 //     "inputs":
 //     [
 //       {
-//         "internalType": "uint256",
+//         "internalType": "uint512",
 //         "name": "param1",
-//         "type": "uint256"
+//         "type": "uint512"
 //       },
 //       {
 //         "internalType": "contract test",

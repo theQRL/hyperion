@@ -14,9 +14,9 @@ contract C {
 //         "components":
 //         [
 //           {
-//             "internalType": "uint256",
+//             "internalType": "uint512",
 //             "name": "a",
-//             "type": "uint256"
+//             "type": "uint512"
 //           }
 //         ],
 //         "internalType": "struct S",
@@ -36,9 +36,9 @@ contract C {
 //         "components":
 //         [
 //           {
-//             "internalType": "uint256",
+//             "internalType": "uint512",
 //             "name": "a",
-//             "type": "uint256"
+//             "type": "uint512"
 //           }
 //         ],
 //         "internalType": "struct S",

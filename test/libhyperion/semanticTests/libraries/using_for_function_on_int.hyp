@@ -9,4 +9,4 @@ contract C {
 }
 // ----
 // library: D
-// f(uint256): 9 -> 18
+// f(uint512): 9 -> 18

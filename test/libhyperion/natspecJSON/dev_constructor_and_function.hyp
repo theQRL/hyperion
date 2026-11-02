@@ -28,7 +28,7 @@ contract test {
 //                 "second": "the second parameter is not very useful, it just provides additional confusion"
 //             }
 //         },
-//         "mul(uint256,uint256)":
+//         "mul(uint512,uint512)":
 //         {
 //             "details": "Multiplies a number by 7 and adds second parameter",
 //             "params":

@@ -1,1 +1,41 @@
+Warning: The result type of the exponentiation operation is equal to the type of the first operand (uint256) ignoring the (larger) type of the second operand (uint512) which might be unexpected. Silence this warning by either converting the first or the second operand to the type of the other.
+ --> exp_base_literal/input.hyp:7:12:
+  |
+7 | 		uint w = 2**a;
+  | 		         ^^^^
 
+Warning: The result type of the exponentiation operation is equal to the type of the first operand (int256) ignoring the (larger) type of the second operand (uint512) which might be unexpected. Silence this warning by either converting the first or the second operand to the type of the other.
+ --> exp_base_literal/input.hyp:8:11:
+  |
+8 | 		int x = (-2)**b;
+  | 		        ^^^^^^^
+
+Warning: The result type of the exponentiation operation is equal to the type of the first operand (uint256) ignoring the (larger) type of the second operand (uint512) which might be unexpected. Silence this warning by either converting the first or the second operand to the type of the other.
+ --> exp_base_literal/input.hyp:9:12:
+  |
+9 | 		uint y = 10**c;
+  | 		         ^^^^^
+
+Warning: The result type of the exponentiation operation is equal to the type of the first operand (uint256) ignoring the (larger) type of the second operand (uint512) which might be unexpected. Silence this warning by either converting the first or the second operand to the type of the other.
+  --> exp_base_literal/input.hyp:10:12:
+   |
+10 | 		uint z = (2**256 -1 )**d;
+   | 		         ^^^^^^^^^^^^^^^
+
+Warning: The result type of the exponentiation operation is equal to the type of the first operand (uint256) ignoring the (larger) type of the second operand (uint512) which might be unexpected. Silence this warning by either converting the first or the second operand to the type of the other.
+  --> exp_base_literal/input.hyp:13:7:
+   |
+13 | 		w = (0)**a;
+   | 		    ^^^^^^
+
+Warning: The result type of the exponentiation operation is equal to the type of the first operand (int256) ignoring the (larger) type of the second operand (uint512) which might be unexpected. Silence this warning by either converting the first or the second operand to the type of the other.
+  --> exp_base_literal/input.hyp:14:7:
+   |
+14 | 		x = (-1)**b;
+   | 		    ^^^^^^^
+
+Warning: The result type of the exponentiation operation is equal to the type of the first operand (uint256) ignoring the (larger) type of the second operand (uint512) which might be unexpected. Silence this warning by either converting the first or the second operand to the type of the other.
+  --> exp_base_literal/input.hyp:15:7:
+   |
+15 | 		y = 1**c;
+   | 		    ^^^^

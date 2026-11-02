@@ -47,7 +47,7 @@
                             "label": "array",
                             "offset": 0,
                             "slot": "2",
-                            "type": "t_array(t_uint256)2_storage"
+                            "type": "t_array(t_uint512)2_storage"
                         }
                     ],
                     "types":
@@ -58,12 +58,12 @@
                             "label": "address",
                             "numberOfBytes": "64"
                         },
-                        "t_array(t_uint256)2_storage":
+                        "t_array(t_uint512)2_storage":
                         {
-                            "base": "t_uint256",
+                            "base": "t_uint512",
                             "encoding": "inplace",
-                            "label": "uint256[2]",
-                            "numberOfBytes": "64"
+                            "label": "uint512[2]",
+                            "numberOfBytes": "128"
                         },
                         "t_uint128":
                         {
@@ -71,11 +71,11 @@
                             "label": "uint128",
                             "numberOfBytes": "16"
                         },
-                        "t_uint256":
+                        "t_uint512":
                         {
                             "encoding": "inplace",
-                            "label": "uint256",
-                            "numberOfBytes": "32"
+                            "label": "uint512",
+                            "numberOfBytes": "64"
                         },
                         "t_uint64":
                         {

@@ -56,8 +56,8 @@ The following elementary types exist:
 - ``address``: equivalent to ``uint512``, except for the assumed interpretation and language typing.
   For computing the function selector, ``address`` is used.
 
-- ``uint``, ``int``: synonyms for ``uint256``, ``int256`` respectively. For computing the function
-  selector, ``uint256`` and ``int256`` have to be used.
+- ``uint``, ``int``: synonyms for ``uint512``, ``int512`` respectively. For computing the function
+  selector, ``uint512`` and ``int512`` have to be used.
 
 - ``bool``: equivalent to ``uint8`` restricted to the values 0 and 1. For computing the function selector, ``bool`` is used.
 
@@ -256,7 +256,7 @@ Given the contract:
     contract Foo {
         function bar(bytes3[2] memory) public pure {}
         function baz(uint32 x, bool y) public pure returns (bool r) { r = x > 32 || y; }
-        function sam(bytes memory, bool, uint[] memory) public pure {}
+        function sam(bytes memory, bool, uint256[] memory) public pure {}
     }
 
 
@@ -296,7 +296,7 @@ the single byte array ``0x000000000000000000000000000000000000000000000000000000
 If we wanted to call ``sam`` with the arguments ``"dave"``, ``true`` and ``[1,2,3]``, we would
 pass 580 bytes total, broken down into:
 
-- ``0xa5643bf2``: the Method ID. This is derived from the signature ``sam(bytes,bool,uint256[])``. Note that ``uint`` is replaced with its canonical representation ``uint256``.
+- ``0xa5643bf2``: the Method ID. This is derived from the signature ``sam(bytes,bool,uint256[])``. The explicitly sized ``uint256`` retains its declared width.
 - ``0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0``: the location of the data part of the first parameter (dynamic type), measured in bytes from the start of the arguments block. In this case, ``0xc0``.
 - ``0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001``: the second parameter: boolean true.
 - ``0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000140``: the location of the data part of the third parameter (dynamic type), measured in bytes. In this case, ``0x140``.
@@ -488,7 +488,7 @@ In effect, a log entry using this ABI is described as:
 - ``address``: the address of the contract (intrinsically provided by QRL);
 - ``topics[0]``: ``keccak(EVENT_NAME+"("+EVENT_ARGS.map(canonical_type_of).join(",")+")")`` (``canonical_type_of``
   is a function that simply returns the canonical type of a given argument, e.g. for ``uint indexed foo``, it would
-  return ``uint256``). This value is only present in ``topics[0]`` if the event is not declared as ``anonymous``;
+  return ``uint512``). This value is only present in ``topics[0]`` if the event is not declared as ``anonymous``;
 - ``topics[n]``: ``abi_encode(EVENT_INDEXED_ARGS[n - 1])`` if the event is not declared as ``anonymous``
   or ``abi_encode(EVENT_INDEXED_ARGS[n])`` if it is (``EVENT_INDEXED_ARGS`` is the series of ``EVENT_ARGS`` that
   are indexed);
@@ -531,7 +531,7 @@ reverts with a custom error of "insufficient balance":
 
     contract TestToken {
         error InsufficientBalance(uint256 available, uint256 required);
-        function transfer(address /*to*/, uint amount) public pure {
+        function transfer(address /*to*/, uint256 amount) public pure {
             revert InsufficientBalance(0, amount);
         }
     }
@@ -637,15 +637,15 @@ would result in the JSON:
     "name":"InsufficientBalance"
     }, {
     "type":"event",
-    "inputs": [{"name":"a","type":"uint256","indexed":true},{"name":"b","type":"bytes32","indexed":false}],
+    "inputs": [{"name":"a","type":"uint512","indexed":true},{"name":"b","type":"bytes32","indexed":false}],
     "name":"Event"
     }, {
     "type":"event",
-    "inputs": [{"name":"a","type":"uint256","indexed":true},{"name":"b","type":"bytes32","indexed":false}],
+    "inputs": [{"name":"a","type":"uint512","indexed":true},{"name":"b","type":"bytes32","indexed":false}],
     "name":"Event2"
     }, {
     "type":"function",
-    "inputs": [{"name":"a","type":"uint256"}],
+    "inputs": [{"name":"a","type":"uint512"}],
     "name":"foo",
     "outputs": []
     }]
@@ -694,11 +694,11 @@ would result in the JSON:
             "components": [
               {
                 "name": "a",
-                "type": "uint256"
+                "type": "uint512"
               },
               {
                 "name": "b",
-                "type": "uint256[]"
+                "type": "uint512[]"
               },
               {
                 "name": "c",
@@ -706,11 +706,11 @@ would result in the JSON:
                 "components": [
                   {
                     "name": "x",
-                    "type": "uint256"
+                    "type": "uint512"
                   },
                   {
                     "name": "y",
-                    "type": "uint256"
+                    "type": "uint512"
                   }
                 ]
               }
@@ -722,17 +722,17 @@ would result in the JSON:
             "components": [
               {
                 "name": "x",
-                "type": "uint256"
+                "type": "uint512"
               },
               {
                 "name": "y",
-                "type": "uint256"
+                "type": "uint512"
               }
             ]
           },
           {
             "name": "a",
-            "type": "uint256"
+            "type": "uint512"
           }
         ],
         "outputs": []

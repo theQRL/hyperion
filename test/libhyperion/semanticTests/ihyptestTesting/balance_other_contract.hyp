@@ -17,7 +17,7 @@ contract ClientReceipt {
 // ----
 // constructor(), 2000 planck ->
 // gas irOptimized: 169915
-// gas legacy: 228592
+// gas legacy: 213171
 // gas legacyOptimized: 173883
 // balance -> 1500
 // gas irOptimized: 191881

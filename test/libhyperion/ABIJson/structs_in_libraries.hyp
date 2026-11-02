@@ -15,17 +15,17 @@ library L {
 //         "components":
 //         [
 //           {
-//             "internalType": "uint256",
+//             "internalType": "uint512",
 //             "name": "a",
-//             "type": "uint256"
+//             "type": "uint512"
 //           },
 //           {
 //             "components":
 //             [
 //               {
-//                 "internalType": "uint256[2]",
+//                 "internalType": "uint512[2]",
 //                 "name": "x",
-//                 "type": "uint256[2]"
+//                 "type": "uint512[2]"
 //               }
 //             ],
 //             "internalType": "struct L.T[]",

@@ -14,17 +14,17 @@ contract C {
 }
 // ----
 // creation:
-//   codeDepositCost: 1288600
-//   executionCost: 674
-//   totalCost: 1289274
+//   codeDepositCost: 1261400
+//   executionCost: 662
+//   totalCost: 1262062
 // external:
-//   a(): 2464
-//   b(uint256): infinite
-//   f1(uint256): infinite
-//   f2(uint256[],string[],uint16,address): infinite
+//   a(): 2425
+//   b(uint512): infinite
+//   f1(uint512): infinite
+//   f2(uint512[],string[],uint16,address): infinite
 //   f3(uint16[],string[],uint16,address): infinite
 //   f4(uint32[],string[12],bytes[2][],address): infinite
 //   f5(address[],string[],bytes,address): infinite
-//   f6(uint256[30],string[],uint16,address): infinite
-//   f7(uint256[31],string[20],address,address): infinite
-//   f8(uint256[32],string[],uint32,address): infinite
+//   f6(uint512[30],string[],uint16,address): infinite
+//   f7(uint512[31],string[20],address,address): infinite
+//   f8(uint512[32],string[],uint32,address): infinite

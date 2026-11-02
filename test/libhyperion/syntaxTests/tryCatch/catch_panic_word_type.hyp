@@ -1,0 +1,10 @@
+contract C {
+    function f() public returns (uint) {
+        try this.f() returns (uint v) {
+            return v;
+        } catch Panic(uint code) {
+            return code;
+        }
+    }
+}
+// ----

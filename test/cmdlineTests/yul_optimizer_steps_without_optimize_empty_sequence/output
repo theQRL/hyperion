@@ -85,15 +85,13 @@ object "C_28" {
             { ret := 0 }
             function cleanup_rational_by(value) -> cleaned
             { cleaned := value }
-            function cleanup_uint256(value) -> cleaned
-            {
-                cleaned := and(value, sub(shl(256, 1), 1))
-            }
+            function cleanup_uint512(value) -> cleaned
+            { cleaned := value }
             function identity(value) -> ret
             { ret := value }
-            function convert_rational_by_to_uint256(value) -> converted
+            function convert_rational_by_to_uint512(value) -> converted
             {
-                converted := cleanup_uint256(identity(cleanup_rational_by(value)))
+                converted := cleanup_uint512(identity(cleanup_rational_by(value)))
             }
             /// @ast-id 27 @src 0:99:408  "function foo() public pure returns (bool)..."
             function fun_foo() -> var
@@ -104,7 +102,7 @@ object "C_28" {
                 /// @src 0:332:335  "100"
                 let expr := 0x64
                 /// @src 0:323:335  "uint a = 100"
-                let var_a := convert_rational_by_to_uint256(expr)
+                let var_a := convert_rational_by_to_uint512(expr)
                 /// @src 0:354:355  "a"
                 let _1 := var_a
                 let expr_1 := _1
@@ -121,7 +119,7 @@ object "C_28" {
                 /// @src 0:398:401  "100"
                 let expr_4 := 0x64
                 /// @src 0:393:401  "a == 100"
-                let expr_5 := eq(cleanup_uint256(expr_3), convert_rational_by_to_uint256(expr_4))
+                let expr_5 := eq(cleanup_uint512(expr_3), convert_rational_by_to_uint512(expr_4))
                 /// @src 0:386:401  "return a == 100"
                 var := expr_5
                 leave

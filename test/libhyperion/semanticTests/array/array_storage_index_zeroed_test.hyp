@@ -40,7 +40,7 @@ contract C {
         {
             require(storageArray[i] == 0);
 
-            uint256 val = storageArray[i];
+            uint val = storageArray[i];
             uint256 check;
 
             assembly { check := iszero(val) }
@@ -53,17 +53,17 @@ contract C {
 // test_zeroed_indicies(uint256): 1 ->
 // test_zeroed_indicies(uint256): 5 ->
 // gas irOptimized: 131315
-// gas legacy: 104116
+// gas legacy: 135429
 // gas legacyOptimized: 129994
 // test_zeroed_indicies(uint256): 10 ->
 // gas irOptimized: 224578
-// gas legacy: 156186
+// gas legacy: 237298
 // gas legacyOptimized: 222359
 // test_zeroed_indicies(uint256): 15 ->
 // gas irOptimized: 321962
-// gas legacy: 229498
+// gas legacy: 343286
 // gas legacyOptimized: 318919
 // test_zeroed_indicies(uint256): 0xFF ->
 // gas irOptimized: 5080806
-// gas legacy: 3451670
+// gas legacy: 5515498
 // gas legacyOptimized: 5020727

@@ -14,26 +14,17 @@ QRVM assembly:
   revert
 tag_1:
   pop
+    /* "optimizer_inliner_call_from_constructor/input.hyp":257:258  6 */
+  0x06
     /* "optimizer_inliner_call_from_constructor/input.hyp":105:106  x */
   0x00
     /* "optimizer_inliner_call_from_constructor/input.hyp":105:112  x = a() */
-  dup1
-  sload
-  not(sub(shl(0x0100, 0x01), 0x01))
-  and
-    /* "optimizer_inliner_call_from_constructor/input.hyp":257:258  6 */
-  0x06
-    /* "optimizer_inliner_call_from_constructor/input.hyp":105:112  x = a() */
-  or
-  dup2
   sstore
     /* "optimizer_inliner_call_from_constructor/input.hyp":60:263  contract C {... */
   dataSize(sub_0)
-  swap1
-  dup2
-  swap1
+  dup1
   dataOffset(sub_0)
-  swap1
+  0x00
   codecopy
   0x00
   return
@@ -65,25 +56,23 @@ sub_0: assembly {
       revert
         /* "optimizer_inliner_call_from_constructor/input.hyp":120:175  function a() public pure returns (uint) { return f(); } */
     tag_3:
-      0x80
-      dup1
-      mload
         /* "optimizer_inliner_call_from_constructor/input.hyp":257:258  6 */
       0x06
-        /* "#utility.yul":160:211   */
+        /* "optimizer_inliner_call_from_constructor/input.hyp":120:175  function a() public pure returns (uint) { return f(); } */
+      mload(0x80)
+        /* "#utility.yul":160:185   */
+      swap1
       dup2
       mstore
-        /* "optimizer_inliner_call_from_constructor/input.hyp":120:175  function a() public pure returns (uint) { return f(); } */
-      swap1
-      mload
-      swap1
-      dup2
-      swap1
-      sub
         /* "#utility.yul":148:150   */
       0x40
-        /* "optimizer_inliner_call_from_constructor/input.hyp":120:175  function a() public pure returns (uint) { return f(); } */
+        /* "#utility.yul":133:151   */
       add
+        /* "optimizer_inliner_call_from_constructor/input.hyp":120:175  function a() public pure returns (uint) { return f(); } */
+      mload(0x80)
+      dup1
+      swap2
+      sub
       swap1
       return
     stop

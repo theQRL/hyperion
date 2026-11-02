@@ -16,7 +16,7 @@ contract C {
 }
 // ----
 // deposit() ->
-// ~ emit E(string,uint256[4]): #0xa7fb06bb999a5eb9aff9e0779953f4e1e4ce58044936c2f51c7fb879b85c08bd, #0xb3f6caf69de88c92c6f475f5933c65e5c9ed98574d177d8f3a69f705d14b6643
+// ~ emit E(string,uint512[4]): #0xa7fb06bb999a5eb9aff9e0779953f4e1e4ce58044936c2f51c7fb879b85c08bd, #0xb3f6caf69de88c92c6f475f5933c65e5c9ed98574d177d8f3a69f705d14b6643
 // gas irOptimized: 328856
-// gas legacy: 297527
+// gas legacy: 342348
 // gas legacyOptimized: 362251

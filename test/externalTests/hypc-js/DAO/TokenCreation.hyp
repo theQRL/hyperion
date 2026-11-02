@@ -28,7 +28,7 @@ import "./ManagedAccount.hyp";
 abstract contract TokenCreationInterface {
 
     // End of token creation, in Unix time
-    uint public closingTime;
+    uint256 public closingTime;
     // Minimum fueling goal of the token creation, denominated in tokens to
     // be created
     uint public minTokensToCreate;
@@ -55,7 +55,7 @@ abstract contract TokenCreationInterface {
     // This is the constructor: it can not be overloaded so it is commented out
     //  function TokenCreation(
         //  uint _minTokensTocreate,
-        //  uint _closingTime,
+        //  uint256 _closingTime,
         //  address _privateCreation
         //  string _tokenName,
         //  string _tokenSymbol,
@@ -73,7 +73,7 @@ abstract contract TokenCreationInterface {
 
     /// @return divisor The divisor used to calculate the token creation rate during
     /// the creation phase
-    function divisor() public virtual view returns (uint divisor);
+    function divisor() public virtual view returns (uint256 divisor);
 
     event FuelingToDate(uint value);
     event CreatedToken(address indexed to, uint amount);
@@ -84,7 +84,7 @@ abstract contract TokenCreationInterface {
 contract TokenCreation is TokenCreationInterface, Token {
     constructor(
         uint _minTokensToCreate,
-        uint _closingTime,
+        uint256 _closingTime,
         address _privateCreation,
         string memory _tokenName,
         string memory _tokenSymbol,
@@ -105,7 +105,7 @@ override returns (bool success) {
         if (block.timestamp < closingTime && msg.value > 0
             && (privateCreation == Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 || privateCreation == msg.sender)) {
 
-            uint token = (msg.value * 20) / divisor();
+            uint256 token = (msg.value * 20) / divisor();
             address(extraBalance).call{value: msg.value - token}("");
             balances[_tokenHolder] += token;
             totalSupply += token;
@@ -137,7 +137,7 @@ override returns (bool success) {
         }
     }
 
-    function divisor() public override view returns (uint divisor) {
+    function divisor() public override view returns (uint256 divisor) {
         // The number of (base unit) tokens per planck is calculated
         // as `msg.value` * 20 / `divisor`
         // The fueling period starts with a 1:1 ratio

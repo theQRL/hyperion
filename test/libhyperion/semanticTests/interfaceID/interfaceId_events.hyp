@@ -14,5 +14,5 @@ contract Test {
     bytes4 public hello_world_with_event = type(HelloWorldWithEvent).interfaceId;
 }
 // ----
-// hello_world() -> left(0xc6be8b58)
-// hello_world_with_event() -> left(0xc6be8b58)
+// hello_world() -> left(0x96a39e8a)
+// hello_world_with_event() -> left(0x96a39e8a)

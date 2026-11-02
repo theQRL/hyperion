@@ -6,4 +6,4 @@ contract test {
     }
 }
 // ----
-// run(uint256,uint256,uint256): 0x1000, 0x10000, 0x100000 -> 0x121121
+// run(uint512,uint512,uint512): 0x1000, 0x10000, 0x100000 -> 0x121121

@@ -16,6 +16,6 @@ contract C {
 // ----
 // constructor() ->
 // gas irOptimized: 165386
-// gas legacy: 307873
+// gas legacy: 289252
 // gas legacyOptimized: 171615
 // deposit(bytes32), 18 planck: 0x1234 -> FAILURE

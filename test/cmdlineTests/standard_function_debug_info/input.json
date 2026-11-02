@@ -2,7 +2,7 @@
     "language": "Hyperion",
     "sources": {
         "a.hyp": {
-            "content": "// SPDX-License-Identifier: GPL-3.0\npragma hyperion >=0.0; pragma abicoder v2; contract A { function f(uint[] memory x) public pure returns (uint256) { return x[0] + x[1];} }"
+            "content": "// SPDX-License-Identifier: GPL-3.0\npragma hyperion >=0.0; pragma abicoder v2; contract A { function f(uint[] memory x) public pure returns (uint) { return x[0] + x[1];} }"
         }
     },
     "settings": {

@@ -1,5 +1,9 @@
 ### Unreleased
 
+Breaking Changes:
+ * Type System: Bare `int` and `uint` now mean `int512` and `uint512`, the full QRVM word. Explicitly sized integers keep their declared widths. This changes ABI signatures, selectors and storage layouts containing bare integers.
+ * Type System: Array and fixed-bytes indices, calldata slice bounds, allocation lengths and generated array getter indices accept full-word integers. `catch Panic(uint code)` binds a `uint512` code.
+
 Important Bugfixes:
  * Code Generator: Fix `delete` applied to an element of a `bytes` array in memory zeroing the whole 64-byte word starting at the element's location instead of only the element's byte, in the legacy code generator (upstream SOL-2026-5).
  * Yul Optimizer: Fix knowledge about storage/memory address relations going stale in the `DataFlowAnalyzer` after a variable is reassigned in Yul, which could cause `LoadResolver` to replace loads with outdated values and `EqualStoreEliminator` to remove needed stores (upstream SOL-2026-7).

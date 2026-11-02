@@ -111,10 +111,10 @@ contract C {
 // postincr_u8(uint8): 2 -> 5
 // predecr_u8(uint8): 2 -> 2
 // postdecr_u8(uint8): 2 -> 3
-// preincr(uint256): 2 -> 6
-// postincr(uint256): 2 -> 5
-// predecr(uint256): 2 -> 2
-// postdecr(uint256): 2 -> 3
+// preincr(uint512): 2 -> 6
+// postincr(uint512): 2 -> 5
+// predecr(uint512): 2 -> 2
+// postdecr(uint512): 2 -> 3
 // not(bool): true -> false
 // not(bool): false -> true
 // bitnot(int256): 5 -> -6

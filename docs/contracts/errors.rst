@@ -25,7 +25,7 @@ caller.
     error InsufficientBalance(uint256 available, uint256 required);
 
     contract TestToken {
-        mapping(address => uint) balance;
+        mapping(address => uint256) balance;
         function transfer(address to, uint256 amount) public {
             if (amount > balance[msg.sender])
                 revert InsufficientBalance({

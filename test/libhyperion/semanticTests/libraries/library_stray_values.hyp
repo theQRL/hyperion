@@ -8,4 +8,4 @@ contract Test {
 }
 // ----
 // library: Lib
-// f(uint256): 33 -> 0x2a
+// f(uint512): 33 -> 0x2a

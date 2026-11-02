@@ -15,5 +15,5 @@ contract C {
     }
 }
 // ----
-// equalsA(uint256): 0 -> true
-// equalsA(uint256): 1 -> false
+// equalsA(uint512): 0 -> true
+// equalsA(uint512): 1 -> false

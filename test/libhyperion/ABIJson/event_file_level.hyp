@@ -36,9 +36,9 @@ contract D is C {
 //     [
 //       {
 //         "indexed": false,
-//         "internalType": "uint256",
+//         "internalType": "uint512",
 //         "name": "",
-//         "type": "uint256"
+//         "type": "uint512"
 //       }
 //     ],
 //     "name": "Event",
@@ -68,9 +68,9 @@ contract D is C {
 //     [
 //       {
 //         "indexed": false,
-//         "internalType": "uint256",
+//         "internalType": "uint512",
 //         "name": "",
-//         "type": "uint256"
+//         "type": "uint512"
 //       }
 //     ],
 //     "name": "Event",

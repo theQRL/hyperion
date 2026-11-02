@@ -5,4 +5,4 @@ contract Test {
     }
 }
 // ----
-// TypeError 1956: (80-81): The first argument to "abi.decode" must be implicitly convertible to bytes memory or bytes calldata, but is of type event E(uint256).
+// TypeError 1956: (80-81): The first argument to "abi.decode" must be implicitly convertible to bytes memory or bytes calldata, but is of type event E(uint512).

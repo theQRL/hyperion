@@ -3,13 +3,13 @@ contract Test {
         uint8 uint8Min = type(int).min;
         uint uintMin = type(int).min;
 
-        if (type(int).min == 2**256 - 1) {
+        if (type(int).min == 2**512 - 1) {
             uintMin;
         }
 
     }
 }
 // ----
-// TypeError 9574: (59-89): Type int256 is not implicitly convertible to expected type uint8.
-// TypeError 9574: (99-127): Type int256 is not implicitly convertible to expected type uint256.
-// TypeError 2271: (142-169): Built-in binary operator == cannot be applied to types int256 and int_const 1157...(70 digits omitted)...9935.
+// TypeError 9574: (59-89): Type int512 is not implicitly convertible to expected type uint8.
+// TypeError 9574: (99-127): Type int512 is not implicitly convertible to expected type uint512.
+// TypeError 2271: (142-169): Built-in binary operator == cannot be applied to types int512 and int_const 1340...(147 digits omitted)...4095.

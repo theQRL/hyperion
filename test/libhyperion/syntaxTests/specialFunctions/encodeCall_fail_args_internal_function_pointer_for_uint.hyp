@@ -7,4 +7,4 @@ contract C {
     }
 }
 // ----
-// TypeError 5407: (137-140): Cannot implicitly convert component at position 0 from "function ()" to "uint256".
+// TypeError 5407: (137-140): Cannot implicitly convert component at position 0 from "function ()" to "uint512".

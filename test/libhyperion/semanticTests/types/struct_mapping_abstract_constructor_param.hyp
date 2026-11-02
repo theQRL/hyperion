@@ -19,6 +19,6 @@ contract C is A {
 	}
 }
 // ----
-// getM(uint256,uint256): 0, 0 -> 0
-// getM(uint256,uint256): 1, 5 -> 0x10
-// getM(uint256,uint256): 1, 0 -> 0
+// getM(uint512,uint512): 0, 0 -> 0
+// getM(uint512,uint512): 1, 5 -> 0x10
+// getM(uint512,uint512): 1, 0 -> 0

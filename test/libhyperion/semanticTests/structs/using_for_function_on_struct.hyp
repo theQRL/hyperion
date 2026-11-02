@@ -9,5 +9,5 @@ contract C {
 }
 // ----
 // library: D
-// f(uint256): 7 -> 0x15
+// f(uint512): 7 -> 0x15
 // x() -> 0x15

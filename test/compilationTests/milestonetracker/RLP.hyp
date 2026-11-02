@@ -283,7 +283,7 @@ library RLP {
  /// @param self The RLPItem.
  /// @return data The decoded string.
  function toBytes32(RLPItem memory self) internal view returns (bytes32 data) {
-     return bytes32(toUint(self));
+     return bytes32(uint256(toUint(self)));
  }
 
  /// @dev Decode an RLPItem into an address. This will not work if the

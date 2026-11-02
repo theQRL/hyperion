@@ -9,5 +9,5 @@ contract C {
     }
 }
 // ----
-// createEvent(uint256): 42 ->
-// ~ emit E((uint256)): 0x2a
+// createEvent(uint512): 42 ->
+// ~ emit E((uint512)): 0x2a

@@ -1,9 +1,9 @@
 contract C {
-	uint[] a;
-	uint l;
+	uint256[] a;
+	uint256 l;
 	function p() public {
-		require(a.length < type(uint).max - 1);
-		require(l < type(uint).max - 1);
+		require(a.length < type(uint256).max - 1);
+		require(l < type(uint256).max - 1);
 		a.push();
 		++l;
 	}
@@ -13,7 +13,7 @@ contract C {
 		a.pop();
 		--l;
 	}
-	function r() public view returns (uint) {
+	function r() public view returns (uint256) {
 		require(l > 0);
 		return a[l - 1]; // safe access
 	}

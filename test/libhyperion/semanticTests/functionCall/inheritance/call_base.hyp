@@ -10,4 +10,4 @@ contract Child is Base {
 	}
 }
 // ----
-// g(uint256): 4 -> 8
+// g(uint512): 4 -> 8

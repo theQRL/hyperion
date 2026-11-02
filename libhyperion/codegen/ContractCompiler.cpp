@@ -1089,7 +1089,7 @@ void ContractCompiler::handleCatch(std::vector<ASTPointer<TryCatchClause>> const
 			panic->parameters() &&
 			panic->parameters()->parameters().size() == 1 &&
 			panic->parameters()->parameters().front() &&
-			*panic->parameters()->parameters().front()->annotation().type == *TypeProvider::uint256(),
+			*panic->parameters()->parameters().front()->annotation().type == *TypeProvider::uint(VMWordBits),
 			""
 		);
 

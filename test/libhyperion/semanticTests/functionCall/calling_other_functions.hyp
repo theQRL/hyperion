@@ -13,8 +13,8 @@ contract collatz {
     }
 }
 // ----
-// run(uint256): 0 -> 0
-// run(uint256): 1 -> 1
-// run(uint256): 2 -> 1
-// run(uint256): 8 -> 1
-// run(uint256): 127 -> 1
+// run(uint512): 0 -> 0
+// run(uint512): 1 -> 1
+// run(uint512): 2 -> 1
+// run(uint512): 8 -> 1
+// run(uint512): 127 -> 1

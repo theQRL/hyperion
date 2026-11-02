@@ -1,6 +1,6 @@
 contract CopyTest {
     struct Tree {
-        uint256 data;
+        uint data;
         Tree[] children;
     }
     Tree storageTree;
@@ -29,7 +29,7 @@ contract CopyTest {
         }
     }
 
-    function copyFromTree(Tree memory tree, uint256[] memory data, uint256 offset) internal returns (uint256) {
+    function copyFromTree(Tree memory tree, uint[] memory data, uint256 offset) internal returns (uint256) {
         data[offset++] = tree.data;
         for (uint i = 0; i < tree.children.length; i++) {
             offset = copyFromTree(tree.children[i], data, offset);
@@ -37,11 +37,11 @@ contract CopyTest {
         return offset;
     }
 
-    function run() public returns (uint256[] memory) {
+    function run() public returns (uint[] memory) {
         Tree memory memoryTree;
         memoryTree = storageTree;
         uint256 length = countData(memoryTree);
-        uint256[] memory result = new uint256[](length);
+        uint[] memory result = new uint[](length);
         copyFromTree(memoryTree, result, 0);
         return result;
     }

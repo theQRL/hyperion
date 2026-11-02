@@ -221,7 +221,7 @@ is compiled so recursive creation-dependencies are not possible.
             newD.x();
         }
 
-        function createAndEndowD(uint arg, uint amount) public payable {
+        function createAndEndowD(uint arg, uint256 amount) public payable {
             // Send quanta along with the creation
             D newD = new D{value: amount}(arg);
             newD.x();

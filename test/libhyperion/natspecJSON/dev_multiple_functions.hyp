@@ -25,7 +25,7 @@ contract test {
 //     "kind": "dev",
 //     "methods":
 //     {
-//         "divide(uint256,uint256)":
+//         "divide(uint512,uint512)":
 //         {
 //             "details": "Divides 2 numbers",
 //             "params":
@@ -34,7 +34,7 @@ contract test {
 //                 "input": "Documentation for the input parameter"
 //             }
 //         },
-//         "mul(uint256,uint256)":
+//         "mul(uint512,uint512)":
 //         {
 //             "details": "Multiplies a number by 7 and adds second parameter",
 //             "params":
@@ -43,7 +43,7 @@ contract test {
 //                 "second": "Documentation for the second parameter"
 //             }
 //         },
-//         "sub(int256)":
+//         "sub(int512)":
 //         {
 //             "details": "Subtracts 3 from `input`",
 //             "params":

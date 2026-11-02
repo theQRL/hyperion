@@ -1459,7 +1459,7 @@ void IRGeneratorForStatements::endVisit(FunctionCall const& _functionCall)
 		ArrayType const& arrayType = dynamic_cast<ArrayType const&>(*_functionCall.annotation().type);
 		hypAssert(arguments.size() == 1);
 
-		IRVariable value = convert(*arguments[0], *TypeProvider::uint256());
+		IRVariable value = convert(*arguments[0], *TypeProvider::uint(VMWordBits));
 		define(_functionCall) <<
 			m_utils.allocateAndInitializeMemoryArrayFunction(arrayType) <<
 			"(" <<
@@ -2389,7 +2389,7 @@ void IRGeneratorForStatements::endVisit(IndexAccess const& _indexAccess)
 				std::string const baseRef = IRVariable(_indexAccess.baseExpression()).part("mpos").name();
 				std::string const indexExpression = expressionAsType(
 					*_indexAccess.indexExpression(),
-					*TypeProvider::uint256()
+					*TypeProvider::uint(VMWordBits)
 				);
 				std::string const memAddress = indexAccessFunction + "(" + baseRef + ", " + indexExpression + ")";
 
@@ -2405,7 +2405,7 @@ void IRGeneratorForStatements::endVisit(IndexAccess const& _indexAccess)
 				std::string const baseRef = IRVariable(_indexAccess.baseExpression()).commaSeparatedList();
 				std::string const indexExpression = expressionAsType(
 					*_indexAccess.indexExpression(),
-					*TypeProvider::uint256()
+					*TypeProvider::uint(VMWordBits)
 				);
 				std::string const calldataAddress = indexAccessFunction + "(" + baseRef + ", " + indexExpression + ")";
 
@@ -2432,7 +2432,7 @@ void IRGeneratorForStatements::endVisit(IndexAccess const& _indexAccess)
 		auto const& fixedBytesType = dynamic_cast<FixedBytesType const&>(baseType);
 		hypAssert(_indexAccess.indexExpression(), "Index expression expected.");
 
-		IRVariable index{m_context.newYulVariable(), *TypeProvider::uint256()};
+		IRVariable index{m_context.newYulVariable(), *TypeProvider::uint(VMWordBits)};
 		define(index, *_indexAccess.indexExpression());
 		appendCode() << Whiskers(R"(
 			if iszero(lt(<index>, <length>)) { <panic>() }
@@ -2475,7 +2475,7 @@ void IRGeneratorForStatements::endVisit(IndexRangeAccess const& _indexRangeAcces
 		case DataLocation::CallData:
 		{
 			hypAssert(baseType.isDynamicallySized());
-			IRVariable sliceStart{m_context.newYulVariable(), *TypeProvider::uint256()};
+			IRVariable sliceStart{m_context.newYulVariable(), *TypeProvider::uint(VMWordBits)};
 			if (_indexRangeAccess.startExpression())
 				define(sliceStart, IRVariable{*_indexRangeAccess.startExpression()});
 			else
@@ -2483,7 +2483,7 @@ void IRGeneratorForStatements::endVisit(IndexRangeAccess const& _indexRangeAcces
 
 			IRVariable sliceEnd{
 				m_context.newYulVariable(),
-				*TypeProvider::uint256()
+				*TypeProvider::uint(VMWordBits)
 			};
 			if (_indexRangeAccess.endExpression())
 				define(sliceEnd, IRVariable{*_indexRangeAccess.endExpression()});

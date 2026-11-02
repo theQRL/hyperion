@@ -55,9 +55,9 @@ object "C_15" {
                 let selector := shift_right_480_unsigned(calldataload(0))
                 switch selector
 
-                case 0x02e8cd18
+                case 0x28b3f2c9
                 {
-                    // f(uint256[][],uint8)
+                    // f(uint512[][],uint8)
 
                     external_fun_f_14()
                 }
@@ -171,7 +171,7 @@ object "C_15" {
                 finalize_allocation(memPtr, size)
             }
 
-            function array_allocation_size_t_array$_t_array$_t_uint256_$dyn_memory_ptr_$dyn_memory_ptr(length) -> size {
+            function array_allocation_size_t_array$_t_array$_t_uint512_$dyn_memory_ptr_$dyn_memory_ptr(length) -> size {
                 // Make sure we can allocate memory without overflow
                 if gt(length, 0xffffffffffffffff) { panic_error_0x41() }
 
@@ -182,7 +182,7 @@ object "C_15" {
 
             }
 
-            function write_to_memory_t_array$_t_uint256_$dyn_memory_ptr(memPtr, value) {
+            function write_to_memory_t_array$_t_uint512_$dyn_memory_ptr(memPtr, value) {
                 mstore(memPtr, value)
             }
 
@@ -203,7 +203,7 @@ object "C_15" {
 
             }
 
-            function array_allocation_size_t_array$_t_uint256_$dyn_memory_ptr(length) -> size {
+            function array_allocation_size_t_array$_t_uint512_$dyn_memory_ptr(length) -> size {
                 // Make sure we can allocate memory without overflow
                 if gt(length, 0xffffffffffffffff) { panic_error_0x41() }
 
@@ -214,26 +214,26 @@ object "C_15" {
 
             }
 
-            function cleanup_t_uint256(value) -> cleaned {
-                cleaned := and(value, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+            function cleanup_t_uint512(value) -> cleaned {
+                cleaned := value
             }
 
-            function write_to_memory_t_uint256(memPtr, value) {
-                mstore(memPtr, cleanup_t_uint256(value))
+            function write_to_memory_t_uint512(memPtr, value) {
+                mstore(memPtr, cleanup_t_uint512(value))
             }
 
-            function validator_revert_t_uint256(value) {
-                if iszero(eq(value, cleanup_t_uint256(value))) { revert(0, 0) }
+            function validator_revert_t_uint512(value) {
+                if iszero(eq(value, cleanup_t_uint512(value))) { revert(0, 0) }
             }
 
-            function abi_decode_t_uint256(offset, end) -> value {
+            function abi_decode_t_uint512(offset, end) -> value {
                 value := calldataload(offset)
-                validator_revert_t_uint256(value)
+                validator_revert_t_uint512(value)
             }
 
-            // uint256[]
-            function abi_decode_available_length_t_array$_t_uint256_$dyn_memory_ptr(offset, length, end) -> array {
-                array := allocate_memory(array_allocation_size_t_array$_t_uint256_$dyn_memory_ptr(length))
+            // uint512[]
+            function abi_decode_available_length_t_array$_t_uint512_$dyn_memory_ptr(offset, length, end) -> array {
+                array := allocate_memory(array_allocation_size_t_array$_t_uint512_$dyn_memory_ptr(length))
                 let dst := array
 
                 mstore(array, length)
@@ -248,22 +248,22 @@ object "C_15" {
 
                     let elementPos := src
 
-                    let elementValue_0 := abi_decode_t_uint256(elementPos, end)
-                    write_to_memory_t_uint256(dst, elementValue_0)
+                    let elementValue_0 := abi_decode_t_uint512(elementPos, end)
+                    write_to_memory_t_uint512(dst, elementValue_0)
                     dst := add(dst, 0x40)
                 }
             }
 
-            // uint256[]
-            function abi_decode_t_array$_t_uint256_$dyn_memory_ptr(offset, end) -> array {
+            // uint512[]
+            function abi_decode_t_array$_t_uint512_$dyn_memory_ptr(offset, end) -> array {
                 if iszero(slt(add(offset, 0x3f), end)) { revert_error_1b9f4a0a5773e33b91aa01db23bf8c55fce1411167c872835e7fa00a4f17d46d() }
                 let length := calldataload(offset)
-                array := abi_decode_available_length_t_array$_t_uint256_$dyn_memory_ptr(add(offset, 0x40), length, end)
+                array := abi_decode_available_length_t_array$_t_uint512_$dyn_memory_ptr(add(offset, 0x40), length, end)
             }
 
-            // uint256[][]
-            function abi_decode_available_length_t_array$_t_array$_t_uint256_$dyn_memory_ptr_$dyn_memory_ptr(offset, length, end) -> array {
-                array := allocate_memory(array_allocation_size_t_array$_t_array$_t_uint256_$dyn_memory_ptr_$dyn_memory_ptr(length))
+            // uint512[][]
+            function abi_decode_available_length_t_array$_t_array$_t_uint512_$dyn_memory_ptr_$dyn_memory_ptr(offset, length, end) -> array {
+                array := allocate_memory(array_allocation_size_t_array$_t_array$_t_uint512_$dyn_memory_ptr_$dyn_memory_ptr(length))
                 let dst := array
 
                 mstore(array, length)
@@ -280,17 +280,17 @@ object "C_15" {
                     if gt(innerOffset, 0xffffffffffffffff) { revert_error_1b9f4a0a5773e33b91aa01db23bf8c55fce1411167c872835e7fa00a4f17d46d() }
                     let elementPos := add(offset, innerOffset)
 
-                    let elementValue_0 := abi_decode_t_array$_t_uint256_$dyn_memory_ptr(elementPos, end)
-                    write_to_memory_t_array$_t_uint256_$dyn_memory_ptr(dst, elementValue_0)
+                    let elementValue_0 := abi_decode_t_array$_t_uint512_$dyn_memory_ptr(elementPos, end)
+                    write_to_memory_t_array$_t_uint512_$dyn_memory_ptr(dst, elementValue_0)
                     dst := add(dst, 0x40)
                 }
             }
 
-            // uint256[][]
-            function abi_decode_t_array$_t_array$_t_uint256_$dyn_memory_ptr_$dyn_memory_ptr(offset, end) -> array {
+            // uint512[][]
+            function abi_decode_t_array$_t_array$_t_uint512_$dyn_memory_ptr_$dyn_memory_ptr(offset, end) -> array {
                 if iszero(slt(add(offset, 0x3f), end)) { revert_error_1b9f4a0a5773e33b91aa01db23bf8c55fce1411167c872835e7fa00a4f17d46d() }
                 let length := calldataload(offset)
-                array := abi_decode_available_length_t_array$_t_array$_t_uint256_$dyn_memory_ptr_$dyn_memory_ptr(add(offset, 0x40), length, end)
+                array := abi_decode_available_length_t_array$_t_array$_t_uint512_$dyn_memory_ptr_$dyn_memory_ptr(add(offset, 0x40), length, end)
             }
 
             function validator_revert_t_enum$_E_$3(value) {
@@ -302,7 +302,7 @@ object "C_15" {
                 validator_revert_t_enum$_E_$3(value)
             }
 
-            function abi_decode_tuple_t_array$_t_array$_t_uint256_$dyn_memory_ptr_$dyn_memory_ptrt_enum$_E_$3(headStart, dataEnd) -> value0, value1 {
+            function abi_decode_tuple_t_array$_t_array$_t_uint512_$dyn_memory_ptr_$dyn_memory_ptrt_enum$_E_$3(headStart, dataEnd) -> value0, value1 {
                 if slt(sub(dataEnd, headStart), 128) { revert_error_dbdddcbe895c83990c08b3492a0e83918d802a52331272ac6fdb6a7c4aea3b1b() }
 
                 {
@@ -310,7 +310,7 @@ object "C_15" {
                     let offset := calldataload(add(headStart, 0))
                     if gt(offset, 0xffffffffffffffff) { revert_error_c1322bf8034eace5e0b5c7295db60986aa89aae5e0ea0873e4689e076861a5db() }
 
-                    value0 := abi_decode_t_array$_t_array$_t_uint256_$dyn_memory_ptr_$dyn_memory_ptr(add(headStart, offset), dataEnd)
+                    value0 := abi_decode_t_array$_t_array$_t_uint512_$dyn_memory_ptr_$dyn_memory_ptr(add(headStart, offset), dataEnd)
                 }
 
                 {
@@ -330,7 +330,7 @@ object "C_15" {
             function external_fun_f_14() {
 
                 if callvalue() { revert_error_be32188dd738710e8ecae48fc1f4112ee921f6859083d2f996c0e95db286cbd8() }
-                let param_0, param_1 :=  abi_decode_tuple_t_array$_t_array$_t_uint256_$dyn_memory_ptr_$dyn_memory_ptrt_enum$_E_$3(4, calldatasize())
+                let param_0, param_1 :=  abi_decode_tuple_t_array$_t_array$_t_uint512_$dyn_memory_ptr_$dyn_memory_ptrt_enum$_E_$3(4, calldatasize())
                 fun_f_14(param_0, param_1)
                 let memPos := allocate_unbounded()
                 let memEnd := abi_encode_tuple__to__fromStack(memPos  )

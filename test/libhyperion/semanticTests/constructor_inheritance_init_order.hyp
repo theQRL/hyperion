@@ -3,7 +3,7 @@ contract A {
     constructor() {
         x = 42;
     }
-    function f() public returns(uint256) {
+    function f() public returns(uint) {
         return x;
     }
 }

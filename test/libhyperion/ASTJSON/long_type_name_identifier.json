@@ -41,8 +41,8 @@
           "storageLocation": "default",
           "typeDescriptions":
           {
-            "typeIdentifier": "t_array$_t_uint256_$dyn_storage",
-            "typeString": "uint256[]"
+            "typeIdentifier": "t_array$_t_uint512_$dyn_storage",
+            "typeString": "uint512[]"
           },
           "typeName":
           {
@@ -54,8 +54,8 @@
               "src": "13:4:1",
               "typeDescriptions":
               {
-                "typeIdentifier": "t_uint256",
-                "typeString": "uint256"
+                "typeIdentifier": "t_uint512",
+                "typeString": "uint512"
               }
             },
             "id": 2,
@@ -63,8 +63,8 @@
             "src": "13:6:1",
             "typeDescriptions":
             {
-              "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
-              "typeString": "uint256[]"
+              "typeIdentifier": "t_array$_t_uint512_$dyn_storage_ptr",
+              "typeString": "uint512[]"
             }
           },
           "visibility": "internal"
@@ -97,8 +97,8 @@
                     "storageLocation": "storage",
                     "typeDescriptions":
                     {
-                      "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
-                      "typeString": "uint256[]"
+                      "typeIdentifier": "t_array$_t_uint512_$dyn_storage_ptr",
+                      "typeString": "uint512[]"
                     },
                     "typeName":
                     {
@@ -110,8 +110,8 @@
                         "src": "45:4:1",
                         "typeDescriptions":
                         {
-                          "typeIdentifier": "t_uint256",
-                          "typeString": "uint256"
+                          "typeIdentifier": "t_uint512",
+                          "typeString": "uint512"
                         }
                       },
                       "id": 9,
@@ -119,8 +119,8 @@
                       "src": "45:6:1",
                       "typeDescriptions":
                       {
-                        "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
-                        "typeString": "uint256[]"
+                        "typeIdentifier": "t_array$_t_uint512_$dyn_storage_ptr",
+                        "typeString": "uint512[]"
                       }
                     },
                     "visibility": "internal"
@@ -137,8 +137,8 @@
                   "src": "64:1:1",
                   "typeDescriptions":
                   {
-                    "typeIdentifier": "t_array$_t_uint256_$dyn_storage",
-                    "typeString": "uint256[] storage ref"
+                    "typeIdentifier": "t_array$_t_uint512_$dyn_storage",
+                    "typeString": "uint512[] storage ref"
                   }
                 },
                 "nodeType": "VariableDeclarationStatement",

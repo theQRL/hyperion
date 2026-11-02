@@ -67,20 +67,20 @@ or are general-use utility functions.
 Block and Transaction Properties
 --------------------------------
 
-- ``blockhash(uint blockNumber) returns (bytes32)``: hash of the given block when ``blocknumber`` is one of the 256 most recent blocks; otherwise returns zero
-- ``block.basefee`` (``uint``): current block's base fee
-- ``block.chainid`` (``uint``): current chain id
+- ``blockhash(uint256 blockNumber) returns (bytes32)``: hash of the given block when ``blocknumber`` is one of the 256 most recent blocks; otherwise returns zero
+- ``block.basefee`` (``uint256``): current block's base fee
+- ``block.chainid`` (``uint256``): current chain id
 - ``block.coinbase`` (``address payable``): current block miner's address
-- ``block.gaslimit`` (``uint``): current block gaslimit
-- ``block.number`` (``uint``): current block number
-- ``block.prevrandao`` (``uint``): random number provided by the beacon chain
-- ``block.timestamp`` (``uint``): current block timestamp as seconds since unix epoch
+- ``block.gaslimit`` (``uint256``): current block gaslimit
+- ``block.number`` (``uint256``): current block number
+- ``block.prevrandao`` (``uint256``): random number provided by the beacon chain
+- ``block.timestamp`` (``uint256``): current block timestamp as seconds since unix epoch
 - ``gasleft() returns (uint256)``: remaining gas
 - ``msg.data`` (``bytes calldata``): complete calldata
 - ``msg.sender`` (``address``): sender of the message (current call)
 - ``msg.sig`` (``bytes4``): first four bytes of the calldata (i.e. function identifier)
-- ``msg.value`` (``uint``): number of planck sent with the message
-- ``tx.gasprice`` (``uint``): gas price of the transaction
+- ``msg.value`` (``uint256``): number of planck sent with the message
+- ``tx.gasprice`` (``uint256``): gas price of the transaction
 - ``tx.origin`` (``address``): sender of the transaction (full call chain)
 
 .. note::
@@ -177,10 +177,10 @@ more details on error handling and when to use which function.
 Mathematical and Cryptographic Functions
 ----------------------------------------
 
-``addmod(uint x, uint y, uint k) returns (uint)``
+``addmod(uint256 x, uint256 y, uint256 k) returns (uint256)``
     compute ``(x + y) % k`` where the addition is performed with arbitrary precision and does not wrap around at ``2**256``. Assert that ``k != 0`` starting from version 0.5.0.
 
-``mulmod(uint x, uint y, uint k) returns (uint)``
+``mulmod(uint256 x, uint256 y, uint256 k) returns (uint256)``
     compute ``(x * y) % k`` where the multiplication is performed with arbitrary precision and does not wrap around at ``2**256``. Assert that ``k != 0`` starting from version 0.5.0.
 
 ``keccak256(bytes memory) returns (bytes32)``

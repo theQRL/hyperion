@@ -12,4 +12,4 @@ contract Main {
     }
 }
 // ----
-// f(bytes,uint256,uint256,uint256): 0x80, 3, 4, 5, 78, "abcdefghijklmnopqrstuvwxyzabcdef", "ghijklmnopqrstuvwxyzabcdefghijkl", "mnopqrstuvwxyz" -> FAILURE, hex"4e487b71", 0x32
+// f(bytes,uint512,uint512,uint512): 0x80, 3, 4, 5, 78, "abcdefghijklmnopqrstuvwxyzabcdef", "ghijklmnopqrstuvwxyzabcdefghijkl", "mnopqrstuvwxyz" -> FAILURE, hex"4e487b71", 0x32

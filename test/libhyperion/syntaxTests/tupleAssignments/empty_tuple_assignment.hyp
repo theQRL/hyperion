@@ -28,7 +28,7 @@ function fg() pure {
 // TypeError 5547: (78-80): Empty tuple on the left hand side.
 // TypeError 7407: (87-93): Type tuple(int_const 1,int_const 3) is not implicitly convertible to expected type tuple(,tuple(,tuple())).
 // TypeError 5547: (187-189): Empty tuple on the left hand side.
-// TypeError 7407: (194-197): Type tuple(int256,int256) is not implicitly convertible to expected type tuple(,tuple()).
+// TypeError 7407: (194-197): Type tuple(int512,int512) is not implicitly convertible to expected type tuple(,tuple()).
 // TypeError 5547: (233-235): Empty tuple on the left hand side.
 // TypeError 7407: (245-256): Type tuple(tuple(int_const 1,int_const 2),int_const 3) is not implicitly convertible to expected type tuple(tuple(,tuple()),).
 // TypeError 5547: (291-293): Empty tuple on the left hand side.

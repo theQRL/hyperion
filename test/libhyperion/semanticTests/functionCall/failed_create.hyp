@@ -2,7 +2,7 @@ contract D { constructor() payable {} }
 contract C {
 	uint public x;
 	constructor() payable {}
-	function f(uint amount) public returns (D) {
+	function f(uint256 amount) public returns (D) {
 		x++;
 		return (new D){value: amount}();
 	}
@@ -16,16 +16,16 @@ contract C {
 // ----
 // constructor(), 20 planck
 // gas irOptimized: 166148
-// gas legacy: 342879
+// gas legacy: 318249
 // gas legacyOptimized: 168515
 // f(uint256): 20 -> 0xbf516a9ed73415827a9b7ebe565b2a2f54d9480860af6e230d858ca8c9a65c60b27398ae67a2813a4c4c789a2c5e99b1b92c1fad6565e9f96c96f525e528b488
 // x() -> 1
 // f(uint256): 20 -> FAILURE
 // x() -> 1
-// stack(uint256): 1023 -> FAILURE
+// stack(uint512): 1023 -> FAILURE
 // gas irOptimized: 252410
-// gas legacy: 487593
+// gas legacy: 475408
 // gas legacyOptimized: 299567
 // x() -> 1
-// stack(uint256): 10 -> 0x8e72eca7ef6126fdd827197f2696e768183c574707796143e92e7e6e47e5c65aefb928c195c28dbbba844605ab0f2b523b41694133c04e04c12777f6e7dd6284
+// stack(uint512): 10 -> 0x8e72eca7ef6126fdd827197f2696e768183c574707796143e92e7e6e47e5c65aefb928c195c28dbbba844605ab0f2b523b41694133c04e04c12777f6e7dd6284
 // x() -> 2

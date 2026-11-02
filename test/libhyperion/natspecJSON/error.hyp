@@ -12,7 +12,7 @@ contract test {
 // {
 //     "errors":
 //     {
-//         "E(uint256,uint256)":
+//         "E(uint512,uint512)":
 //         [
 //             {
 //                 "details": "an error.",
@@ -33,7 +33,7 @@ contract test {
 // {
 //     "errors":
 //     {
-//         "E(uint256,uint256)":
+//         "E(uint512,uint512)":
 //         [
 //             {
 //                 "notice": "Something failed."

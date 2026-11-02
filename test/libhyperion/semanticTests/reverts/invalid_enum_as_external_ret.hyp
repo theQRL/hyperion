@@ -24,6 +24,6 @@ contract C {
     }
 }
 // ----
-// test_return() -> FAILURE, hex"4e487b71", 33 # both should throw #
-// test_inline_assignment() -> FAILURE, hex"4e487b71", 33
-// test_assignment() -> FAILURE, hex"4e487b71", 33
+// test_return() -> FAILURE, hex"4e487b71", 0x21 # both should throw #
+// test_inline_assignment() -> FAILURE, hex"4e487b71", 0x21
+// test_assignment() -> FAILURE, hex"4e487b71", 0x21

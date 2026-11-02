@@ -1,6 +1,6 @@
 contract C {
 	uint x;
-	function f() public returns (uint256) {
+	function f() public returns (uint) {
 		h().f.selector;
 		return x;
 	}

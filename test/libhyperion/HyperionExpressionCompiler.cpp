@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE(arithmetic)
 {
 	char const* sourceCode = R"(
 		contract test {
-			function f(uint y) public { unchecked { ((((((((y ^ 8) & 7) | 6) - 5) + 4) % 3) / 2) * 1); } }
+			function f(uint256 y) public { unchecked { ((((((((y ^ 8) & 7) | 6) - 5) + 4) % 3) / 2) * 1); } }
 		}
 	)";
 	bytes code = compileFirstExpression(sourceCode, {}, {{"test", "f", "y"}});
@@ -506,7 +506,7 @@ BOOST_AUTO_TEST_CASE(unary_operators)
 {
 	char const* sourceCode = R"(
 		contract test {
-			function f(int y) public { unchecked { !(~- y == 2); } }
+			function f(int256 y) public { unchecked { !(~- y == 2); } }
 		}
 	)";
 	bytes code = compileFirstExpression(sourceCode, {}, {{"test", "f", "y"}});

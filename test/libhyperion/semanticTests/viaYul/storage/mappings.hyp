@@ -29,9 +29,9 @@ contract C {
     }
 }
 // ----
-// test_simple(uint256): 0 -> 3, 4, 5
-// test_simple(uint256): 1 -> 3, 4, 5
-// test_simple(uint256): 2 -> 3, 4, 5
+// test_simple(uint512): 0 -> 3, 4, 5
+// test_simple(uint512): 1 -> 3, 4, 5
+// test_simple(uint512): 2 -> 3, 4, 5
 // test_cleanup() -> true
 // test_str() -> true
 // test_twodim() -> 0, 3
