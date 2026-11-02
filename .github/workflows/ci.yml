@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -116,7 +116,7 @@ jobs:
     steps:
       - name: Preserve fixture line endings
         run: git config --global core.autocrlf false
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
@@ -124,7 +124,7 @@ jobs:
           python-version: '3.11'
       # Release binaries are built from pristine inputs: a tag run would otherwise restore these
       # trees from the main-branch cache scope, which any push to main can write.
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         if: github.ref_type != 'tag'
         with:
           path: |
@@ -148,7 +148,7 @@ jobs:
       - name: Prepare compiler version
         run: bash scripts/ci/prepare_metadata.sh
       - name: Check out QRVM test engine
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: theQRL/qrvmone
           ref: bf6e26e7e205605be9e17e44fe2b83f0e193f571 # v0.12.1
@@ -177,7 +177,7 @@ jobs:
           COMPILER: ${{ matrix.compiler }}
           PLATFORM: ${{ matrix.platform }}
         run: python scripts/ci/bytecode_report.py "$COMPILER" "reports/$PLATFORM.json"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: bytecode-${{ matrix.platform }}
           path: reports/*.json
@@ -193,14 +193,14 @@ jobs:
           cp "$COMPILER" "release/$ASSET"
           # Only this job sets its outputs; the bytecode and release jobs check the artifact against it.
           echo "sha256_$PLATFORM=$(cmake -E sha256sum "release/$ASSET" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-${{ matrix.platform }}
           path: release/*
           if-no-files-found: error
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: tests-${{ matrix.platform }}
           path: test_results/
@@ -219,7 +219,7 @@ jobs:
     steps:
       - name: Preserve fixture line endings
         run: git config --global core.autocrlf false
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
@@ -249,13 +249,13 @@ jobs:
             runner: ubuntu-22.04-arm
             asset: hypc-static-linux-arm
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.11'
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-linux-${{ matrix.architecture }}
           path: release
@@ -281,7 +281,7 @@ jobs:
       HYPTEST_BINARY: build/test/hyptest
       HYPTEST_FLAGS: --no-smt
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Install current Boost and Ninja
@@ -297,7 +297,7 @@ jobs:
       # Keep this pin equal to the portable job's and linux.yml's, and test/qrvmc on the engine's QRVMC
       # (see test/qrvmc/README.md).
       - name: Check out QRVM test engine
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: theQRL/qrvmone
           ref: bf6e26e7e205605be9e17e44fe2b83f0e193f571 # v0.12.1
@@ -323,7 +323,7 @@ jobs:
     outputs:
       sha256: ${{ steps.release.outputs.sha256 }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Trust checkout in container
@@ -335,11 +335,14 @@ jobs:
       - name: Record release asset digest
         id: release
         run: echo "sha256=$(sha256sum upload/hypjson.js | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '22'
+          # setup-node 5 and later cache npm automatically when package.json names npm as its
+          # package manager. This job builds a release asset, so it must not restore caches.
+          package-manager-cache: false
       - name: Check out JavaScript bindings
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: theQRL/hypc-js
           ref: fdef38670119db396c558bd3bda87f64c4246fef
@@ -354,12 +357,12 @@ jobs:
           npm test
       - name: Generate bytecode comparison
         run: python3 scripts/ci/bytecode_report.py deps/hypc-js/dist reports/emscripten.json --hypcjs
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: bytecode-emscripten
           path: reports/*.json
           if-no-files-found: error
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-emscripten
           path: upload/hypjson.js
@@ -371,7 +374,7 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: bytecode-*
           path: reports
@@ -384,7 +387,7 @@ jobs:
           done
       # The release job's asset check, run on every push and pull request so that a missing digest
       # fails here rather than at release time.
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: release-*
           path: release
@@ -409,7 +412,7 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: scripts/ci
@@ -434,10 +437,10 @@ jobs:
       id-token: write # mint the OIDC token that signs the build provenance attestation
       attestations: write # store the build provenance attestation for each release asset
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: release-*
           path: release
