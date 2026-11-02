@@ -13,7 +13,7 @@ Build System:
 
 ### 0.2.0 (2026-10-19)
 
-Breaking changes:
+Breaking Changes:
  * ABI coder: Remove v1 support. All contracts use ABI coder v2; `pragma abicoder v1` is rejected.
  * QRVM: Use 512-bit (64-byte) VM words and 64-byte addresses.
 

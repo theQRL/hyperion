@@ -1,0 +1,33 @@
+name: Upstream bugs
+
+# SECURITY.md commits to deciding within 30 days whether each new entry in Solidity's list of known
+# bugs affects Hyperion. This fails when an entry is missing from docs/upstream_bugs_reviewed.json
+# or its review is overdue (scripts/check_upstream_bugs.py).
+on:
+  schedule:
+    - cron: '23 5 * * 1'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/upstream-bugs.yml
+      - docs/bugs.json
+      - docs/upstream_bugs_reviewed.json
+      - scripts/check_upstream_bugs.py
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Solidity's known bugs are reviewed
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: python3 scripts/check_upstream_bugs.py
