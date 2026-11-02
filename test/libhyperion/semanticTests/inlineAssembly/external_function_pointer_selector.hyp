@@ -3,7 +3,7 @@ contract C {
 
 	function testYul() public returns (uint32) {
 		function() external fp = this.testFunction;
-		uint selectorValue = 0;
+		uint256 selectorValue = 0;
 
 		assembly {
 			selectorValue := fp.selector

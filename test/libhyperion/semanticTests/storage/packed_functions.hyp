@@ -1,9 +1,9 @@
 contract C {
     // these should take the same slot
-    function() internal returns (uint) a;
-    function() external returns (uint) b;
-    function() external returns (uint) c;
-    function() internal returns (uint) d;
+    function() internal returns (uint256) a;
+    function() external returns (uint256) b;
+    function() external returns (uint256) c;
+    function() internal returns (uint256) d;
     uint8 public x;
 
     function set() public {
