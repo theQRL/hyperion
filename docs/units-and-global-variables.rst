@@ -79,7 +79,7 @@ Block and Transaction Properties
 - ``msg.data`` (``bytes calldata``): complete calldata
 - ``msg.sender`` (``address``): sender of the message (current call)
 - ``msg.sig`` (``bytes4``): first four bytes of the calldata (i.e. function identifier)
-- ``msg.value`` (``uint256``): number of planck sent with the message
+- ``msg.value`` (``uint``): number of planck sent with the message
 - ``tx.gasprice`` (``uint256``): gas price of the transaction
 - ``tx.origin`` (``address``): sender of the transaction (full call chain)
 
@@ -222,7 +222,7 @@ Earlier releases used ``uint256`` parameters and return values.
 Members of Address Types
 ------------------------
 
-``<address>.balance`` (``uint256``)
+``<address>.balance`` (``uint``)
     balance of the :ref:`address` in Planck
 
 ``<address>.code`` (``bytes memory``)
@@ -231,10 +231,10 @@ Members of Address Types
 ``<address>.codehash`` (``bytes32``)
     the codehash of the :ref:`address`
 
-``<address payable>.transfer(uint256 amount)``
+``<address payable>.transfer(uint amount)``
     send given amount of Planck to :ref:`address`, reverts on failure, forwards 2300 gas stipend, not adjustable
 
-``<address payable>.send(uint256 amount) returns (bool)``
+``<address payable>.send(uint amount) returns (bool)``
     send given amount of Planck to :ref:`address`, returns ``false`` on failure, forwards 2300 gas stipend, not adjustable
 
 ``<address>.call(bytes memory) returns (bool, bytes memory)``

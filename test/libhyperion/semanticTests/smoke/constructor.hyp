@@ -3,7 +3,7 @@ contract C {
     constructor(uint _state) payable {
         state = _state;
     }
-    function balance() public payable returns (uint256) {
+    function balance() public payable returns (uint) {
         return address(this).balance;
     }
     function update(uint _state) public {
@@ -12,9 +12,9 @@ contract C {
 }
 // ----
 // constructor(), 2 planck: 3 ->
-// gas irOptimized: 104412
-// gas legacy: 166764
-// gas legacyOptimized: 106727
+// gas irOptimized: 104958
+// gas legacy: 148830
+// gas legacyOptimized: 107245
 // state() -> 3
 // balance() -> 2
 // balance -> 2

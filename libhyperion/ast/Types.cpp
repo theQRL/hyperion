@@ -536,7 +536,7 @@ bool AddressType::operator==(Type const& _other) const
 MemberList::MemberMap AddressType::nativeMembers(ASTNode const*) const
 {
 	MemberList::MemberMap members = {
-		{"balance", TypeProvider::uint256()},
+		{"balance", TypeProvider::uint(VMWordBits)},
 		{"code", TypeProvider::array(DataLocation::Memory)},
 		{"codehash",  TypeProvider::fixedBytes(32)},
 		{"call", TypeProvider::function(strings{"bytes memory"}, strings{"bool", "bytes memory"}, FunctionType::Kind::BareCall, StateMutability::Payable)},
@@ -3303,9 +3303,9 @@ std::vector<std::tuple<std::string, Type const*>> FunctionType::makeStackItems()
 	}
 
 	if (gasSet())
-		slots.emplace_back("gas", TypeProvider::uint256());
+		slots.emplace_back("gas", TypeProvider::uint(VMWordBits));
 	if (valueSet())
-		slots.emplace_back("value", TypeProvider::uint256());
+		slots.emplace_back("value", TypeProvider::uint(VMWordBits));
 	if (saltSet())
 		slots.emplace_back("salt", TypeProvider::fixedBytes(VMWordBytes));
 	if (hasBoundFirstArgument())
@@ -4124,7 +4124,7 @@ MemberList::MemberMap MagicType::nativeMembers(ASTNode const*) const
 	case Kind::Message:
 		return MemberList::MemberMap({
 			{"sender", TypeProvider::address()},
-			{"value", TypeProvider::uint256()},
+			{"value", TypeProvider::uint(VMWordBits)},
 			{"data", TypeProvider::array(DataLocation::CallData)},
 			{"sig", TypeProvider::fixedBytes(4)}
 		});

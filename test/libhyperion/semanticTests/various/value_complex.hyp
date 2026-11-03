@@ -1,5 +1,5 @@
 contract helper {
-    function getBalance() public payable returns (uint256 myBalance) {
+    function getBalance() public payable returns (uint myBalance) {
         return address(this).balance;
     }
 }
@@ -12,14 +12,14 @@ contract test {
         h = new helper();
     }
 
-    function sendAmount(uint256 amount) public payable returns (uint256 bal) {
+    function sendAmount(uint256 amount) public payable returns (uint bal) {
         uint256 someStackElement = 20;
         return h.getBalance{value: amount + 3, gas: 1000}();
     }
 }
 // ----
 // constructor(), 20 planck ->
-// gas irOptimized: 172407
-// gas legacy: 271287
-// gas legacyOptimized: 180352
+// gas irOptimized: 176366
+// gas legacy: 278058
+// gas legacyOptimized: 190976
 // sendAmount(uint256): 5 -> 8

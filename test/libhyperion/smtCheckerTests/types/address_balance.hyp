@@ -10,5 +10,5 @@ contract C
 // SMTIgnoreCex: yes
 // ----
 // Warning 2072: (63-69): Unused local variable.
-// Warning 4984: (72-95): CHC: Overflow (resulting value larger than 2**256 - 1) happens here.
+// Warning 4984: (72-95): CHC: Overflow (resulting value larger than 2**512 - 1) happens here.
 // Warning 6328: (99-128): CHC: Assertion violation happens here.

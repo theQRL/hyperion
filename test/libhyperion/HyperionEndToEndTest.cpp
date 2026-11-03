@@ -852,6 +852,67 @@ BOOST_AUTO_TEST_CASE(constructor)
 	)
 }
 
+BOOST_AUTO_TEST_CASE(word_sized_call_values)
+{
+	char const* sourceCode = R"(
+		contract Receiver {
+			uint public constructorValue;
+			constructor() payable { constructorValue = msg.value; }
+			function received() external payable returns (uint) { return msg.value; }
+			receive() external payable {}
+		}
+		contract test {
+			Receiver public receiver = new Receiver();
+			function typed(uint value, uint gasLimit) public returns (uint) {
+				return receiver.received{value: value, gas: gasLimit}();
+			}
+			function low(uint value, uint gasLimit) public returns (uint) {
+				(bool ok, bytes memory data) = address(receiver).call{value: value, gas: gasLimit}(
+					abi.encodeCall(receiver.received, ())
+				);
+				require(ok);
+				return abi.decode(data, (uint));
+			}
+			function created(uint value, bool salted) public returns (uint, uint) {
+				Receiver child;
+				if (salted)
+					child = new Receiver{value: value, salt: bytes64(uint(1))}();
+				else
+					child = new Receiver{value: value}();
+				return (child.constructorValue(), address(child).balance);
+			}
+			function sendValue(uint value) public returns (bool) {
+				return payable(address(receiver)).send(value);
+			}
+			function transferValue(uint value) public returns (uint) {
+				payable(address(receiver)).transfer(value);
+				return address(receiver).balance;
+			}
+			function rejected(uint value) public returns (bool ok) {
+				(ok,) = address(receiver).call{value: value}("");
+			}
+			function balance() public view returns (uint) { return address(this).balance; }
+		}
+	)";
+	ALSO_VIA_YUL(
+		compileAndRun(sourceCode, 0, "test");
+		u512 const amount = (u512(1) << 300) + 5;
+		u512 const gas = u512(1) << 400;
+		m_qrvmcHost->accounts[QRVMHost::convertToQRVMC(m_contractAddress)].balance =
+			QRVMHost::convertUintToQRVMC(amount * 10);
+		ABI_CHECK(callContractFunction("balance()"), encodeArgs(u512(amount * 10)));
+		ABI_CHECK(callContractFunction("typed(uint512,uint512)", amount, gas), encodeArgs(amount));
+		ABI_CHECK(callContractFunction("low(uint512,uint512)", amount, gas), encodeArgs(amount));
+		ABI_CHECK(callContractFunction("sendValue(uint512)", amount), encodeArgs(true));
+		ABI_CHECK(callContractFunction("transferValue(uint512)", amount), encodeArgs(u512(amount * 4)));
+		ABI_CHECK(callContractFunction("created(uint512,bool)", amount, false), encodeArgs(amount, amount));
+		ABI_CHECK(callContractFunction("created(uint512,bool)", amount, true), encodeArgs(amount, amount));
+		ABI_CHECK(callContractFunction("rejected(uint512)", u512(1) << 400), encodeArgs(false));
+		ABI_CHECK(callContractFunction("balance()"), encodeArgs(u512(amount * 4)));
+		BOOST_CHECK_EQUAL(balanceAt(m_contractAddress), amount * 4);
+	)
+}
+
 BOOST_AUTO_TEST_CASE(send_quanta)
 {
 	char const* sourceCode = R"(
@@ -1137,7 +1198,7 @@ BOOST_AUTO_TEST_CASE(contracts_as_addresses)
 		contract test {
 			helper h;
 			constructor() payable { h = new helper(); payable(h).send(5); }
-			function getBalance() public returns (uint256 myBalance, uint256 helperBalance) {
+			function getBalance() public returns (uint myBalance, uint helperBalance) {
 				myBalance = address(this).balance;
 				helperBalance = address(h).balance;
 			}

@@ -164,7 +164,7 @@ void QRVMHost::newTransactionFrame()
 		}
 }
 
-void QRVMHost::transfer(qrvmc::MockedAccount& _sender, qrvmc::MockedAccount& _recipient, u256 const& _value) noexcept
+void QRVMHost::transfer(qrvmc::MockedAccount& _sender, qrvmc::MockedAccount& _recipient, u512 const& _value) noexcept
 {
 	assertThrow(convertUintFromQRVMC(_sender.balance) >= _value, Exception, "Insufficient balance for transfer");
 	_sender.balance = convertUintToQRVMC(convertUintFromQRVMC(_sender.balance) - _value);
@@ -199,7 +199,7 @@ qrvmc::Result QRVMHost::call(qrvmc_message const& _message) noexcept
 
 	auto stateBackup = accounts;
 
-	u256 value{convertUintFromQRVMC(_message.value)};
+	u512 value{convertUintFromQRVMC(_message.value)};
 	auto& sender = accounts[_message.sender];
 
 	qrvmc::bytes code;
@@ -370,22 +370,20 @@ qrvmc::bytes64 QRVMHost::convertToQRVMC(h256 const& _data)
 	return d;
 }
 
-u256 QRVMHost::convertUintFromQRVMC(qrvmc::bytes64 const& _data)
+u512 QRVMHost::convertUintFromQRVMC(qrvmc::bytes64 const& _data)
 {
-	// uint256 is right-aligned in the lower 32 bytes of the QRVMC word.
-	u256 result = 0;
-	for (unsigned i = 32; i < 64; ++i)
+	u512 result = 0;
+	for (unsigned i = 0; i < 64; ++i)
 		result = (result << 8) | _data.bytes[i];
 	return result;
 }
 
-qrvmc::bytes64 QRVMHost::convertUintToQRVMC(u256 const& _value)
+qrvmc::bytes64 QRVMHost::convertUintToQRVMC(u512 const& _value)
 {
-	// uint256 is right-aligned: place in lower 32 bytes (bytes 32-63).
 	qrvmc::bytes64 d{};
 	bytes be = toBigEndian(_value);
-	for (unsigned i = 0; i < 32; ++i)
-		d.bytes[32 + i] = be[i];
+	for (unsigned i = 0; i < 64; ++i)
+		d.bytes[i] = be[i];
 	return d;
 }
 

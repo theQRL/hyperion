@@ -1,0 +1,71 @@
+contract Child {
+    uint public value;
+    constructor() payable { value = msg.value; }
+}
+
+contract C {
+    constructor() payable {}
+    receive() external payable {}
+
+    function echo() external payable returns (uint) { return msg.value; }
+    function readBalance() external view returns (uint) { return address(this).balance; }
+
+    function typedNarrow(uint x) public returns (uint) {
+        return this.echo{value: uint256(x), gas: uint256((uint(1) << 256) + 100000)}();
+    }
+    function lowNarrow(uint x) public returns (bool ok) {
+        (ok,) = address(this).call{value: uint256(x)}("");
+    }
+    function gasWord(uint gasLimit) public returns (uint) {
+        return this.echo{gas: gasLimit}();
+    }
+    function gasNarrow(uint gasLimit) public returns (bool ok) {
+        (ok,) = address(this).call{gas: uint256(gasLimit)}(abi.encodeCall(this.echo, ()));
+    }
+    function staticGas(uint gasLimit) public view returns (bool, uint) {
+        (bool ok, bytes memory data) = address(this).staticcall{gas: gasLimit}(abi.encodeCall(this.readBalance, ()));
+        return (ok, abi.decode(data, (uint)));
+    }
+    function delegateGas(uint gasLimit) public returns (bool, uint) {
+        (bool ok, bytes memory data) = address(this).delegatecall{gas: gasLimit}(abi.encodeCall(this.readBalance, ()));
+        return (ok, abi.decode(data, (uint)));
+    }
+    function wrappedValue() public returns (uint) {
+        uint256 value = type(uint256).max;
+        unchecked { value += 1; }
+        return this.echo{value: value}();
+    }
+    function wrappedGas() public returns (bool ok) {
+        uint256 gasLimit = type(uint256).max;
+        unchecked { gasLimit += 1; }
+        (ok,) = address(this).call{gas: gasLimit}(abi.encodeCall(this.echo, ()));
+    }
+    function createNarrow(uint x, bool salted) public returns (uint) {
+        Child child;
+        if (salted)
+            child = new Child{value: uint256(x), salt: bytes64(uint(1))}();
+        else
+            child = new Child{value: uint256(x)}();
+        return child.value();
+    }
+}
+// ====
+// compileViaYul: also
+// ----
+// constructor(), 20 planck ->
+// gas irOptimized: 348943
+// gas legacy: 818355
+// gas legacyOptimized: 485159
+// typedNarrow(uint512): 115792089237316195423570985008687907853269984665640564039457584007913129639941 -> 5
+// lowNarrow(uint512): 115792089237316195423570985008687907853269984665640564039457584007913129639936 -> true
+// gasWord(uint512): 115792089237316195423570985008687907853269984665640564039457584007913129639936 -> 0
+// gasNarrow(uint512): 115792089237316195423570985008687907853269984665640564039457584007913129739936 -> true
+// gasNarrow(uint512): 115792089237316195423570985008687907853269984665640564039457584007913129639936 -> false
+// staticGas(uint512): 115792089237316195423570985008687907853269984665640564039457584007913129639936 -> true, 20
+// delegateGas(uint512): 115792089237316195423570985008687907853269984665640564039457584007913129639936 -> true, 20
+// wrappedValue() -> 0
+// wrappedGas() -> false
+// createNarrow(uint512,bool): 115792089237316195423570985008687907853269984665640564039457584007913129639941, false -> 5
+// gas legacy: 101626
+// createNarrow(uint512,bool): 115792089237316195423570985008687907853269984665640564039457584007913129639941, true -> 5
+// gas legacy: 101688

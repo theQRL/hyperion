@@ -1,7 +1,7 @@
 contract helper {
     bool flag;
 
-    function getBalance() payable public returns(uint256 myBalance) {
+    function getBalance() payable public returns(uint myBalance) {
         return address(this).balance;
     }
 
@@ -19,7 +19,7 @@ contract test {
         h = new helper();
     }
 
-    function sendAmount(uint256 amount) public payable returns(uint256 bal) {
+    function sendAmount(uint256 amount) public payable returns(uint bal) {
         return h.getBalance{value: amount}();
     }
 
@@ -37,9 +37,9 @@ contract test {
 }
 // ----
 // constructor(), 20 planck ->
-// gas irOptimized: 252642
-// gas legacy: 393340
-// gas legacyOptimized: 268089
+// gas irOptimized: 252005
+// gas legacy: 387454
+// gas legacyOptimized: 265279
 // sendAmount(uint256): 5 -> 5
 // outOfGas() -> FAILURE # call to helper should not succeed but amount should be transferred anyway #
 // checkState() -> false, 15

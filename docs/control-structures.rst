@@ -81,6 +81,13 @@ all function arguments have to be copied to memory.
 
 When calling functions of other contracts, you can specify the amount of Planck or
 gas sent with the call with the special options ``{value: 10, gas: 10000}``.
+
+Both options accept ``uint`` (the full 512-bit QRVM word). A narrower unsigned
+argument widens implicitly, after applying its declared width. For example,
+``{value: uint256(x)}`` sends ``x`` modulo ``2**256``. A full-word value is passed
+without truncation, and a transfer exceeding the available balance fails. A gas
+request exceeding the available forwarding allowance is capped by the VM;
+accepting a wider request does not increase that allowance.
 Note that it is discouraged to specify gas values explicitly, since the gas costs
 of opcodes can change in the future. Any Planck you send to the contract is added
 to the total balance of that contract:

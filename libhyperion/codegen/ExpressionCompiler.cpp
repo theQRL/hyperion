@@ -815,7 +815,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			// stack layout: contract_address function_id [gas] [value]
 			_functionCall.expression().accept(*this);
 
-			acceptAndConvert(*arguments.front(), *TypeProvider::uint256(), true);
+			acceptAndConvert(*arguments.front(), *function.parameterTypes().front(), true);
 			// Note that function is not the original function, but the ".gas" function.
 			// Its values of gasSet and valueSet is equal to the original function's though.
 			unsigned stackDepth = (function.gasSet() ? 1u : 0u) + (function.valueSet() ? 1u : 0u);
@@ -832,7 +832,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			// Its values of gasSet and valueSet is equal to the original function's though.
 			if (function.valueSet())
 				m_context << Instruction::POP;
-			arguments.front()->accept(*this);
+			acceptAndConvert(*arguments.front(), *function.parameterTypes().front(), true);
 			break;
 		case FunctionType::Kind::Send:
 		case FunctionType::Kind::Transfer:
@@ -1579,7 +1579,7 @@ bool ExpressionCompiler::visit(FunctionCallOptions const& _functionCallOptions)
 	for (size_t i = 0; i < _functionCallOptions.options().size(); ++i)
 	{
 		std::string const& name = *_functionCallOptions.names()[i];
-		Type const* requiredType = TypeProvider::uint256();
+		Type const* requiredType = TypeProvider::uint(VMWordBits);
 		Option newOption;
 		if (name == "salt")
 		{
@@ -1592,7 +1592,7 @@ bool ExpressionCompiler::visit(FunctionCallOptions const& _functionCallOptions)
 			newOption = Value;
 		else
 			hypAssert(false, "Unexpected option name!");
-		acceptAndConvert(*_functionCallOptions.options()[i], *requiredType);
+		acceptAndConvert(*_functionCallOptions.options()[i], *requiredType, true);
 
 		hypAssert(!util::contains(presentOptions, newOption), "");
 		ptrdiff_t insertPos = presentOptions.end() - lower_bound(presentOptions.begin(), presentOptions.end(), newOption);
