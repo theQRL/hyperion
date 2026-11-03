@@ -212,8 +212,8 @@ hiding new and different behavior in existing code.
       // SPDX-License-Identifier: GPL-3.0
       pragma hyperion >=0.1.0;
       contract C {
-          function f() public pure returns (uint256 aMod, uint256 mMod) {
-              uint256 x = 3;
+          function f() public pure returns (uint aMod, uint mMod) {
+              uint x = 3;
               // Old code gen: add/mulmod(5, 4, 3)
               // New code gen: add/mulmod(4, 5, 5)
               aMod = addmod(++x, ++x, x);

@@ -1,0 +1,17 @@
+contract C {
+    function narrowResult(uint x, uint y, uint m) public pure {
+        uint256 a = addmod(x, y, m);
+        uint256 b = mulmod(x, y, m);
+    }
+    function signedArgument(int512 x) public pure returns (uint) {
+        return addmod(x, 1, 2);
+    }
+    function oversizedArgument() public pure returns (uint) {
+        return mulmod(2**512, 1, 2);
+    }
+}
+// ----
+// TypeError 9574: (85-112): Type uint512 is not implicitly convertible to expected type uint256.
+// TypeError 9574: (122-149): Type uint512 is not implicitly convertible to expected type uint256.
+// TypeError 9553: (246-247): Invalid type for argument in function call. Invalid implicit conversion from int512 to uint512 requested.
+// TypeError 9553: (346-352): Invalid type for argument in function call. Invalid implicit conversion from int_const 1340...(147 digits omitted)...4096 to uint512 requested. Literal is too large to fit in uint512.

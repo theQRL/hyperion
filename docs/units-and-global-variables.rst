@@ -177,11 +177,17 @@ more details on error handling and when to use which function.
 Mathematical and Cryptographic Functions
 ----------------------------------------
 
-``addmod(uint256 x, uint256 y, uint256 k) returns (uint256)``
-    compute ``(x + y) % k`` where the addition is performed with arbitrary precision and does not wrap around at ``2**256``. Assert that ``k != 0`` starting from version 0.5.0.
+``addmod(uint x, uint y, uint k) returns (uint)``
+    compute ``(x + y) % k`` where the addition is performed with arbitrary precision and does not wrap around at ``2**512``. Revert with ``Panic(0x12)`` if ``k == 0``.
 
-``mulmod(uint256 x, uint256 y, uint256 k) returns (uint256)``
-    compute ``(x * y) % k`` where the multiplication is performed with arbitrary precision and does not wrap around at ``2**256``. Assert that ``k != 0`` starting from version 0.5.0.
+``mulmod(uint x, uint y, uint k) returns (uint)``
+    compute ``(x * y) % k`` where the multiplication is performed with arbitrary precision and does not wrap around at ``2**512``. Revert with ``Panic(0x12)`` if ``k == 0``.
+
+Here ``uint`` is an alias for ``uint512``, the full QRVM word. Narrower
+unsigned arguments such as ``uint256`` widen implicitly. Assigning the result to
+a narrower type requires an explicit conversion. If the nonzero modulus fits in
+that narrower unsigned type, the result fits too, because it is less than the modulus.
+Earlier releases used ``uint256`` parameters and return values.
 
 ``keccak256(bytes memory) returns (bytes32)``
     compute the Keccak-256 hash of the input

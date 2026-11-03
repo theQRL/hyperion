@@ -5,7 +5,7 @@ contract test {
 		require(k > 0);
 		require(x % k == 0);
 		require(y % k == 0);
-		uint256 r = mulmod(x, y, k);
+		uint r = mulmod(x, y, k);
 		assert(r % k == 0);
 	}
 }

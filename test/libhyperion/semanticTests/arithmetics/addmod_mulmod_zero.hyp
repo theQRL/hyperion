@@ -17,6 +17,8 @@ contract C {
         return 2;
     }
 }
+// ====
+// compileViaYul: also
 // ----
 // f(uint256): 0 -> FAILURE, hex"df75fb3b", 0x12
 // g(uint256): 0 -> FAILURE, hex"df75fb3b", 0x12

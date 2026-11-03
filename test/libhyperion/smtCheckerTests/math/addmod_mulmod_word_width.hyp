@@ -1,0 +1,23 @@
+contract C {
+    function boundary(uint x) public pure {
+        require(x == type(uint).max);
+        assert(addmod(x, x, x - 1) == 2);
+        assert(mulmod(x, x, x - 1) == 1);
+        assert(addmod(x, 0, x) == 0);
+        assert(mulmod(x, 1, x) == 0);
+    }
+    function wideModulus(uint x) public pure {
+        require(x == 2**256);
+        assert(addmod(x, 7, x + 10) == x + 7);
+        assert(mulmod(x, 2, x + 10) == x - 10);
+    }
+    function narrow(uint x) public pure {
+        require(x == 2**256 + 5);
+        assert(addmod(uint256(x), 7, 10) == 2);
+        assert(mulmod(uint256(x), 3, 10) == 5);
+    }
+}
+// ====
+// SMTEngine: all
+// ----
+// Info 1391: CHC: 22 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.

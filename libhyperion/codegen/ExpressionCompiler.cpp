@@ -1063,11 +1063,12 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 		case FunctionType::Kind::AddMod:
 		case FunctionType::Kind::MulMod:
 		{
-			acceptAndConvert(*arguments[2], *TypeProvider::uint256());
+			auto const& parameterTypes = function.parameterTypes();
+			acceptAndConvert(*arguments[2], *parameterTypes[2], true);
 			m_context << Instruction::DUP1 << Instruction::ISZERO;
 			m_context.appendConditionalPanic(util::PanicCode::DivisionByZero);
 			for (unsigned i = 1; i < 3; i ++)
-				acceptAndConvert(*arguments[2 - i], *TypeProvider::uint256());
+				acceptAndConvert(*arguments[2 - i], *parameterTypes[2 - i], true);
 			if (function.kind() == FunctionType::Kind::AddMod)
 				m_context << Instruction::ADDMOD;
 			else
