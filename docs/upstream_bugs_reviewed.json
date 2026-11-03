@@ -1,0 +1,65 @@
+[
+    {
+        "uid": "SOL-2026-7",
+        "name": "YulOptimizerKnowledgeBaseStaleBookkeeping",
+        "announced": "2026-10-22",
+        "reviewed": "2026-10-22",
+        "hyperion": "HYP-2026-6"
+    },
+    {
+        "uid": "SOL-2026-6",
+        "name": "MisorderedNamedParametersInRequireWithCustomErrors",
+        "announced": "2026-09-10",
+        "reviewed": "2026-11-02",
+        "notAffected": "require accepts only a bool and an optional string in Hyperion. Passing a custom error to require arrived in Solidity 0.8.26, after the fork.",
+        "late": "Announced before Hyperion adopted the 30-day review in SECURITY.md (November 2026)."
+    },
+    {
+        "uid": "SOL-2026-5",
+        "name": "MemoryByteArrayElementDeleteClearsWholeWord",
+        "announced": "2026-09-10",
+        "reviewed": "2026-10-22",
+        "hyperion": "HYP-2026-4",
+        "late": "Announced before Hyperion adopted the 30-day review in SECURITY.md (November 2026)."
+    },
+    {
+        "uid": "SOL-2026-4",
+        "name": "SpillSlotCollisionAcrossMutualRecursion",
+        "announced": "2026-09-10",
+        "reviewed": "2026-10-22",
+        "hyperion": "HYP-2026-3",
+        "late": "Announced before Hyperion adopted the 30-day review in SECURITY.md (November 2026)."
+    },
+    {
+        "uid": "SOL-2026-3",
+        "name": "InheritanceOrderReversalOnStorageEndWarning",
+        "announced": "2026-07-09",
+        "reviewed": "2026-11-02",
+        "notAffected": "Hyperion has no custom storage layouts (layout at), which arrived in Solidity 0.8.29, after the fork, so the warning and its reversal do not exist.",
+        "late": "Announced before Hyperion adopted the 30-day review in SECURITY.md (November 2026)."
+    },
+    {
+        "uid": "SOL-2026-2",
+        "name": "UnsoundSpillInMutualRecursion",
+        "announced": "2026-07-09",
+        "reviewed": "2026-10-22",
+        "hyperion": "HYP-2026-2",
+        "late": "Announced before Hyperion adopted the 30-day review in SECURITY.md (November 2026)."
+    },
+    {
+        "uid": "SOL-2026-1",
+        "name": "TransientStorageClearingHelperCollision",
+        "announced": "2026-02-18",
+        "reviewed": "2026-11-02",
+        "notAffected": "Hyperion has no transient storage. It arrived in Solidity 0.8.28, after the fork, and the QRVM has no TSTORE or TLOAD.",
+        "late": "Announced before Hyperion adopted the 30-day review in SECURITY.md (November 2026)."
+    },
+    {
+        "uid": "SOL-2025-1",
+        "name": "LostStorageArrayWriteOnSlotOverflow",
+        "announced": "2025-12-18",
+        "reviewed": "2026-10-22",
+        "hyperion": "HYP-2026-1",
+        "late": "Announced before Hyperion adopted the 30-day review in SECURITY.md (November 2026)."
+    }
+]
