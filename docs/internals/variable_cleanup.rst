@@ -1,3 +1,5 @@
+.. _variable-cleanup:
+
 .. index: variable cleanup
 
 *********************
@@ -14,6 +16,27 @@ to be cleared because the memory contents can be used for computing
 hashes or sent as the data of a message call.  Similarly, before
 storing a value in the storage, the remaining bits need to be cleaned
 because otherwise the garbled value can be observed.
+
+The legacy code generator follows a cleanup-at-use policy for every integer
+type narrower than the 512-bit word, including ``uint8``, ``uint256``,
+``int256`` and ``uint504``. A narrowing conversion or an unchecked addition,
+subtraction or multiplication need not immediately clear or sign-extend the
+upper bits. The typed result still has the declared width: unsigned values
+wrap modulo ``2**N``, and signed values use the corresponding ``N``-bit
+two's-complement interpretation.
+
+Consumers must account for that width before dirty bits can affect their
+result. This includes comparisons, division, remainder, shift amounts,
+right shifts, exponents, ABI encoding, memory and storage writes, and arguments
+consumed by VM instructions. Widening a narrow value to ``uint`` or ``int`` cleans it
+according to its source type. For example, ``addmod(uint256(x), 7, 10)`` uses
+``x mod 2**256`` as its first operand, and ``call{value: uint256(x)}`` sends
+that narrowed value.
+
+The IR code generator retains its cleanup-after-production strategy. The
+legacy policy does not guarantee a particular dirty stack representation
+or prevent an optimizer from removing redundant cleanup. Both pipelines
+must produce correct typed results.
 
 Note that access via inline assembly is not considered such an operation:
 If you use inline assembly to access Hyperion variables

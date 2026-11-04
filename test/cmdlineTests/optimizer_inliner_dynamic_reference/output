@@ -118,15 +118,20 @@ sub_0: assembly {
         /* "optimizer_inliner_dynamic_reference/input.hyp":295:298  x() */
       tag_19
       swap1
-        /* "optimizer_inliner_dynamic_reference/input.hyp":295:296  x */
-      dup1
-      iszero
-      tag_20
-      mul
-      or
-        /* "optimizer_inliner_dynamic_reference/input.hyp":295:298  x() */
       0xffffffff
+        /* "optimizer_inliner_dynamic_reference/input.hyp":295:296  x */
+      tag_20
+      0xffffffffffffffff
+      dup4
       and
+      iszero
+      mul
+        /* "optimizer_inliner_dynamic_reference/input.hyp":295:298  x() */
+      dup2
+      and
+      swap2
+      and
+      or
       jump	// in
     tag_19:
         /* "optimizer_inliner_dynamic_reference/input.hyp":295:302  x() + 1 */

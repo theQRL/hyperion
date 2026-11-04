@@ -198,14 +198,14 @@ Local Hyperion variables are available for assignments, for example:
 
 .. warning::
     If you access variables of a type that spans less than 512 bits
-    (for example ``uint64``, ``address``, or ``bytes16``),
+    (for example ``uint64``, ``uint256``, or ``bytes16``),
     you cannot make any assumptions about bits not part of the
     encoding of the type. Especially, do not assume them to be zero.
     To be safe, always clear the data properly before you use it
     in a context where this is important:
     ``uint32 x = f(); assembly { x := and(x, 0xffffffff) /* now use x */ }``
     To clean signed types, you can use the ``signextend`` opcode:
-    ``assembly { signextend(<num_bytes_of_x_minus_one>, x) }``
+    ``assembly { x := signextend(<num_bytes_of_x_minus_one>, x) }``
 
 
 Since Hyperion 0.6.0, the name of a inline assembly variable may not
@@ -244,6 +244,12 @@ i.e., shortly before they are written to memory or before comparisons are perfor
 This means that if you access such a variable
 from within inline assembly, you might have to manually clean the higher-order bits
 first.
+
+This also applies after explicit narrowing and unchecked arithmetic. For a
+``uint256 x``, use ``x := and(x, sub(shl(256, 1), 1))`` inside assembly when
+the upper bits matter. For an ``int256 x``, use ``x := signextend(31, x)``.
+These produce a canonical 512-bit word containing the 256-bit value.
+See :ref:`variable-cleanup` for the policy shared by all narrow integer types.
 
 .. _assembly-memory-management:
 

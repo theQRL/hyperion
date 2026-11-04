@@ -221,6 +221,14 @@ reverts and expected side effects against the same expectations. CI runs the
 corpus with optimization disabled and enabled; bytecode and gas costs need
 not match between pipelines.
 
+Preserve the legacy :ref:`cleanup-at-use policy <variable-cleanup>` for all
+integer widths. Fix a missing cleanup at the consumer that needs it, with a
+regression that supplies a narrowed or wrapped value to that consumer.
+Do not add blanket cleanup after every narrowing conversion or unchecked
+``+``, ``-`` or ``*``. Compare defined typed results across pipelines; an
+inline-assembly test must clean narrow values explicitly unless it is
+intentionally testing a documented representation difference.
+
 ``HyperionEndToEndTest/integer_cleanup_differential`` additionally checks every
 integer width from 8 to 512 bits against masked arithmetic expectations in
 both pipelines. It covers conversions, internal returns, user-defined value

@@ -288,7 +288,12 @@ Cleanup
 
 .. index:: cleanup, dirty bits
 
-The old code generator only performs cleanup before an operation whose result could be affected by the values of the dirty bits.
+The old code generator retains cleanup at use for every integer type narrower
+than 512 bits. Narrowing conversions and unchecked addition, subtraction and
+multiplication do not require immediate cleanup; operations that consume the
+result must clean it whenever dirty bits could affect the typed result.
+See :ref:`variable-cleanup`.
+
 The new code generator performs cleanup after any operation that can result in dirty bits.
 The hope is that the optimizer will be powerful enough to eliminate redundant cleanup operations.
 
@@ -312,8 +317,8 @@ For example:
 
 The function ``f(1)`` returns the following values:
 
-- Old code generator: (``fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe``, ``00000000000000000000000000000000000000000000000000000000000000fe``)
-- New code generator: (``00000000000000000000000000000000000000000000000000000000000000fe``, ``00000000000000000000000000000000000000000000000000000000000000fe``)
+- Old code generator: (``2**512 - 2``, ``254``)
+- New code generator: (``254``, ``254``)
 
 Note that, unlike the new code generator, the old code generator does not perform a cleanup after the bit-not assignment (``a = ~a``).
 This results in different values being assigned (within the inline assembly block) to return value ``r1`` between the old and new code generators.

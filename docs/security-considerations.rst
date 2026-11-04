@@ -251,7 +251,7 @@ Let's say you have a wallet contract like this:
             owner = msg.sender;
         }
 
-        function transferTo(address payable dest, uint256 amount) public {
+        function transferTo(address payable dest, uint amount) public {
             // THE BUG IS RIGHT HERE, you must use msg.sender instead of tx.origin
             require(tx.origin == owner);
             dest.transfer(amount);
@@ -265,7 +265,7 @@ Now someone tricks you into sending Quanta to the address of this attack wallet:
     // SPDX-License-Identifier: GPL-3.0
     pragma hyperion >=0.1.0;
     interface TxUserWallet {
-        function transferTo(address payable dest, uint256 amount) external;
+        function transferTo(address payable dest, uint amount) external;
     }
 
     contract TxAttackWallet {

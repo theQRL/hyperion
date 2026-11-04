@@ -105,11 +105,14 @@ override returns (bool success) {
         if (block.timestamp < closingTime && msg.value > 0
             && (privateCreation == Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 || privateCreation == msg.sender)) {
 
-            uint256 token = (msg.value * 20) / divisor();
+            // This fixture keeps its token accounting at 256 bits.
+            require(msg.value <= type(uint256).max);
+            uint256 value = uint256(msg.value);
+            uint256 token = (value * 20) / divisor();
             address(extraBalance).call{value: msg.value - token}("");
             balances[_tokenHolder] += token;
             totalSupply += token;
-            planckGiven[_tokenHolder] += msg.value;
+            planckGiven[_tokenHolder] += value;
             emit CreatedToken(_tokenHolder, token);
             if (totalSupply >= minTokensToCreate && !isFueled) {
                 isFueled = true;
