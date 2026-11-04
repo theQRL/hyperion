@@ -210,6 +210,36 @@ It checks bytecode, metadata and library link references. This is a focused
 portability check, not the old full-corpus bytecode-report matrix. Native compiler
 tests run in default and optimized configurations, both using ABI coder v2.
 
+Legacy and IR regression coverage
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Legacy remains a supported default for the 512-bit target. Changes to integer
+narrowing, sign conversion, unchecked arithmetic, or a consumer of a narrow
+value must include a regression that runs through both code generators.
+Semantic tests default to ``compileViaYul: also`` and compare return data,
+reverts and expected side effects against the same expectations. CI runs the
+corpus with optimization disabled and enabled; bytecode and gas costs need
+not match between pipelines.
+
+``HyperionEndToEndTest/integer_cleanup_differential`` additionally checks every
+integer width from 8 to 512 bits against masked arithmetic expectations in
+both pipelines. It covers conversions, internal returns, user-defined value
+types, ABI encoding, memory, storage, unchecked arithmetic and explicitly
+cleaned assembly reads. The semantic fixtures ``cleanup/narrow_uint256_consumers``
+and ``cleanup/unchecked_uint256_consumers`` cover the audit's dirty-upper-bits
+reproducers, adapted to word-sized builtins and documented assembly cleanup.
+
+A fixture restricted to one pipeline must supply ``compileViaYulReason`` in
+its settings, explaining the documented semantic difference, representation
+dependency or unsupported feature. Do not exclude a pipeline to hide a typed
+arithmetic mismatch. Raw assembly reads of narrow values are not required to
+have identical dirty upper bits. ``scripts/ci/check_semantic_test_settings.py``
+checks these annotations and rejects gates that exclude Zond. The native test
+runner reports environment exclusions as skipped, rather than passed.
+
+Local builds and releases
+~~~~~~~~~~~~~~~~~~~~~~~~
+
 For local CI-style native builds, use ``bash scripts/ci/build.sh`` followed by
 ``bash scripts/ci/hyptest_all.sh`` after installing dependencies and a compatible
 QRVM engine. ``BUILD_JOBS`` and ``TEST_JOBS`` default to two workers. Test sharding

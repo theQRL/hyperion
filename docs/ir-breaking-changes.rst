@@ -15,9 +15,16 @@ The IR-based code generator was introduced with an aim to not only allow
 code generation to be more transparent and auditable but also
 to enable more powerful optimization passes that span across functions.
 
-You can enable it on the command-line using ``--via-ir``
-or with the option ``{"viaIR": true}`` in standard-json and we
-encourage everyone to try it out!
+Both pipelines are supported for the 512-bit QRVM target. Legacy remains the
+default in ``hypc`` and in the compiler used by ``hypc-js``. Enable IR with
+``--via-ir`` or ``{"viaIR": true}`` in the Standard JSON settings. Omitting
+``viaIR`` or setting it to ``false`` selects legacy.
+
+Both pipelines must preserve the declared widths of integers in typed code.
+For example, unchecked ``uint256`` arithmetic wraps at 256 bits even though the
+QRVM word is 512 bits. Legacy may defer cleanup of a narrow value until it is
+used. Inline assembly must mask unsigned values or sign-extend signed values
+before relying on their upper bits; see :ref:`inline-assembly`.
 
 For several reasons, there are tiny semantic differences between the old
 and the IR-based code generator, mostly in areas where we would not

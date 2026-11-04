@@ -16,7 +16,7 @@ contract C {
     }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // f() -> 16
 // gas legacy: 117693

@@ -25,6 +25,7 @@ contract Test {
 }
 // ====
 // compileViaYul: false
+// compileViaYulReason: Legacy accepts this 32-byte return for a 64-byte ABI word; IR rejects truncated returndata.
 // ----
 // bytecode() -> 0x40, 4, hex"60205ff3000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
 // isPush0Supported() -> true

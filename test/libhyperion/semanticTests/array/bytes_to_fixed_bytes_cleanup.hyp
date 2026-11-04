@@ -16,7 +16,7 @@ contract C {
     }
 }
 // ====
-// compileViaYul: true
+// compileViaYul: also
 // ----
 // fromMemory(bytes): 0x20, 16, "abcdefghabcdefgh" -> FAILURE, hex"df75fb3b", 0x41
 // fromCalldata(bytes): 0x20, 15, "abcdefghabcdefgh" -> FAILURE

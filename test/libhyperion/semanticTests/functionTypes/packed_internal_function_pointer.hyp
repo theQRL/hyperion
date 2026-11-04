@@ -1,0 +1,27 @@
+// CIPH-HYPERION-7: zero detection must ignore both packed neighbours.
+contract C {
+    uint64 below = 0x1234;
+    function() internal returns (uint) pointer;
+    uint64 above = 0x5678;
+
+    function target() internal pure returns (uint) { return 42; }
+    function load() internal view returns (function() internal returns (uint)) { return pointer; }
+    function callPointer() external returns (uint) { return pointer(); }
+    function callReturnedPointer() external returns (uint) { return load()(); }
+    function set() external { pointer = target; }
+    function clear() external { delete pointer; }
+    function clearNeighbours() external { below = 0; above = 0; }
+    function neighbours() external view returns (uint64, uint64) { return (below, above); }
+}
+// ----
+// callPointer() -> FAILURE, hex"df75fb3b", 0x51
+// callReturnedPointer() -> FAILURE, hex"df75fb3b", 0x51
+// neighbours() -> 0x1234, 0x5678
+// set() ->
+// callPointer() -> 42
+// callReturnedPointer() -> 42
+// clear() ->
+// callPointer() -> FAILURE, hex"df75fb3b", 0x51
+// neighbours() -> 0x1234, 0x5678
+// clearNeighbours() ->
+// callPointer() -> FAILURE, hex"df75fb3b", 0x51

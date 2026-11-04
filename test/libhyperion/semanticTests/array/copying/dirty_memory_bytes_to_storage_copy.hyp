@@ -6,7 +6,6 @@ contract C {
             mstore(m, 8)
             mstore(add(m, 64), "deadbeef15dead")
         }
-        // via yul disabled because this truncates the string.
         x = m;
         assembly {
             r := sload(x.slot)
@@ -14,6 +13,6 @@ contract C {
     }
 }
 // ====
-// compileViaYul: false
+// compileViaYul: also
 // ----
 // f() -> 0x64656164626565660000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010

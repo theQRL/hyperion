@@ -47,7 +47,7 @@ contract C {
     }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // copyExternalStorageArraysOfFunctionType() -> true
 // gas irOptimized: 104265

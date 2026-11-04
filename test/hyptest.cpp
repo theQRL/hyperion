@@ -189,6 +189,22 @@ int registerTests(
 				*filenames.back(),
 				0
 			);
+			test_case->add_precondition([config, _testCaseCreator](test_unit_id) -> boost::test_tools::assertion_result
+			{
+				try
+				{
+					if (_testCaseCreator(config)->shouldRun())
+						return true;
+					boost::test_tools::assertion_result result(false);
+					result.message() << "Test settings exclude the current environment.";
+					return result;
+				}
+				catch (...)
+				{
+					// Let runTestCase report malformed settings or construction errors as failures.
+					return true;
+				}
+			});
 			for (auto const& _label: _labels)
 				test_case->add_label(_label);
 			_suite.add(test_case);

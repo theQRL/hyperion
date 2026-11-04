@@ -37,7 +37,7 @@ contract C {
     }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // testViewToDefault() -> 12, 0x16
 // testPureToDefault() -> 13, 0x17

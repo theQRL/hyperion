@@ -17,6 +17,7 @@ contract C {
 }
 // ====
 // compileViaYul: true
+// compileViaYulReason: Tests raw dirty bits in inline assembly; cleanup timing differs between pipelines.
 // ----
 // f() -> 0x31
 // g() -> 0x31000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

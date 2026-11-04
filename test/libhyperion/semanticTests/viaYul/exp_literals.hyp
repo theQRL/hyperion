@@ -29,7 +29,7 @@ contract C {
 
 }
 // ====
-// compileViaYul: true
+// compileViaYul: also
 // ----
 // exp_2(uint512): 255 -> 57896044618658097711785492504343953926634992332820282019728792003956564819968
 // exp_2(uint512): 256 -> FAILURE, hex"df75fb3b", 0x11

@@ -9,9 +9,9 @@ contract C {
     }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // f1() ->
-// ~ emit TestA(function): #0xee3da6d6aa102f25f3c5068dd336d879
+// ~ emit TestA(function): #0x42de8b3fe714eec217abded9994d4e5175386c97d022e127472cf9be8f0d27730000000000000000000000000000000000000000000000000000000000000000
 // f2(uint256): 1 ->
-// ~ emit TestB(function): #0xee3da6d6aa102f25f3c5068dd336d879
+// ~ emit TestB(function): #0x1f19f61d7982f2c4907562ca0af58a7c80d29571dd67fb7d39e18893cd470f660000000000000000000000000000000000000000000000000000000000000000

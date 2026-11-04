@@ -5,7 +5,7 @@ contract C {
     }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // f() ->
-// ~ emit Test(function): #0xee3da6d6aa102f25f3c5068dd336d879
+// ~ emit Test(function): #0xc32929687dc4395e9cbe3652bef9b8de5104c11eba986d5289eb5ff7f455550f0000000000000000000000000000000000000000000000000000000000000000

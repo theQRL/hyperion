@@ -31,6 +31,7 @@ contract C {
 }
 // ====
 // compileViaYul: true
+// compileViaYulReason: IR clears whole storage slots on struct deletion; legacy preserves padding bits visible to assembly.
 // ----
 // f() -> 0, 0, 0
 // gas irOptimized: 117101

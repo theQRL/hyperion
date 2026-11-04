@@ -13,5 +13,6 @@ contract Test {
 }
 // ====
 // compileViaYul: false
+// compileViaYulReason: Internal function pointer representations differ: legacy uses a panic stub, IR uses a zero dispatch ID.
 // ----
 // f() -> true

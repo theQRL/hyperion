@@ -16,6 +16,6 @@ contract C {
     }
 }
 // ====
-// compileViaYul: true
+// compileViaYul: also
 // ----
 // t() -> FAILURE, hex"df75fb3b", 0x51

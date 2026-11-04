@@ -63,6 +63,9 @@ jobs:
       - name: Python script tests
         if: ${{ !cancelled() }}
         run: python test/pyscriptTests.py
+      - name: Semantic test coverage policy
+        if: ${{ !cancelled() }}
+        run: python scripts/ci/check_semantic_test_settings.py
       - name: Changed optimizer proofs
         if: ${{ !cancelled() }}
         env:

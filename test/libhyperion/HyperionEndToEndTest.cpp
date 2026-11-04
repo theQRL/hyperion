@@ -37,6 +37,7 @@
 #include <libhyputil/Keccak512.h>
 #include <libhyputil/ErrorCodes.h>
 #include <libhyputil/VMConstants.h>
+#include <libhyputil/Whiskers.h>
 
 #include <libyul/Exceptions.h>
 
@@ -114,6 +115,103 @@ BOOST_AUTO_TEST_CASE(abi_integer_signedness)
 			bytes(32, 0xff) + bytes{0x80} + bytes(31, 0)
 		);
 	)
+}
+
+BOOST_AUTO_TEST_CASE(integer_cleanup_differential)
+{
+	// Every supported integer width, including the full word as a control.
+	// Compare both pipelines with an independently masked arithmetic oracle.
+	for (unsigned bits = 8; bits <= VMWordBits; bits += 8)
+	{
+		std::string source = Whiskers(R"(
+			type T is <unsigned>;
+			contract C {
+				<unsigned> storedUnsigned;
+				<signed> storedSigned;
+				function identity(<unsigned> x) internal pure returns (<unsigned>) { return x; }
+				function signedIdentity(<signed> x) internal pure returns (<signed>) { return x; }
+				function signedNarrow(int x) public pure returns (int, uint) {
+					<signed> a = signedIdentity(<signed>(x));
+					return (int(a), uint(<unsigned>(a)));
+				}
+				function narrow(uint x) public returns (uint, int) {
+					<unsigned> a = identity(T.unwrap(T.wrap(<unsigned>(x))));
+					<signed> b = <signed>(a);
+					storedUnsigned = a;
+					storedSigned = b;
+					<unsigned>[1] memory m = [a];
+					(<unsigned> decoded, <signed> signedDecoded) = abi.decode(abi.encode(a, b), (<unsigned>, <signed>));
+					assert(storedUnsigned == decoded && m[0] == a && storedSigned == signedDecoded);
+					assert(addmod(a, 0, 97) == uint(decoded) % 97);
+					return (uint(a), int(b));
+				}
+				function wrap(uint x, uint y, uint op) public pure returns (uint, int) {
+					<unsigned> a = <unsigned>(x);
+					<unsigned> b = <unsigned>(y);
+					<signed> c = <signed>(a);
+					<signed> d = <signed>(b);
+					unchecked {
+						if (op == 0) { a += b; c += d; }
+						else if (op == 1) { a -= b; c -= d; }
+						else if (op == 2) { a *= b; c *= d; }
+						else if (op == 3) { ++a; ++c; }
+						else if (op == 4) { --a; --c; }
+						else { a = ~a; c = -c; }
+					}
+					return (uint(a), int(c));
+				}
+				function assemblyRead(uint x) public pure returns (uint u, int s) {
+					<unsigned> a = <unsigned>(x);
+					<signed> b = <signed>(a);
+					// Narrow locals have no guarantee of clean bits in inline assembly.
+					assembly {
+						u := and(a, sub(shl(<bits>, 1), 1))
+						s := signextend(<signByte>, b)
+					}
+				}
+			}
+		)")
+		("unsigned", "uint" + std::to_string(bits))
+		("signed", "int" + std::to_string(bits))
+		("bits", std::to_string(bits))
+		("signByte", std::to_string(bits / 8 - 1))
+		.render();
+		u512 const mask = bits == VMWordBits ? u512(-1) : (u512(1) << bits) - 1;
+		u512 const sign = u512(1) << (bits - 1);
+		auto signedWord = [mask, sign](u512 _value) -> u512 {
+			_value &= mask;
+			return (_value & sign) != 0 ? _value | ~mask : _value;
+		};
+		std::vector<u512> const values{0, 1, sign - 1, sign, mask, (u512(1) << 511) | 5, u512(-1)};
+		ALSO_VIA_YUL(
+			compileAndRun(source);
+			for (u512 const& x: values)
+			{
+				BOOST_TEST_CONTEXT("bits=" << bits << ", viaIR=" << m_compileViaYul << ", x=" << x)
+				{
+					bytes expected = encodeArgs(u512(x & mask), signedWord(x));
+					ABI_CHECK(callContractFunction("narrow(uint512)", x), expected);
+					ABI_CHECK(callContractFunction("signedNarrow(int512)", x), encodeArgs(signedWord(x), u512(x & mask)));
+					ABI_CHECK(callContractFunction("assemblyRead(uint512)", x), expected);
+					for (unsigned op = 0; op < 6; ++op)
+					{
+						u512 u;
+						switch (op)
+						{
+						case 0: u = x + 2; break;
+						case 1: u = x - 2; break;
+						case 2: u = x * 2; break;
+						case 3: u = x + 1; break;
+						case 4: u = x - 1; break;
+						default: u = ~x; break;
+						}
+						u512 s = op == 5 ? u512(0) - x : u;
+						ABI_CHECK(callContractFunction("wrap(uint512,uint512,uint512)", x, 2, u512(op)), encodeArgs(u512(u & mask), signedWord(s)));
+					}
+				}
+			}
+		)
+	}
 }
 
 BOOST_AUTO_TEST_CASE(creation_code_optimizer)
