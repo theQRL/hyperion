@@ -251,6 +251,90 @@ the upper bits matter. For an ``int256 x``, use ``x := signextend(31, x)``.
 These produce a canonical 512-bit word containing the 256-bit value.
 See :ref:`variable-cleanup` for the policy shared by all narrow integer types.
 
+.. _assembly-porting:
+
+Porting Solidity Assembly
+=========================
+
+Solidity's EVM uses 256-bit words; Hyperion's QRVM uses 512-bit words.
+Inline assembly operates on the VM word even when its operands come from
+``uint256`` or ``int256`` locals. Cleaning those locals does not change the
+width of subsequent assembly operations. This applies to both compiler pipelines.
+
+.. list-table:: Word-size differences
+    :header-rows: 1
+
+    * - Operation
+      - Solidity / EVM
+      - Hyperion / QRVM
+    * - ``not(0)``
+      - ``2**256 - 1``
+      - ``2**512 - 1``
+    * - ``add``, ``sub``, ``mul``, ``exp``
+      - Result modulo ``2**256``
+      - Result modulo ``2**512``
+    * - Signed operations such as ``sdiv``, ``slt`` and ``sar``
+      - Sign bit at bit 255
+      - Sign bit at bit 511
+    * - ``byte(0, x)``
+      - Most significant byte of a 32-byte word
+      - Most significant byte of a 64-byte word
+    * - ``mload`` / ``mstore``
+      - Read / write 32 bytes
+      - Read / write 64 bytes
+
+For example, two clean operands equal to ``2**128`` produce zero under EVM
+``mul``, but ``2**256`` under QRVM ``mul``. If an algorithm needs a 256-bit
+mask, use ``sub(shl(256, 1), 1)`` instead of ``not(0)``. If it needs arithmetic
+modulo ``2**256``, mask intermediate results wherever that wraparound is
+required, not just the inputs or final result. Sign-extend signed operands
+before signed operations. Review byte indices, shifts, memory offsets and
+array strides against the QRVM word size and :ref:`assembly-memory-management`.
+Hyperion's free-memory pointer is at ``0x80``, its zero slot at ``0xc0``, and
+allocatable memory starts at ``0x100``.
+
+Libraries such as `Uniswap FullMath
+<https://github.com/Uniswap/v3-core/blob/main/contracts/libraries/FullMath.sol>`_
+reconstruct a product using 256-bit limbs and rely on these EVM arithmetic
+properties. Port their algorithms as well as their types and constants.
+The compiler does not warn merely because assembly uses ``not(0)`` or ``mul``:
+both are valid QRVM operations, and their presence does not establish that
+the code assumes a 256-bit word.
+
+For a ``mulDiv`` function that retains ``uint256`` inputs and a ``uint256``
+result, QRVM can hold the complete product in one word:
+``(2**256 - 1)**2 < 2**512``. Widen the operands to ``uint`` *before*
+multiplication, divide, then check the result before narrowing:
+
+.. code-block:: hyperion
+
+    // SPDX-License-Identifier: GPL-3.0
+    pragma hyperion >=0.2.0;
+
+    contract Math256 {
+        function mulDiv(uint256 a, uint256 b, uint256 denominator)
+            public pure returns (uint256)
+        {
+            require(denominator != 0, "Division by zero");
+
+            uint product = uint(a) * uint(b);
+            uint result = product / uint(denominator);
+
+            require(result <= type(uint256).max, "Result exceeds uint256");
+            return uint256(result);
+        }
+    }
+
+This computes ``floor(a * b / denominator)`` and reverts for a zero denominator
+or a quotient that exceeds ``uint256``. For example, ``a = 2**200``,
+``b = 2**100`` and ``denominator = 2**100`` produce a ``2**300`` intermediate
+and a ``2**200`` result. Writing ``uint(a * b)`` would instead multiply at
+256 bits before widening, so the checked multiplication would revert.
+
+This implementation is specific to 256-bit operands. A full-precision
+``mulDiv`` accepting full-word ``uint`` operands needs to handle a product
+of up to 1024 bits. Changing the parameters to ``uint`` alone is insufficient.
+
 .. _assembly-memory-management:
 
 Memory Management
