@@ -32,16 +32,16 @@ contract Main {
         return h.getName();
     }
 
-    function getBalances() public returns (uint256 me, uint256 them) {
+    function getBalances() public returns (uint me, uint them) {
         me = address(this).balance;
         them = address(h).balance;
     }
 }
 // ----
 // constructor(), 22 planck ->
-// gas irOptimized: 261888
-// gas legacy: 388025
-// gas legacyOptimized: 261633
+// gas irOptimized: 256158
+// gas legacy: 380678
+// gas legacyOptimized: 255469
 // getFlag() -> true
 // getName() -> "abc"
 // getBalances() -> 12, 10

@@ -1496,10 +1496,10 @@ void CHC::defineExternalFunctionInterface(FunctionDefinition const& _function, C
 	// which do not trigger calls into the contract.
 	// So the only constraint we can add here is that the balance of
 	// the contract grows by at least `msg.value`.
-	SymbolicIntVariable k{TypeProvider::uint256(), TypeProvider::uint256(), "funds_" + std::to_string(m_context.newUniqueId()), m_context};
+	SymbolicIntVariable k{TypeProvider::uint(VMWordBits), TypeProvider::uint(VMWordBits), "funds_" + std::to_string(m_context.newUniqueId()), m_context};
 	m_context.addAssertion(k.currentValue() >= state().txMember("msg.value"));
 	// Assume that address(this).balance cannot overflow.
-	m_context.addAssertion(smt::symbolicUnknownConstraints(state().balance(state().thisAddress()) + k.currentValue(), TypeProvider::uint256()));
+	m_context.addAssertion(smt::symbolicUnknownConstraints(state().balance(state().thisAddress()) + k.currentValue(), TypeProvider::uint(VMWordBits)));
 	state().addBalance(state().thisAddress(), k.currentValue());
 
 	if (encodeExternalCallsAsTrusted())

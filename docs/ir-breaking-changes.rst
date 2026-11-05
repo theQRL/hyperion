@@ -15,9 +15,16 @@ The IR-based code generator was introduced with an aim to not only allow
 code generation to be more transparent and auditable but also
 to enable more powerful optimization passes that span across functions.
 
-You can enable it on the command-line using ``--via-ir``
-or with the option ``{"viaIR": true}`` in standard-json and we
-encourage everyone to try it out!
+Both pipelines are supported for the 512-bit QRVM target. Legacy remains the
+default in ``hypc`` and in the compiler used by ``hypc-js``. Enable IR with
+``--via-ir`` or ``{"viaIR": true}`` in the Standard JSON settings. Omitting
+``viaIR`` or setting it to ``false`` selects legacy.
+
+Both pipelines must preserve the declared widths of integers in typed code.
+For example, unchecked ``uint256`` arithmetic wraps at 256 bits even though the
+QRVM word is 512 bits. Legacy may defer cleanup of a narrow value until it is
+used. Inline assembly must mask unsigned values or sign-extend signed values
+before relying on their upper bits; see :ref:`inline-assembly`.
 
 For several reasons, there are tiny semantic differences between the old
 and the IR-based code generator, mostly in areas where we would not
@@ -212,8 +219,8 @@ hiding new and different behavior in existing code.
       // SPDX-License-Identifier: GPL-3.0
       pragma hyperion >=0.1.0;
       contract C {
-          function f() public pure returns (uint256 aMod, uint256 mMod) {
-              uint256 x = 3;
+          function f() public pure returns (uint aMod, uint mMod) {
+              uint x = 3;
               // Old code gen: add/mulmod(5, 4, 3)
               // New code gen: add/mulmod(4, 5, 5)
               aMod = addmod(++x, ++x, x);
@@ -281,7 +288,12 @@ Cleanup
 
 .. index:: cleanup, dirty bits
 
-The old code generator only performs cleanup before an operation whose result could be affected by the values of the dirty bits.
+The old code generator retains cleanup at use for every integer type narrower
+than 512 bits. Narrowing conversions and unchecked addition, subtraction and
+multiplication do not require immediate cleanup; operations that consume the
+result must clean it whenever dirty bits could affect the typed result.
+See :ref:`variable-cleanup`.
+
 The new code generator performs cleanup after any operation that can result in dirty bits.
 The hope is that the optimizer will be powerful enough to eliminate redundant cleanup operations.
 
@@ -305,8 +317,8 @@ For example:
 
 The function ``f(1)`` returns the following values:
 
-- Old code generator: (``fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe``, ``00000000000000000000000000000000000000000000000000000000000000fe``)
-- New code generator: (``00000000000000000000000000000000000000000000000000000000000000fe``, ``00000000000000000000000000000000000000000000000000000000000000fe``)
+- Old code generator: (``2**512 - 2``, ``254``)
+- New code generator: (``254``, ``254``)
 
 Note that, unlike the new code generator, the old code generator does not perform a cleanup after the bit-not assignment (``a = ~a``).
 This results in different values being assigned (within the inline assembly block) to return value ``r1`` between the old and new code generators.

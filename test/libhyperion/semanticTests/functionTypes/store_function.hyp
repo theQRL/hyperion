@@ -24,7 +24,7 @@ contract C {
     }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // t() -> 9
 // gas irOptimized: 99064

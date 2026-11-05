@@ -691,7 +691,7 @@ void SMTEncoder::endVisit(FunctionCall const& _funCall)
 		hypAssert(value, "");
 
 		smtutil::Expression thisBalance = state().balance();
-		setSymbolicUnknownValue(thisBalance, TypeProvider::uint256(), m_context);
+		setSymbolicUnknownValue(thisBalance, TypeProvider::uint(VMWordBits), m_context);
 
 		state().transfer(state().thisAddress(), expr(address), expr(*value));
 		break;

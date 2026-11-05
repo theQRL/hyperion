@@ -1,0 +1,55 @@
+// Adapted from the paired CIPH-HYPERION-9 audit reproducers; both pipelines share these expectations.
+// Inline assembly explicitly cleans narrow values, as required by docs/assembly.rst.
+type T is uint256;
+
+contract C {
+    uint256 s;
+
+    function wrapAdd() public pure returns (uint r, uint m) {
+        uint256 y = type(uint256).max;
+        unchecked { y += 1; }
+        assembly { r := and(y, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) }
+        m = addmod(y, 0, 10);
+    }
+    function wrapMul() public pure returns (uint r) {
+        uint256 y = type(uint256).max;
+        unchecked { y *= 2; }
+        assembly { r := and(y, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) }
+    }
+    function wrapSub() public pure returns (uint r, uint m) {
+        uint256 y = 0;
+        unchecked { y -= 1; }
+        assembly { r := and(y, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) }
+        m = addmod(y, 0, 10);
+    }
+    function signedReinterp() public pure returns (uint r, uint m) {
+        int256 a = -1;
+        uint256 y = uint256(a);
+        assembly { r := and(y, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) }
+        m = addmod(y, 0, 10);
+    }
+    function negReinterp(int256 a) public pure returns (uint r) {
+        uint256 y = uint256(a);
+        assembly { r := and(y, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) }
+    }
+    function udvt(uint x) public pure returns (uint) {
+        T t = T.wrap(uint256(x));
+        return addmod(T.unwrap(t), 7, 10);
+    }
+    function narrow(uint x) internal pure returns (uint256) { return uint256(x); }
+    function viaReturn(uint x) public pure returns (uint) { return addmod(narrow(x), 7, 10); }
+    function cmpOk(uint x) public pure returns (bool) { return uint256(x) == 5; }
+    function storeOk(uint x) public returns (uint256) { s = uint256(x); return s; }
+}
+// ====
+// compileViaYul: also
+// ----
+// wrapAdd() -> 0, 0
+// wrapMul() -> 115792089237316195423570985008687907853269984665640564039457584007913129639934
+// wrapSub() -> 115792089237316195423570985008687907853269984665640564039457584007913129639935, 5
+// signedReinterp() -> 115792089237316195423570985008687907853269984665640564039457584007913129639935, 5
+// negReinterp(int256): -2 -> 115792089237316195423570985008687907853269984665640564039457584007913129639934
+// udvt(uint512): 115792089237316195423570985008687907853269984665640564039457584007913129639941 -> 2
+// viaReturn(uint512): 115792089237316195423570985008687907853269984665640564039457584007913129639941 -> 2
+// cmpOk(uint512): 115792089237316195423570985008687907853269984665640564039457584007913129639941 -> true
+// storeOk(uint512): 115792089237316195423570985008687907853269984665640564039457584007913129639941 -> 5

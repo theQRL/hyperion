@@ -84,6 +84,7 @@ contract C {
 }
 // ====
 // compileViaYul: true
+// compileViaYulReason: Tests raw dirty bits in inline assembly; cleanup timing differs between pipelines.
 // ----
 // preincr_s8(int8): 128 -> FAILURE
 // postincr_s8(int8): 128 -> FAILURE

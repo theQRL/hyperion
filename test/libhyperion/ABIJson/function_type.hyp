@@ -2,7 +2,7 @@ contract test {
     function g(function(uint) external returns (uint) x) public {}
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 //     :test
 // [
@@ -10,7 +10,7 @@ contract test {
 //     "inputs":
 //     [
 //       {
-//         "internalType": "function (uint256) external returns (uint256)",
+//         "internalType": "function (uint512) external returns (uint512)",
 //         "name": "x",
 //         "type": "function"
 //       }

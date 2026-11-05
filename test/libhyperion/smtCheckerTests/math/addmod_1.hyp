@@ -2,17 +2,17 @@ contract C {
 	function f() public pure {
 		assert(addmod(2**256 - 1, 10, 9) == 7);
 		uint256 y = 0;
-		uint256 x = addmod(2**256 - 1, 10, y);
+		uint x = addmod(2**256 - 1, 10, y);
 		assert(x == 1);
 	}
-	function g(uint256 x, uint256 y, uint256 k) public pure returns (uint256) {
+	function g(uint256 x, uint256 y, uint256 k) public pure returns (uint) {
 		return addmod(x, y, k);
 	}
 }
 // ====
 // SMTEngine: all
 // ----
-// Warning 4281: (114-139): CHC: Division by zero happens here.
-// Warning 6328: (143-157): CHC: Assertion violation happens here.
-// Warning 4281: (248-263): CHC: Division by zero happens here.
+// Warning 4281: (111-136): CHC: Division by zero happens here.
+// Warning 6328: (140-154): CHC: Assertion violation happens here.
+// Warning 4281: (242-257): CHC: Division by zero happens here.
 // Info 1391: CHC: 2 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.

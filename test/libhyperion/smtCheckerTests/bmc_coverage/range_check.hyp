@@ -7,7 +7,7 @@ contract C {
 		assert(msg.sender >= address(0));
 		assert(msg.sender <= address(2**512 - 1));
 		assert(msg.value >= 0);
-		assert(msg.value <= 2**256 - 1);
+		assert(msg.value <= 2**512 - 1);
 
 		assert(block.coinbase >= address(0));
 		assert(block.coinbase <= address(2**512 - 1));
@@ -34,7 +34,7 @@ contract D {
 			assert(msg.sender >= address(0));
 			assert(msg.sender <= address(2**512 - 1));
 			assert(msg.value >= 0);
-			assert(msg.value <= 2**256 - 1);
+			assert(msg.value <= 2**512 - 1);
 
 			assert(block.coinbase >= address(0));
 			assert(block.coinbase <= address(2**512 - 1));

@@ -37,6 +37,7 @@
 #include <libhyputil/Keccak512.h>
 #include <libhyputil/ErrorCodes.h>
 #include <libhyputil/VMConstants.h>
+#include <libhyputil/Whiskers.h>
 
 #include <libyul/Exceptions.h>
 
@@ -114,6 +115,103 @@ BOOST_AUTO_TEST_CASE(abi_integer_signedness)
 			bytes(32, 0xff) + bytes{0x80} + bytes(31, 0)
 		);
 	)
+}
+
+BOOST_AUTO_TEST_CASE(integer_cleanup_differential)
+{
+	// Every supported integer width, including the full word as a control.
+	// Compare both pipelines with an independently masked arithmetic oracle.
+	for (unsigned bits = 8; bits <= VMWordBits; bits += 8)
+	{
+		std::string source = Whiskers(R"(
+			type T is <unsigned>;
+			contract C {
+				<unsigned> storedUnsigned;
+				<signed> storedSigned;
+				function identity(<unsigned> x) internal pure returns (<unsigned>) { return x; }
+				function signedIdentity(<signed> x) internal pure returns (<signed>) { return x; }
+				function signedNarrow(int x) public pure returns (int, uint) {
+					<signed> a = signedIdentity(<signed>(x));
+					return (int(a), uint(<unsigned>(a)));
+				}
+				function narrow(uint x) public returns (uint, int) {
+					<unsigned> a = identity(T.unwrap(T.wrap(<unsigned>(x))));
+					<signed> b = <signed>(a);
+					storedUnsigned = a;
+					storedSigned = b;
+					<unsigned>[1] memory m = [a];
+					(<unsigned> decoded, <signed> signedDecoded) = abi.decode(abi.encode(a, b), (<unsigned>, <signed>));
+					assert(storedUnsigned == decoded && m[0] == a && storedSigned == signedDecoded);
+					assert(addmod(a, 0, 97) == uint(decoded) % 97);
+					return (uint(a), int(b));
+				}
+				function wrap(uint x, uint y, uint op) public pure returns (uint, int) {
+					<unsigned> a = <unsigned>(x);
+					<unsigned> b = <unsigned>(y);
+					<signed> c = <signed>(a);
+					<signed> d = <signed>(b);
+					unchecked {
+						if (op == 0) { a += b; c += d; }
+						else if (op == 1) { a -= b; c -= d; }
+						else if (op == 2) { a *= b; c *= d; }
+						else if (op == 3) { ++a; ++c; }
+						else if (op == 4) { --a; --c; }
+						else { a = ~a; c = -c; }
+					}
+					return (uint(a), int(c));
+				}
+				function assemblyRead(uint x) public pure returns (uint u, int s) {
+					<unsigned> a = <unsigned>(x);
+					<signed> b = <signed>(a);
+					// Narrow locals have no guarantee of clean bits in inline assembly.
+					assembly {
+						u := and(a, sub(shl(<bits>, 1), 1))
+						s := signextend(<signByte>, b)
+					}
+				}
+			}
+		)")
+		("unsigned", "uint" + std::to_string(bits))
+		("signed", "int" + std::to_string(bits))
+		("bits", std::to_string(bits))
+		("signByte", std::to_string(bits / 8 - 1))
+		.render();
+		u512 const mask = bits == VMWordBits ? u512(-1) : (u512(1) << bits) - 1;
+		u512 const sign = u512(1) << (bits - 1);
+		auto signedWord = [mask, sign](u512 _value) -> u512 {
+			_value &= mask;
+			return (_value & sign) != 0 ? _value | ~mask : _value;
+		};
+		std::vector<u512> const values{0, 1, sign - 1, sign, mask, (u512(1) << 511) | 5, u512(-1)};
+		ALSO_VIA_YUL(
+			compileAndRun(source);
+			for (u512 const& x: values)
+			{
+				BOOST_TEST_CONTEXT("bits=" << bits << ", viaIR=" << m_compileViaYul << ", x=" << x)
+				{
+					bytes expected = encodeArgs(u512(x & mask), signedWord(x));
+					ABI_CHECK(callContractFunction("narrow(uint512)", x), expected);
+					ABI_CHECK(callContractFunction("signedNarrow(int512)", x), encodeArgs(signedWord(x), u512(x & mask)));
+					ABI_CHECK(callContractFunction("assemblyRead(uint512)", x), expected);
+					for (unsigned op = 0; op < 6; ++op)
+					{
+						u512 u;
+						switch (op)
+						{
+						case 0: u = x + 2; break;
+						case 1: u = x - 2; break;
+						case 2: u = x * 2; break;
+						case 3: u = x + 1; break;
+						case 4: u = x - 1; break;
+						default: u = ~x; break;
+						}
+						u512 s = op == 5 ? u512(0) - x : u;
+						ABI_CHECK(callContractFunction("wrap(uint512,uint512,uint512)", x, 2, u512(op)), encodeArgs(u512(u & mask), signedWord(s)));
+					}
+				}
+			}
+		)
+	}
 }
 
 BOOST_AUTO_TEST_CASE(creation_code_optimizer)
@@ -852,6 +950,67 @@ BOOST_AUTO_TEST_CASE(constructor)
 	)
 }
 
+BOOST_AUTO_TEST_CASE(word_sized_call_values)
+{
+	char const* sourceCode = R"(
+		contract Receiver {
+			uint public constructorValue;
+			constructor() payable { constructorValue = msg.value; }
+			function received() external payable returns (uint) { return msg.value; }
+			receive() external payable {}
+		}
+		contract test {
+			Receiver public receiver = new Receiver();
+			function typed(uint value, uint gasLimit) public returns (uint) {
+				return receiver.received{value: value, gas: gasLimit}();
+			}
+			function low(uint value, uint gasLimit) public returns (uint) {
+				(bool ok, bytes memory data) = address(receiver).call{value: value, gas: gasLimit}(
+					abi.encodeCall(receiver.received, ())
+				);
+				require(ok);
+				return abi.decode(data, (uint));
+			}
+			function created(uint value, bool salted) public returns (uint, uint) {
+				Receiver child;
+				if (salted)
+					child = new Receiver{value: value, salt: bytes64(uint(1))}();
+				else
+					child = new Receiver{value: value}();
+				return (child.constructorValue(), address(child).balance);
+			}
+			function sendValue(uint value) public returns (bool) {
+				return payable(address(receiver)).send(value);
+			}
+			function transferValue(uint value) public returns (uint) {
+				payable(address(receiver)).transfer(value);
+				return address(receiver).balance;
+			}
+			function rejected(uint value) public returns (bool ok) {
+				(ok,) = address(receiver).call{value: value}("");
+			}
+			function balance() public view returns (uint) { return address(this).balance; }
+		}
+	)";
+	ALSO_VIA_YUL(
+		compileAndRun(sourceCode, 0, "test");
+		u512 const amount = (u512(1) << 300) + 5;
+		u512 const gas = u512(1) << 400;
+		m_qrvmcHost->accounts[QRVMHost::convertToQRVMC(m_contractAddress)].balance =
+			QRVMHost::convertUintToQRVMC(amount * 10);
+		ABI_CHECK(callContractFunction("balance()"), encodeArgs(u512(amount * 10)));
+		ABI_CHECK(callContractFunction("typed(uint512,uint512)", amount, gas), encodeArgs(amount));
+		ABI_CHECK(callContractFunction("low(uint512,uint512)", amount, gas), encodeArgs(amount));
+		ABI_CHECK(callContractFunction("sendValue(uint512)", amount), encodeArgs(true));
+		ABI_CHECK(callContractFunction("transferValue(uint512)", amount), encodeArgs(u512(amount * 4)));
+		ABI_CHECK(callContractFunction("created(uint512,bool)", amount, false), encodeArgs(amount, amount));
+		ABI_CHECK(callContractFunction("created(uint512,bool)", amount, true), encodeArgs(amount, amount));
+		ABI_CHECK(callContractFunction("rejected(uint512)", u512(1) << 400), encodeArgs(false));
+		ABI_CHECK(callContractFunction("balance()"), encodeArgs(u512(amount * 4)));
+		BOOST_CHECK_EQUAL(balanceAt(m_contractAddress), amount * 4);
+	)
+}
+
 BOOST_AUTO_TEST_CASE(send_quanta)
 {
 	char const* sourceCode = R"(
@@ -1137,7 +1296,7 @@ BOOST_AUTO_TEST_CASE(contracts_as_addresses)
 		contract test {
 			helper h;
 			constructor() payable { h = new helper(); payable(h).send(5); }
-			function getBalance() public returns (uint256 myBalance, uint256 helperBalance) {
+			function getBalance() public returns (uint myBalance, uint helperBalance) {
 				myBalance = address(this).balance;
 				helperBalance = address(h).balance;
 			}

@@ -98,12 +98,12 @@ public:
 	static util::h512 convertFromQRVMC(qrvmc::bytes64 const& _data);
 	/// Left-align a 32-byte hash or bytes32 value in a QRVMC word.
 	static qrvmc::bytes64 convertToQRVMC(util::h256 const& _data);
-	/// Convert a QRVMC bytes64 container treating u256 as right-aligned (for uint, balance, value)
-	static u256 convertUintFromQRVMC(qrvmc::bytes64 const& _data);
-	static qrvmc::bytes64 convertUintToQRVMC(u256 const& _value);
+	/// Convert a full-word unsigned integer, including account balances and call values.
+	static u512 convertUintFromQRVMC(qrvmc::bytes64 const& _data);
+	static qrvmc::bytes64 convertUintToQRVMC(u512 const& _value);
 private:
 	/// Transfer value between accounts. Checks for sufficient balance.
-	void transfer(qrvmc::MockedAccount& _sender, qrvmc::MockedAccount& _recipient, u256 const& _value) noexcept;
+	void transfer(qrvmc::MockedAccount& _sender, qrvmc::MockedAccount& _recipient, u512 const& _value) noexcept;
 
 	/// Start a new transaction frame.
 	/// This will apply storage status changes across all accounts,

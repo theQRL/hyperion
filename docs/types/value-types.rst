@@ -36,8 +36,10 @@ Explicitly sized integers retain their declared width. When migrating a contract
 bare integers as 256-bit types, use ``uint256`` and ``int256`` explicitly to preserve its ABI
 signatures and storage layout. Conversions from ``bytes32`` hashes to integers still require
 ``uint256(hash)``; use ``uint(uint256(hash))`` to widen the result to a full word.
-Economic quantities such as ``msg.value``, account balances and call value or gas options
-remain ``uint256``.
+``msg.value``, account balances and call value or gas options use the full-word
+``uint`` type. Narrower unsigned values widen implicitly, while converting these
+full-word values to ``uint256`` requires an explicit cast. Numeric block fields,
+``tx.gasprice`` and ``gasleft()`` retain their existing ``uint256`` types.
 
 Operators:
 

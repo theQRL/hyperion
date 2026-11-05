@@ -1,5 +1,5 @@
 contract C {
-    function f() public view returns (uint256) {
+    function f() public view returns (uint) {
         return msg.sender.balance;
     }
 }
@@ -10,13 +10,13 @@ contract D {
 
     constructor() payable {}
 
-    function f() public view returns (uint256) {
+    function f() public view returns (uint) {
         return c.f();
     }
 }
 // ----
 // constructor(), 27 planck ->
-// gas irOptimized: 167865
-// gas legacy: 221038
-// gas legacyOptimized: 167292
+// gas irOptimized: 165794
+// gas legacy: 206299
+// gas legacyOptimized: 164794
 // f() -> 27

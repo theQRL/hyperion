@@ -17,6 +17,6 @@ contract C {
     }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // test(uint512): 5 -> 10

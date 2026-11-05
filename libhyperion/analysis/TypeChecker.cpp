@@ -2922,7 +2922,7 @@ bool TypeChecker::visit(FunctionCallOptions const& _functionCallOptions)
 				);
 			else
 			{
-				expectType(*_functionCallOptions.options()[i], *TypeProvider::uint256());
+				expectType(*_functionCallOptions.options()[i], *TypeProvider::uint(VMWordBits));
 
 				setCheckOption(setValue, "value");
 			}
@@ -2937,7 +2937,7 @@ bool TypeChecker::visit(FunctionCallOptions const& _functionCallOptions)
 				);
 			else
 			{
-				expectType(*_functionCallOptions.options()[i], *TypeProvider::uint256());
+				expectType(*_functionCallOptions.options()[i], *TypeProvider::uint(VMWordBits));
 
 				setCheckOption(setGas, "gas");
 			}

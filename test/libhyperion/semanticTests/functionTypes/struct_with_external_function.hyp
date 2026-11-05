@@ -28,6 +28,6 @@ contract Flow {
     }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // f() -> 1, 2

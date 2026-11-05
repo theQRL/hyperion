@@ -661,7 +661,7 @@ std::map<std::string, std::optional<std::string>> Predicate::readTxVars(smtutil:
 		{"msg.data", TypeProvider::array(DataLocation::CallData)},
 		{"msg.sender", TypeProvider::address()},
 		{"msg.sig", TypeProvider::fixedBytes(4)},
-		{"msg.value", TypeProvider::uint256()},
+		{"msg.value", TypeProvider::uint(VMWordBits)},
 		{"tx.gasprice", TypeProvider::uint256()},
 		{"tx.origin", TypeProvider::address()}
 	};

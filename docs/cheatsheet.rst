@@ -43,12 +43,12 @@ Members of ``bytes`` and  ``string``
 Members of ``address``
 ======================
 
-- ``<address>.balance`` (``uint256``): balance of the :ref:`address` in Planck
+- ``<address>.balance`` (``uint``): balance of the :ref:`address` in Planck
 - ``<address>.code`` (``bytes memory``): code at the :ref:`address` (can be empty)
 - ``<address>.codehash`` (``bytes32``): the codehash of the :ref:`address`
-- ``<address payable>.send(uint256 amount) returns (bool)``: send given amount of Planck to :ref:`address`,
+- ``<address payable>.send(uint amount) returns (bool)``: send given amount of Planck to :ref:`address`,
   returns ``false`` on failure
-- ``<address payable>.transfer(uint256 amount)``: send given amount of Planck to :ref:`address`, throws on failure
+- ``<address payable>.transfer(uint amount)``: send given amount of Planck to :ref:`address`, throws on failure
 
 .. index:: blockhash, block, block;basefree, block;chainid, block;coinbase, block;gaslimit, block;number, block;prevrandao, block;timestamp
 .. index:: gasleft, msg;data, msg;sender, msg;sig, msg;value, tx;gasprice, tx;origin
@@ -68,7 +68,7 @@ Block and Transaction Properties
 - ``msg.data`` (``bytes``): complete calldata
 - ``msg.sender`` (``address``): sender of the message (current call)
 - ``msg.sig`` (``bytes4``): first four bytes of the calldata (i.e. function identifier)
-- ``msg.value`` (``uint256``): number of planck sent with the message
+- ``msg.value`` (``uint``): number of planck sent with the message
 - ``tx.gasprice`` (``uint256``): gas price of the transaction
 - ``tx.origin`` (``address``): sender of the transaction (full call chain)
 
@@ -96,10 +96,10 @@ Mathematical and Cryptographic Functions
 - ``mldsa87verify(bytes64 digest, bytes memory signature, bytes memory publicKey, bytes memory context) returns (bool)``: verify a FIPS 204 ML-DSA-87 signature (4627 bytes) by a public key (2592 bytes) over a 64-byte message representative, with a context of at most 255 bytes; implemented by the precompiled contract at address ``3``
 - ``depositroot(bytes memory pubkey, bytes memory withdrawal_recipient, bytes memory amount, bytes memory randao_commitment, bytes memory sig) returns (bytes32)``: compute the SSZ hash tree root of the beacon chain ``DepositData`` container (2592-byte ML-DSA-87 public key, 64-byte withdrawal recipient, 8-byte little-endian amount, 32-byte RANDAO commitment, 4627-byte signature); implemented by the precompiled contract at address ``1``
 - ``xmssverify(bytes memory message, bytes memory signature, bytes memory extendedPublicKey) returns (bool)``: verify an XMSS signature of a legacy QRL wallet (`qrllib <https://github.com/theQRL/qrllib>`_ semantics: 67-byte extended public key, ``2180 + 32 * height`` byte signature, SHA2-256/SHAKE-128/SHAKE-256 keys, WOTS+ ``w = 16``); returns ``false`` instead of reverting on malformed input; implemented by the precompiled contract at address ``7``
-- ``addmod(uint256 x, uint256 y, uint256 k) returns (uint256)``: compute ``(x + y) % k`` where the addition is performed with
-  arbitrary precision and does not wrap around at ``2**256``. Assert that ``k != 0`` starting from version 0.5.0.
-- ``mulmod(uint256 x, uint256 y, uint256 k) returns (uint256)``: compute ``(x * y) % k`` where the multiplication is performed
-  with arbitrary precision and does not wrap around at ``2**256``. Assert that ``k != 0`` starting from version 0.5.0.
+- ``addmod(uint x, uint y, uint k) returns (uint)``: compute ``(x + y) % k`` where the addition is performed with
+  arbitrary precision and does not wrap around at ``2**512``. Revert with ``Panic(0x12)`` if ``k == 0``.
+- ``mulmod(uint x, uint y, uint k) returns (uint)``: compute ``(x * y) % k`` where the multiplication is performed
+  with arbitrary precision and does not wrap around at ``2**512``. Revert with ``Panic(0x12)`` if ``k == 0``.
 
 .. index:: this, super
 

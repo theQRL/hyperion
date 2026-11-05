@@ -232,6 +232,9 @@ public:
 	/// if a reference type is converted from calldata or storage to memory.
 	/// If @a _cleanupNeeded, high order bits cleanup is also done if no type conversion would be
 	/// necessary.
+	/// Legacy narrowing may leave dirty upper bits for any integer type smaller than VMWordBits.
+	/// Consumers whose result depends on those bits must request cleanup; widening cleans the source
+	/// type automatically. Do not rely on narrowing alone to produce a canonical stack word.
 	/// If @a _chopSignBits, the function resets the signed bits out of the width of the signed integer.
 	/// If @a _asPartOfArgumentDecoding is true, failed conversions are flagged via REVERT,
 	/// otherwise they are flagged with INVALID.

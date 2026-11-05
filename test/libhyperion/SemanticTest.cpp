@@ -89,6 +89,11 @@ SemanticTest::SemanticTest(
 	std::string compileViaYul = m_reader.stringSetting("compileViaYul", "also");
 	if (!util::contains(compileViaYulAllowedValues, compileViaYul))
 		BOOST_THROW_EXCEPTION(std::runtime_error("Invalid compileViaYul value: " + compileViaYul + "."));
+	std::string pipelineReason = m_reader.stringSetting("compileViaYulReason", "");
+	if (compileViaYul != "also" && trim_copy(pipelineReason).empty())
+		BOOST_THROW_EXCEPTION(std::runtime_error("Single-pipeline tests must explain their exclusion with compileViaYulReason."));
+	if (compileViaYul == "also" && !pipelineReason.empty())
+		BOOST_THROW_EXCEPTION(std::runtime_error("compileViaYulReason is only valid for single-pipeline tests."));
 	m_testCaseWantsYulRun = util::contains(yulRunTriggers, compileViaYul);
 	m_testCaseWantsLegacyRun = util::contains(legacyRunTriggers, compileViaYul);
 

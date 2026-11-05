@@ -69,7 +69,7 @@ inline std::vector<std::shared_ptr<MagicVariableDeclaration const>> constructMag
 
 	return {
 		magicVarDecl("abi", TypeProvider::magic(MagicType::Kind::ABI)),
-		magicVarDecl("addmod", TypeProvider::function(strings{"uint256", "uint256", "uint256"}, strings{"uint256"}, FunctionType::Kind::AddMod, StateMutability::Pure)),
+		magicVarDecl("addmod", TypeProvider::function(strings{"uint", "uint", "uint"}, strings{"uint"}, FunctionType::Kind::AddMod, StateMutability::Pure)),
 		magicVarDecl("assert", TypeProvider::function(strings{"bool"}, strings{}, FunctionType::Kind::Assert, StateMutability::Pure)),
 		magicVarDecl("block", TypeProvider::magic(MagicType::Kind::Block)),
 		magicVarDecl("blockhash", TypeProvider::function(strings{"uint256"}, strings{"bytes32"}, FunctionType::Kind::BlockHash, StateMutability::View)),
@@ -78,7 +78,7 @@ inline std::vector<std::shared_ptr<MagicVariableDeclaration const>> constructMag
 		magicVarDecl("keccak256", TypeProvider::function(strings{"bytes memory"}, strings{"bytes32"}, FunctionType::Kind::KECCAK256, StateMutability::Pure)),
 		magicVarDecl("mldsa87verify", TypeProvider::function(strings{"bytes64", "bytes memory", "bytes memory", "bytes memory"}, strings{"bool"}, FunctionType::Kind::MLDSA87Verify, StateMutability::Pure)),
 		magicVarDecl("msg", TypeProvider::magic(MagicType::Kind::Message)),
-		magicVarDecl("mulmod", TypeProvider::function(strings{"uint256", "uint256", "uint256"}, strings{"uint256"}, FunctionType::Kind::MulMod, StateMutability::Pure)),
+		magicVarDecl("mulmod", TypeProvider::function(strings{"uint", "uint", "uint"}, strings{"uint"}, FunctionType::Kind::MulMod, StateMutability::Pure)),
 		magicVarDecl("require", TypeProvider::function(strings{"bool"}, strings{}, FunctionType::Kind::Require, StateMutability::Pure)),
 		magicVarDecl("require", TypeProvider::function(strings{"bool", "string memory"}, strings{}, FunctionType::Kind::Require, StateMutability::Pure)),
 		magicVarDecl("revert", TypeProvider::function(strings(), strings(), FunctionType::Kind::Revert, StateMutability::Pure)),

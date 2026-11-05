@@ -17,7 +17,7 @@ contract C {
 	}
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // testYul() -> 0xe16b4a9b
 // testHyp() -> 0xe16b4a9b

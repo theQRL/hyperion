@@ -745,6 +745,9 @@ The only type available in this dialect
 is ``u256``, the 512-bit native type of the Quantum Resistant Virtual Machine.
 Since it is the default type of this dialect, it can be omitted.
 
+Arithmetic operations such as ``add``, ``sub``, ``mul`` and ``exp`` wrap at
+512 bits. For differences from EVM assembly, see :ref:`assembly-porting`.
+
 The following table lists all builtin functions
 (depending on the QRVM version) and provides a short description of the
 semantics of the function / opcode.
@@ -823,9 +826,9 @@ the ``dup`` and ``swap`` instructions as well as ``jump`` instructions, labels a
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | pop(x)                  | `-` | F | discard value x                                                 |
 +-------------------------+-----+---+-----------------------------------------------------------------+
-| mload(p)                |     | F | mem[p...(p+32))                                                 |
+| mload(p)                |     | F | mem[p...(p+64))                                                 |
 +-------------------------+-----+---+-----------------------------------------------------------------+
-| mstore(p, v)            | `-` | F | mem[p...(p+32)) := v                                            |
+| mstore(p, v)            | `-` | F | mem[p...(p+64)) := v                                            |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | mstore8(p, v)           | `-` | F | mem[p] := v & 0xff (only modifies a single byte)                |
 +-------------------------+-----+---+-----------------------------------------------------------------+

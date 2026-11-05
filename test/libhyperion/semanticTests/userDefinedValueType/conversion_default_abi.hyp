@@ -27,7 +27,7 @@ contract C {
     }
 }
 // ====
-// compileViaYul: false
+// compileViaYul: also
 // ----
 // f(uint512): 1 -> 1
 // f(uint512): 2 -> 2

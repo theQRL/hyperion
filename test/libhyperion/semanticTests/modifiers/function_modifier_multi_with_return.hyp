@@ -18,6 +18,7 @@ contract C {
 
 // ====
 // compileViaYul: false
+// compileViaYulReason: IR resets return variables on each modifier invocation; legacy shares their stack slots.
 // ----
 // f(bool): false -> 1
 // f(bool): true -> 2

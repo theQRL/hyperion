@@ -2,10 +2,12 @@ contract C {
     function test() public returns (uint256) {
         // Note that this only works because computation on literals is done using
         // unbounded integers.
-        if ((2**255 + 2**255) % 7 != addmod(2**255, 2**255, 7)) return 1;
-        if ((2**255 + 2**255) % 7 != addmod(2**255, 2**255, 7)) return 2;
+        if ((2**511 + 2**511) % 7 != addmod(2**511, 2**511, 7)) return 1;
+        if ((2**511 * 2**511) % 7 != mulmod(2**511, 2**511, 7)) return 2;
         return 0;
     }
 }
+// ====
+// compileViaYul: also
 // ----
 // test() -> 0

@@ -18,6 +18,7 @@ contract B is A {
 }
 // ====
 // compileViaYul: true
+// compileViaYulReason: State variable initialization order differs between pipelines; see docs/ir-breaking-changes.rst.
 // ----
 // a() -> 17
 // b() -> 42

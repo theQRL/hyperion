@@ -315,7 +315,7 @@ protected:
 	/// @returns the (potentially newly created) _ith address.
 	util::h512 account(size_t _i);
 
-	u256 balanceAt(util::h512 const& _addr) const;
+	u512 balanceAt(util::h512 const& _addr) const;
 	bool storageEmpty(util::h512 const& _addr) const;
 	bool addressHasCode(util::h512 const& _addr) const;
 

@@ -7,6 +7,6 @@ contract C {
     }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // h(), 1 quanta -> 1

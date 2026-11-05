@@ -1,0 +1,15 @@
+contract C {
+    function f(address target, int signedValue) public payable {
+        uint256 value = msg.value;
+        uint256 balance = target.balance;
+        target.call{value: signedValue}("");
+        target.call{gas: signedValue}("");
+    }
+}
+// ----
+// TypeError 9574: (86-111): Type uint512 is not implicitly convertible to expected type uint256.
+// TypeError 9574: (121-153): Type uint512 is not implicitly convertible to expected type uint256.
+// TypeError 7407: (182-193): Type int512 is not implicitly convertible to expected type uint512.
+// Warning 9302: (163-198): Return value of low-level calls not used.
+// TypeError 7407: (225-236): Type int512 is not implicitly convertible to expected type uint512.
+// Warning 9302: (208-241): Return value of low-level calls not used.

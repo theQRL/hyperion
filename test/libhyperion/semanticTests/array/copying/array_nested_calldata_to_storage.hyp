@@ -36,6 +36,7 @@ contract c {
 }
 // ====
 // compileViaYul: true
+// compileViaYulReason: Legacy code generation does not implement this nested array or struct copy.
 // ----
 // test1(uint256[][]): 0x20, 2, 0x40, 0x40, 2, 23, 42 -> FAILURE
 // gas irOptimized: 180716

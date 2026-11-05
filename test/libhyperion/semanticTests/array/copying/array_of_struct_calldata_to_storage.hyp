@@ -15,6 +15,7 @@ contract C {
 }
 // ====
 // compileViaYul: true
+// compileViaYulReason: Legacy code generation does not implement this nested array or struct copy.
 // ----
 // f((uint128,uint64,uint128)[]): 0x20, 3, 0, 0, 12, 0, 11, 0, 10, 0, 0 -> FAILURE
 // gas irOptimized: 119704

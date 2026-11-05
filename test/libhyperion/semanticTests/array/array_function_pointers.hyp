@@ -21,7 +21,7 @@ contract C {
 	}
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // f(uint512,uint512): 1823621, 12323 -> FAILURE # Out of gas #
 // f2(uint512,uint512,uint512,uint512): 18723921, 1823621, 123, 12323 -> FAILURE # Out of gas #

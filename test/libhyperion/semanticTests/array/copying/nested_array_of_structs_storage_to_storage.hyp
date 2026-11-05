@@ -61,6 +61,7 @@ contract C {
 }
 // ====
 // compileViaYul: true
+// compileViaYulReason: Legacy code generation does not implement this nested array or struct copy.
 // ----
 // test1()
 // gas irOptimized: 123202

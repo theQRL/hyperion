@@ -20,7 +20,7 @@ contract C {
     }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // library: L
 // g(uint256): 4 -> 16

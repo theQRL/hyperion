@@ -16,6 +16,6 @@ contract C {
   }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // f() -> 2

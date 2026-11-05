@@ -1,18 +1,25 @@
 ### Unreleased
 
 Breaking Changes:
+ * Builtins: Widen all `addmod` and `mulmod` parameters and return values to `uint` (`uint512`). Narrower unsigned inputs widen implicitly; assigning the result to a narrower type requires an explicit conversion. Intermediate arithmetic remains exact even when it exceeds 512 bits.
  * Code Generator: Use `Panic(uint512)` with selector `0xdf75fb3b` for compiler-generated panics and `catch Panic`. The payload remains a 4-byte selector followed by a 64-byte code. Contracts compiled by 0.2.0 retain the `0x4e487b71` selector.
  * Type System: Bare `int` and `uint` now mean `int512` and `uint512`, the full QRVM word. Explicitly sized integers keep their declared widths. This changes ABI signatures, selectors and storage layouts containing bare integers.
+ * Type System: Use full-word `uint` for call value and gas options, `msg.value` and account balances. Narrower unsigned inputs widen implicitly; narrowing message values or balances requires an explicit conversion.
  * Type System: Array and fixed-bytes indices, calldata slice bounds, allocation lengths and generated array getter indices accept full-word integers. `catch Panic(uint code)` binds a `uint512` code.
 
 Important Bugfixes:
+ * Code Generator: Mask packed internal function pointers before testing for zero in the legacy pipeline, so calling an unset pointer reverts with `Panic(0x51)` even when a nonzero neighbour shares its storage slot (CIPH-HYPERION-7).
  * Code Generator: Fix `delete` applied to an element of a `bytes` array in memory zeroing the whole 64-byte word starting at the element's location instead of only the element's byte, in the legacy code generator (upstream SOL-2026-5).
  * Yul Optimizer: Fix knowledge about storage/memory address relations going stale in the `DataFlowAnalyzer` after a variable is reassigned in Yul, which could cause `LoadResolver` to replace loads with outdated values and `EqualStoreEliminator` to remove needed stores (upstream SOL-2026-7).
 
 Bugfixes:
+ * Code Generator: Clean narrowed and wrapped integer arguments when widening them for `addmod` and `mulmod` in the legacy code generator.
+ * Code Generator: Clean narrowed and wrapped integer arguments when widening them for call value and gas options in the legacy code generator.
  * Code Generator: Convert `mldsa87verify` and `xmssverify` arguments in evaluation order in the IR code generator, so a storage `bytes` argument is copied to memory before later arguments can modify it, as the legacy code generator and the SMTChecker already do.
+ * SMTChecker: Model message values and account balances as full-word integers.
 
 Build System:
+ * Tests: Re-enable 47 Zond semantic regressions, extend dual-pipeline coverage, require explanations for single-pipeline fixtures, and report excluded tests as skipped. Add differential integer cleanup tests for every supported width and 512-bit opcode boundaries (CIPH-HYPERION-13).
  * Build with current Apple toolchains (Apple Clang 21, libc++ 22), Boost 1.88+ (Boost.Process v1 headers) and Boost 1.89+ (no compiled Boost.System library).
  * Raise the macOS deployment target from 10.14 to 11.0, the lowest that libc++ 22 supports. The released `hypc-macos` binary requires macOS 11 or later.
 

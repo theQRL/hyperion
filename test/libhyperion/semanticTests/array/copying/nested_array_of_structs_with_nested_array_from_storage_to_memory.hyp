@@ -39,6 +39,7 @@ contract C {
 }
 // ====
 // compileViaYul: true
+// compileViaYulReason: Legacy code generation does not implement this nested array or struct copy.
 // ----
 // test1() -> 0x40, 2, 0x80, 0x0200, 0xc0, 7, 11, 2, 0x17, 0x1d, 0xc0, 0x11, 0x13, 1, 0x1f
 // test2() -> 0x40, 0x40, 0xc0, 0x2b, 0x2f, 0

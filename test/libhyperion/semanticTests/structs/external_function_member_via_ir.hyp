@@ -52,7 +52,7 @@ contract C {
 // ====
 // compileViaYul: also
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // zeroMemory() -> 0
 // memoryToStorage() -> 3, 7

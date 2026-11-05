@@ -128,7 +128,7 @@ u256 ExecutionFramework::gasPrice() const
 	// here and below we use "return u256{....}" instead of just "return {....}"
 	// to please MSVC and avoid unexpected
 	// warning C4927 : illegal conversion; more than one user - defined conversion has been implicitly applied
-	return QRVMHost::convertUintFromQRVMC(m_qrvmcHost->tx_context.tx_gas_price);
+	return u256(QRVMHost::convertUintFromQRVMC(m_qrvmcHost->tx_context.tx_gas_price));
 }
 
 h256 ExecutionFramework::blockHash(u256 const& _number) const
@@ -272,7 +272,7 @@ bytes ExecutionFramework::logData(size_t _logIdx) const
 	return {data.begin(), data.end()};
 }
 
-u256 ExecutionFramework::balanceAt(h512 const& _addr) const
+u512 ExecutionFramework::balanceAt(h512 const& _addr) const
 {
 	return QRVMHost::convertUintFromQRVMC(m_qrvmcHost->get_balance(QRVMHost::convertToQRVMC(_addr)));
 }

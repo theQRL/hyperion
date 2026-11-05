@@ -79,7 +79,7 @@ Block and Transaction Properties
 - ``msg.data`` (``bytes calldata``): complete calldata
 - ``msg.sender`` (``address``): sender of the message (current call)
 - ``msg.sig`` (``bytes4``): first four bytes of the calldata (i.e. function identifier)
-- ``msg.value`` (``uint256``): number of planck sent with the message
+- ``msg.value`` (``uint``): number of planck sent with the message
 - ``tx.gasprice`` (``uint256``): gas price of the transaction
 - ``tx.origin`` (``address``): sender of the transaction (full call chain)
 
@@ -177,11 +177,17 @@ more details on error handling and when to use which function.
 Mathematical and Cryptographic Functions
 ----------------------------------------
 
-``addmod(uint256 x, uint256 y, uint256 k) returns (uint256)``
-    compute ``(x + y) % k`` where the addition is performed with arbitrary precision and does not wrap around at ``2**256``. Assert that ``k != 0`` starting from version 0.5.0.
+``addmod(uint x, uint y, uint k) returns (uint)``
+    compute ``(x + y) % k`` where the addition is performed with arbitrary precision and does not wrap around at ``2**512``. Revert with ``Panic(0x12)`` if ``k == 0``.
 
-``mulmod(uint256 x, uint256 y, uint256 k) returns (uint256)``
-    compute ``(x * y) % k`` where the multiplication is performed with arbitrary precision and does not wrap around at ``2**256``. Assert that ``k != 0`` starting from version 0.5.0.
+``mulmod(uint x, uint y, uint k) returns (uint)``
+    compute ``(x * y) % k`` where the multiplication is performed with arbitrary precision and does not wrap around at ``2**512``. Revert with ``Panic(0x12)`` if ``k == 0``.
+
+Here ``uint`` is an alias for ``uint512``, the full QRVM word. Narrower
+unsigned arguments such as ``uint256`` widen implicitly. Assigning the result to
+a narrower type requires an explicit conversion. If the nonzero modulus fits in
+that narrower unsigned type, the result fits too, because it is less than the modulus.
+Earlier releases used ``uint256`` parameters and return values.
 
 ``keccak256(bytes memory) returns (bytes32)``
     compute the Keccak-256 hash of the input
@@ -216,7 +222,7 @@ Mathematical and Cryptographic Functions
 Members of Address Types
 ------------------------
 
-``<address>.balance`` (``uint256``)
+``<address>.balance`` (``uint``)
     balance of the :ref:`address` in Planck
 
 ``<address>.code`` (``bytes memory``)
@@ -225,10 +231,10 @@ Members of Address Types
 ``<address>.codehash`` (``bytes32``)
     the codehash of the :ref:`address`
 
-``<address payable>.transfer(uint256 amount)``
+``<address payable>.transfer(uint amount)``
     send given amount of Planck to :ref:`address`, reverts on failure, forwards 2300 gas stipend, not adjustable
 
-``<address payable>.send(uint256 amount) returns (bool)``
+``<address payable>.send(uint amount) returns (bool)``
     send given amount of Planck to :ref:`address`, returns ``false`` on failure, forwards 2300 gas stipend, not adjustable
 
 ``<address>.call(bytes memory) returns (bool, bytes memory)``

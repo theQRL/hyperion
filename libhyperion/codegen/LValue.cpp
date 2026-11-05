@@ -281,6 +281,9 @@ void StorageItem::retrieveValue(SourceLocation const&, bool _remove) const
 				hypAssert(false, "External function values use full storage slots.");
 			else if (fun->kind() == FunctionType::Kind::Internal)
 			{
+				// Packed neighbours must not prevent a zero pointer from becoming the panic stub.
+				m_context << ((u512(1) << (8 * type->storageBytes())) - 1) << Instruction::AND;
+				cleaned = true;
 				m_context << Instruction::DUP1 << Instruction::ISZERO;
 				CompilerUtils(m_context).pushZeroValue(*fun);
 				m_context << Instruction::MUL << Instruction::OR;

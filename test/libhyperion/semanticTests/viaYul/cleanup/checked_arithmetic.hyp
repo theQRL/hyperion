@@ -51,7 +51,7 @@ contract C {
 	}
 }
 // ====
-// compileViaYul: true
+// compileViaYul: also
 // ----
 // add() -> 1, 1
 // sub() -> 0, 0

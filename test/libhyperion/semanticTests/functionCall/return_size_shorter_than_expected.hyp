@@ -27,7 +27,7 @@ contract Test {
     }
 }
 // ====
-// compileViaYul: true
+// compileViaYul: also
 // ----
 // test() -> FAILURE
 // gas legacy: 131966

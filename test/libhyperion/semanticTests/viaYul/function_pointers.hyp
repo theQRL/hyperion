@@ -17,7 +17,7 @@ contract C {
 	}
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // f() -> FAILURE, hex"df75fb3b", 0x51
 // g() -> FAILURE

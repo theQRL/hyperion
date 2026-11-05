@@ -7,7 +7,7 @@ contract C {
     }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // f() -> true
 // g(function): hex"00000000000000000000000000000000000004226121ff00000000000000000" -> FAILURE

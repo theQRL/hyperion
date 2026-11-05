@@ -45,7 +45,7 @@ contract C {
     }
 }
 // ====
-// compileViaYul: true
+// compileViaYul: also
 // ----
 // test_string() -> 11, 22, 0
 // test_bytes() -> 31, 47, 0

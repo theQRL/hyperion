@@ -38,6 +38,6 @@ contract Test {
     }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // test() -> true

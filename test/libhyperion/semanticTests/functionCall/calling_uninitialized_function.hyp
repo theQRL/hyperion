@@ -12,7 +12,7 @@ contract C {
     }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
 // intern() -> FAILURE, hex"df75fb3b", 0x51 # This should throw exceptions #
 // extern() -> FAILURE

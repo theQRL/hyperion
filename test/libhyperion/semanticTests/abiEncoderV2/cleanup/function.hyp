@@ -2,29 +2,32 @@ pragma abicoder               v2;
 
 contract C {
     struct S { function() external f; }
-    function ggg(function() external x) external pure returns (uint256 r) {
-        assembly { r := calldataload(4) }
+    function ggg(function() external x) external pure returns (uint r) {
+        assembly { r := calldataload(68) }
     }
-    function h(S calldata x) external pure returns (uint256 r) {
-        x.f; // validation only happens here
-        assembly { r := calldataload(4) }
+    function h(S calldata x) external pure returns (uint r) {
+        x.f; // Decoding cleans the selector; assembly still reads the raw calldata word.
+        assembly { r := calldataload(68) }
     }
     function dummy() external {}
-    function ffff(uint256 a) external view returns (uint256, uint256) {
-        S memory s = S(this.dummy);
-        assembly { mstore(s, a) }
+    function ffff(uint a) external view returns (uint, uint) {
+        function() external f = this.dummy;
+        assembly { f.selector := a }
+        S memory s = S(f);
         return (this.ggg(s.f), this.h(s));
     }
 }
 // ====
-// QRVMVersion: >zond
+// QRVMVersion: >=zond
 // ----
-// ffff(uint256): 0 -> 0, 0
-// ggg(function): 0 -> 0
-// ffff(uint256): "01234567890123456789abcd" -> FAILURE
-// ggg(function): "01234567890123456789abcd" -> 0
-// h((function)): "01234567890123456789abcd" -> 0
-// h((function)): 0 -> 0
-// ffff(uint256): "01234567890123456789abcdX" -> FAILURE
-// ggg(function): "01234567890123456789abcdX" -> 0
-// h((function)): "01234567890123456789abcdX" -> 0
+// ffff(uint512): 0 -> 0, 0
+// ffff(uint512): 0x100001234 -> 0x1234, 0x1234
+// ffff(uint512): 0x100000000000000000000000000000000000000000000000000000000000001234 -> 0x1234, 0x1234
+// ggg(function): 0, 0 -> 0
+// ggg(function): 0x1234, 0xffffffff -> 0xffffffff
+// ggg(function): 0x1234, 0x100000000 -> 0x100000000
+// h((function)): 0, 0 -> 0
+// h((function)): 0x1234, 0xffffffff -> 0xffffffff
+// h((function)): 0x1234, 0x100000000 -> 0x100000000
+// ggg(function): 0 -> FAILURE
+// h((function)): 0 -> FAILURE

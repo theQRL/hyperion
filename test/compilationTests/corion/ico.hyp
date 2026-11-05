@@ -304,7 +304,9 @@ contract ico is safeMath {
         if ( beneficiaryAddress == affilateAddress ) {
             affilateAddress = address(0x00);
         }
-        uint256 _value = msg.value;
+        // This fixture keeps its token accounting at 256 bits.
+        require( msg.value <= type(uint256).max );
+        uint256 _value = uint256(msg.value);
         if ( beneficiaryAddress.balance < 0.2 quanta ) {
             require( beneficiaryAddress.send(0.2 quanta) );
             _value = safeSub(_value, 0.2 quanta);
