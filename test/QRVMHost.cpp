@@ -612,14 +612,15 @@ qrvmc::Result QRVMHost::precompileModExp(qrvmc_message const& _message) noexcept
 		return resultWithGas(_message.gas, std::numeric_limits<int64_t>::max(), {});
 	int64_t const gasCost = static_cast<int64_t>(gas);
 
-	// Output, as in go-qrl's bigModExp.Run. Paying for the call bounds the lengths; the check below
-	// only guards the conversions.
-	if (baseLength + exponentLength + modulusLength > std::numeric_limits<uint32_t>::max())
-		return resultWithFailure();
+	// Output, as in go-qrl's bigModExp.Run, which returns empty output for zero base and modulus
+	// lengths before it reads the exponent, so the exponent length does not matter then.
 	bytes static output;
 	output.clear();
 	if (baseLength == 0 && modulusLength == 0)
 		return resultWithGas(_message.gas, gasCost, output);
+	// Paying for the call bounds the other lengths; this check only guards the conversions.
+	if (baseLength + exponentLength + modulusLength > std::numeric_limits<uint32_t>::max())
+		return resultWithFailure();
 	size_t const baseSize = static_cast<size_t>(baseLength);
 	size_t const exponentSize = static_cast<size_t>(exponentLength);
 	size_t const modulusSize = static_cast<size_t>(modulusLength);

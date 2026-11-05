@@ -78,8 +78,12 @@ Release Binaries
 
 Each release on the `Hyperion release page on Github`_ has binaries that need no installation:
 ``hypc-static-linux`` (Linux on x86-64), ``hypc-static-linux-arm`` (Linux on ARM64), ``hypc-macos``
-(macOS 11 or later), ``hypc-windows.exe`` and ``hypjson.js``. Download the one for your platform,
+(macOS 11 or later) and ``hypc-windows.exe``. Download the one for your platform,
 :ref:`verify it <verifying-release-binaries>`, make it executable and run it.
+
+Each release also has ``hypjson.js``, the compiler built for JavaScript. It is not a program you
+run. Load it with :ref:`@theqrl/hypc <hypcjs>` as its
+`README <https://github.com/theQRL/hypc-js#using-a-legacy-version>`_ describes.
 
 The Hyperion project does not publish Docker images, Linux distribution packages, PPAs, snaps or
 Homebrew formulas. Packages of those kinds that claim to contain Hyperion are not ours.

@@ -254,6 +254,25 @@ BOOST_AUTO_TEST_CASE(go_qrl_modexp_vectors)
 	checkGoQrlPrecompileVectors(*m_qrvmcHost, 5, "modexp.json");
 }
 
+BOOST_AUTO_TEST_CASE(modexp_zero_base_and_modulus_lengths)
+{
+	// go-qrl's bigModExp returns empty output when the base and modulus lengths are zero,
+	// whatever the exponent length, and charges the minimum of 200 gas.
+	bytes input(96, 0);
+	input[32] = 0x80; // Exponent length 2**255.
+	qrvmc_message message{};
+	message.kind = QRVMC_CALL;
+	message.recipient.bytes[sizeof(message.recipient.bytes) - 1] = 5;
+	message.code_address = message.recipient;
+	message.input_data = input.data();
+	message.input_size = input.size();
+	message.gas = 100000;
+	qrvmc::Result const result = m_qrvmcHost->call(message);
+	BOOST_CHECK_EQUAL(result.status_code, QRVMC_SUCCESS);
+	BOOST_CHECK_EQUAL(result.output_size, 0);
+	BOOST_CHECK_EQUAL(message.gas - result.gas_left, 200);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 }
