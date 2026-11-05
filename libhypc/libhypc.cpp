@@ -165,7 +165,8 @@ extern void hyperion_reset() noexcept
 	// compilation it interrupts, which leaves that compilation's CompilerStack registered as the
 	// live one and makes every later hyperion_compile() fail with "You shall not have another
 	// CompilerStack aside me." No compilation is in progress when this function may be called, so
-	// the abandoned one's traces can go.
+	// the abandoned one's traces can go. Its allocations cannot: nothing can run its destructors
+	// safely any more (see the header), so an embedder that stays on the same instance leaks them.
 	frontend::CompilerStack::discardAbandonedInstance();
 }
 }

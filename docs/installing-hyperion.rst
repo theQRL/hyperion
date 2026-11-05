@@ -239,8 +239,10 @@ downloaded binary with the `GitHub CLI <https://cli.github.com>`_ 2.102.0 or lat
 
 The first command fails unless the file was built by the ``theQRL/hyperion`` release workflow,
 ``.github/workflows/ci.yml``. An attestation signed by any other workflow in the repository is rejected.
-GitHub CLI 2.51.0 to 2.101.0 do not give that guarantee: they treat ``--signer-workflow`` as a prefix
-and accept an attestation from any workflow whose path begins with ``ci.yml``
+GitHub CLI 2.51.0 to 2.101.0 do not give that guarantee: they treat the whole ``--signer-workflow``
+value as a prefix of the signing workflow's identity. They accept an attestation from any workflow in
+the repository whose identity begins with ``theQRL/hyperion/.github/workflows/ci.yml``, such as
+``.github/workflows/ci.yml-copy.yml``
 (`GHSA-wjmr-j3rp-mh2g <https://github.com/cli/cli/security/advisories/GHSA-wjmr-j3rp-mh2g>`_).
 Releases up to and including 0.2.0 can only be checked against ``SHA256SUMS``.
 

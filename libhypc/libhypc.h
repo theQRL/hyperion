@@ -99,6 +99,11 @@ char* hyperion_compile(char const* _input, CStyleReadFileCallback _readCallback,
 /// running, as happens when a JavaScript exception unwinds through the Emscripten build. Until then,
 /// every call to hyperion_compile() fails with an internal error about another CompilerStack.
 /// Call it between compilations only, never from within a callback.
+///
+/// What such an abandoned compilation allocated stays allocated: its destructors did not run, and
+/// cannot be run afterwards, because the interrupted code may have been anywhere when it stopped
+/// and the stack frames that held its objects may have been reused since. An embedder that can
+/// replace the whole module instance after such an exception should do that instead.
 void hyperion_reset() HYPC_NOEXCEPT;
 
 #ifdef __cplusplus

@@ -134,6 +134,8 @@ void CompilerStack::discardAbandonedInstance()
 {
 	if (g_liveCompilerStack == nullptr)
 		return;
+	// Only the global state goes back to what the destructor would have left. The instance itself
+	// is never touched: its memory may be gone, or inconsistent, and its allocations are leaked.
 	g_liveCompilerStack = nullptr;
 	TypeProvider::reset();
 }

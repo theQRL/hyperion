@@ -140,6 +140,12 @@ public:
 	/// that unwinds through the compiler (the RangeError V8 throws when its stack is exhausted,
 	/// say) skips every C++ destructor, and no CompilerStack could be constructed afterwards.
 	/// Must not be called while a CompilerStack is in use.
+	///
+	/// The abandoned instance is not destroyed, so what it allocated (sources, ASTs, generated
+	/// code) is leaked. Destroying it is not an option: it is a local of the interrupted call, whose
+	/// stack frames the embedder has reused by now, and the interrupted code may have left it, or
+	/// any object it owns, in the middle of an update. An embedder that can start a fresh module
+	/// instance instead should do that.
 	static void discardAbandonedInstance();
 
 	/// @returns the list of errors that occurred during parsing and type checking.

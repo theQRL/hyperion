@@ -13,7 +13,7 @@ Important Bugfixes:
  * Yul Optimizer: Fix knowledge about storage/memory address relations going stale in the `DataFlowAnalyzer` after a variable is reassigned in Yul, which could cause `LoadResolver` to replace loads with outdated values and `EqualStoreEliminator` to remove needed stores (upstream SOL-2026-7).
 
 Bugfixes:
- * C API: Make `hyperion_reset()` discard the state of a compilation that a JavaScript exception unwinding through the Emscripten build abandoned without running its destructors; until then every later `hyperion_compile()` failed with an internal error about another `CompilerStack` (CIPH-HYPERION-16).
+ * C API: Make `hyperion_reset()` discard the state of a compilation that a JavaScript exception unwinding through the Emscripten build abandoned without running its destructors; until then every later `hyperion_compile()` failed with an internal error about another `CompilerStack`. The memory of the abandoned compilation is not reclaimed, since its destructors cannot be run safely afterwards; an embedder that can load a fresh module instance should prefer that (CIPH-HYPERION-16).
  * Code Generator: Clean narrowed and wrapped integer arguments when widening them for `addmod` and `mulmod` in the legacy code generator.
  * Code Generator: Clean narrowed and wrapped integer arguments when widening them for call value and gas options in the legacy code generator.
  * Code Generator: Convert `mldsa87verify` and `xmssverify` arguments in evaluation order in the IR code generator, so a storage `bytes` argument is copied to memory before later arguments can modify it, as the legacy code generator and the SMTChecker already do.
