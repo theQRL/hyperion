@@ -1,0 +1,30 @@
+contract C {
+    uint512 s = 2 ** 0x100;
+
+    function g(uint512) internal pure {}
+
+    function f(uint8 n) public pure returns (uint512 r) {
+        uint512 a = 2 ** n;
+        uint512 b = 1 << n;
+        r = 3 ** n;
+        g(2 ** n);
+        // No warning: the base is converted, the target is not wider, the whole expression is a literal,
+        // no bits can be lost, or warning 3149 already applies.
+        uint512 c = uint512(2) ** n;
+        uint256 d = 2 ** n;
+        uint512 e = 2 ** 300;
+        uint512 h = 2 >> n;
+        uint512 i = 1 ** n;
+        uint512 j = 0 << n;
+        uint512 k = 2 ** uint512(n);
+        a; b; c; d; e; h; i; j; k;
+        return 2 ** n;
+    }
+}
+// ----
+// Warning 6432: (162-168): Exponentiation with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(2) to compute it in uint512.
+// Warning 6432: (190-196): Left shift with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(1) to compute it in uint512.
+// Warning 6432: (210-216): Exponentiation with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(3) to compute it in uint512.
+// Warning 6432: (228-234): Exponentiation with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(2) to compute it in uint512.
+// Warning 3149: (607-622): The result type of the exponentiation operation is equal to the type of the first operand (uint256) ignoring the (larger) type of the second operand (uint512) which might be unexpected. Silence this warning by either converting the first or the second operand to the type of the other.
+// Warning 6432: (674-680): Exponentiation with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(2) to compute it in uint512.

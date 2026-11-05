@@ -1,0 +1,38 @@
+// External library calls pass storage pointers as their full 512-bit slot.
+library L {
+    function setLast(uint[3] storage a, uint v) external {
+        a[2] = v;
+    }
+
+    function put(mapping(uint => uint) storage m, uint k, uint v) external {
+        m[k] = v;
+    }
+}
+
+contract C {
+    uint512 constant HIGH_SLOT = type(uint512).max - 7;
+
+    function arrayAt(uint512 slot) internal pure returns (uint[3] storage a) {
+        assembly { a.slot := slot }
+    }
+
+    function mappingAt(uint512 slot) internal pure returns (mapping(uint => uint) storage m) {
+        assembly { m.slot := slot }
+    }
+
+    function array() public returns (uint) {
+        uint[3] storage a = arrayAt(HIGH_SLOT);
+        L.setLast(a, 42);
+        return a[2];
+    }
+
+    function map() public returns (uint) {
+        mapping(uint => uint) storage m = mappingAt(HIGH_SLOT);
+        L.put(m, 7, 43);
+        return m[7];
+    }
+}
+// ----
+// library: L
+// array() -> 42
+// map() -> 43

@@ -1,0 +1,50 @@
+// The modexp precompile at address 5, as go-qrl implements it: EIP-198 with 32-byte length
+// fields and the gas of EIP-2565.
+contract C {
+    function modexp(bytes memory base, bytes memory exponent, bytes memory modulus) public view returns (bool, bytes memory) {
+        bytes memory input = abi.encodePacked(
+            uint256(base.length), uint256(exponent.length), uint256(modulus.length), base, exponent, modulus
+        );
+        return address(5).staticcall(input);
+    }
+
+    function raw(bytes memory input, uint256 suppliedGas) public view returns (bool, bytes memory) {
+        return address(5).staticcall{gas: suppliedGas}(input);
+    }
+
+    function small() public view returns (bool, bytes memory) {
+        return modexp(hex"03", hex"05", hex"07");
+    }
+
+    function zeroModulus() public view returns (bool, bytes memory) {
+        return modexp(hex"03", hex"05", hex"0000");
+    }
+
+    function zeroExponent() public view returns (bool, bytes memory) {
+        return modexp(hex"03", hex"", hex"0007");
+    }
+
+    function onlyExponent() public view returns (bool, bytes memory) {
+        return modexp(hex"", hex"05", hex"");
+    }
+
+    function fermat() public view returns (bool, bytes memory) {
+        // 3 ** (p - 1) mod p == 1 for the prime p = 2 ** 255 - 19.
+        bytes memory p = hex"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed";
+        bytes memory pMinus1 = hex"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec";
+        return modexp(hex"03", pMinus1, p);
+    }
+
+    function shortInput() public view returns (bool, bytes memory) {
+        // Lengths say base 1, exponent 1, modulus 1, but only the base byte is present: the
+        // exponent and modulus read as zero, so the result is one zero byte.
+        return raw(abi.encodePacked(uint256(1), uint256(1), uint256(1), hex"03"), 1000);
+    }
+}
+// ----
+// small() -> true, 0x80, 1, hex"05000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+// zeroModulus() -> true, 0x80, 2, hex"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+// zeroExponent() -> true, 0x80, 2, hex"00010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+// onlyExponent() -> 1, 0x80, 0
+// fermat() -> true, 0x80, 0x20, hex"00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000"
+// shortInput() -> true, 0x80, 1, hex"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"

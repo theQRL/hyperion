@@ -495,6 +495,12 @@ Shifts and exponentiation with literal numbers as left (or base) operand and int
 as the right (exponent) operand are always performed
 in the ``uint256`` (for non-negative literals) or ``int256`` (for a negative literals) type,
 regardless of the type of the right (exponent) operand.
+This is narrower than the 512-bit word: ``uint512 x = 2 ** n;`` reverts for ``n >= 256`` and
+``uint512 y = 1 << n;`` is zero, because the result is converted to ``uint512`` only after it was
+computed in ``uint256``. The same happens when the result is an operand next to a wider value:
+for ``n >= 256``, ``msg.value + (1 << n)`` adds zero and ``bitmap |= 1 << n`` sets no bit in a
+``uint512`` ``bitmap``. The compiler warns whenever such a result is converted to a wider type.
+Convert the base instead, as in ``uint512(2) ** n``.
 
 .. warning::
     Division on integer literals used to truncate in Hyperion prior to version 0.4.0, but it now converts into a rational number, i.e. ``5 / 2`` is not equal to ``2``, but to ``2.5``.

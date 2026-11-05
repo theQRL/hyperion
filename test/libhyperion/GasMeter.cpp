@@ -107,6 +107,35 @@ public:
 
 BOOST_FIXTURE_TEST_SUITE(GasMeterTests, GasMeterTestFramework)
 
+BOOST_AUTO_TEST_CASE(constants_wider_than_256_bits)
+{
+	// A gas amount is a u256, so a 512-bit constant that the gas depends on makes it infinite
+	// instead of being cut to its low 256 bits.
+	auto estimateLast = [](std::vector<AssemblyItem> const& _items, bool _includeExternalCosts) {
+		auto state = std::make_shared<KnownState>();
+		GasMeter meter(state, hyperion::test::CommonOptions::get().qrvmVersion());
+		GasMeter::GasConsumption gas;
+		for (AssemblyItem const& item: _items)
+			gas = meter.estimateMax(item, _includeExternalCosts);
+		return gas;
+	};
+	u512 const huge = u512(1) << 300;
+
+	// LOG0 of 2**300 bytes at an offset that wraps the memory end to 0.
+	BOOST_CHECK(estimateLast({AssemblyItem(huge), AssemblyItem(u512(0) - huge), AssemblyItem(Instruction::LOG0)}, false).isInfinite);
+	BOOST_CHECK(!estimateLast({AssemblyItem(u512(0)), AssemblyItem(u512(0)), AssemblyItem(Instruction::LOG0)}, false).isInfinite);
+
+	// STATICCALL passing 2**300 gas: gas, address, argsOffset, argsSize, retOffset, retSize.
+	std::vector<AssemblyItem> call;
+	for (unsigned i = 0; i < 5; ++i)
+		call.emplace_back(u512(0));
+	call.emplace_back(huge);
+	call.emplace_back(Instruction::STATICCALL);
+	BOOST_CHECK(estimateLast(call, false).isInfinite);
+	call[5] = AssemblyItem(u512(1000));
+	BOOST_CHECK(!estimateLast(call, false).isInfinite);
+}
+
 BOOST_AUTO_TEST_CASE(simple_contract)
 {
 	// Tests a simple "deploy contract" code without constructor. The actual contract is not relevant.

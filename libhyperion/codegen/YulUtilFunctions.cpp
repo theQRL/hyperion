@@ -1307,14 +1307,13 @@ std::string YulUtilFunctions::cleanUpStorageArrayEndFunction(ArrayType const& _t
 				let newSlotCount := <convertToSize>(startIndex)
 				let arrayDataStart := <dataPosition>(array)
 				let deleteStart := add(arrayDataStart, newSlotCount)
-				let deleteEnd := add(arrayDataStart, oldSlotCount)
 				<?packed>
 					// if we are dealing with packed array and offset is greater than zero
 					// we have  to partially clear last slot that is still used, so decreasing start by one
 					let offset := mul(mod(startIndex, <itemsPerSlot>), <storageBytes>)
 					if gt(offset, 0) { <partialClearStorageSlot>(sub(deleteStart, 1), offset) }
 				</packed>
-				<clearStorageRange>(deleteStart, deleteEnd)
+				<clearStorageRange>(deleteStart, sub(oldSlotCount, newSlotCount))
 			}
 		)")
 		("convertToSize", arrayConvertLengthToSize(_type))
@@ -1362,11 +1361,17 @@ std::string YulUtilFunctions::cleanUpDynamicByteArrayEndSlotsFunction(ArrayType 
 		_args = {"array", "len", "startIndex"};
 		return Whiskers(R"(
 			if gt(len, <alignmentMask>) {
-				let dataArea := <dataLocation>(array)
-				let deleteStart := add(dataArea, <divWordCeil>(startIndex))
-				// If we are clearing array to be short byte array, we want to clear only data starting from array data area.
-				if lt(startIndex, <wordSize>) { deleteStart := dataArea }
-				<clearStorageRange>(deleteStart, add(dataArea, <divWordCeil>(len)))
+				if gt(len, startIndex) {
+					let dataArea := <dataLocation>(array)
+					let oldSlotCount := <divWordCeil>(len)
+					let newSlotCount := <divWordCeil>(startIndex)
+					// If we are clearing array to be short byte array, we want to clear only data starting from array data area.
+					if lt(startIndex, <wordSize>) {
+						newSlotCount := 0
+					}
+					let deleteStart := add(dataArea, newSlotCount)
+					<clearStorageRange>(deleteStart, sub(oldSlotCount, newSlotCount))
+				}
 			}
 		)")
 		("dataLocation", arrayDataAreaFunction(_type))
@@ -1386,14 +1391,21 @@ std::string YulUtilFunctions::decreaseByteArraySizeFunction(ArrayType const& _ty
 			function <functionName>(array, data, oldLen, newLen) {
 				switch lt(newLen, <wordSize>)
 				case  0 {
+					// NOTE: This branch (newLen >= VMWordBytes) is currently unreachable from Hyperion code.
+					// All delete operations use newLen=0, and assignment uses copyByteArrayToStorageFunction.
+					// However, we maintain correct logic here for future-proofing and consistency.
+					let newSlots := <divWordCeil>(newLen)
+					let oldSlots := <divWordCeil>(oldLen)
 					let arrayDataStart := <dataPosition>(array)
-					let deleteStart := add(arrayDataStart, <divWordCeil>(newLen))
+					let deleteStart := add(arrayDataStart, newSlots)
 
 					// we have to partially clear last slot that is still used
 					let offset := and(newLen, <alignmentMask>)
 					if offset { <partialClearStorageSlot>(sub(deleteStart, 1), offset) }
 
-					<clearStorageRange>(deleteStart, add(arrayDataStart, <divWordCeil>(oldLen)))
+					if gt(oldSlots, newSlots) {
+						<clearStorageRange>(deleteStart, sub(oldSlots, newSlots))
+					}
 
 					sstore(array, or(mul(2, newLen), 1))
 				}
@@ -1401,8 +1413,9 @@ std::string YulUtilFunctions::decreaseByteArraySizeFunction(ArrayType const& _ty
 					switch gt(oldLen, <alignmentMask>)
 					case 1 {
 						let arrayDataStart := <dataPosition>(array)
-						// clear whole old array, as we are transforming to short bytes array
-						<clearStorageRange>(add(arrayDataStart, 1), add(arrayDataStart, <divWordCeil>(oldLen)))
+						// Clear whole old array, as we are transforming to short bytes array.
+						// <transitLongToShort>() will clear the first slot after copying its content.
+						<clearStorageRange>(add(arrayDataStart, 1), sub(<divWordCeil>(oldLen), 1))
 						<transitLongToShort>(array, newLen)
 					}
 					default {
@@ -1728,10 +1741,10 @@ std::string YulUtilFunctions::clearStorageRangeFunction(Type const& _type)
 	return m_functionCollector.createFunction(functionName, [&]() {
 		if (clearFullSlot)
 			return Whiskers(R"(
-				function <functionName>(start, end) {
-					for {} lt(start, end) { start := add(start, <increment>) }
+				function <functionName>(startSlot, slotCount) {
+					for { let i := 0 } lt(i, slotCount) { i := add(i, <increment>) }
 					{
-						sstore(start, 0)
+						sstore(add(startSlot, i), 0)
 					}
 				}
 			)")
@@ -1739,10 +1752,10 @@ std::string YulUtilFunctions::clearStorageRangeFunction(Type const& _type)
 			("increment", _type.storageSize().str())
 			.render();
 		return Whiskers(R"(
-			function <functionName>(start, end) {
-				for {} lt(start, end) { start := add(start, <increment>) }
+			function <functionName>(startSlot, slotCount) {
+				for { let i := 0 } lt(i, slotCount) { i := add(i, <increment>) }
 				{
-					<setToZero>(start, 0)
+					<setToZero>(add(startSlot, i), 0)
 				}
 			}
 		)")
@@ -1771,7 +1784,7 @@ std::string YulUtilFunctions::clearStorageArrayFunction(ArrayType const& _type)
 				<?dynamic>
 					<resizeArray>(slot, 0)
 				<!dynamic>
-					<?+clearRange><clearRange>(slot, add(slot, <lenToSize>(<len>)))</+clearRange>
+					<?+clearRange><clearRange>(slot, <lenToSize>(<len>))</+clearRange>
 				</dynamic>
 			}
 		)")

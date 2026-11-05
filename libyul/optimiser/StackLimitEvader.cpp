@@ -45,54 +45,74 @@ namespace
 /**
  * Walks the call graph using a Depth-First-Search assigning memory slots to variables.
  * - The leaves of the call graph will get the lowest slot, increasing towards the root.
- * - ``slotsRequiredForFunction`` maps a function to the number of slots it requires (which is also the
- *   next available slot that can be used by another function that calls this function).
- * - For each function starting from the root of the call graph:
- * - Visit all children that are not already visited.
- * - Determine the maximum value ``n`` of the values of ``slotsRequiredForFunction`` among the children.
- * - If the function itself contains variables that need memory slots, but is contained in a cycle,
- *   abort the process as failure.
- * - If not, assign each variable its slot starting from ``n`` (incrementing it).
- * - Assign ``n`` to ``slotsRequiredForFunction`` of the function.
+ *
+ * - Mutually recursive functions cannot be given individual slot counts, because each of them
+ *   reaches all the others. They are therefore handled as a unit: the traversal walks the strongly-
+ *   connected components of the call graph rather than its individual functions, and every member of
+ *   a component is considered to depend on as many slots as the component as a whole.
+ *
+ * - ``slotsRequiredForComponent`` maps a component to the number of slots it requires (which is also
+ *   the next available slot that can be used by another function that calls into the component).
+ *
+ * - For each component starting from the one containing the root of the call graph:
+ *   - Visit all components called by any of its members that are not already visited. Calls within the
+ *     component are ignored as they cannot contribute a requirement, see below.
+ *   - Determine the maximum value ``n`` of the values of ``slotsRequiredForComponent`` among them.
+ *   - Assign each variable of each member its slot starting from ``n`` (incrementing it).
+ *   - Assign ``n`` to ``slotsRequiredForComponent`` of the component.
+ *
+ * Since the components form an acyclic graph, a component is never reached again while it is still
+ * being processed, and every value read from ``slotsRequiredForComponent`` is final.
+ * Note that members of a component of more than one function never get a slot assigned at all:
+ * ``StackLimitEvader::run`` bails out before reaching this point if any recursive function has
+ * variables that need to be moved to memory.
  */
 struct MemoryOffsetAllocator
 {
 	uint64_t run(YulString _function = YulString{})
 	{
-		if (slotsRequiredForFunction.count(_function))
-			return slotsRequiredForFunction[_function];
+		size_t const componentIndex = callCycles.componentIndexOf(_function);
+		if (uint64_t const* slotsRequired = util::valueOrNullptr(slotsRequiredForComponent, componentIndex))
+			return *slotsRequired;
 
-		// Assign to zero early to guard against recursive calls.
-		slotsRequiredForFunction[_function] = 0;
-
+		// gather required slots from component-adjacent nodes in the call graph
 		uint64_t requiredSlots = 0;
-		if (callGraph.count(_function))
-			for (YulString child: callGraph.at(_function))
-				requiredSlots = std::max(run(child), requiredSlots);
+		for (YulString member: callCycles.component(componentIndex))
+			if (auto const* children = util::valueOrNullptr(callGraph, member))
+				for (YulString child: *children)
+					if (callCycles.componentIndexOf(child) != componentIndex)
+						// recurse and max if we leave SCC
+						requiredSlots = std::max(run(child), requiredSlots);
 
-		if (auto const* unreachables = util::valueOrNullptr(unreachableVariables, _function))
-		{
-			if (FunctionDefinition const* functionDefinition = util::valueOrDefault(functionDefinitions, _function, nullptr, util::allow_copy))
-				if (
-					size_t totalArgCount = functionDefinition->returnVariables.size() + functionDefinition->parameters.size();
-					totalArgCount > 16
-				)
-					for (TypedName const& var: ranges::concat_view(
-						functionDefinition->parameters,
-						functionDefinition->returnVariables
-					) | ranges::views::take(totalArgCount - 16))
-						slotAllocations[var.name] = requiredSlots++;
+		for (YulString member: callCycles.component(componentIndex))
+			if (auto const* unreachables = util::valueOrNullptr(unreachableVariables, member))
+			{
+				yulAssert(
+					!callCycles.isRecursive(member),
+					"Cannot move variables of a recursive function to fixed memory offsets."
+				);
 
-			// Assign slots for all variables that become unreachable in the function body, if the above did not
-			// assign a slot for them already.
-			for (YulString variable: *unreachables)
-				// The empty case is a function with too many arguments or return values,
-				// which was already handled above.
-				if (!variable.empty() && !slotAllocations.count(variable))
-					slotAllocations[variable] = requiredSlots++;
-		}
+				if (FunctionDefinition const* functionDefinition = util::valueOrDefault(functionDefinitions, member, nullptr, util::allow_copy))
+					if (
+						size_t totalArgCount = functionDefinition->returnVariables.size() + functionDefinition->parameters.size();
+						totalArgCount > 16
+					)
+						for (TypedName const& var: ranges::concat_view(
+							functionDefinition->parameters,
+							functionDefinition->returnVariables
+						) | ranges::views::take(totalArgCount - 16))
+							slotAllocations[var.name] = requiredSlots++;
 
-		return slotsRequiredForFunction[_function] = requiredSlots;
+				// Assign slots for all variables that become unreachable in the function body, if the above did not
+				// assign a slot for them already.
+				for (YulString variable: *unreachables)
+					// The empty case is a function with too many arguments or return values,
+					// which was already handled above.
+					if (!variable.empty() && !slotAllocations.count(variable))
+						slotAllocations[variable] = requiredSlots++;
+			}
+
+		return slotsRequiredForComponent[componentIndex] = requiredSlots;
 	}
 
 	/// Maps function names to the set of unreachable variables in that function.
@@ -100,13 +120,15 @@ struct MemoryOffsetAllocator
 	std::map<YulString, std::vector<YulString>> const& unreachableVariables;
 	/// The graph of immediate function calls of all functions.
 	std::map<YulString, std::vector<YulString>> const& callGraph;
+	/// The cycle structure of the call graph
+	CallGraphCycles const& callCycles;
 	/// Maps the name of each user-defined function to its definition.
 	std::map<YulString, FunctionDefinition const*> const& functionDefinitions;
 
 	/// Maps variable names to the memory slot the respective variable is assigned.
 	std::map<YulString, uint64_t> slotAllocations{};
-	/// Maps function names to the number of memory slots the respective function requires.
-	std::map<YulString, uint64_t> slotsRequiredForFunction{};
+	/// Maps strongly connected components to the number of memory slots the respective component requires.
+	std::map<size_t, uint64_t> slotsRequiredForComponent{};
 };
 
 u512 literalArgumentValue(FunctionCall const& _call)
@@ -193,15 +215,18 @@ void StackLimitEvader::run(
 			return;
 
 	CallGraph callGraph = CallGraphGenerator::callGraph(*_object.code);
+	CallGraphCycles const callCycles = callGraph.analyzeCallCycles();
 
 	// We cannot move variables in recursive functions to fixed memory offsets.
-	for (YulString function: callGraph.recursiveFunctions())
+	for (YulString function: callCycles.recursiveFunctions)
 		if (_unreachableVariables.count(function))
 			return;
 
 	std::map<YulString, FunctionDefinition const*> functionDefinitions = allFunctionDefinitions(*_object.code);
 
-	MemoryOffsetAllocator memoryOffsetAllocator{_unreachableVariables, callGraph.functionCalls, functionDefinitions};
+	// Functions that call each other have to share their slot requirements, so the allocator below
+	// traverses the strongly-connected components of the call graph
+	MemoryOffsetAllocator memoryOffsetAllocator{_unreachableVariables, callGraph.functionCalls, callCycles, functionDefinitions};
 	uint64_t requiredSlots = memoryOffsetAllocator.run();
 	yulAssert(requiredSlots < (uint64_t(1) << 32) - 1, "");
 

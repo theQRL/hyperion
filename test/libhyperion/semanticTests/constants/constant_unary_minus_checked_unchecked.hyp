@@ -1,0 +1,9 @@
+int8 constant x = -int8(-128);
+
+contract C {
+    function a() external pure returns (int8) { return x; }
+    function b() external pure returns (int8) { unchecked { return x; } }
+}
+// ----
+// a() -> FAILURE, hex"df75fb3b", 0x11
+// b() -> -128

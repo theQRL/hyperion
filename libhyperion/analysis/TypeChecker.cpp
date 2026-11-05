@@ -1227,6 +1227,8 @@ void TypeChecker::endVisit(Return const& _return)
 	{
 		Type const* expected = type(*params->parameters().front());
 		BoolResult result = type(*_return.expression())->isImplicitlyConvertibleTo(*expected);
+		if (result)
+			warnIfLiteralBaseResultIsWidened(*_return.expression(), *expected);
 		if (!result)
 			m_errorReporter.typeErrorConcatenateDescriptions(
 				6359_error,
@@ -1335,6 +1337,8 @@ bool TypeChecker::visit(VariableDeclarationStatement const& _statement)
 
 		var.accept(*this);
 		BoolResult result = valueComponentType->isImplicitlyConvertibleTo(*var.annotation().type);
+		if (result && variables.size() == 1)
+			warnIfLiteralBaseResultIsWidened(*_statement.initialValue(), *var.annotation().type);
 		if (!result)
 		{
 			auto errorMsg = "Type " +
@@ -1452,6 +1456,10 @@ bool TypeChecker::visit(Conditional const& _conditional)
 		}
 	}
 
+	// Both branches are converted to the common type.
+	warnIfLiteralBaseResultIsWidened(_conditional.trueExpression(), *commonType);
+	warnIfLiteralBaseResultIsWidened(_conditional.falseExpression(), *commonType);
+
 	_conditional.annotation().isConstant = false;
 	_conditional.annotation().type = commonType;
 	_conditional.annotation().isPure =
@@ -1546,6 +1554,10 @@ bool TypeChecker::visit(Assignment const& _assignment)
 			TokenTraits::AssignmentToBinaryOp(_assignment.assignmentOperator()),
 			type(_assignment.rightHandSide())
 		);
+		Token const binaryOperator = TokenTraits::AssignmentToBinaryOp(_assignment.assignmentOperator());
+		// The right-hand side is converted to the type of the left-hand side, except for a shift amount.
+		if (resultType && *resultType == *t && !TokenTraits::isShiftOp(binaryOperator))
+			warnIfLiteralBaseResultIsWidened(_assignment.rightHandSide(), *t);
 		if (!resultType || *resultType != *t)
 			m_errorReporter.typeError(
 				7366_error,
@@ -1791,6 +1803,18 @@ void TypeChecker::endVisit(BinaryOperation const& _operation)
 
 	_operation.annotation().commonType = commonType;
 	_operation.annotation().userDefinedFunction = operatorDefinition;
+
+	// Built-in operators convert both operands to the common type, except the exponent
+	// and the shift amount, and the left operand of those already has the common type.
+	if (
+		builtinResult &&
+		_operation.getOperator() != Token::Exp &&
+		!TokenTraits::isShiftOp(_operation.getOperator())
+	)
+	{
+		warnIfLiteralBaseResultIsWidened(_operation.leftExpression(), *commonType);
+		warnIfLiteralBaseResultIsWidened(_operation.rightExpression(), *commonType);
+	}
 	FunctionType const* userDefinedFunctionType = _operation.userDefinedFunctionType();
 
 	// By default use the type we'd expect from correct code. This way we can continue analysis
@@ -2587,6 +2611,8 @@ void TypeChecker::typeCheckFunctionGeneralChecks(
 	{
 		hypAssert(!!paramArgMap[i], "unmapped parameter");
 		BoolResult result = type(*paramArgMap[i])->isImplicitlyConvertibleTo(*parameterTypes[i]);
+		if (result)
+			warnIfLiteralBaseResultIsWidened(*paramArgMap[i], *parameterTypes[i]);
 		if (!result)
 		{
 			auto [errorId, description] = [&]() -> std::tuple<ErrorId, std::string> {
@@ -3937,10 +3963,72 @@ Declaration const& TypeChecker::dereference(IdentifierPath const& _path) const
 	return *_path.annotation().referencedDeclaration;
 }
 
+void TypeChecker::warnIfLiteralBaseResultIsWidened(Expression const& _expression, Type const& _targetType)
+{
+	if (auto const* tuple = dynamic_cast<TupleExpression const*>(&_expression))
+	{
+		if (!tuple->isInlineArray() && tuple->components().size() == 1 && tuple->components().front())
+			warnIfLiteralBaseResultIsWidened(*tuple->components().front(), _targetType);
+		return;
+	}
+	if (auto const* conditional = dynamic_cast<Conditional const*>(&_expression))
+	{
+		// If the conditional's own type is already as wide as the target, its branches were widened
+		// inside the conditional, and visit(Conditional) has checked them.
+		auto const* conditionalType = dynamic_cast<IntegerType const*>(type(*conditional));
+		auto const* targetType = dynamic_cast<IntegerType const*>(&_targetType);
+		if (conditionalType && targetType && conditionalType->numBits() < targetType->numBits())
+		{
+			warnIfLiteralBaseResultIsWidened(conditional->trueExpression(), _targetType);
+			warnIfLiteralBaseResultIsWidened(conditional->falseExpression(), _targetType);
+		}
+		return;
+	}
+	auto const* operation = dynamic_cast<BinaryOperation const*>(&_expression);
+	if (!operation || (operation->getOperator() != Token::Exp && operation->getOperator() != Token::SHL))
+		return;
+	auto const* base = dynamic_cast<RationalNumberType const*>(type(operation->leftExpression()));
+	if (!base)
+		return;
+	// No bits can be lost: 0 ** n, 1 ** n and (-1) ** n stay in {-1, 0, 1}, and 0 << n is 0.
+	if (
+		base->value() == 0 ||
+		(operation->getOperator() == Token::Exp && (base->value() == 1 || base->value() == -1))
+	)
+		return;
+	auto const* resultType = dynamic_cast<IntegerType const*>(type(*operation));
+	auto const* targetType = dynamic_cast<IntegerType const*>(&_targetType);
+	if (!resultType || !targetType || targetType->numBits() <= resultType->numBits())
+		return;
+	// Warning 3149 already covers an exponent or shift amount wider than the result.
+	if (
+		auto const* rightType = dynamic_cast<IntegerType const*>(type(operation->rightExpression()));
+		rightType && rightType->numBits() > resultType->numBits()
+	)
+		return;
+	std::string const targetName = targetType->humanReadableName();
+	std::string conversion = targetName + "(...)";
+	if (auto const* literal = dynamic_cast<Literal const*>(&operation->leftExpression()))
+		conversion = targetName + "(" + literal->value() + ")";
+	else if (!base->isFractional())
+		conversion = targetName + "(" + base->value().numerator().str() + ")";
+	m_errorReporter.warning(
+		6432_error,
+		operation->location(),
+		std::string(operation->getOperator() == Token::Exp ? "Exponentiation" : "Left shift") +
+		" with a literal base is computed in " + resultType->humanReadableName() +
+		" and only then converted to " + targetName + ", so bits above " +
+		std::to_string(resultType->numBits()) + " are lost. Write the base as " + conversion +
+		" to compute it in " + targetName + "."
+	);
+}
+
 bool TypeChecker::expectType(Expression const& _expression, Type const& _expectedType)
 {
 	_expression.accept(*this);
 	BoolResult result = type(_expression)->isImplicitlyConvertibleTo(_expectedType);
+	if (result)
+		warnIfLiteralBaseResultIsWidened(_expression, _expectedType);
 	if (!result)
 	{
 		auto errorMsg = "Type " +

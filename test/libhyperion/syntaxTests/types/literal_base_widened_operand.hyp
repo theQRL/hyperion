@@ -1,0 +1,43 @@
+contract C {
+    function f(uint8 n, bool c) public payable returns (uint512 r) {
+        uint512 bitmap;
+        bitmap |= 1 << n;
+        bitmap = bitmap | 1 << n;
+        r = msg.value + (1 << n);
+        bool big = msg.value >= 2 ** n;
+        uint512 b = address(this).balance - (2 ** n);
+        uint512 d = c ? 1 << n : 0;
+        uint512 e = c ? msg.value : (2 ** n);
+        uint512 g = (2 ** n);
+        int512 s = 1;
+        s = s + (-2) ** n;
+        payable(msg.sender).transfer(2 ** n);
+        bool sent = payable(msg.sender).send(1 << n);
+        (bool ok, ) = msg.sender.call{value: 2 ** n, gas: 1 << n}("");
+        // No warning: the operation is not widened, the base is converted, or the literal-base
+        // result is a shift amount.
+        uint256 narrow;
+        narrow += 1 << n;
+        narrow = narrow + (1 << n);
+        bitmap = msg.value + (uint512(1) << n);
+        bitmap <<= 1 << n;
+        bitmap = bitmap << (1 << n);
+        bitmap = (c ? 1 << n : 0) + 1;
+        big; b; d; e; g; sent; ok;
+    }
+}
+
+// ----
+// Warning 6432: (124-130): Left shift with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(1) to compute it in uint512.
+// Warning 6432: (158-164): Left shift with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(1) to compute it in uint512.
+// Warning 6432: (191-197): Left shift with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(1) to compute it in uint512.
+// Warning 6432: (232-238): Exponentiation with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(2) to compute it in uint512.
+// Warning 6432: (285-291): Exponentiation with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(2) to compute it in uint512.
+// Warning 6432: (318-324): Left shift with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(1) to compute it in uint512.
+// Warning 6432: (367-373): Exponentiation with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(2) to compute it in uint512.
+// Warning 6432: (397-403): Exponentiation with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(2) to compute it in uint512.
+// Warning 6432: (444-453): Exponentiation with a literal base is computed in int256 and only then converted to int512, so bits above 256 are lost. Write the base as int512(-2) to compute it in int512.
+// Warning 6432: (492-498): Exponentiation with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(2) to compute it in uint512.
+// Warning 6432: (546-552): Left shift with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(1) to compute it in uint512.
+// Warning 6432: (600-606): Exponentiation with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(2) to compute it in uint512.
+// Warning 6432: (613-619): Left shift with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(1) to compute it in uint512.

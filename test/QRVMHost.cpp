@@ -195,7 +195,7 @@ qrvmc::Result QRVMHost::call(qrvmc_message const& _message) noexcept
 	else if (_message.recipient == "Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007"_address)
 		return precompileXmssVerify(_message);
 	else if (_message.recipient == "Q00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006"_address)
-		return precompileShake256(_message);
+		return precompileShake256(_message, shake256ReturnsShortOutput);
 
 	auto stateBackup = accounts;
 
@@ -434,6 +434,8 @@ qrvmc::Result QRVMHost::precompileDepositRoot(qrvmc_message const& _message) noe
 	//   randao_commitment(32) || signature(4627)
 	// Output: the 32-byte SSZ hash tree root of the DepositData container, as
 	// returned by go-qrl (like sha256). Gas: flat 18000 (go-qrl DepositrootGas).
+	// go-qrl reads each field with getData, which pads input that is too short with zero bytes and
+	// ignores input past the last field, so the call never fails on the input's length.
 	size_t constexpr pubkeyLength = 2592;
 	size_t constexpr withdrawalRecipientLength = 64;
 	size_t constexpr amountLength = 8;
@@ -441,10 +443,8 @@ qrvmc::Result QRVMHost::precompileDepositRoot(qrvmc_message const& _message) noe
 	size_t constexpr signatureLength = 4627;
 	size_t constexpr inputLength = pubkeyLength + withdrawalRecipientLength + amountLength + randaoCommitmentLength + signatureLength;
 
-	if (_message.input_size != inputLength)
-		return resultWithFailure();
-
-	bytes const input(_message.input_data, _message.input_data + _message.input_size);
+	bytes input(_message.input_data, _message.input_data + std::min(_message.input_size, inputLength));
+	input.resize(inputLength, 0);
 	auto field = [&](size_t _offset, size_t _length) {
 		return bytes(input.begin() + static_cast<ptrdiff_t>(_offset), input.begin() + static_cast<ptrdiff_t>(_offset + _length));
 	};
@@ -540,19 +540,15 @@ qrvmc::Result QRVMHost::precompileSha256(qrvmc_message const& _message) noexcept
 	return resultWithGas(_message.gas, gas_cost, hash);
 }
 
-qrvmc::Result QRVMHost::precompileShake256(qrvmc_message const& _message) noexcept
+qrvmc::Result QRVMHost::precompileShake256(qrvmc_message const& _message, bool _shortOutput) noexcept
 {
 	// Base 240 gas + 48 gas / 64-byte VM word.
 	int64_t const gas_cost = 240 + 48 * ((static_cast<int64_t>(_message.input_size) + 63) / 64);
 	if (_message.gas < gas_cost)
 		return resultWithGas(_message.gas, gas_cost, {});
 
-	bytes static const shortOutputMarker = asBytes("QRL-SHAKE256-SHORT-OUTPUT");
 	bytes static const shortOutput(63, 0);
-	if (
-		_message.input_size == shortOutputMarker.size() &&
-		std::equal(shortOutputMarker.begin(), shortOutputMarker.end(), _message.input_data)
-	)
+	if (_shortOutput)
 		return resultWithGas(_message.gas, gas_cost, shortOutput);
 
 	bytes static hash;
@@ -573,10 +569,77 @@ qrvmc::Result QRVMHost::precompileIdentity(qrvmc_message const& _message) noexce
 	return resultWithGas(_message.gas, gas_cost, data);
 }
 
-qrvmc::Result QRVMHost::precompileModExp(qrvmc_message const&) noexcept
+qrvmc::Result QRVMHost::precompileModExp(qrvmc_message const& _message) noexcept
 {
-	// TODO implement
-	return resultWithFailure();
+	// Mirrors go-qrl's bigModExp, which is EIP-198 with the gas of EIP-2565. The input is
+	//   base_length(32) || exponent_length(32) || modulus_length(32) || base || exponent || modulus,
+	// with 32-byte big-endian length fields as on Ethereum. Missing input bytes read as zero.
+	bytesConstRef const input(_message.input_data, _message.input_size);
+	// go-qrl's getData: the bytes [_start, _start + _size) of @a _data, padded with zeros.
+	auto getData = [](bytesConstRef _data, size_t _start, size_t _size) {
+		bytes result(_size, 0);
+		if (_start < _data.size())
+		{
+			size_t const available = std::min(_size, _data.size() - _start);
+			std::copy_n(_data.begin() + static_cast<ptrdiff_t>(_start), available, result.begin());
+		}
+		return result;
+	};
+	auto toBigint = [](bytes const& _bytes) { return fromBigEndian<bigint>(_bytes); };
+
+	bigint const baseLength = toBigint(getData(input, 0, 32));
+	bigint const exponentLength = toBigint(getData(input, 32, 32));
+	bigint const modulusLength = toBigint(getData(input, 64, 32));
+	bytesConstRef const operands = input.size() > 96 ? input.cropped(96) : bytesConstRef{};
+
+	// Gas, as in go-qrl's bigModExp.RequiredGas.
+	bigint exponentHead = 0;
+	if (bigint(operands.size()) > baseLength)
+		exponentHead = toBigint(getData(
+			operands,
+			static_cast<size_t>(baseLength),
+			exponentLength > 32 ? 32 : static_cast<size_t>(exponentLength)
+		));
+	bigint adjustedExponentLength = 0;
+	if (exponentLength > 32)
+		adjustedExponentLength = 8 * (exponentLength - 32);
+	if (exponentHead > 0)
+		adjustedExponentLength += boost::multiprecision::msb(exponentHead);
+	bigint gas = (std::max(modulusLength, baseLength) + 7) / 8;
+	gas = gas * gas * std::max(adjustedExponentLength, bigint(1)) / 3;
+	gas = std::max(gas, bigint(200));
+	if (gas > bigint(_message.gas))
+		return resultWithGas(_message.gas, std::numeric_limits<int64_t>::max(), {});
+	int64_t const gasCost = static_cast<int64_t>(gas);
+
+	// Output, as in go-qrl's bigModExp.Run, which returns empty output for zero base and modulus
+	// lengths before it reads the exponent, so the exponent length does not matter then.
+	bytes static output;
+	output.clear();
+	if (baseLength == 0 && modulusLength == 0)
+		return resultWithGas(_message.gas, gasCost, output);
+	// Paying for the call bounds the other lengths; this check only guards the conversions.
+	if (baseLength + exponentLength + modulusLength > std::numeric_limits<uint32_t>::max())
+		return resultWithFailure();
+	size_t const baseSize = static_cast<size_t>(baseLength);
+	size_t const exponentSize = static_cast<size_t>(exponentLength);
+	size_t const modulusSize = static_cast<size_t>(modulusLength);
+	bigint const base = toBigint(getData(operands, 0, baseSize));
+	bigint const exponent = toBigint(getData(operands, baseSize, exponentSize));
+	bigint const modulus = toBigint(getData(operands, baseSize + exponentSize, modulusSize));
+
+	output.assign(modulusSize, 0);
+	if (modulus != 0)
+	{
+		// Evaluate powm before reducing again: with older Boost, such as 1.74, powm returns an
+		// expression template that cannot be an operand of %. The extra reduction keeps
+		// x ** 0 mod 1 at zero, whatever the Boost version.
+		bigint value = boost::multiprecision::powm(base, exponent, modulus);
+		value %= modulus;
+		bytes const valueBytes = toCompactBigEndian(value);
+		std::copy(valueBytes.begin(), valueBytes.end(), output.end() - static_cast<ptrdiff_t>(valueBytes.size()));
+	}
+	return resultWithGas(_message.gas, gasCost, output);
 }
 
 qrvmc::Result QRVMHost::precompileMLDSA87Verify(qrvmc_message const& _message) noexcept

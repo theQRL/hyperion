@@ -37,5 +37,5 @@ contract C {
 // gas legacy: 112944
 // gas legacyOptimized: 112092
 // f_storage(uint512[],uint512[2]): 0x40, 1, 2, 5, 6 -> 0x40, 0xc0, 0x40, 1, 2
-// gas legacy: 113819
+// gas legacy: 114932
 // f_storage(uint512[],uint512[2]): 0x40, 1, 2, 5 -> 0x40, 0xc0, 0x40, 1, 2

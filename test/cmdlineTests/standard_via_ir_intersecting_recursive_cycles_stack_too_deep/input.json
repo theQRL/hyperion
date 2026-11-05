@@ -1,0 +1,12 @@
+{
+    "language": "Hyperion",
+    "sources": {
+        "in.hyp": {"urls": ["standard_via_ir_intersecting_recursive_cycles_stack_too_deep/in.hyp"]}
+    },
+    "settings": {
+        "viaIR": true,
+        "outputSelection": {
+            "*": {"*": ["qrvm.bytecode"]}
+        }
+    }
+}

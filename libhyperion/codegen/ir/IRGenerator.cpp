@@ -575,7 +575,7 @@ std::string IRGenerator::generateGetter(VariableDeclaration const& _varDecl)
 				dispenseLocationComment(m_context.mostDerivedContract())
 			)
 			("functionName", functionName)
-			("constantValueFunction", IRGeneratorForStatements(m_context, m_utils, m_optimiserSettings).constantValueFunction(_varDecl))
+			("constantValueFunction", IRGeneratorForStatements(m_context, m_utils, m_optimiserSettings).constantValueFunction(_varDecl, Arithmetic::Checked))
 			("ret", suffixedVariableNameList("ret_", 0, _varDecl.type()->sizeOnStack()))
 			.render();
 		}

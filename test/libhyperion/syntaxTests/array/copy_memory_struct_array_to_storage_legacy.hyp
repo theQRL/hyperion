@@ -1,0 +1,15 @@
+contract C {
+    struct S {
+        uint256 a;
+        uint256 b;
+    }
+
+    S[] storageArray;
+
+    function copyFromMemory() public {
+        S[] memory memArray = new S[](3);
+        storageArray = memArray;
+    }
+}
+// ----
+// UnimplementedFeatureError: Copying of type struct C.S memory[] memory to storage not yet supported.

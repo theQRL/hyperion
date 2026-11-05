@@ -170,45 +170,29 @@ void UnusedStoreEliminator::visit(Statement const& _statement)
 	// both by querying a combination of semantic information and by listing the instructions.
 	// This way the assert below should be triggered on any change.
 	using qrvmasm::SemanticInformation;
-	bool isStorageWrite = (*instruction == Instruction::SSTORE);
-	bool isMemoryWrite =
+	bool const writesStorageWithoutOtherSideEffects = (*instruction == Instruction::SSTORE);
+	bool const writesMemoryWithoutOtherSideEffects =
 		*instruction == Instruction::EXTCODECOPY ||
 		*instruction == Instruction::CODECOPY ||
 		*instruction == Instruction::CALLDATACOPY ||
-		*instruction == Instruction::RETURNDATACOPY ||
 		*instruction == Instruction::MSTORE ||
-		*instruction == Instruction::MSTORE8;
-	bool isCandidateForRemoval =
+		*instruction == Instruction::MSTORE8 ||
+		*instruction == Instruction::RETURNDATACOPY;
+	bool const isBlacklisted =
+		// Trying to optimize out `returndatacopy()` is not worth the extra complexity, because it can rarely be done in the IR we generate.
+		// That's because we always immediately ABI-decode the result and only if we can optimize out that decoding, `returndatacopy()` becomes truly unused.
+		// Removing it is also hard in a general case because it's not side-effect free - it reverts on out-of-bounds access and we have to preserve that revert.
+		// Simple approaches like relying on the size being equal to `returndatasize()` are error-prone, because they have to account for the variable storing the size going stale.
+		*instruction == Instruction::RETURNDATACOPY;
+	bool const isSemanticCandidateForRemoval =
 		SemanticInformation::otherState(*instruction) != SemanticInformation::Write && (
 			SemanticInformation::storage(*instruction) == SemanticInformation::Write ||
 			(!m_ignoreMemory && SemanticInformation::memory(*instruction) == SemanticInformation::Write)
 		);
-	yulAssert(isCandidateForRemoval == (isStorageWrite || (!m_ignoreMemory && isMemoryWrite)));
+	yulAssert(isSemanticCandidateForRemoval == (writesStorageWithoutOtherSideEffects || (!m_ignoreMemory && writesMemoryWithoutOtherSideEffects)));
+	bool const isCandidateForRemoval = isSemanticCandidateForRemoval && !isBlacklisted;
 	if (isCandidateForRemoval)
 	{
-		if (*instruction == Instruction::RETURNDATACOPY)
-		{
-			// Out-of-bounds access to the returndata buffer results in a revert,
-			// so we are careful not to remove a potentially reverting call to a builtin.
-			// The only way the Hyperion compiler uses `returndatacopy` is
-			// `returndatacopy(X, 0, returndatasize())`, so we only allow to remove this pattern
-			// (which is guaranteed to never cause an out-of-bounds revert).
-			bool allowReturndatacopyToBeRemoved = false;
-			auto startOffset = identifierNameIfSSA(funCall->arguments.at(1));
-			auto length = identifierNameIfSSA(funCall->arguments.at(2));
-			if (length && startOffset)
-			{
-				FunctionCall const* lengthCall = std::get_if<FunctionCall>(m_ssaValues.at(*length).value);
-				if (
-					m_knowledgeBase.knownToBeZero(*startOffset) &&
-					lengthCall &&
-					toQRVMInstruction(m_dialect, lengthCall->functionName.name) == Instruction::RETURNDATASIZE
-				)
-					allowReturndatacopyToBeRemoved = true;
-			}
-			if (!allowReturndatacopyToBeRemoved)
-				return;
-		}
 		m_allStores.insert(&_statement);
 		std::vector<Operation> operations = operationsFromFunctionCall(*funCall);
 		yulAssert(operations.size() == 1, "");

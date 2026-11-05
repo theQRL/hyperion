@@ -65,6 +65,11 @@ public:
 
 	// Hyperion testing specific features.
 
+	/// Makes the shake256 precompile return 63 bytes instead of 64, so that a test can check how the
+	/// compiler handles a short output. go-qrl always returns 64 bytes. Semantic tests set it with
+	/// the `shake256ReturnsShortOutput` setting.
+	bool shake256ReturnsShortOutput = false;
+
 	/// Tries to dynamically load a qrvmc vm supporting qrvm1 and caches the loaded VM.
 	/// @returns vmc::VM(nullptr) on failure.
 	static qrvmc::VM& getVM(std::string const& _path = {});
@@ -116,7 +121,7 @@ private:
 	static qrvmc::Result precompileDepositRoot(qrvmc_message const& _message) noexcept;
 	static qrvmc::Result precompileXmssVerify(qrvmc_message const& _message) noexcept;
 	static qrvmc::Result precompileSha256(qrvmc_message const& _message) noexcept;
-	static qrvmc::Result precompileShake256(qrvmc_message const& _message) noexcept;
+	static qrvmc::Result precompileShake256(qrvmc_message const& _message, bool _shortOutput) noexcept;
 	static qrvmc::Result precompileIdentity(qrvmc_message const& _message) noexcept;
 	static qrvmc::Result precompileModExp(qrvmc_message const& _message) noexcept;
 	static qrvmc::Result precompileMLDSA87Verify(qrvmc_message const& _message) noexcept;

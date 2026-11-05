@@ -135,10 +135,14 @@ ReadCallback::Result FileReader::readFile(std::string const& _kind, std::string 
 				"."
 			};
 
-		FileSystemPathSet allowedPaths =
-			m_allowedDirectories +
-			decltype(allowedPaths){m_basePath.empty() ? "." : m_basePath} +
-			m_includePaths;
+		FileSystemPathSet allowedPaths = m_allowedDirectories + m_includePaths;
+		if (!m_basePath.empty())
+			allowedPaths.insert(m_basePath);
+		// Without a base path the working directory is allowed, unless it is the root of the
+		// filesystem: that would make every readable file importable, for example in a container
+		// whose working directory is `/`.
+		else if (boost::filesystem::weakly_canonical(boost::filesystem::current_path()).has_relative_path())
+			allowedPaths.insert(".");
 
 		bool isAllowed = false;
 		for (boost::filesystem::path const& allowedDir: allowedPaths)

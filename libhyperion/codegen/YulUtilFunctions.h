@@ -236,8 +236,13 @@ public:
 	std::string storageArrayPushZeroFunction(ArrayType const& _type);
 
 	/// @returns the name of a function that will clear the storage area given
-	/// by the start and end (exclusive) parameters (slots).
-	/// signature: (start, end)
+	/// by the start position and number of slots to clear. The start position is in terms of storage slots and we
+	/// assume that the beginning of the clear range starts at the beginning of the start slot.
+	/// `slot_count` is assumed to be a multiple of `_type.storageSize()`. The function clears storage in increments
+	/// of `_type.storageSize()` and does not perform any runtime checks.
+	/// Iterating over a slot count rather than up to an end slot keeps ranges that wrap past the last
+	/// storage slot (2**512 - 1) correct.
+	/// signature: (start_slot, slot_count)
 	std::string clearStorageRangeFunction(Type const& _type);
 
 	/// @returns the name of a function that will clear the given storage array

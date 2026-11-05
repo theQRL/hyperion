@@ -45,6 +45,7 @@ set(libhyputil_sources
     libhyputil/LEB128.cpp
     libhyputil/StringUtils.cpp
     libhyputil/SwarmHash.cpp
+    libhyputil/TarjanSCC.cpp
     libhyputil/TemporaryDirectoryTest.cpp
     libhyputil/UTF8.cpp
     libhyputil/Whiskers.cpp
@@ -136,6 +137,8 @@ set(libhyperion_util_sources
 detect_stray_source_files("${libhyperion_util_sources}" "libhyperion/util/")
 
 set(libyul_sources
+    libyul/CallGraphTest.cpp
+    libyul/CallGraphTest.h
     libyul/Common.cpp
     libyul/Common.h
     libyul/CompilabilityChecker.cpp

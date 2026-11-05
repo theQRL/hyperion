@@ -39,6 +39,19 @@ GasMeter::GasConsumption& GasMeter::GasConsumption::operator+=(GasConsumption co
 	return *this;
 }
 
+namespace
+{
+
+/// Gas amounts are u256; anything larger, such as a 512-bit constant, counts as infinite.
+GasMeter::GasConsumption bigintToGas(bigint const& _gas)
+{
+	if (_gas > std::numeric_limits<u256>::max())
+		return GasMeter::GasConsumption::infinite();
+	return GasMeter::GasConsumption(u256(_gas));
+}
+
+}
+
 GasMeter::GasConsumption GasMeter::estimateMax(AssemblyItem const& _item, bool _includeExternalCosts)
 {
 	GasConsumption gas;
@@ -136,7 +149,7 @@ GasMeter::GasConsumption GasMeter::estimateMax(AssemblyItem const& _item, bool _
 			gas = GasCosts::logGas + GasCosts::logTopicGas * getLogNumber(_item.instruction());
 			gas += memoryGas(0, -1);
 			if (u512 const* value = classes.knownConstant(m_state->relativeStackElement(-1)))
-				gas += GasCosts::logDataGas * u256(*value);
+				gas += bigintToGas(bigint(GasCosts::logDataGas) * bigint(*value));
 			else
 				gas = GasConsumption::infinite();
 			break;
@@ -152,7 +165,7 @@ GasMeter::GasConsumption GasMeter::estimateMax(AssemblyItem const& _item, bool _
 			{
 				gas = GasCosts::callGas;
 				if (u512 const* value = classes.knownConstant(m_state->relativeStackElement(0)))
-					gas += u256(*value);
+					gas += bigintToGas(bigint(*value));
 				else
 					gas = GasConsumption::infinite();
 				if (_item.instruction() == Instruction::CALL)

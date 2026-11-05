@@ -509,6 +509,18 @@ BOOST_FIXTURE_TEST_CASE(allow_path_automatic_whitelisting_work_dir, AllowPathsFi
 	BOOST_TEST(checkImport("import 'a/X/c.hyp'", {"--base-path", ""}));
 }
 
+BOOST_FIXTURE_TEST_CASE(allow_path_work_dir_at_filesystem_root, AllowPathsFixture)
+{
+	TemporaryWorkingDirectory rootWorkDir(m_workDir.root_path());
+
+	// Without a base path, a working directory at the root of the filesystem is not whitelisted
+	BOOST_TEST(checkImport("import '" + m_portablePrefix + "/a/b/c.hyp'", {}) == ImportCheck::PathDisallowed());
+	BOOST_TEST(checkImport("import '" + m_portablePrefix + "/a/b/c.hyp'", {"--base-path", ""}) == ImportCheck::PathDisallowed());
+
+	// Directories can still be whitelisted explicitly
+	BOOST_TEST(checkImport("import '" + m_portablePrefix + "/a/b/c.hyp'", {"--allow-paths", m_codeDir.generic_string()}));
+}
+
 BOOST_FIXTURE_TEST_CASE(allow_path_automatic_whitelisting_include_paths, AllowPathsFixture)
 {
 	// Relative include path whitelists its content

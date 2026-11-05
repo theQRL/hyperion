@@ -102,6 +102,7 @@ SemanticTest::SemanticTest(
 	m_revertStrings = revertStrings.value();
 
 	m_allowNonExistingFunctions = m_reader.boolSetting("allowNonExistingFunctions", false);
+	m_shake256ReturnsShortOutput = m_reader.boolSetting("shake256ReturnsShortOutput", false);
 
 	parseExpectations(m_reader.stream());
 	hyptestAssert(!m_tests.empty(), "No tests specified in " + _filename);
@@ -393,6 +394,7 @@ TestCase::TestResult SemanticTest::runTest(
 	selectVM(qrvmc_capabilities::QRVMC_CAPABILITY_QRVM1);
 
 	reset();
+	m_qrvmcHost->shake256ReturnsShortOutput = m_shake256ReturnsShortOutput;
 
 	m_compileViaYul = _isYulRun;
 

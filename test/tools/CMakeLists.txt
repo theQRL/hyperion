@@ -35,6 +35,7 @@ add_executable(ihyptest
 	../libhyperion/ASTJSONTest.cpp
 	../libhyperion/ASTPropertyTest.cpp
 	../libhyperion/SMTCheckerTest.cpp
+	../libyul/CallGraphTest.cpp
 	../libyul/Common.cpp
 	../libyul/ControlFlowGraphTest.cpp
 	../libyul/ControlFlowSideEffectsTest.cpp
