@@ -630,7 +630,11 @@ qrvmc::Result QRVMHost::precompileModExp(qrvmc_message const& _message) noexcept
 	output.assign(modulusSize, 0);
 	if (modulus != 0)
 	{
-		bigint const value = boost::multiprecision::powm(base, exponent, modulus) % modulus;
+		// Evaluate powm before reducing again: with older Boost, such as 1.74, powm returns an
+		// expression template that cannot be an operand of %. The extra reduction keeps
+		// x ** 0 mod 1 at zero, whatever the Boost version.
+		bigint value = boost::multiprecision::powm(base, exponent, modulus);
+		value %= modulus;
 		bytes const valueBytes = toCompactBigEndian(value);
 		std::copy(valueBytes.begin(), valueBytes.end(), output.end() - static_cast<ptrdiff_t>(valueBytes.size()));
 	}
