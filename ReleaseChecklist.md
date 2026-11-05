@@ -78,7 +78,8 @@ If a tag or release is wrong, fix it on ``main`` and release the next patch vers
        tarball is needed again, build it from the tag and attest it in the release job, like the binaries.
  - [ ] Wait for GitHub Actions to publish the tagged build's release assets after all checks pass and the ``release`` environment is approved.
        Verify that the release contains ``hypc-windows.exe``, ``hypc-macos``, ``hypc-static-linux`` (AMD64),
-       ``hypc-static-linux-arm`` (ARM64), ``hypjson.js`` and ``SHA256SUMS``.
+       ``hypc-static-linux-arm`` (ARM64), ``hypjson.js`` and ``SHA256SUMS``, and that ``file hypc-macos`` reports a
+       Mach-O universal binary with ``x86_64`` and ``arm64`` slices.
  - [ ] Update hypc-bin separately using the binaries from the same tagged GitHub Release:
        run ``node scripts/add-release.mjs $VERSION`` in ``hypc-bin``. It downloads the assets, checks them against the
        release ``SHA256SUMS`` and the build provenance attestation, and regenerates ``bin/list.json``.

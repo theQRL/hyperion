@@ -37,6 +37,7 @@ Build System:
  * Tests: Make the test host's `depositroot` precompile pad and truncate its input like go-qrl instead of rejecting other lengths, implement the `modexp` precompile as go-qrl does, and check both against go-qrl's test vectors. A semantic test setting replaces the magic `shake256` input that made the host return a short output (CIPH-HYPERION-14).
  * Build with current Apple toolchains (Apple Clang 21, libc++ 22), Boost 1.88+ (Boost.Process v1 headers) and Boost 1.89+ (no compiled Boost.System library).
  * Raise the macOS deployment target from 10.14 to 11.0, the lowest that libc++ 22 supports. The released `hypc-macos` binary requires macOS 11 or later.
+ * Release `hypc-macos` as a universal binary that runs natively on Apple silicon and Intel Macs. Earlier releases were x86-64 only and needed Rosetta 2 on Apple silicon, which Apple supports for general use only through macOS 27. Build its Boost and jsoncpp libraries for the macOS 11.0 deployment target instead of the build machine's macOS version.
 
 ### 0.2.0 (2026-10-19)
 

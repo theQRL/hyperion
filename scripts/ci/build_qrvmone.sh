@@ -6,7 +6,12 @@ cd "$REPO_ROOT"
 cmake_args=()
 # Prefer the runner's platform; recent Git Bash also identifies as cygwin.
 case "${RUNNER_OS:-$OSTYPE}" in
-    macOS|darwin*) library=libqrvmone.dylib ;;
+    macOS|darwin*)
+        library=libqrvmone.dylib
+        # Both slices of the universal hyptest load the engine. Hunter builds ethash in its own CMake
+        # runs, which read the architectures from the environment but not from -D options.
+        export CMAKE_OSX_ARCHITECTURES='x86_64;arm64'
+        ;;
     Windows|msys*|cygwin*|mingw*)
         library=qrvmone.dll
         # The pinned engine's Hunter release does not recognize MSVC 19.4x.

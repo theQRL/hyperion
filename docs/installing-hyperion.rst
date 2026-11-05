@@ -78,7 +78,8 @@ Release Binaries
 
 Each release on the `Hyperion release page on Github`_ has binaries that need no installation:
 ``hypc-static-linux`` (Linux on x86-64), ``hypc-static-linux-arm`` (Linux on ARM64), ``hypc-macos``
-(macOS 11 or later) and ``hypc-windows.exe``. Download the one for your platform,
+(macOS 11 or later, a universal binary that runs natively on Apple silicon and Intel Macs) and
+``hypc-windows.exe``. Download the one for your platform,
 :ref:`verify it <verifying-release-binaries>`, make it executable and run it.
 
 Each release also has ``hypjson.js``, the compiler built for JavaScript. It is not a program you

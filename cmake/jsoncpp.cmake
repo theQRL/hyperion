@@ -40,6 +40,16 @@ if (WIN32 AND POLICY CMP0091 AND CMAKE_MSVC_RUNTIME_LIBRARY)
     list(APPEND JSONCPP_CMAKE_ARGS "-DCMAKE_MSVC_RUNTIME_LIBRARY=${CMAKE_MSVC_RUNTIME_LIBRARY}")
 endif()
 
+# Build for the compiler's macOS architectures, so that a universal hypc links a universal jsoncpp,
+# and for its deployment target (upstream Solidity ea0b75089b).
+if (APPLE)
+    if (CMAKE_OSX_ARCHITECTURES)
+        string(REPLACE ";" "$<SEMICOLON>" JSONCPP_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
+        list(APPEND JSONCPP_CMAKE_ARGS "-DCMAKE_OSX_ARCHITECTURES=${JSONCPP_OSX_ARCHITECTURES}")
+    endif()
+    list(APPEND JSONCPP_CMAKE_ARGS "-DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+endif()
+
 ExternalProject_Add(jsoncpp-project
     PREFIX "${prefix}"
     DOWNLOAD_DIR "${PROJECT_SOURCE_DIR}/deps/downloads"

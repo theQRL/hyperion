@@ -88,9 +88,11 @@ def run(command, stdin, timeout):
     return result.stdout
 
 
-def compile_native(compiler, inputs, workers):
+def compile_native(compiler, inputs, workers, arch=None):
+    # arch(1) runs one slice of a universal macOS binary, such as x86_64 under Rosetta 2.
+    command = (['arch', f'-{arch}'] if arch else []) + [str(compiler), '--standard-json']
     def compile_one(compiler_input):
-        return json.loads(run([str(compiler), '--standard-json'], compiler_input, 180))
+        return json.loads(run(command, compiler_input, 180))
     with ThreadPoolExecutor(workers) as pool:
         return list(pool.map(compile_one, inputs))
 
@@ -118,10 +120,16 @@ def main():
     parser.add_argument('compiler', type=Path)
     parser.add_argument('output', type=Path)
     parser.add_argument('--hypcjs', action='store_true')
+    parser.add_argument('--arch', help='slice of a universal macOS compiler to run, such as x86_64')
     args = parser.parse_args()
+    if args.hypcjs and args.arch:
+        parser.error('--arch applies only to a native compiler')
     configurations, tests, inputs = zip(*jobs())
-    compile_all = compile_hypcjs if args.hypcjs else compile_native
-    outputs = compile_all(args.compiler.resolve(), inputs, os.cpu_count() or 2)
+    workers = os.cpu_count() or 2
+    if args.hypcjs:
+        outputs = compile_hypcjs(args.compiler.resolve(), inputs, workers)
+    else:
+        outputs = compile_native(args.compiler.resolve(), inputs, workers, args.arch)
     reports = {}
     for configuration, test, output in zip(configurations, tests, outputs):
         errors = [error for error in output.get('errors', []) if error['severity'] == 'error']

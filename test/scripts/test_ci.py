@@ -29,7 +29,8 @@ class CITests(unittest.TestCase):
         (self.root / 'CMakeLists.txt').write_text('set(PROJECT_VERSION "0.2.0")\n')
         self.env = dict(os.environ)
         for name in ('GITHUB_REF_TYPE', 'GITHUB_REF_NAME', 'FORCE_RELEASE', 'GITHUB_SHA',
-                     'BOOST_TEST_ARGS', 'CMAKE_OPTIONS', 'COVERAGE'):
+                     'BOOST_TEST_ARGS', 'CMAKE_OPTIONS', 'COVERAGE', 'CMAKE_OSX_ARCHITECTURES',
+                     'HYPTEST_ARCH'):
             self.env.pop(name, None)
         self.env.update(GIT_AUTHOR_DATE='2026-01-02T03:04:05+00:00',
                         GIT_COMMITTER_DATE='2026-01-02T03:04:05+00:00')
@@ -103,10 +104,14 @@ class CITests(unittest.TestCase):
             with self.subTest(ostype=ostype, runner_os=runner_os):
                 github_env.write_text('')
                 (self.root / 'cmake_arguments').write_text('')
+                (self.root / 'cmake_architectures').write_text('')
                 result = subprocess.run(
                     [BASH, '-c', '''
 OSTYPE=$1
-cmake() { printf '%s\\n' "$@" >> cmake_arguments; }
+cmake() {
+    printf '%s\\n' "$@" >> cmake_arguments
+    printf '%s\\n' "${CMAKE_OSX_ARCHITECTURES-unset}" >> cmake_architectures
+}
 cygpath() {
     case "$1" in
         -m) printf '%s\\n' 'C:/CI fixture/scripts/ci/cmake' ;;
@@ -129,6 +134,10 @@ source "$0"
                 else:
                     self.assertFalse(any(arg.startswith('-DCMAKE_MODULE_PATH=') for arg in arguments))
                     self.assertTrue(exported.endswith('/' + library), exported)
+                # Hunter's package builds only see the architectures through the environment.
+                architectures = (self.root / 'cmake_architectures').read_text().splitlines()
+                expected = 'x86_64;arm64' if library == 'libqrvmone.dylib' else 'unset'
+                self.assertEqual(architectures, [expected, expected])
 
     def test_compiler_build_with_and_without_optional_arguments(self):
         for options in ('', '-DUSE_Z3=OFF -DUSE_CVC4=OFF'):
@@ -173,6 +182,29 @@ source "$0"
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 self.assertIn('worker-ran', result.stdout)
                 self.assertEqual('stack-limit' in result.stdout, not windows)
+
+    def test_universal_binary_slice_runs_through_arch(self):
+        for hyptest_arch, arch_calls, report in [
+            ('', [], 'test_results/zond-opt0-abi2-0.xml'),
+            ('x86_64', ['arch -x86_64'], 'test_results/zond-opt0-abi2-0-x86_64.xml'),
+        ]:
+            with self.subTest(hyptest_arch=hyptest_arch):
+                result = subprocess.run(
+                    [BASH, '-c', '''
+ulimit() { :; }
+arch() { printf 'arch %s\\n' "$1"; shift; "$@"; }
+hyptest_stub() { printf '%s\\n' "$@"; }
+source "$0"
+''', 'scripts/ci/hyptest.sh'],
+                    cwd=self.root, env={**self.env, 'RUNNER_OS': 'macOS', 'HYPTEST_ARCH': hyptest_arch,
+                                        'HYPTEST_BINARY': 'hyptest_stub', 'TEST_JOBS': '1',
+                                        'CI_NODE_TOTAL': '1', 'CI_NODE_INDEX': '0'},
+                    capture_output=True, text=True,
+                )
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                output = result.stdout.splitlines()
+                self.assertEqual([line for line in output if line.startswith('arch ')], arch_calls)
+                self.assertIn(f'--logger=JUNIT,error,{report}', output)
 
     def test_all_compiler_configurations_run_and_preserve_failures(self):
         with (self.root / 'scripts/ci/hyptest.sh').open('w', encoding='utf8', newline='\n') as mock:

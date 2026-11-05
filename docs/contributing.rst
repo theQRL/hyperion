@@ -195,8 +195,8 @@ GitHub Actions workflows live in ``.github/workflows/``:
 
 * ``ci.yml`` runs on pull requests, pushes to ``main``, ``develop`` and ``release``,
   version tags, and manual dispatches. It checks source and scripts, builds and
-  tests Linux AMD64 (GCC and Clang), Linux ARM64 (GCC), macOS Intel, Windows x64
-  and WebAssembly targets, and retains
+  tests Linux AMD64 (GCC and Clang), Linux ARM64 (GCC), macOS (a universal
+  arm64 and x86_64 build), Windows x64 and WebAssembly targets, and retains
   compiler artifacts and JUnit reports.
 * ``linux.yml`` is the reusable Linux build/test workflow. The pinned dependency
   AMD64 images provide Boost and Z3 4.12.1. ARM64 builds run natively on
@@ -266,7 +266,7 @@ the bytecode comparison succeed, Actions publishes a GitHub Release containing:
 
 * ``hypc-static-linux`` (Linux AMD64/x86-64)
 * ``hypc-static-linux-arm`` (Linux ARM64/AArch64)
-* ``hypc-macos`` (Intel)
+* ``hypc-macos`` (macOS 11 or later, universal for Apple silicon and Intel)
 * ``hypc-windows.exe``
 * ``hypjson.js`` (packed WebAssembly compiler)
 * ``SHA256SUMS``
@@ -274,6 +274,11 @@ the bytecode comparison succeed, Actions publishes a GitHub Release containing:
 Both Linux binaries target 64-bit systems and statically link their C++ and
 solver dependencies. They require a glibc compatible with Ubuntu 22.04 or newer.
 CI verifies each binary's ELF architecture and includes both in ``SHA256SUMS``.
+
+``hypc-macos`` is a universal binary that runs natively on Apple silicon and Intel
+Macs. CI builds it, with Boost and jsoncpp, for arm64 and x86_64 on an arm64
+runner and fails unless ``lipo -archs`` reports both slices. It runs the compiler
+tests and the bytecode comparison on each slice, the x86_64 slice under Rosetta 2.
 
 Tags with a suffix create prereleases. The release job alone receives
 ``contents: write`` through ``GITHUB_TOKEN``; PR builds need no publishing secrets.

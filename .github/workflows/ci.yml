@@ -100,7 +100,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-15-intel
+          # hypc-macos is a universal binary: built on arm64 for arm64 and x86_64, with the x86_64
+          # slice tested under Rosetta 2.
+          - os: macos-15
             platform: macos
             compiler: build/hypc/hypc
             tests: build/test/hyptest
@@ -140,6 +142,13 @@ jobs:
         run: |
           python -m pip install --require-hashes -r scripts/ci/requirements-cmake.txt
           bash scripts/ci/install_macos_deps.sh
+      - name: Install Rosetta 2
+        if: runner.os == 'macOS'
+        run: |
+          if ! arch -x86_64 /usr/bin/true 2>/dev/null; then
+            sudo softwareupdate --install-rosetta --agree-to-license
+          fi
+          arch -x86_64 /usr/bin/true
       - name: Install Windows dependencies
         if: runner.os == 'Windows'
         shell: pwsh
@@ -164,13 +173,31 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           # Match the warning compatibility flag used by the Emscripten Clang build.
-          export CMAKE_OPTIONS="-DBoost_ROOT=$PWD/deps/boost -DBoost_NO_SYSTEM_PATHS=ON -DUSE_Z3=OFF -DUSE_CVC4=OFF -DCMAKE_CXX_FLAGS=-Wno-unqualified-std-cast-call"
+          export CMAKE_OPTIONS="-DBoost_ROOT=$PWD/deps/boost -DBoost_NO_SYSTEM_PATHS=ON -DUSE_Z3=OFF -DUSE_CVC4=OFF -DCMAKE_CXX_FLAGS=-Wno-unqualified-std-cast-call -DCMAKE_OSX_ARCHITECTURES=x86_64;arm64"
           bash scripts/ci/build.sh
+      - name: Require universal macOS binaries
+        if: runner.os == 'macOS'
+        env:
+          COMPILER: ${{ matrix.compiler }}
+        run: |
+          for binary in "$COMPILER" "$HYPTEST_BINARY" "$QRL_QRVMONE"; do
+            archs=$(lipo -archs "$binary")
+            echo "$binary: $archs"
+            if [[ $archs != 'x86_64 arm64' ]]; then
+              echo "::error::$binary has architectures '$archs', expected 'x86_64 arm64'."
+              exit 1
+            fi
+          done
       - name: Build Windows compiler
         if: runner.os == 'Windows'
         shell: pwsh
         run: ./scripts/ci/build_win.ps1
       - name: Compiler tests (default and optimized)
+        run: bash scripts/ci/hyptest_all.sh
+      - name: Compiler tests on the x86_64 slice (Rosetta 2)
+        if: runner.os == 'macOS'
+        env:
+          HYPTEST_ARCH: x86_64
         run: bash scripts/ci/hyptest_all.sh
       - name: macOS command-line tests
         if: runner.os == 'macOS'
@@ -180,6 +207,11 @@ jobs:
           COMPILER: ${{ matrix.compiler }}
           PLATFORM: ${{ matrix.platform }}
         run: python scripts/ci/bytecode_report.py "$COMPILER" "reports/$PLATFORM.json"
+      - name: Generate bytecode comparison for the x86_64 slice (Rosetta 2)
+        if: runner.os == 'macOS'
+        env:
+          COMPILER: ${{ matrix.compiler }}
+        run: python scripts/ci/bytecode_report.py "$COMPILER" reports/macos-x86_64.json --arch x86_64
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: bytecode-${{ matrix.platform }}
@@ -389,7 +421,7 @@ jobs:
           merge-multiple: true
       - name: Require matching reports from every build
         run: |
-          for platform in linux-gcc linux-clang linux-gcc-arm64 macos windows emscripten; do
+          for platform in linux-gcc linux-clang linux-gcc-arm64 macos macos-x86_64 windows emscripten; do
             test -s "reports/$platform.json"
             diff -u reports/linux-gcc.json "reports/$platform.json"
           done
