@@ -3,10 +3,6 @@ contract C {
         return shake256("abc");
     }
 
-    function shortOutput() public returns (bytes64) {
-        return shake256("QRL-SHAKE256-SHORT-OUTPUT");
-    }
-
     function raw(uint256 length, uint256 suppliedGas) public view returns (bool, uint256) {
         (bool success, bytes memory output) = address(6).staticcall{gas: suppliedGas}(new bytes(length));
         return (success, output.length);
@@ -14,7 +10,6 @@ contract C {
 }
 // ----
 // f() -> 0x483366601360a8771c6863080cc4114d8db44530f8f1e1ee4f94ea37e78b5739d5a15bef186a5386c75744c0527e1faa9f8726e462a12a4feb06bd8801e751e4
-// shortOutput() -> FAILURE
 // raw(uint256,uint256): 0, 240 -> true, 64
 // raw(uint256,uint256): 0, 239 -> false, 0
 // raw(uint256,uint256): 1, 288 -> true, 64

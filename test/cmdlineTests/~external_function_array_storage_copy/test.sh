@@ -32,27 +32,40 @@ EOF
 
 msg_on_error --no-stderr "$HYPC" --asm "$source_file" > "$asm_file"
 
-normalized_asm=$(tr '\n' ' ' < "$asm_file" | tr -s '[:space:]' ' ')
+# Drop the source location comments that annotate the Yul utility functions and collapse whitespace.
+normalized_asm=$(sed 's|/\*[^*]*\*/||g' "$asm_file" | tr '\n' ' ' | tr -s '[:space:]' ' ')
 
 # Regression check for legacy storage-to-storage copies of function() external[].
 # External function pointers occupy two storage slots on QRVM: address + selector.
-# The loop must therefore load/store slot+1 and advance both pointers by 2 slots.
-expected_selector_copy='dup3 dup1 sload swap1 0x01 add sload 0xffffffff and dup4 dup1 0x01 add dup3 swap1 sstore swap1 pop sstore swap2 0x02 add swap2 swap1 0x02 add'
-remaining_asm="$normalized_asm"
-copy_count=0
-while [[ "$remaining_asm" == *"$expected_selector_copy"* ]]
-do
-    copy_count=$((copy_count + 1))
-    remaining_asm="${remaining_asm#*"$expected_selector_copy"}"
-done
+# The legacy code generator copies storage arrays through the same Yul utility function
+# as the IR pipeline. Its loop must load the selector from slot+1, store it to slot+1
+# and advance both pointers by 2 slots.
+expected_selector_load='sload 0xffffffff 0x01 dup6 add sload and'
+expected_selector_store='sstore 0xffffffff dup2 and 0x01 dup6 add sstore 0x02 dup6 add swap5 pop 0x02 dup5 add swap4 pop'
 
-if (( copy_count < 2 ))
-then
-    printError "Legacy storage-to-storage copy of function() external[] did not copy the selector slot."
-    printError "Expected selector-copy sequence at least twice, for dynamic and fixed-size arrays, but found ${copy_count}."
-    printError "Expected assembly sequence:"
-    >&2 echo "$expected_selector_copy"
-    printError "Actual assembly:"
-    >&2 cat "$asm_file"
-    fail
-fi
+function count_occurrences
+{
+    local remaining_asm="$normalized_asm"
+    local count=0
+    while [[ "$remaining_asm" == *"$1"* ]]
+    do
+        count=$((count + 1))
+        remaining_asm="${remaining_asm#*"$1"}"
+    done
+    echo "$count"
+}
+
+for expected_selector_copy in "$expected_selector_load" "$expected_selector_store"
+do
+    copy_count=$(count_occurrences "$expected_selector_copy")
+    if (( copy_count < 2 ))
+    then
+        printError "Legacy storage-to-storage copy of function() external[] did not copy the selector slot."
+        printError "Expected selector-copy sequence at least twice, for dynamic and fixed-size arrays, but found ${copy_count}."
+        printError "Expected assembly sequence:"
+        >&2 echo "$expected_selector_copy"
+        printError "Actual assembly:"
+        >&2 cat "$asm_file"
+        fail
+    fi
+done

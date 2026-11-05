@@ -374,7 +374,7 @@ std::string ABIFunctions::abiEncodingFunction(
 			// possible for library calls where we just forward the storage reference
 			hypAssert(_options.encodeAsLibraryTypes, "");
 			hypAssert(_options.padded && !_options.dynamicInplace, "Non-padded / inplace encoding for library call requested.");
-			hypAssert(to == *TypeProvider::uint256(), "");
+			hypAssert(to == *TypeProvider::uint(VMWordBits), "");
 			templ("cleanupConvert", "value");
 		}
 		else

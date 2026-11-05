@@ -458,6 +458,9 @@ importing files from the following directories:
 
     The working directory of the compiler is one of the paths allowed by default only if it
     happens to be the base path (or the base path is not specified or has an empty value).
+    A working directory that is the root of the filesystem, as in a container whose working
+    directory is ``/``, is never allowed by default, because that would allow every readable file.
+    Pass ``--base-path`` or ``--allow-paths`` explicitly to import files through it.
 
 .. note::
 

@@ -28,6 +28,7 @@
 #include <test/libhyperion/SyntaxTest.h>
 #include <test/libhyperion/SemanticTest.h>
 #include <test/libhyperion/SMTCheckerTest.h>
+#include <test/libyul/CallGraphTest.h>
 #include <test/libyul/ControlFlowGraphTest.h>
 #include <test/libyul/QRVMCodeTransformTest.h>
 #include <test/libyul/YulOptimizerTest.h>
@@ -65,6 +66,7 @@ Testsuite const g_interactiveTestsuites[] = {
 	{"Yul Interpreter",        "libyul",      "yulInterpreterTests",   false, false, &yul::test::YulInterpreterTest::create},
 	{"Yul Object Compiler",    "libyul",      "objectCompiler",        false, false, &yul::test::ObjectCompilerTest::create},
 	{"Yul Control Flow Graph", "libyul",      "yulControlFlowGraph",   false, false, &yul::test::ControlFlowGraphTest::create},
+	{"Yul Call Graph",         "libyul",      "yulCallGraph",          false, false, &yul::test::CallGraphTest::create},
 	{"Yul Stack Layout",       "libyul",      "yulStackLayout",        false, false, &yul::test::StackLayoutGeneratorTest::create},
 	{"Yul Stack Shuffling",    "libyul",      "yulStackShuffling",     false, false, &yul::test::StackShufflingTest::create},
 	{"Control Flow Side Effects","libyul",    "controlFlowSideEffects",false, false, &yul::test::ControlFlowSideEffectsTest::create},

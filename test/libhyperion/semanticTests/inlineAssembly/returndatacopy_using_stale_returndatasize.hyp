@@ -1,0 +1,32 @@
+contract C {
+    function e1() external returns(uint256) {
+        return 1;
+    }
+
+    function e() external {}
+
+    // This test verifies that UnusedStoreEliminator does not incorrectly eliminate
+    // a returndatacopy whose size argument is a stale snapshot of returndatasize()
+    // taken before a subsequent call that resets the return data buffer.
+    //
+    // The test only detects the bug when run with --optimize.
+    //
+    // The destination offset 192 is chosen so that the written region [192, 256)
+    // is provably disjoint from the ABI encoder's mload(128) at [128, 192).
+    //
+    // The inline assembly must not have external dependencies, otherwise this test won't cover the legacy pipeline.
+    function f() public {
+        assembly {
+            mstore(0x00, shl(480, 0xa2c2d666))  // bytes4(keccak256("e1()"))
+            pop(staticcall(gas(), address(), 0x00, 0x04, 0x00, 0x00))
+            let rds := returndatasize()  // rds == 64 (return value of e1())
+            mstore(0x00, shl(480, 0xffae15ba))  // bytes4(keccak256("e()"))
+            pop(staticcall(gas(), address(), 0x00, 0x04, 0x00, 0x00))
+            // After e(), returndatasize() == 0, but rds is stale (== 64).
+            // The out-of-bounds access reverts.
+            returndatacopy(192, 0x00, rds)
+        }
+    }
+}
+// ----
+// f() -> FAILURE

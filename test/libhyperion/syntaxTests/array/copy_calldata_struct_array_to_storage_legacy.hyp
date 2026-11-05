@@ -1,0 +1,14 @@
+contract C {
+    struct S {
+        uint256 a;
+        uint256 b;
+    }
+
+    S[] storageArray;
+
+    function copyFromCalldata(S[] calldata calldataArray) public {
+        storageArray = calldataArray;
+    }
+}
+// ----
+// UnimplementedFeatureError: Copying of type struct C.S calldata[] calldata to storage not yet supported.

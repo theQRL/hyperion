@@ -1,0 +1,26 @@
+contract C {
+    function getArray() internal pure returns (uint[10][1] storage _x) {
+        // 10 slots starting at 2**512 - 5: the array wraps past the last slot to slots 0..4.
+        assembly {
+            _x.slot := sub(0, 5)
+        }
+    }
+
+    function assignArray(uint[10] memory y) public {
+        uint[10][1] storage _x = getArray();
+        _x[0] = y;
+    }
+
+    function x() public view returns (uint[10] memory) {
+        return getArray()[0];
+    }
+}
+// ----
+// x() -> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+// assignArray(uint512[10]): 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ->
+// gas irOptimized: 246506
+// gas legacy: 251441
+// gas legacyOptimized: 246685
+// x() -> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+// assignArray(uint512[10]): 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 ->
+// x() -> 10, 20, 30, 40, 50, 60, 70, 80, 90, 100

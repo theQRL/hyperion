@@ -17,7 +17,11 @@
 // SPDX-License-Identifier: GPL-3.0
 
 #include <test/libhyperion/HyperionExecutionFramework.h>
+#include <test/Common.h>
 #include <test/QRVMHost.h>
+
+#include <libhyputil/CommonIO.h>
+#include <libhyputil/JSON.h>
 
 #include <limits>
 
@@ -200,6 +204,54 @@ BOOST_AUTO_TEST_CASE(creation_nonce_sequence)
 	m_qrvmcHost->accounts[message.sender].nonce = std::numeric_limits<uint64_t>::max();
 	BOOST_CHECK_EQUAL(m_qrvmcHost->call(message).status_code, QRVMC_FAILURE);
 	BOOST_CHECK_EQUAL(m_qrvmcHost->accounts.at(message.sender).nonce, std::numeric_limits<uint64_t>::max());
+}
+
+namespace
+{
+
+/// Runs every vector in go-qrl's `core/vm/testdata/precompiles/<_file>` format, copied to
+/// `test/precompiles/`, through the precompile at @a _address and checks output and gas.
+void checkGoQrlPrecompileVectors(QRVMHost& _host, uint8_t _address, std::string const& _file)
+{
+	boost::filesystem::path const path = CommonOptions::get().testPath / "precompiles" / _file;
+	Json::Value vectors;
+	std::string errors;
+	BOOST_REQUIRE_MESSAGE(util::jsonParseStrict(util::readFileAsString(path), vectors, &errors), errors);
+	BOOST_REQUIRE(vectors.isArray() && !vectors.empty());
+	for (auto const& vector: vectors)
+	{
+		std::string const name = vector["Name"].asString();
+		bytes const input = fromHex(vector["Input"].asString());
+		qrvmc_message message{};
+		message.kind = QRVMC_CALL;
+		message.recipient.bytes[sizeof(message.recipient.bytes) - 1] = _address;
+		message.code_address = message.recipient;
+		message.input_data = input.data();
+		message.input_size = input.size();
+		message.gas = 100000000;
+		qrvmc::Result const result = _host.call(message);
+		BOOST_CHECK_MESSAGE(result.status_code == QRVMC_SUCCESS, name + ": call failed");
+		BOOST_CHECK_MESSAGE(
+			util::toHex(bytes(result.output_data, result.output_data + result.output_size)) == vector["Expected"].asString(),
+			name + ": wrong output"
+		);
+		BOOST_CHECK_MESSAGE(
+			message.gas - result.gas_left == vector["Gas"].asInt64(),
+			name + ": used " + std::to_string(message.gas - result.gas_left) + " gas instead of " + vector["Gas"].asString()
+		);
+	}
+}
+
+}
+
+BOOST_AUTO_TEST_CASE(go_qrl_depositroot_vectors)
+{
+	checkGoQrlPrecompileVectors(*m_qrvmcHost, 1, "depositroot.json");
+}
+
+BOOST_AUTO_TEST_CASE(go_qrl_modexp_vectors)
+{
+	checkGoQrlPrecompileVectors(*m_qrvmcHost, 5, "modexp.json");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -1,0 +1,79 @@
+contract C {
+    bytes testArray;
+
+    struct Canary {
+        uint value;
+    }
+
+    function getCanary() internal pure returns (Canary storage canary) {
+        assembly {
+            mstore(0, testArray.slot)
+            let testArrayDataArea := keccak256(0, 0x40)
+            // testArray's data area occupies 3 slots when filled. Canary goes right after
+            canary.slot := add(testArrayDataArea, 3)
+        }
+    }
+
+    constructor() {
+        Canary storage canary = getCanary();
+        canary.value = type(uint).max;
+    }
+
+    function getArrayDataAreaSlot() public pure returns (uint slot) {
+        assembly {
+            mstore(0, testArray.slot)
+            slot := keccak256(0, 0x40)
+        }
+        assert(slot == 0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5);
+        return slot;
+    }
+
+    function getCanarySlot() public pure returns (uint) {
+        return getArrayDataAreaSlot() + 3;
+    }
+
+    function checkSlots() public view returns (uint, uint, uint, uint, uint) {
+        uint dataSlot = getArrayDataAreaSlot();
+        uint slot0;
+        uint slot1;
+        uint slot2;
+        uint slot3;
+        assembly {
+            slot0 := sload(dataSlot)
+            slot1 := sload(add(dataSlot, 1))
+            slot2 := sload(add(dataSlot, 2))
+            slot3 := sload(add(dataSlot, 3))
+        }
+        return (slot0, slot1, slot2, slot3, testArray.length);
+    }
+
+    function fillArray() public {
+        // Fill testArray to exactly 192 bytes (3 slots in its data area)
+        for (uint i = 0; i < 192; i++) {
+            testArray.push(bytes1(uint8(i + 1)));
+        }
+    }
+
+    function deleteArray() public {
+        // Should clear 3 slots without touching canary
+        delete testArray;
+    }
+
+    function canaryValue() public view returns (uint) {
+        return getCanary().value;
+    }
+}
+// ----
+// getArrayDataAreaSlot() -> 0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5
+// getCanarySlot() -> 0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb8
+// checkSlots() -> 0, 0, 0, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0
+// canaryValue() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+// fillArray()
+// gas irOptimized: 286963
+// gas legacy: 332797
+// gas legacyOptimized: 306889
+// checkSlots() -> 0x0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f40, 0x4142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80, 0x8182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 192
+// canaryValue() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+// deleteArray()
+// checkSlots() -> 0, 0, 0, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0
+// canaryValue() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff

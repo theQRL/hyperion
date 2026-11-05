@@ -1,0 +1,11 @@
+// The builtin reverts unless the precompile returns a full 64-byte word. go-qrl always does, so
+// this test makes the test host return 63 bytes.
+contract C {
+    function f() public returns (bytes64) {
+        return shake256("abc");
+    }
+}
+// ====
+// shake256ReturnsShortOutput: true
+// ----
+// f() -> FAILURE

@@ -18,11 +18,14 @@
 
 #include <libhyperion/ast/TypeProvider.h>
 #include <libhyperion/codegen/ir/Common.h>
+
 #include <libhyperion/codegen/ir/IRGenerationContext.h>
 
 #include <libhyputil/CommonIO.h>
 
 #include <libyul/AsmPrinter.h>
+
+#include <fmt/format.h>
 
 using namespace hyperion::langutil;
 using namespace hyperion::frontend;
@@ -103,10 +106,20 @@ std::string IRNames::libraryAddressImmutable()
 	return "library_deploy_address";
 }
 
-std::string IRNames::constantValueFunction(VariableDeclaration const& _constant)
+std::string IRNames::constantValueFunction(VariableDeclaration const& _constant, Arithmetic const _arithmetic)
 {
-	hypAssert(_constant.isConstant(), "");
-	return "constant_" + _constant.name() + "_" + std::to_string(_constant.id());
+	hypAssert(_constant.isConstant());
+	std::string postfix = [_arithmetic]() -> std::string {
+		switch (_arithmetic)
+		{
+		case Arithmetic::Checked:
+			return "checked";
+		case Arithmetic::Wrapping:
+			return "wrapping";
+		}
+		unreachable();
+	}();
+	return fmt::format("constant_{}_{}_{}", _constant.name(), _constant.id(), postfix);
 }
 
 std::string IRNames::localVariable(VariableDeclaration const& _declaration)

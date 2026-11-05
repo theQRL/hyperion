@@ -1936,8 +1936,9 @@ MemberList::MemberMap ArrayType::nativeMembers(ASTNode const*) const
 
 Type const* ArrayType::encodingType() const
 {
+	// A storage pointer is encoded as its slot, which is a full word.
 	if (location() == DataLocation::Storage)
-		return TypeProvider::uint256();
+		return TypeProvider::uint(VMWordBits);
 	else
 		return TypeProvider::withLocation(this, DataLocation::Memory, true);
 }
@@ -1945,7 +1946,7 @@ Type const* ArrayType::encodingType() const
 Type const* ArrayType::decodingType() const
 {
 	if (location() == DataLocation::Storage)
-		return TypeProvider::uint256();
+		return TypeProvider::uint(VMWordBits);
 	else
 		return this;
 }
@@ -2175,7 +2176,8 @@ Type const* StructType::encodingType() const
 	if (location() != DataLocation::Storage)
 		return this;
 
-	return TypeProvider::uint256();
+	// A storage pointer is encoded as its slot, which is a full word.
+	return TypeProvider::uint(VMWordBits);
 }
 
 BoolResult StructType::isImplicitlyConvertibleTo(Type const& _convertTo) const
@@ -3798,7 +3800,8 @@ bool FunctionType::padArguments() const
 
 Type const* MappingType::encodingType() const
 {
-	return TypeProvider::integer(256, IntegerType::Modifier::Unsigned);
+	// A storage pointer is encoded as its slot, which is a full word.
+	return TypeProvider::uint(VMWordBits);
 }
 
 std::string MappingType::richIdentifier() const
@@ -4273,5 +4276,5 @@ Type const* MagicType::typeArgument() const
 
 Type const* InaccessibleDynamicType::decodingType() const
 {
-	return TypeProvider::integer(256, IntegerType::Modifier::Unsigned);
+	return TypeProvider::uint(VMWordBits);
 }

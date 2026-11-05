@@ -316,7 +316,7 @@ object \"C_54\" {
             }
 
             /// @src 0:93:126  \"int public constant constVar = 41\"
-            function constant_constVar_5() -> ret {
+            function constant_constVar_5_checked() -> ret {
                 /// @src 0:124:126  \"41\"
                 let expr_4 := 0x29
                 let _1 := convert_t_rational_41_by_1_to_t_int512(expr_4)
@@ -327,7 +327,7 @@ object \"C_54\" {
             /// @ast-id 5
             /// @src 0:93:126  \"int public constant constVar = 41\"
             function getter_fun_constVar_5() -> ret_0 {
-                ret_0 := constant_constVar_5()
+                ret_0 := constant_constVar_5_checked()
             }
             /// @src 0:79:435  \"contract C...\"
 
@@ -383,7 +383,7 @@ object \"C_54\" {
                 var__23 := zero_t_int512_2
 
                 /// @src 0:286:294  \"constVar\"
-                let expr_25 := constant_constVar_5()
+                let expr_25 := constant_constVar_5_checked()
                 /// @src 0:297:305  \"immutVar\"
                 let _3 := loadimmutable(\"8\")
                 let expr_26 := _3
@@ -1147,7 +1147,7 @@ object \"D_72\" {
             }
 
             /// @src 0:93:126  \"int public constant constVar = 41\"
-            function constant_constVar_5() -> ret {
+            function constant_constVar_5_checked() -> ret {
                 /// @src 0:124:126  \"41\"
                 let expr_4 := 0x29
                 let _1 := convert_t_rational_41_by_1_to_t_int512(expr_4)
@@ -1158,7 +1158,7 @@ object \"D_72\" {
             /// @ast-id 5
             /// @src 0:93:126  \"int public constant constVar = 41\"
             function getter_fun_constVar_5() -> ret_0 {
-                ret_0 := constant_constVar_5()
+                ret_0 := constant_constVar_5_checked()
             }
             /// @src 1:91:166  \"contract D is C(3)...\"
 
@@ -1214,7 +1214,7 @@ object \"D_72\" {
                 var__23 := zero_t_int512_2
 
                 /// @src 0:286:294  \"constVar\"
-                let expr_25 := constant_constVar_5()
+                let expr_25 := constant_constVar_5_checked()
                 /// @src 0:297:305  \"immutVar\"
                 let _3 := loadimmutable(\"8\")
                 let expr_26 := _3

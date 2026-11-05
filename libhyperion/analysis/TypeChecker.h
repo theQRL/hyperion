@@ -179,6 +179,11 @@ private:
 	/// Runs type checks on @a _expression to infer its type and then checks that it is implicitly
 	/// convertible to @a _expectedType.
 	bool expectType(Expression const& _expression, Type const& _expectedType);
+	/// Warns if @a _expression is an exponentiation or left shift with a literal base, whose result
+	/// type is narrower than @a _targetType: it is computed in the narrower type and only then
+	/// widened, so for `n = 300` `uint512 x = 2 ** n;` panics and `uint512 x = 1 << n;` is zero.
+	/// Looks through parentheses and into the branches of a conditional.
+	void warnIfLiteralBaseResultIsWidened(Expression const& _expression, Type const& _targetType);
 	/// Runs type checks on @a _expression to infer its type and then checks that it is an LValue.
 	void requireLValue(Expression const& _expression, bool _ordinaryAssignment);
 

@@ -236,7 +236,7 @@ The following identifiers are used for the types in the signatures:
   followed by ``storage`` to it.
 
 The argument encoding is the same as for the regular contract ABI, except for storage pointers, which are encoded as a
-``uint256`` value referring to the storage slot to which they point.
+``uint512`` value referring to the storage slot to which they point.
 
 Similarly to the contract ABI, the selector consists of the first four bytes of the Keccak256-hash of the signature.
 Its value can be obtained from Hyperion using the ``.selector`` member as follows:

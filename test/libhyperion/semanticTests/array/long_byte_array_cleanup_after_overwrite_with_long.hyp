@@ -1,0 +1,105 @@
+contract C {
+    bytes testArray;
+
+    struct Canary {
+        uint value;
+    }
+
+    function getCanary() internal pure returns (Canary storage canary) {
+        assembly {
+            mstore(0, testArray.slot)
+            let testArrayDataArea := keccak256(0, 0x40)
+            // testArray's data area occupies 3 slots when filled. Canary goes right after
+            canary.slot := add(testArrayDataArea, 3)
+        }
+    }
+
+    constructor() {
+        Canary storage canary = getCanary();
+        canary.value = type(uint).max; // Should not be overwritten
+    }
+
+    function fillArray() public {
+        // Fill testArray to exactly 192 bytes (3 slots in its data area)
+        for (uint i = 0; i < 192; i++) {
+            testArray.push(bytes1(uint8(i + 1)));
+        }
+    }
+
+    function shrinkArray() public returns (uint) {
+        // Shrink from 192 to 100 bytes. Should clear slot 2 without touching canary
+        bytes memory newData = new bytes(100);
+        for (uint i = 0; i < 100; i++) {
+            newData[i] = bytes1(uint8(i + 2));
+        }
+        testArray = newData;
+        return testArray.length;
+    }
+
+    function canaryValue() public view returns (uint) {
+        return getCanary().value;
+    }
+
+    function arrayLength() public view returns (uint) {
+        return testArray.length;
+    }
+
+    function getDataSlotContent(uint256 index) public view returns (bytes64 value) {
+        assembly {
+            mstore(0, testArray.slot)
+            let testArrayDataArea := keccak256(0, 0x40)
+            let slot := add(testArrayDataArea, index)
+            value := sload(slot)
+        }
+        return value;
+    }
+
+    function checkSlots() public view returns (bytes64, bytes64, bytes64, uint, uint) {
+        return (
+            getDataSlotContent(0),  // First data slot
+            getDataSlotContent(1),  // Second data slot (partial cleanup expected)
+            getDataSlotContent(2),  // Third data slot (should be cleared after shrink)
+            canaryValue(),          // Canary value (should never change)
+            arrayLength()           // Current array length
+        );
+    }
+
+    function getSlot1LastBytes() public view returns (bytes28 lastBytes) {
+        // Get the last 28 bytes of slot 1, which should be zero after partial cleanup
+        bytes64 slot1 = getDataSlotContent(1);
+        assembly {
+            // Shift left by 36 bytes (288 bits) to move the last 28 bytes to the front
+            lastBytes := shl(288, slot1)
+        }
+        return lastBytes;
+    }
+
+    function getArrayBytes(uint256 start, uint256 count) public view returns (bytes memory) {
+        bytes memory result = new bytes(count);
+        for (uint i = 0; i < count && start + i < testArray.length; i++) {
+            result[i] = testArray[start + i];
+        }
+        return result;
+    }
+}
+// ----
+// arrayLength() -> 0
+// canaryValue() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+// fillArray()
+// gas irOptimized: 284242
+// gas legacy: 332797
+// gas legacyOptimized: 306889
+// arrayLength() -> 192
+// canaryValue() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+// getArrayBytes(uint256,uint256): 0, 5 -> 0x40, 5, 0x01020304050000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+// getArrayBytes(uint256,uint256): 64, 5 -> 0x40, 5, 0x41424344450000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+// getArrayBytes(uint256,uint256): 128, 5 -> 0x40, 5, 0x81828384850000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+// shrinkArray() -> 100
+// arrayLength() -> 100
+// canaryValue() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+// getArrayBytes(uint256,uint256): 0, 5 -> 0x40, 5, 0x02030405060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+// getArrayBytes(uint256,uint256): 64, 5 -> 0x40, 5, 0x42434445460000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+// getArrayBytes(uint256,uint256): 95, 5 -> 0x40, 5, 0x61626364650000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+// getSlot1LastBytes() -> 0
+// getDataSlotContent(uint256): 2 -> 0
+// canaryValue() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff

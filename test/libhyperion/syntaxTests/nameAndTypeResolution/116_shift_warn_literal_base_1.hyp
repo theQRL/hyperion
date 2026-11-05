@@ -5,3 +5,4 @@ contract test {
     }
 }
 // ----
+// Warning 6432: (99-106): Left shift with a literal base is computed in uint256 and only then converted to uint512, so bits above 256 are lost. Write the base as uint512(10) to compute it in uint512.

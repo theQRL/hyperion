@@ -299,7 +299,8 @@ std::string AssemblyItem::toAssemblyText(Assembly const& _assembly) const
 		break;
 	}
 	case PushData:
-		text = std::string("data_") + toHex(data());
+		// Zero-padded like the data label that Assembly::assemblyStream prints.
+		text = std::string("data_") + toHex(u256(data()));
 		break;
 	case PushSub:
 	case PushSubSize:

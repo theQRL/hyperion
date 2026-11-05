@@ -32,6 +32,7 @@ set(sources
 	StringUtils.h
 	SwarmHash.cpp
 	SwarmHash.h
+	TarjanSCC.h
 	TemporaryDirectory.cpp
 	TemporaryDirectory.h
 	UTF8.cpp

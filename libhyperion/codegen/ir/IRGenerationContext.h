@@ -135,9 +135,6 @@ public:
 	langutil::QRVMVersion qrvmVersion() const { return m_qrvmVersion; }
 	ExecutionContext executionContext() const { return m_executionContext; }
 
-	void setArithmetic(Arithmetic _value) { m_arithmetic = _value; }
-	Arithmetic arithmetic() const { return m_arithmetic; }
-
 	ABIFunctions abiFunctions();
 
 	RevertStrings revertStrings() const { return m_revertStrings; }
@@ -174,8 +171,6 @@ private:
 	std::map<VariableDeclaration const*, std::pair<u256, unsigned>> m_stateVariables;
 	MultiUseYulFunctionCollector m_functions;
 	size_t m_varCounter = 0;
-	/// Whether to use checked or wrapping arithmetic.
-	Arithmetic m_arithmetic = Arithmetic::Checked;
 
 	/// Flag indicating whether any memory-unsafe inline assembly block was seen.
 	bool m_memoryUnsafeInlineAssemblySeen = false;

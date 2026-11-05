@@ -1,0 +1,63 @@
+contract C {
+    struct Canary {
+        uint value;
+    }
+
+    constructor() {
+        Canary storage canary = getCanary();
+        canary.value = type(uint).max; // Should not be overwritten
+    }
+
+    function getArray() internal pure returns (uint128[10][1] storage _x) {
+        // Array of 10 * uint128 values (16 bytes each)
+        // Packs 4 uint128 per 64-byte slot -> 3 slots total (slots 2**512 - 1, 0, 1)
+        assembly {
+            _x.slot := sub(0, 1)
+        }
+    }
+
+    function getCanary() internal pure returns (Canary storage canary) {
+        // Canary at slot 2, right after the array ends at slot 1
+        assembly {
+            canary.slot := 2
+        }
+    }
+
+    function fillArray() public {
+        uint128[10][1] storage _x = getArray();
+        for (uint128 i = 0; i < 10; i++)
+            _x[0][i] = i;
+    }
+
+    function shrinkTo5() public {
+        uint128[10][1] storage _x = getArray();
+        // Resize by assigning a smaller array
+        // This should clear items [5..9] without touching the canary
+        _x[0] = [uint128(11), 12, 13, 14, 15];
+    }
+
+    function clearArray() public {
+        uint128[10][1] storage _x = getArray();
+        delete _x[0];
+    }
+
+    function x() public view returns (uint128[10] memory) {
+        return getArray()[0];
+    }
+
+    function canaryValue() public view returns (uint) {
+        return getCanary().value;
+    }
+}
+// ----
+// x() -> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+// canaryValue() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+// fillArray()
+// x() -> 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+// canaryValue() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+// shrinkTo5()
+// x() -> 11, 12, 13, 14, 15, 0, 0, 0, 0, 0
+// canaryValue() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+// clearArray()
+// x() -> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+// canaryValue() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff

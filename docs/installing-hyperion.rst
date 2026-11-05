@@ -60,7 +60,11 @@ Please refer to the hypc-js repository for instructions.
 
 .. code-block:: bash
 
-    npm install -g hypc
+    npm install -g @theqrl/hypc
+
+.. warning::
+
+    The package is ``@theqrl/hypc``. The unscoped npm package ``hypc`` is not part of Hyperion.
 
 .. note::
 
@@ -69,131 +73,16 @@ Please refer to the hypc-js repository for instructions.
     The command-line options of ``hypcjs`` are not compatible with ``hypc`` and tools (such as ``geth``)
     expecting the behavior of ``hypc`` will not work with ``hypcjs``.
 
-Docker
-======
+Release Binaries
+================
 
-Docker images of Hyperion builds are available using the ``hypc`` image from the ``theQRL`` organization.
-Use the ``stable`` tag for the latest released version, and ``nightly`` for potentially unstable changes in the develop branch.
+Each release on the `Hyperion release page on Github`_ has binaries that need no installation:
+``hypc-static-linux`` (Linux on x86-64), ``hypc-static-linux-arm`` (Linux on ARM64), ``hypc-macos``
+(macOS 11 or later), ``hypc-windows.exe`` and ``hypjson.js``. Download the one for your platform,
+:ref:`verify it <verifying-release-binaries>`, make it executable and run it.
 
-The Docker image runs the compiler executable so that you can pass all compiler arguments to it.
-For example, the command below pulls the stable version of the ``hypc`` image (if you do not have it already),
-and runs it in a new container, passing the ``--help`` argument.
-
-.. code-block:: bash
-
-    docker run theqrl/hypc:stable --help
-
-For example, You can specify release build versions in the tag for the 0.5.4 release.
-
-.. code-block:: bash
-
-    docker run theqrl/hypc:0.5.4 --help
-
-To use the Docker image to compile Hyperion files on the host machine, mount a
-local folder for input and output, and specify the contract to compile. For example.
-
-.. code-block:: bash
-
-    docker run -v /local/path:/sources theqrl/hypc:stable -o /sources/output --abi --bin /sources/Contract.hyp
-
-You can also use the standard JSON interface (which is recommended when using the compiler with tooling).
-When using this interface, it is not necessary to mount any directories as long as the JSON input is
-self-contained (i.e. it does not refer to any external files that would have to be
-:ref:`loaded by the import callback <initial-vfs-content-standard-json-with-import-callback>`).
-
-.. code-block:: bash
-
-    docker run theqrl/hypc:stable --standard-json < input.json > output.json
-
-Linux Packages
-==============
-
-Binary packages of Hyperion are available at
-`hyperion/releases <https://github.com/theQRL/hyperion/releases>`_.
-
-We also have PPAs for Ubuntu, you can get the latest stable
-version using the following commands:
-
-.. code-block:: bash
-
-    sudo add-apt-repository ppa:theqrl/qrl
-    sudo apt-get update
-    sudo apt-get install hypc
-
-Nightly PPA packages are only available when the QRL packaging team publishes a development archive.
-Check the current release notes or project channels before installing pre-release packages.
-
-Furthermore, some Linux distributions provide their own packages. These packages are not directly
-maintained by us but usually kept up-to-date by the respective package maintainers.
-
-If your distribution provides Hyperion packages, verify that they are maintained for the QRL toolchain
-before using them for production builds.
-
-.. note::
-
-    Please be aware that `AUR <https://wiki.archlinux.org/title/Arch_User_Repository>`_ packages
-    are user-produced content and unofficial packages. Exercise caution when using them.
-
-There is also a `snap package <https://snapcraft.io/hypc>`_, however, it is **currently unmaintained**.
-It is installable in all the `supported Linux distros <https://snapcraft.io/docs/core/install>`_. To
-install the latest stable version of hypc:
-
-.. code-block:: bash
-
-    sudo snap install hypc
-
-If you want to help testing the latest development version of Hyperion
-with the most recent changes, please use the following:
-
-.. code-block:: bash
-
-    sudo snap install hypc --edge
-
-.. note::
-
-    The ``hypc`` snap uses strict confinement. This is the most secure mode for snap packages
-    but it comes with limitations, like accessing only the files in your ``/home`` and ``/media`` directories.
-    For more information, go to `Demystifying Snap Confinement <https://snapcraft.io/blog/demystifying-snap-confinement>`_.
-
-
-macOS Packages
-==============
-
-We distribute the Hyperion compiler through Homebrew
-as a build-from-source version. Pre-built bottles are
-currently not supported.
-
-.. code-block:: bash
-
-    brew update
-    brew upgrade
-    brew tap theqrl/theqrl
-    brew install hyperion
-
-To install the most recent 0.4.x / 0.5.x version of Hyperion you can also use ``brew install hyperion@4``
-and ``brew install hyperion@5``, respectively.
-
-If you need a specific version of Hyperion you can install a
-Homebrew formula directly from Github.
-
-View
-`hyperion.rb commits on Github <https://github.com/theQRL/homebrew-qrl/commits/master/hyperion.rb>`_.
-
-Copy the commit hash of the version you want and check it out on your machine.
-
-.. code-block:: bash
-
-    git clone https://github.com/theQRL/homebrew-qrl.git
-    cd homebrew-qrl
-    git checkout <your-hash-goes-here>
-
-Install it using ``brew``:
-
-.. code-block:: bash
-
-    brew unlink hyperion
-    # eg. Install 0.4.8
-    brew install hyperion.rb
+The Hyperion project does not publish Docker images, Linux distribution packages, PPAs, snaps or
+Homebrew formulas. Packages of those kinds that claim to contain Hyperion are not ours.
 
 Static Binaries
 ===============
@@ -222,6 +111,8 @@ The same binaries are in most cases available on the `Hyperion release page on G
 difference is that we do not generally update old releases on the Github release page. This means
 that we do not rename them if the naming convention changes and we do not add builds for platforms
 that were not supported at the time of release. This only happens in ``hypc-bin``.
+
+.. _verifying-release-binaries:
 
 Verifying Release Binaries
 --------------------------

@@ -120,6 +120,7 @@ private:
 	bool m_testCaseWantsYulRun = true;
 	bool m_testCaseWantsLegacyRun = true;
 	bool m_allowNonExistingFunctions = false;
+	bool m_shake256ReturnsShortOutput = false;
 	bool m_gasCostFailure = false;
 	bool m_enforceGasCost = false;
 	RequiresYulOptimizer m_requiresYulOptimizer{};
