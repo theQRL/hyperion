@@ -182,7 +182,11 @@ For example, you could run the following command in your ``build`` folder:
 This creates symbols so that when you debug a test using the ``--debug`` flag,
 you have access to functions and variables in which you can break or print with.
 
-The CI builds the Emscripten target and tests it with pinned ``hypc-js`` bindings.
+The CI builds the Emscripten target and tests it with the ``hypc-js`` bindings at the commit the
+``deps/hypc-js`` submodule records. Dependabot proposes each new ``hypc-js`` commit on ``main``.
+To run the same tests locally, you need Node.js 22.12 or later. Run
+``git submodule update --init deps/hypc-js``, copy your ``hypjson.js`` into ``deps/hypc-js``, and
+run ``npm ci --ignore-scripts && npm test`` there.
 
 Continuous Integration and Releases
 -----------------------------------

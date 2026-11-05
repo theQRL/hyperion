@@ -153,13 +153,30 @@ if (("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MA
 			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s STRICT=1")
 			# Export the Emscripten-generated auxiliary methods which are needed by hypc-js.
 			# Which methods of libhypc itself are exported is specified in libhypc/CMakeLists.txt.
-			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s EXTRA_EXPORTED_RUNTIME_METHODS=['cwrap','addFunction','removeFunction','UTF8ToString','lengthBytesUTF8','stringToUTF8','setValue']")
+			# stackSave and stackRestore let hypc-js put the wasm stack pointer back after a
+			# JavaScript exception has unwound through the compiler (CIPH-HYPERION-16); Emscripten
+			# 3.1.19 happens to expose them anyway, later versions only when asked.
+			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s EXTRA_EXPORTED_RUNTIME_METHODS=['cwrap','addFunction','removeFunction','UTF8ToString','lengthBytesUTF8','stringToUTF8','setValue','stackSave','stackRestore']")
 			# Build for webassembly target.
 			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s WASM=1")
 			# Set webassembly build to synchronous loading.
 			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s WASM_ASYNC_COMPILATION=0")
 			# Allow new functions to be added to the wasm module via addFunction.
 			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s ALLOW_TABLE_GROWTH=1")
+			# Give the wasm stack 5 MB explicitly. That was Emscripten's default up to 3.1.26; from
+			# 3.1.27 the default is 64 KB, which the compiler's recursion would exhaust at once.
+			# The setting was called TOTAL_STACK before 3.1.25, and STRICT=1 rejects the old name
+			# in newer versions.
+			if ("${EMSCRIPTEN_VERSION}" VERSION_LESS 3.1.25)
+				set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s TOTAL_STACK=5MB")
+			else()
+				set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s STACK_SIZE=5MB")
+			endif()
+			# Check the wasm stack pointer against the stack's limits whenever it is set, so that
+			# recursion that runs out of the 5 MB aborts instead of overwriting the memory below the
+			# stack (CIPH-HYPERION-16, CIPH-HYPERION-17). Level 1 only checks a cookie at the end of
+			# an event-loop tick, which a synchronous compilation never reaches.
+			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s STACK_OVERFLOW_CHECK=2")
 			# Disable warnings about not being pure asm.js due to memory growth.
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-almost-asm")
 		endif()

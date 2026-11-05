@@ -28,6 +28,27 @@
 using namespace hyperion;
 using namespace hyperion::langutil;
 
+namespace
+{
+
+// Each nesting level of an expression costs about five guarded calls, so natively this allows
+// roughly 240 nested parentheses or calls.
+//
+// The Emscripten build runs on the JavaScript engine's own stack, which V8 limits to about 1 MB,
+// and wasm code in V8's baseline tier uses large frames: with the 0.2.0 build, 140 nested
+// parentheses compiled but 160 (about 800 guarded calls) exhausted that stack, and nested calls
+// failed between 100 and 140, all far short of 1200. The RangeError V8 throws then unwinds
+// through the compiler without running a single destructor (CIPH-HYPERION-16). The lower limit
+// keeps the parser inside the stack by a factor of two, with room for the passes that recurse
+// over the resulting AST afterwards and for the frames of whatever called the compiler.
+#ifdef __EMSCRIPTEN__
+constexpr size_t maxRecursionDepth = 256;
+#else
+constexpr size_t maxRecursionDepth = 1200;
+#endif
+
+}
+
 SourceLocation ParserBase::currentLocation() const
 {
 	return m_scanner->currentLocation();
@@ -85,7 +106,7 @@ void ParserBase::expectToken(Token _value, bool _advance)
 void ParserBase::increaseRecursionDepth()
 {
 	m_recursionDepth++;
-	if (m_recursionDepth >= 1200)
+	if (m_recursionDepth >= maxRecursionDepth)
 		fatalParserError(7319_error, "Maximum recursion depth reached during parsing.");
 }
 

@@ -1,0 +1,4 @@
+[submodule "deps/hypc-js"]
+	path = deps/hypc-js
+	url = https://github.com/theQRL/hypc-js.git
+	branch = main

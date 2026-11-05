@@ -107,7 +107,8 @@ using namespace std::string_literals;
 
 using hyperion::util::errinfo_comment;
 
-static int g_compilerStackCounts = 0;
+/// The CompilerStack that is currently alive, if any.
+static CompilerStack const* g_liveCompilerStack = nullptr;
 
 CompilerStack::CompilerStack(ReadCallback::Callback _readFile):
 	m_readFile{std::move(_readFile)},
@@ -115,13 +116,27 @@ CompilerStack::CompilerStack(ReadCallback::Callback _readFile):
 {
 	// Because TypeProvider is currently a singleton API, we must ensure that
 	// no more than one entity is actually using it at a time.
-	hypAssert(g_compilerStackCounts == 0, "You shall not have another CompilerStack aside me.");
-	++g_compilerStackCounts;
+	hypAssert(g_liveCompilerStack == nullptr, "You shall not have another CompilerStack aside me.");
+	g_liveCompilerStack = this;
 }
 
 CompilerStack::~CompilerStack()
 {
-	--g_compilerStackCounts;
+	// An instance that discardAbandonedInstance() has forgotten leaves the TypeProvider to the
+	// instances that came after it.
+	if (g_liveCompilerStack != this)
+		return;
+	g_liveCompilerStack = nullptr;
+	TypeProvider::reset();
+}
+
+void CompilerStack::discardAbandonedInstance()
+{
+	if (g_liveCompilerStack == nullptr)
+		return;
+	// Only the global state goes back to what the destructor would have left. The instance itself
+	// is never touched: its memory may be gone, or inconsistent, and its allocations are leaked.
+	g_liveCompilerStack = nullptr;
 	TypeProvider::reset();
 }
 

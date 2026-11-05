@@ -344,18 +344,23 @@ jobs:
           # setup-node 5 and later cache npm automatically when package.json names npm as its
           # package manager. This job builds a release asset, so it must not restore caches.
           package-manager-cache: false
+      # The deps/hypc-js submodule pins the hypc-js commit, so Dependabot proposes each new commit on
+      # hypc-js main. Only its commit is read here; the submodule itself is never initialised.
+      - name: Read the pinned hypc-js commit
+        id: hypcjs
+        run: echo "commit=$(git rev-parse HEAD:deps/hypc-js)" >> "$GITHUB_OUTPUT"
       - name: Check out JavaScript bindings
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: theQRL/hypc-js
-          ref: fdef38670119db396c558bd3bda87f64c4246fef
+          ref: ${{ steps.hypcjs.outputs.commit }}
           path: deps/hypc-js
           persist-credentials: false
       - name: Test this build with hypc-js
         run: |
           cp upload/hypjson.js deps/hypc-js/hypjson.js
           cd deps/hypc-js
-          npm ci
+          npm ci --ignore-scripts
           npm version --no-git-tag-version --allow-same-version "$(../../scripts/get_version.sh)"
           npm test
       - name: Generate bytecode comparison
