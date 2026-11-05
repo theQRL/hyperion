@@ -22,6 +22,7 @@
  */
 
 #include <libhypc/libhypc.h>
+#include <libhyperion/interface/CompilerStack.h>
 #include <libhyperion/interface/StandardCompiler.h>
 #include <libhyperion/interface/Version.h>
 #include <libyul/YulString.h>
@@ -160,5 +161,11 @@ extern void hyperion_reset() noexcept
 	// can be freed here.
 	yul::YulStringRepository::reset();
 	hyperionAllocations.clear();
+	// A JavaScript exception that unwinds through the Emscripten build skips the destructors of the
+	// compilation it interrupts, which leaves that compilation's CompilerStack registered as the
+	// live one and makes every later hyperion_compile() fail with "You shall not have another
+	// CompilerStack aside me." No compilation is in progress when this function may be called, so
+	// the abandoned one's traces can go.
+	frontend::CompilerStack::discardAbandonedInstance();
 }
 }

@@ -94,6 +94,11 @@ char* hyperion_compile(char const* _input, CStyleReadFileCallback _readCallback,
 ///
 /// NOTE: the pointer returned by hyperion_compile as well as any other pointer retrieved via hyperion_alloc()
 /// is invalid after calling this!
+///
+/// This also discards the state of a compilation that was abandoned without the compiler's cleanup
+/// running, as happens when a JavaScript exception unwinds through the Emscripten build. Until then,
+/// every call to hyperion_compile() fails with an internal error about another CompilerStack.
+/// Call it between compilations only, never from within a callback.
 void hyperion_reset() HYPC_NOEXCEPT;
 
 #ifdef __cplusplus

@@ -28,6 +28,8 @@ At least a day before the release:
  - [ ] Rerun CI on the top commits of main branches in all repositories that do not have daily activity by creating a test branch or PR:
       - [ ] ``hypc-js``
       - [ ] ``hypc-bin`` (make sure the bytecode comparison check did run)
+ - [ ] Check that the ``deps/hypc-js`` submodule records the latest commit on ``hypc-js`` ``main``, and merge or create the pull request that moves it if not.
+       The ``hypc-js`` tests in CI, which gate the release, run at that commit.
  - [ ] (Optional) Create a prerelease in our Ubuntu PPA by following the steps in the PPA section below on ``develop`` rather than on a tag.
        This is recommended especially when dealing with PPA for the first time, when we add a new Ubuntu version or when the PPA scripts were modified in this release cycle.
  - [ ] Verify that the release tarball of ``hypc-js`` works.

@@ -24,3 +24,14 @@ updates:
       default-days: 7
     commit-message:
       prefix: "ci"
+
+  # The hypc-js commit whose tests run against each WebAssembly build (deps/hypc-js, tracking main;
+  # the emscripten job in ci.yml checks it out).
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "ci"

@@ -229,7 +229,7 @@ Verifying Release Binaries
 Every release on the `Hyperion release page on Github`_ ships a ``SHA256SUMS`` file. Releases
 published after version 0.2.0 also carry a signed build-provenance attestation for each asset,
 which binds the file to the GitHub Actions run and the tagged commit that produced it. To check a
-downloaded binary with the `GitHub CLI <https://cli.github.com>`_:
+downloaded binary with the `GitHub CLI <https://cli.github.com>`_ 2.102.0 or later:
 
 .. code-block:: bash
 
@@ -239,6 +239,9 @@ downloaded binary with the `GitHub CLI <https://cli.github.com>`_:
 
 The first command fails unless the file was built by the ``theQRL/hyperion`` release workflow,
 ``.github/workflows/ci.yml``. An attestation signed by any other workflow in the repository is rejected.
+GitHub CLI 2.51.0 to 2.101.0 do not give that guarantee: they treat ``--signer-workflow`` as a prefix
+and accept an attestation from any workflow whose path begins with ``ci.yml``
+(`GHSA-wjmr-j3rp-mh2g <https://github.com/cli/cli/security/advisories/GHSA-wjmr-j3rp-mh2g>`_).
 Releases up to and including 0.2.0 can only be checked against ``SHA256SUMS``.
 
 The ``hypc-bin`` repository contains several top-level directories, each representing a single platform.

@@ -23,6 +23,7 @@
 #include <string>
 #include <boost/test/unit_test.hpp>
 #include <libhyputil/JSON.h>
+#include <libhyperion/interface/CompilerStack.h>
 #include <libhyperion/interface/ReadFile.h>
 #include <libhyperion/interface/Version.h>
 #include <libhypc/libhypc.h>
@@ -189,6 +190,57 @@ BOOST_AUTO_TEST_CASE(with_callback)
 
 	// This should be placed due to the missing "notfound.hyp" which sets both pointers to null.
 	BOOST_CHECK(containsError(result, "ParserError", "Source \"notfound.hyp\" not found: Callback not supported."));
+}
+
+BOOST_AUTO_TEST_CASE(reset_discards_an_abandoned_compilation)
+{
+	char const* input = R"(
+	{
+		"language": "Hyperion",
+		"sources": {
+			"fileA": {
+				"content": "contract A { }"
+			}
+		}
+	}
+	)";
+
+	auto hasInternalError = [](Json::Value const& _result, std::string const& _messagePart)
+	{
+		if (!_result.isMember("errors"))
+			return false;
+		for (auto const& error: _result["errors"])
+			if (
+				error["type"].asString() == "InternalCompilerError" &&
+				error["message"].asString().find(_messagePart) != std::string::npos
+			)
+				return true;
+		return false;
+	};
+
+	// In the Emscripten build, a JavaScript exception that unwinds through the compiler skips every
+	// C++ destructor, so the CompilerStack of the interrupted compilation stays registered as the
+	// live one. An instance that is not destroyed until the end stands in for it here.
+	auto* abandoned = new CompilerStack();
+
+	char* outputPtr = hyperion_compile(input, nullptr, nullptr);
+	std::string output(outputPtr);
+	hyperion_free(outputPtr);
+	Json::Value result;
+	BOOST_REQUIRE(util::jsonParseStrict(output, result));
+	BOOST_CHECK(hasInternalError(result, "You shall not have another CompilerStack aside me."));
+
+	hyperion_reset();
+
+	result = compile(input);
+	BOOST_CHECK(!hasInternalError(result, ""));
+	BOOST_CHECK(result.isMember("sources"));
+
+	// The destructor of the abandoned instance must not disturb the compilations after it.
+	delete abandoned;
+	result = compile(input);
+	BOOST_CHECK(!hasInternalError(result, ""));
+	BOOST_CHECK(result.isMember("sources"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

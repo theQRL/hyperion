@@ -13,12 +13,15 @@ Important Bugfixes:
  * Yul Optimizer: Fix knowledge about storage/memory address relations going stale in the `DataFlowAnalyzer` after a variable is reassigned in Yul, which could cause `LoadResolver` to replace loads with outdated values and `EqualStoreEliminator` to remove needed stores (upstream SOL-2026-7).
 
 Bugfixes:
+ * C API: Make `hyperion_reset()` discard the state of a compilation that a JavaScript exception unwinding through the Emscripten build abandoned without running its destructors; until then every later `hyperion_compile()` failed with an internal error about another `CompilerStack` (CIPH-HYPERION-16).
  * Code Generator: Clean narrowed and wrapped integer arguments when widening them for `addmod` and `mulmod` in the legacy code generator.
  * Code Generator: Clean narrowed and wrapped integer arguments when widening them for call value and gas options in the legacy code generator.
  * Code Generator: Convert `mldsa87verify` and `xmssverify` arguments in evaluation order in the IR code generator, so a storage `bytes` argument is copied to memory before later arguments can modify it, as the legacy code generator and the SMTChecker already do.
+ * Parser: Lower the recursion limit in the Emscripten build from 1200 to 256 guarded calls (about 50 nested parentheses or calls), because deeper nesting exhausts the JavaScript engine's stack long before the native limit is reached, and the resulting `RangeError` left the compiler unusable for the rest of the process (CIPH-HYPERION-16).
  * SMTChecker: Model message values and account balances as full-word integers.
 
 Build System:
+ * Emscripten: Set the wasm stack size to 5 MB explicitly (the default up to Emscripten 3.1.26, 64 KB from 3.1.27) and check the stack pointer on every assignment (`STACK_OVERFLOW_CHECK=2`), so that recursion which exhausts the stack aborts instead of corrupting memory (CIPH-HYPERION-16, CIPH-HYPERION-17). Export `stackSave` and `stackRestore`, which hypc-js uses to put the stack pointer back after an exception has unwound through the compiler.
  * Tests: Re-enable 47 Zond semantic regressions, extend dual-pipeline coverage, require explanations for single-pipeline fixtures, and report excluded tests as skipped. Add differential integer cleanup tests for every supported width and 512-bit opcode boundaries (CIPH-HYPERION-13).
  * Build with current Apple toolchains (Apple Clang 21, libc++ 22), Boost 1.88+ (Boost.Process v1 headers) and Boost 1.89+ (no compiled Boost.System library).
  * Raise the macOS deployment target from 10.14 to 11.0, the lowest that libc++ 22 supports. The released `hypc-macos` binary requires macOS 11 or later.
