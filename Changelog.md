@@ -26,10 +26,11 @@ Bugfixes:
  * Code Generator: Convert `mldsa87verify` and `xmssverify` arguments in evaluation order in the IR code generator, so a storage `bytes` argument is copied to memory before later arguments can modify it, as the legacy code generator and the SMTChecker already do.
  * Code Generator: Fix constants read in both checked and `unchecked` contexts within one contract getting the checked or unchecked semantics of whichever read the IR code generator generated first, which could remove a required overflow panic or introduce a spurious one (CIPH-HYPERION-6).
  * Commandline Interface: Do not allow imports from the working directory by default when it is the root of the filesystem, which made every readable file importable when no base path was given (CIPH-HYPERION-20).
- * Commandline Interface: Report stack too deep errors from the IR pipeline as ordinary errors that point to the source location where the stack limit was hit, instead of printing diagnostic information meant for internal compiler errors and exiting with code 2.
+ * Commandline Interface: Report stack too deep errors from the IR pipeline and from `--strict-assembly` as ordinary errors that point to the source location where the stack limit was hit, instead of printing diagnostic information meant for internal compiler errors and exiting with code 2.
  * Gas Estimator: Report infinite gas instead of an underestimate for `LOG` data lengths and call gas arguments that do not fit in 256 bits (CIPH-HYPERION-35).
  * Parser: Lower the recursion limit in the Emscripten build from 1200 to 256 guarded calls (about 50 nested parentheses or calls), because deeper nesting exhausts the JavaScript engine's stack long before the native limit is reached, and the resulting `RangeError` left the compiler unusable for the rest of the process (CIPH-HYPERION-16).
  * SMTChecker: Model message values and account balances as full-word integers.
+ * Standard JSON Interface: Report stack too deep errors in Yul mode as errors with a source location instead of as internal compiler errors.
  * Yul Optimizer: Fix incorrect removal of `returndatacopy()` operations referencing a stale result of `returndatasize()` (CIPH-HYPERION-8).
 
 Build System:

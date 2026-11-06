@@ -304,7 +304,7 @@ void OptimizedQRVMCodeTransform::createStackLayout(std::shared_ptr<DebugData con
 						varName,
 						deficit,
 						msg
-					));
+					) << langutil::errinfo_sourceLocation(sourceLocation));
 					m_assembly.markAsInvalid();
 					m_assembly.appendConstant(u256(0xCAFFEE));
 					return;

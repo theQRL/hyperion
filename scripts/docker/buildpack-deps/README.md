@@ -4,10 +4,13 @@ GitHub Actions uses the pinned Linux and Emscripten images declared in
 `.github/workflows/linux.yml` and `.github/workflows/ci.yml`. The Emscripten
 image digest must also match `scripts/build_emscripten.sh` for local builds.
 
-The Linux images are Solidity's `solbuildpackpusher/solidity-buildpack-deps`
-images, pinned by digest and built from Solidity's own Dockerfiles. This
-repository has no Dockerfiles for them. They contain no QRVM engine, so Linux
-jobs build the pinned QRVM test engine themselves.
+The AMD64 Linux jobs use Solidity's `solbuildpackpusher/solidity-buildpack-deps`
+images, pinned by digest and built from Solidity's own Dockerfiles. They include
+Boost and Z3. The ARM64 jobs use Docker's official `buildpack-deps:jammy` image,
+also pinned by digest. For ARM64, `linux.yml` installs Boost and the build tools
+with apt and builds Z3 with `scripts/ci/build_z3.sh`. This repository has no
+Dockerfiles for any of the Linux images. None of them contains a QRVM engine, so
+every Linux job builds the pinned QRVM test engine itself.
 
 The Dockerfiles in this directory document how to rebuild the Emscripten image
 and the OSS-Fuzz image. Image publishing is a separate maintainer operation;

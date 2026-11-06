@@ -1580,7 +1580,21 @@ Json::Value StandardCompiler::compileYul(InputsAndSettings _inputsAndSettings)
 
 	MachineAssemblyObject object;
 	MachineAssemblyObject deployedObject;
-	std::tie(object, deployedObject) = stack.assembleWithDeployed();
+	try
+	{
+		std::tie(object, deployedObject) = stack.assembleWithDeployed();
+	}
+	catch (yul::StackTooDeepError const& _exception)
+	{
+		output["errors"].append(formatErrorWithException(
+			stack,
+			_exception,
+			Error::Type::YulException,
+			"general",
+			"" // No prefix needed. These messages already say it's a "stack too deep" error.
+		));
+		return output;
+	}
 
 	if (object.bytecode)
 		object.bytecode->link(_inputsAndSettings.libraries);

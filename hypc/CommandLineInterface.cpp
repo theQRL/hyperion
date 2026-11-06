@@ -1271,7 +1271,20 @@ void CommandLineInterface::assembleYul(yul::YulStack::Language _language, yul::Y
 		}
 
 		yul::MachineAssemblyObject object;
-		object = stack.assemble(_targetMachine);
+		try
+		{
+			object = stack.assemble(_targetMachine);
+		}
+		catch (yul::StackTooDeepError const& _exception)
+		{
+			m_hasOutput = true;
+			SourceReferenceFormatter formatter(serr(false), stack, coloredOutput(m_options), m_options.formatting.withErrorIds);
+			formatter.printExceptionInformation(
+				_exception,
+				Error::errorSeverity(Error::Type::YulException)
+			);
+			hypThrow(CommandLineExecutionError, "");
+		}
 		object.bytecode->link(m_options.linker.libraries);
 
 		if (m_options.compiler.outputs.binary)
