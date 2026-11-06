@@ -1121,18 +1121,17 @@ ASTPointer<IdentifierPath> Parser::parseIdentifierPath()
 	return nodeFactory.createNode<IdentifierPath>(identifierPath, identifierPathLocations);
 }
 
-ASTPointer<TypeName> Parser::parseTypeNameSuffix(ASTPointer<TypeName> type, ASTNodeFactory& nodeFactory)
+ASTPointer<TypeName> Parser::parseTypeNameSuffix(ASTPointer<TypeName> type, ASTNodeFactory& nodeFactory, NestingGuard& _nestingGuard)
 {
 	RecursionGuard recursionGuard(*this);
-	// Every array suffix nests the type one level deeper.
-	NestingGuard nestingGuard(*this);
+	// Every array suffix nests the type one level deeper, above the base type parsed before.
 	while (m_scanner->currentToken() == Token::LBrack)
 	{
-		nestingGuard.addLevel();
+		_nestingGuard.addLevel();
 		advance();
 		ASTPointer<Expression> length;
 		if (m_scanner->currentToken() != Token::RBrack)
-			length = nestingGuard.parseBranch([&]() { return parseExpression(); });
+			length = _nestingGuard.parseBranch([&]() { return parseExpression(); });
 		nodeFactory.markEndPosition();
 		expectToken(Token::RBrack);
 		type = nodeFactory.createNode<ArrayTypeName>(type, length);
@@ -1144,6 +1143,8 @@ ASTPointer<TypeName> Parser::parseTypeName()
 {
 	RecursionGuard recursionGuard(*this);
 	ASTNodeFactory nodeFactory(*this);
+	// The base type ends up below every array suffix that follows it, see NestingGuard.
+	NestingGuard nestingGuard(*this);
 	ASTPointer<TypeName> type;
 	Token token = m_scanner->currentToken();
 	if (TokenTraits::isElementaryTypeName(token))
@@ -1174,17 +1175,17 @@ ASTPointer<TypeName> Parser::parseTypeName()
 		type = nodeFactory.createNode<ElementaryTypeName>(elemTypeName, stateMutability);
 	}
 	else if (token == Token::Function)
-		type = parseFunctionType();
+		type = nestingGuard.parseBase([&]() { return parseFunctionType(); });
 	else if (token == Token::Mapping)
-		type = parseMapping();
+		type = nestingGuard.parseBase([&]() { return parseMapping(); });
 	else if (token == Token::Identifier)
-		type = parseUserDefinedTypeName();
+		type = nestingGuard.parseBase([&]() { return parseUserDefinedTypeName(); });
 	else
 		fatalParserError(3546_error, "Expected type name");
 
 	hypAssert(type, "");
 	// Parse "[...]" postfixes for arrays.
-	type = parseTypeNameSuffix(type, nodeFactory);
+	type = parseTypeNameSuffix(type, nodeFactory, nestingGuard);
 
 	return type;
 }
@@ -1543,19 +1544,23 @@ ASTPointer<EmitStatement> Parser::parseEmitStatement(ASTPointer<ASTString> const
 	if (m_scanner->currentToken() != Token::Identifier)
 		fatalParserError(5620_error, "Expected event name or path.");
 
+	// The path becomes a chain of member accesses below the call node, see NestingGuard.
 	IndexAccessedPath iap;
-	while (true)
+	NestingGuard nestingGuard(*this);
+	iap.path.push_back(nestingGuard.parseBase([&]() { return parseIdentifier(); }));
+	while (m_scanner->currentToken() == Token::Period)
 	{
-		iap.path.push_back(parseIdentifier());
-		if (m_scanner->currentToken() != Token::Period)
-			break;
+		nestingGuard.addLevel();
 		advance();
+		iap.path.push_back(parseIdentifier());
 	}
 
 	auto eventName = expressionFromIndexAccessStructure(iap);
+	m_lookaheadChainNesting.reset();
 	expectToken(Token::LParen);
 
-	auto functionCallArguments = parseFunctionCallArguments();
+	nestingGuard.addLevel();
+	auto functionCallArguments = nestingGuard.parseBranch([&]() { return parseFunctionCallArguments(); });
 	eventCallNodeFactory.markEndPosition();
 	nodeFactory.markEndPosition();
 	expectToken(Token::RParen);
@@ -1577,19 +1582,23 @@ ASTPointer<RevertStatement> Parser::parseRevertStatement(ASTPointer<ASTString> c
 
 	hypAssert(m_scanner->currentToken() == Token::Identifier, "");
 
+	// The path becomes a chain of member accesses below the call node, see NestingGuard.
 	IndexAccessedPath iap;
-	while (true)
+	NestingGuard nestingGuard(*this);
+	iap.path.push_back(nestingGuard.parseBase([&]() { return parseIdentifier(); }));
+	while (m_scanner->currentToken() == Token::Period)
 	{
-		iap.path.push_back(parseIdentifier());
-		if (m_scanner->currentToken() != Token::Period)
-			break;
+		nestingGuard.addLevel();
 		advance();
+		iap.path.push_back(parseIdentifier());
 	}
 
 	auto errorName = expressionFromIndexAccessStructure(iap);
+	m_lookaheadChainNesting.reset();
 	expectToken(Token::LParen);
 
-	auto functionCallArguments = parseFunctionCallArguments();
+	nestingGuard.addLevel();
+	auto functionCallArguments = nestingGuard.parseBranch([&]() { return parseFunctionCallArguments(); });
 	errorCallNodeFactory.markEndPosition();
 	nodeFactory.markEndPosition();
 	expectToken(Token::RParen);
@@ -1650,19 +1659,24 @@ ASTPointer<Statement> Parser::parseSimpleStatement(ASTPointer<ASTString> const& 
 		}
 		case LookAheadInfo::Expression:
 		{
-			// Complete parsing the expression in the current component.
+			// Complete parsing the expression in the current component. The tuple becomes the base of
+			// the chain that parseLeftHandSideExpression continues, so its depth is handed over.
+			NestingGuard nestingGuard(*this);
 			std::vector<ASTPointer<Expression>> components(emptyComponents, nullptr);
-			components.push_back(parseExpression(expressionFromIndexAccessStructure(iap)));
-			while (m_scanner->currentToken() != Token::RParen)
-			{
-				expectToken(Token::Comma);
-				if (m_scanner->currentToken() == Token::Comma || m_scanner->currentToken() == Token::RParen)
-					components.push_back(ASTPointer<Expression>());
-				else
-					components.push_back(parseExpression());
-			}
+			nestingGuard.parseBase([&]() {
+				components.push_back(parseExpression(expressionFromIndexAccessStructure(iap)));
+				while (m_scanner->currentToken() != Token::RParen)
+				{
+					expectToken(Token::Comma);
+					if (m_scanner->currentToken() == Token::Comma || m_scanner->currentToken() == Token::RParen)
+						components.push_back(ASTPointer<Expression>());
+					else
+						components.push_back(parseExpression());
+				}
+			});
 			nodeFactory.markEndPosition();
 			expectToken(Token::RParen);
+			m_lookaheadChainNesting = std::make_pair(size_t(0), nestingGuard.absoluteDeepestBranch());
 			return parseExpressionStatement(_docString, nodeFactory.createNode<TupleExpression>(components, false));
 		}
 		default:
@@ -1864,13 +1878,24 @@ ASTPointer<Expression> Parser::parseLeftHandSideExpression(
 	ASTNodeFactory nodeFactory = _partiallyParsedExpression ?
 		ASTNodeFactory(*this, _partiallyParsedExpression) : ASTNodeFactory(*this);
 
+	// Every member access, index access, call and call option nests the expression one level
+	// deeper, above the primary expression it starts from. A chain parsed ahead to tell a
+	// declaration from an expression is continued here.
+	NestingGuard nestingGuard(*this);
 	ASTPointer<Expression> expression;
 	if (_partiallyParsedExpression)
+	{
 		expression = _partiallyParsedExpression;
+		if (m_lookaheadChainNesting)
+		{
+			nestingGuard.adopt(m_lookaheadChainNesting->first, m_lookaheadChainNesting->second);
+			m_lookaheadChainNesting.reset();
+		}
+	}
 	else if (m_scanner->currentToken() == Token::New)
 	{
 		expectToken(Token::New);
-		ASTPointer<TypeName> typeName(parseTypeName());
+		ASTPointer<TypeName> typeName = nestingGuard.parseBase([&]() { return parseTypeName(); });
 		nodeFactory.setEndPositionFromNode(typeName);
 		expression = nodeFactory.createNode<NewExpression>(typeName);
 	}
@@ -1886,16 +1911,8 @@ ASTPointer<Expression> Parser::parseLeftHandSideExpression(
 		expectToken(Token::LParen, false);
 	}
 	else
-		expression = parsePrimaryExpression();
+		expression = nestingGuard.parseBase([&]() { return parsePrimaryExpression(); });
 
-	// Every member access, index access, call and call option nests the expression one level
-	// deeper. A chain parsed ahead to tell a declaration from an expression is continued here.
-	NestingGuard nestingGuard(*this);
-	if (_partiallyParsedExpression && m_lookaheadChainNesting)
-	{
-		nestingGuard.adopt(m_lookaheadChainNesting->first, m_lookaheadChainNesting->second);
-		m_lookaheadChainNesting.reset();
-	}
 	while (true)
 	{
 		switch (m_scanner->currentToken())
@@ -2294,7 +2311,7 @@ Parser::IndexAccessedPath Parser::parseIndexAccessedPath()
 	NestingGuard nestingGuard(*this);
 	if (m_scanner->currentToken() == Token::Identifier)
 	{
-		iap.path.push_back(parseIdentifier());
+		iap.path.push_back(nestingGuard.parseBase([&]() { return parseIdentifier(); }));
 		while (m_scanner->currentToken() == Token::Period)
 		{
 			nestingGuard.addLevel();
@@ -2339,7 +2356,7 @@ Parser::IndexAccessedPath Parser::parseIndexAccessedPath()
 		}
 	}
 	iap.chainLinks = nestingGuard.links();
-	iap.chainDeepestBranch = nestingGuard.deepestBranch();
+	iap.chainAbsoluteDeepestBranch = nestingGuard.absoluteDeepestBranch();
 
 	return iap;
 }
@@ -2415,7 +2432,7 @@ ASTPointer<Expression> Parser::expressionFromIndexAccessStructure(
 		else
 			expression = nodeFactory.createNode<IndexAccess>(expression, index.start);
 	}
-	m_lookaheadChainNesting = std::make_pair(_iap.chainLinks, _iap.chainDeepestBranch);
+	m_lookaheadChainNesting = std::make_pair(_iap.chainLinks, _iap.chainAbsoluteDeepestBranch);
 	return expression;
 }
 

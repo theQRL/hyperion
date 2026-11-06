@@ -28,6 +28,8 @@
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <type_traits>
+#include <utility>
 
 namespace hyperion::langutil
 {
@@ -81,41 +83,73 @@ protected:
 			++m_links;
 			check();
 		}
+		/// Parses the node the chain starts from with @a _parse, before any node is added, and
+		/// accounts for its depth: it ends up below every node of the chain.
+		template<typename Parse>
+		auto parseBase(Parse&& _parse)
+		{
+			return parseBelow(1, std::forward<Parse>(_parse));
+		}
 		/// Parses a branch of the chain's newest node with @a _parse and accounts for its depth.
 		template<typename Parse>
 		auto parseBranch(Parse&& _parse)
 		{
-			size_t const outerWatermark = m_parser.m_recursionDepthWatermark;
-			m_parser.m_recursionDepthWatermark = m_parser.m_recursionDepth;
-			auto result = _parse();
-			size_t const branchDepth = m_parser.m_recursionDepthWatermark - m_entryDepth;
-			m_parser.m_recursionDepthWatermark = std::max(outerWatermark, m_parser.m_recursionDepthWatermark);
-			// Once the chain has n nodes, the branch of node j sits (n - j + 1) levels below the
-			// root plus its own depth. The part that does not depend on n is kept here, and check()
-			// adds the number of nodes so far.
-			m_deepestBranch = std::max(
-				m_deepestBranch,
-				static_cast<std::ptrdiff_t>(branchDepth) + 1 - static_cast<std::ptrdiff_t>(m_links)
-			);
-			check();
-			return result;
+			return parseBelow(m_links, std::forward<Parse>(_parse));
 		}
-		/// Continues a chain whose first @a _links nodes were parsed ahead, with the branch
-		/// accounting @a _deepestBranch of the guard that parsed them.
-		void adopt(size_t _links, std::ptrdiff_t _deepestBranch)
+		/// Continues a chain whose first @a _links nodes were parsed ahead by a guard that reported
+		/// absoluteDeepestBranch() as @a _absoluteDeepestBranch. The hand-over is absolute because
+		/// this guard usually starts a few parser frames deeper than the one that parsed ahead,
+		/// while the tree is the same.
+		void adopt(size_t _links, std::ptrdiff_t _absoluteDeepestBranch)
 		{
 			m_links += _links;
-			m_deepestBranch = std::max(m_deepestBranch, _deepestBranch);
+			m_deepestBranch = std::max(m_deepestBranch, _absoluteDeepestBranch - static_cast<std::ptrdiff_t>(m_entryDepth));
 			check();
 		}
 		size_t links() const { return m_links; }
-		std::ptrdiff_t deepestBranch() const { return m_deepestBranch; }
+		/// The branch accounting as an absolute depth, for adopt().
+		std::ptrdiff_t absoluteDeepestBranch() const { return static_cast<std::ptrdiff_t>(m_entryDepth) + m_deepestBranch; }
 	private:
-		void check() const
+		/// Parses a subtree hanging below node @a _node of the chain (the base hangs below node 1)
+		/// and keeps the part of its final depth that does not depend on the chain's length: once
+		/// the chain has n nodes, the subtree sits (n - _node + 1) levels below the root plus its
+		/// own depth, and check() adds n. The depth of the subtree is read from the watermark, which
+		/// also includes the chains nested inside it.
+		template<typename Parse>
+		auto parseBelow(size_t _node, Parse&& _parse)
 		{
-			m_parser.checkRecursionDepth(
-				m_entryDepth + m_links + static_cast<size_t>(std::max<std::ptrdiff_t>(m_deepestBranch, 0))
+			size_t const outerWatermark = m_parser.m_recursionDepthWatermark;
+			m_parser.m_recursionDepthWatermark = m_parser.m_recursionDepth;
+			if constexpr (std::is_void_v<std::invoke_result_t<Parse>>)
+			{
+				_parse();
+				accountSubtree(_node, outerWatermark);
+			}
+			else
+			{
+				auto result = _parse();
+				accountSubtree(_node, outerWatermark);
+				return result;
+			}
+		}
+		/// Records the depth of the subtree just parsed below node @a _node, read from the watermark,
+		/// and restores the watermark of the enclosing scope, @a _outerWatermark, into it.
+		void accountSubtree(size_t _node, size_t _outerWatermark)
+		{
+			size_t const depth = m_parser.m_recursionDepthWatermark - m_entryDepth;
+			m_parser.m_recursionDepthWatermark = std::max(_outerWatermark, m_parser.m_recursionDepthWatermark);
+			m_deepestBranch = std::max(
+				m_deepestBranch,
+				static_cast<std::ptrdiff_t>(depth) + 1 - static_cast<std::ptrdiff_t>(_node)
 			);
+			check();
+		}
+		void check()
+		{
+			size_t const depth = m_entryDepth + m_links + static_cast<size_t>(std::max<std::ptrdiff_t>(m_deepestBranch, 0));
+			m_parser.checkRecursionDepth(depth);
+			// A chain inside a branch of another chain adds to the depth of that branch.
+			m_parser.m_recursionDepthWatermark = std::max(m_parser.m_recursionDepthWatermark, depth);
 		}
 		ParserBase& m_parser;
 		size_t m_entryDepth;
