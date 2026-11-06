@@ -52,7 +52,10 @@ Bugs fixed in Solidity 0.8.23 or earlier need no decision, because Hyperion was 
 `docs/upstream_bugs_reviewed.json` records every decision, including each bug found not to affect Hyperion and, for a decision made after the 30 days, why it was late.
 A weekly CI job fails when any other entry in Solidity's list is missing from that record, or when its decision is still open 30 days after the announcement.
 
+The [release checklist][6] describes how a release is made and published, how each release updates both lists, and how the review of Solidity's bugs is checked before every release.
+
 
 [3]: docs/bugs.rst
 [4]: https://github.com/theQRL/hyperion/blob/main/docs/bugs_by_version.json
 [5]: https://github.com/argotorg/solidity/blob/develop/docs/bugs.json
+[6]: ReleaseChecklist.md

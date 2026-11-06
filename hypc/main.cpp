@@ -25,6 +25,8 @@
 
 #include <liblangutil/Exceptions.h>
 
+#include <libyul/Exceptions.h>
+
 #include <boost/exception/all.hpp>
 
 #include <iostream>
@@ -54,6 +56,12 @@ int main(int argc, char** argv)
 	catch (langutil::InternalCompilerError const& _exception)
 	{
 		std::cerr << "Internal compiler error:" << std::endl;
+		std::cerr << boost::diagnostic_information(_exception);
+		return 2;
+	}
+	catch (yul::YulAssertion const& _exception)
+	{
+		std::cerr << "Yul assertion failed:" << std::endl;
 		std::cerr << boost::diagnostic_information(_exception);
 		return 2;
 	}

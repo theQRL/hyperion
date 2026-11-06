@@ -1,0 +1,26 @@
+{
+    "errors":
+    [
+        {
+            "component": "general",
+            "formattedMessage": "YulException: Cannot swap Variable a0 with Variable a17: too deep in the stack by 1 slots in [ a0 a16 a15 a14 a13 a12 a11 a10 a9 a8 a7 a6 a5 a4 a3 a2 a1 a17 ]
+No memoryguard was present. Consider using memory-safe assembly only and annotating it via 'assembly (\"memory-safe\") { ... }'.
+  --> C:20:5:
+   |
+20 |     sstore(100, a0)
+   |     ^^^^^^^^^^^^^^^
+
+",
+            "message": "Cannot swap Variable a0 with Variable a17: too deep in the stack by 1 slots in [ a0 a16 a15 a14 a13 a12 a11 a10 a9 a8 a7 a6 a5 a4 a3 a2 a1 a17 ]
+No memoryguard was present. Consider using memory-safe assembly only and annotating it via 'assembly (\"memory-safe\") { ... }'.",
+            "severity": "error",
+            "sourceLocation":
+            {
+                "end": 451,
+                "file": "C",
+                "start": 436
+            },
+            "type": "YulException"
+        }
+    ]
+}

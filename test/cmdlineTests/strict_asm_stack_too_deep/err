@@ -1,0 +1,6 @@
+Error: Variable a17 is 1 too deep in the stack [ a9 a17 a2 a10 a4 a14 a16 a11 a8 a7 a16 a0 a3 a1 a13 a2 a15 a8 ]
+No memoryguard was present. Consider using memory-safe assembly only and annotating it via 'assembly ("memory-safe") { ... }'.
+  --> strict_asm_stack_too_deep/input.yul:17:17:
+   |
+17 |     sstore(101, add(a15, a8))
+   |                 ^^^^^^^^^^^^

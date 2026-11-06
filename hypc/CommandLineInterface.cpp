@@ -925,12 +925,22 @@ void CommandLineInterface::compile()
 		if (!successful)
 			hypThrow(CommandLineExecutionError, "");
 	}
+	// NOTE: This includes langutil::StackTooDeepError.
 	catch (CompilerError const& _exception)
 	{
 		m_hasOutput = true;
 		formatter.printExceptionInformation(
 			_exception,
 			Error::errorSeverity(Error::Type::CompilerError)
+		);
+		hypThrow(CommandLineExecutionError, "");
+	}
+	catch (yul::StackTooDeepError const& _exception)
+	{
+		m_hasOutput = true;
+		formatter.printExceptionInformation(
+			_exception,
+			Error::errorSeverity(Error::Type::YulException)
 		);
 		hypThrow(CommandLineExecutionError, "");
 	}
@@ -1261,7 +1271,20 @@ void CommandLineInterface::assembleYul(yul::YulStack::Language _language, yul::Y
 		}
 
 		yul::MachineAssemblyObject object;
-		object = stack.assemble(_targetMachine);
+		try
+		{
+			object = stack.assemble(_targetMachine);
+		}
+		catch (yul::StackTooDeepError const& _exception)
+		{
+			m_hasOutput = true;
+			SourceReferenceFormatter formatter(serr(false), stack, coloredOutput(m_options), m_options.formatting.withErrorIds);
+			formatter.printExceptionInformation(
+				_exception,
+				Error::errorSeverity(Error::Type::YulException)
+			);
+			hypThrow(CommandLineExecutionError, "");
+		}
 		object.bytecode->link(m_options.linker.libraries);
 
 		if (m_options.compiler.outputs.binary)
