@@ -1,0 +1,12 @@
+contract C {
+    struct S { S[] s; uint[] a; }
+    S st;
+    // 50 array suffixes and chains of 50 accesses stay within the recursion limit. The sizes are
+    // kept small enough for the AST round-trip script, whose jq rejects an AST nested deeper than
+    // about 128 objects.
+    uint[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] x;
+    function f() public view returns (uint) {
+        return st.s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].s[0].a.length;
+    }
+}
+// ----

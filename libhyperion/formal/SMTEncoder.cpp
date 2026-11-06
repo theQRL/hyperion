@@ -882,21 +882,11 @@ void SMTEncoder::visitCryptoFunction(FunctionCall const& _funCall)
 	{
 		auto const& digestArgument = *_funCall.arguments().at(0);
 		auto const& digestType = dynamic_cast<FixedBytesType const&>(*funType.parameterTypes().at(0));
-		// Convert literals to numbers and right-pad narrower fixed bytes, as in code generation.
-		auto digest = expr(digestArgument, &digestType);
+		// The type checker only accepts a digest of the parameter's width, so the conversion
+		// below only turns a 64-byte literal into a number.
 		if (auto const* argumentType = dynamic_cast<FixedBytesType const*>(digestArgument.annotation().type))
-		{
-			hypAssert(argumentType->numBytes() <= digestType.numBytes(), "");
-			unsigned const paddingBits = (digestType.numBytes() - argumentType->numBytes()) * 8;
-			if (paddingBits > 0)
-			{
-				unsigned const bitWidth = digestType.numBytes() * 8;
-				digest = smtutil::Expression::bv2int(
-					smtutil::Expression::int2bv(digest, bitWidth) <<
-					smtutil::Expression::int2bv(paddingBits, bitWidth)
-				);
-			}
-		}
+			hypAssert(argumentType->numBytes() == digestType.numBytes(), "");
+		auto digest = expr(digestArgument, &digestType);
 		auto e = state().cryptoFunction("mldsa87verify");
 		auto arg1 = expr(*_funCall.arguments().at(1));
 		auto arg2 = expr(*_funCall.arguments().at(2));

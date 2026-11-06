@@ -1,0 +1,15 @@
+contract C {
+    function f(bool c, bytes32 d, bytes64 w, bytes memory s) public pure returns (bool, bool, bool, bool, bool) {
+        return (
+            mldsa87verify(c ? d : w, s, s, s),
+            mldsa87verify(c ? w : bytes1("B"), s, s, s),
+            mldsa87verify((c ? w : (c ? d : w)), s, s, s),
+            mldsa87verify(c ? w : shake256(s), s, s, s),
+            mldsa87verify((c ? w : bytes64(d)), s, s, s)
+        );
+    }
+}
+// ----
+// TypeError 6941: (174-175): Invalid type for the digest argument of mldsa87verify. The implicit conversion from bytes32 to bytes64 would pad the digest with 32 zero bytes on the right, so a signature would have to cover the padded value. Pass a 64-byte value, such as the result of shake256(...), or convert explicitly with bytes64(...) if the padding is intended.
+// TypeError 6941: (225-236): Invalid type for the digest argument of mldsa87verify. The implicit conversion from bytes1 to bytes64 would pad the digest with 63 zero bytes on the right, so a signature would have to cover the padded value. Pass a 64-byte value, such as the result of shake256(...), or convert explicitly with bytes64(...) if the padding is intended.
+// TypeError 6941: (288-289): Invalid type for the digest argument of mldsa87verify. The implicit conversion from bytes32 to bytes64 would pad the digest with 32 zero bytes on the right, so a signature would have to cover the padded value. Pass a 64-byte value, such as the result of shake256(...), or convert explicitly with bytes64(...) if the padding is intended.

@@ -610,6 +610,81 @@ BOOST_AUTO_TEST_CASE(inline_asm_end_location)
 	BOOST_CHECK_MESSAGE(visitor.visited, "No inline asm block found?!");
 }
 
+BOOST_AUTO_TEST_CASE(nesting_of_chains_counts_tree_depth)
+{
+	// A chain of array suffixes or accesses is accounted for by the depth it gives the tree: a
+	// branch ends up below every node added after it. So the same 118-parenthesis length (about
+	// 590 levels) is rejected at the start of a chain of 700 array suffixes and accepted at its
+	// end, and likewise for an index read ahead to tell a declaration from an expression, whose
+	// chain parseLeftHandSideExpression continues.
+	std::string const deep = std::string(118, '(') + "1" + std::string(118, ')');
+	auto repeat = [](std::string const& _part, size_t _count) {
+		std::string result;
+		for (size_t i = 0; i < _count; ++i)
+			result += _part;
+		return result;
+	};
+	CHECK_PARSE_ERROR(
+		"contract C { uint[" + deep + "]" + repeat("[1]", 699) + " x; }",
+		"Maximum recursion depth reached during parsing."
+	);
+	BOOST_CHECK(successParse("contract C { uint" + repeat("[1]", 699) + "[" + deep + "] x; }"));
+	CHECK_PARSE_ERROR(
+		"contract C { function f() public { a[" + deep + "]" + repeat("[0]", 499) + ".b" + repeat("[0]", 200) + " = 1; } }",
+		"Maximum recursion depth reached during parsing."
+	);
+	BOOST_CHECK(successParse("contract C { function f() public { a" + repeat("[0]", 500) + ".b[" + deep + "] = 1; } }"));
+}
+
+BOOST_AUTO_TEST_CASE(nesting_of_chains_counts_base_and_nested_chains)
+{
+	std::string const deep = std::string(118, '(') + "x" + std::string(118, ')');
+	auto repeat = [](std::string const& _part, size_t _count) {
+		std::string result;
+		for (size_t i = 0; i < _count; ++i)
+			result += _part;
+		return result;
+	};
+	std::string const nestedMappings = repeat("mapping(uint => ", 150) + "uint" + repeat(")", 150);
+	std::string const memberChain = "b" + repeat(".c", 600);
+	// The node a chain starts from ends up below the whole chain: a parenthesised base, also
+	// when the statement starts with it, and a nested mapping type below its array suffixes.
+	CHECK_PARSE_ERROR(
+		"contract C { function f() public returns (uint) { return " + deep + repeat(".a", 700) + "; } }",
+		"Maximum recursion depth reached during parsing."
+	);
+	BOOST_CHECK(successParse("contract C { function f() public returns (uint) { return " + deep + repeat(".a", 400) + "; } }"));
+	CHECK_PARSE_ERROR(
+		"contract C { function f() public { " + deep + repeat(".a", 700) + " = 1; } }",
+		"Maximum recursion depth reached during parsing."
+	);
+	BOOST_CHECK(successParse("contract C { function f() public { " + deep + repeat(".a", 400) + " = 1; } }"));
+	CHECK_PARSE_ERROR(
+		"contract C { " + nestedMappings + repeat("[]", 1000) + " m; }",
+		"Maximum recursion depth reached during parsing."
+	);
+	BOOST_CHECK(successParse("contract C { " + nestedMappings + repeat("[]", 700) + " m; }"));
+	// A chain inside a branch adds to the depth of that branch; sibling branches do not add up.
+	CHECK_PARSE_ERROR(
+		"contract C { function f() public { a[" + memberChain + "]" + repeat("[0]", 700) + " = 1; } }",
+		"Maximum recursion depth reached during parsing."
+	);
+	BOOST_CHECK(successParse("contract C { function f() public { a[" + memberChain + "]" + repeat("[0]", 400) + " = 1; } }"));
+	BOOST_CHECK(successParse("contract C { function f() public { g(" + memberChain + ", y" + repeat(".c", 600) + "); } }"));
+	// The arguments of an emit or revert statement hang off the call node above the path, so a
+	// deep argument does not add to a long path, while the path itself is limited.
+	BOOST_CHECK(successParse("contract C { function f() public { emit E" + repeat(".e", 700) + "(" + deep + "); } }"));
+	BOOST_CHECK(successParse("contract C { function f() public { revert E" + repeat(".e", 700) + "(" + deep + "); } }"));
+	CHECK_PARSE_ERROR(
+		"contract C { function f() public { emit E" + repeat(".e", 1300) + "(); } }",
+		"Maximum recursion depth reached during parsing."
+	);
+	CHECK_PARSE_ERROR(
+		"contract C { function f() public { revert E" + repeat(".e", 1300) + "(); } }",
+		"Maximum recursion depth reached during parsing."
+	);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // end namespaces

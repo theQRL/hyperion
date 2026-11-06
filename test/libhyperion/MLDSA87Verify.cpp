@@ -44,11 +44,17 @@ public:
 	using QRVMHost::QRVMHost;
 	bytes output;
 	qrvmc_status_code status = QRVMC_SUCCESS;
+	size_t calls = 0;
 
+	/// Answers a call to the mldsa87verify precompile with @a output and @a status, counting it in
+	/// @a calls; everything else goes to the real host.
 	qrvmc::Result call(qrvmc_message const& _message) noexcept override
 	{
 		if (_message.recipient == qrvmc::address{3})
+		{
+			++calls;
 			return qrvmc::Result(status, status == QRVMC_SUCCESS ? _message.gas : 0, 0, output.data(), output.size());
+		}
 		return QRVMHost::call(_message);
 	}
 };
@@ -92,6 +98,43 @@ BOOST_AUTO_TEST_CASE(return_data_decoding)
 			callContractFunction("verify()");
 			BOOST_CHECK(!m_transactionSuccessful);
 			mock.status = QRVMC_SUCCESS;
+		}
+}
+
+BOOST_AUTO_TEST_CASE(malformed_frame_not_sent)
+{
+	// Arguments of the wrong length yield false without a call, since the precompile would
+	// charge its full gas for a frame it cannot parse.
+	auto host = std::make_unique<MLDSA87ReturnDataHost>(m_qrvmVersion, QRVMHost::getVM(m_vmPaths.front().string()));
+	auto& mock = *host;
+	m_qrvmcHost = std::move(host);
+	mock.output = bytes(64, 0);
+	mock.output.back() = 1;
+	for (bool viaIR: {false, true})
+		for (bool optimize: {false, true})
+		{
+			m_compileViaYul = viaIR;
+			m_optimiserSettings = optimize ? OptimiserSettings::full() : OptimiserSettings::minimal();
+			reset();
+			compileAndRun(R"(
+				contract C {
+					function verify(uint signatureLength, uint publicKeyLength, uint contextLength) public pure returns (bool) {
+						return mldsa87verify(bytes64(0), new bytes(signatureLength), new bytes(publicKeyLength), new bytes(contextLength));
+					}
+				}
+			)");
+			mock.calls = 0;
+			BOOST_CHECK(callContractFunction("verify(uint512,uint512,uint512)", u256(4627), u256(2592), u256(255)) == encode(true));
+			BOOST_CHECK_EQUAL(mock.calls, 1);
+			for (auto const& [signatureLength, publicKeyLength, contextLength]: std::vector<std::tuple<u256, u256, u256>>{
+				{4626, 2592, 0}, {4628, 2592, 0}, {4627, 2591, 0}, {4627, 2593, 0}, {4627, 2592, 256}, {0, 0, 0}
+			})
+			{
+				mock.calls = 0;
+				BOOST_CHECK(callContractFunction("verify(uint512,uint512,uint512)", signatureLength, publicKeyLength, contextLength) == encode(false));
+				BOOST_CHECK(m_transactionSuccessful);
+				BOOST_CHECK_EQUAL(mock.calls, 0);
+			}
 		}
 }
 

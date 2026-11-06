@@ -1173,6 +1173,15 @@ void CommandLineParser::processArgs()
 
 	parseInputPathsAndRemappings();
 
+	if (
+		m_options.input.mode == InputMode::QRVMAssemblerJSON &&
+		m_options.input.paths.size() + (m_options.input.addStdin ? 1 : 0) != 1
+	)
+		hypThrow(
+			CommandLineValidationError,
+			"Option --" + g_strImportQrvmAssemblerJson + " requires exactly one input file."
+		);
+
 	if (m_options.input.mode == InputMode::StandardJson)
 		return;
 

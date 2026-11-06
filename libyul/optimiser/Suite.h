@@ -48,6 +48,9 @@ class OptimiserSuite
 {
 public:
 	static constexpr size_t MaxRounds = 12;
+	/// Brackets in a step sequence can be nested at most this deep. Every level repeats its
+	/// content up to MaxRounds times, so the work grows exponentially with the depth.
+	static constexpr int8_t MaxBracketNestingDepth = 3;
 
 	/// Special characters that do not represent optimiser steps but are allowed in abbreviation sequences.
 	/// Some of them (like whitespace) are ignored, others (like brackets) are a part of the syntax.

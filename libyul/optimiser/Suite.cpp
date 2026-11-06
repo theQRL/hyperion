@@ -348,7 +348,11 @@ void OptimiserSuite::validateSequence(std::string_view _stepAbbreviations)
 		case '\n':
 			break;
 		case '[':
-			assertThrow(nestingLevel < std::numeric_limits<int8_t>::max(), OptimizerException, "Brackets nested too deep");
+			assertThrow(
+				nestingLevel < MaxBracketNestingDepth,
+				OptimizerException,
+				"Brackets nested too deep (at most " + std::to_string(MaxBracketNestingDepth) + " levels)"
+			);
 			nestingLevel++;
 			break;
 		case ']':
@@ -471,7 +475,9 @@ void OptimiserSuite::runSequence(std::string_view _stepAbbreviations, Block& _as
 			subsequences.push_back({subsequence, true});
 	}
 
-	size_t codeSize = 0;
+	// NOTE: If _repeatUntilStable is false, the value will not be used so do not calculate it.
+	size_t codeSize = (_repeatUntilStable ? CodeSize::codeSizeIncludingFunctions(_ast) : 0);
+
 	for (size_t round = 0; round < MaxRounds; ++round)
 	{
 		for (auto const& [subsequence, repeat]: subsequences)

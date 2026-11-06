@@ -106,7 +106,13 @@ void ParserBase::expectToken(Token _value, bool _advance)
 void ParserBase::increaseRecursionDepth()
 {
 	m_recursionDepth++;
-	if (m_recursionDepth >= maxRecursionDepth)
+	m_recursionDepthWatermark = std::max(m_recursionDepthWatermark, m_recursionDepth);
+	checkRecursionDepth(m_recursionDepth);
+}
+
+void ParserBase::checkRecursionDepth(size_t _depth)
+{
+	if (_depth >= maxRecursionDepth)
 		fatalParserError(7319_error, "Maximum recursion depth reached during parsing.");
 }
 

@@ -1,0 +1,19 @@
+contract C {
+    function f(bytes32 d, bytes1 b, bytes63 w, bytes memory s) public pure returns (bool, bool, bool, bool, bool, bool) {
+        return (
+            mldsa87verify(d, s, s, s),
+            mldsa87verify(b, s, s, s),
+            mldsa87verify(w, s, s, s),
+            mldsa87verify("B", s, s, s),
+            mldsa87verify(hex"42", s, s, s),
+            mldsa87verify("", s, s, s)
+        );
+    }
+}
+// ----
+// TypeError 6941: (178-179): Invalid type for the digest argument of mldsa87verify. The implicit conversion from bytes32 to bytes64 would pad the digest with 32 zero bytes on the right, so a signature would have to cover the padded value. Pass a 64-byte value, such as the result of shake256(...), or convert explicitly with bytes64(...) if the padding is intended.
+// TypeError 6941: (217-218): Invalid type for the digest argument of mldsa87verify. The implicit conversion from bytes1 to bytes64 would pad the digest with 63 zero bytes on the right, so a signature would have to cover the padded value. Pass a 64-byte value, such as the result of shake256(...), or convert explicitly with bytes64(...) if the padding is intended.
+// TypeError 6941: (256-257): Invalid type for the digest argument of mldsa87verify. The implicit conversion from bytes63 to bytes64 would pad the digest with 1 zero bytes on the right, so a signature would have to cover the padded value. Pass a 64-byte value, such as the result of shake256(...), or convert explicitly with bytes64(...) if the padding is intended.
+// TypeError 6941: (295-298): Invalid type for the digest argument of mldsa87verify. The implicit conversion from literal_string "B" to bytes64 would pad the digest with 63 zero bytes on the right, so a signature would have to cover the padded value. Pass a 64-byte value, such as the result of shake256(...), or convert explicitly with bytes64(...) if the padding is intended.
+// TypeError 6941: (336-343): Invalid type for the digest argument of mldsa87verify. The implicit conversion from literal_string "B" to bytes64 would pad the digest with 63 zero bytes on the right, so a signature would have to cover the padded value. Pass a 64-byte value, such as the result of shake256(...), or convert explicitly with bytes64(...) if the padding is intended.
+// TypeError 6941: (381-383): Invalid type for the digest argument of mldsa87verify. The implicit conversion from literal_string "" to bytes64 would pad the digest with 64 zero bytes on the right, so a signature would have to cover the padded value. Pass a 64-byte value, such as the result of shake256(...), or convert explicitly with bytes64(...) if the padding is intended.

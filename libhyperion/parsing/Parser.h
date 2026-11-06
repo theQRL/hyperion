@@ -117,7 +117,7 @@ private:
 	ASTPointer<Identifier> parseIdentifierOrAddress();
 	ASTPointer<UserDefinedTypeName> parseUserDefinedTypeName();
 	ASTPointer<IdentifierPath> parseIdentifierPath();
-	ASTPointer<TypeName> parseTypeNameSuffix(ASTPointer<TypeName> type, ASTNodeFactory& nodeFactory);
+	ASTPointer<TypeName> parseTypeNameSuffix(ASTPointer<TypeName> type, ASTNodeFactory& nodeFactory, NestingGuard& _nestingGuard);
 	ASTPointer<TypeName> parseTypeName();
 	ASTPointer<FunctionTypeName> parseFunctionType();
 	ASTPointer<Mapping> parseMapping();
@@ -190,6 +190,9 @@ private:
 		};
 		std::vector<ASTPointer<PrimaryExpression>> path;
 		std::vector<Index> indices;
+		/// Nesting accounting of the chain the path and indices form, see NestingGuard::adopt().
+		size_t chainLinks = 0;
+		std::ptrdiff_t chainAbsoluteDeepestBranch = 0;
 		bool empty() const;
 	};
 
@@ -228,6 +231,10 @@ private:
 
 	/// Flag that signifies whether '_' is parsed as a PlaceholderStatement or a regular identifier.
 	bool m_insideModifier = false;
+	/// Nesting accounting (links and absolute deepest branch, see NestingGuard::adopt()) of the
+	/// expression that was last parsed ahead of parseLeftHandSideExpression(), for it to continue from
+	/// when it is given that expression.
+	std::optional<std::pair<size_t, std::ptrdiff_t>> m_lookaheadChainNesting;
 	langutil::QRVMVersion m_qrvmVersion;
 	/// Counter for the next AST node ID
 	int64_t m_currentNodeID = 0;

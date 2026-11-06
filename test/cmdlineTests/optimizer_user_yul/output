@@ -42,6 +42,7 @@ tag_5:
     /* "optimizer_user_yul/input.hyp":263:269  a := 2 */
   swap1
   pop
+  0x00
     /* "optimizer_user_yul/input.hyp":369:370  3 */
   0x03
     /* "optimizer_user_yul/input.hyp":366:367  2 */
@@ -58,10 +59,18 @@ tag_6:
     /* "optimizer_user_yul/input.hyp":384:392  sload(5) */
   dup1
     /* "optimizer_user_yul/input.hyp":376:509  for { } sload(5) { } {... */
-  iszero
-  tag_6
+  tag_8
   jumpi
+    /* "optimizer_user_yul/input.hyp":495:504  exp(x, y) */
+  0x01
+    /* "optimizer_user_yul/input.hyp":490:504  z := exp(x, y) */
+  swap2
+  pop
+    /* "optimizer_user_yul/input.hyp":376:509  for { } sload(5) { } {... */
+  jump(tag_6)
+tag_8:
     /* "optimizer_user_yul/input.hyp":380:383  { } */
+  pop
   pop
     /* "optimizer_user_yul/input.hyp":340:513  {... */
   pop

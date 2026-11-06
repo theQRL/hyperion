@@ -273,6 +273,16 @@ BOOST_AUTO_TEST_CASE(imported_assembly_rejects_malformed_json_values)
 	checkImportFails("{\".code\":[{\"name\":\"tag\",\"value\":\"18446744073709551617\"},{\"name\":\"JUMPDEST\"}]}");
 }
 
+BOOST_AUTO_TEST_CASE(imported_assembly_rejects_tag_without_jumpdest)
+{
+	// A tag has to be followed by a JUMPDEST item, also when it is the last item of the root
+	// or of a subassembly.
+	checkImportFails("{\".code\":[{\"name\":\"tag\",\"value\":\"1\"}]}");
+	checkImportFails("{\".code\":[{\"name\":\"PUSH\",\"value\":\"0\"},{\"name\":\"tag\",\"value\":\"1\"}]}");
+	checkImportFails("{\".code\":[{\"name\":\"tag\",\"value\":\"1\"},{\"name\":\"PUSH\",\"value\":\"0\"}]}");
+	checkImportFails("{\".code\":[],\".data\":{\"0\":{\".code\":[{\"name\":\"tag\",\"value\":\"1\"}]}}}");
+}
+
 BOOST_AUTO_TEST_CASE(immutables_and_its_source_maps)
 {
 	QRVMVersion qrvmVersion= hyperion::test::CommonOptions::get().qrvmVersion();

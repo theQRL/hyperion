@@ -1,24 +1,16 @@
 contract C {
     function literals(bytes memory sig, bytes memory key, bytes memory ctx) public pure {
-        assert(mldsa87verify("a", sig, key, ctx) == mldsa87verify(bytes64("a"), sig, key, ctx));
-        assert(mldsa87verify("", sig, key, ctx) == mldsa87verify(bytes64(0), sig, key, ctx));
-        assert(mldsa87verify(hex"80ff", sig, key, ctx) == mldsa87verify(bytes64(hex"80ff"), sig, key, ctx));
-    }
-
-    function widened1(bytes1 digest, bytes memory sig, bytes memory key, bytes memory ctx) public pure {
-        assert(mldsa87verify(digest, sig, key, ctx) == mldsa87verify(bytes64(digest), sig, key, ctx));
+        assert(mldsa87verify(bytes64("a"), sig, key, ctx) == mldsa87verify(bytes64(bytes1("a")), sig, key, ctx));
+        assert(mldsa87verify(bytes64(hex"80ff"), sig, key, ctx) == mldsa87verify(bytes64(bytes2(hex"80ff")), sig, key, ctx));
     }
 
     function widened32(bytes32 digest, bytes memory sig, bytes memory key, bytes memory ctx) public pure {
-        assert(mldsa87verify(digest, sig, key, ctx) == mldsa87verify(bytes64(digest), sig, key, ctx));
-    }
-
-    function widened63(bytes63 digest, bytes memory sig, bytes memory key, bytes memory ctx) public pure {
-        assert(mldsa87verify(digest, sig, key, ctx) == mldsa87verify(bytes64(digest), sig, key, ctx));
+        // bytes64(bytesN) keeps the value left-aligned, bytes64(uint512) right-aligned.
+        assert(mldsa87verify(bytes64(digest), sig, key, ctx) == mldsa87verify(bytes64(uint512(uint256(digest)) << 256), sig, key, ctx));
     }
 
     function differentDigests(bytes memory sig, bytes memory key, bytes memory ctx) public pure {
-        bool first = mldsa87verify(bytes1(0x42), sig, key, ctx);
+        bool first = mldsa87verify(bytes64(bytes1(0x42)), sig, key, ctx);
         bool last = mldsa87verify(bytes64(uint512(0x42)), sig, key, ctx);
         // These put 0x42 at opposite ends of the digest, so equality is not guaranteed.
         assert(first == last);
@@ -28,5 +20,5 @@ contract C {
 // SMTEngine: bmc
 // SMTTargets: assert
 // ----
-// Warning 4661: (1393-1414): BMC: Assertion violation happens here.
-// Info 6002: BMC: 6 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.
+// Warning 4661: (1033-1054): BMC: Assertion violation happens here.
+// Info 6002: BMC: 3 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.

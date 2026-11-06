@@ -1,0 +1,21 @@
+contract C {
+    bytes publicKey;
+
+    function change(bytes memory recipient) internal returns (bytes memory) {
+        publicKey = hex"00";
+        return recipient;
+    }
+
+    function f(bytes memory pk, bytes memory recipient, bytes memory amount, bytes memory commitment, bytes memory signature) public returns (bytes32, bytes32, bytes32) {
+        publicKey = pk;
+        bytes32 beforeChange = depositroot(publicKey, recipient, amount, commitment, signature);
+        // Copy the storage public key before the withdrawal recipient argument overwrites it.
+        bytes32 duringChange = depositroot(publicKey, change(recipient), amount, commitment, signature);
+        assert(beforeChange == duringChange);
+        return (beforeChange, duringChange, depositroot(publicKey, recipient, amount, commitment, signature));
+    }
+}
+// ====
+// SMTEngine: chc
+// ----
+// Info 1391: CHC: 1 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.

@@ -1,0 +1,6 @@
+{
+    ".code": [
+        {"name": "PUSH", "value": "0"},
+        {"name": "tag", "value": "1"}
+    ]
+}

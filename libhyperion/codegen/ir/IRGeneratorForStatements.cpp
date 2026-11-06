@@ -954,7 +954,8 @@ bool IRGeneratorForStatements::visit(FunctionCall const& _functionCall)
 	auto const& functionType = dynamic_cast<FunctionType const&>(*_functionCall.expression().annotation().type);
 	if (
 		functionType.kind() != FunctionType::Kind::MLDSA87Verify &&
-		functionType.kind() != FunctionType::Kind::XMSSVerify
+		functionType.kind() != FunctionType::Kind::XMSSVerify &&
+		functionType.kind() != FunctionType::Kind::DepositRoot
 	)
 		return true;
 
@@ -988,11 +989,44 @@ bool IRGeneratorForStatements::visit(FunctionCall const& _functionCall)
 	hypAssert(!functionType.valueSet());
 	hypAssert(!functionType.gasSet());
 	hypAssert(!functionType.hasBoundFirstArgument());
+
+	if (functionType.kind() == FunctionType::Kind::DepositRoot)
+	{
+		hypAssert(convertedArguments.size() == 5);
+
+		// Calls the depositroot precompiled contract (address 1) with the five fields packed
+		// without padding and loads the 32-byte root left-aligned into a word.
+		Whiskers templ(R"(
+			let <pos> := <allocateUnbounded>()
+			let <end> := <encodeArgs>(<pos>, <arguments>)
+			mstore(0, 0)
+			let <success> := staticcall(gas(), <address>, <pos>, sub(<end>, <pos>), 0, <outputSize>)
+			if iszero(<success>) { <forwardingRevert>() }
+			if iszero(eq(returndatasize(), <outputSize>)) { revert(0, 0) }
+			let <retVars> := mload(0)
+		)");
+		templ("allocateUnbounded", m_utils.allocateUnboundedFunction());
+		templ("pos", m_context.newYulVariable());
+		templ("end", m_context.newYulVariable());
+		templ("encodeArgs", m_context.abiFunctions().tupleEncoderPacked(parameterTypes, parameterTypes));
+		templ("arguments", joinHumanReadable(convertedArguments | ranges::views::transform([](IRVariable const& _argument) {
+			return _argument.commaSeparatedList();
+		})));
+		templ("address", "1");
+		templ("outputSize", "32");
+		templ("success", m_context.newYulVariable());
+		templ("retVars", IRVariable(_functionCall).commaSeparatedList());
+		templ("forwardingRevert", m_utils.forwardingRevertFunction());
+
+		appendCode() << templ.render();
+		return false;
+	}
+
 	hypAssert(convertedArguments.size() == 3);
 
 	// Calls the xmssverify precompiled contract (address 7) with the packed input
 	//   uint32 message_length (big-endian) || message || signature || extended_pk
-	// and turns the returned word into a boolean.
+	// and, like mldsa87verify, maps exactly one word holding 1 to true.
 	// The precompiled contract delimits the key as the trailing 67 bytes of its input, so a
 	// key of any other length is rejected here (result false) instead of being packed:
 	// otherwise key bytes passed as part of the signature argument would produce the same
@@ -1006,7 +1040,7 @@ bool IRGeneratorForStatements::visit(FunctionCall const& _functionCall)
 			mstore(0, 0)
 			let <success> := staticcall(gas(), <address>, <pos>, sub(<end>, <pos>), 0, <wordSize>)
 			if iszero(<success>) { <forwardingRevert>() }
-			<retVars> := iszero(iszero(mload(0)))
+			<retVars> := and(eq(returndatasize(), <wordSize>), eq(mload(0), 1))
 		}
 	)");
 	templ("keySize", std::to_string(util::xmssExtendedPublicKeySize));
@@ -1703,9 +1737,9 @@ void IRGeneratorForStatements::endVisit(FunctionCall const& _functionCall)
 	}
 	case FunctionType::Kind::MLDSA87Verify:
 	case FunctionType::Kind::XMSSVerify:
+	case FunctionType::Kind::DepositRoot:
 		// Handled in visit(FunctionCall) to interleave argument evaluation and conversion.
 		break;
-	case FunctionType::Kind::DepositRoot:
 	case FunctionType::Kind::SHA256:
 	case FunctionType::Kind::SHAKE256:
 	{
@@ -1715,7 +1749,6 @@ void IRGeneratorForStatements::endVisit(FunctionCall const& _functionCall)
 		hypAssert(!functionType->hasBoundFirstArgument());
 
 		static std::map<FunctionType::Kind, std::tuple<unsigned, size_t, size_t>> precompiles = {
-			{FunctionType::Kind::DepositRoot, std::make_tuple(1, 0, 32)},
 			{FunctionType::Kind::SHA256, std::make_tuple(2, 0, 32)},
 			{FunctionType::Kind::SHAKE256, std::make_tuple(6, 0, 64)},
 		};

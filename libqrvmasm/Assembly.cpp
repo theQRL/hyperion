@@ -7221,8 +7221,11 @@ void Assembly::importAssemblyItemsFromJSON(Json::Value const& _code, std::vector
 			hypThrow(AssemblyImportException, "JUMPDEST instruction without a tag");
 		if (newItem.type() == AssemblyItemType::Tag)
 		{
+			// The tag item implies the JUMPDEST that follows it in the JSON, so that item is
+			// consumed here. A tag at the end of the array has no JUMPDEST, and the loop must not
+			// step past the end looking for one.
 			++jsonItemIter;
-			if (jsonItemIter != std::end(_code) && createAssemblyItemFromJSON(*jsonItemIter, _sourceList) != Instruction::JUMPDEST)
+			if (jsonItemIter == std::end(_code) || createAssemblyItemFromJSON(*jsonItemIter, _sourceList) != Instruction::JUMPDEST)
 				hypThrow(AssemblyImportException, "JUMPDEST expected after tag.");
 		}
 	}
