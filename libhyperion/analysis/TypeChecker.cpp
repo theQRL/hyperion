@@ -2670,21 +2670,35 @@ void TypeChecker::typeCheckMLDSA87VerifyDigest(Expression const& _digest, Type c
 		argumentLength = fixedBytes->numBytes();
 	else if (auto const* literal = dynamic_cast<StringLiteralType const*>(argumentType))
 		argumentLength = literal->value().size();
-	if (!argumentLength || *argumentLength >= digestType.numBytes())
+	if (argumentLength && *argumentLength < digestType.numBytes())
+	{
+		m_errorReporter.typeError(
+			6941_error,
+			_digest.location(),
+			"Invalid type for the digest argument of mldsa87verify. The implicit conversion from " +
+			argumentType->humanReadableName() +
+			" to " +
+			digestType.humanReadableName() +
+			" would pad the digest with " +
+			toString(digestType.numBytes() - *argumentLength) +
+			" zero bytes on the right, so a signature would have to cover the padded value."
+			" Pass a 64-byte value, such as the result of shake256(...), or convert explicitly"
+			" with bytes64(...) if the padding is intended."
+		);
 		return;
-	m_errorReporter.typeError(
-		6941_error,
-		_digest.location(),
-		"Invalid type for the digest argument of mldsa87verify. The implicit conversion from " +
-		argumentType->humanReadableName() +
-		" to " +
-		digestType.humanReadableName() +
-		" would pad the digest with " +
-		toString(digestType.numBytes() - *argumentLength) +
-		" zero bytes on the right, so a signature would have to cover the padded value."
-		" Pass a 64-byte value, such as the result of shake256(...), or convert explicitly"
-		" with bytes64(...) if the padding is intended."
-	);
+	}
+	// A conditional with branches of different widths already has the wider type, with the
+	// narrower branch widened inside it, so the branches are checked on their own.
+	if (auto const* tuple = dynamic_cast<TupleExpression const*>(&_digest))
+	{
+		if (!tuple->isInlineArray() && tuple->components().size() == 1 && tuple->components().front())
+			typeCheckMLDSA87VerifyDigest(*tuple->components().front(), _digestType);
+	}
+	else if (auto const* conditional = dynamic_cast<Conditional const*>(&_digest))
+	{
+		typeCheckMLDSA87VerifyDigest(conditional->trueExpression(), _digestType);
+		typeCheckMLDSA87VerifyDigest(conditional->falseExpression(), _digestType);
+	}
 }
 
 bool TypeChecker::visit(FunctionCall const& _functionCall)

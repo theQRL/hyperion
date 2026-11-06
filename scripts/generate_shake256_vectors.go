@@ -27,6 +27,7 @@ type vector struct {
 	NoBenchmark bool
 }
 
+// pattern returns length bytes counting up from offset, wrapping at 256.
 func pattern(length int, offset byte) []byte {
 	b := make([]byte, length)
 	for i := range b {
@@ -35,6 +36,7 @@ func pattern(length int, offset byte) []byte {
 	return b
 }
 
+// main runs the shake256 precompile over a fixed set of inputs and prints the vectors as JSON.
 func main() {
 	precompile := vm.PrecompiledContractsZond[common.BytesToAddress([]byte{6})]
 	inputs := []struct {

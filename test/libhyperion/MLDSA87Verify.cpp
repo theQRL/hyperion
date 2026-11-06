@@ -46,6 +46,8 @@ public:
 	qrvmc_status_code status = QRVMC_SUCCESS;
 	size_t calls = 0;
 
+	/// Answers a call to the mldsa87verify precompile with @a output and @a status, counting it in
+	/// @a calls; everything else goes to the real host.
 	qrvmc::Result call(qrvmc_message const& _message) noexcept override
 	{
 		if (_message.recipient == qrvmc::address{3})

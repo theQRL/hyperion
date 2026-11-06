@@ -610,6 +610,32 @@ BOOST_AUTO_TEST_CASE(inline_asm_end_location)
 	BOOST_CHECK_MESSAGE(visitor.visited, "No inline asm block found?!");
 }
 
+BOOST_AUTO_TEST_CASE(nesting_of_chains_counts_tree_depth)
+{
+	// A chain of array suffixes or accesses is accounted for by the depth it gives the tree: a
+	// branch ends up below every node added after it. So the same 118-parenthesis length (about
+	// 590 levels) is rejected at the start of a chain of 700 array suffixes and accepted at its
+	// end, and likewise for an index read ahead to tell a declaration from an expression, whose
+	// chain parseLeftHandSideExpression continues.
+	std::string const deep = std::string(118, '(') + "1" + std::string(118, ')');
+	auto repeat = [](std::string const& _part, size_t _count) {
+		std::string result;
+		for (size_t i = 0; i < _count; ++i)
+			result += _part;
+		return result;
+	};
+	CHECK_PARSE_ERROR(
+		"contract C { uint[" + deep + "]" + repeat("[1]", 699) + " x; }",
+		"Maximum recursion depth reached during parsing."
+	);
+	BOOST_CHECK(successParse("contract C { uint" + repeat("[1]", 699) + "[" + deep + "] x; }"));
+	CHECK_PARSE_ERROR(
+		"contract C { function f() public { a[" + deep + "]" + repeat("[0]", 499) + ".b" + repeat("[0]", 200) + " = 1; } }",
+		"Maximum recursion depth reached during parsing."
+	);
+	BOOST_CHECK(successParse("contract C { function f() public { a" + repeat("[0]", 500) + ".b[" + deep + "] = 1; } }"));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // end namespaces

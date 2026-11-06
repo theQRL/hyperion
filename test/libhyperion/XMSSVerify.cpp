@@ -42,6 +42,8 @@ public:
 	bytes output;
 	qrvmc_status_code status = QRVMC_SUCCESS;
 
+	/// Answers a call to the xmssverify precompile with @a output and @a status; everything else
+	/// goes to the real host.
 	qrvmc::Result call(qrvmc_message const& _message) noexcept override
 	{
 		if (_message.recipient == qrvmc::address{7})

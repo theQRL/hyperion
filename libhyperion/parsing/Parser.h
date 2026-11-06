@@ -190,6 +190,9 @@ private:
 		};
 		std::vector<ASTPointer<PrimaryExpression>> path;
 		std::vector<Index> indices;
+		/// Nesting accounting of the chain the path and indices form, see NestingGuard.
+		size_t chainLinks = 0;
+		std::ptrdiff_t chainDeepestBranch = 0;
 		bool empty() const;
 	};
 
@@ -228,6 +231,9 @@ private:
 
 	/// Flag that signifies whether '_' is parsed as a PlaceholderStatement or a regular identifier.
 	bool m_insideModifier = false;
+	/// Nesting accounting of the chain that expressionFromIndexAccessStructure() last built, for
+	/// parseLeftHandSideExpression() to continue from when it is given that chain.
+	std::optional<std::pair<size_t, std::ptrdiff_t>> m_lookaheadChainNesting;
 	langutil::QRVMVersion m_qrvmVersion;
 	/// Counter for the next AST node ID
 	int64_t m_currentNodeID = 0;
