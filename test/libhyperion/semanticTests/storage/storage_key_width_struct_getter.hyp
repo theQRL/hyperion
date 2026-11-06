@@ -1,0 +1,34 @@
+contract C {
+    struct S {
+        uint[2**255] big;
+        uint tail;
+    }
+    uint guard; // slot 0
+    mapping(uint => S) public m; // slot 1
+
+    function base(uint k) internal pure returns (uint) {
+        return uint(uint256(keccak256(abi.encode(k, uint(1)))));
+    }
+
+    // A key whose value starts above 2**255 if `high`, below it otherwise.
+    function key(bool high) internal pure returns (uint k) {
+        while ((base(k) >> 255 == 1) != high) k++;
+    }
+
+    function setLowTail() public {
+        m[key(false)].tail = 7;
+    }
+
+    // The getter skips `big` and reads `tail` at offset 2**255 from the value's slot.
+    function getterLow() public view returns (uint) {
+        return this.m(key(false));
+    }
+
+    function getterHigh() public view returns (uint) {
+        return this.m(key(true));
+    }
+}
+// ----
+// setLowTail() ->
+// getterLow() -> 7
+// getterHigh() -> FAILURE, hex"df75fb3b", 0x32

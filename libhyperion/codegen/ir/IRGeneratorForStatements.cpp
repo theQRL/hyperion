@@ -2111,7 +2111,7 @@ void IRGeneratorForStatements::endVisit(MemberAccess const& _memberAccess)
 			appendCode() << "let " << slot << " := " <<
 				("add(" + expression.part("slot").name() + ", " + offsets.first.str() + ")\n");
 				if (StructType::memberSlotOffsetNeedsRangeCheck(offsets.first))
-					appendCode() << m_utils.storageRangeCheckFunction() << "(0, " << slot << ", add(" << slot << ", 1))\n";
+					appendCode() << m_utils.storageRangeCheckFunction() << "(0, " << slot << ", add(" << slot << ", " << type(_memberAccess).storageSize() << "))\n";
 			setLValue(_memberAccess, IRLValue{
 				type(_memberAccess),
 				IRLValue::Storage{slot, offsets.second}

@@ -1,0 +1,21 @@
+contract C {
+    struct S {
+        uint[2**127] a;
+        uint b;
+    }
+    struct T {
+        S[2] arr;
+    }
+
+    // `arr` has two structs of 2**127 + 1 slots: it spans 2**128 + 2 slots, so clearing it checks
+    // the whole range, while each struct and member stays below 2**128 and is not checked on its own.
+    function t() internal pure returns (T storage x) {
+        assembly { x.slot := sub(shl(256, 1), 5) }
+    }
+
+    function clear() public {
+        delete t().arr;
+    }
+}
+// ----
+// clear() -> FAILURE, hex"df75fb3b", 0x32

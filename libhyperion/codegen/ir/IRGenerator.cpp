@@ -659,12 +659,17 @@ std::string IRGenerator::generateGetter(VariableDeclaration const& _varDecl)
 				std::pair<u256, unsigned> const& offsets = structType->storageOffsetsOfMember(names[i]);
 				std::vector<std::string> retVars = IRVariable("ret_" + std::to_string(returnVariables.size()), *returnTypes[i]).stackSlots();
 				returnVariables += retVars;
+				bool const rangeCheck = StructType::memberSlotOffsetNeedsRangeCheck(offsets.first);
 				code += Whiskers(R"(
+					<?rangeCheck><checkRange>(0, add(slot, <slotOffset>), add(slot, <slotEnd>))</rangeCheck>
 					<ret> := <readStorage>(add(slot, <slotOffset>))
 				)")
 				("ret", joinHumanReadable(retVars))
 				("readStorage", m_utils.readFromStorage(*returnTypes[i], offsets.second, true))
 				("slotOffset", offsets.first.str())
+				("rangeCheck", rangeCheck)
+				("checkRange", rangeCheck ? m_utils.storageRangeCheckFunction() : "")
+				("slotEnd", (offsets.first + structType->memberType(names[i])->storageSize()).str())
 				.render();
 			}
 		}

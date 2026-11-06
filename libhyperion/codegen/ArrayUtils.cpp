@@ -408,6 +408,12 @@ void ArrayUtils::clearArray(ArrayType const& _typeIn) const
 			{
 				// unroll loop for small arrays @todo choose a good value
 				hypAssert(_type.baseType()->storageBytes() >= VMWordBytes, "Invalid storage size.");
+				if (_type.storageSlotsNeedRangeCheck())
+				{
+					// stack: storage_ref
+					_context << Instruction::DUP1 << _type.storageSize() << Instruction::ADD << Instruction::DUP2 << u256(0);
+					_context.callYulFunction(_context.utilFunctions().storageRangeCheckFunction(), 3, 0);
+				}
 				for (unsigned i = 1; i < _type.length(); ++i)
 				{
 					_context << u256(0);
