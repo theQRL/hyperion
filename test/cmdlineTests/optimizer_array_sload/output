@@ -49,7 +49,17 @@ object "Arraysum_34" {
                                 revert(0, 0x44)
                             }
                             mstore(0, 0)
-                            let sum := add(var_sum, and(shr(and(shl(8, var_i), 256), sload(add(78338746147236970124700731725183845421594913511827187288591969170390706184117, shr(1, var_i)))), _3))
+                            let _4 := shr(1, var_i)
+                            let _5 := 78338746147236970124700731725183845421594913511827187288591969170390706184117
+                            let slot := add(_5, _4)
+                            let _6 := 256
+                            if or(shr(_6, var_i), or(shr(_6, slot), shr(_6, add(_4, _5))))
+                            {
+                                mstore(0, shl(480, 0xdf75fb3b))
+                                mstore(_1, 0x32)
+                                revert(0, 0x44)
+                            }
+                            let sum := add(var_sum, and(shr(and(shl(8, var_i), _6), sload(/** @src 0:414:423  "values[i]" */ slot)), /** @src 0:80:429  "contract Arraysum {..." */ _3))
                             if gt(var_sum, sum)
                             {
                                 mstore(0, shl(480, 0xdf75fb3b))

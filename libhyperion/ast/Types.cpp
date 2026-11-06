@@ -1792,6 +1792,11 @@ bigint ArrayType::storageSizeUpperBound() const
 		return length() * baseType()->storageSizeUpperBound();
 }
 
+bool ArrayType::storageSlotsNeedRangeCheck() const
+{
+	return isDynamicallySized() || storageSize() >= (u256(1) << StorageRangeCheckThresholdBits);
+}
+
 u256 ArrayType::storageSize() const
 {
 	if (isDynamicallySized())
@@ -2279,6 +2284,16 @@ bigint StructType::storageSizeUpperBound() const
 	for (auto const& member: members(nullptr))
 		size += member.type->storageSizeUpperBound();
 	return size;
+}
+
+bool StructType::storageSlotsNeedRangeCheck() const
+{
+	return storageSize() >= (u256(1) << StorageRangeCheckThresholdBits);
+}
+
+bool StructType::memberSlotOffsetNeedsRangeCheck(u256 const& _slotOffset)
+{
+	return _slotOffset >= (u256(1) << StorageRangeCheckThresholdBits);
 }
 
 u256 StructType::storageSize() const

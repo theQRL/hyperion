@@ -1307,6 +1307,7 @@ std::string YulUtilFunctions::cleanUpStorageArrayEndFunction(ArrayType const& _t
 				let newSlotCount := <convertToSize>(startIndex)
 				let arrayDataStart := <dataPosition>(array)
 				let deleteStart := add(arrayDataStart, newSlotCount)
+				<?rangeCheck><checkRange>(len, deleteStart, add(deleteStart, sub(oldSlotCount, newSlotCount)))</rangeCheck>
 				<?packed>
 					// if we are dealing with packed array and offset is greater than zero
 					// we have  to partially clear last slot that is still used, so decreasing start by one
@@ -1317,6 +1318,8 @@ std::string YulUtilFunctions::cleanUpStorageArrayEndFunction(ArrayType const& _t
 			}
 		)")
 		("convertToSize", arrayConvertLengthToSize(_type))
+		("rangeCheck", _type.storageSlotsNeedRangeCheck())
+		("checkRange", _type.storageSlotsNeedRangeCheck() ? storageRangeCheckFunction() : "")
 		("dataPosition", arrayDataAreaFunction(_type))
 		("clearStorageRange", clearStorageRangeFunction(*_type.baseType()))
 		("packed", _type.baseType()->storageBytes() <= (VMWordBytes / 2))
@@ -1370,11 +1373,13 @@ std::string YulUtilFunctions::cleanUpDynamicByteArrayEndSlotsFunction(ArrayType 
 						newSlotCount := 0
 					}
 					let deleteStart := add(dataArea, newSlotCount)
+					<checkRange>(len, deleteStart, add(deleteStart, sub(oldSlotCount, newSlotCount)))
 					<clearStorageRange>(deleteStart, sub(oldSlotCount, newSlotCount))
 				}
 			}
 		)")
 		("dataLocation", arrayDataAreaFunction(_type))
+		("checkRange", storageRangeCheckFunction())
 		("divWordCeil", divide32CeilFunction())
 		("clearStorageRange", clearStorageRangeFunction(*_type.baseType()))
 		("wordSize", std::to_string(VMWordBytes))
@@ -1404,6 +1409,7 @@ std::string YulUtilFunctions::decreaseByteArraySizeFunction(ArrayType const& _ty
 					if offset { <partialClearStorageSlot>(sub(deleteStart, 1), offset) }
 
 					if gt(oldSlots, newSlots) {
+						<checkRange>(oldLen, deleteStart, add(deleteStart, sub(oldSlots, newSlots)))
 						<clearStorageRange>(deleteStart, sub(oldSlots, newSlots))
 					}
 
@@ -1415,6 +1421,7 @@ std::string YulUtilFunctions::decreaseByteArraySizeFunction(ArrayType const& _ty
 						let arrayDataStart := <dataPosition>(array)
 						// Clear whole old array, as we are transforming to short bytes array.
 						// <transitLongToShort>() will clear the first slot after copying its content.
+						<checkRange>(oldLen, arrayDataStart, add(arrayDataStart, <divWordCeil>(oldLen)))
 						<clearStorageRange>(add(arrayDataStart, 1), sub(<divWordCeil>(oldLen), 1))
 						<transitLongToShort>(array, newLen)
 					}
@@ -1429,6 +1436,7 @@ std::string YulUtilFunctions::decreaseByteArraySizeFunction(ArrayType const& _ty
 			("clearStorageRange", clearStorageRangeFunction(*_type.baseType()))
 			("transitLongToShort", byteArrayTransitLongToShortFunction(_type))
 			("divWordCeil", divide32CeilFunction())
+			("checkRange", storageRangeCheckFunction())
 			("encodeUsedSetLen", shortByteArrayEncodeUsedAreaSetLengthFunction())
 			("wordSize", std::to_string(VMWordBytes))
 			("alignmentMask", std::to_string(VMWordAlignmentMask))
@@ -1520,8 +1528,10 @@ std::string YulUtilFunctions::longByteArrayStorageIndexAccessNoCheckFunction()
 				offset := sub(<alignmentMask>, mod(index, <wordSizeHex>))
 				let dataArea := <dataAreaFunc>(array)
 				slot := add(dataArea, div(index, <wordSizeHex>))
+				<checkRange>(index, slot, add(slot, 1))
 			)")
 			("dataAreaFunc", arrayDataAreaFunction(*TypeProvider::bytesStorage()))
+			("checkRange", storageRangeCheckFunction())
 			("wordSizeHex", toCompactHexWithPrefix(u256(VMWordBytes)))
 			("alignmentMask", std::to_string(VMWordAlignmentMask))
 			.render();
@@ -1784,7 +1794,11 @@ std::string YulUtilFunctions::clearStorageArrayFunction(ArrayType const& _type)
 				<?dynamic>
 					<resizeArray>(slot, 0)
 				<!dynamic>
-					<?+clearRange><clearRange>(slot, <lenToSize>(<len>))</+clearRange>
+					<?+clearRange>
+						let slotCount := <lenToSize>(<len>)
+						<?rangeCheck><checkRange>(0, slot, add(slot, slotCount))</rangeCheck>
+						<clearRange>(slot, slotCount)
+					</+clearRange>
 				</dynamic>
 			}
 		)")
@@ -1799,6 +1813,8 @@ std::string YulUtilFunctions::clearStorageArrayFunction(ArrayType const& _type)
 		)
 		("lenToSize", arrayConvertLengthToSize(_type))
 		("len", _type.length().str())
+		("rangeCheck", !_type.isDynamicallySized() && _type.storageSlotsNeedRangeCheck())
+		("checkRange", !_type.isDynamicallySized() && _type.storageSlotsNeedRangeCheck() ? storageRangeCheckFunction() : "")
 		.render();
 	});
 }
@@ -1845,6 +1861,7 @@ std::string YulUtilFunctions::clearStorageStructFunction(StructType const& _type
 
 		return Whiskers(R"(
 			function <functionName>(slot) {
+				<?rangeCheck><checkRange>(0, slot, add(slot, <storageSize>))</rangeCheck>
 				<#member>
 					<clearMember>
 				</member>
@@ -1852,6 +1869,9 @@ std::string YulUtilFunctions::clearStorageStructFunction(StructType const& _type
 		)")
 		("functionName", functionName)
 		("member", memberSetValues)
+		("rangeCheck", _type.storageSlotsNeedRangeCheck())
+		("checkRange", _type.storageSlotsNeedRangeCheck() ? storageRangeCheckFunction() : "")
+		("storageSize", _type.storageSize().str())
 		.render();
 	});
 }
@@ -1885,6 +1905,8 @@ std::string YulUtilFunctions::copyArrayToStorageFunction(ArrayType const& _fromT
 				let srcPtr := <srcDataLocation>(value)
 
 				let elementSlot := <dstDataLocation>(slot)
+				<?dstRangeCheck><checkRange>(length, elementSlot, add(elementSlot, mul(length, <storageSize>)))</dstRangeCheck>
+				<?srcRangeCheck><checkRange>(length, srcPtr, add(srcPtr, mul(length, <srcStride>)))</srcRangeCheck>
 
 				for { let i := 0 } lt(i, length) {i := add(i, 1)} {
 					<?fromCalldata>
@@ -1947,6 +1969,11 @@ std::string YulUtilFunctions::copyArrayToStorageFunction(ArrayType const& _fromT
 				formatNumber(_fromType.baseType()->storageSize())
 		);
 		templ("storageSize", _toType.baseType()->storageSize().str());
+		bool const dstRangeCheck = _toType.storageSlotsNeedRangeCheck();
+		bool const srcRangeCheck = _fromType.dataStoredIn(DataLocation::Storage) && _fromType.storageSlotsNeedRangeCheck();
+		templ("dstRangeCheck", dstRangeCheck);
+		templ("srcRangeCheck", srcRangeCheck);
+		templ("checkRange", dstRangeCheck || srcRangeCheck ? storageRangeCheckFunction() : "");
 
 		return templ.render();
 	});
@@ -1987,6 +2014,8 @@ std::string YulUtilFunctions::copyByteArrayToStorageFunction(ArrayType const& _f
 					let loopEnd := and(newLen, not(<alignmentMask>))
 					<?fromStorage> src := <srcDataLocation>(src) </fromStorage>
 					let dstPtr := <dstDataLocation>(slot)
+					<checkRange>(0, dstPtr, add(dstPtr, <divWordCeil>(newLen)))
+					<?fromStorage> <checkRange>(0, src, add(src, <divWordCeil>(newLen))) </fromStorage>
 					let i := 0
 					for { } lt(i, loopEnd) { i := add(i, <wordSizeHex>) } {
 						sstore(dstPtr, <read>(add(src, srcOffset)))
@@ -2018,6 +2047,8 @@ std::string YulUtilFunctions::copyByteArrayToStorageFunction(ArrayType const& _f
 		templ("panic", panicFunction(PanicCode::ResourceError));
 		templ("byteArrayLength", extractByteArrayLengthFunction());
 		templ("dstDataLocation", arrayDataAreaFunction(_toType));
+		templ("checkRange", storageRangeCheckFunction());
+		templ("divWordCeil", divide32CeilFunction());
 		if (fromStorage)
 			templ("srcDataLocation", arrayDataAreaFunction(_fromType));
 		templ("cleanUpEndArray", cleanUpDynamicByteArrayEndSlotsFunction(_toType));
@@ -2066,6 +2097,8 @@ std::string YulUtilFunctions::copyValueArrayToStorageFunction(ArrayType const& _
 
 					let srcPtr := <srcDataLocation>(src)
 					let dstPtr := <dstDataLocation>(dst)
+					<?dstRangeCheck><checkRange>(length, dstPtr, add(dstPtr, mul(length, 2)))</dstRangeCheck>
+					<?srcRangeCheck><checkRange>(length, srcPtr, add(srcPtr, mul(length, 2)))</srcRangeCheck>
 					for { let i := 0 } lt(i, length) { i := add(i, 1) } {
 						<?isFromStorage>
 							let addr := sload(srcPtr)
@@ -2093,6 +2126,9 @@ std::string YulUtilFunctions::copyValueArrayToStorageFunction(ArrayType const& _
 			("convert", conversionFunction(*_fromType.baseType(), *_toType.baseType()))
 			("srcStride", fromStorage ? _fromType.baseType()->storageSize().str() : std::to_string(fromCalldata ? _fromType.calldataStride() : _fromType.memoryStride()))
 			("selectorMask", formatNumber(u256(0xffffffffUL)))
+			("dstRangeCheck", _toType.storageSlotsNeedRangeCheck())
+			("srcRangeCheck", fromStorage && _fromType.storageSlotsNeedRangeCheck())
+			("checkRange", _toType.storageSlotsNeedRangeCheck() || (fromStorage && _fromType.storageSlotsNeedRangeCheck()) ? storageRangeCheckFunction() : "")
 			.render();
 		}
 
@@ -2108,6 +2144,8 @@ std::string YulUtilFunctions::copyValueArrayToStorageFunction(ArrayType const& _
 
 				let srcPtr := <srcDataLocation>(src)
 				let dstSlot := <dstDataLocation>(dst)
+				<?dstRangeCheck><checkRange>(length, dstSlot, add(dstSlot, <dstLengthToSize>(length)))</dstRangeCheck>
+				<?srcRangeCheck><checkRange>(length, srcPtr, add(srcPtr, <srcLengthToSize>(length)))</srcRangeCheck>
 
 				let fullSlots := div(length, <itemsPerSlot>)
 
@@ -2188,6 +2226,13 @@ std::string YulUtilFunctions::copyValueArrayToStorageFunction(ArrayType const& _
 		templ("srcDataLocation", arrayDataAreaFunction(_fromType));
 		templ("dstDataLocation", arrayDataAreaFunction(_toType));
 		templ("srcStride", std::to_string(_fromType.storageStride()));
+		bool const dstRangeCheck = _toType.storageSlotsNeedRangeCheck();
+		bool const srcRangeCheck = fromStorage && _fromType.storageSlotsNeedRangeCheck();
+		templ("dstRangeCheck", dstRangeCheck);
+		templ("srcRangeCheck", srcRangeCheck);
+		templ("checkRange", dstRangeCheck || srcRangeCheck ? storageRangeCheckFunction() : "");
+		templ("dstLengthToSize", dstRangeCheck ? arrayConvertLengthToSize(_toType) : "");
+		templ("srcLengthToSize", srcRangeCheck ? arrayConvertLengthToSize(_fromType) : "");
 		templ("stackItems", suffixedVariableNameList(
 			"stackItem_",
 			0,
@@ -2366,6 +2411,29 @@ std::string YulUtilFunctions::arrayDataAreaFunction(ArrayType const& _type)
 	});
 }
 
+std::string YulUtilFunctions::storageRangeCheckFunction()
+{
+	std::string functionName = "check_storage_range";
+	return m_functionCollector.createFunction(functionName, [&]() {
+		return Whiskers(R"(
+			function <functionName>(count, startSlot, endSlot) {
+				// Storage keys are 256 bits wide on the chain, so a slot at or above 2**256 would
+				// alias its low 256 bits there. The range is fine if its first slot and its last
+				// slot, endSlot - 1, lie below 2**256; endSlot can only have wrapped around when
+				// startSlot is above the limit already. A count of 2**256 or more cannot address
+				// a slot below the limit, and scaling it by the element size could have wrapped.
+				if or(shr(<keyBits>, count), or(shr(<keyBits>, startSlot), shr(<keyBits>, sub(endSlot, 1)))) {
+					<panic>()
+				}
+			}
+		)")
+		("functionName", functionName)
+		("keyBits", std::to_string(StorageKeyBits))
+		("panic", panicFunction(PanicCode::ArrayOutOfBounds))
+		.render();
+	});
+}
+
 std::string YulUtilFunctions::storageArrayIndexAccessFunction(ArrayType const& _type)
 {
 	std::string functionName = "storage_array_index_access_" + _type.identifier();
@@ -2389,16 +2457,20 @@ std::string YulUtilFunctions::storageArrayIndexAccessFunction(ArrayType const& _
 						let dataArea := <dataAreaFunc>(array)
 						slot := add(dataArea, div(index, <itemsPerSlot>))
 						offset := mul(mod(index, <itemsPerSlot>), <storageBytes>)
+						<?rangeCheck><checkRange>(index, slot, add(slot, 1))</rangeCheck>
 					</isBytesArray>
 				<!multipleItemsPerSlot>
 					let dataArea := <dataAreaFunc>(array)
 					slot := add(dataArea, mul(index, <storageSize>))
 					offset := 0
+					<?rangeCheck><checkRange>(index, slot, add(slot, <storageSize>))</rangeCheck>
 				</multipleItemsPerSlot>
 			}
 		)")
 		("functionName", functionName)
 		("panic", panicFunction(PanicCode::ArrayOutOfBounds))
+		("rangeCheck", _type.storageSlotsNeedRangeCheck())
+		("checkRange", _type.storageSlotsNeedRangeCheck() ? storageRangeCheckFunction() : "")
 		("arrayLen", arrayLengthFunction(_type))
 		("dataAreaFunc", arrayDataAreaFunction(_type))
 		("indexAccessNoChecks", longByteArrayStorageIndexAccessNoCheckFunction())
@@ -3750,6 +3822,8 @@ std::string YulUtilFunctions::copyStructToStorageFunction(StructType const& _fro
 		_arguments = {"slot", "value"};
 		Whiskers templ(R"(
 			<?fromStorage> if iszero(eq(slot, value)) { </fromStorage>
+			<?dstRangeCheck><checkRange>(0, slot, add(slot, <dstStorageSize>))</dstRangeCheck>
+			<?srcRangeCheck><checkRange>(0, value, add(value, <srcStorageSize>))</srcRangeCheck>
 			<#member>
 			{
 				<updateMemberCall>
@@ -3758,6 +3832,13 @@ std::string YulUtilFunctions::copyStructToStorageFunction(StructType const& _fro
 			<?fromStorage> } </fromStorage>
 		)");
 		templ("fromStorage", _from.dataStoredIn(DataLocation::Storage));
+		bool const dstRangeCheck = _to.storageSlotsNeedRangeCheck();
+		bool const srcRangeCheck = _from.dataStoredIn(DataLocation::Storage) && _from.storageSlotsNeedRangeCheck();
+		templ("dstRangeCheck", dstRangeCheck);
+		templ("srcRangeCheck", srcRangeCheck);
+		templ("checkRange", dstRangeCheck || srcRangeCheck ? storageRangeCheckFunction() : "");
+		templ("dstStorageSize", _to.storageSize().str());
+		templ("srcStorageSize", srcRangeCheck ? _from.storageSize().str() : "");
 
 		MemberList::MemberMap structMembers = _from.nativeMembers(nullptr);
 		MemberList::MemberMap toStructMembers = _to.nativeMembers(nullptr);

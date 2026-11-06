@@ -2097,7 +2097,14 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 		case DataLocation::Storage:
 		{
 			std::pair<u256, unsigned> const& offsets = type.storageOffsetsOfMember(member);
-			m_context << offsets.first << Instruction::ADD << u256(offsets.second);
+			m_context << offsets.first << Instruction::ADD;
+			if (StructType::memberSlotOffsetNeedsRangeCheck(offsets.first))
+			{
+				// stack: member_slot
+				m_context << Instruction::DUP1 << u256(1) << Instruction::ADD << Instruction::DUP2 << u256(0);
+				m_context.callYulFunction(m_context.utilFunctions().storageRangeCheckFunction(), 3, 0);
+			}
+			m_context << u256(offsets.second);
 			setLValueToStorageItem(_memberAccess);
 			break;
 		}

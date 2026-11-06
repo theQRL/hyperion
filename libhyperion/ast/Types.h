@@ -859,6 +859,10 @@ public:
 	unsigned calldataEncodedSize(bool) const override;
 	unsigned calldataEncodedTailSize() const override;
 	bool isDynamicallySized() const override { return m_hasDynamicLength; }
+	/// @returns true if a slot derived from this array's base at run time has to be checked to
+	/// lie below 2**StorageKeyBits: always for dynamic arrays, whose length is a run-time value,
+	/// and for static arrays of at least 2**StorageRangeCheckThresholdBits slots.
+	bool storageSlotsNeedRangeCheck() const;
 	bool isDynamicallyEncoded() const override;
 	bigint storageSizeUpperBound() const override;
 	u256 storageSize() const override;
@@ -1035,6 +1039,13 @@ public:
 	u256 memoryDataSize() const override;
 	bigint storageSizeUpperBound() const override;
 	u256 storageSize() const override;
+	/// @returns true if the slots of this struct have to be checked to lie below 2**StorageKeyBits
+	/// when it is cleared or copied as a whole: from 2**StorageRangeCheckThresholdBits slots on.
+	bool storageSlotsNeedRangeCheck() const;
+	/// @returns true if the member at slot offset @a _slotOffset from a base derived at run time has
+	/// to be checked to lie below 2**StorageKeyBits when it is accessed, see
+	/// StorageRangeCheckThresholdBits.
+	static bool memberSlotOffsetNeedsRangeCheck(u256 const& _slotOffset);
 	bool containsNestedMapping() const override;
 	bool nameable() const override { return true; }
 	std::string toString(bool _withoutDataLocation) const override;
