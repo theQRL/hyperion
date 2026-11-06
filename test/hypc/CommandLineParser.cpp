@@ -455,6 +455,21 @@ BOOST_AUTO_TEST_CASE(invalid_options_input_modes_combinations)
 		}
 }
 
+BOOST_AUTO_TEST_CASE(import_asm_json_requires_exactly_one_input)
+{
+	for (vector<string> const& commandLine: {
+		vector<string>{"hypc", "--import-asm-json", "a.json", "b.json"},
+		vector<string>{"hypc", "--import-asm-json", "a.json", "-"},
+	})
+	{
+		string const expectedMessage = "Option --import-asm-json requires exactly one input file.";
+		auto hasCorrectMessage = [&](CommandLineValidationError const& _exception) { return _exception.what() == expectedMessage; };
+		BOOST_CHECK_EXCEPTION(parseCommandLine(commandLine), CommandLineValidationError, hasCorrectMessage);
+	}
+	BOOST_CHECK_NO_THROW(parseCommandLine({"hypc", "--import-asm-json", "a.json"}));
+	BOOST_CHECK_NO_THROW(parseCommandLine({"hypc", "--import-asm-json", "-"}));
+}
+
 BOOST_AUTO_TEST_CASE(optimizer_flags)
 {
 	OptimiserSettings yulOnly = OptimiserSettings::minimal();
@@ -553,7 +568,7 @@ BOOST_AUTO_TEST_CASE(invalid_optimiser_sequences)
 
 	vector<string> const expectedErrorMessages {
 		"'b' is not a valid step abbreviation",
-		"Brackets nested too deep",
+		"Brackets nested too deep (at most 3 levels)",
 		"Unbalanced brackets",
 		"Unbalanced brackets",
 		"Cleanup sequence delimiter cannot be placed inside the brackets",

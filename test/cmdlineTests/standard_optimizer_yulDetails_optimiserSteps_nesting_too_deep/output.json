@@ -3,8 +3,8 @@
     [
         {
             "component": "general",
-            "formattedMessage": "Invalid optimizer step sequence in \"settings.optimizer.details.optimizerSteps\": Brackets nested too deep",
-            "message": "Invalid optimizer step sequence in \"settings.optimizer.details.optimizerSteps\": Brackets nested too deep",
+            "formattedMessage": "Invalid optimizer step sequence in \"settings.optimizer.details.optimizerSteps\": Brackets nested too deep (at most 3 levels)",
+            "message": "Invalid optimizer step sequence in \"settings.optimizer.details.optimizerSteps\": Brackets nested too deep (at most 3 levels)",
             "severity": "error",
             "type": "JSONError"
         }

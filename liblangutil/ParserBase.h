@@ -59,6 +59,29 @@ protected:
 		ParserBase& m_parser;
 	};
 
+	/// Counts the nesting levels that a loop adds to the syntax tree against the recursion
+	/// depth, as if the loop had recursed, and releases them all when it goes out of scope.
+	/// The passes that follow the parser visit the tree recursively, so a chain that the parser
+	/// builds iteratively has to stay within the same budget as nested recursion.
+	class NestingGuard
+	{
+	public:
+		explicit NestingGuard(ParserBase& _parser): m_parser(_parser) {}
+		~NestingGuard()
+		{
+			for (; m_levels > 0; --m_levels)
+				m_parser.decreaseRecursionDepth();
+		}
+		void addLevel()
+		{
+			m_parser.increaseRecursionDepth();
+			++m_levels;
+		}
+	private:
+		ParserBase& m_parser;
+		size_t m_levels = 0;
+	};
+
 	/// Location of the current token
 	virtual SourceLocation currentLocation() const;
 

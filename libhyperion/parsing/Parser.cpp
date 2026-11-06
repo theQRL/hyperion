@@ -1124,8 +1124,11 @@ ASTPointer<IdentifierPath> Parser::parseIdentifierPath()
 ASTPointer<TypeName> Parser::parseTypeNameSuffix(ASTPointer<TypeName> type, ASTNodeFactory& nodeFactory)
 {
 	RecursionGuard recursionGuard(*this);
+	// Every array suffix nests the type one level deeper.
+	NestingGuard nestingGuard(*this);
 	while (m_scanner->currentToken() == Token::LBrack)
 	{
+		nestingGuard.addLevel();
 		advance();
 		ASTPointer<Expression> length;
 		if (m_scanner->currentToken() != Token::RBrack)
@@ -1885,12 +1888,15 @@ ASTPointer<Expression> Parser::parseLeftHandSideExpression(
 	else
 		expression = parsePrimaryExpression();
 
+	// Every member access, index access, call and call option nests the expression one level deeper.
+	NestingGuard nestingGuard(*this);
 	while (true)
 	{
 		switch (m_scanner->currentToken())
 		{
 		case Token::LBrack:
 		{
+			nestingGuard.addLevel();
 			advance();
 			ASTPointer<Expression> index;
 			ASTPointer<Expression> endIndex;
@@ -1915,6 +1921,7 @@ ASTPointer<Expression> Parser::parseLeftHandSideExpression(
 		}
 		case Token::Period:
 		{
+			nestingGuard.addLevel();
 			advance();
 			nodeFactory.markEndPosition();
 			SourceLocation memberLocation = currentLocation();
@@ -1924,6 +1931,7 @@ ASTPointer<Expression> Parser::parseLeftHandSideExpression(
 		}
 		case Token::LParen:
 		{
+			nestingGuard.addLevel();
 			advance();
 			auto functionCallArguments = parseFunctionCallArguments();
 			nodeFactory.markEndPosition();
@@ -1945,6 +1953,7 @@ ASTPointer<Expression> Parser::parseLeftHandSideExpression(
 			)
 				return expression;
 
+			nestingGuard.addLevel();
 			expectToken(Token::LBrace);
 			auto optionList = parseNamedArguments();
 
