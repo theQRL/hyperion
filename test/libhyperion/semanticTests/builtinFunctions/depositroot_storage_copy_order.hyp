@@ -1,0 +1,27 @@
+contract C {
+    bytes publicKey;
+
+    function change(bytes memory recipient) internal returns (bytes memory) {
+        publicKey[0] = 0xff;
+        return recipient;
+    }
+
+    function f() public returns (bool, bool) {
+        publicKey = new bytes(2592);
+        bytes32 beforeChange = depositroot(publicKey, new bytes(64), new bytes(8), new bytes(32), new bytes(4627));
+        publicKey = new bytes(2592);
+        // Copy the storage public key before the withdrawal recipient argument overwrites it.
+        bytes32 duringChange = depositroot(publicKey, change(new bytes(64)), new bytes(8), new bytes(32), new bytes(4627));
+        bytes memory changedKey = new bytes(2592);
+        changedKey[0] = 0xff;
+        bytes32 afterChange = depositroot(changedKey, new bytes(64), new bytes(8), new bytes(32), new bytes(4627));
+        return (beforeChange == duringChange, duringChange == afterChange);
+    }
+}
+// ====
+// compileViaYul: also
+// ----
+// f() -> true, false
+// gas irOptimized: 299724
+// gas legacy: 304728
+// gas legacyOptimized: 295282

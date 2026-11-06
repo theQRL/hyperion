@@ -184,6 +184,9 @@ private:
 	/// widened, so for `n = 300` `uint512 x = 2 ** n;` panics and `uint512 x = 1 << n;` is zero.
 	/// Looks through parentheses and into the branches of a conditional.
 	void warnIfLiteralBaseResultIsWidened(Expression const& _expression, Type const& _targetType);
+	/// Reports an error if the digest argument of ``mldsa87verify`` is narrower than the parameter,
+	/// since the implicit conversion would pad it with zero bytes on the right.
+	void typeCheckMLDSA87VerifyDigest(Expression const& _digest, Type const& _digestType);
 	/// Runs type checks on @a _expression to infer its type and then checks that it is an LValue.
 	void requireLValue(Expression const& _expression, bool _ordinaryAssignment);
 

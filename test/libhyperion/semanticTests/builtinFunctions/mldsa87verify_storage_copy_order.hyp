@@ -153,12 +153,12 @@ contract C {
 // compileViaYul: also
 // ----
 // run(bool): false -> true, true, false
-// gas ir: 1681959
-// gas irOptimized: 1678651
-// gas legacy: 1678688
-// gas legacyOptimized: 1675236
+// gas ir: 1581841
+// gas irOptimized: 1578600
+// gas legacy: 1578427
+// gas legacyOptimized: 1575060
 // run(bool): true -> false, false, false
-// gas ir: 1668735
-// gas irOptimized: 1665128
-// gas legacy: 1665133
-// gas legacyOptimized: 1661691
+// gas ir: 1568963
+// gas irOptimized: 1565076
+// gas legacy: 1564872
+// gas legacyOptimized: 1561515

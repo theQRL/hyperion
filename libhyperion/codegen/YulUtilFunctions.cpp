@@ -4129,25 +4129,18 @@ std::string YulUtilFunctions::mldsa87VerifyFunction()
 	return m_functionCollector.createFunction(functionName, [&]() {
 		Whiskers templ(R"(
 			function <functionName>(digest, signature, publicKey, context) -> result {
-				let pos := <allocateUnbounded>()
 				let signatureLength := mload(signature)
 				let publicKeyLength := mload(publicKey)
 				let contextLength := mload(context)
-				let validInput := and(
+				// The precompile would charge its full gas for a malformed frame and return no
+				// data, so arguments of the wrong length yield false without calling it.
+				if and(
 					and(eq(signatureLength, <signatureSize>), eq(publicKeyLength, <publicKeySize>)),
 					lt(contextLength, <contextLimit>)
-				)
-
-				let end := pos
-				switch validInput
-				case 0 {
-					// Malformed frame: the precompile charges its gas and returns no data.
-					mstore8(pos, 0)
-					end := add(pos, 1)
-				}
-				default {
-					mstore(end, digest)
-					end := add(end, <wordSize>)
+				) {
+					let pos := <allocateUnbounded>()
+					mstore(pos, digest)
+					let end := add(pos, <wordSize>)
 					<copyMemory>(add(publicKey, <wordSize>), end, publicKeyLength)
 					end := add(end, publicKeyLength)
 					<copyMemory>(add(signature, <wordSize>), end, signatureLength)
@@ -4156,13 +4149,13 @@ std::string YulUtilFunctions::mldsa87VerifyFunction()
 					end := add(end, 1)
 					<copyMemory>(add(context, <wordSize>), end, contextLength)
 					end := add(end, contextLength)
-				}
 
-				let output := end
-				mstore(output, 0)
-				let success := staticcall(gas(), <precompileAddress>, pos, sub(end, pos), output, <wordSize>)
-				if iszero(success) { <forwardingRevert>() }
-				result := and(eq(returndatasize(), <wordSize>), eq(mload(output), 1))
+					let output := end
+					mstore(output, 0)
+					let success := staticcall(gas(), <precompileAddress>, pos, sub(end, pos), output, <wordSize>)
+					if iszero(success) { <forwardingRevert>() }
+					result := and(eq(returndatasize(), <wordSize>), eq(mload(output), 1))
+				}
 			}
 		)");
 		templ("functionName", functionName);

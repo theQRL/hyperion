@@ -249,9 +249,24 @@ BOOST_AUTO_TEST_CASE(go_qrl_depositroot_vectors)
 	checkGoQrlPrecompileVectors(*m_qrvmcHost, 1, "depositroot.json");
 }
 
+BOOST_AUTO_TEST_CASE(go_qrl_mldsa87verify_vectors)
+{
+	checkGoQrlPrecompileVectors(*m_qrvmcHost, 3, "mldsa87_verify.json");
+}
+
 BOOST_AUTO_TEST_CASE(go_qrl_modexp_vectors)
 {
 	checkGoQrlPrecompileVectors(*m_qrvmcHost, 5, "modexp.json");
+}
+
+BOOST_AUTO_TEST_CASE(go_qrl_shake256_vectors)
+{
+	checkGoQrlPrecompileVectors(*m_qrvmcHost, 6, "shake256.json");
+}
+
+BOOST_AUTO_TEST_CASE(go_qrl_xmssverify_vectors)
+{
+	checkGoQrlPrecompileVectors(*m_qrvmcHost, 7, "xmss_verify.json");
 }
 
 BOOST_AUTO_TEST_CASE(modexp_zero_base_and_modulus_lengths)

@@ -1088,12 +1088,43 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			break;
 		}
 		case FunctionType::Kind::DepositRoot:
+		{
+			// Calls the depositroot precompiled contract (address 1) with the five fields packed
+			// without padding and loads the 32-byte root left-aligned into a word. Each argument is
+			// copied to memory right after it is evaluated, before the next one runs.
+			hypAssert(!_functionCall.annotation().tryCall, "");
+			hypAssert(arguments.size() == 5, "");
+			_functionCall.expression().accept(*this);
+			TypePointers const& parameterTypes = function.parameterTypes();
+			for (size_t i = 0; i < arguments.size(); ++i)
+				acceptAndConvert(*arguments[i], *parameterTypes[i]);
+			// Stack: publicKey recipient amount commitment signature
+			utils().fetchFreeMemoryPointer();
+			// Stack: publicKey recipient amount commitment signature pos
+			utils().encodeToMemory(parameterTypes, parameterTypes, false, true);
+			// Stack: end
+			utils().fetchFreeMemoryPointer();
+			// Stack: end pos
+			m_context << u256(0) << u256(0) << Instruction::MSTORE;
+			// staticcall(gas(), 1, pos, sub(end, pos), 0, 32)
+			m_context << u256(32) << u256(0);
+			m_context << Instruction::DUP3 << Instruction::DUP5 << Instruction::SUB << Instruction::DUP4;
+			m_context << u256(1) << Instruction::GAS << Instruction::STATICCALL;
+			// Stack: end pos success
+			m_context << Instruction::ISZERO;
+			m_context.appendConditionalRevert(true);
+			m_context << Instruction::POP << Instruction::POP;
+			m_context << Instruction::RETURNDATASIZE << u256(32) << Instruction::EQ << Instruction::ISZERO;
+			m_context.appendConditionalRevert();
+			m_context << u256(0) << Instruction::MLOAD;
+			// Stack: root
+			break;
+		}
 		case FunctionType::Kind::SHA256:
 		case FunctionType::Kind::SHAKE256:
 		{
 			_functionCall.expression().accept(*this);
 			static std::map<FunctionType::Kind, u256> const contractAddresses{
-				{FunctionType::Kind::DepositRoot, 1},
 				{FunctionType::Kind::SHA256, 2},
 				{FunctionType::Kind::SHAKE256, 6}
 			};
@@ -1108,7 +1139,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 		{
 			// Calls the xmssverify precompiled contract (address 7) with the packed input
 			//   uint32 message_length (big-endian) || message || signature || extended_pk
-			// and turns the returned word into a boolean.
+			// and, like mldsa87verify, maps exactly one word holding 1 to true.
 			hypAssert(!_functionCall.annotation().tryCall, "");
 			hypAssert(arguments.size() == 3, "");
 			_functionCall.expression().accept(*this);
@@ -1145,7 +1176,8 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			m_context << Instruction::ISZERO;
 			m_context.appendConditionalRevert(true);
 			m_context << Instruction::POP << Instruction::POP;
-			m_context << u256(0) << Instruction::MLOAD << Instruction::ISZERO << Instruction::ISZERO;
+			m_context << Instruction::RETURNDATASIZE << u256(VMWordBytes) << Instruction::EQ;
+			m_context << u256(0) << Instruction::MLOAD << u256(1) << Instruction::EQ << Instruction::AND;
 			// Stack: result
 			m_context.appendJumpTo(endTag);
 			m_context << invalidKeyTag;
@@ -2722,7 +2754,6 @@ void ExpressionCompiler::appendExternalFunctionCall(
 	unsigned expectedPrecompileReturnSize = 0;
 	switch (funKind)
 	{
-	case FunctionType::Kind::DepositRoot:
 	case FunctionType::Kind::SHA256:
 		expectedPrecompileReturnSize = 32;
 		break;

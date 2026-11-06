@@ -110,6 +110,7 @@ set(libhyperion_sources
     libhyperion/SyntaxTest.cpp
     libhyperion/SyntaxTest.h
     libhyperion/ViewPureChecker.cpp
+    libhyperion/XMSSVerify.cpp
     libhyperion/analysis/FunctionCallGraph.cpp
     libhyperion/interface/FileReader.cpp
     libhyperion/ASTPropertyTest.h

@@ -2612,7 +2612,11 @@ void TypeChecker::typeCheckFunctionGeneralChecks(
 		hypAssert(!!paramArgMap[i], "unmapped parameter");
 		BoolResult result = type(*paramArgMap[i])->isImplicitlyConvertibleTo(*parameterTypes[i]);
 		if (result)
+		{
 			warnIfLiteralBaseResultIsWidened(*paramArgMap[i], *parameterTypes[i]);
+			if (i == 0 && _functionType->kind() == FunctionType::Kind::MLDSA87Verify)
+				typeCheckMLDSA87VerifyDigest(*paramArgMap[i], *parameterTypes[i]);
+		}
 		if (!result)
 		{
 			auto [errorId, description] = [&]() -> std::tuple<ErrorId, std::string> {
@@ -2655,6 +2659,32 @@ void TypeChecker::typeCheckFunctionGeneralChecks(
 			m_errorReporter.typeError(errorId, paramArgMap[i]->location(), description);
 		}
 	}
+}
+
+void TypeChecker::typeCheckMLDSA87VerifyDigest(Expression const& _digest, Type const& _digestType)
+{
+	auto const& digestType = dynamic_cast<FixedBytesType const&>(_digestType);
+	Type const* argumentType = type(_digest);
+	std::optional<size_t> argumentLength;
+	if (auto const* fixedBytes = dynamic_cast<FixedBytesType const*>(argumentType))
+		argumentLength = fixedBytes->numBytes();
+	else if (auto const* literal = dynamic_cast<StringLiteralType const*>(argumentType))
+		argumentLength = literal->value().size();
+	if (!argumentLength || *argumentLength >= digestType.numBytes())
+		return;
+	m_errorReporter.typeError(
+		6941_error,
+		_digest.location(),
+		"Invalid type for the digest argument of mldsa87verify. The implicit conversion from " +
+		argumentType->humanReadableName() +
+		" to " +
+		digestType.humanReadableName() +
+		" would pad the digest with " +
+		toString(digestType.numBytes() - *argumentLength) +
+		" zero bytes on the right, so a signature would have to cover the padded value."
+		" Pass a 64-byte value, such as the result of shake256(...), or convert explicitly"
+		" with bytes64(...) if the padding is intended."
+	);
 }
 
 bool TypeChecker::visit(FunctionCall const& _functionCall)

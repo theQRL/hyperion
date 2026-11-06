@@ -1,36 +1,34 @@
 // Real ML-DSA-87 vector generated and verified by go-qrllib v0.10.0 (seed 00..1f).
 // Reproduce with scripts/generate_mldsa87_fixtures.go -digest
 // 42000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-// The signed digest is "B" right-padded to bytes64, with context "QNS-SIGN-v1".
+// The signed digest is "B" right-padded to bytes64, with context "QNS-SIGN-v1". A narrower digest
+// has to be converted explicitly; bytes64(bytesN) pads on the right, bytes64(uint512) on the left.
 contract C {
-    function widened1(bytes1 digest) public pure returns (bool, bool, bool) {
+    function widened1(bytes1 digest) public pure returns (bool, bool) {
         bytes memory signature = signatureFixture();
         bytes memory publicKey = publicKeyFixture();
         bytes memory context = "QNS-SIGN-v1";
         return (
-            mldsa87verify(digest, signature, publicKey, context),
             mldsa87verify(bytes64(digest), signature, publicKey, context),
             mldsa87verify(bytes64(uint512(uint8(digest))), signature, publicKey, context)
         );
     }
 
-    function widened32(bytes32 digest) public pure returns (bool, bool, bool) {
+    function widened32(bytes32 digest) public pure returns (bool, bool) {
         bytes memory signature = signatureFixture();
         bytes memory publicKey = publicKeyFixture();
         bytes memory context = "QNS-SIGN-v1";
         return (
-            mldsa87verify(digest, signature, publicKey, context),
             mldsa87verify(bytes64(digest), signature, publicKey, context),
             mldsa87verify(bytes64(uint512(uint256(digest))), signature, publicKey, context)
         );
     }
 
-    function literal() public pure returns (bool, bool, bool) {
+    function literal() public pure returns (bool, bool) {
         bytes memory signature = signatureFixture();
         bytes memory publicKey = publicKeyFixture();
         bytes memory context = "QNS-SIGN-v1";
         return (
-            mldsa87verify("B", signature, publicKey, context),
             mldsa87verify(bytes64("B"), signature, publicKey, context),
             mldsa87verify(bytes64(uint512(0x42)), signature, publicKey, context)
         );
@@ -161,28 +159,28 @@ contract C {
 // ====
 // compileViaYul: also
 // ----
-// widened1(bytes1): left(0x42) -> true, true, false
-// gas ir: 427027
-// gas irOptimized: 427303
-// gas legacy: 426663
-// gas legacyOptimized: 423249
-// widened1(bytes1): left(0x47) -> false, false, false
-// gas ir: 427027
-// gas irOptimized: 427303
-// gas legacy: 426663
-// gas legacyOptimized: 423249
-// widened32(bytes32): left(0x42) -> true, true, false
-// gas ir: 427038
-// gas irOptimized: 427262
-// gas legacy: 426607
-// gas legacyOptimized: 423193
-// widened32(bytes32): left(0x4201) -> false, false, false
-// gas ir: 427050
-// gas irOptimized: 427274
-// gas legacy: 426619
-// gas legacyOptimized: 423205
-// literal() -> true, true, false
-// gas ir: 426339
-// gas irOptimized: 426921
-// gas legacy: 426076
-// gas legacyOptimized: 422790
+// widened1(bytes1): left(0x42) -> true, false
+// gas ir: 293480
+// gas irOptimized: 294327
+// gas legacy: 292132
+// gas legacyOptimized: 289852
+// widened1(bytes1): left(0x47) -> false, false
+// gas ir: 293480
+// gas irOptimized: 294327
+// gas legacy: 292132
+// gas legacyOptimized: 289852
+// widened32(bytes32): left(0x42) -> true, false
+// gas ir: 293482
+// gas irOptimized: 294283
+// gas legacy: 292076
+// gas legacyOptimized: 289796
+// widened32(bytes32): left(0x4201) -> false, false
+// gas ir: 293494
+// gas irOptimized: 294295
+// gas legacy: 292088
+// gas legacyOptimized: 289808
+// literal() -> true, false
+// gas ir: 292831
+// gas irOptimized: 293811
+// gas legacy: 291557
+// gas legacyOptimized: 289411
