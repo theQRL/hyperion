@@ -734,6 +734,34 @@ qrvmc::Result QRVMHost::resultWithGas(
 	return result;
 }
 
+namespace
+{
+
+/// Folds a storage key to its low StorageKeyBits bits, as go-qrl keys storage.
+qrvmc::bytes64 storageKey(qrvmc::bytes64 const& _key) noexcept
+{
+	qrvmc::bytes64 key = _key;
+	std::fill_n(key.bytes, VMWordBytes - StorageKeyBits / 8, uint8_t{0});
+	return key;
+}
+
+}
+
+qrvmc::bytes64 QRVMHost::get_storage(qrvmc::address const& _addr, qrvmc::bytes64 const& _key) const noexcept
+{
+	return MockedHost::get_storage(_addr, storageKey(_key));
+}
+
+qrvmc_storage_status QRVMHost::set_storage(qrvmc::address const& _addr, qrvmc::bytes64 const& _key, qrvmc::bytes64 const& _value) noexcept
+{
+	return MockedHost::set_storage(_addr, storageKey(_key), _value);
+}
+
+qrvmc_access_status QRVMHost::access_storage(qrvmc::address const& _addr, qrvmc::bytes64 const& _key) noexcept
+{
+	return MockedHost::access_storage(_addr, storageKey(_key));
+}
+
 StorageMap const& QRVMHost::get_address_storage(qrvmc::address const& _addr)
 {
 	assertThrow(account_exists(_addr), Exception, "Account does not exist.");

@@ -282,6 +282,14 @@ public:
 	/// signature: (array, index) -> slot, offset
 	std::string storageArrayIndexAccessFunction(ArrayType const& _type);
 
+	/// @returns the name of a function that reverts with Panic(0x32) unless the slot range
+	/// [startSlot, endSlot) lies within the storage the chain addresses, below 2**StorageKeyBits,
+	/// and count, the index or length the range's offset was scaled by (0 if none), is below
+	/// 2**StorageKeyBits as well, since a larger one cannot address such a slot and the scaling
+	/// could have wrapped. See ArrayType::storageSlotsNeedRangeCheck() for where it is used.
+	/// signature: (count, startSlot, endSlot)
+	std::string storageRangeCheckFunction();
+
 	/// @returns the name of a function that returns the memory address for the
 	/// given array base ref and index.
 	/// Causes invalid opcode on out of range access.

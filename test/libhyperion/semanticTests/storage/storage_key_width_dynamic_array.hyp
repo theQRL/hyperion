@@ -1,0 +1,69 @@
+contract C {
+    uint guard; // slot 0
+    uint[] a; // slot 1
+
+    // The data of `a` starts at keccak256(1), a 256-bit number.
+    function dataArea() internal pure returns (uint) {
+        return uint(uint256(keccak256(abi.encode(uint(1)))));
+    }
+
+    // The index whose slot is 2**256 - 1, the last slot the chain addresses.
+    function lastIndex() internal pure returns (uint) {
+        return 2**256 - 1 - dataArea();
+    }
+
+    // Only assembly can give a dynamic array a length its data cannot fit below 2**256.
+    function setLength(uint len) internal {
+        assembly { sstore(a.slot, len) }
+    }
+
+    function readLast() public returns (uint) {
+        setLength(2**300);
+        return a[lastIndex()];
+    }
+
+    function writeLast() public returns (uint) {
+        setLength(2**300);
+        a[lastIndex()] = 7;
+        return a[lastIndex()];
+    }
+
+    function readPastEnd() public returns (uint) {
+        setLength(2**300);
+        return a[lastIndex() + 1];
+    }
+
+    function writePastEnd() public {
+        setLength(2**300);
+        a[lastIndex() + 1] = 7;
+    }
+
+    function popLast() public returns (bool) {
+        setLength(lastIndex() + 1);
+        a.pop();
+        return a.length == lastIndex();
+    }
+
+    function popPastEnd() public {
+        setLength(lastIndex() + 2);
+        a.pop();
+    }
+
+    function deleteHuge() public {
+        setLength(2**300);
+        delete a;
+    }
+
+    function guardValue() public view returns (uint) {
+        return guard;
+    }
+}
+// ----
+// readLast() -> 0
+// writeLast() -> 7
+// readPastEnd() -> FAILURE, hex"df75fb3b", 0x32
+// writePastEnd() -> FAILURE, hex"df75fb3b", 0x32
+// popLast() -> true
+// popPastEnd() -> FAILURE, hex"df75fb3b", 0x32
+// deleteHuge() -> FAILURE, hex"df75fb3b", 0x32
+// guardValue() -> 0

@@ -14,9 +14,9 @@ contract C {
 }
 // ----
 // creation:
-//   codeDepositCost: 1261400
-//   executionCost: 662
-//   totalCost: 1262062
+//   codeDepositCost: 1279600
+//   executionCost: 668
+//   totalCost: 1280268
 // external:
 //   a(): 2425
 //   b(uint512): infinite

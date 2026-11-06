@@ -408,6 +408,12 @@ void ArrayUtils::clearArray(ArrayType const& _typeIn) const
 			{
 				// unroll loop for small arrays @todo choose a good value
 				hypAssert(_type.baseType()->storageBytes() >= VMWordBytes, "Invalid storage size.");
+				if (_type.storageSlotsNeedRangeCheck())
+				{
+					// stack: storage_ref
+					_context << Instruction::DUP1 << _type.storageSize() << Instruction::ADD << Instruction::DUP2 << u256(0);
+					_context.callYulFunction(_context.utilFunctions().storageRangeCheckFunction(), 3, 0);
+				}
 				for (unsigned i = 1; i < _type.length(); ++i)
 				{
 					_context << u256(0);
@@ -424,6 +430,11 @@ void ArrayUtils::clearArray(ArrayType const& _typeIn) const
 				_context << _type.length();
 				ArrayUtils(_context).convertLengthToSize(_type);
 				// stack: storage_ref slot_count
+				if (_type.storageSlotsNeedRangeCheck())
+				{
+					_context << Instruction::DUP2 << Instruction::DUP2 << Instruction::ADD << Instruction::DUP3 << u256(0);
+					_context.callYulFunction(_context.utilFunctions().storageRangeCheckFunction(), 3, 0);
+				}
 				if (_type.baseType()->storageBytes() < VMWordBytes)
 					ArrayUtils(_context).clearStorageLoop(TypeProvider::uint256());
 				else
@@ -457,6 +468,10 @@ void ArrayUtils::clearDynamicArray(ArrayType const& _type) const
 		m_context << longByteArray;
 	}
 	// stack: ref old_length
+	// A length of 2**StorageKeyBits or more cannot fit below 2**StorageKeyBits, and converting it
+	// to a slot count could wrap around.
+	m_context << Instruction::DUP1 << u256(StorageKeyBits) << Instruction::SHR;
+	m_context.appendConditionalPanic(util::PanicCode::ArrayOutOfBounds);
 	convertLengthToSize(_type);
 	// stack: ref slot_count
 	m_context << Instruction::SWAP1;
@@ -464,6 +479,8 @@ void ArrayUtils::clearDynamicArray(ArrayType const& _type) const
 	// stack: slot_count data_pos
 	m_context << Instruction::SWAP1;
 	// stack: data_pos slot_count
+	m_context << Instruction::DUP2 << Instruction::DUP2 << Instruction::ADD << Instruction::DUP3 << u256(0);
+	m_context.callYulFunction(m_context.utilFunctions().storageRangeCheckFunction(), 3, 0);
 	if (_type.storageStride() < VMWordBytes)
 		clearStorageLoop(TypeProvider::uint256());
 	else
@@ -562,6 +579,11 @@ void ArrayUtils::popStorageArrayElement(ArrayType const& _type) const
 				{
 					let offset_inside_slot := and(sub(length, 1), <alignmentMask>)
 					slot := add(slot, div(sub(length, 1), <wordSize>))
+					if shr(<keyBits>, slot) {
+						mstore(0, <panicSelector>)
+						mstore(4, <arrayOutOfBounds>)
+						revert(0, <panicReturndataSize>)
+					}
 					let data := sload(slot)
 
 					// Zero-out the suffix of the byte array by masking it.
@@ -578,6 +600,8 @@ void ArrayUtils::popStorageArrayElement(ArrayType const& _type) const
 		})");
 		code("panicSelector", (u512(util::selectorFromSignatureU256("Panic(uint512)")) << (VMWordBits - 256)).str());
 		code("emptyArrayPop", std::to_string(unsigned(util::PanicCode::EmptyArrayPop)));
+		code("arrayOutOfBounds", std::to_string(unsigned(util::PanicCode::ArrayOutOfBounds)));
+		code("keyBits", std::to_string(StorageKeyBits));
 		code("panicReturndataSize", std::to_string(4 + VMWordBytes));
 		code("maxShortLength", std::to_string(VMWordAlignmentMask));
 		code("shortMaskLength", std::to_string(VMWordBytes + 1));
@@ -752,6 +776,13 @@ void ArrayUtils::accessIndex(ArrayType const& _arrayType, bool _doBoundsCheck, b
 		// remove length if present
 		m_context << Instruction::SWAP1 << Instruction::POP;
 
+	if (location == DataLocation::Storage && _arrayType.isDynamicallySized())
+	{
+		// An index of 2**StorageKeyBits or more cannot address a slot below 2**StorageKeyBits, and
+		// the multiplication by the element size below could wrap around.
+		m_context << Instruction::DUP1 << u256(StorageKeyBits) << Instruction::SHR;
+		m_context.appendConditionalPanic(util::PanicCode::ArrayOutOfBounds);
+	}
 	// stack: <base_ref> <index>
 	switch (location)
 	{
@@ -822,6 +853,20 @@ void ArrayUtils::accessIndex(ArrayType const& _arrayType, bool _doBoundsCheck, b
 			if (_arrayType.baseType()->storageSize() != 1)
 				m_context << _arrayType.baseType()->storageSize() << Instruction::MUL;
 			m_context << Instruction::ADD << u256(0);
+		}
+		if (_arrayType.storageSlotsNeedRangeCheck())
+		{
+			// stack: slot byte_offset
+			// The element's first and last slot have to lie below 2**StorageKeyBits (the index was
+			// checked above). This is check_storage_range() inlined, since it runs on every access.
+			u256 const elementSlots =
+				_arrayType.baseType()->storageBytes() <= (VMWordBytes / 2) ? u256(1) : _arrayType.baseType()->storageSize();
+			m_context << Instruction::DUP2 << u256(StorageKeyBits) << Instruction::SHR;
+			if (elementSlots > 1)
+				m_context
+					<< Instruction::DUP3 << (elementSlots - 1) << Instruction::ADD
+					<< u256(StorageKeyBits) << Instruction::SHR << Instruction::OR;
+			m_context.appendConditionalPanic(util::PanicCode::ArrayOutOfBounds);
 		}
 		m_context << endTag;
 		break;

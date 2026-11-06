@@ -1,0 +1,18 @@
+contract C {
+    uint guard; // slot 0
+    uint other; // slot 1
+
+    // The chain keys storage by the low 256 bits of the slot, so 2**256 + 1 is slot 1.
+    function writeAliased() public returns (uint, uint) {
+        assembly { sstore(add(shl(256, 1), 1), 42) }
+        return (guard, other);
+    }
+
+    function readAliased() public returns (uint r) {
+        other = 7;
+        assembly { r := sload(add(shl(256, 1), 1)) }
+    }
+}
+// ----
+// writeAliased() -> 0, 42
+// readAliased() -> 7

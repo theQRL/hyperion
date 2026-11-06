@@ -629,7 +629,7 @@ The error code supplied with the error data indicates the kind of panic.
 #. 0x21: If you convert a value that is too big or negative into an enum type.
 #. 0x22: If you access a storage byte array that is incorrectly encoded.
 #. 0x31: If you call ``.pop()`` on an empty array.
-#. 0x32: If you access an array, ``bytesN`` or an array slice at an out-of-bounds or negative index (i.e. ``x[i]`` where ``i >= x.length`` or ``i < 0``).
+#. 0x32: If you access an array, ``bytesN`` or an array slice at an out-of-bounds or negative index (i.e. ``x[i]`` where ``i >= x.length`` or ``i < 0``), or if an element or member of a storage array or struct would lie at slot ``2**256`` or beyond (see :ref:`storage-key-width`).
 #. 0x41: If you allocate too much memory or create an array that is too large.
 #. 0x51: If you call a zero-initialized variable of internal function type.
 

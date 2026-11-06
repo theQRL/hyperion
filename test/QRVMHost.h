@@ -48,8 +48,6 @@ class QRVMHost: public qrvmc::MockedHost
 public:
 	// Verbatim features of MockedHost.
 	using MockedHost::account_exists;
-	using MockedHost::get_storage;
-	using MockedHost::set_storage;
 	using MockedHost::get_balance;
 	using MockedHost::get_code_size;
 	using MockedHost::get_code_hash;
@@ -57,11 +55,15 @@ public:
 	using MockedHost::get_tx_context;
 	using MockedHost::emit_log;
 	using MockedHost::access_account;
-	using MockedHost::access_storage;
 
 	// Modified features of MockedHost.
 	qrvmc::Result call(qrvmc_message const& _message) noexcept override;
 	qrvmc::bytes64 get_block_hash(int64_t number) const noexcept final;
+	/// Storage is keyed by the low StorageKeyBits bits of the slot, as go-qrl keys it, so a slot at
+	/// or above 2**StorageKeyBits aliases its low bits here as it does on the chain.
+	qrvmc::bytes64 get_storage(qrvmc::address const& _addr, qrvmc::bytes64 const& _key) const noexcept override;
+	qrvmc_storage_status set_storage(qrvmc::address const& _addr, qrvmc::bytes64 const& _key, qrvmc::bytes64 const& _value) noexcept override;
+	qrvmc_access_status access_storage(qrvmc::address const& _addr, qrvmc::bytes64 const& _key) noexcept override;
 
 	// Hyperion testing specific features.
 

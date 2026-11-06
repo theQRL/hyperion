@@ -1,0 +1,43 @@
+contract C {
+    uint guard; // slot 0
+    mapping(uint => uint[2**255]) grid; // slot 1
+
+    function base(uint k) internal pure returns (uint) {
+        return uint(uint256(keccak256(abi.encode(k, uint(1)))));
+    }
+
+    // A key whose row starts above 2**255, so that part of the row would lie at or above 2**256.
+    function highKey() internal pure returns (uint k) {
+        while (base(k) >> 255 == 0) k++;
+    }
+
+    function writeLast() public returns (uint) {
+        uint k = highKey();
+        grid[k][2**256 - 1 - base(k)] = 7;
+        return grid[k][2**256 - 1 - base(k)];
+    }
+
+    function writePastEnd() public {
+        uint k = highKey();
+        grid[k][2**256 - base(k)] = 7;
+    }
+
+    function readPastEnd() public view returns (uint) {
+        uint k = highKey();
+        return grid[k][2**256 - base(k)];
+    }
+
+    function deleteRow() public {
+        delete grid[highKey()];
+    }
+
+    function guardValue() public view returns (uint) {
+        return guard;
+    }
+}
+// ----
+// writeLast() -> 7
+// writePastEnd() -> FAILURE, hex"df75fb3b", 0x32
+// readPastEnd() -> FAILURE, hex"df75fb3b", 0x32
+// deleteRow() -> FAILURE, hex"df75fb3b", 0x32
+// guardValue() -> 0

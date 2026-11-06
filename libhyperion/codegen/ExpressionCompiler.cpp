@@ -245,8 +245,15 @@ void ExpressionCompiler::appendStateVariableAccessor(VariableDeclaration const& 
 				if (!arrayType->isByteArrayOrString())
 					continue;
 			std::pair<u256, unsigned> const& offsets = structType->storageOffsetsOfMember(names[i]);
-			m_context << Instruction::DUP1 << u256(offsets.first) << Instruction::ADD << u256(offsets.second);
 			Type const* memberType = structType->memberType(names[i]);
+			m_context << Instruction::DUP1 << u256(offsets.first) << Instruction::ADD;
+			if (StructType::memberSlotOffsetNeedsRangeCheck(offsets.first))
+			{
+				// stack: slot member_slot
+				m_context << Instruction::DUP1 << memberType->storageSize() << Instruction::ADD << Instruction::DUP2 << u256(0);
+				m_context.callYulFunction(m_context.utilFunctions().storageRangeCheckFunction(), 3, 0);
+			}
+			m_context << u256(offsets.second);
 			StorageItem(m_context, *memberType).retrieveValue(SourceLocation(), true);
 			utils().convertType(*memberType, *returnTypes[i]);
 			utils().moveToStackTop(returnTypes[i]->sizeOnStack());
@@ -2097,7 +2104,14 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 		case DataLocation::Storage:
 		{
 			std::pair<u256, unsigned> const& offsets = type.storageOffsetsOfMember(member);
-			m_context << offsets.first << Instruction::ADD << u256(offsets.second);
+			m_context << offsets.first << Instruction::ADD;
+			if (StructType::memberSlotOffsetNeedsRangeCheck(offsets.first))
+			{
+				// stack: member_slot
+				m_context << Instruction::DUP1 << memberType->storageSize() << Instruction::ADD << Instruction::DUP2 << u256(0);
+				m_context.callYulFunction(m_context.utilFunctions().storageRangeCheckFunction(), 3, 0);
+			}
+			m_context << u256(offsets.second);
 			setLValueToStorageItem(_memberAccess);
 			break;
 		}

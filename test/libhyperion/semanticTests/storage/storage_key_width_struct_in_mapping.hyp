@@ -1,0 +1,49 @@
+contract C {
+    struct S {
+        uint[2**255] big;
+        uint tail;
+    }
+    uint guard; // slot 0
+    mapping(uint => S) m; // slot 1
+
+    function base(uint k) internal pure returns (uint) {
+        return uint(uint256(keccak256(abi.encode(k, uint(1)))));
+    }
+
+    // A key whose value starts above 2**255 if `high`, below it otherwise.
+    function key(bool high) internal pure returns (uint k) {
+        while ((base(k) >> 255 == 1) != high) k++;
+    }
+
+    function tailBelowEnd() public returns (uint) {
+        uint k = key(false);
+        m[k].tail = 7;
+        return m[k].tail;
+    }
+
+    function tailPastEnd() public returns (uint) {
+        uint k = key(true);
+        m[k].tail = 7;
+        return m[k].tail;
+    }
+
+    function bigFirstElement() public returns (uint) {
+        uint k = key(true);
+        m[k].big[0] = 5;
+        return m[k].big[0];
+    }
+
+    function deleteValue() public {
+        delete m[key(true)];
+    }
+
+    function guardValue() public view returns (uint) {
+        return guard;
+    }
+}
+// ----
+// tailBelowEnd() -> 7
+// tailPastEnd() -> FAILURE, hex"df75fb3b", 0x32
+// bigFirstElement() -> 5
+// deleteValue() -> FAILURE, hex"df75fb3b", 0x32
+// guardValue() -> 0

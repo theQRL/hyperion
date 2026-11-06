@@ -121,6 +121,32 @@ in a single slot. This means the slot for
 ``data[4][9].c`` is ``keccak256(uint256(9) . keccak256(uint256(4) . uint256(1))) + 1``.
 The type of the value is ``uint256``, so it uses a single slot.
 
+.. _storage-key-width:
+
+Storage Keys Are 256 Bits Wide
+------------------------------
+
+The QRVM word is 512 bits, but the chain keys storage by the low 256 bits of the slot:
+``sstore`` and ``sload`` with a slot at or above ``2**256`` read and write slot ``s mod 2**256``.
+The layout above never produces such a slot by itself. The state variables of a contract stay
+below ``2**256`` slots, and every Keccak-256 position is a 256-bit number. A slot can only reach
+``2**256`` when an offset is added to a hashed position: an element of a dynamic array whose length
+does not fit below ``2**256`` (which only inline assembly can produce), an element or member of a
+static array or struct that spans a sizeable fraction of ``2**256`` slots, or a slot computed in
+inline assembly.
+
+The compiler therefore checks at run time that the slots it derives lie below ``2**256`` and
+reverts with ``Panic(0x32)`` otherwise: for an element access, ``push()`` and ``pop()`` on a dynamic
+array, for the ranges that ``delete``, a resize or an assignment clears or writes, and for static
+arrays and structs of at least ``2**128`` slots, including their members. Static arrays and structs
+below that size are not checked. One of their slots reaches ``2**256`` only if the hash that places
+them lands within their size of the end, which is as unlikely as a hash collision, and the check
+would cost gas on every access.
+
+Storage that inline assembly places, by assigning the ``.slot`` of a storage pointer or by using
+``sstore`` and ``sload`` directly, is not checked. Keep such slots below ``2**256``; a slot at or
+above it aliases its low 256 bits on the chain.
+
 
 .. _bytes-and-string:
 

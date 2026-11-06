@@ -449,6 +449,17 @@ void StorageItem::storeValue(Type const& _sourceType, SourceLocation const& _loc
 			}
 			else
 			{
+				// stack layout: source_ref target_ref
+				if (structType.storageSlotsNeedRangeCheck())
+				{
+					m_context << Instruction::DUP1 << structType.storageSize() << Instruction::ADD << Instruction::DUP2 << u256(0);
+					m_context.callYulFunction(m_context.utilFunctions().storageRangeCheckFunction(), 3, 0);
+				}
+				if (sourceType.location() == DataLocation::Storage && sourceType.storageSlotsNeedRangeCheck())
+				{
+					m_context << Instruction::DUP2 << sourceType.storageSize() << Instruction::ADD << Instruction::DUP3 << u256(0);
+					m_context.callYulFunction(m_context.utilFunctions().storageRangeCheckFunction(), 3, 0);
+				}
 				for (auto const& member: structType.members(nullptr))
 				{
 					// assign each member that can live outside of storage
@@ -511,6 +522,11 @@ void StorageItem::setToZero(SourceLocation const&, bool _removeReference) const
 		// @todo this can be improved: use StorageItem for non-value types, and just store 0 in
 		// all slots that contain value types later.
 		auto const& structType = dynamic_cast<StructType const&>(*m_dataType);
+		if (structType.storageSlotsNeedRangeCheck())
+		{
+			m_context << Instruction::DUP2 << structType.storageSize() << Instruction::ADD << Instruction::DUP3 << u256(0);
+			m_context.callYulFunction(m_context.utilFunctions().storageRangeCheckFunction(), 3, 0);
+		}
 		for (auto const& member: structType.members(nullptr))
 		{
 			// zero each member that is not a mapping
