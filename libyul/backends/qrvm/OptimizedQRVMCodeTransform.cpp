@@ -275,7 +275,7 @@ void OptimizedQRVMCodeTransform::createStackLayout(std::shared_ptr<DebugData con
 					varNameDeep.empty() ? varNameTop : varNameDeep,
 					deficit,
 					msg
-				));
+				) << langutil::errinfo_sourceLocation(sourceLocation));
 				m_assembly.markAsInvalid();
 			}
 		},

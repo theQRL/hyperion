@@ -1254,6 +1254,7 @@ Json::Value StandardCompiler::compileHyperion(StandardCompiler::InputsAndSetting
 			"Uncaught fatal error: " + boost::diagnostic_information(_exception)
 		));
 	}
+	// NOTE: This includes langutil::StackTooDeepError.
 	catch (CompilerError const& _exception)
 	{
 		errors.append(formatErrorWithException(
@@ -1262,6 +1263,16 @@ Json::Value StandardCompiler::compileHyperion(StandardCompiler::InputsAndSetting
 			Error::Type::CompilerError,
 			"general",
 			"Compiler error (" + _exception.lineInfo() + ")"
+		));
+	}
+	catch (yul::StackTooDeepError const& _exception)
+	{
+		errors.append(formatErrorWithException(
+			compilerStack,
+			_exception,
+			Error::Type::YulException,
+			"general",
+			"" // No prefix needed. These messages already say it's a "stack too deep" error.
 		));
 	}
 	catch (InternalCompilerError const& _exception)
@@ -1284,14 +1295,14 @@ Json::Value StandardCompiler::compileHyperion(StandardCompiler::InputsAndSetting
 			"Unimplemented feature (" + _exception.lineInfo() + ")"
 		));
 	}
-	catch (yul::YulException const& _exception)
+	catch (yul::YulAssertion const& _exception)
 	{
 		errors.append(formatErrorWithException(
 			compilerStack,
 			_exception,
 			Error::Type::YulException,
 			"general",
-			"Yul exception"
+			"Yul assertion failed (" + _exception.lineInfo() + ")"
 		));
 	}
 	catch (smtutil::SMTLogicError const& _exception)

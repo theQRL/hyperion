@@ -925,12 +925,22 @@ void CommandLineInterface::compile()
 		if (!successful)
 			hypThrow(CommandLineExecutionError, "");
 	}
+	// NOTE: This includes langutil::StackTooDeepError.
 	catch (CompilerError const& _exception)
 	{
 		m_hasOutput = true;
 		formatter.printExceptionInformation(
 			_exception,
 			Error::errorSeverity(Error::Type::CompilerError)
+		);
+		hypThrow(CommandLineExecutionError, "");
+	}
+	catch (yul::StackTooDeepError const& _exception)
+	{
+		m_hasOutput = true;
+		formatter.printExceptionInformation(
+			_exception,
+			Error::errorSeverity(Error::Type::YulException)
 		);
 		hypThrow(CommandLineExecutionError, "");
 	}
