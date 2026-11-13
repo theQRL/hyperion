@@ -1,22 +1,28 @@
 ### Unreleased
 
+### 0.3.1 (2026-11-13)
+
 Breaking Changes:
  * Builtins: Widen all `addmod` and `mulmod` parameters and return values to `uint` (`uint512`). Narrower unsigned inputs widen implicitly; assigning the result to a narrower type requires an explicit conversion. Intermediate arithmetic remains exact even when it exceeds 512 bits.
  * Code Generator: Use `Panic(uint512)` with selector `0xdf75fb3b` for compiler-generated panics and `catch Panic`. The payload remains a 4-byte selector followed by a 64-byte code. Contracts compiled by 0.2.0 retain the `0x4e487b71` selector.
- * Type System: Bare `int` and `uint` now mean `int512` and `uint512`, the full QRVM word. Explicitly sized integers keep their declared widths. This changes ABI signatures, selectors and storage layouts containing bare integers.
- * Type System: Use full-word `uint` for call value and gas options, `msg.value` and account balances. Narrower unsigned inputs widen implicitly; narrowing message values or balances requires an explicit conversion.
  * Type Checker: Reject a narrower fixed-size bytes value or a literal shorter than 64 bytes as the digest argument of `mldsa87verify`, also as a branch of a conditional, since the implicit conversion to `bytes64` would pad it with zero bytes on the right without any hint in the source. Pass a `bytes64` value, such as the result of `shake256`, or convert explicitly with `bytes64(...)` (CIPH-HYPERION-12).
  * Type System: Array and fixed-bytes indices, calldata slice bounds, allocation lengths and generated array getter indices accept full-word integers. `catch Panic(uint code)` binds a `uint512` code.
+ * Type System: Bare `int` and `uint` now mean `int512` and `uint512`, the full QRVM word. Explicitly sized integers keep their declared widths. This changes ABI signatures, selectors and storage layouts containing bare integers.
+ * Type System: Use full-word `uint` for call value and gas options, `msg.value` and account balances. Narrower unsigned inputs widen implicitly; narrowing message values or balances requires an explicit conversion.
 
 Important Bugfixes:
- * Code Generator: Mask packed internal function pointers before testing for zero in the legacy pipeline, so calling an unset pointer reverts with `Panic(0x51)` even when a nonzero neighbour shares its storage slot (CIPH-HYPERION-7).
- * Code Generator: Fix clearing and copying of storage arrays that straddle the end of storage (slot `2**512 - 1`), which could make assignment, initialization, `delete`, `push()` and `pop()` skip some or all of the intended storage writes and leave old data behind, in both code generators (upstream SOL-2025-1).
  * Code Generator: Fix `delete` applied to an element of a `bytes` array in memory zeroing the whole 64-byte word starting at the element's location instead of only the element's byte, in the legacy code generator (upstream SOL-2026-5).
- * Yul Optimizer: Fix knowledge about storage/memory address relations going stale in the `DataFlowAnalyzer` after a variable is reassigned in Yul, which could cause `LoadResolver` to replace loads with outdated values and `EqualStoreEliminator` to remove needed stores (upstream SOL-2026-7).
+ * Code Generator: Fix clearing and copying of storage arrays that straddle the end of storage (slot `2**512 - 1`), which could make assignment, initialization, `delete`, `push()` and `pop()` skip some or all of the intended storage writes and leave old data behind, in both code generators (upstream SOL-2025-1).
+ * Code Generator: Mask packed internal function pointers before testing for zero in the legacy pipeline, so calling an unset pointer reverts with `Panic(0x51)` even when a nonzero neighbour shares its storage slot (CIPH-HYPERION-7).
  * Yul Optimizer: Fix call graph cycle detection failing to classify some functions in intersecting recursive cycles as recursive, which let the IR code generator move their local variables to fixed memory offsets when working around stack-too-deep errors, so that recursive calls overwrote them (upstream SOL-2026-2).
+ * Yul Optimizer: Fix knowledge about storage/memory address relations going stale in the `DataFlowAnalyzer` after a variable is reassigned in Yul, which could cause `LoadResolver` to replace loads with outdated values and `EqualStoreEliminator` to remove needed stores (upstream SOL-2026-7).
  * Yul Optimizer: Fix too few memory slots being reserved when moving local variables to memory to work around stack-too-deep errors in code containing mutually recursive functions, so that variables of two functions that can be live at the same time could get the same slot and overwrite each other (upstream SOL-2026-4).
 
+Language Features:
+ * Add the `shake256(bytes memory) returns (bytes64)` builtin, which computes a 64-byte SHAKE256 digest through the precompiled contract at address `6`, in both code generators and the SMTChecker.
+
 Compiler Features:
+ * SMTChecker: Model `shake256`, encoding its 64-byte result as two 256-bit halves so that Z3 can reconstruct CHC answers, and encode `xmssverify`, `shake256` and `mldsa87verify` only for contracts that reference them, which leaves the queries for every other contract unchanged.
  * Type Checker: Warn when an exponentiation or left shift with a literal base, which is computed in 256 bits, is converted to a wider integer type, as in `uint512 x = 2 ** n;` or `msg.value + (1 << n)`, where for `n >= 256` the exponentiation reverts and the shift is zero (CIPH-HYPERION-35).
 
 Bugfixes:
@@ -29,6 +35,8 @@ Bugfixes:
  * Code Generator: Copy each `depositroot` argument to memory right after evaluating it in both code generators, so a storage `bytes` argument that a later argument modifies is hashed with its original contents, as the SMTChecker models and as `mldsa87verify` and `xmssverify` already do (CIPH-HYPERION-11).
  * Code Generator: Decode the `xmssverify` result as `mldsa87verify` does, mapping only exactly 64 bytes of return data holding the value `1` to `true` instead of any non-zero word, and return `false` from `mldsa87verify` for arguments of the wrong length without calling the precompiled contract, which charged its full gas for the malformed frame (CIPH-HYPERION-15).
  * Code Generator: Fix constants read in both checked and `unchecked` contexts within one contract getting the checked or unchecked semantics of whichever read the IR code generator generated first, which could remove a required overflow panic or introduce a spurious one (CIPH-HYPERION-6).
+ * Code Generator: Fix public getters of mappings cleaning the key as a `uint256` before hashing it in the legacy code generator, which truncated keys wider than 256 bits, including every `address`, so that the getter read a different slot than the contract's own code and returned the default value.
+ * Code Generator: Read the 32-byte result of the `sha256` and `depositroot` precompiles and the 64-byte result of `shake256` as go-qrl returns them, and revert when a precompile returns data of another size, in both code generators.
  * Commandline Interface: Do not allow imports from the working directory by default when it is the root of the filesystem, which made every readable file importable when no base path was given (CIPH-HYPERION-20).
  * Commandline Interface: Report an assembly import error instead of crashing when a `tag` is the last item of a `.code` array in `--import-asm-json` input, and reject more than one input file for that option with a proper error instead of an internal assertion (CIPH-HYPERION-19).
  * Commandline Interface: Report stack too deep errors from the IR pipeline and from `--strict-assembly` as ordinary errors that point to the source location where the stack limit was hit, instead of printing diagnostic information meant for internal compiler errors and exiting with code 2.
@@ -42,13 +50,14 @@ Bugfixes:
  * Yul Optimizer: Limit the nesting depth of brackets in a custom step sequence to 3 levels, since every level can repeat its content up to 12 times (CIPH-HYPERION-18).
 
 Build System:
- * Emscripten: Set the wasm stack size to 5 MB explicitly (the default up to Emscripten 3.1.26, 64 KB from 3.1.27) and check the stack pointer on every assignment (`STACK_OVERFLOW_CHECK=2`), so that recursion which exhausts the stack aborts instead of corrupting memory (CIPH-HYPERION-16, CIPH-HYPERION-17). Export `stackSave` and `stackRestore`, which hypc-js uses to put the stack pointer back after an exception has unwound through the compiler.
- * Tests: Re-enable 47 Zond semantic regressions, extend dual-pipeline coverage, require explanations for single-pipeline fixtures, and report excluded tests as skipped. Add differential integer cleanup tests for every supported width and 512-bit opcode boundaries (CIPH-HYPERION-13).
- * Tests: Make the test host's `depositroot` precompile pad and truncate its input like go-qrl instead of rejecting other lengths, implement the `modexp` precompile as go-qrl does, and check both against go-qrl's test vectors. A semantic test setting replaces the magic `shake256` input that made the host return a short output (CIPH-HYPERION-14).
- * Tests: Check the test host's `mldsa87verify` and `xmssverify` precompiles against go-qrl's test vectors and its `shake256` precompile against vectors generated with go-qrl's implementation (CIPH-HYPERION-14).
  * Build with current Apple toolchains (Apple Clang 21, libc++ 22), Boost 1.88+ (Boost.Process v1 headers) and Boost 1.89+ (no compiled Boost.System library).
+ * Emscripten: Set the wasm stack size to 5 MB explicitly (the default up to Emscripten 3.1.26, 64 KB from 3.1.27) and check the stack pointer on every assignment (`STACK_OVERFLOW_CHECK=2`), so that recursion which exhausts the stack aborts instead of corrupting memory (CIPH-HYPERION-16, CIPH-HYPERION-17). Export `stackSave` and `stackRestore`, which hypc-js uses to put the stack pointer back after an exception has unwound through the compiler.
  * Raise the macOS deployment target from 10.14 to 11.0, the lowest that libc++ 22 supports. The released `hypc-macos` binary requires macOS 11 or later.
  * Release `hypc-macos` as a universal binary that runs natively on Apple silicon and Intel Macs. Earlier releases were x86-64 only and needed Rosetta 2 on Apple silicon, which Apple supports for general use only through macOS 27. Build its Boost and jsoncpp libraries for the macOS 11.0 deployment target instead of the build machine's macOS version.
+ * Tests: Check the test host's `mldsa87verify` and `xmssverify` precompiles against go-qrl's test vectors and its `shake256` precompile against vectors generated with go-qrl's implementation (CIPH-HYPERION-14).
+ * Tests: Keep the full 64-byte topic of indexed `bytes33` to `bytes64` event parameters in the semantic test framework, mark exactly the seven dispatched precompiles as existing in the test host, return a 32-byte deposit root from it and make its `shake256` charge gas and refuse short calls as go-qrl does.
+ * Tests: Make the test host's `depositroot` precompile pad and truncate its input like go-qrl instead of rejecting other lengths, implement the `modexp` precompile as go-qrl does, and check both against go-qrl's test vectors. A semantic test setting replaces the magic `shake256` input that made the host return a short output (CIPH-HYPERION-14).
+ * Tests: Re-enable 47 Zond semantic regressions, extend dual-pipeline coverage, require explanations for single-pipeline fixtures, and report excluded tests as skipped. Add differential integer cleanup tests for every supported width and 512-bit opcode boundaries (CIPH-HYPERION-13).
 
 ### 0.2.0 (2026-10-19)
 
