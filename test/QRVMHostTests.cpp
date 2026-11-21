@@ -23,7 +23,11 @@
 #include <libhyputil/CommonIO.h>
 #include <libhyputil/JSON.h>
 
+#include <algorithm>
 #include <limits>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace hyperion::test
 {
@@ -269,23 +273,114 @@ BOOST_AUTO_TEST_CASE(go_qrl_xmssverify_vectors)
 	checkGoQrlPrecompileVectors(*m_qrvmcHost, 7, "xmss_verify.json");
 }
 
-BOOST_AUTO_TEST_CASE(modexp_zero_base_and_modulus_lengths)
+namespace
 {
-	// go-qrl's bigModExp returns empty output when the base and modulus lengths are zero,
-	// whatever the exponent length, and charges the minimum of 200 gas.
-	bytes input(96, 0);
-	input[32] = 0x80; // Exponent length 2**255.
+
+/// Calls the modexp precompile with only its three length fields as input, so that the base,
+/// the exponent and the modulus read as zero.
+qrvmc::Result callModExpWithLengths(
+	QRVMHost& _host,
+	u256 const& _baseLength,
+	u256 const& _exponentLength,
+	u256 const& _modulusLength,
+	int64_t _gas
+)
+{
+	bytes const input = toBigEndian(_baseLength) + toBigEndian(_exponentLength) + toBigEndian(_modulusLength);
 	qrvmc_message message{};
 	message.kind = QRVMC_CALL;
 	message.recipient.bytes[sizeof(message.recipient.bytes) - 1] = 5;
 	message.code_address = message.recipient;
 	message.input_data = input.data();
 	message.input_size = input.size();
-	message.gas = 100000;
-	qrvmc::Result const result = m_qrvmcHost->call(message);
-	BOOST_CHECK_EQUAL(result.status_code, QRVMC_SUCCESS);
-	BOOST_CHECK_EQUAL(result.output_size, 0);
-	BOOST_CHECK_EQUAL(message.gas - result.gas_left, 200);
+	message.gas = _gas;
+	return _host.call(message);
+}
+
+}
+
+BOOST_AUTO_TEST_CASE(modexp_zero_base_and_modulus_lengths)
+{
+	// go-qrl's bigModExp returns empty output when the base and modulus lengths are zero,
+	// whatever the exponent length up to the limit of 1024 bytes. The exponent length still
+	// sets the price: the minimum of 500 gas up to 32 bytes, and a multiplication complexity of
+	// 16 times 16 iterations for each further byte beyond that.
+	int64_t const gas = 1000000;
+	std::vector<std::pair<unsigned, int64_t>> const cases{
+		{0, 500},
+		{32, 500},
+		{33, 500},
+		{64, 16 * 16 * (64 - 32)},
+		{1024, 16 * 16 * (1024 - 32)}
+	};
+	for (auto const& [exponentLength, gasUsed]: cases)
+	{
+		qrvmc::Result const result = callModExpWithLengths(*m_qrvmcHost, 0, exponentLength, 0, gas);
+		BOOST_TEST_CONTEXT("exponent length " << exponentLength)
+		{
+			BOOST_CHECK_EQUAL(result.status_code, QRVMC_SUCCESS);
+			BOOST_CHECK_EQUAL(result.output_size, 0);
+			BOOST_CHECK_EQUAL(gas - result.gas_left, gasUsed);
+		}
+	}
+}
+
+BOOST_AUTO_TEST_CASE(modexp_length_limit)
+{
+	// The cases of go-qrl's TestPrecompiledModExpLengthLimit: each length may be at most 1024
+	// bytes (EIP-7823), and a longer one makes the call fail, which leaves it no gas. go-qrl
+	// prices a length of 2**64, which would read as zero in 64 bits, at the maximum uint64, so
+	// here, where a message cannot supply that much, the call runs out of gas instead.
+	int64_t const gas = std::numeric_limits<int64_t>::max();
+	u256 const overflow = u256(1) << 64;
+	struct Case
+	{
+		std::string name;
+		u256 baseLength;
+		u256 exponentLength;
+		u256 modulusLength;
+		qrvmc_status_code status;
+	};
+	std::vector<Case> const cases{
+		{"all-at-limit", 1024, 1024, 1024, QRVMC_SUCCESS},
+		{"base-over-limit", 1025, 0, 0, QRVMC_FAILURE},
+		{"exponent-over-limit", 0, 1025, 0, QRVMC_FAILURE},
+		{"modulus-over-limit", 0, 0, 1025, QRVMC_FAILURE},
+		{"base-overflows-uint64", overflow, 0, 0, QRVMC_OUT_OF_GAS},
+		{"exponent-overflows-uint64", 0, overflow, 0, QRVMC_OUT_OF_GAS},
+		{"modulus-overflows-uint64", 0, 0, overflow, QRVMC_OUT_OF_GAS}
+	};
+	for (auto const& testCase: cases)
+	{
+		qrvmc::Result const result = callModExpWithLengths(
+			*m_qrvmcHost,
+			testCase.baseLength,
+			testCase.exponentLength,
+			testCase.modulusLength,
+			gas
+		);
+		BOOST_TEST_CONTEXT(testCase.name)
+		{
+			BOOST_CHECK_EQUAL(result.status_code, testCase.status);
+			if (testCase.status == QRVMC_SUCCESS)
+			{
+				// A zero modulus of 1024 bytes: 1024 zero bytes, for a multiplication complexity
+				// of 2 * (1024 / 8) ** 2 times 16 iterations for each exponent byte past the 32nd.
+				BOOST_CHECK_EQUAL(result.output_size, 1024);
+				BOOST_CHECK(std::all_of(
+					result.output_data,
+					result.output_data + result.output_size,
+					[](uint8_t _byte) { return _byte == 0; }
+				));
+				BOOST_CHECK_EQUAL(gas - result.gas_left, int64_t(2 * 128 * 128) * 16 * (1024 - 32));
+			}
+			else
+			{
+				BOOST_CHECK_EQUAL(result.output_size, 0);
+				BOOST_CHECK_EQUAL(result.gas_left, 0);
+			}
+		}
+	}
 }
 
 BOOST_AUTO_TEST_SUITE_END()

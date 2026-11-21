@@ -1,5 +1,8 @@
 ### Unreleased
 
+Build System:
+ * Tests: Make the test host's `modexp` precompile follow go-qrl in failing a call whose base, exponent or modulus length exceeds 1024 bytes (EIP-7823) and in charging the gas of EIP-7883, and check it against go-qrl's updated test vectors.
+
 ### 0.3.1 (2026-11-13)
 
 Breaking Changes:

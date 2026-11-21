@@ -1,7 +1,7 @@
 # Precompile test vectors from go-qrl
 
 `depositroot.json`, `mldsa87_verify.json`, `modexp.json` and `xmss_verify.json` are copied unchanged
-from go-qrl's `core/vm/testdata/precompiles/` at commit `f3864c46b3f94662c514105da1efaf3466394fae`
+from go-qrl's `core/vm/testdata/precompiles/` at commit `6392e3954ab9837b252024f8e79f4f1c79e9a67d`
 (<https://github.com/theQRL/go-qrl>, LGPL-3.0). go-qrl has no vectors for its `shake256` precompile,
 so `shake256.json` was generated with `scripts/generate_shake256_vectors.go`, which runs go-qrl's own
 precompile at the same commit for the output and the gas. `test/QRVMHostTests.cpp` runs every vector

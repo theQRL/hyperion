@@ -1,5 +1,5 @@
 // The modexp precompile at address 5, as go-qrl implements it: EIP-198 with 32-byte length
-// fields and the gas of EIP-2565.
+// fields, the length limit of EIP-7823 and the gas of EIP-7883.
 contract C {
     function modexp(bytes memory base, bytes memory exponent, bytes memory modulus) public view returns (bool, bytes memory) {
         bytes memory input = abi.encodePacked(
@@ -40,6 +40,21 @@ contract C {
         // exponent and modulus read as zero, so the result is one zero byte.
         return raw(abi.encodePacked(uint256(1), uint256(1), uint256(1), hex"03"), 1000);
     }
+
+    function lengths(uint256 baseLength, uint256 exponentLength, uint256 modulusLength) public view returns (bool, bytes memory) {
+        // Only the length fields, so the base, exponent and modulus read as zero. Each length may
+        // be at most 1024 bytes: a longer one makes the call fail, even with enough gas for it.
+        return raw(abi.encodePacked(baseLength, exponentLength, modulusLength), 300000);
+    }
+
+    function belowMinimumGas() public view returns (bool, bytes memory) {
+        // The cheapest call costs 500 gas.
+        return raw(abi.encodePacked(uint256(1), uint256(1), uint256(1), hex"030507"), 499);
+    }
+
+    function minimumGas() public view returns (bool, bytes memory) {
+        return raw(abi.encodePacked(uint256(1), uint256(1), uint256(1), hex"030507"), 500);
+    }
 }
 // ----
 // small() -> true, 0x80, 1, hex"05000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
@@ -48,3 +63,11 @@ contract C {
 // onlyExponent() -> 1, 0x80, 0
 // fermat() -> true, 0x80, 0x20, hex"00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000"
 // shortInput() -> true, 0x80, 1, hex"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+// lengths(uint256,uint256,uint256): 1024, 0, 0 -> true, 0x80, 0
+// lengths(uint256,uint256,uint256): 1025, 0, 0 -> false, 0x80, 0
+// lengths(uint256,uint256,uint256): 0, 1024, 0 -> true, 0x80, 0
+// lengths(uint256,uint256,uint256): 0, 1025, 0 -> false, 0x80, 0
+// lengths(uint256,uint256,uint256): 0, 0, 1025 -> false, 0x80, 0
+// lengths(uint256,uint256,uint256): 0x010000000000000000, 0, 0 -> false, 0x80, 0
+// belowMinimumGas() -> false, 0x80, 0
+// minimumGas() -> true, 0x80, 1, hex"05000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"

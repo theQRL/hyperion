@@ -571,7 +571,8 @@ qrvmc::Result QRVMHost::precompileIdentity(qrvmc_message const& _message) noexce
 
 qrvmc::Result QRVMHost::precompileModExp(qrvmc_message const& _message) noexcept
 {
-	// Mirrors go-qrl's bigModExp, which is EIP-198 with the gas of EIP-2565. The input is
+	// Mirrors go-qrl's bigModExp, which is EIP-198 with the length limit of EIP-7823 and the gas
+	// of EIP-7883. The input is
 	//   base_length(32) || exponent_length(32) || modulus_length(32) || base || exponent || modulus,
 	// with 32-byte big-endian length fields as on Ethereum. Missing input bytes read as zero.
 	bytesConstRef const input(_message.input_data, _message.input_size);
@@ -602,25 +603,34 @@ qrvmc::Result QRVMHost::precompileModExp(qrvmc_message const& _message) noexcept
 		));
 	bigint adjustedExponentLength = 0;
 	if (exponentLength > 32)
-		adjustedExponentLength = 8 * (exponentLength - 32);
+		adjustedExponentLength = 16 * (exponentLength - 32);
 	if (exponentHead > 0)
 		adjustedExponentLength += boost::multiprecision::msb(exponentHead);
-	bigint gas = (std::max(modulusLength, baseLength) + 7) / 8;
-	gas = gas * gas * std::max(adjustedExponentLength, bigint(1)) / 3;
-	gas = std::max(gas, bigint(200));
+	bigint const maxLength = std::max(modulusLength, baseLength);
+	bigint multiplicationComplexity = 16;
+	if (maxLength > 32)
+	{
+		bigint const words = (maxLength + 7) / 8;
+		multiplicationComplexity = 2 * words * words;
+	}
+	bigint gas = multiplicationComplexity * std::max(adjustedExponentLength, bigint(1));
+	gas = std::max(gas, bigint(500));
+	// The price may exceed any gas a message can carry, so it cannot go through resultWithGas.
 	if (gas > bigint(_message.gas))
-		return resultWithGas(_message.gas, std::numeric_limits<int64_t>::max(), {});
+		return qrvmc::Result{QRVMC_OUT_OF_GAS};
 	int64_t const gasCost = static_cast<int64_t>(gas);
 
-	// Output, as in go-qrl's bigModExp.Run, which returns empty output for zero base and modulus
-	// lengths before it reads the exponent, so the exponent length does not matter then.
+	// Output, as in go-qrl's bigModExp.Run. A length above 1024 bytes makes the call fail, which
+	// consumes all of its gas. go-qrl checks this after it has charged the gas, and before
+	// anything else, so the limit also applies when the base and modulus lengths are zero.
+	if (baseLength > 1024 || exponentLength > 1024 || modulusLength > 1024)
+		return resultWithFailure();
+	// go-qrl returns empty output for zero base and modulus lengths before it reads the exponent,
+	// so the exponent does not matter then.
 	bytes static output;
 	output.clear();
 	if (baseLength == 0 && modulusLength == 0)
 		return resultWithGas(_message.gas, gasCost, output);
-	// Paying for the call bounds the other lengths; this check only guards the conversions.
-	if (baseLength + exponentLength + modulusLength > std::numeric_limits<uint32_t>::max())
-		return resultWithFailure();
 	size_t const baseSize = static_cast<size_t>(baseLength);
 	size_t const exponentSize = static_cast<size_t>(exponentLength);
 	size_t const modulusSize = static_cast<size_t>(modulusLength);
