@@ -1,7 +1,7 @@
 # QRVMC
 
 This is an import of [QRVMC](https://github.com/theQRL/qrvmc) (`include/qrvmc/` and `lib/loader/loader.c`) at commit
-`8b27cd8232cd9f561c4e6601e368b80540e5c71b`: version [3.0.0](https://github.com/theQRL/qrvmc/releases/tag/v3.0.0) with the
+`dce3a201658484579afba2facd987d94ef1734cf`: version [3.0.0](https://github.com/theQRL/qrvmc/releases/tag/v3.0.0) with the
 Host methods of the transient storage ([EIP-1153](https://eips.ethereum.org/EIPS/eip-1153)), `get_transient_storage` and
 `set_transient_storage`, which a QRVM test engine with `TLOAD` and `TSTORE` calls. Update this import and the qrvmone pin
 in `.github/workflows/ci.yml` and `.github/workflows/linux.yml` together. The loader rejects a test engine built against

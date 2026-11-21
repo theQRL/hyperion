@@ -90,7 +90,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: theQRL/qrvmone
-          ref: 4fc1ac22af59ed0e40861a55c292e74e6f4dbd2e # v0.13.0
+          ref: 2111a6fdab73ba97b0cd17ee2aba96d527b62ebd # main after v0.13.0: TLOAD and TSTORE (EIP-1153)
           path: deps/qrvmone
           submodules: recursive
           persist-credentials: false
