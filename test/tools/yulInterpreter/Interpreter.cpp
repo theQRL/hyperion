@@ -52,6 +52,13 @@ void InterpreterState::dumpStorage(ostream& _out) const
 			_out << "  " << slot.first.hex() << ": " << slot.second.hex() << endl;
 }
 
+void InterpreterState::dumpTransientStorage(ostream& _out) const
+{
+	for (auto const& slot: transientStorage)
+		if (slot.second != h512{})
+			_out << "  " << slot.first.hex() << ": " << slot.second.hex() << endl;
+}
+
 void InterpreterState::dumpTraceAndState(ostream& _out, bool _disableMemoryTrace) const
 {
 	_out << "Trace:" << endl;
@@ -70,6 +77,12 @@ void InterpreterState::dumpTraceAndState(ostream& _out, bool _disableMemoryTrace
 	}
 	_out << "Storage dump:" << endl;
 	dumpStorage(_out);
+
+	if (!transientStorage.empty())
+	{
+		_out << "Transient storage dump:" << endl;
+		dumpTransientStorage(_out);
+	}
 
 	if (!calldata.empty())
 	{

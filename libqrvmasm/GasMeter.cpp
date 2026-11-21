@@ -289,6 +289,7 @@ unsigned GasMeter::runGas(Instruction _instruction)
 	case Tier::Mid:     return GasCosts::tier4Gas;
 	case Tier::High:    return GasCosts::tier5Gas;
 	case Tier::Ext:     return GasCosts::tier6Gas;
+	case Tier::WarmAccess: return GasCosts::warmStorageReadCost;
 	default: break;
 	}
 	assertThrow(false, OptimizerException, "Invalid gas tier for instruction " + instructionInfo(_instruction).name);

@@ -1644,6 +1644,58 @@ BOOST_AUTO_TEST_CASE(cse_sload_verbatim_dup)
 	checkFullCSE(input, output);
 }
 
+BOOST_AUTO_TEST_CASE(cse_tload_twice)
+{
+	// Nothing inside a block writes transient storage, so two loads of a slot give the same value.
+	AssemblyItems input{
+		u256(0),
+		Instruction::TLOAD,
+		u256(0),
+		Instruction::TLOAD,
+	};
+
+	AssemblyItems output{
+		u256(0),
+		Instruction::TLOAD,
+		Instruction::DUP1,
+	};
+
+	checkCSE(input, output);
+	checkFullCSE(input, output);
+}
+
+BOOST_AUTO_TEST_CASE(cse_tstore_tload)
+{
+	// A TSTORE ends the block: the store stays, and the load after it takes neither the value
+	// of the load before it nor the value stored.
+	AssemblyItems input{
+		u256(0),
+		Instruction::TLOAD,
+		u256(7),
+		u256(0),
+		Instruction::TSTORE,
+		u256(0),
+		Instruction::TLOAD,
+	};
+
+	checkFullCSE(input, input);
+}
+
+BOOST_AUTO_TEST_CASE(cse_tstore_twice)
+{
+	// Unlike two SSTOREs to a slot, of which only the last one is kept, both TSTOREs stay.
+	AssemblyItems input{
+		u256(7),
+		u256(0),
+		Instruction::TSTORE,
+		u256(8),
+		u256(0),
+		Instruction::TSTORE,
+	};
+
+	checkFullCSE(input, input);
+}
+
 BOOST_AUTO_TEST_CASE(cse_verbatim_sload_sideeffect)
 {
 	auto verbatim = AssemblyItem{bytes{1, 2, 3, 4, 5}, 0, 0};

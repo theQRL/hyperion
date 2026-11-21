@@ -8,5 +8,5 @@
 // : movable, movable apart from effects, can be removed, can be removed if no msize
 // a: writes storage
 // f: writes storage
-// g: writes other state, writes storage, writes memory
+// g: writes other state, writes storage, writes memory, writes transient storage
 // h: movable apart from effects, can be removed, can be removed if no msize, reads storage

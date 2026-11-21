@@ -23,6 +23,8 @@
 
 #include <liblangutil/ErrorReporter.h>
 #include <liblangutil/SourceLocation.h>
+
+#include <algorithm>
 #include <memory>
 
 using namespace hyperion;
@@ -79,6 +81,13 @@ void ErrorReporter::error(ErrorId _errorId, Error::Type _type, SourceLocation co
 bool ErrorReporter::hasExcessiveErrors() const
 {
 	return m_errorCount > c_maxErrorsAllowed;
+}
+
+bool ErrorReporter::hasError(std::initializer_list<ErrorId> const& _errorIds) const
+{
+	return std::any_of(m_errorList.begin(), m_errorList.end(), [&](std::shared_ptr<Error const> const& _error) {
+		return std::find(_errorIds.begin(), _errorIds.end(), _error->errorId()) != _errorIds.end();
+	});
 }
 
 bool ErrorReporter::checkForExcessiveErrors(Error::Type _type)

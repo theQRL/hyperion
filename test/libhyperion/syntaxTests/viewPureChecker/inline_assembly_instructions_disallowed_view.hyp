@@ -11,6 +11,7 @@ contract C {
             log2(0, 1, 2, 3)
             log3(0, 1, 2, 3, 4)
             log4(0, 1, 2, 3, 4, 5)
+            tstore(0, 1)
 
             // These two are disallowed too but the error suppresses other errors.
             //pop(msize())
@@ -19,6 +20,7 @@ contract C {
     }
 }
 // ----
+// Warning 2394: (406-412): Transient storage as defined by EIP-1153 can break the composability of smart contracts: Since transient storage is cleared only at the end of the transaction and not at the end of the outermost call frame to the contract within a transaction, your contract may unintentionally misbehave when invoked multiple times in a complex transaction. To avoid this, be sure to clear all transient storage at the end of any call to your contract. The use of transient storage for reentrancy guards that are cleared at the end of the call is safe.
 // TypeError 8961: (75-87): Function cannot be declared as view because this expression (potentially) modifies the state.
 // TypeError 8961: (104-119): Function cannot be declared as view because this expression (potentially) modifies the state.
 // TypeError 8961: (137-156): Function cannot be declared as view because this expression (potentially) modifies the state.
@@ -29,3 +31,4 @@ contract C {
 // TypeError 8961: (310-326): Function cannot be declared as view because this expression (potentially) modifies the state.
 // TypeError 8961: (339-358): Function cannot be declared as view because this expression (potentially) modifies the state.
 // TypeError 8961: (371-393): Function cannot be declared as view because this expression (potentially) modifies the state.
+// TypeError 8961: (406-418): Function cannot be declared as view because this expression (potentially) modifies the state.

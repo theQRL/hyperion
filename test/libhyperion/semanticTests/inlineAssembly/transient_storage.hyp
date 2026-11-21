@@ -1,0 +1,39 @@
+contract C {
+    function set(uint slot, uint value) public {
+        assembly {
+            tstore(slot, value)
+        }
+    }
+
+    function get(uint slot) public view returns (uint value) {
+        assembly {
+            value := tload(slot)
+        }
+    }
+
+    function setAndGet(uint slot, uint value) public returns (uint result) {
+        assembly {
+            tstore(slot, value)
+            result := tload(slot)
+        }
+    }
+
+    function overwrite(uint value) public returns (uint a, uint b, uint inStorage) {
+        assembly {
+            tstore(1, value)
+            tstore(2, add(value, 1))
+            tstore(1, add(tload(1), tload(2)))
+            a := tload(1)
+            b := tload(2)
+            inStorage := sload(1)
+        }
+    }
+}
+// ----
+// get(uint512): 0 -> 0
+// setAndGet(uint512,uint512): 0, 42 -> 42
+// get(uint512): 0 -> 0
+// set(uint512,uint512): 7, 9 ->
+// get(uint512): 7 -> 0
+// overwrite(uint512): 10 -> 21, 11, 0
+// get(uint512): 1 -> 0

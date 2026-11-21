@@ -1,0 +1,34 @@
+contract C {
+    uint public entered;
+
+    modifier nonReentrant {
+        assembly {
+            if tload(0) { revert(0, 0) }
+            tstore(0, 1)
+        }
+        _;
+        assembly {
+            tstore(0, 0)
+        }
+    }
+
+    function guarded(bool reenter) public nonReentrant returns (bool innerCallSucceeded) {
+        ++entered;
+        if (reenter)
+            (innerCallSucceeded, ) = address(this).call(abi.encodeCall(this.guarded, (false)));
+    }
+
+    function locked() public view returns (uint value) {
+        assembly {
+            value := tload(0)
+        }
+    }
+}
+// ----
+// guarded(bool): false -> false
+// entered() -> 1
+// guarded(bool): true -> false
+// entered() -> 2
+// locked() -> 0
+// guarded(bool): false -> false
+// entered() -> 3

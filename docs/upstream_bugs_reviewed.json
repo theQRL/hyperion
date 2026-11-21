@@ -51,7 +51,7 @@
         "name": "TransientStorageClearingHelperCollision",
         "announced": "2026-02-18",
         "reviewed": "2026-11-02",
-        "notAffected": "Hyperion has no transient storage. It arrived in Solidity 0.8.28, after the fork, and the QRVM has no TSTORE or TLOAD.",
+        "notAffected": "Hyperion has no transient state variables, which the bug needs. They arrived in Solidity 0.8.28, after the fork. The QRVM has TSTORE and TLOAD, but Hyperion only offers them as the tstore and tload builtins of inline assembly, which the compiler does not generate code with.",
         "late": "Announced before Hyperion adopted the 30-day review in SECURITY.md (November 2026)."
     },
     {

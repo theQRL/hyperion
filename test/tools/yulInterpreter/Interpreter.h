@@ -81,6 +81,7 @@ struct InterpreterState
 	/// This is different than memory.size() because we ignore gas.
 	u512 msize;
 	std::map<util::h512, util::h512> storage;
+	std::map<util::h512, util::h512> transientStorage;
 	util::h512 address = util::h512("0x0000000000000000000000000000000011111111");
 	u512 balance = 0x22222222;
 	u512 selfbalance = 0x22223333;
@@ -117,6 +118,8 @@ struct InterpreterState
 	void dumpTraceAndState(std::ostream& _out, bool _disableMemoryTrace) const;
 	/// Prints non-zero storage to @param _out.
 	void dumpStorage(std::ostream& _out) const;
+	/// Prints non-zero transient storage to @param _out.
+	void dumpTransientStorage(std::ostream& _out) const;
 
 	bytes readMemory(u512 const& _offset, u512 const& _size)
 	{

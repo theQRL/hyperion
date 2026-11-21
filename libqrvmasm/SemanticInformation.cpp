@@ -38,9 +38,24 @@ std::vector<SemanticInformation::Operation> SemanticInformation::readWriteOperat
 	{
 		assertThrow(memory(_instruction) == Effect::None, OptimizerException, "");
 		assertThrow(storage(_instruction) != Effect::None, OptimizerException, "");
+		assertThrow(transientStorage(_instruction) == Effect::None, OptimizerException, "");
 		Operation op;
 		op.effect = storage(_instruction);
 		op.location = Location::Storage;
+		op.startParameter = 0;
+		// We know that exactly one slot is affected.
+		op.lengthConstant = 1;
+		return {op};
+	}
+	case Instruction::TSTORE:
+	case Instruction::TLOAD:
+	{
+		assertThrow(memory(_instruction) == Effect::None, OptimizerException, "");
+		assertThrow(storage(_instruction) == Effect::None, OptimizerException, "");
+		assertThrow(transientStorage(_instruction) != Effect::None, OptimizerException, "");
+		Operation op;
+		op.effect = transientStorage(_instruction);
+		op.location = Location::TransientStorage;
 		op.startParameter = 0;
 		// We know that exactly one slot is affected.
 		op.lengthConstant = 1;
@@ -112,10 +127,14 @@ std::vector<SemanticInformation::Operation> SemanticInformation::readWriteOperat
 		size_t paramCount = static_cast<size_t>(instructionInfo(_instruction).args);
 		std::vector<Operation> operations{
 			Operation{Location::Memory, Effect::Read, paramCount - 4, paramCount - 3, {}},
-			Operation{Location::Storage, Effect::Read, {}, {}, {}}
+			Operation{Location::Storage, Effect::Read, {}, {}, {}},
+			Operation{Location::TransientStorage, Effect::Read, {}, {}, {}}
 		};
 		if (_instruction != Instruction::STATICCALL)
+		{
 			operations.emplace_back(Operation{Location::Storage, Effect::Write, {}, {}, {}});
+			operations.emplace_back(Operation{Location::TransientStorage, Effect::Write, {}, {}, {}});
+		}
 		operations.emplace_back(Operation{
 			Location::Memory,
 			Effect::Write,
@@ -138,13 +157,19 @@ std::vector<SemanticInformation::Operation> SemanticInformation::readWriteOperat
 				{}
 			},
 			Operation{Location::Storage, Effect::Read, {}, {}, {}},
-			Operation{Location::Storage, Effect::Write, {}, {}, {}}
+			Operation{Location::Storage, Effect::Write, {}, {}, {}},
+			Operation{Location::TransientStorage, Effect::Read, {}, {}, {}},
+			Operation{Location::TransientStorage, Effect::Write, {}, {}, {}}
 		};
 	case Instruction::MSIZE:
 		// This is just to satisfy the assert below.
 		return std::vector<Operation>{};
 	default:
-		assertThrow(storage(_instruction) == None && memory(_instruction) == None, AssemblyException, "");
+		assertThrow(
+			storage(_instruction) == None && memory(_instruction) == None && transientStorage(_instruction) == None,
+			AssemblyException,
+			""
+		);
 	}
 	return {};
 }
@@ -326,6 +351,7 @@ bool SemanticInformation::movable(Instruction _instruction)
 	case Instruction::EXTCODEHASH:
 	case Instruction::RETURNDATASIZE:
 	case Instruction::SLOAD:
+	case Instruction::TLOAD:
 	case Instruction::PC:
 	case Instruction::MSIZE:
 	case Instruction::GAS:
@@ -396,6 +422,7 @@ bool SemanticInformation::movableApartFromEffects(Instruction _instruction)
 	case Instruction::BALANCE:
 	case Instruction::SELFBALANCE:
 	case Instruction::SLOAD:
+	case Instruction::TLOAD:
 	case Instruction::KECCAK256:
 	case Instruction::MLOAD:
 		return true;
@@ -417,6 +444,27 @@ SemanticInformation::Effect SemanticInformation::storage(Instruction _instructio
 		return SemanticInformation::Write;
 
 	case Instruction::SLOAD:
+	case Instruction::STATICCALL:
+		return SemanticInformation::Read;
+
+	default:
+		return SemanticInformation::None;
+	}
+}
+
+SemanticInformation::Effect SemanticInformation::transientStorage(Instruction _instruction)
+{
+	switch (_instruction)
+	{
+	// A call or a creation may run code of this contract again, which shares its transient storage.
+	case Instruction::CALL:
+	case Instruction::DELEGATECALL:
+	case Instruction::CREATE:
+	case Instruction::CREATE2:
+	case Instruction::TSTORE:
+		return SemanticInformation::Write;
+
+	case Instruction::TLOAD:
 	case Instruction::STATICCALL:
 		return SemanticInformation::Read;
 
@@ -479,6 +527,7 @@ bool SemanticInformation::invalidInPureFunctions(Instruction _instruction)
 	case Instruction::GASLIMIT:
 	case Instruction::STATICCALL:
 	case Instruction::SLOAD:
+	case Instruction::TLOAD:
 		return true;
 	default:
 		break;
@@ -491,6 +540,7 @@ bool SemanticInformation::invalidInViewFunctions(Instruction _instruction)
 	switch (_instruction)
 	{
 	case Instruction::SSTORE:
+	case Instruction::TSTORE:
 	case Instruction::JUMP:
 	case Instruction::JUMPI:
 	case Instruction::LOG0:

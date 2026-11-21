@@ -157,11 +157,15 @@ void QRVMHost::newTransactionFrame()
 	recorded_account_accesses.clear();
 
 	for (auto& [address, account]: accounts)
+	{
+		// EIP-1153: transient storage does not outlive the transaction.
+		account.transient_storage.clear();
 		for (auto& [slot, value]: account.storage)
 		{
 			value.access_status = QRVMC_ACCESS_COLD; // Clear EIP-2929 storage access indicator
 			value.original = value.current;			// Clear EIP-2200 dirty slot
 		}
+	}
 }
 
 void QRVMHost::transfer(qrvmc::MockedAccount& _sender, qrvmc::MockedAccount& _recipient, u512 const& _value) noexcept
@@ -770,6 +774,16 @@ qrvmc_storage_status QRVMHost::set_storage(qrvmc::address const& _addr, qrvmc::b
 qrvmc_access_status QRVMHost::access_storage(qrvmc::address const& _addr, qrvmc::bytes64 const& _key) noexcept
 {
 	return MockedHost::access_storage(_addr, storageKey(_key));
+}
+
+qrvmc::bytes64 QRVMHost::get_transient_storage(qrvmc::address const& _addr, qrvmc::bytes64 const& _key) const noexcept
+{
+	return MockedHost::get_transient_storage(_addr, storageKey(_key));
+}
+
+void QRVMHost::set_transient_storage(qrvmc::address const& _addr, qrvmc::bytes64 const& _key, qrvmc::bytes64 const& _value) noexcept
+{
+	MockedHost::set_transient_storage(_addr, storageKey(_key), _value);
 }
 
 StorageMap const& QRVMHost::get_address_storage(qrvmc::address const& _addr)

@@ -343,6 +343,7 @@ SideEffects QRVMDialect::sideEffectsOfInstruction(qrvmasm::Instruction _instruct
 		translate(qrvmasm::SemanticInformation::otherState(_instruction)),
 		translate(qrvmasm::SemanticInformation::storage(_instruction)),
 		translate(qrvmasm::SemanticInformation::memory(_instruction)),
+		translate(qrvmasm::SemanticInformation::transientStorage(_instruction)),
 	};
 }
 

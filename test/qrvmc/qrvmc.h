@@ -508,6 +508,27 @@ typedef qrvmc_bytes64 (*qrvmc_get_storage_fn)(struct qrvmc_host_context* context
                                               const qrvmc_address* address,
                                               const qrvmc_bytes64* key);
 
+/**
+ * Get transient storage callback function.
+ *
+ * This callback function is used by a VM to query
+ * the given account transient storage (EIP-1153) entry.
+ *
+ * The transient storage is separate from the account storage and lives for a single
+ * transaction: the Host MUST start every transaction with all of it empty.
+ *
+ * The @p key follows the same zero-extension convention as in ::qrvmc_get_storage_fn.
+ *
+ * @param context  The Host execution context.
+ * @param address  The address of the account.
+ * @param key      The index of the account's transient storage entry.
+ * @return         The transient storage value at the given storage key or null bytes
+ *                 if the entry has not been set in the current transaction.
+ */
+typedef qrvmc_bytes64 (*qrvmc_get_transient_storage_fn)(struct qrvmc_host_context* context,
+                                                        const qrvmc_address* address,
+                                                        const qrvmc_bytes64* key);
+
 
 /**
  * The effect of an attempt to modify a contract storage item.
@@ -626,6 +647,32 @@ typedef enum qrvmc_storage_status (*qrvmc_set_storage_fn)(struct qrvmc_host_cont
                                                           const qrvmc_address* address,
                                                           const qrvmc_bytes64* key,
                                                           const qrvmc_bytes64* value);
+
+/**
+ * Set transient storage callback function.
+ *
+ * This callback function is used by a VM to update
+ * the given account's transient storage (EIP-1153) entry.
+ * The VM MUST make sure that the account exists. This requirement is only a formality because
+ * VM implementations only modify storage of the account of the current execution context
+ * (i.e. referenced by qrvmc_message::recipient).
+ *
+ * The VM MUST NOT use this callback in the static mode (::QRVMC_STATIC):
+ * such an attempt ends the execution with ::QRVMC_STATIC_MODE_VIOLATION.
+ * The Host reverts the changes of a call which has not ended with ::QRVMC_SUCCESS
+ * in the same way it reverts the changes to the account storage.
+ *
+ * The @p key follows the same zero-extension convention as in ::qrvmc_get_storage_fn.
+ *
+ * @param context  The pointer to the Host execution context.
+ * @param address  The address of the account.
+ * @param key      The index of the transient storage entry.
+ * @param value    The value to be stored.
+ */
+typedef void (*qrvmc_set_transient_storage_fn)(struct qrvmc_host_context* context,
+                                               const qrvmc_address* address,
+                                               const qrvmc_bytes64* key,
+                                               const qrvmc_bytes64* value);
 
 /**
  * Get balance callback function.
@@ -817,6 +864,12 @@ struct qrvmc_host_interface
 
     /** Access storage callback function. */
     qrvmc_access_storage_fn access_storage;
+
+    /** Get transient storage callback function. */
+    qrvmc_get_transient_storage_fn get_transient_storage;
+
+    /** Set transient storage callback function. */
+    qrvmc_set_transient_storage_fn set_transient_storage;
 };
 
 
@@ -870,6 +923,9 @@ enum qrvmc_revision
      * The Zond revision.
      *
      * https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/shanghai.md
+     *
+     * It also has the transient storage and its TLOAD and TSTORE instructions
+     * of EIP-1153 (https://eips.ethereum.org/EIPS/eip-1153).
      */
     QRVMC_ZOND = 0,
 

@@ -40,6 +40,8 @@
 #include <libqrvmasm/SemanticInformation.h>
 
 #include <range/v3/algorithm/all_of.hpp>
+
+#include <algorithm>
 #include <string>
 
 using namespace hyperion;
@@ -231,8 +233,20 @@ std::vector<UnusedStoreEliminator::Operation> UnusedStoreEliminator::operationsF
 
 	using qrvmasm::SemanticInformation;
 
+	// Only stores to storage and to memory are tracked here: what an instruction does to
+	// transient storage neither reads nor overwrites any of them.
+	std::vector<SemanticInformation::Operation> operations = SemanticInformation::readWriteOperations(*instruction);
+	operations.erase(
+		std::remove_if(
+			operations.begin(),
+			operations.end(),
+			[](SemanticInformation::Operation const& _op) { return _op.location == Location::TransientStorage; }
+		),
+		operations.end()
+	);
+
 	return util::applyMap(
-		SemanticInformation::readWriteOperations(*instruction),
+		operations,
 		[&](SemanticInformation::Operation const& _op) -> Operation
 		{
 			yulAssert(!(_op.lengthParameter && _op.lengthConstant));
@@ -256,6 +270,7 @@ std::vector<UnusedStoreEliminator::Operation> UnusedStoreEliminator::operationsF
 
 void UnusedStoreEliminator::applyOperation(UnusedStoreEliminator::Operation const& _operation)
 {
+	yulAssert(_operation.location == Location::Storage || _operation.location == Location::Memory);
 	std::set<Statement const*>& active =
 		_operation.location == Location::Storage ?
 		activeStorageStores() :

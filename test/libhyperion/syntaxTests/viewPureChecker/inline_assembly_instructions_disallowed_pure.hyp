@@ -32,6 +32,8 @@ contract C {
             pop(chainid())
             pop(basefee())
             pop(prevrandao())
+            pop(tload(0))
+            tstore(0, 1)
 
             // These two are disallowed too but the error suppresses other errors.
             //pop(msize())
@@ -40,6 +42,7 @@ contract C {
     }
 }
 // ----
+// Warning 2394: (1047-1053): Transient storage as defined by EIP-1153 can break the composability of smart contracts: Since transient storage is cleared only at the end of the transaction and not at the end of the outermost call frame to the contract within a transaction, your contract may unintentionally misbehave when invoked multiple times in a complex transaction. To avoid this, be sure to clear all transient storage at the end of any call to your contract. The use of transient storage for reentrancy guards that are cleared at the end of the call is safe.
 // TypeError 2527: (79-87): Function declared as pure, but this expression (potentially) reads from the environment or state and thus requires "view".
 // TypeError 8961: (101-113): Function cannot be declared as pure because this expression (potentially) modifies the state.
 // TypeError 2527: (130-135): Function declared as pure, but this expression (potentially) reads from the environment or state and thus requires "view".
@@ -71,3 +74,5 @@ contract C {
 // TypeError 2527: (941-950): Function declared as pure, but this expression (potentially) reads from the environment or state and thus requires "view".
 // TypeError 2527: (968-977): Function declared as pure, but this expression (potentially) reads from the environment or state and thus requires "view".
 // TypeError 2527: (995-1007): Function declared as pure, but this expression (potentially) reads from the environment or state and thus requires "view".
+// TypeError 2527: (1025-1033): Function declared as pure, but this expression (potentially) reads from the environment or state and thus requires "view".
+// TypeError 8961: (1047-1059): Function cannot be declared as pure because this expression (potentially) modifies the state.

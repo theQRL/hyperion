@@ -1,16 +1,15 @@
 # QRVMC
 
-This is an import of [QRVMC](https://github.com/theQRL/qrvmc) version [3.0.0](https://github.com/theQRL/qrvmc/releases/tag/v3.0.0)
-(`include/qrvmc/` and `lib/loader/loader.c` at commit `fb3a10b4b14777e49aeabac3b576c7754d5aff3c`), the QRVMC that the
-QRVM test engine [qrvmone 0.13.0](https://github.com/theQRL/qrvmone/releases/tag/v0.13.0) is built with. Update this
-import and the qrvmone pin in `.github/workflows/ci.yml` and `.github/workflows/linux.yml` together: the loader rejects
-a test engine built against a different QRVMC ABI version.
+This is an import of [QRVMC](https://github.com/theQRL/qrvmc) (`include/qrvmc/` and `lib/loader/loader.c`) at commit
+`8b27cd8232cd9f561c4e6601e368b80540e5c71b`: version [3.0.0](https://github.com/theQRL/qrvmc/releases/tag/v3.0.0) with the
+Host methods of the transient storage ([EIP-1153](https://eips.ethereum.org/EIPS/eip-1153)), `get_transient_storage` and
+`set_transient_storage`, which a QRVM test engine with `TLOAD` and `TSTORE` calls. Update this import and the qrvmone pin
+in `.github/workflows/ci.yml` and `.github/workflows/linux.yml` together. The loader rejects a test engine built against
+a different QRVMC ABI version, but the ABI version is 3 both before and after the two methods were added, so it does not
+notice an engine that expects them from a Host built without them.
 
 Local changes:
 
 - `MockedAccount.storage` is a `map` instead of an `unordered_map`, as ordering is important for fuzzing.
 - `MockedAccount.nonce` is `uint64_t` to match go-qrl's account nonce range.
 - A spelling mistake in a `qrvmc.h` comment is fixed for the codespell check.
-- `MockedHost::access_account` reports as always warm only the addresses of the Zond precompiles, `Q01` to `Q07`,
-  and not `Q08` and `Q09` too. This is the change QRVMC made to `mocked_host.hpp` after 3.0.0, in commit
-  `8b27cd8232cd9f561c4e6601e368b80540e5c71b`: drop this entry when the import moves past that commit.

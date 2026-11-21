@@ -137,6 +137,9 @@ public:
 	// @returns true if the maximum error count has been reached.
 	bool hasExcessiveErrors() const;
 
+	/// @returns true iff an error, a warning or an info with one of the given ids has been reported.
+	bool hasError(std::initializer_list<ErrorId> const& _errorIds) const;
+
 	class ErrorWatcher
 	{
 	public:

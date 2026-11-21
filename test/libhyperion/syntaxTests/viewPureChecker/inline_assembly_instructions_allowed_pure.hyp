@@ -72,6 +72,8 @@ contract C {
             //pop(timestamp())
             //pop(number())
             //pop(gaslimit())
+            //pop(tload(0))
+            //tstore(0, 1)
 
             // NOTE: msize() is allowed only with optimizer disabled
             //pop(msize())

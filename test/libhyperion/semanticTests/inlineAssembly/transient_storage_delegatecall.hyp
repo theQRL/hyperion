@@ -1,0 +1,37 @@
+contract D {
+    function set(uint value) public {
+        assembly {
+            tstore(0, value)
+        }
+    }
+
+    function get() public view returns (uint value) {
+        assembly {
+            value := tload(0)
+        }
+    }
+}
+
+contract C {
+    D d = new D();
+
+    function viaDelegatecall() public returns (uint own, uint ofD) {
+        (bool success, ) = address(d).delegatecall(abi.encodeCall(D.set, (7)));
+        require(success);
+        assembly {
+            own := tload(0)
+        }
+        ofD = d.get();
+    }
+
+    function viaCall() public returns (uint own, uint ofD) {
+        d.set(9);
+        assembly {
+            own := tload(0)
+        }
+        ofD = d.get();
+    }
+}
+// ----
+// viaDelegatecall() -> 7, 0
+// viaCall() -> 0, 9

@@ -64,6 +64,10 @@ public:
 	qrvmc::bytes64 get_storage(qrvmc::address const& _addr, qrvmc::bytes64 const& _key) const noexcept override;
 	qrvmc_storage_status set_storage(qrvmc::address const& _addr, qrvmc::bytes64 const& _key, qrvmc::bytes64 const& _value) noexcept override;
 	qrvmc_access_status access_storage(qrvmc::address const& _addr, qrvmc::bytes64 const& _key) noexcept override;
+	/// Transient storage (EIP-1153) is keyed as storage is. It is empty at the start of every transaction
+	/// and a call that does not succeed leaves it as it was, like the rest of the state.
+	qrvmc::bytes64 get_transient_storage(qrvmc::address const& _addr, qrvmc::bytes64 const& _key) const noexcept override;
+	void set_transient_storage(qrvmc::address const& _addr, qrvmc::bytes64 const& _key, qrvmc::bytes64 const& _value) noexcept override;
 
 	// Hyperion testing specific features.
 
@@ -114,7 +118,8 @@ private:
 
 	/// Start a new transaction frame.
 	/// This will apply storage status changes across all accounts,
-	/// and clear account/storage access indicator for EIP-2929.
+	/// clear account/storage access indicator for EIP-2929
+	/// and empty the transient storage of EIP-1153.
 	void newTransactionFrame();
 
 	/// Records calls made via @param _message.

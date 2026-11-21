@@ -1,8 +1,19 @@
 ### Unreleased
 
+Breaking Changes:
+ * Inline Assembly and Yul: Reserve the identifiers `tload` and `tstore`, which are builtin functions now. A variable or function of either name in an assembly block is a parser error.
+
+Language Features:
+ * Inline Assembly and Yul: Add the builtin functions `tload` and `tstore` for transient storage (EIP-1153, opcodes `TLOAD` `0x5c` and `TSTORE` `0x5d`), which go-qrl has in Zond. `tload` needs `view` and `tstore` is not allowed in a `view` or `pure` function. The compiler warns on the first `tstore` of a compilation that transient storage outlives a call and should be cleared.
+
+Compiler Features:
+ * Gas Estimator: Know the constant cost of `TLOAD` and `TSTORE`.
+ * Optimizer: Do not move a `tload` over a write to transient storage or over a call that may write it, and never remove a `tstore`.
+
 Build System:
  * Tests: Make the test host's `modexp` precompile follow go-qrl in failing a call whose base, exponent or modulus length exceeds 1024 bytes (EIP-7823) and in charging the gas of EIP-7883, and check it against go-qrl's updated test vectors.
  * Tests: Make the test host treat only the addresses of go-qrl's precompiles, `0x01` to `0x07`, as always warm, as go-qrl does. It did so for `0x08` and `0x09` too, which made the first access to either 2500 gas cheaper than on the chain.
+ * Tests: Give the test host transient storage. For that the imported QRVMC moves to the revision with the `get_transient_storage` and `set_transient_storage` Host methods, and the semantic tests of `tload` and `tstore` need a QRVM test engine that has `TLOAD` and `TSTORE`.
 
 ### 0.3.1 (2026-11-13)
 

@@ -181,7 +181,8 @@ though.
     Storage keys are 256 bits wide on the chain even though the word is 512 bits: ``sstore``
     and ``sload`` use the low 256 bits of the slot, so a slot at or above ``2**256`` is the
     same slot as ``slot mod 2**256``. Keep the slots you assign to ``.slot`` and the keys you
-    compute in assembly below ``2**256``. See :ref:`storage-key-width`.
+    compute in assembly below ``2**256``. See :ref:`storage-key-width`. The same holds for the
+    slots of transient storage that ``tstore`` and ``tload`` take.
 
 Local Hyperion variables are available for assignments, for example:
 

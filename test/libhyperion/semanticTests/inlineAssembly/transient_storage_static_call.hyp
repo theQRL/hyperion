@@ -1,0 +1,25 @@
+contract C {
+    function set() public {
+        assembly {
+            tstore(0, 1)
+        }
+    }
+
+    function get() public view returns (uint value) {
+        assembly {
+            value := tload(0)
+        }
+    }
+
+    function f() public returns (bool setSucceeded, bool getSucceeded, uint value) {
+        assembly {
+            tstore(0, 5)
+        }
+        (setSucceeded, ) = address(this).staticcall(abi.encodeCall(this.set, ()));
+        bytes memory result;
+        (getSucceeded, result) = address(this).staticcall(abi.encodeCall(this.get, ()));
+        value = abi.decode(result, (uint));
+    }
+}
+// ----
+// f() -> false, true, 5

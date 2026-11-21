@@ -306,6 +306,11 @@ u512 QRVMInstructionInterpreter::eval(
 	case Instruction::SSTORE:
 		m_state.storage[h512(arg[0])] = h512(arg[1]);
 		return 0;
+	case Instruction::TLOAD:
+		return h512::Arith(m_state.transientStorage[h512(arg[0])]);
+	case Instruction::TSTORE:
+		m_state.transientStorage[h512(arg[0])] = h512(arg[1]);
+		return 0;
 	case Instruction::PC:
 		return 0x77;
 	case Instruction::MSIZE:
@@ -380,10 +385,12 @@ u512 QRVMInstructionInterpreter::eval(
 		accessMemory(arg[0], arg[1]);
 		logTrace(_instruction, arg);
 		m_state.storage.clear();
+		m_state.transientStorage.clear();
 		BOOST_THROW_EXCEPTION(ExplicitlyTerminated());
 	case Instruction::INVALID:
 		logTrace(_instruction);
 		m_state.storage.clear();
+		m_state.transientStorage.clear();
 		m_state.trace.clear();
 		BOOST_THROW_EXCEPTION(ExplicitlyTerminated());
 	case Instruction::POP:

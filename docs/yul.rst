@@ -755,11 +755,12 @@ This document does not want to be a full description of the Quantum Resistant vi
 Please refer to a different document if you are interested in the precise semantics.
 
 Opcodes marked with ``-`` do not return a result and all others return exactly one value.
-Opcodes marked with ``F``, ``H``, ``B``, ``C``, ``I``, ``L`` and ``P`` are present since Frontier,
-Homestead, Byzantium, Constantinople, Istanbul, London or Paris respectively.
+Opcodes marked with ``F``, ``H``, ``B``, ``C``, ``I``, ``L``, ``P`` and ``N`` are present since Frontier,
+Homestead, Byzantium, Constantinople, Istanbul, London, Paris or Cancun respectively.
 
 In the following, ``mem[a...b)`` signifies the bytes of memory starting at position ``a`` up to
-but not including position ``b`` and ``storage[p]`` signifies the storage contents at slot ``p``.
+but not including position ``b``, ``storage[p]`` signifies the storage contents at slot ``p``, and similarly,
+``transientStorage[p]`` signifies the transient storage contents at slot ``p``.
 
 Since Yul manages local variables and control-flow,
 opcodes that interfere with these features are not available. This includes
@@ -835,6 +836,10 @@ the ``dup`` and ``swap`` instructions as well as ``jump`` instructions, labels a
 | sload(p)                |     | F | storage[p]                                                      |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | sstore(p, v)            | `-` | F | storage[p] := v                                                 |
++-------------------------+-----+---+-----------------------------------------------------------------+
+| tload(p)                |     | N | transientStorage[p] (see note below)                            |
++-------------------------+-----+---+-----------------------------------------------------------------+
+| tstore(p, v)            | `-` | N | transientStorage[p] := v (see note below)                       |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | msize()                 |     | F | size of memory, i.e. largest accessed memory index              |
 +-------------------------+-----+---+-----------------------------------------------------------------+
@@ -942,6 +947,22 @@ the ``dup`` and ``swap`` instructions as well as ``jump`` instructions, labels a
   using the ``returndatacopy`` opcode. If it returns less data, then the remaining bytes are not touched at all.
   You need to use the ``returndatasize`` opcode to check which part of this memory area contains the return data.
   The remaining bytes will retain their values as of before the call.
+
+.. _yul-transient-storage:
+
+.. note::
+  ``tload`` and ``tstore`` access the transient storage of the contract
+  (`EIP-1153 <https://eips.ethereum.org/EIPS/eip-1153>`_). Like storage, it belongs to the contract the
+  code runs for, it is reverted together with a call that does not succeed, ``tstore`` is not allowed
+  in a static call, and its slots are 256 bits wide (see :ref:`storage-key-width`). Unlike storage,
+  it is empty at the start of every transaction and discarded at its end, and both opcodes cost
+  a constant 100 gas.
+
+  Transient storage outlives the call that writes it: the value is still there if the contract is
+  called again later in the same transaction. A contract that does not clear what it stored may
+  therefore behave differently when it is called more than once in a transaction, which is why the
+  compiler warns on the first ``tstore`` it sees. Hyperion has no ``transient`` state variables yet:
+  transient storage is only available through these two builtins.
 
 In some internal dialects, there are additional functions:
 

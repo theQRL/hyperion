@@ -317,6 +317,24 @@ BOOST_AUTO_TEST_CASE(extcodesize_gas)
 	testRunTimeGas("f()", std::vector<bytes>{encodeArgs()});
 }
 
+BOOST_AUTO_TEST_CASE(transient_storage_gas)
+{
+	// TLOAD and TSTORE cost the same whatever the slot and the value are.
+	char const* sourceCode = R"(
+		contract A {
+			function f() public returns (uint x) {
+				assembly {
+					tstore(1, 2)
+					x := tload(1)
+					tstore(1, 0)
+				}
+			}
+		}
+	)";
+	testCreationTimeGas(sourceCode);
+	testRunTimeGas("f()", std::vector<bytes>{encodeArgs()});
+}
+
 BOOST_AUTO_TEST_CASE(regular_functions_exclude_fallback)
 {
 	// A bug in the estimator caused the costs for a specific function
