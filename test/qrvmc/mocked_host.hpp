@@ -496,7 +496,8 @@ public:
     ///
     /// This method is required by EIP-2929. It will record the account
     /// access in MockedHost::recorded_account_accesses and return previous access status.
-    /// This methods returns ::QRVMC_ACCESS_WARM for known addresses of precompiles.
+    /// This methods returns ::QRVMC_ACCESS_WARM for the addresses of the Zond precompiles,
+    /// Q01 to Q07, which are the ones go-qrl puts in the access list of every transaction.
     /// The EIP-2929 specifies that qrvmc_message::sender and qrvmc_message::recipient are always
     /// ::QRVMC_ACCESS_WARM. Therefore, you should init the MockedHost with:
     ///
@@ -517,9 +518,8 @@ public:
 
         record_account_access(addr);
 
-        // Accessing precompiled contracts is always warm.
-        if (addr >= "Q000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"_address &&
-            addr <= "Q000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000009"_address)
+        // Accessing precompiled contracts is always warm: go-qrl has them at Q01 to Q07.
+        if (addr >= "Q01"_address && addr <= "Q07"_address)
             return QRVMC_ACCESS_WARM;
 
         return already_accessed ? QRVMC_ACCESS_WARM : QRVMC_ACCESS_COLD;

@@ -11,3 +11,6 @@ Local changes:
 - `MockedAccount.storage` is a `map` instead of an `unordered_map`, as ordering is important for fuzzing.
 - `MockedAccount.nonce` is `uint64_t` to match go-qrl's account nonce range.
 - A spelling mistake in a `qrvmc.h` comment is fixed for the codespell check.
+- `MockedHost::access_account` reports as always warm only the addresses of the Zond precompiles, `Q01` to `Q07`,
+  and not `Q08` and `Q09` too. This is the change QRVMC made to `mocked_host.hpp` after 3.0.0, in commit
+  `8b27cd8232cd9f561c4e6601e368b80540e5c71b`: drop this entry when the import moves past that commit.

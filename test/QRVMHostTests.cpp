@@ -276,6 +276,61 @@ BOOST_AUTO_TEST_CASE(go_qrl_xmssverify_vectors)
 namespace
 {
 
+/// Runs the code `PUSH1 <_address> BALANCE` in a new transaction and returns the gas it uses:
+/// 3 for the push and the cost of the access to the account at @a _address.
+int64_t gasOfBalanceOf(QRVMHost& _host, uint8_t _address)
+{
+	qrvmc_message message{};
+	message.kind = QRVMC_CALL;
+	// Not the outermost call, which the host also charges the intrinsic gas of a transaction.
+	message.depth = 1;
+	// The sender and the recipient are warm in their own transaction: keep them away from the
+	// addresses under test.
+	message.sender.bytes[0] = 0x5e;
+	message.recipient.bytes[0] = 0xc0;
+	message.code_address = message.recipient;
+	message.gas = 100000;
+	_host.accounts[message.recipient].code = qrvmc::bytes{0x60, _address, 0x31};
+	// A new block starts a new transaction, in which no account has been accessed yet.
+	_host.newBlock();
+	qrvmc::Result const result = _host.call(message);
+	BOOST_REQUIRE_EQUAL(result.status_code, QRVMC_SUCCESS);
+	return message.gas - result.gas_left;
+}
+
+}
+
+BOOST_AUTO_TEST_CASE(only_precompile_addresses_are_always_warm)
+{
+	// go-qrl has the addresses of its precompiles (vm.ActivePrecompiles: 0x01 to 0x07) in the
+	// access list of every transaction. The first access in a transaction to any other address
+	// that is not the transaction's own is cold, which costs 2500 gas more (EIP-2929).
+	int64_t const pushGas = 3;
+	int64_t const warmAccessGas = 100;
+	int64_t const coldAccessGas = 2600;
+
+	for (uint8_t address = 1; address <= 7; ++address)
+		BOOST_TEST_CONTEXT("address " << unsigned(address))
+		{
+			m_qrvmcHost->newBlock();
+			BOOST_CHECK_EQUAL(m_qrvmcHost->access_account(qrvmc::address{address}), QRVMC_ACCESS_WARM);
+			BOOST_CHECK_EQUAL(gasOfBalanceOf(*m_qrvmcHost, address), pushGas + warmAccessGas);
+		}
+
+	std::vector<uint8_t> const notPrecompiles{0, 8, 9, 10, 255};
+	for (uint8_t address: notPrecompiles)
+		BOOST_TEST_CONTEXT("address " << unsigned(address))
+		{
+			m_qrvmcHost->newBlock();
+			BOOST_CHECK_EQUAL(m_qrvmcHost->access_account(qrvmc::address{address}), QRVMC_ACCESS_COLD);
+			BOOST_CHECK_EQUAL(m_qrvmcHost->access_account(qrvmc::address{address}), QRVMC_ACCESS_WARM);
+			BOOST_CHECK_EQUAL(gasOfBalanceOf(*m_qrvmcHost, address), pushGas + coldAccessGas);
+		}
+}
+
+namespace
+{
+
 /// Calls the modexp precompile with only its three length fields as input, so that the base,
 /// the exponent and the modulus read as zero.
 qrvmc::Result callModExpWithLengths(

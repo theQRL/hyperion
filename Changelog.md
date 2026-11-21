@@ -2,6 +2,7 @@
 
 Build System:
  * Tests: Make the test host's `modexp` precompile follow go-qrl in failing a call whose base, exponent or modulus length exceeds 1024 bytes (EIP-7823) and in charging the gas of EIP-7883, and check it against go-qrl's updated test vectors.
+ * Tests: Make the test host treat only the addresses of go-qrl's precompiles, `0x01` to `0x07`, as always warm, as go-qrl does. It did so for `0x08` and `0x09` too, which made the first access to either 2500 gas cheaper than on the chain.
 
 ### 0.3.1 (2026-11-13)
 
