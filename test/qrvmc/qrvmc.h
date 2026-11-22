@@ -925,7 +925,8 @@ enum qrvmc_revision
      * https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/shanghai.md
      *
      * It also has the transient storage and its TLOAD and TSTORE instructions
-     * of EIP-1153 (https://eips.ethereum.org/EIPS/eip-1153).
+     * of EIP-1153 (https://eips.ethereum.org/EIPS/eip-1153), and the MCOPY
+     * instruction of EIP-5656 (https://eips.ethereum.org/EIPS/eip-5656).
      */
     QRVMC_ZOND = 0,
 

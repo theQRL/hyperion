@@ -100,6 +100,25 @@ void copyZeroExtended(
 		_target[_targetOffset + i] = _sourceOffset + i < _source.size() ? _source[_sourceOffset + i] : 0;
 }
 
+void copyZeroExtendedWithOverlap(
+	map<u512, uint8_t>& _target, map<u512, uint8_t> const& _source,
+	size_t _targetOffset, size_t _sourceOffset, size_t _size
+)
+{
+	auto sourceByte = [&](size_t _offset) -> uint8_t
+	{
+		auto it = _source.find(_offset);
+		return it == _source.end() ? 0 : it->second;
+	};
+	// Backwards if the target is behind the source, so that no byte is overwritten before it is read.
+	if (_targetOffset >= _sourceOffset)
+		for (size_t i = _size; i > 0; --i)
+			_target[_targetOffset + i - 1] = sourceByte(_sourceOffset + i - 1);
+	else
+		for (size_t i = 0; i < _size; ++i)
+			_target[_targetOffset + i] = sourceByte(_sourceOffset + i);
+}
+
 }
 
 u512 QRVMInstructionInterpreter::eval(
@@ -274,6 +293,19 @@ u512 QRVMInstructionInterpreter::eval(
 			);
 		logTrace(_instruction, arg);
 		return 0;
+	case Instruction::MCOPY:
+	{
+		// Both ranges count for msize, also if only one of them is small enough to be recorded.
+		bool const sourceRecorded = accessMemory(arg[1], arg[2]);
+		bool const targetRecorded = accessMemory(arg[0], arg[2]);
+		if (sourceRecorded && targetRecorded)
+			copyZeroExtendedWithOverlap(
+				m_state.memory, m_state.memory,
+				size_t(arg[0]), size_t(arg[1]), size_t(arg[2])
+			);
+		logTrace(_instruction, arg);
+		return 0;
+	}
 	case Instruction::BLOCKHASH:
 		if (arg[0] >= m_state.blockNumber || arg[0] + 256 < m_state.blockNumber)
 			return 0;

@@ -163,7 +163,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: theQRL/qrvmone
-          ref: 2111a6fdab73ba97b0cd17ee2aba96d527b62ebd # main after v0.13.0: TLOAD and TSTORE (EIP-1153)
+          ref: a450c3915bcb1dab252555362707e0d59945dd95 # main after v0.13.0: TLOAD and TSTORE (EIP-1153), MCOPY (EIP-5656)
           path: deps/qrvmone
           submodules: recursive
           persist-credentials: false
@@ -335,7 +335,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: theQRL/qrvmone
-          ref: 2111a6fdab73ba97b0cd17ee2aba96d527b62ebd # main after v0.13.0: TLOAD and TSTORE (EIP-1153)
+          ref: a450c3915bcb1dab252555362707e0d59945dd95 # main after v0.13.0: TLOAD and TSTORE (EIP-1153), MCOPY (EIP-5656)
           path: deps/qrvmone
           submodules: recursive
           persist-credentials: false

@@ -53,6 +53,15 @@ void copyZeroExtended(
 	size_t _targetOffset, size_t _sourceOffset, size_t _size
 );
 
+/// Copy @a _size bytes of @a _source at offset @a _sourceOffset to
+/// @a _target at offset @a _targetOffset. A byte @a _source has no entry for is zero.
+/// The two maps may be the same and the two ranges may overlap: the copy is that of the
+/// bytes as they were before it.
+void copyZeroExtendedWithOverlap(
+	std::map<u512, uint8_t>& _target, std::map<u512, uint8_t> const& _source,
+	size_t _targetOffset, size_t _sourceOffset, size_t _size
+);
+
 struct InterpreterState;
 
 /**

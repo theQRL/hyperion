@@ -177,10 +177,14 @@ void UnusedStoreEliminator::visit(Statement const& _statement)
 		*instruction == Instruction::EXTCODECOPY ||
 		*instruction == Instruction::CODECOPY ||
 		*instruction == Instruction::CALLDATACOPY ||
+		*instruction == Instruction::MCOPY ||
 		*instruction == Instruction::MSTORE ||
 		*instruction == Instruction::MSTORE8 ||
 		*instruction == Instruction::RETURNDATACOPY;
 	bool const isBlacklisted =
+		// An `mcopy()` is a load as well as a store, and this step tracks a statement as one store.
+		// It is therefore never removed. Its read and its write still count for the other stores.
+		*instruction == Instruction::MCOPY ||
 		// Trying to optimize out `returndatacopy()` is not worth the extra complexity, because it can rarely be done in the IR we generate.
 		// That's because we always immediately ABI-decode the result and only if we can optimize out that decoding, `returndatacopy()` becomes truly unused.
 		// Removing it is also hard in a general case because it's not side-effect free - it reverts on out-of-bounds access and we have to preserve that revert.

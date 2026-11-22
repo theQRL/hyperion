@@ -873,6 +873,9 @@ the ``dup`` and ``swap`` instructions as well as ``jump`` instructions, labels a
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | returndatacopy(t, f, s) | `-` | B | copy s bytes from returndata at position f to mem at position t |
 +-------------------------+-----+---+-----------------------------------------------------------------+
+| mcopy(t, f, s)          | `-` | N | copy s bytes from mem at position f to mem at position t        |
+|                         |     |   | (see note below)                                                |
++-------------------------+-----+---+-----------------------------------------------------------------+
 | extcodehash(a)          |     | C | code hash of address a                                          |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | create(v, p, n)         |     | F | create new contract with code mem[p...(p+n)) and send v planck  |
@@ -963,6 +966,17 @@ the ``dup`` and ``swap`` instructions as well as ``jump`` instructions, labels a
   therefore behave differently when it is called more than once in a transaction, which is why the
   compiler warns on the first ``tstore`` it sees. Hyperion has no ``transient`` state variables yet:
   transient storage is only available through these two builtins.
+
+.. _yul-mcopy:
+
+.. note::
+  ``mcopy`` copies inside memory (`EIP-5656 <https://eips.ethereum.org/EIPS/eip-5656>`_). The two
+  ranges may overlap: the destination receives the bytes the source range held before the copy.
+  Memory is extended to the higher of the two ranges, and a copy of zero bytes neither extends it
+  nor fails, whatever the two positions are. The cost is 3 gas, 3 gas for each 64-byte word copied
+  and the cost of the extension. The compiler uses ``mcopy`` itself where it copies a range of
+  memory, for example the content of a ``bytes`` or ``string`` value in ABI encoding, so the code
+  it generates needs a QRVM that has the opcode.
 
 In some internal dialects, there are additional functions:
 

@@ -71,25 +71,22 @@ std::string YulUtilFunctions::copyToMemoryFunction(bool _fromCalldata, bool _cle
 		{
 			return Whiskers(R"(
 				function <functionName>(src, dst, length) {
-					let i := 0
-					for { } lt(i, length) { i := add(i, <wordSize>) }
-					{
-						mstore(add(dst, i), mload(add(src, i)))
-					}
+					mcopy(dst, src, length)
 					<?cleanup>
-					// Clear bytes from dst+length to dst+i (end of last copied word)
-					// using mstore8 to avoid overwriting bytes past this chunk.
-					let j := length
-					for { } lt(j, i) { j := add(j, 1) }
+					// Clear the bytes from dst+length to the end of the last VM word of the chunk.
+					// The word is masked in place to avoid overwriting bytes past this chunk.
+					let rest := and(length, <alignmentMask>)
+					if rest
 					{
-						mstore8(add(dst, j), 0)
+						let lastWord := add(dst, sub(length, rest))
+						mstore(lastWord, and(mload(lastWord), not(shr(mul(8, rest), not(0)))))
 					}
 					</cleanup>
 				}
 			)")
 			("functionName", functionName)
 			("cleanup", _cleanup)
-			("wordSize", std::to_string(VMWordBytes))
+			("alignmentMask", std::to_string(VMWordAlignmentMask))
 			.render();
 		}
 	});

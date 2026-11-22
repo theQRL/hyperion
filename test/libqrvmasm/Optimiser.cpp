@@ -1696,6 +1696,24 @@ BOOST_AUTO_TEST_CASE(cse_tstore_twice)
 	checkFullCSE(input, input);
 }
 
+BOOST_AUTO_TEST_CASE(cse_mcopy)
+{
+	// An MCOPY ends the block: the copy stays, and the load after it does not take the value of
+	// the load before it, which the copy overwrites here.
+	AssemblyItems input{
+		u256(0x20),
+		Instruction::MLOAD,
+		u256(0x40),
+		u256(0x80),
+		u256(0x20),
+		Instruction::MCOPY,
+		u256(0x20),
+		Instruction::MLOAD,
+	};
+
+	checkFullCSE(input, input);
+}
+
 BOOST_AUTO_TEST_CASE(cse_verbatim_sload_sideeffect)
 {
 	auto verbatim = AssemblyItem{bytes{1, 2, 3, 4, 5}, 0, 0};

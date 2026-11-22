@@ -313,7 +313,7 @@ YulQRVMBuiltin:
 	| 'pop' | 'mload' | 'mstore' | 'mstore8' | 'sload' | 'sstore' | 'tload' | 'tstore' | 'msize' | 'gas'
 	| 'address' | 'balance' | 'selfbalance' | 'caller' | 'callvalue' | 'calldataload'
 	| 'calldatasize' | 'calldatacopy' | 'extcodesize' | 'extcodecopy' | 'returndatasize'
-	| 'returndatacopy' | 'extcodehash' | 'create' | 'create2' | 'call'
+	| 'returndatacopy' | 'mcopy' | 'extcodehash' | 'create' | 'create2' | 'call'
 	| 'delegatecall' | 'staticcall' | 'return' | 'revert' | 'invalid'
 	| 'log0' | 'log1' | 'log2' | 'log3' | 'log4' | 'chainid' | 'origin' | 'gasprice'
 	| 'blockhash' | 'coinbase' | 'timestamp' | 'number' | 'prevrandao'

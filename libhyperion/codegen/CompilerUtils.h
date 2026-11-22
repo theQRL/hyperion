@@ -205,12 +205,7 @@ public:
 	/// Stack post: <updated_memptr>
 	void zeroInitialiseMemoryArray(ArrayType const& _type);
 
-	/// Copies full VM words in memory (regions cannot overlap), i.e. may copy more than length.
-	/// Length can be zero, in this case, it copies nothing.
-	/// Stack pre: <size> <target> <source>
-	/// Stack post:
-	void memoryCopyWord();
-	/// Copies data in memory (regions cannot overlap).
+	/// Copies data in memory with MCOPY: exactly <size> bytes, and the regions can overlap.
 	/// Length can be zero, in this case, it copies nothing.
 	/// Stack pre: <size> <target> <source>
 	/// Stack post:

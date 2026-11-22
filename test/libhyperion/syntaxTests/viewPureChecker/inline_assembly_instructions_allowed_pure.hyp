@@ -49,6 +49,7 @@ contract C {
             //extcodecopy(0, 1, 2, 3)
             pop(returndatasize())
             returndatacopy(0, 1, 2)
+            mcopy(0, 1, 2)
             //pop(extcodehash(0))
             //pop(create(0, 1, 2))
             //pop(create2(0, 1, 2, 3))
@@ -82,6 +83,6 @@ contract C {
     }
 }
 // ----
-// Warning 5740: (94-1706): Unreachable code.
-// Warning 5740: (1719-1731): Unreachable code.
-// Warning 5740: (1744-1753): Unreachable code.
+// Warning 5740: (94-1733): Unreachable code.
+// Warning 5740: (1746-1758): Unreachable code.
+// Warning 5740: (1771-1780): Unreachable code.

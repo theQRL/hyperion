@@ -193,7 +193,7 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 			return;
 		}
 
-		// memcpy using the built-in contract
+		// memcpy using MCOPY
 		if (_sourceType.isDynamicallySized())
 		{
 			// change pointer to data part
@@ -204,13 +204,9 @@ void ArrayUtils::copyArrayToMemory(ArrayType const& _sourceType, bool _padToWord
 			convertLengthToSize(_sourceType);
 		// stack: <target> <source> <size>
 		m_context << Instruction::DUP1 << Instruction::DUP4 << Instruction::DUP4;
-		// We can resort to copying full VM words only if
-		// - the length is known to be a multiple of the VM word size or
-		// - we will pad to full VM words later anyway.
-		if (!_sourceType.isByteArrayOrString() || _padToWordBoundaries)
-			utils.memoryCopyWord();
-		else
-			utils.memoryCopy();
+		// This copies exactly <size> bytes. The rest of the last VM word of a byte array
+		// is cleared below if we pad to full VM words.
+		utils.memoryCopy();
 
 		m_context << Instruction::SWAP1 << Instruction::POP;
 		// stack: <target> <size>

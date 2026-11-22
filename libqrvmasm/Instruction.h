@@ -104,6 +104,7 @@ enum class Instruction: uint8_t
 	JUMPDEST,			///< set a potential jump destination
 	TLOAD,				///< load word from transient storage
 	TSTORE,				///< save word to transient storage
+	MCOPY,				///< copy between memory areas
 
 	PUSH0 = 0x5f,       ///< place the value 0 on stack
 	PUSH1 = 0x60,		///< place 1 byte item on stack

@@ -176,18 +176,15 @@ object "D_27" {
             }
 
             function copy_memory_to_memory_with_cleanup(src, dst, length) {
-                let i := 0
-                for { } lt(i, length) { i := add(i, 64) }
-                {
-                    mstore(add(dst, i), mload(add(src, i)))
-                }
+                mcopy(dst, src, length)
 
-                // Clear bytes from dst+length to dst+i (end of last copied word)
-                // using mstore8 to avoid overwriting bytes past this chunk.
-                let j := length
-                for { } lt(j, i) { j := add(j, 1) }
+                // Clear the bytes from dst+length to the end of the last VM word of the chunk.
+                // The word is masked in place to avoid overwriting bytes past this chunk.
+                let rest := and(length, 63)
+                if rest
                 {
-                    mstore8(add(dst, j), 0)
+                    let lastWord := add(dst, sub(length, rest))
+                    mstore(lastWord, and(mload(lastWord), not(shr(mul(8, rest), not(0)))))
                 }
 
             }
@@ -473,8 +470,7 @@ object "D_27" {
                         }
                         mstore(_2, newFreePtr)
                         mstore(memPtr, 2)
-                        let _6 := 64
-                        mstore(add(memPtr, _6), shl(497, 6037))
+                        mstore(add(memPtr, 64), shl(497, 6037))
                         let memPtr_1 := mload(_2)
                         let newFreePtr_1 := add(memPtr_1, _2)
                         if or(gt(newFreePtr_1, /** @src 0:446:491  "new /// @src 0:149:156  \"new C()\"..." */ _5), /** @src 0:279:599  "contract D /** @src 0:96:165  \"contract D {...\" *\/ {..." */ lt(newFreePtr_1, memPtr_1))
@@ -485,20 +481,18 @@ object "D_27" {
                         }
                         mstore(_2, newFreePtr_1)
                         mstore(memPtr_1, 39)
-                        mstore(add(memPtr_1, _6), shl(200, 0x2f2a2a204073726320303a39363a313635202022636f6e74726163742044207b2e2e2e22202a2f))
+                        let _6 := add(memPtr_1, 64)
+                        mstore(_6, shl(200, 0x2f2a2a204073726320303a39363a313635202022636f6e74726163742044207b2e2e2e22202a2f))
                         let memPos := mload(_2)
-                        mstore(memPos, _6)
+                        mstore(memPos, 64)
                         let length := mload(memPtr_1)
-                        mstore(add(memPos, _6), length)
-                        let i := 0
-                        for { } lt(i, length) { i := add(i, _6) }
+                        mstore(add(memPos, 64), length)
+                        mcopy(add(memPos, _2), _6, length)
+                        let rest := and(length, 63)
+                        if rest
                         {
-                            mstore(add(add(memPos, i), _2), mload(add(add(memPtr_1, i), _6)))
-                        }
-                        let j := length
-                        for { } lt(j, i) { j := add(j, 1) }
-                        {
-                            mstore8(add(add(memPos, j), _2), 0)
+                            let lastWord := add(add(memPos, sub(length, rest)), _2)
+                            mstore(lastWord, and(mload(lastWord), not(shr(and(shl(3, length), 504), not(0)))))
                         }
                         return(memPos, add(sub(add(memPos, and(add(length, 63), not(63))), memPos), _2))
                     }

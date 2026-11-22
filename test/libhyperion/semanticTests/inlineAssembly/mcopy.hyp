@@ -1,0 +1,25 @@
+contract C {
+    function f() public pure returns (uint a, uint b, uint c, uint d) {
+        assembly {
+            let p := mload(0x80)
+            mstore(p, 0x1111111111111111111111111111111111111111111111111111111111111111)
+            mstore(add(p, 0x40), 0x2222222222222222222222222222222222222222222222222222222222222222)
+            mstore(add(p, 0x80), not(0))
+            mstore(add(p, 0xc0), not(0))
+            mstore(add(p, 0x100), not(0))
+
+            // Two whole words.
+            mcopy(add(p, 0x80), p, 0x80)
+            a := mload(add(p, 0x80))
+            b := mload(add(p, 0xc0))
+            // What is behind the two words is not written.
+            c := mload(add(p, 0x100))
+
+            // A range that is not aligned to words: 16 bytes of each of the two words.
+            mcopy(add(p, 0x100), add(p, 0x30), 0x20)
+            d := mload(add(p, 0x100))
+        }
+    }
+}
+// ----
+// f() -> 0x1111111111111111111111111111111111111111111111111111111111111111, 0x2222222222222222222222222222222222222222222222222222222222222222, -1, 0x1111111111111111111111111111111100000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff

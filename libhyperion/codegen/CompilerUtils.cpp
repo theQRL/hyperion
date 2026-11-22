@@ -353,52 +353,10 @@ void CompilerUtils::zeroInitialiseMemoryArray(ArrayType const& _type)
 	m_context << Instruction::SWAP1 << Instruction::POP;
 }
 
-void CompilerUtils::memoryCopyWord()
-{
-	// Stack here: size target source
-
-	m_context.appendInlineAssembly(Whiskers(R"(
-		{
-			for { let i := 0 } lt(i, len) { i := add(i, <wordSize>) } {
-				mstore(add(dst, i), mload(add(src, i)))
-			}
-		}
-	)")
-		("wordSize", toCompactHexWithPrefix(u256(VMWordBytes))).render(),
-		{ "len", "dst", "src" }
-	);
-	m_context << Instruction::POP << Instruction::POP << Instruction::POP;
-}
-
 void CompilerUtils::memoryCopy()
 {
 	// Stack here: size target source
-
-	m_context.appendInlineAssembly(Whiskers(R"(
-		{
-			// copy one VM word at once
-			for
-				{}
-				iszero(lt(len, <wordSize>))
-				{
-					dst := add(dst, <wordSize>)
-					src := add(src, <wordSize>)
-					len := sub(len, <wordSize>)
-				}
-				{ mstore(dst, mload(src)) }
-
-			// copy the remainder (0 < len < VMWordBytes), preserving bytes beyond len in dst
-			let mask := sub(shl(mul(8, sub(<wordSize>, len)), 1), 1)
-			let srcpart := and(mload(src), not(mask))
-			let dstpart := and(mload(dst), mask)
-			mstore(dst, or(srcpart, dstpart))
-		}
-	)")
-		("wordSize", std::to_string(VMWordBytes))
-		.render(),
-		{ "len", "dst", "src" }
-	);
-	m_context << Instruction::POP << Instruction::POP << Instruction::POP;
+	m_context << Instruction::SWAP1 << Instruction::MCOPY;
 }
 
 void CompilerUtils::pushCombinedFunctionEntryLabel(Declaration const& _function, bool _runtimeOnly)

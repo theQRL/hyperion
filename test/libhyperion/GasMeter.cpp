@@ -335,6 +335,68 @@ BOOST_AUTO_TEST_CASE(transient_storage_gas)
 	testRunTimeGas("f()", std::vector<bytes>{encodeArgs()});
 }
 
+BOOST_AUTO_TEST_CASE(mcopy_gas)
+{
+	// The estimate is exact for constant arguments, also where the copy extends memory:
+	// by its source range in the third copy and by both ranges in the second one.
+	// The function returns nothing: after an MCOPY the estimator no longer knows the free memory
+	// pointer, and so not what the encoding of a return value costs.
+	char const* sourceCode = R"(
+		contract A {
+			function f() public {
+				assembly {
+					mstore(0x200, 1)
+					mcopy(0x100, 0x200, 0x40)
+					mcopy(0x1000, 0x800, 0x81)
+					mcopy(0x900, 0x2000, 1)
+					mcopy(0x8000, 0x10000, 0)
+				}
+			}
+		}
+	)";
+	testCreationTimeGas(sourceCode);
+	testRunTimeGas("f()", std::vector<bytes>{encodeArgs()});
+}
+
+BOOST_AUTO_TEST_CASE(mcopy_memory_expansion_gas)
+{
+	// 3 gas, 3 gas for each word copied and the growth of memory to the higher of the two ranges.
+	// A word has 64 bytes and w words of memory cost 3 * w + w * w / 512 gas.
+	auto mcopyGas = [](AssemblyItem const& _target, AssemblyItem const& _source, AssemblyItem const& _size, u256 const& _memorySize)
+	{
+		GasMeter meter(std::make_shared<KnownState>(), hyperion::test::CommonOptions::get().qrvmVersion(), _memorySize);
+		meter.estimateMax(_size);
+		meter.estimateMax(_source);
+		meter.estimateMax(_target);
+		return meter.estimateMax(AssemblyItem{Instruction::MCOPY});
+	};
+	auto checkGas = [&](GasMeter::GasConsumption const& _gas, unsigned _expected)
+	{
+		BOOST_CHECK(!_gas.isInfinite);
+		BOOST_CHECK_EQUAL(_gas.value, u256(_expected));
+	};
+
+	// Inside the memory there is.
+	checkGas(mcopyGas(u256(0x40), u256(0), u256(0x40), 0x100), 3 + 3);
+	checkGas(mcopyGas(u256(0x40), u256(0), u256(0x41), 0x100), 3 + 2 * 3);
+	// 65 words for the source range, 65 words for the target range.
+	checkGas(mcopyGas(u256(0), u256(0x1000), u256(0x40), 0), 3 + 3 + 203);
+	checkGas(mcopyGas(u256(0x1000), u256(0), u256(0x40), 0), 3 + 3 + 203);
+	// Both ranges are beyond the end of memory, the target range more so: 129 words.
+	checkGas(mcopyGas(u256(0x2000), u256(0x1000), u256(0x40), 0), 3 + 3 + 419);
+	checkGas(mcopyGas(u256(0x1000), u256(0x2000), u256(0x40), 0), 3 + 3 + 419);
+	// Only the growth is paid for: from 65 to 129 words.
+	checkGas(mcopyGas(u256(0x2000), u256(0x1000), u256(0x40), 0x1040), 3 + 3 + 419 - 203);
+	// A copy of nothing does not extend memory, whatever the positions are.
+	checkGas(mcopyGas(u256(0x2000), u256(0x1000), u256(0), 0), 3);
+	checkGas(mcopyGas(Instruction::CALLDATASIZE, Instruction::CALLVALUE, u256(0), 0), 3);
+
+	// Nothing is known of the cost if the size or the higher position is not known.
+	BOOST_CHECK(mcopyGas(u256(0), u256(0x40), Instruction::CALLDATASIZE, 0x100).isInfinite);
+	BOOST_CHECK(mcopyGas(Instruction::CALLDATASIZE, u256(0), u256(0x40), 0x100).isInfinite);
+	BOOST_CHECK(mcopyGas(u256(0), Instruction::CALLDATASIZE, u256(0x40), 0x100).isInfinite);
+}
+
 BOOST_AUTO_TEST_CASE(regular_functions_exclude_fallback)
 {
 	// A bug in the estimator caused the costs for a specific function

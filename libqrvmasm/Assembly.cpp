@@ -2867,6 +2867,20 @@ AddressByteMapInvalidation invalidateAddressByteMapsForMemoryWrite(
 			literalSizeT(_stackArgument(3))
 		);
 	}
+	if (_instruction == Instruction::MCOPY && _arguments >= 3)
+	{
+		// MCOPY writes what memory holds and not what the stack holds: a tracked address byte in
+		// its source range is in its destination range afterwards, at an offset the maps do not
+		// have. The bytes are not followed there. Both maps are given up instead, as for a write
+		// to an unknown offset, which makes the caller fall back to the flags for all of memory.
+		// Those need no update: MCOPY brings nothing into memory that was not in it.
+		return invalidateAddressByteMapsForWrite(
+			_currentAddressBytes,
+			_complementedCurrentAddressBytes,
+			std::nullopt,
+			literalSizeT(_stackArgument(2))
+		);
+	}
 	if (
 		_instruction == Instruction::CALL ||
 		_instruction == Instruction::DELEGATECALL ||
