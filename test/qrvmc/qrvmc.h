@@ -925,8 +925,10 @@ enum qrvmc_revision
      * https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/shanghai.md
      *
      * It also has the transient storage and its TLOAD and TSTORE instructions
-     * of EIP-1153 (https://eips.ethereum.org/EIPS/eip-1153), and the MCOPY
-     * instruction of EIP-5656 (https://eips.ethereum.org/EIPS/eip-5656).
+     * of EIP-1153 (https://eips.ethereum.org/EIPS/eip-1153), the MCOPY
+     * instruction of EIP-5656 (https://eips.ethereum.org/EIPS/eip-5656), and
+     * the CLZ instruction of EIP-7939 (https://eips.ethereum.org/EIPS/eip-7939),
+     * which counts the leading zero bits of the 512-bit word.
      */
     QRVMC_ZOND = 0,
 

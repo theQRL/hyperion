@@ -251,6 +251,30 @@ BOOST_AUTO_TEST_CASE(cse_constant_addition)
 	checkCSE(input, {u256(7 + 8)});
 }
 
+BOOST_AUTO_TEST_CASE(cse_constant_clz)
+{
+	// The count is over the 512-bit word.
+	checkCSE({u256(0), Instruction::CLZ}, {u256(512)});
+	checkCSE({u256(1), Instruction::CLZ}, {u256(511)});
+	checkCSE({u256(1) << 255, Instruction::CLZ}, {u256(256)});
+	checkCSE({(u512(1) << 256) - 1, Instruction::CLZ}, {u256(256)});
+	checkCSE({u512(1) << 256, Instruction::CLZ}, {u256(255)});
+	checkCSE({u512(1) << 511, Instruction::CLZ}, {u256(0)});
+	checkCSE({~u512(0), Instruction::CLZ}, {u256(0)});
+}
+
+BOOST_AUTO_TEST_CASE(cse_clz_twice)
+{
+	// The count of a value is computed once.
+	AssemblyItems input{
+		Instruction::CALLVALUE,
+		Instruction::CLZ,
+		Instruction::CALLVALUE,
+		Instruction::CLZ
+	};
+	checkCSE(input, {Instruction::CALLVALUE, Instruction::CLZ, Instruction::DUP1});
+}
+
 BOOST_AUTO_TEST_CASE(cse_invariants)
 {
 	AssemblyItems input{

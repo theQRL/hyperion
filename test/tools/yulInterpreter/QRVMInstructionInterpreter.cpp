@@ -200,6 +200,11 @@ u512 QRVMInstructionInterpreter::eval(
 			return v;
 		}
 	}
+	case Instruction::CLZ:
+		// The count is over the whole word, so it is VMWordBits for zero.
+		if (arg[0] == 0)
+			return VMWordBits;
+		return VMWordBits - 1 - boost::multiprecision::msb(arg[0]);
 	case Instruction::ADDMOD:
 		return arg[2] == 0 ? 0 : u512((bigint(arg[0]) + bigint(arg[1])) % bigint(arg[2]));
 	case Instruction::MULMOD:

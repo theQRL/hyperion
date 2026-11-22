@@ -60,6 +60,7 @@ enum class Instruction: uint8_t
 	SHL,				///< bitwise SHL operation
 	SHR,				///< bitwise SHR operation
 	SAR,				///< bitwise SAR operation
+	CLZ,				///< count leading zero bits of the word
 
 	KECCAK256 = 0x20,		///< compute KECCAK-256 hash
 

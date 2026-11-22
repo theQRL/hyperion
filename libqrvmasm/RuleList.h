@@ -126,6 +126,12 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleListPart1(
 			if (A.d() >= Pattern::WordSize)
 				return Word(0);
 			return B.d() >> unsigned(A.d());
+		}},
+		// The count is over the whole word, so a value below 2**256 has at least 256 leading zero bits.
+		{Builtins::CLZ(A), [=]() -> Word {
+			if (A.d() == 0)
+				return Pattern::WordSize;
+			return Pattern::WordSize - 1 - boost::multiprecision::msb(A.d());
 		}}
 	};
 }

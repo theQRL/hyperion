@@ -24,6 +24,7 @@ contract C {
             pop(shl(0, 1))
             pop(shr(0, 1))
             pop(sar(0, 1))
+            pop(clz(0))
             pop(addmod(0, 1, 2))
             pop(mulmod(0, 1, 2))
             pop(signextend(0, 1))
@@ -84,7 +85,7 @@ contract C {
     }
 }
 // ----
-// Warning 5740: (94-1711): Unreachable code.
-// Warning 5740: (1724-1736): Unreachable code.
-// Warning 5740: (1749-1758): Unreachable code.
-// Warning 5740: (1926-2218): Unreachable code.
+// Warning 5740: (94-1735): Unreachable code.
+// Warning 5740: (1748-1760): Unreachable code.
+// Warning 5740: (1773-1782): Unreachable code.
+// Warning 5740: (1950-2242): Unreachable code.

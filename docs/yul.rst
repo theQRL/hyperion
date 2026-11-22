@@ -755,8 +755,8 @@ This document does not want to be a full description of the Quantum Resistant vi
 Please refer to a different document if you are interested in the precise semantics.
 
 Opcodes marked with ``-`` do not return a result and all others return exactly one value.
-Opcodes marked with ``F``, ``H``, ``B``, ``C``, ``I``, ``L``, ``P`` and ``N`` are present since Frontier,
-Homestead, Byzantium, Constantinople, Istanbul, London, Paris or Cancun respectively.
+Opcodes marked with ``F``, ``H``, ``B``, ``C``, ``I``, ``L``, ``P``, ``N`` and ``O`` are present since Frontier,
+Homestead, Byzantium, Constantinople, Istanbul, London, Paris, Cancun or Osaka respectively.
 
 In the following, ``mem[a...b)`` signifies the bytes of memory starting at position ``a`` up to
 but not including position ``b``, ``storage[p]`` signifies the storage contents at slot ``p``, and similarly,
@@ -814,6 +814,9 @@ the ``dup`` and ``swap`` instructions as well as ``jump`` instructions, labels a
 | shr(x, y)               |     | C | logical shift right y by x bits                                 |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | sar(x, y)               |     | C | signed arithmetic shift right y by x bits                       |
++-------------------------+-----+---+-----------------------------------------------------------------+
+| clz(x)                  |     | O | number of leading zero bits of x, 512 if x == 0                 |
+|                         |     |   | (see note below)                                                |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | addmod(x, y, m)         |     | F | (x + y) % m with arbitrary precision arithmetic, 0 if m == 0    |
 +-------------------------+-----+---+-----------------------------------------------------------------+
@@ -977,6 +980,18 @@ the ``dup`` and ``swap`` instructions as well as ``jump`` instructions, labels a
   and the cost of the extension. The compiler uses ``mcopy`` itself where it copies a range of
   memory, for example the content of a ``bytes`` or ``string`` value in ABI encoding, so the code
   it generates needs a QRVM that has the opcode.
+
+.. _yul-clz:
+
+.. note::
+  ``clz`` counts the zero bits above the highest set bit of its argument
+  (`EIP-7939 <https://eips.ethereum.org/EIPS/eip-7939>`_). The count is over the 512-bit word of
+  the QRVM and not over the 256-bit word of the EIP: it is 512 for zero, 511 for one and 0 for a
+  value that has bit 511 set. For a value below ``2**256``, such as a clean ``uint256``, it is
+  therefore 256 higher than on the EVM. The position of the highest set bit of a nonzero ``x`` is
+  ``sub(511, clz(x))`` here, where code written for the EVM has ``sub(255, clz(x))``. Bits that a
+  variable of a narrower type has above its type are counted like any other bit, see
+  :ref:`assembly-typed-variables`. The cost is 5 gas. The compiler does not use ``clz`` itself.
 
 In some internal dialects, there are additional functions:
 

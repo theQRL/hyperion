@@ -286,6 +286,9 @@ width of subsequent assembly operations. This applies to both compiler pipelines
     * - ``byte(0, x)``
       - Most significant byte of a 32-byte word
       - Most significant byte of a 64-byte word
+    * - ``clz(x)``
+      - Leading zero bits of a 256-bit word, ``256`` for zero
+      - Leading zero bits of a 512-bit word, ``512`` for zero
     * - ``mload`` / ``mstore``
       - Read / write 32 bytes
       - Read / write 64 bytes
@@ -295,8 +298,11 @@ For example, two clean operands equal to ``2**128`` produce zero under EVM
 mask, use ``sub(shl(256, 1), 1)`` instead of ``not(0)``. If it needs arithmetic
 modulo ``2**256``, mask intermediate results wherever that wraparound is
 required, not just the inputs or final result. Sign-extend signed operands
-before signed operations. Review byte indices, shifts, memory offsets and
-array strides against the QRVM word size and :ref:`assembly-memory-management`.
+before signed operations. The count of ``clz`` is 256 higher for the same
+``uint256`` value: where EVM code has ``sub(255, clz(x))`` for the position
+of the highest set bit, use ``sub(511, clz(x))``. Review byte indices,
+shifts, memory offsets and array strides against the QRVM word size and
+:ref:`assembly-memory-management`.
 Hyperion's free-memory pointer is at ``0x80``, its zero slot at ``0xc0``, and
 allocatable memory starts at ``0x100``.
 

@@ -1,0 +1,8 @@
+contract C {
+    function f() public pure returns (uint ret) {
+        assembly {
+            ret := clz(0x100)
+        }
+    }
+}
+// ----

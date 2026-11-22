@@ -335,6 +335,31 @@ BOOST_AUTO_TEST_CASE(transient_storage_gas)
 	testRunTimeGas("f()", std::vector<bytes>{encodeArgs()});
 }
 
+BOOST_AUTO_TEST_CASE(clz_gas)
+{
+	// CLZ costs 5 gas, whatever the value is.
+	GasMeter meter(std::make_shared<KnownState>(), hyperion::test::CommonOptions::get().qrvmVersion());
+	meter.estimateMax(AssemblyItem{Instruction::CALLVALUE});
+	GasMeter::GasConsumption clzGas = meter.estimateMax(AssemblyItem{Instruction::CLZ});
+	BOOST_CHECK(!clzGas.isInfinite);
+	BOOST_CHECK_EQUAL(clzGas.value, u256(5));
+
+	// The function has no parameter: the estimate of one that has both a parameter and a return
+	// value is infinite, and the comparison with the gas the QRVM uses would not take place.
+	// The argument of the CLZ is not a constant, so the optimizer keeps the instruction.
+	char const* sourceCode = R"(
+		contract A {
+			function f() public pure returns (uint r) {
+				assembly {
+					r := clz(calldatasize())
+				}
+			}
+		}
+	)";
+	testCreationTimeGas(sourceCode);
+	testRunTimeGas("f()", std::vector<bytes>{encodeArgs()});
+}
+
 BOOST_AUTO_TEST_CASE(mcopy_gas)
 {
 	// The estimate is exact for constant arguments, also where the copy extends memory:
