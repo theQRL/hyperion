@@ -35,6 +35,7 @@
 
 #include <range/v3/view/reverse.hpp>
 
+#include <algorithm>
 #include <ostream>
 #include <variant>
 
@@ -78,7 +79,13 @@ void InterpreterState::dumpTraceAndState(ostream& _out, bool _disableMemoryTrace
 	_out << "Storage dump:" << endl;
 	dumpStorage(_out);
 
-	if (!transientStorage.empty())
+	// A TLOAD of a slot that was never written leaves a zero entry behind, which must not change the
+	// output: the optimizer may remove such a TLOAD.
+	if (std::any_of(
+		transientStorage.begin(),
+		transientStorage.end(),
+		[](auto const& _slot) { return _slot.second != h512{}; }
+	))
 	{
 		_out << "Transient storage dump:" << endl;
 		dumpTransientStorage(_out);
