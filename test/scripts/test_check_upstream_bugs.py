@@ -129,6 +129,38 @@ class TestCheckUpstreamBugs(unittest.TestCase):
             f'SOL-2026-9: listed more than once in {RECORD}',
         ])
 
+    def test_entries_that_share_an_identifier_are_reviewed_one_by_one(self):
+        # Solidity lists a bug that differs between the code generators once for each.
+        upstream = UPSTREAM + [
+            {'uid': 'SOL-2026-12', 'name': 'Twice', 'introduced': '0.4.9', 'fixed': '0.8.41'},
+            {'uid': 'SOL-2026-12', 'name': 'TwiceViaIR', 'introduced': '0.8.13', 'fixed': '0.8.41'},
+        ]
+        legacy = {'uid': 'SOL-2026-12', 'name': 'Twice', 'announced': '2026-10-20'}
+        via_ir = {'uid': 'SOL-2026-12', 'name': 'TwiceViaIR', 'announced': '2026-10-20', 'reviewed': '2026-10-21',
+                  'notAffected': 'Only one of the two affects Hyperion.'}
+
+        def result(*reviews):
+            return check(upstream, reviewed_record() + list(reviews), HYPERION_BUGS, TODAY)
+
+        self.assertEqual(result(legacy, via_ir), ([], [
+            'SOL-2026-10: review due by 2026-11-19',
+            'SOL-2026-12 (Twice): review due by 2026-11-19',
+        ]))
+        self.assertEqual(result(via_ir)[0], [
+            f'SOL-2026-12 (Twice): not in {RECORD}. Add it with "announced": "2026-11-02" and decide by 2026-12-02.'
+        ])
+        self.assertEqual(result(legacy, via_ir, dict(via_ir))[0], [
+            f'SOL-2026-12 (TwiceViaIR): listed more than once in {RECORD}'
+        ])
+        self.assertEqual(result(legacy, dict(via_ir, name='TwiceViaYul'))[0], [
+            f'SOL-2026-12: {RECORD} names it TwiceViaYul, Solidity names it Twice and TwiceViaIR',
+            f'SOL-2026-12 (TwiceViaIR): not in {RECORD}. Add it with "announced": "2026-11-02" and decide by 2026-12-02.',
+        ])
+        self.assertEqual(
+            result(dict(legacy, announced='20 October'), via_ir)[0],
+            ['SOL-2026-12 (Twice): "announced" must be a date such as "2026-11-02"'],
+        )
+
     def test_dates_must_be_valid_and_ordered(self):
         record = reviewed_record()
         record[0]['announced'] = '1 October'
@@ -143,10 +175,14 @@ class TestCheckUpstreamBugs(unittest.TestCase):
         record = json.loads((ROOT / RECORD).read_text(encoding='utf8'))
         hyperion_bugs = json.loads((ROOT / 'docs/bugs.json').read_text(encoding='utf8'))
         upstream = [{'uid': review['uid'], 'name': review['name'], 'fixed': '0.8.99'} for review in record]
-        today = max(datetime.date.fromisoformat(review['reviewed']) for review in record)
-        problems, open_reviews = check(upstream, record, hyperion_bugs, today)
-        self.assertEqual(problems, [])
-        self.assertEqual(open_reviews, [])
+        # On the last day the record mentions, so that a review may still be open, but not overdue.
+        today = max(
+            datetime.date.fromisoformat(review[key])
+            for review in record
+            for key in ('announced', 'reviewed')
+            if key in review
+        )
+        self.assertEqual(check(upstream, record, hyperion_bugs, today)[0], [])
 
 
 if __name__ == '__main__':
