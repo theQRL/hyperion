@@ -71,6 +71,13 @@ u512 rightAlignedHash(h256 const& _hash)
 	return u512(h256::Arith(_hash));
 }
 
+/// Folds a slot of storage or transient storage to its low StorageKeyBits bits, which is how the
+/// chain keys both: a slot at or above 2**StorageKeyBits is the slot of its low bits.
+h512 storageKey(u512 const& _slot)
+{
+	return h512(_slot & ((u512(1) << StorageKeyBits) - 1));
+}
+
 u512 expWord(u512 _base, u512 _exponent)
 {
 	u512 result = 1;
@@ -339,14 +346,14 @@ u512 QRVMInstructionInterpreter::eval(
 		m_state.memory[arg[0]] = uint8_t(arg[1] & 0xff);
 		return 0;
 	case Instruction::SLOAD:
-		return h512::Arith(m_state.storage[h512(arg[0])]);
+		return h512::Arith(m_state.storage[storageKey(arg[0])]);
 	case Instruction::SSTORE:
-		m_state.storage[h512(arg[0])] = h512(arg[1]);
+		m_state.storage[storageKey(arg[0])] = h512(arg[1]);
 		return 0;
 	case Instruction::TLOAD:
-		return h512::Arith(m_state.transientStorage[h512(arg[0])]);
+		return h512::Arith(m_state.transientStorage[storageKey(arg[0])]);
 	case Instruction::TSTORE:
-		m_state.transientStorage[h512(arg[0])] = h512(arg[1]);
+		m_state.transientStorage[storageKey(arg[0])] = h512(arg[1]);
 		return 0;
 	case Instruction::PC:
 		return 0x77;

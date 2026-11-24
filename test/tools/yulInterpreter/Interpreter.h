@@ -80,7 +80,9 @@ struct InterpreterState
 	std::map<u512, uint8_t> memory;
 	/// This is different than memory.size() because we ignore gas.
 	u512 msize;
+	/// Keyed by the low StorageKeyBits bits of the slot, as on the chain. A value is a whole word.
 	std::map<util::h512, util::h512> storage;
+	/// Keyed as storage is.
 	std::map<util::h512, util::h512> transientStorage;
 	util::h512 address = util::h512("0x0000000000000000000000000000000011111111");
 	u512 balance = 0x22222222;
