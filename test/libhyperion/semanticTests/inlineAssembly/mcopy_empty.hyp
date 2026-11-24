@@ -1,0 +1,32 @@
+contract C {
+    function f() public pure returns (uint a) {
+        assembly {
+            let p := mload(0x80)
+            mstore(p, 42)
+            // A copy of nothing copies nothing and does not extend memory, which would cost more
+            // gas than there is for these positions.
+            mcopy(p, add(p, 0x40), 0)
+            mcopy(not(0), p, 0)
+            mcopy(p, not(0), 0)
+            mcopy(not(0), not(0), 0)
+            a := mload(p)
+        }
+    }
+
+    function out_of_gas() public pure {
+        assembly {
+            // One byte at these positions is too many.
+            mcopy(0, shl(100, 1), 1)
+        }
+    }
+
+    function out_of_gas_target() public pure {
+        assembly {
+            mcopy(shl(100, 1), 0, 1)
+        }
+    }
+}
+// ----
+// f() -> 0x2a
+// out_of_gas() -> FAILURE
+// out_of_gas_target() -> FAILURE

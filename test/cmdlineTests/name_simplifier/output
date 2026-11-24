@@ -80,18 +80,15 @@ object "C_59" {
                         }
                         sstore(0, mload(/** @src 0:469:474  "_s[0]" */ mload(dst_1)))
                         /// @src 0:346:625  "contract C {..."
-                        let _10 := mload(_1)
-                        let _11 := 1
-                        if iszero(lt(1, _10))
+                        if iszero(lt(1, mload(_1)))
                         {
                             mstore(0, shl(480, 0xdf75fb3b))
                             mstore(_2, 0x32)
                             revert(0, _6)
                         }
-                        let _12 := mload(/** @src 0:489:494  "_s[1]" */ mload(/** @src 0:346:625  "contract C {..." */ add(_1, _9)))
-                        sstore(0x02, _12)
+                        let _10 := mload(/** @src 0:489:494  "_s[1]" */ mload(/** @src 0:346:625  "contract C {..." */ add(_1, _9)))
+                        sstore(0x02, _10)
                         let memPtr_1 := mload(_9)
-                        let _13 := 192
                         let newFreePtr_2 := add(memPtr_1, 192)
                         if or(gt(newFreePtr_2, _4), lt(newFreePtr_2, memPtr_1))
                         {
@@ -101,22 +98,20 @@ object "C_59" {
                         }
                         mstore(_9, newFreePtr_2)
                         mstore(memPtr_1, 100)
-                        mstore(add(memPtr_1, _3), 0x6c6f6e67737472696e676c6f6e67737472696e676c6f6e67737472696e676c6f6e67737472696e676c6f6e67737472696e676c6f6e67737472696e676c6f6e67)
+                        let _11 := add(memPtr_1, _3)
+                        mstore(_11, 0x6c6f6e67737472696e676c6f6e67737472696e676c6f6e67737472696e676c6f6e67737472696e676c6f6e67737472696e676c6f6e67737472696e676c6f6e67)
                         mstore(add(memPtr_1, _9), shl(224, 0x737472696e676c6f6e67737472696e676c6f6e67737472696e676c6f6e67737472696e67))
                         let memPos := mload(_9)
-                        mstore(memPos, _12)
+                        mstore(memPos, _10)
                         mstore(add(memPos, _3), _9)
                         let length := mload(memPtr_1)
                         mstore(add(memPos, _9), length)
-                        let i := 0
-                        for { } lt(i, length) { i := add(i, _3) }
+                        mcopy(add(memPos, 192), _11, length)
+                        let rest := and(length, 63)
+                        if rest
                         {
-                            mstore(add(add(memPos, i), _13), mload(add(add(memPtr_1, i), _3)))
-                        }
-                        let j := length
-                        for { } lt(j, i) { j := add(j, _11) }
-                        {
-                            mstore8(add(add(memPos, j), _13), 0)
+                            let lastWord := add(add(memPos, sub(length, rest)), 192)
+                            mstore(lastWord, and(mload(lastWord), not(shr(and(shl(3, length), 504), not(0)))))
                         }
                         return(memPos, add(sub(add(memPos, and(add(length, 63), _8)), memPos), 192))
                     }

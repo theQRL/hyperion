@@ -69,6 +69,10 @@ string toString(SideEffects const& _sideEffects)
 		ret.emplace_back("writes memory");
 	else if (_sideEffects.memory == SideEffects::Read)
 		ret.emplace_back("reads memory");
+	if (_sideEffects.transientStorage == SideEffects::Write)
+		ret.emplace_back("writes transient storage");
+	else if (_sideEffects.transientStorage == SideEffects::Read)
+		ret.emplace_back("reads transient storage");
 
 	return joinHumanReadable(ret);
 }

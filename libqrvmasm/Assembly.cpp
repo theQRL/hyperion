@@ -455,10 +455,13 @@ VerbatimTaintInfo verbatimTaintInfo(bytes const& _data)
 		case Instruction::MSTORE8:
 			result.writesMemory = true;
 			break;
+		// Transient storage is tracked together with storage: see isStorageStoreInstruction().
 		case Instruction::SLOAD:
+		case Instruction::TLOAD:
 			result.readsStorage = true;
 			break;
 		case Instruction::SSTORE:
+		case Instruction::TSTORE:
 			result.writesStorage = true;
 			break;
 		default:
@@ -1305,9 +1308,18 @@ bool isMemoryStoreInstruction(Instruction _instruction)
 	return _instruction == Instruction::MSTORE || _instruction == Instruction::MSTORE8;
 }
 
+/// What the validator knows of storage is what a value stored in it may be, without the slot.
+/// This holds for transient storage (EIP-1153) as well: a value put there by TSTORE comes back
+/// from TLOAD in a later call frame of the transaction. Both kinds are therefore tracked as one,
+/// which is a superset of what either may hold.
 bool isStorageStoreInstruction(Instruction _instruction)
 {
-	return _instruction == Instruction::SSTORE;
+	return _instruction == Instruction::SSTORE || _instruction == Instruction::TSTORE;
+}
+
+bool isStorageLoadInstruction(Instruction _instruction)
+{
+	return _instruction == Instruction::SLOAD || _instruction == Instruction::TLOAD;
 }
 
 bool instructionMayConsumeDuplicateRelation(Instruction _instruction)
@@ -1345,6 +1357,7 @@ bool operationOutputCanPropagateStackInput(Instruction _instruction)
 	case Instruction::BLOCKHASH:
 	case Instruction::MLOAD:
 	case Instruction::SLOAD:
+	case Instruction::TLOAD:
 	case Instruction::CREATE:
 	case Instruction::CREATE2:
 		return false;
@@ -2852,6 +2865,20 @@ AddressByteMapInvalidation invalidateAddressByteMapsForMemoryWrite(
 			_complementedCurrentAddressBytes,
 			literalSizeT(_stackArgument(1)),
 			literalSizeT(_stackArgument(3))
+		);
+	}
+	if (_instruction == Instruction::MCOPY && _arguments >= 3)
+	{
+		// MCOPY writes what memory holds and not what the stack holds: a tracked address byte in
+		// its source range is in its destination range afterwards, at an offset the maps do not
+		// have. The bytes are not followed there. Both maps are given up instead, as for a write
+		// to an unknown offset, which makes the caller fall back to the flags for all of memory.
+		// Those need no update: MCOPY brings nothing into memory that was not in it.
+		return invalidateAddressByteMapsForWrite(
+			_currentAddressBytes,
+			_complementedCurrentAddressBytes,
+			std::nullopt,
+			literalSizeT(_stackArgument(2))
 		);
 	}
 	if (
@@ -4447,7 +4474,7 @@ VerbatimCallEffects analyzeVerbatimCallEffects(
 			bool foreignOutput =
 				(outputCanPropagateStackInput && foreignInput) ||
 				(instruction == Instruction::MLOAD && memoryMayContainForeignTag) ||
-				(instruction == Instruction::SLOAD && storageMayContainForeignTag);
+				(isStorageLoadInstruction(instruction) && storageMayContainForeignTag);
 			AbstractStackValue identityPreservedMetadata;
 			propagateIdentityPreservedMetadata(instruction, arguments, stackArgument, identityPreservedMetadata);
 			bool const preservesKnownLocalTag =
@@ -4460,22 +4487,22 @@ VerbatimCallEffects analyzeVerbatimCallEffects(
 					!preservesKnownLocalTag
 				) ||
 				(instruction == Instruction::MLOAD && memoryMayContainLocalTag) ||
-				(instruction == Instruction::SLOAD && storageMayContainLocalTag);
+				(isStorageLoadInstruction(instruction) && storageMayContainLocalTag);
 			bool currentAddressOutput =
 				(instruction == Instruction::MLOAD && (memoryMayContainExactCurrentAddress || operationLoadsCurrentAddressFromBytes)) ||
-				(instruction == Instruction::SLOAD && storageMayContainExactCurrentAddress);
+				(isStorageLoadInstruction(instruction) && storageMayContainExactCurrentAddress);
 			bool currentAddressDerivedOutput =
 				(instruction == Instruction::MLOAD && memoryMayContainCurrentAddress) ||
-				(instruction == Instruction::SLOAD && storageMayContainCurrentAddress);
+				(isStorageLoadInstruction(instruction) && storageMayContainCurrentAddress);
 		bool complementedCurrentAddressOutput =
 			(
 				instruction == Instruction::MLOAD &&
 				(memoryMayContainExactComplementedCurrentAddress || operationLoadsComplementedCurrentAddressFromBytes)
 			) ||
-			(instruction == Instruction::SLOAD && storageMayContainExactComplementedCurrentAddress);
+			(isStorageLoadInstruction(instruction) && storageMayContainExactComplementedCurrentAddress);
 		bool complementedCurrentAddressDerivedOutput =
 			(instruction == Instruction::MLOAD && memoryMayContainComplementedCurrentAddress) ||
-			(instruction == Instruction::SLOAD && storageMayContainComplementedCurrentAddress);
+			(isStorageLoadInstruction(instruction) && storageMayContainComplementedCurrentAddress);
 
 		AddressByteMapInvalidation const addressByteMapInvalidation = invalidateAddressByteMapsForMemoryWrite(
 			instruction,
@@ -6550,7 +6577,7 @@ void refineIsZeroTestedValueToZero(AbstractStackState& _state, AbstractStackValu
 				foreignOutput =
 					(operationOutputCanPropagateStackInputValue && foreignInput) ||
 					(instruction == Instruction::MLOAD && state.memoryMayContainForeignTag) ||
-					(instruction == Instruction::SLOAD && state.storageMayContainForeignTag);
+					(isStorageLoadInstruction(instruction) && state.storageMayContainForeignTag);
 			}
 				else if (item.type() == VerbatimBytecode)
 				{
@@ -6573,7 +6600,7 @@ void refineIsZeroTestedValueToZero(AbstractStackState& _state, AbstractStackValu
 						!preservesKnownLocalTag
 					) ||
 					(instruction == Instruction::MLOAD && state.memoryMayContainLocalTag) ||
-					(instruction == Instruction::SLOAD && state.storageMayContainLocalTag);
+					(isStorageLoadInstruction(instruction) && state.storageMayContainLocalTag);
 			}
 				else if (item.type() == VerbatimBytecode)
 				{
@@ -6588,10 +6615,10 @@ void refineIsZeroTestedValueToZero(AbstractStackState& _state, AbstractStackValu
 			Instruction instruction = item.instruction();
 			currentAddressOutput =
 				(instruction == Instruction::MLOAD && (state.memoryMayContainExactCurrentAddress || operationLoadsCurrentAddressFromBytes)) ||
-				(instruction == Instruction::SLOAD && state.storageMayContainExactCurrentAddress);
+				(isStorageLoadInstruction(instruction) && state.storageMayContainExactCurrentAddress);
 			currentAddressDerivedOutput =
 				(instruction == Instruction::MLOAD && state.memoryMayContainCurrentAddress) ||
-				(instruction == Instruction::SLOAD && state.storageMayContainCurrentAddress);
+				(isStorageLoadInstruction(instruction) && state.storageMayContainCurrentAddress);
 		}
 			else if (item.type() == VerbatimBytecode)
 			{
@@ -6618,10 +6645,10 @@ void refineIsZeroTestedValueToZero(AbstractStackState& _state, AbstractStackValu
 					instruction == Instruction::MLOAD &&
 					(state.memoryMayContainExactComplementedCurrentAddress || operationLoadsComplementedCurrentAddressFromBytes)
 				) ||
-				(instruction == Instruction::SLOAD && state.storageMayContainExactComplementedCurrentAddress);
+				(isStorageLoadInstruction(instruction) && state.storageMayContainExactComplementedCurrentAddress);
 			complementedCurrentAddressDerivedOutput =
 				(instruction == Instruction::MLOAD && state.memoryMayContainComplementedCurrentAddress) ||
-				(instruction == Instruction::SLOAD && state.storageMayContainComplementedCurrentAddress);
+				(isStorageLoadInstruction(instruction) && state.storageMayContainComplementedCurrentAddress);
 		}
 			else if (item.type() == VerbatimBytecode)
 			{

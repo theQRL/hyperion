@@ -1,0 +1,44 @@
+contract C {
+    function mcopy_to_itself() public pure returns (uint a, uint b) {
+        assembly {
+            let p := mload(0x80)
+            mstore(p, 0x0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20)
+            mstore(add(p, 0x40), 0x2122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f40)
+            mcopy(p, p, 0x80)
+            a := mload(p)
+            b := mload(add(p, 0x40))
+        }
+    }
+
+    function mcopy_target_behind_source() public pure returns (uint a, uint b, uint c) {
+        assembly {
+            let p := mload(0x80)
+            mstore(p, 0x0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20)
+            mstore(add(p, 0x40), 0x2122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f40)
+            mstore(add(p, 0x80), 0)
+            // The two words move up by 16 bytes.
+            mcopy(add(p, 0x10), p, 0x80)
+            a := mload(p)
+            b := mload(add(p, 0x40))
+            c := mload(add(p, 0x80))
+        }
+    }
+
+    function mcopy_target_before_source() public pure returns (uint a, uint b, uint c) {
+        assembly {
+            let p := mload(0x80)
+            mstore(p, 0)
+            mstore(add(p, 0x40), 0x0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20)
+            mstore(add(p, 0x80), 0x2122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f40)
+            // The two words move down by 16 bytes.
+            mcopy(add(p, 0x30), add(p, 0x40), 0x80)
+            a := mload(p)
+            b := mload(add(p, 0x40))
+            c := mload(add(p, 0x80))
+        }
+    }
+}
+// ----
+// mcopy_to_itself() -> 0x0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20, 0x2122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f40
+// mcopy_target_behind_source() -> 0x0102030405060708090a0b0c0d0e0f10, 0x1112131415161718191a1b1c1d1e1f2000000000000000000000000000000000000000000000000000000000000000002122232425262728292a2b2c2d2e2f30, 0x3132333435363738393a3b3c3d3e3f40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+// mcopy_target_before_source() -> 0, 0x102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2000000000000000000000000000000000, 0x2122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f403132333435363738393a3b3c3d3e3f40

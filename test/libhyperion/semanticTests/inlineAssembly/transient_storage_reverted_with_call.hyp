@@ -1,0 +1,31 @@
+contract C {
+    function setAndRevert(uint value) public {
+        assembly {
+            tstore(0, value)
+            revert(0, 0)
+        }
+    }
+
+    function set(uint value) public {
+        assembly {
+            tstore(0, value)
+        }
+    }
+
+    function f() public returns (bool reverted, uint afterRevert, bool succeeded, uint afterSuccess) {
+        assembly {
+            tstore(0, 1)
+        }
+        (bool success, ) = address(this).call(abi.encodeCall(this.setAndRevert, (2)));
+        reverted = !success;
+        assembly {
+            afterRevert := tload(0)
+        }
+        (succeeded, ) = address(this).call(abi.encodeCall(this.set, (3)));
+        assembly {
+            afterSuccess := tload(0)
+        }
+    }
+}
+// ----
+// f() -> true, 1, true, 3

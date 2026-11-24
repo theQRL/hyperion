@@ -1,0 +1,8 @@
+contract C {
+    uint tload;
+
+    function tstore(uint value) public {
+        tload = value;
+    }
+}
+// ----

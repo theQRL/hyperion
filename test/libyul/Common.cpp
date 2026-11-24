@@ -61,7 +61,8 @@ pair<shared_ptr<Block>, shared_ptr<yul::AsmAnalysisInfo>> yul::test::parse(strin
 			hyperion::frontend::OptimiserSettings::minimal(),
 		DebugInfoSelection::All()
 	);
-	if (!stack.parseAndAnalyze("", _source) || !stack.errors().empty())
+	// A warning, like the one for the first `tstore`, does not make the source invalid.
+	if (!stack.parseAndAnalyze("", _source) || Error::containsErrors(stack.errors()))
 		BOOST_FAIL("Invalid source.");
 	return make_pair(stack.parserResult()->code, stack.parserResult()->analysisInfo);
 }

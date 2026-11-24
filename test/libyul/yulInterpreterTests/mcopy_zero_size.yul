@@ -1,0 +1,23 @@
+{
+    mstore(0x00, 0x1111111111111111111111111111111111111111111111111111111111111111)
+
+    // A copy of nothing does not extend memory, whatever the two positions are.
+    mcopy(0x1000, 0x2000, 0)
+    mcopy(not(0), 0, 0)
+    mcopy(0, not(0), 0)
+    mcopy(not(0), not(0), 0)
+
+    sstore(0, mload(0x00))
+    sstore(1, msize())
+}
+// ----
+// Trace:
+//   MCOPY(4096, 8192, 0)
+//   MCOPY(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0, 0)
+//   MCOPY(0, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0)
+//   MCOPY(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0)
+// Memory dump:
+//      0: 00000000000000000000000000000000000000000000000000000000000000001111111111111111111111111111111111111111111111111111111111111111
+// Storage dump:
+//   00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000: 00000000000000000000000000000000000000000000000000000000000000001111111111111111111111111111111111111111111111111111111111111111
+//   00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040

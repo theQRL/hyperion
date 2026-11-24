@@ -1,0 +1,8 @@
+contract C {
+    function f() public view returns (uint x) {
+        assembly {
+            x := tload(0)
+        }
+    }
+}
+// ----

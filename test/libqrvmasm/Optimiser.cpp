@@ -251,6 +251,30 @@ BOOST_AUTO_TEST_CASE(cse_constant_addition)
 	checkCSE(input, {u256(7 + 8)});
 }
 
+BOOST_AUTO_TEST_CASE(cse_constant_clz)
+{
+	// The count is over the 512-bit word.
+	checkCSE({u256(0), Instruction::CLZ}, {u256(512)});
+	checkCSE({u256(1), Instruction::CLZ}, {u256(511)});
+	checkCSE({u256(1) << 255, Instruction::CLZ}, {u256(256)});
+	checkCSE({(u512(1) << 256) - 1, Instruction::CLZ}, {u256(256)});
+	checkCSE({u512(1) << 256, Instruction::CLZ}, {u256(255)});
+	checkCSE({u512(1) << 511, Instruction::CLZ}, {u256(0)});
+	checkCSE({~u512(0), Instruction::CLZ}, {u256(0)});
+}
+
+BOOST_AUTO_TEST_CASE(cse_clz_twice)
+{
+	// The count of a value is computed once.
+	AssemblyItems input{
+		Instruction::CALLVALUE,
+		Instruction::CLZ,
+		Instruction::CALLVALUE,
+		Instruction::CLZ
+	};
+	checkCSE(input, {Instruction::CALLVALUE, Instruction::CLZ, Instruction::DUP1});
+}
+
 BOOST_AUTO_TEST_CASE(cse_invariants)
 {
 	AssemblyItems input{
@@ -1642,6 +1666,76 @@ BOOST_AUTO_TEST_CASE(cse_sload_verbatim_dup)
 
 	checkCSE(input, output);
 	checkFullCSE(input, output);
+}
+
+BOOST_AUTO_TEST_CASE(cse_tload_twice)
+{
+	// Nothing inside a block writes transient storage, so two loads of a slot give the same value.
+	AssemblyItems input{
+		u256(0),
+		Instruction::TLOAD,
+		u256(0),
+		Instruction::TLOAD,
+	};
+
+	AssemblyItems output{
+		u256(0),
+		Instruction::TLOAD,
+		Instruction::DUP1,
+	};
+
+	checkCSE(input, output);
+	checkFullCSE(input, output);
+}
+
+BOOST_AUTO_TEST_CASE(cse_tstore_tload)
+{
+	// A TSTORE ends the block: the store stays, and the load after it takes neither the value
+	// of the load before it nor the value stored.
+	AssemblyItems input{
+		u256(0),
+		Instruction::TLOAD,
+		u256(7),
+		u256(0),
+		Instruction::TSTORE,
+		u256(0),
+		Instruction::TLOAD,
+	};
+
+	checkFullCSE(input, input);
+}
+
+BOOST_AUTO_TEST_CASE(cse_tstore_twice)
+{
+	// Unlike two SSTOREs to a slot, of which only the last one is kept, both TSTOREs stay.
+	AssemblyItems input{
+		u256(7),
+		u256(0),
+		Instruction::TSTORE,
+		u256(8),
+		u256(0),
+		Instruction::TSTORE,
+	};
+
+	checkFullCSE(input, input);
+}
+
+BOOST_AUTO_TEST_CASE(cse_mcopy)
+{
+	// An MCOPY ends the block: the copy stays, and the load after it does not take the value of
+	// the load before it, which the copy overwrites here.
+	AssemblyItems input{
+		u256(0x20),
+		Instruction::MLOAD,
+		u256(0x40),
+		u256(0x80),
+		u256(0x20),
+		Instruction::MCOPY,
+		u256(0x20),
+		Instruction::MLOAD,
+	};
+
+	checkFullCSE(input, input);
 }
 
 BOOST_AUTO_TEST_CASE(cse_verbatim_sload_sideeffect)

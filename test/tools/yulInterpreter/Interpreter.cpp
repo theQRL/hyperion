@@ -35,6 +35,7 @@
 
 #include <range/v3/view/reverse.hpp>
 
+#include <algorithm>
 #include <ostream>
 #include <variant>
 
@@ -48,6 +49,13 @@ using hyperion::util::h512;
 void InterpreterState::dumpStorage(ostream& _out) const
 {
 	for (auto const& slot: storage)
+		if (slot.second != h512{})
+			_out << "  " << slot.first.hex() << ": " << slot.second.hex() << endl;
+}
+
+void InterpreterState::dumpTransientStorage(ostream& _out) const
+{
+	for (auto const& slot: transientStorage)
 		if (slot.second != h512{})
 			_out << "  " << slot.first.hex() << ": " << slot.second.hex() << endl;
 }
@@ -70,6 +78,18 @@ void InterpreterState::dumpTraceAndState(ostream& _out, bool _disableMemoryTrace
 	}
 	_out << "Storage dump:" << endl;
 	dumpStorage(_out);
+
+	// A TLOAD of a slot that was never written leaves a zero entry behind, which must not change the
+	// output: the optimizer may remove such a TLOAD.
+	if (std::any_of(
+		transientStorage.begin(),
+		transientStorage.end(),
+		[](auto const& _slot) { return _slot.second != h512{}; }
+	))
+	{
+		_out << "Transient storage dump:" << endl;
+		dumpTransientStorage(_out);
+	}
 
 	if (!calldata.empty())
 	{

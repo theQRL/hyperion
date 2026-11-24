@@ -40,6 +40,8 @@
 #include <libqrvmasm/SemanticInformation.h>
 
 #include <range/v3/algorithm/all_of.hpp>
+
+#include <algorithm>
 #include <string>
 
 using namespace hyperion;
@@ -175,10 +177,14 @@ void UnusedStoreEliminator::visit(Statement const& _statement)
 		*instruction == Instruction::EXTCODECOPY ||
 		*instruction == Instruction::CODECOPY ||
 		*instruction == Instruction::CALLDATACOPY ||
+		*instruction == Instruction::MCOPY ||
 		*instruction == Instruction::MSTORE ||
 		*instruction == Instruction::MSTORE8 ||
 		*instruction == Instruction::RETURNDATACOPY;
 	bool const isBlacklisted =
+		// An `mcopy()` is a load as well as a store, and this step tracks a statement as one store.
+		// It is therefore never removed. Its read and its write still count for the other stores.
+		*instruction == Instruction::MCOPY ||
 		// Trying to optimize out `returndatacopy()` is not worth the extra complexity, because it can rarely be done in the IR we generate.
 		// That's because we always immediately ABI-decode the result and only if we can optimize out that decoding, `returndatacopy()` becomes truly unused.
 		// Removing it is also hard in a general case because it's not side-effect free - it reverts on out-of-bounds access and we have to preserve that revert.
@@ -231,8 +237,20 @@ std::vector<UnusedStoreEliminator::Operation> UnusedStoreEliminator::operationsF
 
 	using qrvmasm::SemanticInformation;
 
+	// Only stores to storage and to memory are tracked here: what an instruction does to
+	// transient storage neither reads nor overwrites any of them.
+	std::vector<SemanticInformation::Operation> operations = SemanticInformation::readWriteOperations(*instruction);
+	operations.erase(
+		std::remove_if(
+			operations.begin(),
+			operations.end(),
+			[](SemanticInformation::Operation const& _op) { return _op.location == Location::TransientStorage; }
+		),
+		operations.end()
+	);
+
 	return util::applyMap(
-		SemanticInformation::readWriteOperations(*instruction),
+		operations,
 		[&](SemanticInformation::Operation const& _op) -> Operation
 		{
 			yulAssert(!(_op.lengthParameter && _op.lengthConstant));
@@ -256,6 +274,7 @@ std::vector<UnusedStoreEliminator::Operation> UnusedStoreEliminator::operationsF
 
 void UnusedStoreEliminator::applyOperation(UnusedStoreEliminator::Operation const& _operation)
 {
+	yulAssert(_operation.location == Location::Storage || _operation.location == Location::Memory);
 	std::set<Statement const*>& active =
 		_operation.location == Location::Storage ?
 		activeStorageStores() :

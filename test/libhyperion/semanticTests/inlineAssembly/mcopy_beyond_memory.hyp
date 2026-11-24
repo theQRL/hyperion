@@ -1,0 +1,18 @@
+contract C {
+    function f() public pure returns (uint a, uint b, uint c) {
+        assembly {
+            let p := mload(0x80)
+            mstore(p, not(0))
+            mstore(add(p, 0x40), not(0))
+            // The source is beyond the end of memory, which is extended for it: it is zero.
+            mcopy(add(p, 0x20), add(p, 0x10000), 0x40)
+            a := mload(p)
+            b := mload(add(p, 0x40))
+            // The target is beyond the end of memory.
+            mcopy(add(p, 0x20000), p, 0x40)
+            c := mload(add(p, 0x20000))
+        }
+    }
+}
+// ----
+// f() -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000

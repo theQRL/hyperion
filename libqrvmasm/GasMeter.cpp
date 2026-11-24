@@ -129,6 +129,14 @@ GasMeter::GasConsumption GasMeter::estimateMax(AssemblyItem const& _item, bool _
 			gas += memoryGas(0, -2);
 			gas += wordGas(GasCosts::copyGas, m_state->relativeStackElement(-2));
 			break;
+		case Instruction::MCOPY:
+			gas = runGas(_item.instruction());
+			// Memory grows to the higher of the two ranges. The second call only counts the growth
+			// beyond the first one, so the sum is the cost of reaching the higher one.
+			gas += memoryGas(-1, -2);
+			gas += memoryGas(0, -2);
+			gas += wordGas(GasCosts::copyGas, m_state->relativeStackElement(-2));
+			break;
 		case Instruction::EXTCODESIZE:
 			gas = GasCosts::extCodeGas;
 			break;
@@ -289,6 +297,7 @@ unsigned GasMeter::runGas(Instruction _instruction)
 	case Tier::Mid:     return GasCosts::tier4Gas;
 	case Tier::High:    return GasCosts::tier5Gas;
 	case Tier::Ext:     return GasCosts::tier6Gas;
+	case Tier::WarmAccess: return GasCosts::warmStorageReadCost;
 	default: break;
 	}
 	assertThrow(false, OptimizerException, "Invalid gas tier for instruction " + instructionInfo(_instruction).name);

@@ -1,0 +1,11 @@
+contract C {
+    function f() public pure {
+        assembly {
+            mcopy(0, 0x40)
+            let x := mcopy(0, 0x40, 0x40)
+        }
+    }
+}
+// ----
+// TypeError 7000: (75-80): Function "mcopy" expects 3 arguments but got 2.
+// DeclarationError 3812: (102-131): Variable count mismatch for declaration of "x": 1 variables and 0 values.

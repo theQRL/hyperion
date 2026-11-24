@@ -1,0 +1,8 @@
+contract C {
+    uint mcopy;
+
+    function f(uint value) public {
+        mcopy = value;
+    }
+}
+// ----

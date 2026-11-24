@@ -5,7 +5,7 @@
 // recorded in test/precompiles/README.md:
 //
 //	go mod init vectors
-//	go get github.com/theQRL/go-qrl@f3864c46b3f94662c514105da1efaf3466394fae
+//	go get github.com/theQRL/go-qrl@6392e3954ab9837b252024f8e79f4f1c79e9a67d
 //	go run /path/to/hyperion/scripts/generate_shake256_vectors.go > /path/to/hyperion/test/precompiles/shake256.json
 package main
 

@@ -128,6 +128,7 @@ Storage Keys Are 256 Bits Wide
 
 The QRVM word is 512 bits, but the chain keys storage by the low 256 bits of the slot:
 ``sstore`` and ``sload`` with a slot at or above ``2**256`` read and write slot ``s mod 2**256``.
+Transient storage is keyed the same way by ``tstore`` and ``tload``.
 The layout above never produces such a slot by itself. The state variables of a contract stay
 below ``2**256`` slots, and every Keccak-256 position is a 256-bit number. A slot can only reach
 ``2**256`` when an offset is added to a hashed position: an element of a dynamic array whose length

@@ -499,6 +499,15 @@ public:
     /// @copydoc qrvmc_host_interface::access_storage
     virtual qrvmc_access_status access_storage(const address& addr,
                                                const bytes64& key) noexcept = 0;
+
+    /// @copydoc qrvmc_host_interface::get_transient_storage
+    virtual bytes64 get_transient_storage(const address& addr,
+                                          const bytes64& key) const noexcept = 0;
+
+    /// @copydoc qrvmc_host_interface::set_transient_storage
+    virtual void set_transient_storage(const address& addr,
+                                       const bytes64& key,
+                                       const bytes64& value) noexcept = 0;
 };
 
 
@@ -601,6 +610,18 @@ public:
     qrvmc_access_status access_storage(const address& address, const bytes64& key) noexcept final
     {
         return host->access_storage(context, &address, &key);
+    }
+
+    bytes64 get_transient_storage(const address& address, const bytes64& key) const noexcept final
+    {
+        return host->get_transient_storage(context, &address, &key);
+    }
+
+    void set_transient_storage(const address& address,
+                               const bytes64& key,
+                               const bytes64& value) noexcept final
+    {
+        host->set_transient_storage(context, &address, &key, &value);
     }
 };
 
@@ -871,18 +892,41 @@ inline qrvmc_access_status access_storage(qrvmc_host_context* h,
 {
     return Host::from_context(h)->access_storage(*addr, *key);
 }
+
+inline qrvmc_bytes64 get_transient_storage(qrvmc_host_context* h,
+                                           const qrvmc_address* addr,
+                                           const qrvmc_bytes64* key) noexcept
+{
+    return Host::from_context(h)->get_transient_storage(*addr, *key);
+}
+
+inline void set_transient_storage(qrvmc_host_context* h,
+                                  const qrvmc_address* addr,
+                                  const qrvmc_bytes64* key,
+                                  const qrvmc_bytes64* value) noexcept
+{
+    Host::from_context(h)->set_transient_storage(*addr, *key, *value);
+}
 }  // namespace internal
 
 inline const qrvmc_host_interface& Host::get_interface() noexcept
 {
     static constexpr qrvmc_host_interface interface = {
-        ::qrvmc::internal::account_exists, ::qrvmc::internal::get_storage,
-        ::qrvmc::internal::set_storage,    ::qrvmc::internal::get_balance,
-        ::qrvmc::internal::get_code_size,  ::qrvmc::internal::get_code_hash,
-        ::qrvmc::internal::copy_code,      ::qrvmc::internal::call,
-        ::qrvmc::internal::get_tx_context, ::qrvmc::internal::get_block_hash,
-        ::qrvmc::internal::emit_log,       ::qrvmc::internal::access_account,
+        ::qrvmc::internal::account_exists,
+        ::qrvmc::internal::get_storage,
+        ::qrvmc::internal::set_storage,
+        ::qrvmc::internal::get_balance,
+        ::qrvmc::internal::get_code_size,
+        ::qrvmc::internal::get_code_hash,
+        ::qrvmc::internal::copy_code,
+        ::qrvmc::internal::call,
+        ::qrvmc::internal::get_tx_context,
+        ::qrvmc::internal::get_block_hash,
+        ::qrvmc::internal::emit_log,
+        ::qrvmc::internal::access_account,
         ::qrvmc::internal::access_storage,
+        ::qrvmc::internal::get_transient_storage,
+        ::qrvmc::internal::set_transient_storage,
     };
     return interface;
 }

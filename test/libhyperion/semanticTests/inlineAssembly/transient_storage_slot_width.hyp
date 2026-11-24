@@ -1,0 +1,16 @@
+contract C {
+    function f() public returns (uint low, uint high, uint value, uint inStorage) {
+        assembly {
+            // Slots are 256 bits wide, as the ones of storage: the bits above are not part of the slot.
+            tstore(add(shl(256, 1), 5), 42)
+            low := tload(5)
+            high := tload(add(shl(300, 3), 5))
+            // A value is a whole word.
+            tstore(6, not(0))
+            value := tload(6)
+            inStorage := sload(5)
+        }
+    }
+}
+// ----
+// f() -> 42, 42, -1, 0

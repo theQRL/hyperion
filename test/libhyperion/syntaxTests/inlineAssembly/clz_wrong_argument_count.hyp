@@ -1,0 +1,13 @@
+contract C {
+    function f() public pure {
+        assembly {
+            pop(clz())
+            pop(clz(1, 2))
+            clz(1)
+        }
+    }
+}
+// ----
+// TypeError 7000: (79-82): Function "clz" expects 1 arguments but got 0.
+// TypeError 7000: (102-105): Function "clz" expects 1 arguments but got 2.
+// TypeError 3083: (125-131): Top-level expressions are not supposed to return values (this expression returns 1 value). Use ``pop()`` or assign them.

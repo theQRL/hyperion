@@ -755,11 +755,12 @@ This document does not want to be a full description of the Quantum Resistant vi
 Please refer to a different document if you are interested in the precise semantics.
 
 Opcodes marked with ``-`` do not return a result and all others return exactly one value.
-Opcodes marked with ``F``, ``H``, ``B``, ``C``, ``I``, ``L`` and ``P`` are present since Frontier,
-Homestead, Byzantium, Constantinople, Istanbul, London or Paris respectively.
+Opcodes marked with ``F``, ``H``, ``B``, ``C``, ``I``, ``L``, ``P``, ``N`` and ``O`` are present since Frontier,
+Homestead, Byzantium, Constantinople, Istanbul, London, Paris, Cancun or Osaka respectively.
 
 In the following, ``mem[a...b)`` signifies the bytes of memory starting at position ``a`` up to
-but not including position ``b`` and ``storage[p]`` signifies the storage contents at slot ``p``.
+but not including position ``b``, ``storage[p]`` signifies the storage contents at slot ``p``, and similarly,
+``transientStorage[p]`` signifies the transient storage contents at slot ``p``.
 
 Since Yul manages local variables and control-flow,
 opcodes that interfere with these features are not available. This includes
@@ -814,6 +815,9 @@ the ``dup`` and ``swap`` instructions as well as ``jump`` instructions, labels a
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | sar(x, y)               |     | C | signed arithmetic shift right y by x bits                       |
 +-------------------------+-----+---+-----------------------------------------------------------------+
+| clz(x)                  |     | O | number of leading zero bits of x, 512 if x == 0                 |
+|                         |     |   | (see note below)                                                |
++-------------------------+-----+---+-----------------------------------------------------------------+
 | addmod(x, y, m)         |     | F | (x + y) % m with arbitrary precision arithmetic, 0 if m == 0    |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | mulmod(x, y, m)         |     | F | (x * y) % m with arbitrary precision arithmetic, 0 if m == 0    |
@@ -835,6 +839,10 @@ the ``dup`` and ``swap`` instructions as well as ``jump`` instructions, labels a
 | sload(p)                |     | F | storage[p]                                                      |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | sstore(p, v)            | `-` | F | storage[p] := v                                                 |
++-------------------------+-----+---+-----------------------------------------------------------------+
+| tload(p)                |     | N | transientStorage[p] (see note below)                            |
++-------------------------+-----+---+-----------------------------------------------------------------+
+| tstore(p, v)            | `-` | N | transientStorage[p] := v (see note below)                       |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | msize()                 |     | F | size of memory, i.e. largest accessed memory index              |
 +-------------------------+-----+---+-----------------------------------------------------------------+
@@ -867,6 +875,9 @@ the ``dup`` and ``swap`` instructions as well as ``jump`` instructions, labels a
 | returndatasize()        |     | B | size of the last returndata                                     |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | returndatacopy(t, f, s) | `-` | B | copy s bytes from returndata at position f to mem at position t |
++-------------------------+-----+---+-----------------------------------------------------------------+
+| mcopy(t, f, s)          | `-` | N | copy s bytes from mem at position f to mem at position t        |
+|                         |     |   | (see note below)                                                |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | extcodehash(a)          |     | C | code hash of address a                                          |
 +-------------------------+-----+---+-----------------------------------------------------------------+
@@ -942,6 +953,45 @@ the ``dup`` and ``swap`` instructions as well as ``jump`` instructions, labels a
   using the ``returndatacopy`` opcode. If it returns less data, then the remaining bytes are not touched at all.
   You need to use the ``returndatasize`` opcode to check which part of this memory area contains the return data.
   The remaining bytes will retain their values as of before the call.
+
+.. _yul-transient-storage:
+
+.. note::
+  ``tload`` and ``tstore`` access the transient storage of the contract
+  (`EIP-1153 <https://eips.ethereum.org/EIPS/eip-1153>`_). Like storage, it belongs to the contract the
+  code runs for, it is reverted together with a call that does not succeed, ``tstore`` is not allowed
+  in a static call, and its slots are 256 bits wide (see :ref:`storage-key-width`). Unlike storage,
+  it is empty at the start of every transaction and discarded at its end, and both opcodes cost
+  a constant 100 gas.
+
+  Transient storage outlives the call that writes it: the value is still there if the contract is
+  called again later in the same transaction. A contract that does not clear what it stored may
+  therefore behave differently when it is called more than once in a transaction, which is why the
+  compiler warns on the first ``tstore`` it sees. Hyperion has no ``transient`` state variables yet:
+  transient storage is only available through these two builtins.
+
+.. _yul-mcopy:
+
+.. note::
+  ``mcopy`` copies inside memory (`EIP-5656 <https://eips.ethereum.org/EIPS/eip-5656>`_). The two
+  ranges may overlap: the destination receives the bytes the source range held before the copy.
+  Memory is extended to the higher of the two ranges, and a copy of zero bytes neither extends it
+  nor fails, whatever the two positions are. The cost is 3 gas, 3 gas for each 64-byte word copied
+  and the cost of the extension. The compiler uses ``mcopy`` itself where it copies a range of
+  memory, for example the content of a ``bytes`` or ``string`` value in ABI encoding, so the code
+  it generates needs a QRVM that has the opcode.
+
+.. _yul-clz:
+
+.. note::
+  ``clz`` counts the zero bits above the highest set bit of its argument
+  (`EIP-7939 <https://eips.ethereum.org/EIPS/eip-7939>`_). The count is over the 512-bit word of
+  the QRVM and not over the 256-bit word of the EIP: it is 512 for zero, 511 for one and 0 for a
+  value that has bit 511 set. For a value below ``2**256``, such as a clean ``uint256``, it is
+  therefore 256 higher than on the EVM. The position of the highest set bit of a nonzero ``x`` is
+  ``sub(511, clz(x))`` here, where code written for the EVM has ``sub(255, clz(x))``. Bits that a
+  variable of a narrower type has above its type are counted like any other bit, see
+  :ref:`assembly-typed-variables`. The cost is 5 gas. The compiler does not use ``clz`` itself.
 
 In some internal dialects, there are additional functions:
 

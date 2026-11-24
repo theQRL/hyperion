@@ -4,5 +4,5 @@
 }
 // ----
 // : movable, movable apart from effects, can be removed, can be removed if no msize
-// a: can loop, writes other state, writes storage, writes memory
-// b: can loop, writes other state, writes storage, writes memory
+// a: can loop, writes other state, writes storage, writes memory, writes transient storage
+// b: can loop, writes other state, writes storage, writes memory, writes transient storage

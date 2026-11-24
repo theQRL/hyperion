@@ -71,6 +71,13 @@ u512 rightAlignedHash(h256 const& _hash)
 	return u512(h256::Arith(_hash));
 }
 
+/// Folds a slot of storage or transient storage to its low StorageKeyBits bits, which is how the
+/// chain keys both: a slot at or above 2**StorageKeyBits is the slot of its low bits.
+h512 storageKey(u512 const& _slot)
+{
+	return h512(_slot & ((u512(1) << StorageKeyBits) - 1));
+}
+
 u512 expWord(u512 _base, u512 _exponent)
 {
 	u512 result = 1;
@@ -98,6 +105,25 @@ void copyZeroExtended(
 {
 	for (size_t i = 0; i < _size; ++i)
 		_target[_targetOffset + i] = _sourceOffset + i < _source.size() ? _source[_sourceOffset + i] : 0;
+}
+
+void copyZeroExtendedWithOverlap(
+	map<u512, uint8_t>& _target, map<u512, uint8_t> const& _source,
+	size_t _targetOffset, size_t _sourceOffset, size_t _size
+)
+{
+	auto sourceByte = [&](size_t _offset) -> uint8_t
+	{
+		auto it = _source.find(_offset);
+		return it == _source.end() ? 0 : it->second;
+	};
+	// Backwards if the target is behind the source, so that no byte is overwritten before it is read.
+	if (_targetOffset >= _sourceOffset)
+		for (size_t i = _size; i > 0; --i)
+			_target[_targetOffset + i - 1] = sourceByte(_sourceOffset + i - 1);
+	else
+		for (size_t i = 0; i < _size; ++i)
+			_target[_targetOffset + i] = sourceByte(_sourceOffset + i);
 }
 
 }
@@ -181,6 +207,11 @@ u512 QRVMInstructionInterpreter::eval(
 			return v;
 		}
 	}
+	case Instruction::CLZ:
+		// The count is over the whole word, so it is VMWordBits for zero.
+		if (arg[0] == 0)
+			return VMWordBits;
+		return VMWordBits - 1 - boost::multiprecision::msb(arg[0]);
 	case Instruction::ADDMOD:
 		return arg[2] == 0 ? 0 : u512((bigint(arg[0]) + bigint(arg[1])) % bigint(arg[2]));
 	case Instruction::MULMOD:
@@ -274,6 +305,19 @@ u512 QRVMInstructionInterpreter::eval(
 			);
 		logTrace(_instruction, arg);
 		return 0;
+	case Instruction::MCOPY:
+	{
+		// Both ranges count for msize, also if only one of them is small enough to be recorded.
+		bool const sourceRecorded = accessMemory(arg[1], arg[2]);
+		bool const targetRecorded = accessMemory(arg[0], arg[2]);
+		if (sourceRecorded && targetRecorded)
+			copyZeroExtendedWithOverlap(
+				m_state.memory, m_state.memory,
+				size_t(arg[0]), size_t(arg[1]), size_t(arg[2])
+			);
+		logTrace(_instruction, arg);
+		return 0;
+	}
 	case Instruction::BLOCKHASH:
 		if (arg[0] >= m_state.blockNumber || arg[0] + 256 < m_state.blockNumber)
 			return 0;
@@ -302,9 +346,14 @@ u512 QRVMInstructionInterpreter::eval(
 		m_state.memory[arg[0]] = uint8_t(arg[1] & 0xff);
 		return 0;
 	case Instruction::SLOAD:
-		return h512::Arith(m_state.storage[h512(arg[0])]);
+		return h512::Arith(m_state.storage[storageKey(arg[0])]);
 	case Instruction::SSTORE:
-		m_state.storage[h512(arg[0])] = h512(arg[1]);
+		m_state.storage[storageKey(arg[0])] = h512(arg[1]);
+		return 0;
+	case Instruction::TLOAD:
+		return h512::Arith(m_state.transientStorage[storageKey(arg[0])]);
+	case Instruction::TSTORE:
+		m_state.transientStorage[storageKey(arg[0])] = h512(arg[1]);
 		return 0;
 	case Instruction::PC:
 		return 0x77;
@@ -380,10 +429,12 @@ u512 QRVMInstructionInterpreter::eval(
 		accessMemory(arg[0], arg[1]);
 		logTrace(_instruction, arg);
 		m_state.storage.clear();
+		m_state.transientStorage.clear();
 		BOOST_THROW_EXCEPTION(ExplicitlyTerminated());
 	case Instruction::INVALID:
 		logTrace(_instruction);
 		m_state.storage.clear();
+		m_state.transientStorage.clear();
 		m_state.trace.clear();
 		BOOST_THROW_EXCEPTION(ExplicitlyTerminated());
 	case Instruction::POP:

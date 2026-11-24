@@ -60,6 +60,11 @@ struct MockedAccount
     /// The account storage map.
     std::map<bytes64, StorageValue> storage;
 
+    /// The account transient storage (EIP-1153).
+    ///
+    /// The MockedHost does not model transactions: clear it to start a new one.
+    std::unordered_map<bytes64, bytes64> transient_storage;
+
     /// Helper method for setting balance by numeric type.
     void set_balance(uint64_t x) noexcept
     {
@@ -496,7 +501,8 @@ public:
     ///
     /// This method is required by EIP-2929. It will record the account
     /// access in MockedHost::recorded_account_accesses and return previous access status.
-    /// This methods returns ::QRVMC_ACCESS_WARM for known addresses of precompiles.
+    /// This methods returns ::QRVMC_ACCESS_WARM for the addresses of the Zond precompiles,
+    /// Q01 to Q07, which are the ones go-qrl puts in the access list of every transaction.
     /// The EIP-2929 specifies that qrvmc_message::sender and qrvmc_message::recipient are always
     /// ::QRVMC_ACCESS_WARM. Therefore, you should init the MockedHost with:
     ///
@@ -517,9 +523,8 @@ public:
 
         record_account_access(addr);
 
-        // Accessing precompiled contracts is always warm.
-        if (addr >= "Q000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"_address &&
-            addr <= "Q000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000009"_address)
+        // Accessing precompiled contracts is always warm: go-qrl has them at Q01 to Q07.
+        if (addr >= "Q01"_address && addr <= "Q07"_address)
             return QRVMC_ACCESS_WARM;
 
         return already_accessed ? QRVMC_ACCESS_WARM : QRVMC_ACCESS_COLD;
@@ -546,6 +551,32 @@ public:
         const auto access_status = value.access_status;
         value.access_status = QRVMC_ACCESS_WARM;
         return access_status;
+    }
+
+    /// Get the account's transient storage value at the given key (QRVMC Host method).
+    bytes64 get_transient_storage(const address& addr, const bytes64& key) const noexcept override
+    {
+        record_account_access(addr);
+
+        const auto account_iter = accounts.find(addr);
+        if (account_iter == accounts.end())
+            return {};
+
+        const auto storage_iter = account_iter->second.transient_storage.find(key);
+        if (storage_iter != account_iter->second.transient_storage.end())
+            return storage_iter->second;
+        return {};
+    }
+
+    /// Set the account's transient storage value (QRVMC Host method).
+    ///
+    /// As set_storage() does, this creates the account in case it was not present.
+    void set_transient_storage(const address& addr,
+                               const bytes64& key,
+                               const bytes64& value) noexcept override
+    {
+        record_account_access(addr);
+        accounts[addr].transient_storage[key] = value;
     }
 };
 }  // namespace qrvmc

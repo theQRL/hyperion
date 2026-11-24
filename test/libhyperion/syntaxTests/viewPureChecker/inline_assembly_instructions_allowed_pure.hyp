@@ -24,6 +24,7 @@ contract C {
             pop(shl(0, 1))
             pop(shr(0, 1))
             pop(sar(0, 1))
+            pop(clz(0))
             pop(addmod(0, 1, 2))
             pop(mulmod(0, 1, 2))
             pop(signextend(0, 1))
@@ -49,6 +50,7 @@ contract C {
             //extcodecopy(0, 1, 2, 3)
             pop(returndatasize())
             returndatacopy(0, 1, 2)
+            mcopy(0, 1, 2)
             //pop(extcodehash(0))
             //pop(create(0, 1, 2))
             //pop(create2(0, 1, 2, 3))
@@ -72,6 +74,8 @@ contract C {
             //pop(timestamp())
             //pop(number())
             //pop(gaslimit())
+            //pop(tload(0))
+            //tstore(0, 1)
 
             // NOTE: msize() is allowed only with optimizer disabled
             //pop(msize())
@@ -80,6 +84,6 @@ contract C {
     }
 }
 // ----
-// Warning 5740: (94-1706): Unreachable code.
-// Warning 5740: (1719-1731): Unreachable code.
-// Warning 5740: (1744-1753): Unreachable code.
+// Warning 5740: (94-1757): Unreachable code.
+// Warning 5740: (1770-1782): Unreachable code.
+// Warning 5740: (1795-1804): Unreachable code.
