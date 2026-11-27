@@ -1,2 +1,2 @@
 # CMake used by the macOS release build.
-cmake==4.4.4
+cmake==4.4.5
